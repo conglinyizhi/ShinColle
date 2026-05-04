@@ -1,3 +1,11 @@
+## v0.7.9(2026/05/05 JST)
+- Temporarily implemented Mount entity
+- Temporarily implemented Minion entity
+- Fixed issues related to entity appearance
+- Updated the GUI display for entities
+- Implemented marriage feature
+- Various minor fixes
+
 ## v0.7.5(2026/04/28 JST)
 - Fixed issues related to entity appearance
 

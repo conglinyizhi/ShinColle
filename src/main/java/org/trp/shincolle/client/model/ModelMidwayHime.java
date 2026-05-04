@@ -784,7 +784,7 @@ public class ModelMidwayHime<T extends EntityShipBase> extends ShipModelHumanoid
         boolean isSprinting = entity.isSprinting() || limbSwingAmount > 0.9F;
         boolean isCrouching = entity.isCrouching();
         boolean isPassenger = entity.isPassenger();
-        boolean isSitting = entity.getIsSitting() || isPassenger;
+        boolean isSitting = entity.getIsSitting() || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
 
         if (isSprinting) {
             this.Hair01.xRot = angleAdd1 * 0.1F + limbSwingAmount * 0.4F + headX;
@@ -828,7 +828,112 @@ public class ModelMidwayHime<T extends EntityShipBase> extends ShipModelHumanoid
             this.Hair03.xRot -= 0.1F;
         }
 
-        if (isSitting) {
+        if (isPassenger && entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase) {
+            this.isSittingPose = true;
+            if (isSitting) {
+                if (hasLegacyState(entity, 1, 4)) {
+                    this.poseTranslateY = 1.43F;
+                    this.Head.xRot -= 0.1F;
+                    this.BodyMain.xRot = 0.0F;
+                    this.Butt.xRot = -0.2F;
+                    this.BoobL.xRot -= 0.1F;
+                    this.BoobL.zRot = 0.16F;
+                    this.BoobR.xRot -= 0.1F;
+                    this.BoobR.zRot = -0.16F;
+                    this.Skirt01.xRot = -0.05F;
+                    this.Skirt01.y = this.skirt01DefaultY + (-0.1F * OFFSET_SCALE);
+                    this.Skirt02.xRot = -0.15F;
+                    this.Skirt02.y = this.skirt02DefaultY + (-0.1F * OFFSET_SCALE);
+                    this.Skirt03.xRot = -0.1F;
+                    this.Skirt03.y = this.skirt03DefaultY + (-0.1F * OFFSET_SCALE);
+                    this.ArmLeft01.xRot = -0.6F;
+                    this.ArmLeft01.zRot = 0.1F;
+                    this.ArmLeft02.zRot = 0.39F;
+                    this.ArmRight01.xRot = -0.6F;
+                    this.ArmRight01.zRot = -0.1F;
+                    this.ArmRight02.zRot = -0.39F;
+                    this.LegLeft01.xRot = -0.9F;
+                    this.LegRight01.xRot = -0.9F;
+                    this.LegLeft01.yRot = 0.19F;
+                    this.LegLeft01.zRot = 0.0F;
+                    this.LegLeft02.xRot = 2.67F;
+                    this.LegLeft02.zRot = 0.0175F;
+                    this.LegLeft02.z = this.legLeft02DefaultZ + (0.375F * OFFSET_SCALE);
+                    this.LegRight01.yRot = -0.19F;
+                    this.LegRight01.zRot = 0.0F;
+                    this.LegRight02.xRot = 2.67F;
+                    this.LegRight02.zRot = -0.0175F;
+                    this.LegRight02.z = this.legRight02DefaultZ + (0.375F * OFFSET_SCALE);
+                } else {
+                    this.poseTranslateY = 1.43F;
+                    this.Head.xRot -= 0.1F;
+                    this.BodyMain.xRot = 0.0F;
+                    this.Butt.xRot = -0.2F;
+                    this.BoobL.xRot -= 0.1F;
+                    this.BoobL.zRot = 0.16F;
+                    this.BoobR.xRot -= 0.1F;
+                    this.BoobR.zRot = -0.16F;
+                    this.Skirt01.xRot = -0.05F;
+                    this.Skirt01.y = this.skirt01DefaultY + (-0.1F * OFFSET_SCALE);
+                    this.Skirt02.xRot = -0.15F;
+                    this.Skirt02.y = this.skirt02DefaultY + (-0.1F * OFFSET_SCALE);
+                    this.Skirt03.xRot = -0.1F;
+                    this.Skirt03.y = this.skirt03DefaultY + (-0.1F * OFFSET_SCALE);
+                    this.ArmLeft01.xRot = -0.46F;
+                    this.ArmLeft01.zRot = 0.35F;
+                    this.ArmRight01.xRot = -0.46F;
+                    this.ArmRight01.zRot = -0.35F;
+                    this.LegLeft01.xRot = -0.9F;
+                    this.LegRight01.xRot = -0.9F;
+                    this.LegLeft01.yRot = 0.19F;
+                    this.LegLeft01.zRot = 0.0F;
+                    this.LegLeft02.xRot = 2.67F;
+                    this.LegLeft02.zRot = 0.0175F;
+                    this.LegLeft02.z = this.legLeft02DefaultZ + (0.375F * OFFSET_SCALE);
+                    this.LegRight01.yRot = -0.19F;
+                    this.LegRight01.zRot = 0.0F;
+                    this.LegRight02.xRot = 2.67F;
+                    this.LegRight02.zRot = -0.0175F;
+                    this.LegRight02.z = this.legRight02DefaultZ + (0.375F * OFFSET_SCALE);
+                }
+            } else {
+                this.poseTranslateY = RIDING_TRANSLATE_Y;
+                this.Head.xRot -= 0.7F;
+                this.BodyMain.xRot = 0.35F;
+                this.Skirt01.xRot = -0.23F;
+                this.Skirt01.y = this.skirt01DefaultY + (-0.23F * OFFSET_SCALE);
+                this.Skirt02.xRot = -0.2F;
+                this.Skirt02.y = this.skirt02DefaultY + (-0.17F * OFFSET_SCALE);
+                this.Skirt03.xRot = -0.2F;
+                this.Skirt03.y = this.skirt03DefaultY + (-0.15F * OFFSET_SCALE);
+                this.Collar01.xRot -= 0.35F;
+                this.ArmLeft01.xRot = -0.5236F;
+                this.ArmLeft01.yRot = 0.0F;
+                this.ArmLeft01.zRot = 0.3491F;
+                this.ArmRight01.xRot = -0.5236F;
+                this.ArmRight01.yRot = 0.0F;
+                this.ArmRight01.zRot = -0.3491F;
+                this.LegLeft01.xRot = -1.4486F;
+                this.LegRight01.xRot = -1.4486F;
+                this.LegLeft01.yRot = -0.5236F;
+                this.LegLeft01.zRot = -1.3963F;
+                this.LegLeft02.xRot = 2.1817F;
+                this.LegLeft02.z = this.legLeft02DefaultZ + (0.37F * OFFSET_SCALE);
+                this.LegRight01.yRot = 0.5236F;
+                this.LegRight01.zRot = 1.3963F;
+                this.LegRight02.xRot = 2.1817F;
+                this.LegRight02.z = this.legRight02DefaultZ + (0.37F * OFFSET_SCALE);
+                if (isSprinting) {
+                    this.Hair01.xRot += 0.5F;
+                    this.Hair02.xRot += 0.4F;
+                    this.Hair03.xRot += 0.2F;
+                } else {
+                    this.Hair01.xRot += 0.2F;
+                    this.Hair02.xRot += 0.4F;
+                    this.Hair03.xRot += 0.2F;
+                }
+            }
+        } else if (isSitting) {
             this.isSittingPose = true;
             if (hasLegacyState(entity, 1, 4)) {
                 this.poseTranslateY = 0.43F * 3F;

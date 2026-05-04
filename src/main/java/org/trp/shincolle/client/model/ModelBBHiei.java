@@ -884,7 +884,7 @@ public class ModelBBHiei<T extends EntityShipBase> extends ShipModelHumanoidBase
         boolean isPassenger = entity.isPassenger();
         boolean isCrouching = entity.isCrouching();
         boolean isSprinting = entity.isSprinting();
-        boolean isSitting = entity.getIsSitting() || isPassenger;
+        boolean isSitting = entity.getIsSitting() || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
 
         if (entity.getShipDepth() > 0.0) {
             this.poseTranslateY += (Mth.cos(ageInTicks * 0.08F + limbSwing * 0.25F) * 0.05F + 0.025F);

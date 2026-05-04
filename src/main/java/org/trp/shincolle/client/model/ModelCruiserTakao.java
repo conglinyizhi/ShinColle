@@ -613,7 +613,7 @@ public class ModelCruiserTakao<T extends EntityShipBase> extends ShipModelHumano
         }
 
         boolean isCrouching = entity != null && entity.isCrouching();
-        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger());
+        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         boolean isSprinting = entity != null && entity.isSprinting();
 
         if (isSprinting && entity != null && hasLegacyState(entity, 1, 4)) {

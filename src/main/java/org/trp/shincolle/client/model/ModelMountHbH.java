@@ -196,7 +196,7 @@ public class ModelMountHbH<T extends Entity> extends EntityModel<T> implements I
 
         PartDefinition Road03u = Road02u.addOrReplaceChild("Road03u", CubeListBuilder.create().texOffs(86, 16).addBox(-4.5F, 0F, -12F, 9F, 1F, 12F, new CubeDeformation(0F)), PartPose.offset(0F, 0F, -12F));
 
-        PartDefinition Road01v = GlowNeck_1.addOrReplaceChild("Road01v", CubeListBuilder.create().texOffs(86, 16).addBox(-4.5F, 0F, -12F, 9F, 1F, 12F, new CubeDeformation(0F)), PartPose.offset(0F, 3.2F, -2.4F));
+        PartDefinition Road01v = GlowNeck_1.addOrReplaceChild("Road01v", CubeListBuilder.create().texOffs(86, 16).addBox(-4.5F, 0F, -12F, 9F, 1F, 12F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 3.2F, -2.4F, -0.0349F, 0F, (float) -Math.PI));
 
         PartDefinition Road02v = Road01v.addOrReplaceChild("Road02v", CubeListBuilder.create().texOffs(86, 16).addBox(-4.5F, 0F, -12F, 9F, 1F, 12F, new CubeDeformation(0F)), PartPose.offset(0F, 0F, -12F));
 
@@ -222,7 +222,7 @@ public class ModelMountHbH<T extends Entity> extends EntityModel<T> implements I
 
         PartDefinition Road02 = Road01.addOrReplaceChild("Road02", CubeListBuilder.create().texOffs(55, 0).addBox(-5.5F, 0F, 0F, 11F, 1F, 14F, new CubeDeformation(0F)), PartPose.offset(0F, 0F, 14F));
 
-        PartDefinition Road03 = Road02.addOrReplaceChild("Road03", CubeListBuilder.create().texOffs(55, 0).addBox(-5.5F, 0F, 0F, 11F, 1F, 14F, new CubeDeformation(0F)), PartPose.offset(0.4F, 0.1F, 12F));
+        PartDefinition Road03 = Road02.addOrReplaceChild("Road03", CubeListBuilder.create().texOffs(55, 0).addBox(-5.5F, 0F, 0F, 11F, 1F, 14F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0.4F, 0.1F, 12F, 0.0873F, -0.3643F, -0.0175F));
 
         PartDefinition Road04 = Road03.addOrReplaceChild("Road04", CubeListBuilder.create().texOffs(55, 0).addBox(-5.5F, 0F, 0F, 10F, 1F, 14F, new CubeDeformation(0F)), PartPose.offsetAndRotation(-2.6F, 0.1F, 10F, 0.0384F, 0.8652F, 0.014F));
 
@@ -237,7 +237,24 @@ public class ModelMountHbH<T extends Entity> extends EntityModel<T> implements I
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+
+        float offsetY = 0.6F;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount) {
+            if (mount.getShipDepth() > 0.0) {
+                offsetY += angleX * 0.025F + 0.025F;
+            }
+            if (mount.getHost() != null && mount.getHost().isOrderedToSit()) {
+                offsetY += 0.12F;
+            }
+        }
+        this.BodyMain.y = offsetY * 16.0F;
+        this.GlowBodyMain.y = this.BodyMain.y;
+
+        this.Jaw.xRot = angleX * 0.1F + 0.7F;
+        this.GlowJaw.xRot = this.Jaw.xRot;
+
+        this.EquipCannon01.xRot = angleX * 0.08F - 0.32F;
     }
 
     @Override

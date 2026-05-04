@@ -32,9 +32,6 @@ public class EntitySSNH extends EntityShipBase {
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_HAND_RING, true);
-        setEquipFlag(EQUIP_RING_BASE, true);
-        setEquipFlag(EQUIP_TORPEDO, true);
     }
 
     @Override
@@ -51,7 +48,6 @@ public class EntitySSNH extends EntityShipBase {
         if (this.isStateRingEffect()) {
             int duration = 80 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
             if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
@@ -60,11 +56,11 @@ public class EntitySSNH extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_HAND_RING, "gui.shincolle.equip.ring"),
-                new EquipOption(EQUIP_RING_BASE, "gui.shincolle.equip.ring_base"),
-                new EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_HAND_RING, "gui.shincolle.equip.ring"));
+        list.add(new EquipOption(EQUIP_RING_BASE, "gui.shincolle.equip.ring_base"));
+        list.add(new EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo"));
+        return list;
     }
 
     private void updateRidingState() {
@@ -111,8 +107,17 @@ public class EntitySSNH extends EntityShipBase {
     }
 
     @Override
+    public boolean supportsItemPickup() {
+        return true;
+    }
+    @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.SSNH_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean isSubmarine() {
+        return true;
     }
 }
 

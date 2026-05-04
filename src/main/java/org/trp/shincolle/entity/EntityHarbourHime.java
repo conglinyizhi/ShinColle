@@ -59,5 +59,15 @@ public class EntityHarbourHime extends EntityShipBase {
     protected Item getShipSpawnEggItem() {
         return ModItems.HARBOUR_HIME_SPAWN_EGG.get();
     }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountHbH(org.trp.shincolle.init.ModEntities.MOUNT_HB_H.get(), this.level());
+    }
 }
 

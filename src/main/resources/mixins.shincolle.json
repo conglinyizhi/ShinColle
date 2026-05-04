@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.trp.shincolle.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "refmap": "shincolle.refmap.json",
+  "mixins": [
+  ],
+  "client": [
+    "LocalPlayerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

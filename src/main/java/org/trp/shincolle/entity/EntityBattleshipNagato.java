@@ -37,8 +37,6 @@ public class EntityBattleshipNagato extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 2);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_HEAD, true);
-        setEquipFlag(EQUIP_CANNON, true);
     }
 
     @Override
@@ -76,10 +74,10 @@ public class EntityBattleshipNagato extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_HEAD, "gui.shincolle.equip.head"),
-                new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_HEAD, "gui.shincolle.equip.head"));
+        list.add(new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"));
+        return list;
     }
 
     @Override

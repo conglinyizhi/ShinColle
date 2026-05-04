@@ -25,7 +25,6 @@ public class EntityCarrierWDemon extends EntityShipBase {
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
         setStateMinor(STATE_MINOR_RARITY, 2);
         setStateGuiBtn2(false);
-        setEquipFlag(EQUIP_RIGGING, true);
     }
 
     @Override
@@ -61,7 +60,9 @@ public class EntityCarrierWDemon extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        return list;
     }
 
     @Override
@@ -82,6 +83,16 @@ public class EntityCarrierWDemon extends EntityShipBase {
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.CARRIER_W_DEMON_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountCaWD(org.trp.shincolle.init.ModEntities.MOUNT_CA_WD.get(), this.level());
     }
 }
 

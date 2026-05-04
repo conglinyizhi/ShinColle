@@ -636,7 +636,7 @@ public class ModelCAHime<T extends EntityShipBase> extends ShipModelHumanoidBase
     private void applySpecialPoseAdjustments(T entity, float limbSwing, float limbSwingAmount, float ageInTicks) {
         boolean isCrouching = entity.isCrouching();
         boolean isPassenger = entity.isPassenger();
-        boolean isSitting = entity.getIsSitting() || isPassenger;
+        boolean isSitting = entity.getIsSitting() || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         boolean hat1 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCAHime.EQUIP_HAT_1);
         boolean hat2 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCAHime.EQUIP_HAT_2);
         boolean hat3 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCAHime.EQUIP_HAT_3);

@@ -556,7 +556,124 @@ public class ModelCarrierWDemon<T extends EntityShipBase> extends ShipModelHuman
             this.Hair03.xRot -= 0.1F;
         }
 
-        if (isSitting) {
+        if (isPassenger && entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase) {
+            this.isSittingPose = true;
+            this.EquipBase.visible = true;
+            if (isSitting) {
+                if (hasLegacyState(entity, 1, 4)) {
+                    this.poseTranslateY += 0.48F * 3;
+                    int nodTick = (int) ageInTicks % 60;
+                    this.Head.xRot = 0.3F;
+                    if (nodTick < 30) {
+                        if (nodTick < 6) {
+                            this.Head.xRot = nodTick * 0.02F + 0.3F;
+                        } else if (nodTick < 11) {
+                            this.Head.xRot = (nodTick - 5) * 0.03F + 0.4F;
+                        } else if (nodTick < 14) {
+                            this.Head.xRot = (nodTick - 10) * -0.09F + 0.55F;
+                        }
+                    }
+                    this.Head.yRot = 0.0F;
+                    this.Head.zRot = 0.0F;
+                    float headX = this.Head.xRot * -0.5F;
+                    this.Hair01.xRot = angleX * 0.012F + 0.21F + headX;
+                    this.Hair02.xRot = angleX * 0.015F - 0.09F + headX;
+                    this.Neck.xRot = 0.3F;
+                    this.Butt.xRot = -0.14F;
+                    this.Skirt01.xRot = -0.1745F;
+                    this.Skirt02.xRot = -0.2618F;
+                    this.ArmLeft01.xRot = 0.4F;
+                    this.ArmLeft01.zRot = -0.2618F;
+                    this.ArmLeft03.xRot = 0.0F;
+                    this.ArmLeft03.zRot = 0.0F;
+                    this.ArmRight01.xRot = 0.4F;
+                    this.ArmRight01.zRot = 0.2618F;
+                    this.LegLeft01.zRot = -0.14F;
+                    this.LegLeft02.xRot = 1.2217F;
+                    this.LegLeft02.yRot = 1.2217F;
+                    this.LegLeft02.zRot = -1.0472F;
+                    this.LegLeft02.x = this.legLeft02DefaultX + (0.175F * OFFSET_SCALE);
+                    this.LegLeft02.y = this.legLeft02DefaultY + (-0.02F * OFFSET_SCALE);
+                    this.LegLeft02.z = this.legLeft02DefaultZ + (0.1635F * OFFSET_SCALE);
+                    this.LegRight01.zRot = 0.14F;
+                    this.LegRight02.xRot = 1.2217F;
+                    this.LegRight02.yRot = -1.2217F;
+                    this.LegRight02.zRot = 1.0472F;
+                    this.LegRight02.x = this.legRight02DefaultX + (-0.175F * OFFSET_SCALE);
+                    this.LegRight02.y = this.legRight02DefaultY + (-0.05F * OFFSET_SCALE);
+                    this.LegRight02.z = this.legRight02DefaultZ + (0.1635F * OFFSET_SCALE);
+                    addk1 = -1.0472F;
+                    addk2 = -1.0472F;
+                    this.LegLeft01.xRot = addk1;
+                    this.LegRight01.xRot = addk2;
+                    this.EquipBase.xRot = -0.4F;
+                    this.EquipL01.x = this.equipL01DefaultX + (-0.3F * OFFSET_SCALE);
+                    this.EquipL01.y = this.equipL01DefaultY + (0.6F * OFFSET_SCALE);
+                    this.EquipL01.z = this.equipL01DefaultZ + (0.6F * OFFSET_SCALE);
+                    this.EquipL01.yRot = 1.4F;
+                    this.EquipR01.x = this.equipR01DefaultX + (0.3F * OFFSET_SCALE);
+                    this.EquipR01.y = this.equipR01DefaultY + (0.6F * OFFSET_SCALE);
+                    this.EquipR01.z = this.equipR01DefaultZ + (0.6F * OFFSET_SCALE);
+                    this.EquipR01.yRot = -1.4F;
+                } else {
+                    this.poseTranslateY += 0.64F * 3;
+                    this.poseTranslateZ += -0.11F * 3;
+                    this.Neck.xRot = 0.35F;
+                    this.BodyMain.xRot = -0.6283F;
+                    this.Butt.xRot = -0.6283F;
+                    this.Skirt01.xRot = -0.1745F;
+                    this.Skirt02.xRot = -0.2618F;
+                    this.ArmRight01.xRot = angleX * 0.125F + 0.5236F;
+                    this.ArmRight01.zRot = 0.45F;
+                    this.ArmRight03.xRot = -0.5F;
+                    addk1 = -0.8727F;
+                    addk2 = -0.35F;
+                    this.LegLeft01.xRot = addk1;
+                    this.LegRight01.xRot = addk2;
+                    this.LegLeft01.zRot = 0.4363F;
+                    this.LegLeft02.xRot = 0.7854F;
+                    this.LegRight01.zRot = -0.35F;
+                    this.LegRight02.xRot = 0.8727F;
+                    this.ShoesL04.xRot = angleX * 0.25F - 0.1F;
+                    this.EquipBase.xRot = 0.2F;
+                    this.EquipL01.x = this.equipL01DefaultX + (-0.25F * OFFSET_SCALE);
+                    this.EquipL01.y = this.equipL01DefaultY + (0.1F * OFFSET_SCALE);
+                    this.EquipL01.yRot = 1.4F;
+                    this.EquipR01.x = this.equipR01DefaultX + (0.25F * OFFSET_SCALE);
+                    this.EquipR01.y = this.equipR01DefaultY + (0.1F * OFFSET_SCALE);
+                    this.EquipR01.yRot = -1.4F;
+                }
+            } else {
+                this.poseTranslateY += 0.64F * 3;
+                this.poseTranslateZ += -0.11F * 3;
+                this.Neck.xRot = 0.35F;
+                this.BodyMain.xRot = -0.6283F;
+                this.Butt.xRot = -0.6283F;
+                this.Skirt01.xRot = -0.1745F;
+                this.Skirt02.xRot = -0.2618F;
+                this.ArmRight01.xRot = angleX * 0.125F + 0.5236F;
+                this.ArmRight01.zRot = 0.45F;
+                this.ArmRight03.xRot = -0.5F;
+                addk1 = -0.8727F;
+                addk2 = -0.35F;
+                this.LegLeft01.xRot = addk1;
+                this.LegRight01.xRot = addk2;
+                this.LegLeft01.zRot = 0.4363F;
+                this.LegLeft02.xRot = 0.7854F;
+                this.LegRight01.zRot = -0.35F;
+                this.LegRight02.xRot = 0.8727F;
+                this.ShoesL04.xRot = angleX * 0.25F - 0.1F;
+                this.EquipBase.xRot = -0.9F;
+                this.EquipL01.x = this.equipL01DefaultX + (-0.25F * OFFSET_SCALE);
+                this.EquipL01.y = this.equipL01DefaultY + (0.1F * OFFSET_SCALE);
+                this.EquipL01.z = this.equipL01DefaultZ + (0.45F * OFFSET_SCALE);
+                this.EquipL01.yRot = 1.4F;
+                this.EquipR01.x = this.equipR01DefaultX + (0.25F * OFFSET_SCALE);
+                this.EquipR01.y = this.equipR01DefaultY + (0.1F * OFFSET_SCALE);
+                this.EquipR01.z = this.equipR01DefaultZ + (0.45F * OFFSET_SCALE);
+                this.EquipR01.yRot = -1.4F;
+            }
+        } else if (isSitting) {
             this.isSittingPose = true;
             if (entity != null && entity.getStateEmotion(1) == 4) {
                 this.poseTranslateY += 0.48F * 3;
@@ -669,14 +786,6 @@ public class ModelCarrierWDemon<T extends EntityShipBase> extends ShipModelHuman
             this.ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);
         }
 
-		/*
-		if (entity != null && entity.getAttackTick() > 0) {
-
-		}
-		if (entity != null && entity.getSwingTime(ageInTicks) != 0.0f) {
-
-		}
-		*/
     }
 
     private void syncGlowParts() {

@@ -28,10 +28,6 @@ public class EntitySubmSo extends EntityShipBase {
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_HEAD_BASE, true);
-        setEquipFlag(EQUIP_CANNON, true);
-        setEquipFlag(EQUIP_NORMAL_BODY, true);
-        setEquipFlag(EQUIP_TORPEDO, true);
     }
 
     @Override
@@ -47,7 +43,6 @@ public class EntitySubmSo extends EntityShipBase {
         if (this.isStateRingEffect()) {
             int duration = 40 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
             if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
@@ -56,17 +51,26 @@ public class EntitySubmSo extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"),
-                new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"),
-                new EquipOption(EQUIP_NORMAL_BODY, "gui.shincolle.equip.normal_body"),
-                new EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"));
+        list.add(new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"));
+        list.add(new EquipOption(EQUIP_NORMAL_BODY, "gui.shincolle.equip.normal_body"));
+        list.add(new EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo"));
+        return list;
     }
 
     @Override
+    public boolean supportsItemPickup() {
+        return true;
+    }
+    @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.SUBM_SO_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean isSubmarine() {
+        return true;
     }
 }
 

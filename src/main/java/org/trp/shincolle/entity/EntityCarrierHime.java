@@ -27,8 +27,6 @@ public class EntityCarrierHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 3);
         setStateGuiBtn1(false);
         setStateGuiBtn2(false);
-        setEquipFlag(EQUIP_LEFT, true);
-        setEquipFlag(EQUIP_RIGHT, true);
     }
 
     @Override
@@ -66,10 +64,10 @@ public class EntityCarrierHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_LEFT, "gui.shincolle.equip.left"),
-                new EquipOption(EQUIP_RIGHT, "gui.shincolle.equip.right")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_LEFT, "gui.shincolle.equip.left"));
+        list.add(new EquipOption(EQUIP_RIGHT, "gui.shincolle.equip.right"));
+        return list;
     }
 
     @Override
@@ -90,6 +88,16 @@ public class EntityCarrierHime extends EntityShipBase {
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.CARRIER_HIME_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountCaH(org.trp.shincolle.init.ModEntities.MOUNT_CA_H.get(), this.level());
     }
 }
 

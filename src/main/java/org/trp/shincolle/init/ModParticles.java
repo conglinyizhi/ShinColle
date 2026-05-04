@@ -34,6 +34,12 @@ public class ModParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEXTS =
             PARTICLES.register("particletexts", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_LIGHTNING =
+            PARTICLES.register("particle_lightning", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPRAY_RED =
+            PARTICLES.register("particle_spray_red", () -> new SimpleParticleType(false));
+
     private ModParticles() {
     }
 }

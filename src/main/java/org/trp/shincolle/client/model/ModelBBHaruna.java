@@ -947,7 +947,7 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
             Hair02.xRot = Hair02.xRot * 0.75F + 0.25F;
         }
 
-        if (entity != null && (entity.isPassenger() || entity.isInSittingPose())) {
+        if (entity != null && ((entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase)) || entity.isInSittingPose())) {
             spcStand = false;
             this.isSittingPose = true;
             int sitTick = entity.tickCount % 512;

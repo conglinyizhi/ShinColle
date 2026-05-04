@@ -204,6 +204,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     protected static final EntityDataAccessor<Integer> AMMO_HEAVY = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
 
     protected static final EntityDataAccessor<CompoundTag> EQUIP_FLAGS = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.COMPOUND_TAG);
+    public static final String EQUIP_MOUNT = "equip_mount";
 
     protected static final EntityDataAccessor<Integer> LEGACY_EMOTION_0 = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> LEGACY_EMOTION_1 = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
@@ -257,11 +258,6 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
         this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
         this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
-    }
-
-    @Override
-    public float maxUpStep() {
-        return 1.0F;
     }
 
     static int getMoraleDefaultValue() {
@@ -549,6 +545,37 @@ public abstract class EntityShipBase extends TamableAnimal {
     protected void updateFuelState(boolean nofuel) {
     }
 
+    public boolean hasShipMounts() {
+        return false;
+    }
+
+    public boolean canSummonMounts() {
+        return (this.getStateEmotion(0) & 1) == 1 && !this.isNoFuel();
+    }
+
+    public EntityMountBase summonMountEntity() {
+        return null;
+    }
+
+    protected void updateMountSummon() {
+        if (!this.level().isClientSide) {
+            if (this.hasShipMounts() && this.canSummonMounts() && !this.isPassenger()) {
+                EntityMountBase mount = this.summonMountEntity();
+                if (mount != null) {
+                    mount.setHostUUID(this.getUUID());
+                    mount.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                    this.level().addFreshEntity(mount);
+                    this.getPassengers().forEach(Entity::stopRiding);
+                    this.startRiding(mount, true);
+                }
+            } else if (this.isPassenger() && this.getVehicle() instanceof EntityMountBase) {
+                if (!this.canSummonMounts()) {
+                    this.stopRiding();
+                }
+            }
+        }
+    }
+
     public boolean isInDeadPose() {
         return this.isDeadOrDying() || this.getHealth() <= 0.0F || this.isNoFuel();
     }
@@ -749,6 +776,23 @@ public abstract class EntityShipBase extends TamableAnimal {
     public boolean isStateAppearance() { return getStateFlag(STATE_FLAG_APPEARANCE); }
     public void setStateAppearance(boolean value) { setStateFlag(STATE_FLAG_APPEARANCE, value); }
 
+    public boolean isSubmarine() {
+        return false;
+    }
+
+    @Override
+    public boolean isCurrentlyGlowing() {
+        if (this.level().isClientSide && this.isSubmarine() && this.isStateRingEffect()) {
+            return isLocalPlayerOwner();
+        }
+        return super.isCurrentlyGlowing();
+    }
+
+    private boolean isLocalPlayerOwner() {
+        // This will be implemented using a client-only helper to avoid server crashes
+        return org.trp.shincolle.client.ClientProxy.isLocalPlayerOwner(this);
+    }
+
     public boolean getUpdateFlag(int index) {
         return legacyState.getBoolean(legacyState.updateFlag, index);
     }
@@ -796,6 +840,11 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     public void setScaleLevel(int level) {
         this.entityData.set(LEGACY_SCALE_LEVEL, Math.max(0, level));
+        var scaleAttr = this.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.SCALE);
+        if (scaleAttr != null) {
+            float scaleFactor = net.minecraft.util.Mth.clamp(1.0F + level * 0.5F, 1.0F, 2.5F);
+            scaleAttr.setBaseValue(scaleFactor);
+        }
         this.refreshDimensions();
     }
 
@@ -806,6 +855,10 @@ public abstract class EntityShipBase extends TamableAnimal {
         float radius = Mth.clamp(visualSize * PICK_RADIUS_MODEL_SCALE, PICK_RADIUS_MIN, PICK_RADIUS_MAX);
         float scaleFactor = Mth.clamp(1.0F + this.getScaleLevel() * 0.5F, 1.0F, 2.5F);
         return Mth.clamp(radius * scaleFactor, PICK_RADIUS_MIN, PICK_RADIUS_MAX);
+    }
+
+    public boolean supportsItemPickup() {
+        return false;
     }
 
     @Nullable
@@ -926,10 +979,18 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public boolean getEquipFlag(String key) {
+        if (EQUIP_MOUNT.equals(key)) {
+            return (this.entityData.get(LEGACY_EMOTION_0) & 1) != 0;
+        }
         return this.entityData.get(EQUIP_FLAGS).getBoolean(key);
     }
 
     public void setEquipFlag(String key, boolean value) {
+        if (EQUIP_MOUNT.equals(key)) {
+            int current = this.entityData.get(LEGACY_EMOTION_0);
+            this.setStateEmotion(0, value ? (current | 1) : (current & ~1), true);
+            return;
+        }
         CompoundTag tag = this.entityData.get(EQUIP_FLAGS).copy();
         tag.putBoolean(key, value);
         this.entityData.set(EQUIP_FLAGS, tag);
@@ -944,7 +1005,11 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public List<EquipOption> getEquipOptions() {
-        return Collections.emptyList();
+        List<EquipOption> list = new java.util.ArrayList<>();
+        if (this.hasShipMounts()) {
+            list.add(new EquipOption(EQUIP_MOUNT, "gui.shincolle.equip.mount"));
+        }
+        return list;
     }
 
     protected abstract Item getShipSpawnEggItem();
@@ -990,13 +1055,30 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.setStateFlag(ShipContainerMenu.STATE_FLAG_PICK_ITEM, false);
         this.setStateFlag(ShipContainerMenu.STATE_FLAG_AUTO_PUMP, false);
         this.setStateMinor(ShipContainerMenu.STATE_MINOR_FLEE_HP, 0);
-        this.entityData.set(LEGACY_EMOTION_0, this.getRandom().nextInt(128));
+        this.randomizeEquipFlags();
 
         fillHostileAmmoLoadout();
         this.recalculateLegacyShipStats();
         this.setHealth(this.getMaxHealth());
         this.shipDeathTicks = 0;
         this.hostileCanDrop = true;
+    }
+
+    public void randomizeEquipFlags() {
+        this.entityData.set(LEGACY_EMOTION_0, this.getRandom().nextInt(128) & ~1);
+        List<EquipOption> options = this.getEquipOptions();
+        if (!options.isEmpty()) {
+            CompoundTag tag = this.entityData.get(EQUIP_FLAGS).copy();
+            if (tag.isEmpty()) {
+                for (EquipOption option : options) {
+                    if (option.key().equals(EQUIP_MOUNT)) {
+                        continue;
+                    }
+                    tag.putBoolean(option.key(), this.getRandom().nextBoolean());
+                }
+                this.entityData.set(EQUIP_FLAGS, tag);
+            }
+        }
     }
 
     private void fillHostileAmmoLoadout() {
@@ -1135,6 +1217,8 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (!this.level().isClientSide && tickHostileDespawn()) {
             return;
         }
+
+        this.updateMountSummon();
 
         if (this.getIsSitting() || this.isInDeadPose()) {
             this.getNavigation().stop();
@@ -1443,6 +1527,9 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     private void tickAutoPickupItems() {
+        if (!supportsItemPickup()) {
+            return;
+        }
         if (!this.getStateFlag(ShipContainerMenu.STATE_FLAG_PICK_ITEM)) {
             return;
         }
@@ -1867,6 +1954,38 @@ public abstract class EntityShipBase extends TamableAnimal {
                 return InteractionResult.PASS;
             }
 
+            if (stack.is(ModItems.MARRIAGE_RING.get()) && !this.isStateMarried()) {
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                this.setStateMarried(true);
+                this.setMorale(16000);
+                this.setEmotionPrimary(EMOTION_HAPPY);
+                this.applyParticleEmotion(EmotionParticleType.HEART);
+                if (this.level() instanceof ServerLevel serverLevel) {
+                    for (int i = 0; i < 7; ++i) {
+                        double px = this.getX() + (this.getRandom().nextFloat() * 2.0F - 1.0F);
+                        double py = this.getY() + 0.5D + (this.getRandom().nextFloat() * 2.0F);
+                        double pz = this.getZ() + (this.getRandom().nextFloat() * 2.0F - 1.0F);
+                        double d0 = this.getRandom().nextGaussian() * 0.02D;
+                        double d1 = this.getRandom().nextGaussian() * 0.02D;
+                        double d2 = this.getRandom().nextGaussian() * 0.02D;
+                        serverLevel.sendParticles(ParticleTypes.HEART, px, py, pz, 0, d0, d1, d2, 1.0D);
+                    }
+                }
+                this.playSound(ModSounds.SHIP_MARRY.get(), this.getSoundVolume(), this.getShipSoundPitch());
+                
+                java.util.Random javaRand = new java.util.Random();
+                for (int i = 0; i < 3; ++i) {
+                    this.legacyShipStats.addBonusRandom(javaRand);
+                }
+                this.recalculateLegacyShipStats();
+                
+                this.resetInteractionEmotionState();
+                this.focusOnPlayer(player);
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
+            }
+
             if (stack.getItem() instanceof CombatRationItem) {
                 if (consumeCombatRationInHand(stack, player)) {
                     this.focusOnPlayer(player);
@@ -1980,19 +2099,20 @@ public abstract class EntityShipBase extends TamableAnimal {
             return;
         }
 
-        double beamFad = this.getBbWidth() * 1.5D;
-        double beamRiseSpeed = 0.1D;
         double beamHeight = this.getBbHeight() * 0.4D;
+        double beamRiseSpeed = 0.1D;
+        double beamFad = this.getBbWidth() * 1.5D;
+
         serverLevel.sendParticles(
-                ModParticles.PARTICLE_HEAL_SPARKLE.get(),
-                this.getX(),
-                this.getY() + beamHeight,
-                this.getZ(),
-                0,
-                beamFad,
-                beamRiseSpeed,
-                beamHeight,
-                1.0D
+            ModParticles.PARTICLE_HEAL_SPARKLE.get(),
+            this.getX(),
+            this.getY() + beamHeight,
+            this.getZ(),
+            0,
+            beamFad,
+            beamRiseSpeed,
+            beamHeight,
+            1.0D
         );
     }
 
@@ -2203,8 +2323,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     protected int getInitialLegacyEmotion(int index) {
         if (index == 0) {
-            int range = Math.max(1, getLegacyModelStateRange());
-            return this.getRandom().nextInt(range);
+            return 0;
         }
         return 0;
     }

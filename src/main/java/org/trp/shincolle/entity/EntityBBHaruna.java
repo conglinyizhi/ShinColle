@@ -26,10 +26,7 @@ public class EntityBBHaruna extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 62);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 2);
-        setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_ANCHOR, true);
     }
 
     @Override
@@ -64,10 +61,10 @@ public class EntityBBHaruna extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_ANCHOR, "gui.shincolle.equip.anchor")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_ANCHOR, "gui.shincolle.equip.anchor"));
+        return list;
     }
 
     private void updateClientParticles() {

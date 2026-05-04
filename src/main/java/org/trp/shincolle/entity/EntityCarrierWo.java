@@ -35,12 +35,7 @@ public class EntityCarrierWo extends EntityShipBase {
         setStateGuiBtn2(false);
         setStateLightAircraftAttack(true);
         setStateHeavyAircraftAttack(true);
-            setEquipFlag(EQUIP_CLOAKNECK, true);
-        setEquipFlag(EQUIP_EQUIPBASE, true);
-        setEquipFlag(EQUIP_GLOWEQUIPBASE, true);
-        setEquipFlag(EQUIP_NECK, true);
-        setEquipFlag(EQUIP_STAFF, true);
-}
+    }
 
     @Override
     public void aiStep() {
@@ -147,13 +142,13 @@ public class EntityCarrierWo extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_CLOAKNECK, "gui.shincolle.equip.cloakneck"),
-                new EquipOption(EQUIP_EQUIPBASE, "gui.shincolle.equip.equipbase"),
-                new EquipOption(EQUIP_GLOWEQUIPBASE, "gui.shincolle.equip.glowequipbase"),
-                new EquipOption(EQUIP_NECK, "gui.shincolle.equip.neck"),
-                new EquipOption(EQUIP_STAFF, "gui.shincolle.equip.staff")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_CLOAKNECK, "gui.shincolle.equip.cloakneck"));
+        list.add(new EquipOption(EQUIP_EQUIPBASE, "gui.shincolle.equip.equipbase"));
+        list.add(new EquipOption(EQUIP_GLOWEQUIPBASE, "gui.shincolle.equip.glowequipbase"));
+        list.add(new EquipOption(EQUIP_NECK, "gui.shincolle.equip.neck"));
+        list.add(new EquipOption(EQUIP_STAFF, "gui.shincolle.equip.staff"));
+        return list;
     }
 }
 

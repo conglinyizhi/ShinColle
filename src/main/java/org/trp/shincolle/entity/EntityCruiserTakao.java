@@ -29,10 +29,6 @@ public class EntityCruiserTakao extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 4);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_BAG, true);
-        setEquipFlag(EQUIP_HAT, true);
-        setEquipFlag(EQUIP_SHOES, true);
     }
 
     @Override
@@ -50,12 +46,12 @@ public class EntityCruiserTakao extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_BAG, "gui.shincolle.equip.bag"),
-                new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"),
-                new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_BAG, "gui.shincolle.equip.bag"));
+        list.add(new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"));
+        list.add(new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes"));
+        return list;
     }
 
     @Override

@@ -37,18 +37,6 @@ public class EntityCarrierAkagi extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 8);
         setStateGuiBtn1(false);
         setStateGuiBtn2(false);
-            setEquipFlag(EQUIP_EAR01, true);
-        setEquipFlag(EQUIP_EAR02, true);
-        setEquipFlag(EQUIP_EQUIPABASE, true);
-        setEquipFlag(EQUIP_EQUIPB01, true);
-        setEquipFlag(EQUIP_EQUIPC01, true);
-        setEquipFlag(EQUIP_EQUIPD01, true);
-        setEquipFlag(EQUIP_EQUIPE01, true);
-        setEquipFlag(EQUIP_EQUIPGLOVE, true);
-        setEquipFlag(EQUIP_EQUIPS01, true);
-        setEquipFlag(EQUIP_EQUIPSL01, true);
-        setEquipFlag(EQUIP_EQUIPSR01, true);
-        setEquipFlag(EQUIP_TAIL01, true);
 }
 
     @Override
@@ -130,7 +118,8 @@ public class EntityCarrierAkagi extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.addAll(List.of(
                 new EquipOption(EQUIP_EAR01, "gui.shincolle.equip.ear01"),
                 new EquipOption(EQUIP_EAR02, "gui.shincolle.equip.ear02"),
                 new EquipOption(EQUIP_EQUIPABASE, "gui.shincolle.equip.equipabase"),
@@ -143,7 +132,8 @@ public class EntityCarrierAkagi extends EntityShipBase {
                 new EquipOption(EQUIP_EQUIPSL01, "gui.shincolle.equip.equipsl01"),
                 new EquipOption(EQUIP_EQUIPSR01, "gui.shincolle.equip.equipsr01"),
                 new EquipOption(EQUIP_TAIL01, "gui.shincolle.equip.tail01")
-        );
+        ));
+        return list;
     }
 }
 

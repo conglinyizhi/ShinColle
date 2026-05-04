@@ -208,11 +208,11 @@ public class EntityBattleshipRe extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_HAIR, "gui.shincolle.equip.hair"),
-                new EquipOption(EQUIP_BAG, "gui.shincolle.equip.bag"),
-                new EquipOption(EQUIP_EARS, "gui.shincolle.equip.ears")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_HAIR, "gui.shincolle.equip.hair"));
+        list.add(new EquipOption(EQUIP_BAG, "gui.shincolle.equip.bag"));
+        list.add(new EquipOption(EQUIP_EARS, "gui.shincolle.equip.ears"));
+        return list;
     }
 
     private void updatePushingState() {

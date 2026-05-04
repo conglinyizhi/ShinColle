@@ -24,9 +24,7 @@ public class EntityCruiserAtago extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 58);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_RIGGING, true);
     }
 
     @Override
@@ -44,7 +42,9 @@ public class EntityCruiserAtago extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        return list;
     }
 
     @Override

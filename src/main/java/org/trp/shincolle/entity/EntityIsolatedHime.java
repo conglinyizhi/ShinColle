@@ -33,14 +33,6 @@ public class EntityIsolatedHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 8);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_HAT_BASE, true);
-        setEquipFlag(EQUIP_HEAD_GEAR, true);
-        setEquipFlag(EQUIP_CLOTH_1, true);
-        setEquipFlag(EQUIP_CLOTH_2, true);
-        setEquipFlag(EQUIP_CLOTH_3, true);
-        setEquipFlag(EQUIP_LEG_OUTER, true);
-        setEquipFlag(EQUIP_LEG_ARMOR, true);
-        setEquipFlag(EQUIP_ROAD, true);
     }
 
     @Override
@@ -77,21 +69,31 @@ public class EntityIsolatedHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_HAT_BASE, "gui.shincolle.equip.head_base"),
-                new EquipOption(EQUIP_HEAD_GEAR, "gui.shincolle.equip.head"),
-                new EquipOption(EQUIP_CLOTH_1, "gui.shincolle.equip.upper"),
-                new EquipOption(EQUIP_CLOTH_2, "gui.shincolle.equip.cloak"),
-                new EquipOption(EQUIP_CLOTH_3, "gui.shincolle.equip.upper"),
-                new EquipOption(EQUIP_LEG_OUTER, "gui.shincolle.equip.leg"),
-                new EquipOption(EQUIP_LEG_ARMOR, "gui.shincolle.equip.leg"),
-                new EquipOption(EQUIP_ROAD, "gui.shincolle.equip.rigging")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_HAT_BASE, "gui.shincolle.equip.head_base"));
+        list.add(new EquipOption(EQUIP_HEAD_GEAR, "gui.shincolle.equip.head"));
+        list.add(new EquipOption(EQUIP_CLOTH_1, "gui.shincolle.equip.upper"));
+        list.add(new EquipOption(EQUIP_CLOTH_2, "gui.shincolle.equip.cloak"));
+        list.add(new EquipOption(EQUIP_CLOTH_3, "gui.shincolle.equip.upper"));
+        list.add(new EquipOption(EQUIP_LEG_OUTER, "gui.shincolle.equip.leg"));
+        list.add(new EquipOption(EQUIP_LEG_ARMOR, "gui.shincolle.equip.leg"));
+        list.add(new EquipOption(EQUIP_ROAD, "gui.shincolle.equip.rigging"));
+        return list;
     }
 
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.ISOLATED_HIME_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountIsH(org.trp.shincolle.init.ModEntities.MOUNT_IS_H.get(), this.level());
     }
 }
 

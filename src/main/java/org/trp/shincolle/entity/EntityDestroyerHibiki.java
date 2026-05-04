@@ -32,13 +32,7 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
         setStateMinor(STATE_MINOR_SHIP_CLASS, 52);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_TORPEDO, true);
-        setEquipFlag(EQUIP_HAIR_FRONT_1, true);
-        setEquipFlag(EQUIP_HAIR_FRONT_2, false);
-        setEquipFlag(EQUIP_HAIR_FRONT_3, false);
         this.riderType = 0;
     }
 
@@ -71,13 +65,13 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo"),
-                new EquipOption(EQUIP_HAIR_FRONT_1, "gui.shincolle.equip.hair_front_1"),
-                new EquipOption(EQUIP_HAIR_FRONT_2, "gui.shincolle.equip.hair_front_2"),
-                new EquipOption(EQUIP_HAIR_FRONT_3, "gui.shincolle.equip.hair_front_3")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo"));
+        list.add(new EquipOption(EQUIP_HAIR_FRONT_1, "gui.shincolle.equip.hair_front_1"));
+        list.add(new EquipOption(EQUIP_HAIR_FRONT_2, "gui.shincolle.equip.hair_front_2"));
+        list.add(new EquipOption(EQUIP_HAIR_FRONT_3, "gui.shincolle.equip.hair_front_3"));
+        return list;
     }
 
     @Override
@@ -269,7 +263,10 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
 
 
     @Override
-    protected Item getShipSpawnEggItem() {
+    public boolean supportsItemPickup() {
+        return true;
+    }
+protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_HIBIKI_SPAWN_EGG.get();
     }
 }

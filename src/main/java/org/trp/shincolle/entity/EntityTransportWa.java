@@ -32,9 +32,6 @@ public class EntityTransportWa extends EntityShipBase {
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_BASE, true);
-        setEquipFlag(EQUIP_LEG, true);
-        setEquipFlag(EQUIP_HEAD_BASE, true);
     }
 
     @Override
@@ -56,11 +53,11 @@ public class EntityTransportWa extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"),
-                new EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg"),
-                new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"));
+        list.add(new EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg"));
+        list.add(new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"));
+        return list;
     }
 
     private void updateClientEffects() {
@@ -201,7 +198,10 @@ public class EntityTransportWa extends EntityShipBase {
     }
 
     @Override
-    protected Item getShipSpawnEggItem() {
+    public boolean supportsItemPickup() {
+        return true;
+    }
+protected Item getShipSpawnEggItem() {
         return ModItems.TRANSPORT_WA_SPAWN_EGG.get();
     }
 }

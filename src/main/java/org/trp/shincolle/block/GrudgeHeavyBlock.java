@@ -17,10 +17,6 @@ public class GrudgeHeavyBlock extends Block {
     private static final byte TYPE_POLYMETAL = 1;
     private static final byte TYPE_GRUDGE_HEAVY = 2;
 
-    // Legacy 1.12.2 multiblock shape around clicked heavy grudge block (center at y = 0).
-    // y = -2 : 3x3 polymetal base
-    // y = -1 : polymetal on diagonals only
-    // y =  0 : center heavy grudge block, all surrounding blocks must be non-polymetal/non-heavy-grudge
     private static final byte[][][] LARGE_SHIPYARD_PATTERN = new byte[][][]{
         {
             {TYPE_POLYMETAL, TYPE_POLYMETAL, TYPE_POLYMETAL},

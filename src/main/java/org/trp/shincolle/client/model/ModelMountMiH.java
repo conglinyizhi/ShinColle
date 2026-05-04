@@ -340,7 +340,7 @@ public class ModelMountMiH<T extends Entity> extends EntityModel<T> implements I
 
         PartDefinition LowerMain = BodyMain.addOrReplaceChild("LowerMain", CubeListBuilder.create().texOffs(0, 0).addBox(0F, 0F, 0F, 0F, 0F, 0F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 8F, 14F, 0.2618F, 0F, 0F));
 
-        PartDefinition Back_2 = LowerMain.addOrReplaceChild("Back_2", CubeListBuilder.create().texOffs(16, 15).mirror().addBox(-10F, -17F, 9.5F, 10F, 7F, 4F, new CubeDeformation(0F)), PartPose.offset(0F, -11F, -11F));
+        PartDefinition Back_2 = LowerMain.addOrReplaceChild("Back_2", CubeListBuilder.create().texOffs(16, 15).mirror().addBox(-10F, -17F, 9.5F, 10F, 7F, 4F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, -11F, -11F, 0F, 0F, (float)Math.PI));
 
         PartDefinition Head_1 = Back_2.addOrReplaceChild("Head_1", CubeListBuilder.create().texOffs(19, 16).addBox(-9F, -8F, -5F, 9F, 4F, 4F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, -12F, 14F, 0.0873F, 0F, 0F));
 
@@ -513,7 +513,61 @@ public class ModelMountMiH<T extends Entity> extends EntityModel<T> implements I
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+        float angleX2 = (float) Math.cos(ageInTicks * 0.5F + 0.3F);
+        float angleX3 = (float) Math.cos(ageInTicks * 0.5F + 0.6F);
+        float angleX4 = (float) Math.cos(ageInTicks * 0.5F + 0.9F);
+        float angleAdd1 = (float) Math.cos(limbSwing * 0.7F) * limbSwingAmount * 0.7F;
+        float angleAdd2 = (float) Math.cos(limbSwing * 0.7F + (float) Math.PI) * limbSwingAmount * 0.7F;
+        float addk1 = angleAdd1 * 0.5F;
+        float addk2 = angleAdd2 * 0.5F;
+
+        float offsetY = 0.0F;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getShipDepth() > 0.0) {
+            offsetY += angleX * 0.015F + 0.025F;
+        }
+        this.BodyMain.y = offsetY * 16.0F - 10.0F;
+        this.GlowBodyMain.y = this.BodyMain.y;
+
+        this.UpperMain.xRot = -0.46F;
+
+        this.LegArmorA1.yRot = addk1 + 0.35F;
+        this.LegArmorA2.yRot = addk1 + 0.0F;
+        this.LegArmorA3.yRot = addk2 + 0.0F;
+        this.LegArmorA4.yRot = addk2 - 0.68F;
+
+        this.LegArmorA1.y = (angleX * 0.1F + angleAdd1 * 0.3F) * 16.0F + 6.0F;
+        this.LegArmorA2.y = (-angleX * 0.1F + angleAdd1 * 0.3F) * 16.0F + 6.0F;
+        this.LegArmorA3.y = (-angleX * 0.1F + angleAdd2 * 0.2F) * 16.0F + 6.0F;
+        this.LegArmorA4.y = (angleX * 0.1F + angleAdd2 * 0.2F) * 16.0F + 8.0F;
+
+        this.TongueBase1.xRot = angleX2 * 0.05F - 0.61F;
+        this.TongueBase2.xRot = -angleX3 * 0.08F + 0.61F;
+        this.TongueBase3.xRot = -angleX4 * 0.05F + 0.61F;
+
+        float headX = headPitch * 0.014F;
+        float headY = netHeadYaw * 0.008F;
+
+        this.TopCannonBase.yRot = headY;
+        this.GlowTopCannonBase.yRot = headY;
+        this.TopCannonBase_1.yRot = headY;
+        this.GlowTopCannonBase_1.yRot = headY;
+
+        this.TopCannon01b.xRot = headX - 0.3F;
+        this.TopCannon01b_1.xRot = headX - 0.25F;
+        this.TopCannon01b_2.xRot = headX - 0.35F;
+        this.TopCannon01b_3.xRot = headX - 0.15F;
+        this.TopCannon01b_4.xRot = headX - 0.2F;
+        this.TopCannon01b_5.xRot = headX - 0.1F;
+
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getHost() != null) {
+            if (mount.getHost().isOrderedToSit() || mount.getHost().isInSittingPose()) {
+                this.TongueBase1.xRot = angleX2 * 0.025F - 0.41F;
+                this.TongueBase2.xRot = -angleX3 * 0.04F + 0.41F;
+                this.TongueBase3.xRot = -angleX4 * 0.025F + 0.71F;
+                this.UpperMain.xRot = -0.15F;
+            }
+        }
     }
 
     @Override

@@ -36,8 +36,6 @@ public class EntitySubmYo extends EntityShipBase {
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_BASE, true);
-        setEquipFlag(EQUIP_NORMAL_BODY, true);
     }
 
     @Override
@@ -70,10 +68,10 @@ public class EntitySubmYo extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"),
-                new EquipOption(EQUIP_NORMAL_BODY, "gui.shincolle.equip.normal_body")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"));
+        list.add(new EquipOption(EQUIP_NORMAL_BODY, "gui.shincolle.equip.normal_body"));
+        return list;
     }
 
     private void spawnEyeGlowParticles() {
@@ -94,7 +92,6 @@ public class EntitySubmYo extends EntityShipBase {
         if (this.isStateRingEffect()) {
             int duration = 40 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
             if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
@@ -137,8 +134,16 @@ public class EntitySubmYo extends EntityShipBase {
     }
 
     @Override
+    public boolean supportsItemPickup() {
+        return true;
+    }
+    @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.SUBM_YO_SPAWN_EGG.get();
     }
-}
 
+    @Override
+    public boolean isSubmarine() {
+        return true;
+    }
+}

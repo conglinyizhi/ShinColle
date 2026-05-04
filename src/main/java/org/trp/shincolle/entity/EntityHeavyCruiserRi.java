@@ -27,10 +27,6 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 4);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_LEFT, true);
-        setEquipFlag(EQUIP_RIGHT, true);
-        setEquipFlag(EQUIP_CLOAK, true);
-        setEquipFlag(EQUIP_HAIR, true);
     }
 
     @Override
@@ -61,12 +57,12 @@ public class EntityHeavyCruiserRi extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_LEFT, "gui.shincolle.equip.left"),
-                new EquipOption(EQUIP_RIGHT, "gui.shincolle.equip.right"),
-                new EquipOption(EQUIP_CLOAK, "gui.shincolle.equip.cloak"),
-                new EquipOption(EQUIP_HAIR, "gui.shincolle.equip.hair")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_LEFT, "gui.shincolle.equip.left"));
+        list.add(new EquipOption(EQUIP_RIGHT, "gui.shincolle.equip.right"));
+        list.add(new EquipOption(EQUIP_CLOAK, "gui.shincolle.equip.cloak"));
+        list.add(new EquipOption(EQUIP_HAIR, "gui.shincolle.equip.hair"));
+        return list;
     }
 
     @Override

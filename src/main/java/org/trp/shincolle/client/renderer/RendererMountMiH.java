@@ -11,7 +11,7 @@ public class RendererMountMiH<T extends Mob> extends RendererSimpleMob<T, ModelM
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/mount_mi_h.png");
 
     public RendererMountMiH(EntityRendererProvider.Context context) {
-        super(context, new ModelMountMiH<>(context.bakeLayer(ModelMountMiH.LAYER_LOCATION)), 0.5f, 0.42f, TEXTURE);
+        super(context, new ModelMountMiH<>(context.bakeLayer(ModelMountMiH.LAYER_LOCATION)), 0.97f, 0.97f, TEXTURE);
         this.addLayer(new GenericGlowLayer<>(this, TEXTURE));
     }
 }

@@ -556,7 +556,7 @@ public class ModelTransportWa<T extends EntityShipBase> extends ShipModelHumanoi
         boolean isPassenger = entity.isPassenger();
         boolean isCrouching = entity.isCrouching();
         boolean isSprinting = entity != null ? entity.getIsSprinting() : limbSwingAmount > 0.9F;
-        boolean isSitting = entity.getIsSitting() || isPassenger;
+        boolean isSitting = entity.getIsSitting() || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         float sitSwing = net.minecraft.util.Mth.cos(ageInTicks * 0.5F) * 0.5F;
 
         if (hideLeg) {

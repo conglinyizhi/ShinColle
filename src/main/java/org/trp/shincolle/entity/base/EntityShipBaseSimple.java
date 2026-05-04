@@ -22,7 +22,8 @@ public abstract class EntityShipBaseSimple extends EntityShipBase {
                 .add(Attributes.MAX_HEALTH, 160.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.ATTACK_DAMAGE, 8.0D)
-                .add(Attributes.FOLLOW_RANGE, 36.0D);
+                .add(Attributes.FOLLOW_RANGE, 36.0D)
+                .add(Attributes.STEP_HEIGHT, 1.0D);
     }
 
     @Nullable

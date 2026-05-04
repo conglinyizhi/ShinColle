@@ -22,7 +22,6 @@ public class RendererDestroyerAkatsuki extends MobRenderer<EntityDestroyerAkatsu
     @Override
     protected RenderType getRenderType(EntityDestroyerAkatsuki entity, boolean bodyVisible, boolean translucent, boolean glowing) {
         return RenderType.entityTranslucent(getTextureLocation(entity));
-        // return RenderType.entityTranslucentCull(getTextureLocation(entity));
     }
 
     @Override

@@ -26,8 +26,6 @@ public class EntityMidwayHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 2);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_COLLAR, true);
     }
 
     @Override
@@ -69,15 +67,25 @@ public class EntityMidwayHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_COLLAR, "gui.shincolle.equip.collar")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_COLLAR, "gui.shincolle.equip.collar"));
+        return list;
     }
 
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.MIDWAY_HIME_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountMiH(org.trp.shincolle.init.ModEntities.MOUNT_MI_H.get(), this.level());
     }
 }
 

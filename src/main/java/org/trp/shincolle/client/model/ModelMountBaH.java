@@ -289,7 +289,48 @@ public class ModelMountBaH<T extends Entity> extends EntityModel<T> implements I
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+        float angleFast = (float) Math.cos(ageInTicks);
+        float angleAdd1 = (float) Math.cos(limbSwing * 0.2F) * limbSwingAmount * 0.7F;
+        float angleAdd2 = (float) Math.cos(limbSwing * 0.2F + (float) Math.PI) * limbSwingAmount * 0.7F;
+
+        float headX = headPitch * 0.017453292F;
+        float headY = netHeadYaw * 0.017453292F;
+
+        float offsetY = 0.0F;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getShipDepth() > 0.0) {
+            offsetY += angleX * 0.025F + 0.025F;
+        }
+        this.BodyMain.y = offsetY * 16.0F - 10.0F;
+        this.GlowBodyMain.y = this.BodyMain.y;
+
+        this.HeadBack01.xRot = angleFast * 0.04F + 0.68F;
+        this.HeadBack02.xRot = angleFast * 0.06F + 0.77F;
+        this.HeadBack03.xRot = angleFast * 0.05F + 0.6F;
+
+        this.Jaw.xRot = angleX * 0.12F + 0.83F;
+
+        this.ArmLeft01.xRot = angleAdd2 * 1.2F - 0.7F;
+        this.ArmRight01.xRot = angleAdd1 * 1.2F - 0.7F;
+
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getHost() != null && mount.getHost().isOrderedToSit()) {
+            this.ArmRight01.xRot = -1.57F;
+        }
+
+        this.EquipCannon01.xRot = headX * 0.85F;
+        this.EquipCannon02.xRot = headX * 0.95F;
+        this.EquipCannon03.xRot = headX * 0.75F;
+        this.EquipCannon01_1.xRot = headX * 0.95F;
+        this.EquipCannon02_1.xRot = headX * 1.1F;
+        this.EquipCannon03_1.xRot = headX * 0.85F;
+
+        this.EquipL02.yRot = headY;
+        this.EquipR02.yRot = headY;
+        this.GlowEquipL02.yRot = headY;
+        this.GlowEquipR02.yRot = headY;
+
+        this.LegLeft01.xRot = angleAdd1 - 1.6755F;
+        this.LegRight01.xRot = angleAdd2 - 1.6755F;
     }
 
     @Override

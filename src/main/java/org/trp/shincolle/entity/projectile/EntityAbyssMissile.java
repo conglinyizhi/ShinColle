@@ -442,7 +442,7 @@ public class EntityAbyssMissile extends Entity {
                 : this.damageSources().generic();
 
         List<Entity> targets = serverLevel.getEntities(this, this.getBoundingBox().inflate(radius),
-                entity -> entity.isAlive() && entity.isPickable() && !isFriendlyTarget(owner, entity));
+                entity -> entity.isAlive() && entity.isPickable() && !(entity instanceof EntityAbyssMissile) && !isFriendlyTarget(owner, entity));
         for (Entity entity : targets) {
             entity.hurt(source, damage);
         }
@@ -557,7 +557,7 @@ public class EntityAbyssMissile extends Entity {
 
     @Override
     public boolean hurt(DamageSource source, float amount) {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide|| this.isRemoved()) {
             return false;
         }
         onImpact(null);

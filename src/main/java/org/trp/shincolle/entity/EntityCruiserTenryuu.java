@@ -28,11 +28,6 @@ public class EntityCruiserTenryuu extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 5);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_EARS, true);
-        setEquipFlag(EQUIP_SIDE, true);
-        setEquipFlag(EQUIP_MASK, true);
-        setEquipFlag(EQUIP_SHOES, true);
     }
 
     @Override
@@ -54,13 +49,13 @@ public class EntityCruiserTenryuu extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_EARS, "gui.shincolle.equip.ears"),
-                new EquipOption(EQUIP_SIDE, "gui.shincolle.equip.side"),
-                new EquipOption(EQUIP_MASK, "gui.shincolle.equip.mask"),
-                new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_EARS, "gui.shincolle.equip.ears"));
+        list.add(new EquipOption(EQUIP_SIDE, "gui.shincolle.equip.side"));
+        list.add(new EquipOption(EQUIP_MASK, "gui.shincolle.equip.mask"));
+        list.add(new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes"));
+        return list;
     }
 
     @Override

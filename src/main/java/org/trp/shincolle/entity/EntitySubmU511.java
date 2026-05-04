@@ -36,9 +36,6 @@ public class EntitySubmU511 extends EntityShipBase {
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_BASE, true);
-        setEquipFlag(EQUIP_HAT, true);
-        setEquipFlag(EQUIP_PIPE, true);
     }
 
     @Override
@@ -54,7 +51,6 @@ public class EntitySubmU511 extends EntityShipBase {
         if (this.isStateRingEffect()) {
             int duration = 40 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
             if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
@@ -78,11 +74,11 @@ public class EntitySubmU511 extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"),
-                new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"),
-                new EquipOption(EQUIP_PIPE, "gui.shincolle.equip.pipe")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"));
+        list.add(new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"));
+        list.add(new EquipOption(EQUIP_PIPE, "gui.shincolle.equip.pipe"));
+        return list;
     }
 
     private void spawnTorpedoes(Entity target) {
@@ -106,8 +102,17 @@ public class EntitySubmU511 extends EntityShipBase {
     }
 
     @Override
+    public boolean supportsItemPickup() {
+        return true;
+    }
+    @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.SUBM_U511_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean isSubmarine() {
+        return true;
     }
 }
 

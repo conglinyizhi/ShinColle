@@ -31,7 +31,6 @@ public class EntityNorthernHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 31);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setEquipFlag(EQUIP_CANNON, true);
     }
 
     @Override
@@ -44,7 +43,8 @@ public class EntityNorthernHime extends EntityShipBase {
                 .add(Attributes.MAX_HEALTH, 200.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.ATTACK_DAMAGE, 10.0D)
-                .add(Attributes.FOLLOW_RANGE, 40.0D);
+                .add(Attributes.FOLLOW_RANGE, 40.0D)
+                .add(Attributes.STEP_HEIGHT, 1.0D);
     }
 
     @Nullable
@@ -60,13 +60,13 @@ public class EntityNorthernHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"),
-                new EquipOption(EQUIP_SANTA_CLOTH, "gui.shincolle.equip.santa_cloth"),
-                new EquipOption(EQUIP_SANTA_HAT, "gui.shincolle.equip.santa_hat"),
-                new EquipOption(EQUIP_UMBRELLA, "gui.shincolle.equip.umbrella"),
-                new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"));
+        list.add(new EquipOption(EQUIP_SANTA_CLOTH, "gui.shincolle.equip.santa_cloth"));
+        list.add(new EquipOption(EQUIP_SANTA_HAT, "gui.shincolle.equip.santa_hat"));
+        list.add(new EquipOption(EQUIP_UMBRELLA, "gui.shincolle.equip.umbrella"));
+        list.add(new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes"));
+        return list;
     }
 
     @Override

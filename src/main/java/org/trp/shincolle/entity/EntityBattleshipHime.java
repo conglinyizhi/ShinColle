@@ -71,5 +71,15 @@ public class EntityBattleshipHime extends EntityShipBase {
     protected Item getShipSpawnEggItem() {
         return ModItems.BATTLESHIP_HIME_SPAWN_EGG.get();
     }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountBaH(org.trp.shincolle.init.ModEntities.MOUNT_BA_H.get(), this.level());
+    }
 }
 

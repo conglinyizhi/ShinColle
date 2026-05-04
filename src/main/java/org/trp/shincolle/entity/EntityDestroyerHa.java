@@ -100,7 +100,10 @@ public class EntityDestroyerHa extends EntityShipBase {
     }
 
     @Override
-    protected Item getShipSpawnEggItem() {
+    public boolean supportsItemPickup() {
+        return true;
+    }
+protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_HA_SPAWN_EGG.get();
     }
 }

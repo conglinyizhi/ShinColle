@@ -33,10 +33,7 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         setStateMinor(STATE_MINOR_SHIP_CLASS, 14);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 3);
-        setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_CLOAK, true);
-        setEquipFlag(EQUIP_RIGGING, true);
     }
 
     @Override
@@ -57,10 +54,10 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_CLOAK, "gui.shincolle.equip.cloak"),
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_CLOAK, "gui.shincolle.equip.cloak"));
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        return list;
     }
 
     @Override

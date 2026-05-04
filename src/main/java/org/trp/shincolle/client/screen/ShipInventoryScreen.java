@@ -6,7 +6,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -39,9 +38,15 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     private static final int DETAIL_TAB_BASIC = 1;
     private static final int DETAIL_TAB_STATUS = 2;
+    private static final int DETAIL_TAB_MISC = 3;
     private static final int SETTINGS_TAB_1 = 1;
     private static final int SETTINGS_TAB_6 = 6;
-    private static final int APPEARANCE_ROWS_PER_PAGE = 5;
+    private static final int APPEARANCE_MAX_ITEMS = 16;
+    private static final int APPEARANCE_COLS = 4;
+    private static final int GRID_X = 176;
+    private static final int GRID_Y = 157;
+    private static final int GAP_X = 16;
+    private static final int GAP_Y = 13;
     private static final int SLIDER_NONE = -1;
     private static final int SLIDER_FOLLOW_MIN = 0;
     private static final int SLIDER_FOLLOW_MAX = 1;
@@ -91,6 +96,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private boolean autoPump;
     private int rationMorale;
     private boolean appearance;
+    private boolean mount;
 
     public ShipInventoryScreen(ShipContainerMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
@@ -129,35 +135,47 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         drawTopRightStatus(guiGraphics);
 
         if (this.activeDetailTab == DETAIL_TAB_BASIC) {
-            drawLabel(guiGraphics, "EXP", 75, 20);
-            drawValue(guiGraphics, String.valueOf(this.menu.getShipExp()), 115, 30);
+            drawLabel(guiGraphics, tr("gui.shincolle.kills"), 75, 20);
+            drawValueRight(guiGraphics, "0", 135, 30, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AMMO L", 75, 41);
-            drawValue(guiGraphics, String.valueOf(this.menu.getShip().getAmmoLight()), 115, 51);
+            drawLabel(guiGraphics, "EXP", 75, 41);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getShipExp()), 135, 51, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AMMO H", 75, 62);
-            drawValue(guiGraphics, String.valueOf(this.menu.getShip().getAmmoHeavy()), 115, 72);
+            drawLabel(guiGraphics, "AMMO L", 75, 62);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoLight()), 135, 72, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "GRUDGE", 75, 83);
-            drawValue(guiGraphics, String.valueOf(this.menu.getShipFuel()), 115, 93);
+            drawLabel(guiGraphics, "AMMO H", 75, 83);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoHeavy()), 135, 93, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AIRCRAFT", 75, 104);
-            drawValue(guiGraphics, this.menu.getAircraftLight() + " / " + this.menu.getAircraftHeavy(), 115, 114);
-        } else {
+            drawLabel(guiGraphics, "GRUDGE", 75, 104);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getShipFuel()), 135, 114, 0xFFFFFF);
+        } else if (this.activeDetailTab == DETAIL_TAB_STATUS) {
             drawLabel(guiGraphics, "FIREPWR", 75, 20);
-            drawValue(guiGraphics, String.format("%.0f", this.menu.getShipFirepower()), 115, 30);
+            drawValueRight(guiGraphics, String.format("%.0f", this.menu.getShipFirepower()), 135, 30, getModernizationColor(this.menu.getShip().getAttrBonus(1)));
 
             drawLabel(guiGraphics, "ARMOR", 75, 41);
-            drawValue(guiGraphics, String.format("%.1f%%", this.menu.getShipArmor() * 100.0f), 115, 51);
+            drawValueRight(guiGraphics, String.format("%.1f%%", this.menu.getShipArmor() * 100.0f), 135, 51, getModernizationColor(this.menu.getShip().getAttrBonus(2)));
 
             drawLabel(guiGraphics, "RELOAD", 75, 62);
-            drawValue(guiGraphics, String.format("%.2f", this.menu.getShipReloadSpeed()), 115, 72);
+            drawValueRight(guiGraphics, String.format("%.2f", this.menu.getShipReloadSpeed()), 135, 72, getModernizationColor(this.menu.getShip().getAttrBonus(3)));
 
             drawLabel(guiGraphics, "MOVE", 75, 83);
-            drawValue(guiGraphics, String.format("%.2f", this.menu.getShipMoveSpeed()), 115, 93);
+            drawValueRight(guiGraphics, String.format("%.2f", this.menu.getShipMoveSpeed()), 135, 93, getModernizationColor(this.menu.getShip().getAttrBonus(4)));
 
             drawLabel(guiGraphics, "RANGE", 75, 104);
-            drawValue(guiGraphics, String.format("%.1f", this.menu.getShipRange()), 115, 114);
+            drawValueRight(guiGraphics, String.format("%.1f", this.menu.getShipRange()), 135, 114, getModernizationColor(this.menu.getShip().getAttrBonus(5)));
+        } else {
+            drawLabel(guiGraphics, tr("gui.shincolle.marriage"), 75, 20);
+            drawValueRight(guiGraphics, this.menu.getShip().getStateFlag(EntityShipBase.STATE_FLAG_MARRIED) ? tr("gui.shincolle.married") : tr("gui.shincolle.unmarried"), 135, 30, 0xFFFF00);
+
+            drawLabel(guiGraphics, tr("gui.shincolle.formation.formation"), 75, 41);
+            drawValueRight(guiGraphics, tr("gui.shincolle.formation.format0"), 135, 51, 0xFFFFFF);
+
+            drawLabel(guiGraphics, "AIRCRAFT L", 75, 83);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftLight()), 135, 93, 0xFFFF00);
+
+            drawLabel(guiGraphics, "AIRCRAFT H", 75, 104);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftHeavy()), 135, 114, 0xFFFF00);
         }
 
         switch (this.activeSettingsTab) {
@@ -173,9 +191,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 drawLabel(guiGraphics, tr("gui.shincolle.followmin"), 174, 134);
                 drawLabel(guiGraphics, tr("gui.shincolle.followmax"), 174, 158);
                 drawLabel(guiGraphics, tr("gui.shincolle.fleehp"), 174, 182);
-                drawValue(guiGraphics, String.valueOf(getFollowMinDisplayValue()), 174, 145);
-                drawValue(guiGraphics, String.valueOf(getFollowMaxDisplayValue()), 174, 169);
-                drawValue(guiGraphics, String.valueOf(getFleeHpDisplayValue()), 174, 193);
+                drawValueLeft(guiGraphics, String.valueOf(getFollowMinDisplayValue()), 174, 145, 0xFFFFFF);
+                drawValueLeft(guiGraphics, String.valueOf(getFollowMaxDisplayValue()), 174, 169, 0xFFFFFF);
+                drawValueLeft(guiGraphics, String.valueOf(getFleeHpDisplayValue()), 174, 193, 0xFFFFFF);
             }
             case 3 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.targetAI"), 187, 133);
@@ -186,20 +204,20 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 drawLabel(guiGraphics, tr("gui.shincolle.ai.timekeeper"), 187, 198);
             }
             case 4 -> {
-                drawLabel(guiGraphics, tr("gui.shincolle.ai.pickitem"), 187, 133);
+                if (this.menu.getShip().supportsItemPickup()) {
+                    drawLabel(guiGraphics, tr("gui.shincolle.ai.pickitem"), 187, 133);
+                }
                 drawLabel(guiGraphics, tr("gui.shincolle.autopump"), 187, 146);
             }
             case 5 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.ai.wpstay"), 174, 134);
                 drawLabel(guiGraphics, tr("gui.shincolle.autocombatration"), 174, 158);
-                drawValue(guiGraphics, getWpStayDisplay(), 174, 145);
-                drawValue(guiGraphics, getRationMoraleDisplay(), 174, 169);
+                drawValueLeft(guiGraphics, getWpStayDisplay(), 174, 145, 0xFFFFFF);
+                drawValueLeft(guiGraphics, getRationMoraleDisplay(), 174, 169, 0xFFFFFF);
             }
             case 6 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.showhelditem"), 187, 133);
                 drawAppearanceLabels(guiGraphics);
-            }
-            default -> {
             }
         }
     }
@@ -268,6 +286,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             this.activeDetailTab = DETAIL_TAB_STATUS;
             return true;
         }
+        if (inside(x, y, 133, 89, 142, 125)) {
+            this.activeDetailTab = DETAIL_TAB_MISC;
+            return true;
+        }
 
         for (int tab = SETTINGS_TAB_1; tab <= SETTINGS_TAB_6; tab++) {
             int y1 = 131 + (tab - 1) * 13;
@@ -334,7 +356,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 return true;
             }
         } else if (this.activeSettingsTab == 4) {
-            if (inside(x, y, 173, 131, 237, 143)) {
+            if (this.menu.getShip().supportsItemPickup() && inside(x, y, 173, 131, 237, 143)) {
                 sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_PICK_ITEM);
                 return true;
             }
@@ -348,24 +370,15 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 return true;
             }
 
-            int maxPage = Math.max(0, (this.menu.getEquipOptionCount() - 1) / APPEARANCE_ROWS_PER_PAGE);
-            if (inside(x, y, 246, 144, 252, 155) && this.appearancePage > 0) {
-                this.appearancePage--;
-                return true;
-            }
-            if (inside(x, y, 246, 157, 252, 168) && this.appearancePage < maxPage) {
-                this.appearancePage++;
-                return true;
-            }
-
             List<?> options = this.menu.getEquipOptions();
-            int start = this.appearancePage * APPEARANCE_ROWS_PER_PAGE;
-            int end = Math.min(options.size(), start + APPEARANCE_ROWS_PER_PAGE);
-            for (int optionIndex = start; optionIndex < end; optionIndex++) {
-                int row = optionIndex - start;
-                int rowY = 144 + row * 13;
-                if (inside(x, y, 173, rowY, 237, rowY + 12)) {
-                    sendMenuButton(this.menu.getEquipOptionButtonId(optionIndex));
+            int count = options.size();
+            for (int i = 0; i < Math.min(count, APPEARANCE_MAX_ITEMS); i++) {
+                int col = i % APPEARANCE_COLS;
+                int row = i / APPEARANCE_COLS;
+                int bx = GRID_X + col * GAP_X;
+                int by = GRID_Y + row * GAP_Y;
+                if (inside(x, y, bx, by, bx + 11, by + 11)) {
+                    sendMenuButton(this.menu.getEquipOptionButtonId(i));
                     return true;
                 }
             }
@@ -445,6 +458,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         this.autoPump = this.menu.isAutoPumpEnabled();
         this.rationMorale = this.menu.getRationMoraleThreshold();
         this.appearance = this.menu.isAppearanceEnabled();
+        this.mount = this.menu.isMountEnabled();
     }
 
     private void drawInventoryPageIndicator(GuiGraphics guiGraphics) {
@@ -472,7 +486,11 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawDetailTabIndicator(GuiGraphics guiGraphics) {
-        int y = this.activeDetailTab == DETAIL_TAB_STATUS ? 54 : 18;
+        int y = switch (this.activeDetailTab) {
+            case DETAIL_TAB_STATUS -> 54;
+            case DETAIL_TAB_MISC -> 90;
+            default -> 18;
+        };
         guiGraphics.blit(TEXTURE_BG, this.leftPos + 135, this.topPos + y, 74, 214, 6, 34, 256, 256);
     }
 
@@ -501,7 +519,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 drawOnOff(guiGraphics, 174, 196, this.timeKeeping);
             }
             case 4 -> {
-                drawOnOff(guiGraphics, 174, 131, this.pickItem);
+                if (this.menu.getShip().supportsItemPickup()) {
+                    drawOnOff(guiGraphics, 174, 131, this.pickItem);
+                }
                 drawOnOff(guiGraphics, 174, 144, this.autoPump);
             }
             case 5 -> drawRationSliderTab(guiGraphics);
@@ -547,22 +567,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         drawOnOff(guiGraphics, 174, 131, this.appearance);
 
         int optionCount = this.menu.getEquipOptionCount();
-        int maxPage = Math.max(0, (optionCount - 1) / APPEARANCE_ROWS_PER_PAGE);
-        this.appearancePage = Math.max(0, Math.min(this.appearancePage, maxPage));
-
-        int start = this.appearancePage * APPEARANCE_ROWS_PER_PAGE;
-        int end = Math.min(optionCount, start + APPEARANCE_ROWS_PER_PAGE);
-
-        for (int optionIndex = start; optionIndex < end; optionIndex++) {
-            int row = optionIndex - start;
-            drawOnOff(guiGraphics, 174, 144 + row * 13, this.menu.isEquipOptionEnabled(optionIndex));
-        }
-
-        if (this.appearancePage > 0) {
-            guiGraphics.blit(TEXTURE_BG, this.leftPos + 246, this.topPos + 144, 74, 214, 6, 11, 256, 256);
-        }
-        if (this.appearancePage < maxPage) {
-            guiGraphics.blit(TEXTURE_BG, this.leftPos + 246, this.topPos + 157, 74, 214, 6, 11, 256, 256);
+        for (int i = 0; i < Math.min(optionCount, APPEARANCE_MAX_ITEMS); i++) {
+            int col = i % APPEARANCE_COLS;
+            int row = i / APPEARANCE_COLS;
+            drawOnOff(guiGraphics, GRID_X + col * GAP_X, GRID_Y + row * GAP_Y, this.menu.isEquipOptionEnabled(i));
         }
     }
 
@@ -626,18 +634,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawAppearanceLabels(GuiGraphics guiGraphics) {
-        int optionCount = this.menu.getEquipOptionCount();
-        int maxPage = Math.max(0, (optionCount - 1) / APPEARANCE_ROWS_PER_PAGE);
-        this.appearancePage = Math.max(0, Math.min(this.appearancePage, maxPage));
-
-        int start = this.appearancePage * APPEARANCE_ROWS_PER_PAGE;
-        int end = Math.min(optionCount, start + APPEARANCE_ROWS_PER_PAGE);
-        for (int optionIndex = start; optionIndex < end; optionIndex++) {
-            int row = optionIndex - start;
-            int y = 146 + row * 13;
-            String label = this.menu.getEquipOptionLabel(optionIndex).getString();
-            drawLabel(guiGraphics, trimLabelToWidth(label, 66), 187, y);
-        }
+        drawLabel(guiGraphics, "Appearance", 177, 146);
     }
 
     private int getFollowMinDisplayValue() {
@@ -693,6 +690,36 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         if (isHovering(mouseX, mouseY, 145, 4, 57, 11)) {
             renderModernizationHpTooltip(guiGraphics);
             return;
+        }
+
+        if (this.activeSettingsTab == SETTINGS_TAB_6) {
+            renderEquipOptionTooltips(guiGraphics, mouseX, mouseY);
+        }
+
+        renderFixedToggleTooltips(guiGraphics, mouseX, mouseY);
+    }
+
+    private void renderFixedToggleTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+
+    }
+
+    private void renderTooltip(GuiGraphics guiGraphics, String key, int mouseX, int mouseY) {
+        guiGraphics.renderComponentTooltip(this.font, List.of(Component.translatable(key)), mouseX, mouseY);
+    }
+
+    private void renderEquipOptionTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int x = mouseX - this.leftPos;
+        int y = mouseY - this.topPos;
+        int optionCount = this.menu.getEquipOptionCount();
+        for (int i = 0; i < Math.min(optionCount, APPEARANCE_MAX_ITEMS); i++) {
+            int col = i % APPEARANCE_COLS;
+            int row = i / APPEARANCE_COLS;
+            int bx = GRID_X + col * GAP_X;
+            int by = GRID_Y + row * GAP_Y;
+            if (inside(x, y, bx, by, bx + 11, by + 11)) {
+                guiGraphics.renderComponentTooltip(this.font, List.of(this.menu.getEquipOptionLabel(i)), mouseX, mouseY);
+                return;
+            }
         }
     }
 
@@ -768,9 +795,15 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         guiGraphics.drawString(this.font, text, x, y, 0x000000, false);
     }
 
-    private void drawValue(GuiGraphics guiGraphics, String text, int x, int y) {
+    private void drawValueLeft(GuiGraphics guiGraphics, String text, int x, int y, int color) {
         guiGraphics.drawString(this.font, text, x + 1, y + 1, 0x000000, false);
-        guiGraphics.drawString(this.font, text, x, y, 0xFFFFFF, false);
+        guiGraphics.drawString(this.font, text, x, y, color, false);
+    }
+
+    private void drawValueRight(GuiGraphics guiGraphics, String text, int xRight, int y, int color) {
+        int x = xRight - this.font.width(text);
+        guiGraphics.drawString(this.font, text, x + 1, y + 1, 0x000000, false);
+        guiGraphics.drawString(this.font, text, x, y, color, false);
     }
 
     private boolean inside(int x, int y, int x1, int y1, int x2, int y2) {
@@ -857,7 +890,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         if(isGattai){
             renderEntityWithPassengers(guiGraphics, modelX, modelY, modelScale, mouseX, mouseY, ship);
         } else {
-            InventoryScreen.renderEntityInInventoryFollowsMouse(guiGraphics, boxX1, boxY1, boxX2, boxY2, modelScale, 0.0F, mouseX, mouseY, ship);
+            int legacyPivotX = modelX - 3;
+            int legacyPivotY = this.topPos + 60;
+            renderEntityWithPassengers(guiGraphics, modelX, modelY, modelScale, mouseX - (modelX - legacyPivotX), mouseY - (modelY - legacyPivotY), ship);
         }
     }
 

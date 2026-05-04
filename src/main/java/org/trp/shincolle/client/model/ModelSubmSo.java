@@ -406,7 +406,7 @@ public class ModelSubmSo<T extends EntityShipBase> extends ShipModelHumanoidBase
         boolean isPassenger = entity.isPassenger();
         boolean isCrouching = entity.isCrouching();
         boolean isSprinting = entity != null ? entity.getIsSprinting() : limbSwingAmount > 0.92F;
-        boolean isSitting = entity.getIsSitting() || isPassenger;
+        boolean isSitting = entity.getIsSitting() || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         float angleAdd1 = net.minecraft.util.Mth.cos(limbSwing * 0.7F) * limbSwingAmount * 0.7F;
 
         if (isSprinting) {

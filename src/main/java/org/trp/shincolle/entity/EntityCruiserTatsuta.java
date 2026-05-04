@@ -26,9 +26,6 @@ public class EntityCruiserTatsuta extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 3);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_RING, true);
-        setEquipFlag(EQUIP_SIDE, true);
     }
 
     @Override
@@ -50,11 +47,11 @@ public class EntityCruiserTatsuta extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_RING, "gui.shincolle.equip.ring"),
-                new EquipOption(EQUIP_SIDE, "gui.shincolle.equip.side")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_RING, "gui.shincolle.equip.ring"));
+        list.add(new EquipOption(EQUIP_SIDE, "gui.shincolle.equip.side"));
+        return list;
     }
 
     @Override

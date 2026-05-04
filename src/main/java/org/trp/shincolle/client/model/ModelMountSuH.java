@@ -181,7 +181,26 @@ public class ModelMountSuH<T extends Entity> extends EntityModel<T> implements I
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+        float angleX2 = (float) Math.cos(-limbSwing * 0.8F + 0.7F);
+
+        float offsetY = 0.2F;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getShipDepth() > 0.0) {
+            offsetY += angleX * 0.025F + 0.025F;
+        }
+        this.BodyMain.y = offsetY * 16.0F;
+        this.GlowBodyMain.y = this.BodyMain.y;
+
+        this.Jaw.xRot = angleX * 0.075F + 0.26F;
+        this.GlowJaw.xRot = this.Jaw.xRot;
+
+        if (limbSwingAmount > 0.9F) {
+            this.Body03.yRot = angleX2 * 0.075F;
+            this.Body04.yRot = angleX2 * 0.15F;
+        } else {
+            this.Body03.yRot = 0.0F;
+            this.Body04.yRot = angleX * 0.15F;
+        }
     }
 
     @Override

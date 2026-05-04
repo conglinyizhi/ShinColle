@@ -629,7 +629,7 @@ public class ModelCruiserTenryuu<T extends EntityShipBase> extends ShipModelHuma
         }
 
         boolean isCrouching = entity != null && entity.isCrouching();
-        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger());
+        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         boolean isSprinting = entity != null && entity.isSprinting() || limbSwingAmount > 0.9F;
 
         if (isSprinting) {

@@ -33,7 +33,6 @@ public class EntityAirfieldHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 4);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_HAND, true);
     }
 
     @Override
@@ -46,7 +45,8 @@ public class EntityAirfieldHime extends EntityShipBase {
                 .add(Attributes.MAX_HEALTH, 180.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.23D)
                 .add(Attributes.ATTACK_DAMAGE, 9.0D)
-                .add(Attributes.FOLLOW_RANGE, 36.0D);
+                .add(Attributes.FOLLOW_RANGE, 36.0D)
+                .add(Attributes.STEP_HEIGHT, 1.0D);
     }
 
     @Nullable
@@ -62,7 +62,9 @@ public class EntityAirfieldHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(new EquipOption(EQUIP_HAND, "gui.shincolle.equip.hand"));
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_HAND, "gui.shincolle.equip.hand"));
+        return list;
     }
 
     @Override
@@ -145,5 +147,15 @@ public class EntityAirfieldHime extends EntityShipBase {
     @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.AIRFIELD_HIME_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountAfH(org.trp.shincolle.init.ModEntities.MOUNT_AF_H.get(), this.level());
     }
 }

@@ -45,11 +45,6 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_HAIR_ANCHOR, true);
-        setEquipFlag(EQUIP_HAIR_FRONT_1, true);
-        setEquipFlag(EQUIP_HAIR_FRONT_2, false);
-        setEquipFlag(EQUIP_HAIR_FRONT_3, false);
     }
 
     @Override
@@ -70,13 +65,15 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.addAll(List.of(
                 new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
                 new EquipOption(EQUIP_HAIR_ANCHOR, "gui.shincolle.equip.hair_anchor"),
                 new EquipOption(EQUIP_HAIR_FRONT_1, "gui.shincolle.equip.hair_front_1"),
                 new EquipOption(EQUIP_HAIR_FRONT_2, "gui.shincolle.equip.hair_front_2"),
                 new EquipOption(EQUIP_HAIR_FRONT_3, "gui.shincolle.equip.hair_front_3")
-        );
+        ));
+        return list;
     }
 
     private void updateServerLogic() {
@@ -90,6 +87,21 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
                         80 + this.getStateMinor(0), amp, false, false));
             }
         }
+    }
+
+    @Override
+    public void performLightAttack(Entity target) {
+        if (!this.attackEntityWithAmmo(target)) {
+            super.performLightAttack(target);
+        }
+    }
+
+    @Override
+    public boolean performHeavyAttack(Entity target) {
+        if (this.attackEntityWithHeavyAmmo(target)) {
+            return true;
+        }
+        return super.performHeavyAttack(target);
     }
 
     public boolean attackEntityWithAmmo(Entity target) {
@@ -317,7 +329,10 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
 
 
     @Override
-    protected Item getShipSpawnEggItem() {
+    public boolean supportsItemPickup() {
+        return true;
+    }
+protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_SHIMAKAZE_SPAWN_EGG.get();
     }
 }

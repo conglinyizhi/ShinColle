@@ -14,6 +14,8 @@ import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.*;
 import org.trp.shincolle.client.particle.ParticleEmotion;
 import org.trp.shincolle.client.particle.ParticleHealSparkle;
+import org.trp.shincolle.client.particle.ParticleLightning;
+import org.trp.shincolle.client.particle.ParticleSprayRed;
 import org.trp.shincolle.client.particle.ParticleTeam;
 import org.trp.shincolle.client.particle.ParticleTexts;
 import org.trp.shincolle.client.renderer.*;
@@ -245,6 +247,8 @@ public class ClientModEventBusEvents {
         event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get(), ParticleEmotion.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_HEAL_SPARKLE.get(), ParticleHealSparkle.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEXTS.get(), ParticleTexts.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_LIGHTNING.get(), ParticleLightning.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_RED.get(), ParticleSprayRed.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM.get(), ParticleTeam.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED.get(),
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.DEFAULT_BLUE));

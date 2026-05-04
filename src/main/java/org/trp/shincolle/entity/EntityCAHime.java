@@ -40,13 +40,7 @@ public class EntityCAHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 49);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 5);
-        setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_TAIL_1, true);
-        setEquipFlag(EQUIP_TAIL_2, false);
-        setEquipFlag(EQUIP_HAT_1, true);
-        setEquipFlag(EQUIP_HAT_2, false);
-        setEquipFlag(EQUIP_HAT_3, false);
     }
 
     @Override
@@ -79,13 +73,13 @@ public class EntityCAHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_TAIL_1, "gui.shincolle.equip.tail_1"),
-                new EquipOption(EQUIP_TAIL_2, "gui.shincolle.equip.tail_2"),
-                new EquipOption(EQUIP_HAT_1, "gui.shincolle.equip.hat_1"),
-                new EquipOption(EQUIP_HAT_2, "gui.shincolle.equip.hat_2"),
-                new EquipOption(EQUIP_HAT_3, "gui.shincolle.equip.hat_3")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_TAIL_1, "gui.shincolle.equip.tail_1"));
+        list.add(new EquipOption(EQUIP_TAIL_2, "gui.shincolle.equip.tail_2"));
+        list.add(new EquipOption(EQUIP_HAT_1, "gui.shincolle.equip.hat_1"));
+        list.add(new EquipOption(EQUIP_HAT_2, "gui.shincolle.equip.hat_2"));
+        list.add(new EquipOption(EQUIP_HAT_3, "gui.shincolle.equip.hat_3"));
+        return list;
     }
 
     private void updatePushingState() {

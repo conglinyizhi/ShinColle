@@ -37,10 +37,6 @@ public class EntityBattleshipYamato extends EntityShipBase {
         setStateMinor(STATE_MINOR_RARITY, 4);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_BELT, true);
-        setEquipFlag(EQUIP_HEAD_BASE, true);
-        setEquipFlag(EQUIP_UPPER, true);
-        setEquipFlag(EQUIP_LEG, true);
     }
 
     @Override
@@ -82,12 +78,14 @@ public class EntityBattleshipYamato extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.addAll(List.of(
                 new EquipOption(EQUIP_BELT, "gui.shincolle.equip.belt"),
                 new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"),
                 new EquipOption(EQUIP_UPPER, "gui.shincolle.equip.upper"),
                 new EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg")
-        );
+        ));
+        return list;
     }
 
     @Override

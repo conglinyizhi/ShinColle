@@ -28,12 +28,7 @@ public class EntityBBKongou extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 60);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 4);
-        setStateGuiBtn3(false);
         setStateGuiBtn4(false);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_HEAD_BASE, true);
-        setEquipFlag(EQUIP_HAIR_SET, true);
-        setEquipFlag(EQUIP_AHOKE, true);
     }
 
     @Override
@@ -68,12 +63,12 @@ public class EntityBBKongou extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"),
-                new EquipOption(EQUIP_HAIR_SET, "gui.shincolle.equip.hair"),
-                new EquipOption(EQUIP_AHOKE, "gui.shincolle.equip.ahoke")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"));
+        list.add(new EquipOption(EQUIP_HAIR_SET, "gui.shincolle.equip.hair"));
+        list.add(new EquipOption(EQUIP_AHOKE, "gui.shincolle.equip.ahoke"));
+        return list;
     }
 
     private void updateClientParticles() {

@@ -71,13 +71,13 @@ public class ParticleHealSparkle extends Particle {
         this.yo = this.y;
         this.zo = this.z;
 
-        if (this.age++ >= this.lifetime) {
+        if (this.age++ > this.lifetime) {
             this.remove();
             return;
         }
 
         int setting = getParticleSetting(this.level);
-        int spawnCount = Math.max(1, 4 - setting);
+        int spawnCount = 4 - setting;
         for (int i = 0; i < spawnCount; i++) {
             spawnBeam();
         }
@@ -100,7 +100,7 @@ public class ParticleHealSparkle extends Particle {
 
         for (float[] beam : this.beams) {
             float beamAge = beam[7];
-            if (beamAge <= 0.0F || beamAge >= MAX_BEAM_AGE) {
+            if (beamAge >= MAX_BEAM_AGE) {
                 continue;
             }
 
@@ -126,10 +126,14 @@ public class ParticleHealSparkle extends Particle {
                 corner.add(px, py, pz);
             }
 
-            float r = Math.min(1.0F, Math.max(0.0F, beam[3]));
-            float g = Math.min(1.0F, Math.max(0.0F, beam[4]));
-            float b = Math.min(1.0F, Math.max(0.0F, beam[5]));
-            float a = Math.min(1.0F, Math.max(0.0F, beam[6]));
+            float r = beam[3];
+            float g = beam[4];
+            float b = beam[5];
+            float a = beam[6];
+
+            if (r == 0.0F || g == 0.0F || b == 0.0F || a == 0.0F) {
+                continue;
+            }
 
             buffer.addVertex(corners[0].x(), corners[0].y(), corners[0].z()).setColor(r, g, b, a);
             buffer.addVertex(corners[1].x(), corners[1].y(), corners[1].z()).setColor(r, g, b, a);
@@ -151,12 +155,12 @@ public class ParticleHealSparkle extends Particle {
     private void spawnBeam() {
         float randFactor = this.random.nextFloat() * 1.2F - 0.5F;
         float red = 1.0F;
-        float green = Mth.clamp(1.0F + randFactor, 0.001F, 1.5F);
+        float green = 1.0F + randFactor;
         float blue = 1.0F;
 
-        this.beams[this.beamCurrent][0] = (this.random.nextFloat() - 0.5F) * this.beamFad;
-        this.beams[this.beamCurrent][1] = (this.random.nextFloat() - 0.5F) * this.beamFad;
-        this.beams[this.beamCurrent][2] = (this.random.nextFloat() - 0.5F) * this.beamFad;
+        this.beams[this.beamCurrent][0] = (this.random.nextFloat() * 2.0F - 1.0F) * this.beamFad;
+        this.beams[this.beamCurrent][1] = (this.random.nextFloat() * 2.0F - 1.0F) * this.beamFad;
+        this.beams[this.beamCurrent][2] = (this.random.nextFloat() * 2.0F - 1.0F) * this.beamFad;
         this.beams[this.beamCurrent][3] = red;
         this.beams[this.beamCurrent][4] = green;
         this.beams[this.beamCurrent][5] = blue;

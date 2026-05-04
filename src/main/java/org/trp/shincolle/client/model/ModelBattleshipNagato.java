@@ -418,7 +418,7 @@ public class ModelBattleshipNagato<T extends EntityShipBase> extends ShipModelHu
 
     private void applyBasePose(PoseContext ctx, float ageInTicks, float headPitch, float limbSwing, float limbSwingAmount) {
         float f6;
-        float angleX = Mth.cos(ageInTicks * 0.08F); // legacy Nagato uses no limbSwing in angleX
+        float angleX = Mth.cos(ageInTicks * 0.08F);
         float angleX1 = Mth.cos(ageInTicks * 0.08f + 0.3f + limbSwing * 0.5f);
         float angleAdd1 = Mth.cos(limbSwing * 0.7f) * limbSwingAmount;
         float angleAdd2 = Mth.cos(limbSwing * 0.7f + (float) Math.PI) * limbSwingAmount;
@@ -457,7 +457,7 @@ public class ModelBattleshipNagato<T extends EntityShipBase> extends ShipModelHu
         }
 
         boolean isCrouching = entity != null && entity.isCrouching();
-        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger());
+        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         boolean isSprinting = entity != null && entity.isSprinting() || limbSwingAmount > 0.9F;
 
         if (showCannon) {

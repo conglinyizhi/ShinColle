@@ -35,8 +35,6 @@ public class EntitySubmHime extends EntityShipBase {
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_COLLAR, true);
-        setEquipFlag(EQUIP_TAILS, true);
     }
 
     @Override
@@ -52,7 +50,6 @@ public class EntitySubmHime extends EntityShipBase {
         if (this.isStateRingEffect()) {
             int duration = 80 + this.getLevel();
             this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
-            this.addEffect(new MobEffectInstance(MobEffects.GLOWING, duration, 0, false, false));
             if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
                 this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false));
             }
@@ -61,10 +58,10 @@ public class EntitySubmHime extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_COLLAR, "gui.shincolle.equip.collar"),
-                new EquipOption(EQUIP_TAILS, "gui.shincolle.equip.tails")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_COLLAR, "gui.shincolle.equip.collar"));
+        list.add(new EquipOption(EQUIP_TAILS, "gui.shincolle.equip.tails"));
+        return list;
     }
 
     @Override
@@ -103,8 +100,27 @@ public class EntitySubmHime extends EntityShipBase {
     }
 
     @Override
+    public boolean supportsItemPickup() {
+        return true;
+    }
+    @Override
     protected Item getShipSpawnEggItem() {
         return ModItems.SUBM_HIME_SPAWN_EGG.get();
+    }
+
+    @Override
+    public boolean hasShipMounts() {
+        return true;
+    }
+
+    @Override
+    public org.trp.shincolle.entity.base.EntityMountBase summonMountEntity() {
+        return new EntityMountSuH(org.trp.shincolle.init.ModEntities.MOUNT_SU_H.get(), this.level());
+    }
+
+    @Override
+    public boolean isSubmarine() {
+        return true;
     }
 }
 

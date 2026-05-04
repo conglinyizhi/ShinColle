@@ -130,7 +130,6 @@ public class ShipMoveControl extends MoveControl {
                     Mth.clamp(motionY, -0.09D, 0.14D),
                     newVz);
             this.mob.setSpeed(moveSpeed);
-            //this.mob.setZza(1.0F);
             return;
         }
 
@@ -152,6 +151,12 @@ public class ShipMoveControl extends MoveControl {
 
         Vec3 motion = this.mob.getDeltaMovement();
         double motionY = Mth.clamp(motion.y * 0.55D + computeFluidSurfaceCorrection(0.08D), -0.05D, 0.05D);
+        
+        if (this.mob.isVehicle() && this.mob.getControllingPassenger() != null) {
+            this.mob.setDeltaMovement(motion.x, motionY, motion.z);
+            return;
+        }
+
         double motionX = motion.x * 0.3D;
         double motionZ = motion.z * 0.3D;
 

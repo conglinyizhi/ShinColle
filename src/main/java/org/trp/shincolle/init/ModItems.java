@@ -208,7 +208,7 @@ public class ModItems {
             () -> new Item(new Item.Properties().stacksTo(1)));
 
     public static final DeferredItem<Item> MARRIAGE_RING = ITEMS.register("marriagering",
-            () -> new Item(new Item.Properties().stacksTo(1)));
+            () -> new org.trp.shincolle.item.MarriageRingItem(new Item.Properties().stacksTo(1)));
 
     public static final DeferredItem<Item> EQUIP_AIRPLANE = ITEMS.register("equipairplane",
             () -> new LegacyEquipItem(new Item.Properties(), "EquipAirplane", EQUIP_AIRPLANE_TYPES, EQUIP_AIRPLANE_MODELS));

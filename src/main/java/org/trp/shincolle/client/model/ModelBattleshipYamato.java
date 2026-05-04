@@ -934,7 +934,7 @@ public class ModelBattleshipYamato<T extends EntityShipBase> extends ShipModelHu
         }
 
         boolean isCrouching = entity != null && entity.isCrouching();
-        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger());
+        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         boolean isSprinting = entity != null && entity.isSprinting() || limbSwingAmount > 0.1F;
 
         if (isSprinting) {

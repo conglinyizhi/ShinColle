@@ -48,8 +48,6 @@ public class EntityDestroyerIkazuchi extends EntityShipBase implements IShipRide
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_ANCHOR, true);
         this.riderType = 0;
         this.isRaiden = false;
         this.raidenGattaiExpireTick = 0L;
@@ -66,7 +64,8 @@ public class EntityDestroyerIkazuchi extends EntityShipBase implements IShipRide
                 .add(Attributes.MAX_HEALTH, 120.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.28D)
                 .add(Attributes.ATTACK_DAMAGE, 8.0D)
-                .add(Attributes.FOLLOW_RANGE, 36.0D);
+                .add(Attributes.FOLLOW_RANGE, 36.0D)
+                .add(Attributes.STEP_HEIGHT, 1.0D);
     }
 
     @Nullable
@@ -141,14 +140,17 @@ public class EntityDestroyerIkazuchi extends EntityShipBase implements IShipRide
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_ANCHOR, "gui.shincolle.equip.anchor")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_ANCHOR, "gui.shincolle.equip.anchor"));
+        return list;
     }
 
     @Override
-    protected Item getShipSpawnEggItem() {
+    public boolean supportsItemPickup() {
+        return true;
+    }
+protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_IKAZUCHI_SPAWN_EGG.get();
     }
 

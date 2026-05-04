@@ -132,7 +132,7 @@ final class HostileSpawnManager {
             cooldown--;
         }
 
-        if (cooldown <= 0) {
+        if (cooldown <= 0 && canTickCooldown) {
             RandomSource random = player.getRandom();
             cooldown = Config.hostileBossCooldownTicks;
 

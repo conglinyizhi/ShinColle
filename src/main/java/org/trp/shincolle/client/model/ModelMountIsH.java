@@ -225,7 +225,55 @@ public class ModelMountIsH<T extends Entity> extends EntityModel<T> implements I
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+        float angleX2 = (float) Math.cos(ageInTicks * 0.5F + 0.3F);
+        float angleX3 = (float) Math.cos(ageInTicks * 0.5F + 0.6F);
+        float angleX4 = (float) Math.cos(ageInTicks * 0.5F + 0.9F);
+        float angleAdd1 = (float) Math.cos(limbSwing * 0.7F) * limbSwingAmount * 0.7F;
+        float angleAdd2 = (float) Math.cos(limbSwing * 0.7F + (float) Math.PI) * limbSwingAmount * 0.7F;
+        float addk1 = angleAdd1 * 0.5F;
+        float addk2 = angleAdd2 * 0.5F;
+
+        float offsetY = 0.0F;
+        boolean isSitting = false;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount) {
+            if (mount.getShipDepth() > 0.0) {
+                offsetY += angleX * 0.025F + 0.025F;
+            }
+            if (mount.getHost() != null && (mount.getHost().isOrderedToSit() || mount.getHost().isInSittingPose())) {
+                isSitting = true;
+            }
+        }
+        this.BodyMain.y = -8.0F - (offsetY * 16.0F);
+        this.GlowBodyMain.y = this.BodyMain.y;
+
+        this.LegFL01.xRot = addk1 + 1.04F;
+        this.LegFR01.xRot = addk2 + 1.04F;
+        this.LegBL01.xRot = addk1 + 1.04F;
+        this.LegBR01.xRot = addk2 + 1.04F;
+
+        if (isSitting) {
+            this.Jaw.xRot = 0.7F;
+        } else {
+            this.Jaw.xRot = angleX * 0.075F + 0.26F;
+        }
+        this.GlowJaw.xRot = this.Jaw.xRot;
+
+        this.Tongue01.xRot = angleX2 * 0.05F - 0.38F;
+        this.Tongue02.xRot = -angleX3 * 0.08F + 0.52F;
+        this.Tongue03.xRot = -angleX4 * 0.05F + 0.69F;
+
+        float headX = headPitch * 0.01F;
+        float headY = netHeadYaw * 0.01F;
+
+        this.HeadCannon.xRot = headX - 1.68F;
+        this.Cannon03a.xRot = headX - 1.74F;
+        this.Cannon03b.xRot = headX - 1.7F;
+        this.TopCannon01a.xRot = headX - 0.2F;
+        this.TopCannon01b.xRot = headX - 0.2F;
+
+        this.TopCannonBase.yRot = headY;
+        this.GlowTopCannonBase.yRot = headY;
     }
 
     @Override

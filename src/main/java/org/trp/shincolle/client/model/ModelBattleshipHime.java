@@ -395,7 +395,7 @@ public class ModelBattleshipHime<T extends EntityShipBase> extends ShipModelHuma
         float legAddRight = angleAdd2 - 0.174F;
         boolean isCrouching = entity != null && entity.isCrouching();
         boolean isPassenger = entity != null && entity.isPassenger();
-        boolean isSitting = ctx.isSitting || isPassenger;
+        boolean isSitting = ctx.isSitting || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
 
         if (isCrouching) {
             this.poseTranslateY = SNEAK_TRANSLATE_Y;
@@ -466,14 +466,14 @@ public class ModelBattleshipHime<T extends EntityShipBase> extends ShipModelHuma
             }
         }
 
-        if (isPassenger) {
+        if (isPassenger && entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase) {
             this.isSittingPose = true;
-            this.poseTranslateZ = RIDING_TRANSLATE_Z;
             if (isSitting) {
                 if (entity != null && hasLegacyState(entity, 1, 4)) {
-                    this.poseTranslateY += 0.68F;
+                    this.poseTranslateY += 0.68F * 3;
+                    this.poseTranslateZ += -0.05F * 3;
                     this.Head.xRot = -1.2217F;
-                    this.Head.yRot *= 0.5F;
+                    this.Head.yRot /= 2.0F;
                     this.BodyMain.xRot = 1.2217F;
                     this.ArmLeft01.xRot = -1.9199F;
                     this.ArmLeft01.zRot = -0.1745F;
@@ -496,7 +496,8 @@ public class ModelBattleshipHime<T extends EntityShipBase> extends ShipModelHuma
                     this.HairL02.xRot += 0.3F;
                     this.HairR02.xRot += 0.3F;
                 } else {
-                    this.poseTranslateY += RIDING_TRANSLATE_Y;
+                    this.poseTranslateY += 0.51F * 3;
+                    this.poseTranslateZ += -0.05F * 3;
                     this.Head.xRot += 0.14F;
                     this.BodyMain.xRot = -0.4363F;
                     this.BoobL.xRot -= 0.25F;
@@ -519,7 +520,7 @@ public class ModelBattleshipHime<T extends EntityShipBase> extends ShipModelHuma
                     this.Hair03.xRot += 0.25F;
                 }
             } else {
-                this.poseTranslateY += 0.17F;
+                this.poseTranslateY += 0.17F * 3;
                 this.Head.xRot += 0.1745F;
                 this.BodyMain.xRot = -0.35F;
                 this.ArmLeft01.xRot = -0.2F;

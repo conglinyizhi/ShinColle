@@ -269,7 +269,30 @@ public class ModelMountCaWD<T extends Entity> extends EntityModel<T> implements 
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+
+        float offsetY = 0.0F;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getShipDepth() > 0.0) {
+            offsetY += angleX * 0.025F + 0.025F;
+        }
+        this.BodyMain.y = offsetY * 16.0F;
+        this.GlowBodyMain.y = this.BodyMain.y;
+        this.GlowBodyMain2.y = this.BodyMain.y;
+
+        this.Jaw01.xRot = angleX * 0.025F + 0.32F;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getHost() != null && mount.getHost().isOrderedToSit()) {
+            this.Jaw01.xRot = 0.7F;
+        }
+        this.GlowJaw01.xRot = this.Jaw01.xRot;
+
+        this.CannonL02.xRot = angleX * 0.05F - 0.3F;
+        this.CannonR02.xRot = -angleX * 0.05F;
+        this.CannonM03.xRot = -angleX * 0.05F;
+        this.CannonM05.xRot = angleX * 0.05F;
+
+        boolean showFire = limbSwingAmount > 0.2F;
+        this.WingL01Fire.visible = showFire;
+        this.WingR01Fire.visible = showFire;
     }
 
     @Override

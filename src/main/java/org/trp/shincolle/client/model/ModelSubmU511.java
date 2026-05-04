@@ -388,7 +388,7 @@ public class ModelSubmU511<T extends EntityShipBase> extends ShipModelHumanoidBa
         boolean isPassenger = entity.isPassenger();
         boolean isCrouching = entity.isCrouching();
         boolean isSprinting = entity != null ? entity.getIsSprinting() : limbSwingAmount > 0.9F;
-        boolean isSitting = entity.getIsSitting() || isPassenger;
+        boolean isSitting = entity.getIsSitting() || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
 
         if (isSprinting) {
 

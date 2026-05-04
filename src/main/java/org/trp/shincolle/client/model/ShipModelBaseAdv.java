@@ -262,6 +262,7 @@ public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityM
             case "ModelHeavyCruiserNe" -> 0.4f;
             case "ModelHeavyCruiserRi" -> 0.41f;
             case "ModelMidwayHime" -> 0.48f;
+            case "ModelHarbourHime" -> 0.53f;
 
             default -> 0.34f;
         };

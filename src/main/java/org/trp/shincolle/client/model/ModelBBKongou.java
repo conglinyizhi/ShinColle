@@ -1044,7 +1044,7 @@ public class ModelBBKongou<T extends EntityShipBase> extends ShipModelHumanoidBa
         }
 
         boolean isCrouching = entity != null && entity.isCrouching();
-        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger());
+        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
         boolean isSprinting = (entity != null && entity.getIsSprinting()) || limbSwingAmount > 0.9F;
 
         if (isSprinting) {

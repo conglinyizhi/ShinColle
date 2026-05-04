@@ -41,9 +41,6 @@ public class EntityBattleshipRu extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 13);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 2);
-        setEquipFlag(EQUIP_WEAPON, true);
-        setEquipFlag(EQUIP_BASE, true);
-        setEquipFlag(EQUIP_GLOVES, true);
     }
 
     @Override
@@ -108,7 +105,8 @@ public class EntityBattleshipRu extends EntityShipBase {
                 .add(Attributes.MAX_HEALTH, 220.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.24D)
                 .add(Attributes.ATTACK_DAMAGE, 12.0D)
-                .add(Attributes.FOLLOW_RANGE, 40.0D);
+                .add(Attributes.FOLLOW_RANGE, 40.0D)
+                .add(Attributes.STEP_HEIGHT, 1.0D);
     }
 
     @Nullable
@@ -124,11 +122,11 @@ public class EntityBattleshipRu extends EntityShipBase {
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_WEAPON, "gui.shincolle.equip.weapon"),
-                new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"),
-                new EquipOption(EQUIP_GLOVES, "gui.shincolle.equip.gloves")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_WEAPON, "gui.shincolle.equip.weapon"));
+        list.add(new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"));
+        list.add(new EquipOption(EQUIP_GLOVES, "gui.shincolle.equip.gloves"));
+        return list;
     }
 
     @Override

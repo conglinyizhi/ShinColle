@@ -38,6 +38,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public static final int TOGGLE_BUTTON_TIMEKEEP = 55;
     public static final int TOGGLE_BUTTON_PICK_ITEM = 60;
     public static final int TOGGLE_BUTTON_AUTO_PUMP = 61;
+    public static final int TOGGLE_BUTTON_MOUNT = 70;
     public static final int TOGGLE_BUTTON_SHOW_HELD = 71;
 
     public static final int SLIDER_FOLLOW_MIN_BASE = 400;
@@ -318,6 +319,17 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             appearanceSynced = value != 0;
         }
     };
+    private final DataSlot mountData = new DataSlot() {
+        @Override
+        public int get() {
+            return (ship.getStateEmotion(0) & 1);
+        }
+
+        @Override
+        public void set(int value) {
+            mountSynced = value != 0;
+        }
+    };
     private final DataSlot rationMoraleData = new DataSlot() {
         @Override
         public int get() {
@@ -397,6 +409,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private boolean pickItemSynced;
     private boolean autoPumpSynced;
     private boolean appearanceSynced;
+    private boolean mountSynced;
     private int rationMoraleSynced;
     private int shipTankFluidAmountSynced;
     private int shipTankFluidCapacitySynced;
@@ -427,6 +440,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.pickItemSynced = ship.getStateFlag(STATE_FLAG_PICK_ITEM);
         this.autoPumpSynced = ship.getStateFlag(STATE_FLAG_AUTO_PUMP);
         this.appearanceSynced = ship.isStateAppearance();
+        this.mountSynced = (ship.getStateEmotion(0) & 1) != 0;
         this.rationMoraleSynced = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE));
         refreshShipTankFluidSyncValues();
 
@@ -455,6 +469,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.addDataSlot(pickItemData);
         this.addDataSlot(autoPumpData);
         this.addDataSlot(appearanceData);
+        this.addDataSlot(mountData);
         this.addDataSlot(rationMoraleData);
         this.addDataSlot(shipTankFluidAmountLowData);
         this.addDataSlot(shipTankFluidAmountHighData);
@@ -621,6 +636,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public boolean isAppearanceEnabled() {
         return appearanceSynced;
+    }
+
+    public boolean isMountEnabled() {
+        return mountSynced;
     }
 
     public int getRationMoraleThreshold() {
@@ -796,6 +815,12 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             case TOGGLE_BUTTON_SHOW_HELD -> {
                 ship.setStateAppearance(!ship.isStateAppearance());
                 appearanceSynced = ship.isStateAppearance();
+                return true;
+            }
+            case TOGGLE_BUTTON_MOUNT -> {
+                int current = ship.getStateEmotion(0);
+                ship.setStateEmotion(0, current ^ 1, true);
+                mountSynced = (ship.getStateEmotion(0) & 1) != 0;
                 return true;
             }
             default -> {

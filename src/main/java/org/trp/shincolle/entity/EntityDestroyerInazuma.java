@@ -39,7 +39,6 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);
-        setEquipFlag(EQUIP_RIGGING, true);
         this.riderType = 0;
         this.isRaiden = false;
         this.raidenGattaiExpireTick = 0L;
@@ -66,7 +65,9 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        return list;
     }
 
     @Override
@@ -482,7 +483,10 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
 
 
     @Override
-    protected Item getShipSpawnEggItem() {
+    public boolean supportsItemPickup() {
+        return true;
+    }
+protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_INAZUMA_SPAWN_EGG.get();
     }
 }

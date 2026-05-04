@@ -84,4 +84,9 @@ public class PointerItem extends Item {
         int mode = getMode(stack);
         tooltipComponents.add(Component.translatable(getModeTranslationKey(mode)).withStyle(ChatFormatting.GOLD));
     }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        return true;
+    }
 }

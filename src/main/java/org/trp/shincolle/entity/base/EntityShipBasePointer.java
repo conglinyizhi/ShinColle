@@ -186,8 +186,6 @@ class EntityShipBasePointer {
 
         boolean onSight = this.ship.hasLineOfSight(target);
 
-        // At close range (within half the desired range), ignore line-of-sight
-        // to prevent partial blocks (water surface, slabs) from blocking attacks.
         boolean needsCloser = distanceSqr > stopRangeSqr;
         boolean cannotSee = !onSight && distanceSqr > desiredRangeSqr * 0.5D;
 
@@ -195,7 +193,6 @@ class EntityShipBasePointer {
             if (this.pointerTargetEntityPathTick-- <= 0) {
                 this.pointerTargetEntityPathTick = POINTER_ENTITY_PATH_RECALC_INTERVAL;
                 if (!this.ship.getNavigation().moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
-                    // Retry sooner if pathfinding failed (e.g. entity airborne)
                     this.pointerTargetEntityPathTick = 2;
                 }
             }
@@ -203,7 +200,6 @@ class EntityShipBasePointer {
         }
 
         this.ship.getNavigation().stop();
-        // Also reset MoveControl to prevent 1-tick inertia overshoot
         this.ship.getMoveControl().setWantedPosition(
                 this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
 

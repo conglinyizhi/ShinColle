@@ -27,28 +27,19 @@ public class EntityDestroyerHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 27);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 6);
-        setStateGuiBtn3(false);
-        setStateGuiBtn4(false);
         setStateCanRide(true);
-
-        setEquipFlag(EQUIP_RIGGING, true);
-        setEquipFlag(EQUIP_HAT, true);
-        setEquipFlag(EQUIP_CANNON, true);
-        setEquipFlag(EQUIP_BELT, true);
-        setEquipFlag(EQUIP_LEG, true);
-        setEquipFlag(EQUIP_HAND, true);
     }
 
     @Override
     public List<EquipOption> getEquipOptions() {
-        return List.of(
-                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
-                new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"),
-                new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"),
-                new EquipOption(EQUIP_BELT, "gui.shincolle.equip.belt"),
-                new EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg"),
-                new EquipOption(EQUIP_HAND, "gui.shincolle.equip.hand")
-        );
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"));
+        list.add(new EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"));
+        list.add(new EquipOption(EQUIP_BELT, "gui.shincolle.equip.belt"));
+        list.add(new EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg"));
+        list.add(new EquipOption(EQUIP_HAND, "gui.shincolle.equip.hand"));
+        return list;
     }
 
     @Override
@@ -186,7 +177,10 @@ public class EntityDestroyerHime extends EntityShipBase {
 
 
     @Override
-    protected Item getShipSpawnEggItem() {
+    public boolean supportsItemPickup() {
+        return true;
+    }
+protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_HIME_SPAWN_EGG.get();
     }
 }

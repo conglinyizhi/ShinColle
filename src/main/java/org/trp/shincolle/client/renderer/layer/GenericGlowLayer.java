@@ -24,15 +24,23 @@ public class GenericGlowLayer<T extends LivingEntity, M extends EntityModel<T> &
 
     @Override
     public void render(PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, T entity, float limbSwing, float limbSwingAmount, float partialTick, float ageInTicks, float netHeadYaw, float headPitch) {
+        if (entity.isInvisible() && entity.isInvisibleTo(net.minecraft.client.Minecraft.getInstance().player)) {
+            return;
+        }
 
         VertexConsumer vertexConsumer = bufferSource.getBuffer(ShincolleRenderTypes.getFlatGlow(this.glowTexture));
+
+        int color = 0xFFFFFFFF;
+        if (entity.isInvisible()) {
+            color = 0x26FFFFFF;
+        }
 
         this.getParentModel().renderGlow(
                 poseStack,
                 vertexConsumer,
                 LightTexture.FULL_BRIGHT,
                 OverlayTexture.NO_OVERLAY,
-                0xFFFFFFFF
+                color
         );
     }
 }

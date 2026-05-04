@@ -610,7 +610,7 @@ public class ModelDestroyerHime<T extends EntityShipBase> extends ShipModelHuman
         boolean isSprinting = entity.isSprinting() || limbSwingAmount > 0.9F;
         boolean isCrouching = entity.isCrouching();
         boolean isPassenger = entity.isPassenger();
-        boolean isSitting = entity.getIsSitting() || isPassenger;
+        boolean isSitting = entity.getIsSitting() || (isPassenger && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
 
         if (isSprinting) {
             this.Head.xRot -= 0.5F;

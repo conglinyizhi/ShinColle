@@ -15,7 +15,7 @@ license = "${mod_license}"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]]
 modId = "shincolle"
-version = "0.7.5"
+version = "0.7.9"
 displayName = "Shinkaiseikan Collection"
 # A URL to query for updates for this mod. See the JSON update specification https://docs.neoforge.net/docs/misc/updatechecker/
 #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
@@ -74,3 +74,6 @@ side = "BOTH"
 # stop your mod loading on the server for example.
 #[features."${mod_id}"]
 #openGLVersion="[3.2,)"
+
+[[mixins]]
+config = "mixins.shincolle.json"

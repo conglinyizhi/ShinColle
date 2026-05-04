@@ -209,7 +209,22 @@ public class ModelMountAfH<T extends Entity> extends EntityModel<T> implements I
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = (float) Math.cos(ageInTicks * 0.08F);
+
+        float offsetY = 0.6F;
+        if (entity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getShipDepth() > 0.0) {
+            offsetY = angleX * 0.025F + 0.025F;
+        }
+        this.BodyMain.y = offsetY * 16.0F;
+        this.GlowBodyMain.y = this.BodyMain.y;
+
+        this.Jaw.xRot = angleX * 0.1F + 0.4F;
+        this.GlowJaw.xRot = this.Jaw.xRot;
+
+        this.EquipCannon01.xRot = angleX * 0.08F - 0.32F;
+        this.EquipCannon02.xRot = -angleX * 0.14F;
+        this.EquipCannon01_1.xRot = -angleX * 0.12F - 0.18F;
+        this.EquipCannon02_1.xRot = angleX * 0.08F + 0.18F;
     }
 
     @Override
