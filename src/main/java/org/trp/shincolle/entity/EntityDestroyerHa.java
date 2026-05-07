@@ -9,7 +9,11 @@ import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
 
+import java.util.List;
+
 public class EntityDestroyerHa extends EntityShipBase {
+
+    public static final String EQUIP_HEAD_ORNAMENT = "equip_head_ornament";
 
     public EntityDestroyerHa(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -37,6 +41,13 @@ public class EntityDestroyerHa extends EntityShipBase {
             return this.getBbHeight() * 0.27f;
         }
         return this.getBbHeight() * 0.7f;
+    }
+
+    @Override
+    public List<EquipOption> getEquipOptions() {
+        List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
+        list.add(new EquipOption(EQUIP_HEAD_ORNAMENT, "gui.shincolle.equip.head_ornament"));
+        return list;
     }
 
     private void applyBuffToOwner() {

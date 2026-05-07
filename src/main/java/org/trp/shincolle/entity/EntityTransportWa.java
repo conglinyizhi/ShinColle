@@ -27,6 +27,7 @@ public class EntityTransportWa extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 16);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 0);
         setStateMinor(STATE_MINOR_RARITY, 3);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeAP);
         setStateGuiBtn1(false);
         setStateGuiBtn2(false);
         setStateGuiBtn3(false);
@@ -140,29 +141,29 @@ public class EntityTransportWa extends EntityShipBase {
     private void consumeSupplyItems(int type) {
         switch (type) {
             case 0:
-                if (consumeSupplyItem(ModItems.GRUDGE.get())) {
+                if (consumeItemInInventory(ModItems.GRUDGE.get())) {
                     addGrudge(3000);
                     break;
                 }
-                if (consumeSupplyItem(ModItems.GRUDGE_HEAVY_BLOCK.get())) {
+                if (consumeItemInInventory(ModItems.GRUDGE_HEAVY_BLOCK.get())) {
                     addGrudge(27000);
                 }
                 break;
             case 1:
-                if (consumeSupplyItem(ModItems.AMMO_LIGHT.get())) {
+                if (consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
                     addAmmoLight(300);
                     break;
                 }
-                if (consumeSupplyItem(ModItems.AMMO_LIGHT_CONTAINER.get())) {
+                if (consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())) {
                     addAmmoLight(2700);
                 }
                 break;
             case 2:
-                if (consumeSupplyItem(ModItems.AMMO_HEAVY.get())) {
+                if (consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
                     addAmmoHeavy(150);
                     break;
                 }
-                if (consumeSupplyItem(ModItems.AMMO_HEAVY_CONTAINER.get())) {
+                if (consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())) {
                     addAmmoHeavy(1350);
                 }
                 break;
@@ -170,17 +171,6 @@ public class EntityTransportWa extends EntityShipBase {
         }
     }
 
-    private boolean consumeSupplyItem(Item item) {
-        for (int slot = 0; slot < this.inventory.getSlots(); slot++) {
-            ItemStack stack = this.inventory.getStackInSlot(slot);
-            if (!stack.isEmpty() && stack.is(item)) {
-                stack.shrink(1);
-                this.inventory.setStackInSlot(slot, stack);
-                return true;
-            }
-        }
-        return false;
-    }
 
     private void addGrudge(int amount) {
         int next = Math.max(0, this.getStateMinor(6) + amount);

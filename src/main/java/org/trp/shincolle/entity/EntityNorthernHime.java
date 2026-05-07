@@ -31,6 +31,7 @@ public class EntityNorthernHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 31);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBBV);
     }
 
     @Override

@@ -31,7 +31,7 @@ public abstract class ShipModelHumanoidBase<T extends EntityShipBase> extends Sh
         float angleAdd2 = (float) Math.cos(limbSwing * 0.7F + (float) Math.PI) * limbSwingAmount;
         float addk1 = angleAdd1 - legBaseXRotOffset;
         float addk2 = angleAdd2 - legBaseXRotOffset;
-        boolean isSitting = entity != null && entity.isInSittingPose() && !(entity.getVehicle() instanceof EntityMountBase);
+        boolean isSitting = entity != null && entity.getIsSitting() && !(entity.getVehicle() instanceof EntityMountBase);
 
         return new PoseContext(angleX, angleAdd1, angleAdd2, addk1, addk2, isSitting);
     }

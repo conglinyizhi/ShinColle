@@ -20,6 +20,23 @@ public class Config {
     private static final ModConfigSpec.IntValue SHIP_MAX_LEVEL_MARRIED;
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MIN;
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MAX;
+    private static final ModConfigSpec.IntValue FUEL_DECAY_INTERVAL;
+    private static final ModConfigSpec.IntValue FUEL_MOVE_DECAY_FACTOR;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_DD;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_CL;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_CA;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_CAV;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_CLT;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_CVL;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_CV;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_BB;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_BBV;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_SS;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_AP;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_ACTION_LIGHT;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_ACTION_HEAVY;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT;
+    private static final ModConfigSpec.IntValue FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT;
 
         private static final ModConfigSpec.DoubleValue HOSTILE_DROP_GRUDGE_RATE;
         private static final ModConfigSpec.IntValue HOSTILE_DEATH_MAX_TICKS;
@@ -48,6 +65,23 @@ public class Config {
     public static int shipMaxLevelMarried = 150;
     public static int trainingBookLevelMin = 5;
     public static int trainingBookLevelMax = 10;
+    public static int fuelDecayInterval = 128;
+    public static int fuelMoveDecayFactor = 3;
+    public static int fuelConsumeDD = 5;
+    public static int fuelConsumeCL = 7;
+    public static int fuelConsumeCA = 8;
+    public static int fuelConsumeCAV = 9;
+    public static int fuelConsumeCLT = 8;
+    public static int fuelConsumeCVL = 11;
+    public static int fuelConsumeCV = 12;
+    public static int fuelConsumeBB = 15;
+    public static int fuelConsumeBBV = 14;
+    public static int fuelConsumeSS = 4;
+    public static int fuelConsumeAP = 3;
+    public static int fuelConsumeActionLight = 4;
+    public static int fuelConsumeActionHeavy = 8;
+    public static int fuelConsumeActionLightAircraft = 6;
+    public static int fuelConsumeActionHeavyAircraft = 12;
 
         public static float hostileDropGrudgeRate = 1.0F;
         public static int hostileDeathMaxTicks = 400;
@@ -109,6 +143,35 @@ public class Config {
         TRAINING_BOOK_LEVEL_MAX = BUILDER
                 .comment("Training book maximum level gain")
                 .defineInRange("trainingBookLevelMax", trainingBookLevelMax, 1, 50);
+
+        BUILDER.pop();
+
+        BUILDER.comment("Grudge/Fuel consumption settings").push("fuel");
+
+        FUEL_DECAY_INTERVAL = BUILDER
+                .comment("Interval in ticks between fuel decay checks")
+                .defineInRange("decayInterval", fuelDecayInterval, 1, 10000);
+
+        FUEL_MOVE_DECAY_FACTOR = BUILDER
+                .comment("Movement fuel consumption factor (consumption = distance * factor)")
+                .defineInRange("moveDecayFactor", fuelMoveDecayFactor, 0, 1000);
+
+        FUEL_CONSUME_DD = BUILDER.defineInRange("consumeDD", fuelConsumeDD, 0, 1000);
+        FUEL_CONSUME_CL = BUILDER.defineInRange("consumeCL", fuelConsumeCL, 0, 1000);
+        FUEL_CONSUME_CA = BUILDER.defineInRange("consumeCA", fuelConsumeCA, 0, 1000);
+        FUEL_CONSUME_CAV = BUILDER.defineInRange("consumeCAV", fuelConsumeCAV, 0, 1000);
+        FUEL_CONSUME_CLT = BUILDER.defineInRange("consumeCLT", fuelConsumeCLT, 0, 1000);
+        FUEL_CONSUME_CVL = BUILDER.defineInRange("consumeCVL", fuelConsumeCVL, 0, 1000);
+        FUEL_CONSUME_CV = BUILDER.defineInRange("consumeCV", fuelConsumeCV, 0, 1000);
+        FUEL_CONSUME_BB = BUILDER.defineInRange("consumeBB", fuelConsumeBB, 0, 1000);
+        FUEL_CONSUME_BBV = BUILDER.defineInRange("consumeBBV", fuelConsumeBBV, 0, 1000);
+        FUEL_CONSUME_SS = BUILDER.defineInRange("consumeSS", fuelConsumeSS, 0, 1000);
+        FUEL_CONSUME_AP = BUILDER.defineInRange("consumeAP", fuelConsumeAP, 0, 1000);
+
+        FUEL_CONSUME_ACTION_LIGHT = BUILDER.defineInRange("consumeActionLight", fuelConsumeActionLight, 0, 1000);
+        FUEL_CONSUME_ACTION_HEAVY = BUILDER.defineInRange("consumeActionHeavy", fuelConsumeActionHeavy, 0, 1000);
+        FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT = BUILDER.defineInRange("consumeActionLightAircraft", fuelConsumeActionLightAircraft, 0, 1000);
+        FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT = BUILDER.defineInRange("consumeActionHeavyAircraft", fuelConsumeActionHeavyAircraft, 0, 1000);
 
         BUILDER.pop();
 
@@ -187,6 +250,24 @@ public class Config {
         shipMaxLevelMarried = Math.max(shipMaxLevelNormal, SHIP_MAX_LEVEL_MARRIED.get());
         trainingBookLevelMin = TRAINING_BOOK_LEVEL_MIN.get();
         trainingBookLevelMax = Math.max(trainingBookLevelMin, TRAINING_BOOK_LEVEL_MAX.get());
+
+        fuelDecayInterval = FUEL_DECAY_INTERVAL.get();
+        fuelMoveDecayFactor = FUEL_MOVE_DECAY_FACTOR.get();
+        fuelConsumeDD = FUEL_CONSUME_DD.get();
+        fuelConsumeCL = FUEL_CONSUME_CL.get();
+        fuelConsumeCA = FUEL_CONSUME_CA.get();
+        fuelConsumeCAV = FUEL_CONSUME_CAV.get();
+        fuelConsumeCLT = FUEL_CONSUME_CLT.get();
+        fuelConsumeCVL = FUEL_CONSUME_CVL.get();
+        fuelConsumeCV = FUEL_CONSUME_CV.get();
+        fuelConsumeBB = FUEL_CONSUME_BB.get();
+        fuelConsumeBBV = FUEL_CONSUME_BBV.get();
+        fuelConsumeSS = FUEL_CONSUME_SS.get();
+        fuelConsumeAP = FUEL_CONSUME_AP.get();
+        fuelConsumeActionLight = FUEL_CONSUME_ACTION_LIGHT.get();
+        fuelConsumeActionHeavy = FUEL_CONSUME_ACTION_HEAVY.get();
+        fuelConsumeActionLightAircraft = FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT.get();
+        fuelConsumeActionHeavyAircraft = FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT.get();
 
                 hostileDropGrudgeRate = HOSTILE_DROP_GRUDGE_RATE.get().floatValue();
                 hostileDeathMaxTicks = HOSTILE_DEATH_MAX_TICKS.get();

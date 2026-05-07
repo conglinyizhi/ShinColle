@@ -31,12 +31,16 @@ public class RendererSimpleMob<T extends Mob, M extends EntityModel<T>> extends 
 
     @Override
     protected void scale(T entity, PoseStack poseStack, float partialTickTime) {
-        float s = this.modelScale;
-        if (entity instanceof org.trp.shincolle.entity.base.EntityShipBase ship) {
-            s = LegacyScale.getScale(ship, this.model);
-        } else if (entity instanceof org.trp.shincolle.entity.EntityAircraftBase aircraft) {
-            s = aircraft.isMissionLightAircraft() ? 0.5f : 0.6f;
+        float s = LegacyScale.getScale(entity, this.model);
+        
+        if (s == 0.34f && this.modelScale != 0.34f) {
+            s = this.modelScale;
         }
+        
+        if (s == 0.34f && entity instanceof org.trp.shincolle.entity.EntityAircraftBase aircraft) {
+             s = aircraft.isMissionLightAircraft() ? 0.5f : 0.6f;
+        }
+        
         poseStack.scale(s, s, s);
     }
 

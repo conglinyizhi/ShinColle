@@ -372,10 +372,13 @@ public abstract class EntityMountBase extends PathfinderMob {
             LivingEntity rider = getControllingPassenger();
             if (rider != null) {
                 this.setYRot(rider.getYRot());
-                this.yRotO = rider.getYRot();
+                this.yRotO = rider.yRotO;
                 this.setXRot(rider.getXRot());
+                this.xRotO = rider.xRotO;
                 this.yBodyRot = rider.yBodyRot;
+                this.yBodyRotO = rider.yBodyRotO;
                 this.yHeadRot = rider.getYHeadRot();
+                this.yHeadRotO = rider.yHeadRotO;
             }
         } else if (Math.abs(this.getX() - this.xo) > 0.001 || Math.abs(this.getZ() - this.zo) > 0.001) {
             handleAIMovementRotation();
@@ -401,7 +404,9 @@ public abstract class EntityMountBase extends PathfinderMob {
             this.setYRot(h.getYRot());
             this.yRotO = h.yRotO;
             this.yBodyRot = h.yBodyRot;
+            this.yBodyRotO = h.yBodyRotO;
             this.yHeadRot = h.getYHeadRot();
+            this.yHeadRotO = h.yHeadRotO;
             this.setXRot(h.getXRot());
             this.xRotO = h.xRotO;
         }
@@ -413,7 +418,9 @@ public abstract class EntityMountBase extends PathfinderMob {
             h.setYRot(this.getYRot());
             h.yRotO = this.yRotO;
             h.yBodyRot = this.yBodyRot;
+            h.yBodyRotO = this.yBodyRotO;
             h.yHeadRot = this.yHeadRot;
+            h.yHeadRotO = this.yHeadRotO;
             h.setXRot(this.getXRot());
             h.xRotO = this.xRotO;
         }
@@ -604,6 +611,8 @@ public abstract class EntityMountBase extends PathfinderMob {
         if (compound.hasUUID("HostUUID")) setHostUUID(compound.getUUID("HostUUID"));
         setStateEmotion(compound.getInt("StateEmotion"));
     }
+
+    public float[] getSeatPos() { return this.seatPos; }
 
     public void setSeatPos(float x, float y, float z) {
         this.seatPos[0] = x; this.seatPos[1] = y; this.seatPos[2] = z;

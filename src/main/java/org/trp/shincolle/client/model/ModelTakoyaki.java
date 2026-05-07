@@ -8,10 +8,9 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.Shincolle;
-
-import org.trp.shincolle.client.model.IGlowableModel;
 
 public class ModelTakoyaki<T extends Entity> extends EntityModel<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "takoyaki"), "main");
@@ -81,7 +80,16 @@ public class ModelTakoyaki<T extends Entity> extends EntityModel<T> implements I
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float headRadY = netHeadYaw * ((float) Math.PI / 180F);
+        float headRadX = headPitch * ((float) Math.PI / 180F);
+
+        this.BodyMain.yRot = headRadY;
+        this.BodyMain.xRot = headRadX;
+        this.GlowBodyMain.yRot = headRadY;
+        this.GlowBodyMain.xRot = headRadX;
+
+        this.JawMain.zRot = 0.0F;
+        this.JawMain.xRot = Mth.cos(ageInTicks * 0.125F) * 0.2F + 1.1F;
     }
 
     @Override

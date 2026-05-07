@@ -64,6 +64,7 @@ public class ModTabs {
                 output.accept(ModItems.SUBM_RO500_SPAWN_EGG.get());
                 output.accept(ModItems.POINTER_ITEM.get());
                 output.accept(ModItems.INSTANT_CON_MAT.get());
+                output.accept(ModItems.KAITAI_HAMMER.get());
                 output.accept(ModItems.MARRIAGE_RING.get());
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE);
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AMMO);
@@ -80,7 +81,11 @@ public class ModTabs {
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_TORPEDO);
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_TURBINE);
                 ModItems.addCombatRationVariants(output);
+                output.accept(ModItems.BUCKET_REPAIR.get());
+                output.accept(ModItems.TOY_AIRPLANE.get());
                 output.accept(ModItems.TRAINING_BOOK.get());
+                output.accept(ModItems.DESK_ITEM_BOOK.get());
+                output.accept(ModItems.DESK_ITEM_RADAR.get());
                 output.accept(ModItems.AMMO_LIGHT.get());
                 output.accept(ModItems.AMMO_LIGHT_CONTAINER.get());
                 output.accept(ModItems.AMMO_HEAVY.get());

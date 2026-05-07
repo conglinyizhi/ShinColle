@@ -927,7 +927,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         entity.setYRot(180.0F + f * 40.0F);
         entity.yHeadRotO = entity.getYRot();
         entity.yHeadRot = entity.getYRot();
-        entity.setXRot(f1 * 20.0F);
+        entity.setXRot(-f1 * 20.0F);
 
         EntityRenderDispatcher entityRenderDispatcher = Minecraft.getInstance().getEntityRenderDispatcher();
         quaternionf1.conjugate();

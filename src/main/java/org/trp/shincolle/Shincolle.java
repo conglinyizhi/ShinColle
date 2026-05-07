@@ -25,6 +25,7 @@ public class Shincolle {
         ModMenus.MENUS.register(modEventBus);
         ModParticles.PARTICLES.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);
+        ModDataAttachments.ATTACHMENT_TYPES.register(modEventBus);
         modEventBus.addListener(ModCapabilityEvents::registerCapabilities);
     }
 }

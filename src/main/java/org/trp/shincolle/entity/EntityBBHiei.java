@@ -26,6 +26,7 @@ public class EntityBBHiei extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 61);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 2);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn4(false);
     }
 

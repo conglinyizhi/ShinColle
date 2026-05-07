@@ -22,4 +22,8 @@ public class ModMenus {
         "large_shipyard_menu",
         () -> IMenuTypeExtension.create(LargeShipyardMenu::new)
     );
+    public static final DeferredHolder<MenuType<?>, MenuType<DeskMenu>> DESK_MENU = MENUS.register(
+        "desk_menu",
+        () -> IMenuTypeExtension.create(DeskMenu::new)
+    );
 }

@@ -8,10 +8,11 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.entity.base.EntityShincolleSimpleMob;
 
-public class ModelRensouhou<T extends Entity> extends EntityModel<T> {
+public class ModelRensouhou<T extends EntityShincolleSimpleMob> extends EntityModel<T> {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "rensouhou"), "main");
 
     private final ModelPart BodyMain;
@@ -103,7 +104,43 @@ public class ModelRensouhou<T extends Entity> extends EntityModel<T> {
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = Mth.cos(ageInTicks * 0.08F);
+        float angleRun = Mth.cos(limbSwing) * limbSwingAmount;
+        float addk1 = Mth.cos(limbSwing * 0.7F) * limbSwingAmount + 0.7F;
+        float addk2 = Mth.cos(limbSwing * 0.7F + (float) Math.PI) * limbSwingAmount + 0.7F;
+
+        this.Head.yRot = netHeadYaw * ((float) Math.PI / 180F);
+        this.BodyMain.xRot = 0.0F;
+        this.ArmLeft.xRot = angleX * 0.3F + 0.9F;
+        this.ArmRight.xRot = angleX * 0.3F + 0.9F;
+        this.CannonL01.xRot = angleX * 0.05F - 0.5F;
+        this.CannonR01.xRot = -angleX * 0.05F - 0.5F;
+        this.Propeller.zRot = ageInTicks / 4.0F;
+
+        if (limbSwingAmount > 0.9F) {
+            this.setFace(2);
+            this.BodyMain.xRot = 0.2618F;
+            this.ArmLeft.xRot = angleRun * 0.3F + 0.9F;
+            this.ArmRight.xRot = angleRun * 0.3F + 0.9F;
+            this.CannonL01.xRot = angleRun * 0.05F - 0.5F;
+            this.CannonR01.xRot = -angleRun * 0.05F - 0.5F;
+            this.Propeller.zRot = limbSwing / 2.0F;
+        } else {
+            this.setFace(0);
+        }
+
+        if (entity != null && entity.getAttackTick() > 0) {
+            this.setFace(2);
+        }
+
+        this.LegLeft.xRot = addk1;
+        this.LegRight.xRot = addk2;
+    }
+
+    private void setFace(int emo) {
+        this.Face0.visible = (emo == 0);
+        this.Face1.visible = (emo == 1);
+        this.Face2.visible = (emo == 2);
     }
 
     @Override

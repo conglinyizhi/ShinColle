@@ -28,6 +28,7 @@ public class EntityBBKongou extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 60);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 4);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn4(false);
     }
 

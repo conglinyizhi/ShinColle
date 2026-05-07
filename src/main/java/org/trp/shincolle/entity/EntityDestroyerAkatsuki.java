@@ -23,6 +23,10 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
 
     public static final String EQUIP_RIGGING = "equip_rigging";
     public static final String EQUIP_ANCHOR = "equip_anchor";
+    public static final String EQUIP_HAT = "equip_hat";
+    public static final String EQUIP_HAND_CANNON = "equip_hand_cannon";
+    public static final String EQUIP_ARM_TORPEDO = "equip_arm_torpedo";
+    public static final String EQUIP_SHOULDER_SEARCHLIGHT = "equip_shoulder_searchlight";
 
     private static final int STATE_FLAG_15 = 15;
     private static final int STATE_FLAG_16 = 16;
@@ -40,6 +44,7 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         setStateMinor(STATE_MINOR_SHIP_CLASS, 51);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5);
         setStateMinor(STATE_MINOR_RARITY, 5);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeDD);
         setModelPos(new float[]{0.0f, 25.0f, 0.0f, 50.0f});
         setStateFlag(STATE_FLAG_15, false);
         setStateFlag(STATE_FLAG_16, false);
@@ -71,6 +76,10 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
         List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
         list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
         list.add(new EquipOption(EQUIP_ANCHOR, "gui.shincolle.equip.anchor"));
+        list.add(new EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"));
+        list.add(new EquipOption(EQUIP_HAND_CANNON, "gui.shincolle.equip.cannon"));
+        list.add(new EquipOption(EQUIP_ARM_TORPEDO, "gui.shincolle.equip.torpedo"));
+        list.add(new EquipOption(EQUIP_SHOULDER_SEARCHLIGHT, "gui.shincolle.equip.shoulder_searchlight"));
         return list;
     }
 

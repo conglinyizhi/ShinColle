@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "m": {
+      "item": "shincolle:abyss_polymetal"
+    },
+    "t": {
+      "item": "minecraft:cauldron"
+    }
+  },
+  "pattern": [
+    "mtm",
+    "mtm",
+    "mtm"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:shiptank"
+  }
+}

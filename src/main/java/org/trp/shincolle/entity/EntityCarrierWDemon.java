@@ -24,6 +24,7 @@ public class EntityCarrierWDemon extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 33);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
         setStateMinor(STATE_MINOR_RARITY, 2);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCV);
         setStateGuiBtn2(false);
     }
 

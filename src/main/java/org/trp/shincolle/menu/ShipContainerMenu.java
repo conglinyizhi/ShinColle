@@ -421,6 +421,14 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public ShipContainerMenu(int containerId, Inventory playerInv, EntityShipBase ship) {
         super(ModMenus.SHIP_MENU.get(), containerId);
         this.ship = ship;
+
+        if (!ship.level().isClientSide && playerInv.player != null) {
+            int classID = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
+            if (classID >= 0) {
+                playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS).add(classID);
+            }
+        }
+
         this.unlockedStoragePagesSynced = Mth.clamp(ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, SHIP_PAGE_COUNT - 1);
         this.canMeleeSynced = ship.isStateCanMelee();
         this.lightAttackSynced = ship.isStateLightAttack();

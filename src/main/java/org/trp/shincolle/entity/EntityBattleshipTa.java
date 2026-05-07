@@ -68,20 +68,20 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         if (target == null || !target.isAlive()) {
             return;
         }
-        if (this.numRensouhou <= 0) {
-            return;
-        }
-        if (!consumeLightAmmo(4)) {
-            return;
-        }
 
-        this.numRensouhou--;
-        this.setAttackTick(50);
-        this.applyEmotesReaction(3);
-
-        serverLevel.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0D, this.getZ(),
-                10, 0.25D, 0.1D, 0.25D, 0.02D);
-        summonRensouhou(serverLevel);
+        if (this.numRensouhou > 0 && this.getRandom().nextInt(3) == 0) {
+            if (consumeLightAmmo(4)) {
+                this.numRensouhou--;
+                this.setAttackTick(100);
+                this.applyEmotesReaction(3);
+                serverLevel.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0D, this.getZ(),
+                        10, 0.25D, 0.1D, 0.25D, 0.02D);
+                summonRensouhou(serverLevel, target);
+                return;
+            }
+        }
+        
+        super.performLightAttack(target);
     }
 
     @Override
@@ -136,17 +136,19 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         }
     }
 
-    private void summonRensouhou(ServerLevel serverLevel) {
+    private void summonRensouhou(ServerLevel serverLevel, Entity target) {
         if (checkModelState(0, this.getStateEmotion(0))) {
             EntityRensouhou rensouhou = ModEntities.RENSOUHOU.get().create(serverLevel);
             if (rensouhou != null) {
                 rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                rensouhou.initSummon(this, target, 0);
                 serverLevel.addFreshEntity(rensouhou);
             }
         } else {
             EntityRensouhouS rensouhouS = ModEntities.RENSOUHOU_S.get().create(serverLevel);
             if (rensouhouS != null) {
                 rensouhouS.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                rensouhouS.initSummon(this, target, 0);
                 serverLevel.addFreshEntity(rensouhouS);
             }
         }

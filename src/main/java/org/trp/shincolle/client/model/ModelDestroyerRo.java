@@ -207,6 +207,7 @@ public class ModelDestroyerRo<T extends Entity> extends EntityModel<T> implement
         LegLeftFront.yRot = 0.0F;
 
         applyFaceFromEntity(ship);
+        applyEquipVisibility(ship);
         applyLook(netHeadYaw, headPitch, angleX);
         if (ship.isInSittingPose()) {
             applySittingPose(ship, angleX);
@@ -230,6 +231,14 @@ public class ModelDestroyerRo<T extends Entity> extends EntityModel<T> implement
         FaceR01.visible = faceIndex == 1;
         FaceL02.visible = faceIndex == 2;
         FaceR02.visible = faceIndex == 2;
+    }
+
+    private void applyEquipVisibility(EntityShipBase ship) {
+        boolean show = ship.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerRo.EQUIP_HEAD_ORNAMENT);
+        k00.visible = show;
+        k01.visible = show;
+        k02.visible = show;
+        k03.visible = show;
     }
 
     private void applyLook(float headYaw, float headPitch, float angleX) {

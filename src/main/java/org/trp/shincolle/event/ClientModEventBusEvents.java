@@ -240,6 +240,7 @@ public class ClientModEventBusEvents {
         event.register(ModMenus.SHIP_MENU.get(), ShipInventoryScreen::new);
                 event.register(ModMenus.SMALL_SHIPYARD_MENU.get(), SmallShipyardScreen::new);
                 event.register(ModMenus.LARGE_SHIPYARD_MENU.get(), LargeShipyardScreen::new);
+                event.register(ModMenus.DESK_MENU.get(), org.trp.shincolle.client.screen.DeskScreen::new);
     }
 
     @SubscribeEvent

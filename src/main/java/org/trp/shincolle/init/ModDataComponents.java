@@ -16,6 +16,16 @@ public final class ModDataComponents {
                     .persistent(SimpleFluidContent.CODEC)
                     .networkSynchronized(SimpleFluidContent.STREAM_CODEC));
 
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BOOK_PAGE =
+            DATA_COMPONENTS.registerComponentType("book_page", builder -> builder
+                    .persistent(net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BOOK_CHAPTER =
+            DATA_COMPONENTS.registerComponentType("book_chapter", builder -> builder
+                    .persistent(net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.VAR_INT));
+
     private ModDataComponents() {
     }
 }

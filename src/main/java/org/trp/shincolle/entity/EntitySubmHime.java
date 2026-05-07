@@ -32,6 +32,7 @@ public class EntitySubmHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 44);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6);
         setStateMinor(STATE_MINOR_RARITY, 3);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeSS);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
         setStateCanRide(true);

@@ -467,6 +467,7 @@ public class ModelCarrierHime<T extends EntityShipBase> extends ShipModelHumanoi
 
         this.Head.xRot = headPitch * ((float) Math.PI / 180F) * 0.8F;
         this.Head.yRot = netHeadYaw * ((float) Math.PI / 180F) * 0.57F;
+        this.Head.zRot = 0.0F;
 
         this.BoobL.xRot = angleX * 0.06F - 0.75F;
         this.BoobR.xRot = angleX * 0.06F - 0.75F;
@@ -609,8 +610,8 @@ public class ModelCarrierHime<T extends EntityShipBase> extends ShipModelHumanoi
                     this.GlowBodyMain2.visible = false;
                 } else {
                     this.poseTranslateY += 0.51F * 3;
-                    this.Head.yRot -= 0.4F;
-                    this.Head.zRot += 0.2F;
+                    this.Head.yRot = -0.4F;
+                    this.Head.zRot = 0.2F;
                     this.BodyMain.xRot = -0.25F;
                     this.Butt.xRot = -0.2F;
                     this.Skirt01.xRot = -0.13F;

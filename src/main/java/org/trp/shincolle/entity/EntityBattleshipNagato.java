@@ -35,6 +35,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 37);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 2);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }
@@ -91,6 +92,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
         if (!consumeHeavyAmmo(1)) {
             return false;
         }
+        this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
 
         int phase = this.getStateEmotion(EMOTION_ATTACK_PHASE) + 1;
         if (phase > 3) {

@@ -35,6 +35,7 @@ public class EntityCarrierAkagi extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 48);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1);
         setStateMinor(STATE_MINOR_RARITY, 8);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCV);
         setStateGuiBtn1(false);
         setStateGuiBtn2(false);
 }

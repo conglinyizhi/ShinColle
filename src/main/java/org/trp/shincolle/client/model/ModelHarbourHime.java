@@ -220,6 +220,18 @@ public class ModelHarbourHime<T extends EntityShipBase> extends ShipModelHumanoi
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
+        float partialTick = ageInTicks - (float)entity.tickCount;
+        if (entity.isPassenger() && entity.getVehicle() instanceof net.minecraft.world.entity.LivingEntity vehicle) {
+            limbSwingAmount = vehicle.walkAnimation.speed(partialTick);
+            limbSwing = vehicle.walkAnimation.position(partialTick);
+
+            if (vehicle instanceof org.trp.shincolle.entity.base.EntityMountBase) {
+                float vBodyRot = net.minecraft.util.Mth.lerp(partialTick, vehicle.yBodyRotO, vehicle.yBodyRot);
+                float vHeadRot = net.minecraft.util.Mth.lerp(partialTick, vehicle.yHeadRotO, vehicle.yHeadRot);
+                netHeadYaw = vHeadRot - vBodyRot;
+                headPitch = net.minecraft.util.Mth.lerp(partialTick, vehicle.xRotO, vehicle.getXRot());
+            }
+        }
         PoseContext ctx = computePoseContext(entity, limbSwing, limbSwingAmount, ageInTicks, 0.0F);
         this.resetOffsets();
         this.applyEquipVisibility(entity);
@@ -388,7 +400,7 @@ public class ModelHarbourHime<T extends EntityShipBase> extends ShipModelHumanoi
     private void applySpecialPoseAdjustments(T entity, PoseContext ctx, float limbSwing, float limbSwingAmount, float ageInTicks) {
         boolean isCrouching = entity.isCrouching();
         boolean isPassenger = entity.isPassenger();
-        boolean isSitting = ctx.isSitting || (entity != null && entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
+        boolean isSitting = (entity != null && entity.getIsSitting()) || (entity != null && entity.isPassenger() && !(entity.getVehicle() instanceof org.trp.shincolle.entity.base.EntityMountBase));
 
         if (isCrouching) {
             this.poseTranslateY += SNEAK_TRANSLATE_Y;

@@ -169,6 +169,7 @@ public class ModelDestroyerHa<T extends Entity> extends EntityModel<T> implement
         LegRightFront.zRot = 0.0F;
 
         applyFaceFromEntity(ship);
+        applyEquipVisibility(ship);
         applyLook(netHeadYaw, headPitch, angleX);
         if (ship.isInSittingPose()) {
             applySittingPose(ship, ageInTicks);
@@ -189,6 +190,14 @@ public class ModelDestroyerHa<T extends Entity> extends EntityModel<T> implement
         Face00.visible = faceIndex == 0;
         Face01.visible = faceIndex == 1;
         Face02.visible = faceIndex == 2;
+    }
+
+    private void applyEquipVisibility(EntityShipBase ship) {
+        boolean show = ship.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerHa.EQUIP_HEAD_ORNAMENT);
+        k00.visible = show;
+        k01.visible = show;
+        k02.visible = show;
+        k03.visible = show;
     }
 
     private void applyLook(float headYaw, float headPitch, float angleX) {

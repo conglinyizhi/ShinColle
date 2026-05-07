@@ -35,6 +35,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 46);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3);
         setStateMinor(STATE_MINOR_RARITY, 4);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
         setStateGuiBtn3(false);
         setStateGuiBtn4(false);
     }
@@ -101,6 +102,7 @@ public class EntityBattleshipYamato extends EntityShipBase {
             if (!consumeHeavyAmmo(1)) {
                 return false;
             }
+            this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
             float baseDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float damage = Math.max(6.0F, baseDamage * 1.6F);
             spawnBeamEntity(serverLevel, target, damage);

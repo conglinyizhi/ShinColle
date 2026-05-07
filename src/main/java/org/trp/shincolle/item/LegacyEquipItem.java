@@ -91,7 +91,7 @@ public class LegacyEquipItem extends Item {
     public Component getName(ItemStack stack) {
         int variant = getVariant(stack);
         String suffix = variant > 0 ? String.valueOf(variant) : "";
-        return Component.translatable("item.shincolle:" + this.legacyNameBase + suffix + ".name");
+        return Component.translatable("item.shincolle." + this.legacyNameBase + suffix + ".name");
     }
 
     @Override

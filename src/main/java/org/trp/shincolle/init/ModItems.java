@@ -11,16 +11,7 @@ import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
-import org.trp.shincolle.item.GrudgeItem;
-import org.trp.shincolle.item.CombatRationItem;
-import org.trp.shincolle.item.LegacyEquipItem;
-import org.trp.shincolle.item.PointerItem;
-import org.trp.shincolle.item.RandomShipSpawnEggItem;
-import org.trp.shincolle.item.ShipClass;
-import org.trp.shincolle.item.ShipTankItem;
-import org.trp.shincolle.item.ShipSpawnEggItem;
-import org.trp.shincolle.item.SmallShipyardBlockItem;
-import org.trp.shincolle.item.TrainingBookItem;
+import org.trp.shincolle.item.*;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Shincolle.MODID);
@@ -201,11 +192,17 @@ public class ModItems {
     public static final DeferredItem<Item> COMBAT_RATION = ITEMS.register("combatration",
             () -> new CombatRationItem(new Item.Properties().stacksTo(16)));
 
+    public static final DeferredItem<Item> BUCKET_REPAIR = ITEMS.register("bucketrepair",
+            () -> new BucketRepairItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<Item> TOY_AIRPLANE = ITEMS.register("toyairplane",
+            () -> new ToyAirplaneItem(new Item.Properties().stacksTo(16)));
+
     public static final DeferredItem<Item> INSTANT_CON_MAT = ITEMS.register("instantconmat",
             () -> new Item(new Item.Properties()));
 
     public static final DeferredItem<Item> KAITAI_HAMMER = ITEMS.register("kaitaihammer",
-            () -> new Item(new Item.Properties().stacksTo(1)));
+            () -> new KaitaiHammerItem(new Item.Properties()));
 
     public static final DeferredItem<Item> MARRIAGE_RING = ITEMS.register("marriagering",
             () -> new org.trp.shincolle.item.MarriageRingItem(new Item.Properties().stacksTo(1)));
@@ -253,7 +250,11 @@ public class ModItems {
             () -> new LegacyEquipItem(new Item.Properties(), "EquipTurbine", EQUIP_TURBINE_TYPES));
 
     public static final DeferredItem<Item> TRAINING_BOOK = ITEMS.register("trainingbook",
-            () -> new TrainingBookItem(new Item.Properties()));
+            () -> new TrainingBookItem(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> DESK_ITEM_BOOK = ITEMS.register("deskitembook",
+            () -> new DeskItemBook(new Item.Properties().stacksTo(1)));
+    public static final DeferredItem<Item> DESK_ITEM_RADAR = ITEMS.register("deskitemradar",
+            () -> new DeskItemRadar(new Item.Properties().stacksTo(1)));
 
     public static final DeferredItem<Item> AMMO_LIGHT = ITEMS.register("ammo",
             () -> new Item(new Item.Properties()));

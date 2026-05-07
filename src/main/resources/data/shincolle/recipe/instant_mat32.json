@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "shincolle:kaitaihammer"
+    },
+    {
+      "item": "shincolle:shipspawneggl"
+    }
+  ],
+  "result": {
+    "count": 64,
+    "id": "shincolle:instantconmat"
+  }
+}

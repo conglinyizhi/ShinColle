@@ -41,6 +41,7 @@ public class EntityBattleshipRe extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 15);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 3);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
     }
 
 
@@ -74,6 +75,7 @@ public class EntityBattleshipRe extends EntityShipBase {
         if (!consumeLightAmmo(1)) {
             return;
         }
+        this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLight);
 
         float damage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
         if (damage <= 0.0F) {
@@ -81,9 +83,16 @@ public class EntityBattleshipRe extends EntityShipBase {
         }
         boolean hurt = target.hurt(this.damageSources().mobAttack(this), damage);
 
+        this.spawnLightAttackMuzzleParticles(serverLevel, target);
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_LIGHTNING.get(),
+                this.getX(), this.getY() + 1.5D, this.getZ(),
+                1, 0.1D, (double)this.getId(), 0.0D, 0.0D);
         serverLevel.sendParticles(ParticleTypes.ELECTRIC_SPARK,
                 target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ(),
                 4, 0.2D, 0.2D, 0.2D, 0.0D);
+        
+        this.playSound(org.trp.shincolle.init.ModSounds.SHIP_FIRELIGHT.get(), this.getSoundVolume(),
+                this.getRandom().nextFloat() * 0.12F + 0.98F);
 
         this.setAttackTick(50);
         this.applyEmotesReaction(3);

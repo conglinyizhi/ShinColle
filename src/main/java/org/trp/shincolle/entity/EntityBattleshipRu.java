@@ -41,6 +41,7 @@ public class EntityBattleshipRu extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 13);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2);
         setStateMinor(STATE_MINOR_RARITY, 2);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeBB);
     }
 
     @Override

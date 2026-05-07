@@ -1,3 +1,10 @@
+## v0.8.0(2026/05/07 JST)
+- Implemented several items and recipes
+- Fixed issues related to entity appearance
+- Replaced Grudge consumption logics
+- Added a bookmark feature to DeskItemBook
+- Other minor fixes
+
 ## v0.7.9(2026/05/05 JST)
 - Temporarily implemented Mount entity
 - Temporarily implemented Minion entity

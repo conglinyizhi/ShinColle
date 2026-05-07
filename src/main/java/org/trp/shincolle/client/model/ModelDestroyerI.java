@@ -190,7 +190,7 @@ public class ModelDestroyerI<T extends Entity> extends EntityModel<T> implements
 
         resetPose();
         applyFaceFromEntity(ship);
-        applyKisaragiVisibility(ship);
+        applyEquipVisibility(ship);
         applyLook(netHeadYaw, headPitch, angleZ);
         if (ship.isInSittingPose()) {
             applySittingPose(ship, angleZ);
@@ -251,8 +251,8 @@ public class ModelDestroyerI<T extends Entity> extends EntityModel<T> implements
         PJawBottom.zRot = -0.3F;
     }
 
-    private void applyKisaragiVisibility(EntityShipBase ship) {
-        boolean show = true;
+    private void applyEquipVisibility(EntityShipBase ship) {
+        boolean show = ship.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerI.EQUIP_HEAD_ORNAMENT);
         PKisaragi00.visible = show;
         PKisaragi01.visible = show;
         PKisaragi02.visible = show;

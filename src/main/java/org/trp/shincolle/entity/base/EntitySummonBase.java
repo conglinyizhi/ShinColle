@@ -23,11 +23,111 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
     protected int missionTick;
     protected int numAmmoLight;
     protected int numAmmoHeavy;
-    protected int scaleLevel;
     protected float attackRangeSq;
 
     protected EntitySummonBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        this.numAmmoLight = 6;
+        this.numAmmoHeavy = 0;
+        this.attackRangeSq = 16.0F;
+    }
+
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new SummonAttackGoal(this));
+        this.goalSelector.addGoal(2, new SummonFollowCarrierGoal(this, 1.2D));
+        this.goalSelector.addGoal(3, new net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal(this, 1.0D));
+        this.goalSelector.addGoal(4, new net.minecraft.world.entity.ai.goal.LookAtPlayerGoal(this, net.minecraft.world.entity.player.Player.class, 8.0F));
+        this.goalSelector.addGoal(5, new net.minecraft.world.entity.ai.goal.RandomLookAroundGoal(this));
+    }
+
+    public void performAttack(LivingEntity target) {
+        if (!(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        EntityShipBase carrier = getCarrier();
+        float damage = 4.0F;
+        if (carrier != null) {
+            damage = Math.max(2.0F, carrier.getLegacyShipStats().getFirepower() * 0.35F);
+        }
+        
+        target.hurt(this.damageSources().mobAttack(this), damage);
+        
+        serverLevel.sendParticles(net.minecraft.core.particles.ParticleTypes.CRIT, target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ(), 8, 0.2D, 0.2D, 0.2D, 0.1D);
+        this.playSound(ModSounds.SHIP_FIRELIGHT.get(), 1.0F, 1.0F);
+    }
+
+    public float getAttackRangeSq() {
+        return this.attackRangeSq;
+    }
+
+    private static class SummonAttackGoal extends net.minecraft.world.entity.ai.goal.Goal {
+        private final EntitySummonBase mob;
+        private int attackDelay;
+
+        public SummonAttackGoal(EntitySummonBase mob) {
+            this.mob = mob;
+            this.setFlags(java.util.EnumSet.of(net.minecraft.world.entity.ai.goal.Goal.Flag.MOVE, net.minecraft.world.entity.ai.goal.Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            LivingEntity target = mob.getTarget();
+            return target != null && target.isAlive();
+        }
+
+        @Override
+        public void tick() {
+            LivingEntity target = mob.getTarget();
+            if (target == null) return;
+
+            mob.getLookControl().setLookAt(target, 30.0F, 30.0F);
+            double distSq = mob.distanceToSqr(target);
+
+            if (distSq > mob.getAttackRangeSq()) {
+                mob.getNavigation().moveTo(target, 1.2D);
+            } else {
+                mob.getNavigation().stop();
+                if (this.attackDelay <= 0) {
+                    mob.performAttack(target);
+                    this.attackDelay = 20;
+                }
+            }
+
+            if (this.attackDelay > 0) {
+                this.attackDelay--;
+            }
+        }
+    }
+
+    private static class SummonFollowCarrierGoal extends net.minecraft.world.entity.ai.goal.Goal {
+        private final EntitySummonBase mob;
+        private final double speed;
+        private int timeToRecalcPath;
+
+        public SummonFollowCarrierGoal(EntitySummonBase mob, double speed) {
+            this.mob = mob;
+            this.speed = speed;
+            this.setFlags(java.util.EnumSet.of(net.minecraft.world.entity.ai.goal.Goal.Flag.MOVE, net.minecraft.world.entity.ai.goal.Goal.Flag.LOOK));
+        }
+
+        @Override
+        public boolean canUse() {
+            EntityShipBase carrier = mob.getCarrier();
+            return carrier != null && carrier.isAlive() && mob.distanceToSqr(carrier) > 64.0D && mob.getTarget() == null;
+        }
+
+        @Override
+        public void tick() {
+            EntityShipBase carrier = mob.getCarrier();
+            if (carrier == null) return;
+
+            mob.getLookControl().setLookAt(carrier, 30.0F, 30.0F);
+            if (--this.timeToRecalcPath <= 0) {
+                this.timeToRecalcPath = 10;
+                mob.getNavigation().moveTo(carrier, this.speed);
+            }
+        }
     }
 
     public void initSummon(EntityShipBase carrier, Entity target, int scaleLevel) {
@@ -37,7 +137,11 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         this.carrierId = carrier.getUUID();
         this.targetId = target == null ? null : target.getUUID();
         this.missionTick = 0;
-        this.scaleLevel = scaleLevel;
+        this.setScaleLevel(scaleLevel);
+
+        double offsetX = (this.random.nextDouble() * 3.0D - 1.5D);
+        double offsetZ = (this.random.nextDouble() * 3.0D - 1.5D);
+        this.moveTo(this.getX() + offsetX, this.getY(), this.getZ() + offsetZ, this.getYRot(), this.getXRot());
 
         this.setOwnerUUID(carrier.getOwnerUUID());
         this.setTame(true, false);
@@ -51,6 +155,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
         float damage = Math.max(2.0f, carrier.getLegacyShipStats().getFirepower() * 0.5f);
         this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(damage);
+        this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(32.0D);
 
         this.attackRangeSq = 16.0f * 16.0f;
 
@@ -71,7 +176,6 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         compound.putInt("MissionTick", this.missionTick);
         compound.putInt("NumAmmoLight", this.numAmmoLight);
         compound.putInt("NumAmmoHeavy", this.numAmmoHeavy);
-        compound.putInt("ScaleLevel", this.scaleLevel);
         compound.putFloat("AttackRangeSq", this.attackRangeSq);
     }
 
@@ -83,7 +187,6 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         this.missionTick = compound.getInt("MissionTick");
         this.numAmmoLight = compound.getInt("NumAmmoLight");
         this.numAmmoHeavy = compound.getInt("NumAmmoHeavy");
-        this.scaleLevel = compound.getInt("ScaleLevel");
         this.attackRangeSq = compound.getFloat("AttackRangeSq");
     }
 
@@ -120,6 +223,8 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
                     this.targetId = carrierTarget.getUUID();
                 } else {
                     this.setTarget(null);
+                    handleReturnToCarrier(carrier);
+                    return;
                 }
             }
         }
@@ -137,7 +242,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
     protected void handleReturnToCarrier(EntityShipBase carrier) {
         double distSq = this.distanceToSqr(carrier);
-        if (distSq <= 16.0D) {
+        if (distSq <= 4.0D && this.missionTick > 40) {
             returnSummonResources(carrier);
             this.discard();
         } else {

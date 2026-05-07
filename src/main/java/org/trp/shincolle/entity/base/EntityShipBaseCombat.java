@@ -197,12 +197,12 @@ class EntityShipBaseCombat {
             damage = 2.0F;
         }
         target.hurt(this.ship.damageSources().mobAttack(this.ship), damage);
-
-        spawnLightAttackTargetParticles(serverLevel, target);
-        spawnLightAttackMuzzleParticles(serverLevel, target);
+        this.ship.spawnLightAttackTargetParticles(serverLevel, target);
+        this.ship.spawnLightAttackMuzzleParticles(serverLevel, target);
         this.ship.playSound(ModSounds.SHIP_FIRELIGHT.get(), this.ship.getSoundVolume(),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.98F);
         this.ship.setAttackTick(50);
+        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLight);
         this.ship.applyEmotesReaction(3);
     }
 
@@ -232,6 +232,7 @@ class EntityShipBaseCombat {
         this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getSoundVolume(),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.83F);
         this.ship.setAttackTick(50);
+        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         this.ship.applyEmotesReaction(3);
         return true;
     }
@@ -353,53 +354,6 @@ class EntityShipBaseCombat {
         }
     }
 
-    private void spawnLightAttackTargetParticles(ServerLevel serverLevel, Entity target) {
-        double posX = target.getX();
-        double posY = target.getY();
-        double posZ = target.getZ();
-
-        serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, posX, posY + 1.5D, posZ,
-                1, 0.0D, 0.0D, 0.0D, 0.0D);
-
-        for (int i = 0; i < 15; ++i) {
-            double ran1 = (this.ship.getRandom().nextFloat() * 3.0F) - 1.5F;
-            double ran2 = (this.ship.getRandom().nextFloat() * 3.0F) - 1.5F;
-            serverLevel.sendParticles(ParticleTypes.LAVA,
-                    posX + ran1, posY + 1.0D, posZ + ran2,
-                    1, 0.0D, 0.0D, 0.0D, 0.0D);
-        }
-    }
-
-    private void spawnLightAttackMuzzleParticles(ServerLevel serverLevel, Entity target) {
-        Vec3 from = this.ship.position().add(0.0D, 0.8D, 0.0D);
-        Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
-        Vec3 look = to.subtract(from);
-        if (look.lengthSqr() < 1.0E-6D) {
-            look = this.ship.getLookAngle();
-        } else {
-            look = look.normalize();
-        }
-
-        double posX = this.ship.getX();
-        double posY = this.ship.getY();
-        double posZ = this.ship.getZ();
-
-        for (int i = 0; i < 24; ++i) {
-            double ran1 = this.ship.getRandom().nextFloat() - 0.5F;
-            double ran2 = this.ship.getRandom().nextFloat();
-            double ran3 = this.ship.getRandom().nextFloat();
-            double baseX = posX + look.x - 0.5D + 0.05D * i;
-            double baseZ = posZ + look.z - 0.5D + 0.05D * i;
-
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
-                    baseX, posY + 0.6D + ran1, baseZ,
-                    1, look.x * 0.3D * ran2, 0.05D * ran2, look.z * 0.3D * ran2, 0.0D);
-            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
-                    baseX, posY + 1.0D + ran1, baseZ,
-                    1, look.x * 0.3D * ran3, 0.05D * ran3, look.z * 0.3D * ran3, 0.0D);
-        }
-    }
-
     private int getMaxAircraftLight() {
         return 8 + this.ship.getLevel() / 5 + (int) (this.ship.getLevel() * this.ship.getAircraftLightLevelBonus());
     }
@@ -416,6 +370,7 @@ class EntityShipBaseCombat {
             return false;
         }
         this.ship.setNumAircraftLight(Math.max(0, this.ship.getNumAircraftLight() - 1));
+        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLightAircraft);
         return spawnAircraft(target, true);
     }
 
@@ -427,6 +382,7 @@ class EntityShipBaseCombat {
             return false;
         }
         this.ship.setNumAircraftHeavy(Math.max(0, this.ship.getNumAircraftHeavy() - 1));
+        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavyAircraft);
         return spawnAircraft(target, false);
     }
 

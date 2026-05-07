@@ -19,6 +19,10 @@ final class EntityShipBaseReactions {
         }
     }
 
+    int getEmotesTick() {
+        return this.emotesTick;
+    }
+
     void applyEmotesReaction(int type) {
         if (this.emotesTick > 10 && type == 2) {
             return;
@@ -105,7 +109,7 @@ final class EntityShipBaseReactions {
         return 4;
     }
 
-    private void setEmotesTick(int ticks) {
+    void setEmotesTick(int ticks) {
         this.emotesTick = Math.max(this.emotesTick, ticks);
     }
 

@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "a": {
+      "item": "shincolle:abyss_metal"
+    },
+    "s": {
+      "item": "minecraft:nether_star"
+    }
+  },
+  "pattern": [
+    " s ",
+    "a a",
+    " a "
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:marriagering"
+  }
+}

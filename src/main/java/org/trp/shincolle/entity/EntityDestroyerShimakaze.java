@@ -91,9 +91,12 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
 
     @Override
     public void performLightAttack(Entity target) {
-        if (!this.attackEntityWithAmmo(target)) {
-            super.performLightAttack(target);
+        if (this.numRensouhou > 0 && this.getRandom().nextInt(3) == 0) {
+            if (this.attackEntityWithAmmo(target)) {
+                return;
+            }
         }
+        super.performLightAttack(target);
     }
 
     @Override
@@ -113,7 +116,7 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
         }
 
         this.numRensouhou--;
-        this.setAttackTick(50);
+        this.setAttackTick(100);
         this.applyEmotesReaction(3);
 
         spawnAttackEffects();
@@ -149,12 +152,14 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
             EntityRensouhouS rensouhou = ModEntities.RENSOUHOU_S.get().create(serverLevel);
             if (rensouhou != null) {
                 rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                rensouhou.initSummon(this, target, 0);
                 serverLevel.addFreshEntity(rensouhou);
             }
         } else {
             EntityRensouhou rensouhou = ModEntities.RENSOUHOU.get().create(serverLevel);
             if (rensouhou != null) {
                 rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot());
+                rensouhou.initSummon(this, target, 0);
                 serverLevel.addFreshEntity(rensouhou);
             }
         }

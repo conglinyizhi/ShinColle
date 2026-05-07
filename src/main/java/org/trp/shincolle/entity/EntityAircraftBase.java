@@ -394,7 +394,9 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         int returnLight = Math.max(0, this.numAmmoLight - AMMO_RETURN_PENALTY_LIGHT);
         int returnHeavy = Math.max(0, this.numAmmoHeavy - AMMO_RETURN_PENALTY_HEAVY);
 
-        // TODO: return actual ammo items to carrier inventory if the mod supports it
+        carrier.setAmmoLight(carrier.getAmmoLight() + returnLight);
+        carrier.setAmmoHeavy(carrier.getAmmoHeavy() + returnHeavy);
+
         carrier.returnAircraftToDeck(this.missionLightAircraft);
     }
 

@@ -35,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.FluidState;
@@ -104,8 +105,8 @@ public abstract class EntityShipBase extends TamableAnimal {
     public static final int FACE_WINK = 8;
     public static final int FACE_SOFT = 9;
 
-    private static final int FUEL_DECAY_INTERVAL_TICKS = 200;
     private static final int FUEL_DECAY_AMOUNT = 1;
+    private static final int MAX_FUEL = 10000;
     private static final int MORALE_MAX = 16000;
     private static final int MORALE_DEFAULT = 4000;
     private static final float CRUISE_SPEED_FACTOR = 0.3F;
@@ -143,6 +144,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     public static final int STATE_MINOR_FACTION_ID = 19;
     public static final int STATE_MINOR_SHIP_CLASS = 20;
     public static final int STATE_MINOR_SPECIAL_EQUIP = 25;
+    public static final int STATE_MINOR_GRUDGE_CONSUMPTION = 28;
     public static final int STATE_MINOR_RARITY = 13;
     private static final int STATE_MINOR_EQUIP_DRUM = 36;
     private static final int STATE_MINOR_EQUIP_COMPASS = 37;
@@ -258,6 +260,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
         this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0F);
         this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0F);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeDD);
     }
 
     static int getMoraleDefaultValue() {
@@ -550,7 +553,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public boolean canSummonMounts() {
-        return (this.getStateEmotion(0) & 1) == 1 && !this.isNoFuel();
+        return (this.getStateEmotion(0) & 1) == 1 && !this.isInDeadPose();
     }
 
     public EntityMountBase summonMountEntity() {
@@ -692,15 +695,69 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.combat.performLightAttack(target);
     }
 
+    protected void spawnLightAttackMuzzleParticles(ServerLevel serverLevel, Entity target) {
+        Vec3 from = this.position().add(0.0D, 0.8D, 0.0D);
+        Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+        Vec3 look = to.subtract(from);
+        if (look.lengthSqr() < 1.0E-6D) {
+            look = this.getLookAngle();
+        } else {
+            look = look.normalize();
+        }
+
+        double posX = this.getX();
+        double posY = this.getY();
+        double posZ = this.getZ();
+
+        for (int i = 0; i < 24; ++i) {
+            double ran1 = this.getRandom().nextFloat() - 0.5F;
+            double ran2 = this.getRandom().nextFloat();
+            double ran3 = this.getRandom().nextFloat();
+            double baseX = posX + look.x - 0.5D + 0.05D * i;
+            double baseZ = posZ + look.z - 0.5D + 0.05D * i;
+
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
+                    baseX, posY + 0.6D + ran1, baseZ,
+                    1, look.x * 0.3D * ran2, 0.05D * ran2, look.z * 0.3D * ran2, 0.0D);
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
+                    baseX, posY + 1.0D + ran1, baseZ,
+                    1, look.x * 0.3D * ran3, 0.05D * ran3, look.z * 0.3D * ran3, 0.0D);
+        }
+    }
+
+    protected void spawnLightAttackTargetParticles(ServerLevel serverLevel, Entity target) {
+        double posX = target.getX();
+        double posY = target.getY();
+        double posZ = target.getZ();
+
+        serverLevel.sendParticles(ParticleTypes.EXPLOSION_EMITTER, posX, posY + 1.5D, posZ,
+                1, 0.0D, 0.0D, 0.0D, 0.0D);
+
+        for (int i = 0; i < 15; ++i) {
+            double ran1 = (this.getRandom().nextFloat() * 3.0F) - 1.5F;
+            double ran2 = (this.getRandom().nextFloat() * 3.0F) - 1.5F;
+            serverLevel.sendParticles(ParticleTypes.LAVA,
+                    posX + ran1, posY + 1.0D, posZ + ran2,
+                    1, 0.0D, 0.0D, 0.0D, 0.0D);
+        }
+    }
+
     protected boolean performHeavyAttack(Entity target) {
         return this.combat.performHeavyAttack(target);
     }
 
     public int getStateMinor(int index) {
+        if (index == 6) {
+            return this.getFuel();
+        }
         return legacyState.getInt(legacyState.stateMinor, index);
     }
 
     public void setStateMinor(int index, int value) {
+        if (index == 6) {
+            this.setFuel(value);
+            return;
+        }
         legacyState.setInt(legacyState.stateMinor, index, value);
         if (index == STATE_MINOR_SHIP_CLASS) {
             this.recalculateLegacyShipStats();
@@ -968,9 +1025,10 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void setFuel(int val) {
-        int newFuel = Math.max(0, val);
+        int newFuel = Math.max(0, Math.min(MAX_FUEL, val));
         boolean wasNoFuel = this.isNoFuel();
         this.entityData.set(FUEL, newFuel);
+        this.legacyState.stateMinor[6] = newFuel;
         this.entityData.set(NO_FUEL, newFuel == 0);
         boolean isNoFuelNow = newFuel == 0;
         if (wasNoFuel != isNoFuelNow) {
@@ -1255,6 +1313,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         tickFuelDecay();
         tickAutoRecovery();
+        tickAutoSupplies();
         tickLegacyTimers();
         if ((this.tickCount % 40) == 0) {
             this.recalculateLegacyShipStats();
@@ -1263,6 +1322,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     protected void tickDeath() {
+        this.updateMountSummon();
         this.setEmotionPrimary(EMOTION_HUNGRY);
         this.setFaceHungry();
         this.shipDeathTicks++;
@@ -1359,21 +1419,36 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.isHostileShipMob()) {
             return;
         }
-        if (this.tickCount % FUEL_DECAY_INTERVAL_TICKS != 0) {
+        if (this.tickCount % org.trp.shincolle.Config.fuelDecayInterval != 0) {
             return;
         }
         if (this.getFuel() <= 0) {
             return;
         }
-        this.setFuel(this.getFuel() - FUEL_DECAY_AMOUNT);
+
+        int consume = this.getStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION);
+        
+        // Movement consumption (legacy: dist * factor)
+        double dist = Math.sqrt(this.distanceToSqr(this.xo, this.yo, this.zo));
+        consume += (int) (dist * org.trp.shincolle.Config.fuelMoveDecayFactor);
+
+        this.setFuel(this.getFuel() - consume);
     }
 
     private void tickAutoRecovery() {
         if ((this.tickCount & 0x1F) == 0
-                && this.getHealth() < this.getMaxHealth() * AUTO_HEAL_THRESHOLD_RATIO
-                && this.getFuel() >= AUTO_HEAL_FAST_FUEL_COST) {
-            this.setFuel(this.getFuel() - AUTO_HEAL_FAST_FUEL_COST);
-            this.heal(this.getMaxHealth() * AUTO_HEAL_FAST_RATIO + AUTO_HEAL_FAST_FLAT);
+                && this.getHealth() < this.getMaxHealth() * AUTO_HEAL_THRESHOLD_RATIO) {
+            if (this.consumeItemInInventory(ModItems.BUCKET_REPAIR.get())) {
+                this.heal(this.getMaxHealth() * AUTO_HEAL_FAST_RATIO + AUTO_HEAL_FAST_FLAT);
+                if (this.supportsAircraftCombat()) {
+                    this.setNumAircraftLight(this.getNumAircraftLight() + 1);
+                    this.setNumAircraftHeavy(this.getNumAircraftHeavy() + 1);
+                }
+                this.applyParticleEmotion(EmotionParticleType.HEART);
+            } else if (this.getFuel() >= AUTO_HEAL_FAST_FUEL_COST) {
+                this.setFuel(this.getFuel() - AUTO_HEAL_FAST_FUEL_COST);
+                this.heal(this.getMaxHealth() * AUTO_HEAL_FAST_RATIO + AUTO_HEAL_FAST_FLAT);
+            }
         }
 
         if ((this.tickCount & 0xFF) == 0 && this.getHealth() < this.getMaxHealth()) {
@@ -1904,6 +1979,128 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.resetInteractionEmotionState();
     }
 
+    private boolean consumeBucketRepairInHand(ItemStack stack, Player player) {
+        if (!stack.is(ModItems.BUCKET_REPAIR.get())) {
+            return false;
+        }
+
+        if (this.getHealth() < this.getMaxHealth()) {
+            this.heal(this.getMaxHealth() * AUTO_HEAL_FAST_RATIO + AUTO_HEAL_FAST_FLAT);
+
+            if (this.supportsAircraftCombat()) {
+                this.setNumAircraftLight(this.getNumAircraftLight() + 1);
+                this.setNumAircraftHeavy(this.getNumAircraftHeavy() + 1);
+            }
+
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+
+            this.setEmotionPrimary(EMOTION_HAPPY);
+            this.applyParticleEmotion(EmotionParticleType.HEART);
+            this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+            this.focusOnPlayer(player);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean consumeToyAirplaneInHand(ItemStack stack, Player player) {
+        if (!stack.is(ModItems.TOY_AIRPLANE.get())) {
+            return false;
+        }
+
+        if (this.supportsAircraftCombat()) {
+            this.setNumAircraftLight(this.getNumAircraftLight() + 2);
+            this.setNumAircraftHeavy(this.getNumAircraftHeavy() + 2);
+        }
+
+        this.addMorale(200);
+        this.setEmotionPrimary(EMOTION_HAPPY);
+        this.applyParticleEmotion(EmotionParticleType.HAPPY_BOB);
+        this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+
+        if (!player.getAbilities().instabuild) {
+            stack.shrink(1);
+        }
+        this.focusOnPlayer(player);
+        return true;
+    }
+
+    public int findItemInInventory(Item item) {
+        int slots = this.inventory.getAccessibleSlotCount();
+        for (int i = 0; i < slots; i++) {
+            ItemStack stack = this.inventory.getStackInSlot(i);
+            if (!stack.isEmpty() && stack.is(item)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public boolean consumeItemInInventory(Item item) {
+        int slot = findItemInInventory(item);
+        if (slot >= 0) {
+            ItemStack stack = this.inventory.getStackInSlot(slot);
+            stack.shrink(1);
+            if (stack.isEmpty()) {
+                this.inventory.setStackInSlot(slot, ItemStack.EMPTY);
+            }
+            this.onInventoryChanged();
+            return true;
+        }
+        return false;
+    }
+
+    private void tickAutoSupplies() {
+        if (this.level().isClientSide || this.isHostileShipMob()) {
+            return;
+        }
+
+        if (this.getFuel() <= 0) {
+            float modFuel = this.legacyShipStats.getBuffedAttr(17);
+            if (this.consumeItemInInventory(ModItems.GRUDGE.get())) {
+                this.setFuel((int) (300 * modFuel));
+                this.applyAutoSupplyEffects();
+            } else if (this.consumeItemInInventory(ModItems.GRUDGE_BLOCK.get())) {
+                this.setFuel((int) (2700 * modFuel));
+                this.applyAutoSupplyEffects();
+            }
+        }
+
+        if (this.getAmmoLight() <= 0) {
+            float modAmmo = this.legacyShipStats.getBuffedAttr(18);
+            if (this.consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
+                this.setAmmoLight((int) (30 * modAmmo));
+                this.applyAutoSupplyEffects();
+            } else if (this.consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())) {
+                this.setAmmoLight((int) (270 * modAmmo));
+                this.applyAutoSupplyEffects();
+            }
+        }
+
+        if (this.getAmmoHeavy() <= 0) {
+            float modAmmo = this.legacyShipStats.getBuffedAttr(18);
+            if (this.consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
+                this.setAmmoHeavy((int) (15 * modAmmo));
+                this.applyAutoSupplyEffects();
+            } else if (this.consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())) {
+                this.setAmmoHeavy((int) (135 * modAmmo));
+                this.applyAutoSupplyEffects();
+            }
+        }
+    }
+
+    private void applyAutoSupplyEffects() {
+        if (this.getEmotesTick() <= 0) {
+            this.setEmotesTick(40);
+            int rnd = this.random.nextInt(3);
+            if (rnd == 0) this.applyParticleEmotion(EmotionParticleType.DROOL);
+            else if (rnd == 1) this.applyParticleEmotion(EmotionParticleType.BLINK);
+            else this.applyParticleEmotion(EmotionParticleType.SIGH);
+        }
+    }
+
     @Override
     protected PathNavigation createNavigation(Level level) {
         ShipLegacyNavigation navigation = new ShipLegacyNavigation(this, level);
@@ -1991,6 +2188,34 @@ public abstract class EntityShipBase extends TamableAnimal {
                     this.focusOnPlayer(player);
                     return InteractionResult.sidedSuccess(this.level().isClientSide);
                 }
+            }
+
+            if (stack.is(ModItems.BUCKET_REPAIR.get())) {
+                if (consumeBucketRepairInHand(stack, player)) {
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
+                }
+            }
+
+            if (stack.is(ModItems.TOY_AIRPLANE.get())) {
+                if (consumeToyAirplaneInHand(stack, player)) {
+                    return InteractionResult.sidedSuccess(this.level().isClientSide);
+                }
+            }
+
+            if (stack.is(ModItems.GRUDGE.get())) {
+                int gain = 300 + this.getRandom().nextInt(500);
+                this.setFuel(this.getFuel() + gain);
+                if (!player.getAbilities().instabuild) {
+                    stack.shrink(1);
+                }
+                if (this.feedSoundCooldown <= 0) {
+                    this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+                    this.feedSoundCooldown = 30;
+                }
+                this.setEmotionPrimary(EMOTION_HAPPY);
+                this.resetInteractionEmotionState();
+                this.focusOnPlayer(player);
+                return InteractionResult.sidedSuccess(this.level().isClientSide);
             }
 
             if (stack.has(DataComponents.FOOD)) {
@@ -2412,6 +2637,14 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.reactions.applyParticleEmotion(typeId);
     }
 
+    public int getEmotesTick() {
+        return this.reactions.getEmotesTick();
+    }
+
+    public void setEmotesTick(int ticks) {
+        this.reactions.setEmotesTick(ticks);
+    }
+
     public void spawnCombatTextParticle(int type) {
         if (!(this.level() instanceof ServerLevel serverLevel)) {
             return;
@@ -2436,6 +2669,36 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public record EquipOption(String key, String labelKey) {
+    }
+
+    @Override
+    public void die(DamageSource cause) {
+        if (!this.level().isClientSide && this.level().getGameRules().getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
+            Component customMessage = Component.translatable("chat.shincolle.entity_fainted", this.getDisplayName());
+
+            if (this instanceof TamableAnimal tamed && tamed.getOwner() instanceof ServerPlayer owner) {
+                owner.sendSystemMessage(customMessage);
+            }
+            else if (this.hasCustomName()) {
+                this.level().getServer().getPlayerList().broadcastSystemMessage(customMessage, false);
+            }
+        }
+
+        Component backupName = this.getCustomName();
+        this.setCustomName(null);
+
+        java.util.UUID backupOwner = null;
+        if (this instanceof TamableAnimal tamed) {
+            backupOwner = tamed.getOwnerUUID();
+            tamed.setOwnerUUID(null);
+        }
+
+        super.die(cause);
+
+        this.setCustomName(backupName);
+        if (this instanceof TamableAnimal tamed && backupOwner != null) {
+            tamed.setOwnerUUID(backupOwner);
+        }
     }
 
     @Override

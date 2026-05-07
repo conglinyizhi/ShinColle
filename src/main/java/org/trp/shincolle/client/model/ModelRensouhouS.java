@@ -8,12 +8,11 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.entity.base.EntityShincolleSimpleMob;
 
-import org.trp.shincolle.client.model.IGlowableModel;
-
-public class ModelRensouhouS<T extends Entity> extends EntityModel<T> implements IGlowableModel {
+public class ModelRensouhouS<T extends EntityShincolleSimpleMob> extends EntityModel<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "rensouhou_s"), "main");
 
     private final ModelPart BodyMain;
@@ -64,7 +63,7 @@ public class ModelRensouhouS<T extends Entity> extends EntityModel<T> implements
 
         PartDefinition BodyMain = partdefinition.addOrReplaceChild("BodyMain", CubeListBuilder.create().texOffs(0, 0), PartPose.offset(0F, 0F, 0F));
 
-        PartDefinition HeadBase = BodyMain.addOrReplaceChild("HeadBase", CubeListBuilder.create().texOffs(0, 0).addBox(-6F, -8F, 2F, 12F, 15F, 8F, new CubeDeformation(0F)), PartPose.offset(0F, 0F, 9F));
+        PartDefinition HeadBase = BodyMain.addOrReplaceChild("HeadBase", CubeListBuilder.create().texOffs(0, 0).addBox(-6F, -8F, 2F, 12F, 15F, 8F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 0F, 9F, -0.1396F, 3.1416F, 0F));
 
         PartDefinition TailJaw1 = HeadBase.addOrReplaceChild("TailJaw1", CubeListBuilder.create().texOffs(0, 0).addBox(-6.5F, 0F, 0F, 13F, 5F, 16F, new CubeDeformation(0F)), PartPose.offsetAndRotation(0F, 0F, 5.5F, -0.3142F, 0F, 0F));
 
@@ -84,7 +83,7 @@ public class ModelRensouhouS<T extends Entity> extends EntityModel<T> implements
 
         PartDefinition GlowBodyMain = partdefinition.addOrReplaceChild("GlowBodyMain", CubeListBuilder.create().texOffs(0, 0), PartPose.offset(0F, 0F, 0F));
 
-        PartDefinition GlowHeadBase = GlowBodyMain.addOrReplaceChild("GlowHeadBase", CubeListBuilder.create().texOffs(0, 0), PartPose.offset(0F, 0F, 9F));
+        PartDefinition GlowHeadBase = GlowBodyMain.addOrReplaceChild("GlowHeadBase", CubeListBuilder.create().texOffs(0, 0), PartPose.offsetAndRotation(0F, 0F, 9F, -0.1396F, 3.1416F, 0F));
 
         PartDefinition GlowHead = GlowHeadBase.addOrReplaceChild("GlowHead", CubeListBuilder.create().texOffs(0, 0), PartPose.offsetAndRotation(0F, -8.5F, 4F, 0.1745F, 0F, 0F));
 
@@ -105,7 +104,16 @@ public class ModelRensouhouS<T extends Entity> extends EntityModel<T> implements
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        // TODO: Port animation logic from setRotationAngles
+        float angleX = Mth.cos(ageInTicks * 0.1F);
+        this.TailJaw1.xRot = angleX * 0.05F - 0.3142F;
+        this.HeadCannon1.xRot = angleX * 0.1F + 0.15F;
+        this.HeadCannon2.xRot = -angleX * 0.1F + 0.15F;
+
+        if (entity != null && entity.getAttackTick() > 0) {
+            this.TailJaw1.xRot = angleX * 0.3F - 0.8F;
+        }
+
+        this.GlowTailJaw1.xRot = this.TailJaw1.xRot;
     }
 
     @Override

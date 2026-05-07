@@ -40,6 +40,7 @@ public class EntityCAHime extends EntityShipBase {
         setStateMinor(STATE_MINOR_SHIP_CLASS, 49);
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4);
         setStateMinor(STATE_MINOR_RARITY, 5);
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, org.trp.shincolle.Config.fuelConsumeCA);
         setStateGuiBtn4(false);
     }
 

@@ -376,7 +376,7 @@ public class ModelBattleshipRe<T extends EntityShipBase> extends ShipModelHumano
         applyHeadRotation(Head, entity, ageInTicks, netHeadYaw, headPitch);
 
         applyBasePose(ctx, limbSwing, limbSwingAmount, ageInTicks, headPitch);
-        applySpecialPoseAdjustments(entity, ctx, limbSwing, limbSwingAmount, ageInTicks);
+        applySpecialPoseAdjustments(entity, ctx, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw);
         applyTailAnimation(ctx, limbSwing, limbSwingAmount, ageInTicks);
 
         float modf2 = ageInTicks % 128.0F;
@@ -530,7 +530,7 @@ public class ModelBattleshipRe<T extends EntityShipBase> extends ShipModelHumano
         LegRight.yRot = 0.0F;
     }
 
-    private void applySpecialPoseAdjustments(T entity, PoseContext ctx, float limbSwing, float limbSwingAmount, float ageInTicks) {
+    private void applySpecialPoseAdjustments(T entity, PoseContext ctx, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw) {
         float addk1 = Mth.cos(limbSwing * 0.7F) * limbSwingAmount - 0.2618F;
         float addk2 = Mth.cos(limbSwing * 0.7F + (float) Math.PI) * limbSwingAmount - 0.2618F;
 
@@ -545,29 +545,90 @@ public class ModelBattleshipRe<T extends EntityShipBase> extends ShipModelHumano
         boolean isSprinting = entity != null && entity.isSprinting() || limbSwingAmount > 0.9F;
 
         if (isSprinting) {
-            this.poseTranslateY += 0.05F;
-            ArmLeft01.xRot = Mth.cos(ageInTicks * 0.8F) * 0.1F - 2.0944F;
-            ArmLeft01.yRot = -0.5236F;
-            ArmRight01.xRot = -Mth.cos(ageInTicks * 0.8F) * 0.1F - 2.0944F;
-            ArmRight01.yRot = 0.5236F;
-
-            Head.xRot *= 0.75F;
-            Head.xRot -= 0.5236F;
-            BodyMain.xRot = 0.5236F;
-            BodyMain.yRot = 3.1416F;
-            Cloth2.xRot = -0.7854F;
-
-            addk1 = addk1 * 0.1F - 1.2708F;
-            addk2 = addk2 * 0.1F - 1.2708F;
-            LegLeft.yRot = -0.2618F;
-            LegRight.yRot = 0.2618F;
-
             float t2 = tickPhase & 0x3FF;
             if (t2 > 700.0F) {
+                this.poseTranslateY += 0.05F;
+                ArmLeft01.xRot = Mth.cos(ageInTicks * 0.8F) * 0.1F - 2.0944F;
+                ArmLeft01.yRot = -0.5236F;
+                ArmLeft01.zRot = 0.0F;
+                ArmRight01.xRot = -Mth.cos(ageInTicks * 0.8F) * 0.1F - 2.0944F;
+                ArmRight01.yRot = 0.5236F;
+                ArmRight01.zRot = 0.0F;
+
+                Head.xRot *= 0.75F;
+                Head.xRot -= 0.5236F;
+                Cap2.xRot = -1.74F;
+                BodyMain.xRot = 0.5236F;
+                BodyMain.yRot = 3.1416F;
+                Cloth2.xRot = -0.7854F;
+
+                addk1 = addk1 * 0.1F - 1.2708F;
+                addk2 = addk2 * 0.1F - 1.2708F;
+                LegLeft.yRot = -0.2618F;
+                LegRight.yRot = 0.2618F;
+
+                BagStrap1.xRot = 0.0872F;
+                BagStrap1.yRot = 0.0F;
+                BagStrap1.zRot = -0.1745F;
+                BagStrap2.xRot = 0.0872F;
+                BagStrap2.yRot = 0.3491F;
+
                 applySprintingTailAnimation(ctx.angleX, limbSwing, limbSwingAmount);
             } else if (t2 > 400.0F) {
+                this.poseTranslateY += 0.05F;
+                ArmLeft01.xRot = -1.0472F;
+                ArmLeft01.yRot = 0.2618F;
+                ArmLeft01.zRot = 0.0F;
+                ArmRight01.xRot = -2.7925F;
+                ArmRight01.yRot = 0.0F;
+                ArmRight01.zRot = netHeadYaw * (-(float) Math.PI / 180F);
+
+                Head.xRot *= 0.75F;
+                Head.xRot -= 1.2217F;
+                Cap2.xRot = -1.74F;
+                BodyMain.xRot = 1.2217F;
+                BodyMain.yRot = 0.0F;
+                Cloth2.xRot = -0.3491F;
+
+                addk1 = -1.0472F;
+                addk2 = -1.0472F;
+                LegLeft.yRot = -0.3491F;
+                LegRight.yRot = 0.3491F;
+
+                BagStrap1.xRot = 0.2618F;
+                BagStrap1.yRot = 0.0F;
+                BagStrap1.zRot = 0.0F;
+                BagStrap2.xRot = 0.3491F;
+                BagStrap2.yRot = 0.3491F;
+
                 applySprintingTailPoseStatic(ctx.angleX);
             } else {
+                this.poseTranslateY += 0.1F;
+                ArmLeft01.xRot = Mth.cos(limbSwing * 0.8F) * 0.1F + 0.6981F;
+                ArmLeft01.yRot = 0.0F;
+                ArmLeft01.zRot = -0.6981F;
+                ArmRight01.xRot = Mth.cos(limbSwing * 0.8F) * 0.1F + 0.6981F;
+                ArmRight01.yRot = 0.0F;
+                ArmRight01.zRot = 0.6981F;
+
+                Head.xRot *= 0.75F;
+                Head.xRot -= 1.0472F;
+                Cap2.xRot = -1.74F;
+                BodyMain.xRot = 0.8727F;
+                BodyMain.yRot = 0.0F;
+                Cloth2.xRot = -0.5236F;
+
+                addk1 -= 0.5F;
+                addk2 -= 0.5F;
+                LegLeft.yRot = 0.0F;
+                LegRight.yRot = 0.0F;
+
+                BagStrap1.xRot = 0.15F;
+                BagStrap1.yRot = -1.0472F;
+                BagStrap1.zRot = 0.0F;
+                BagStrap2.xRot = 0.3491F;
+                BagStrap2.yRot = 1.0472F;
+
                 applySprintingTailAnimationAlt(ctx.angleX, limbSwing, limbSwingAmount);
             }
             this.isTailPoseOverride = true;

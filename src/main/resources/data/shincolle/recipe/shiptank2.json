@@ -1,0 +1,26 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "key": {
+    "m": {
+      "item": "shincolle:abyssium"
+    },
+    "t": {
+      "item": "shincolle:shiptank",
+      "components": {
+        "minecraft:custom_data": "{LegacyVariant:1}"
+      }
+    }
+  },
+  "pattern": [
+    "mtm",
+    "mtm",
+    "mtm"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:shiptank",
+    "components": {
+      "minecraft:custom_data": "{LegacyVariant:2}"
+    }
+  }
+}

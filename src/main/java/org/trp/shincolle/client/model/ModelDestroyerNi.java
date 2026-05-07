@@ -168,6 +168,7 @@ public class ModelDestroyerNi<T extends Entity> extends EntityModel<T> implement
         Equip01.xRot = 1.0F;
 
         applyFaceFromEntity(ship);
+        applyEquipVisibility(ship);
         applyLook(netHeadYaw, headPitch);
         applyTailPose(angleX);
         if (ship.isInSittingPose()) {
@@ -188,6 +189,15 @@ public class ModelDestroyerNi<T extends Entity> extends EntityModel<T> implement
         Face00.visible = faceIndex == 0;
         Face01.visible = faceIndex == 1;
         Face02.visible = faceIndex == 2;
+    }
+
+    private void applyEquipVisibility(EntityShipBase ship) {
+        EquipBase.visible = ship.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerNi.EQUIP_RIGGING);
+        boolean showOrnament = ship.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerNi.EQUIP_HEAD_ORNAMENT);
+        k00.visible = showOrnament;
+        k01.visible = showOrnament;
+        k02.visible = showOrnament;
+        k03.visible = showOrnament;
     }
 
     private void applyLook(float headYaw, float headPitch) {

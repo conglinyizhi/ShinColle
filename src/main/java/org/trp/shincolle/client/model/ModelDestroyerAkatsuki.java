@@ -9,6 +9,7 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.entity.EntityDestroyerAkatsuki;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
 public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
@@ -647,9 +648,19 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
         if (entity == null) return;
         boolean showRigging = entity.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerAkatsuki.EQUIP_RIGGING);
         boolean showAnchor = entity.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerAkatsuki.EQUIP_ANCHOR);
+        boolean showHat = entity.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerAkatsuki.EQUIP_HAT);
+        boolean showHandCannon = entity.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerAkatsuki.EQUIP_HAND_CANNON);
+        boolean showArmTorpedo = entity.getEquipFlag(org.trp.shincolle.entity.EntityDestroyerAkatsuki.EQUIP_ARM_TORPEDO);
+        boolean showShoulderCannon = entity.getEquipFlag(EntityDestroyerAkatsuki.EQUIP_SHOULDER_SEARCHLIGHT);
 
         EquipBase.visible = showRigging;
         EquipHead01.visible = showAnchor;
+        HatBase.visible = showHat;
+        EquipC12.visible = showHandCannon;
+        EquipTR03.visible = showArmTorpedo;
+        EquipTL03.visible = showArmTorpedo;
+        EquipSL01.visible = showShoulderCannon;
+        EquipSL01f.visible = showShoulderCannon;
     }
 
     private void applyBasePose(T entity, PoseContext ctx, float ageInTicks, float limbSwing, float limbSwingAmount) {
@@ -790,6 +801,8 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
             EquipTL03.visible = false;
             EquipTR03.visible = false;
             EquipC12.visible = false;
+            EquipSL01.visible = false;
+            EquipSL01f.visible = false;
 
             if (entity != null && entity.getIsSitting()) {
                 this.poseTranslateY = 0.525F * 3.0F;
