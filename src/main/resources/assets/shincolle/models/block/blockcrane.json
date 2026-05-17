@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/cube_bottom_top",
+  "textures": {
+    "bottom": "shincolle:block/blockcranebtm",
+    "side": "shincolle:block/blockcraneside",
+    "top": "shincolle:block/blockcranetop"
+  }
+}

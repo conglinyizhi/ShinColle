@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -1019,10 +1020,11 @@ public class ModelMidwayHime<T extends EntityShipBase> extends ShipModelHumanoid
             this.GlowBodyMain2a.xRot = this.ArmLeft01.xRot * -0.3F;
         }
 
-        float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = net.minecraft.util.Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(swing) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = net.minecraft.util.Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(customAttackAnim) * (float) Math.PI);
             this.ArmRight01.xRot = -0.3F;
             this.ArmRight01.yRot = 0.0F;
             this.ArmRight01.zRot = -0.1F;

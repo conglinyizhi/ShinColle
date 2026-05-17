@@ -19,6 +19,9 @@ public class ModParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEAM_SELECTED_RED =
             PARTICLES.register("particleteam_selected_red", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEAM_SELECTED_YELLOW =
+            PARTICLES.register("particleteam_selected_yellow", () -> new SimpleParticleType(false));
+
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_TEAM_TARGET =
             PARTICLES.register("particleteam_target", () -> new SimpleParticleType(false));
 
@@ -39,6 +42,27 @@ public class ModParticles {
 
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPRAY_RED =
             PARTICLES.register("particle_spray_red", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPRAY =
+            PARTICLES.register("particle_spray", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_GODDESS =
+            PARTICLES.register("particle_goddess", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_WAYPOINT =
+            PARTICLES.register("particle_waypoint", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_WAYPOINT_LINE =
+            PARTICLES.register("particle_waypoint_line", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_WAYPOINT_LINE_PURPLE =
+            PARTICLES.register("particle_waypoint_line_purple", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_CRANING =
+            PARTICLES.register("particle_craning", () -> new SimpleParticleType(false));
+
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PARTICLE_SPARKLE =
+            PARTICLES.register("particle_sparkle", () -> new SimpleParticleType(false));
 
     private ModParticles() {
     }

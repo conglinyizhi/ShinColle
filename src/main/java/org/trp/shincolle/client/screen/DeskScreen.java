@@ -1,27 +1,27 @@
 package org.trp.shincolle.client.screen;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.entity.EntityType;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.trp.shincolle.client.renderer.BookRenderer;
+import org.trp.shincolle.entity.base.EntityMountBase;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.menu.DeskMenu;
-import org.trp.shincolle.reference.Values;
-import net.minecraft.util.Mth;
-import net.minecraft.ChatFormatting;
-import com.mojang.blaze3d.systems.RenderSystem;
-import org.trp.shincolle.entity.base.EntityMountBase;
-import org.trp.shincolle.init.ModSounds;
-import net.minecraft.client.resources.language.I18n;
 import org.trp.shincolle.network.C2SBookStatePayload;
-import net.neoforged.neoforge.network.PacketDistributor;
+import org.trp.shincolle.network.C2SDeskGuiPayload;
+import org.trp.shincolle.network.C2SDeskSummonPayload;
+import org.trp.shincolle.reference.Values;
 
 public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
 
@@ -42,10 +42,10 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     private float prevScale = 30f;
     private double lastXMouse = 0;
     private double lastYMouse = 0;
+    private int guiFunc = 0;
 
     private int radarZoomLv = 0;
     private final java.util.List<RadarEntity> shipList = new java.util.ArrayList<>();
-    private final java.util.List<RadarEntity> itemList = new java.util.ArrayList<>();
     private final java.util.List<Integer> selectedShips = new java.util.ArrayList<>();
     private int tickGUI = 0;
     private int[] listNum = new int[]{0, 0, 0, 0, 0};
@@ -61,17 +61,30 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         this.leftPos = (this.width - this.imageWidth) / 2;
         this.topPos = (this.height - this.imageHeight) / 2;
         
-        if (menu.getDeskType() == 2) {
+        if (menu.getDeskType() == 0) {
+            this.guiFunc = menu.getGuiFunc();
+            this.radarZoomLv = menu.getRadarZoom();
             this.chapId = menu.getChapter();
             this.pageId = menu.getPage();
         } else if (menu.getDeskType() == 1) {
+            this.guiFunc = 1;
             this.radarZoomLv = 0;
+        } else if (menu.getDeskType() == 2) {
+            this.guiFunc = 2;
+            this.chapId = menu.getChapter();
+            this.pageId = menu.getPage();
         }
     }
 
     private void syncBookState() {
-        if (menu.getDeskType() == 2) {
+        if (menu.getDeskType() == 2 || (menu.getDeskType() == 0 && guiFunc == 2)) {
             PacketDistributor.sendToServer(new C2SBookStatePayload(chapId, pageId));
+        }
+    }
+
+    private void syncDeskGui() {
+        if (menu.getDeskType() == 0) {
+            PacketDistributor.sendToServer(new C2SDeskGuiPayload(guiFunc, radarZoomLv));
         }
     }
 
@@ -79,6 +92,7 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
     public void removed() {
         super.removed();
         syncBookState();
+        syncDeskGui();
     }
 
     @Override
@@ -103,10 +117,9 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
         
-        
-        if (menu.getDeskType() == 1) {
+        if (guiFunc == 1) {
             drawRadarHoverText(guiGraphics, (int)((mouseX - leftPos) * GUI_SCALE_INV), (int)((mouseY - topPos) * GUI_SCALE_INV), mouseX, mouseY);
-        } else {
+        } else if (guiFunc == 2) {
             drawBookHoverText(guiGraphics, (int)((mouseX - leftPos) * GUI_SCALE_INV), (int)((mouseY - topPos) * GUI_SCALE_INV), mouseX, mouseY);
         }
     }
@@ -162,11 +175,6 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
                 list.add(obj.ship.getName());
             }
         }
-        for (RadarEntity obj : this.itemList) {
-            if (obj != null && mx < obj.pixelx + 4.0 && mx > obj.pixelx - 2.0 && my < obj.pixelz + 4.0 && my > obj.pixelz - 2.0) {
-                list.add(Component.literal(obj.posX + ", " + obj.posY + ", " + obj.posZ));
-            }
-        }
         if (!list.isEmpty()) {
             guiGraphics.renderComponentTooltip(this.font, list, mouseX, mouseY);
         }
@@ -178,12 +186,16 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         guiGraphics.pose().translate(this.leftPos, this.topPos, 0);
         guiGraphics.pose().scale(GUI_SCALE, GUI_SCALE, 1.0f);
         
-        if (menu.getDeskType() == 1) {
+        if (menu.getDeskType() == 0) {
+            drawBaseBackground(guiGraphics);
+        }
+
+        if (guiFunc == 1) {
             drawRadarBackground(guiGraphics);
             drawRadarIcon(guiGraphics);
             drawMoraleIcon(guiGraphics);
             drawRadarText(guiGraphics);
-        } else {
+        } else if (guiFunc == 2) {
             BookRenderer.drawBookBase(guiGraphics, 0, 0, chapId, pageId);
             BookRenderer.drawBookContent(guiGraphics, 0, 0, pageId, chapId);
             
@@ -201,6 +213,23 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         }
 
         guiGraphics.pose().popPose();
+    }
+
+    private void drawBaseBackground(GuiGraphics guiGraphics) {
+        guiGraphics.blit(BookRenderer.GUI_DESK, 0, 0, 0, 0, 256, 192);
+        if (guiFunc > 0) {
+            int u = (guiFunc - 1) * 16;
+            int xOffset = switch (guiFunc) {
+                case 1 -> 3;
+                case 2 -> 22;
+                case 3 -> 41;
+                case 4 -> 60;
+                default -> 0;
+            };
+            if (u >= 0) {
+                guiGraphics.blit(BookRenderer.GUI_DESK, xOffset, 2, u, 192, 16, 16);
+            }
+        }
     }
 
     private void drawRadarBackground(GuiGraphics guiGraphics) {
@@ -227,7 +256,6 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         float radarScale = (float) Math.pow(2.0, this.radarZoomLv);
         
         this.shipList.clear();
-        this.itemList.clear();
         
         int id = 0;
         for (Entity entity : this.minecraft.level.entitiesForRendering()) {
@@ -244,28 +272,13 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
                 getent.pixelz = 88 + pz;
                 this.shipList.add(getent);
                 
-                int sIconU = getRadarIconU(px, pz);
                 int color = this.selectedShips.contains(id) ? 0xFFFF0000 : 0xFFFFAFC9;
                 guiGraphics.fill(69 + (int)px, 88 + (int)pz, 69 + (int)px + 3, 88 + (int)pz + 3, color);
                 id++;
-            } else if (entity instanceof net.minecraft.world.entity.item.ItemEntity item) {
-                double px = Mth.clamp((item.getX() - ox) * radarScale, -64.0, 64.0);
-                double pz = Mth.clamp((item.getZ() - oz) * radarScale, -64.0, 64.0);
-                this.itemList.add(new RadarEntity(69 + px, item.getY() - oy, 88 + pz, (int)item.getX(), (int)item.getY(), (int)item.getZ()));
-                guiGraphics.fill(69 + (int)px, 88 + (int)pz, 69 + (int)px + 3, 88 + (int)pz + 3, 0xFF00FFFF);
             }
         }
     }
 
-    private int getRadarIconU(double px, double pz) {
-        int absPx = Math.abs((int)px);
-        int absPz = Math.abs((int)pz);
-        float timeFactor = this.tickGUI * 0.125f;
-        if (absPx > 48 || absPz > 48) return (int)(timeFactor + 6.0f) % 8 * 3;
-        if (absPx > 32 || absPz > 32) return (int)(timeFactor + 4.0f) % 8 * 3;
-        if (absPx > 16 || absPz > 16) return (int)(timeFactor + 2.0f) % 8 * 3;
-        return (int)timeFactor % 8 * 3;
-    }
 
     private void drawMoraleIcon(GuiGraphics guiGraphics) {
         int texty = 37;
@@ -615,9 +628,19 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         this.lastXMouse = mx;
         this.lastYMouse = my;
 
-        if (menu.getDeskType() == 1) {
+        if (menu.getDeskType() == 0) {
+            if (my >= 2 && my <= 18) {
+                if (mx >= 3 && mx <= 19) { setDeskFunction(1); return true; }
+                if (mx >= 22 && mx <= 38) { setDeskFunction(2); return true; }
+                if (mx >= 41 && mx <= 57) { setDeskFunction(3); return true; }
+                if (mx >= 60 && mx <= 76) { setDeskFunction(4); return true; }
+            }
+        }
+
+        if (guiFunc == 1) {
             if (mx >= 9 && mx <= 53 && my >= 160 && my <= 168) {
                 this.radarZoomLv = (this.radarZoomLv + 1) % 3;
+                syncDeskGui();
                 return true;
             }
             if (mx >= 142 && mx <= 250) {
@@ -641,62 +664,107 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
                     }
                 }
             }
+            if (!this.selectedShips.isEmpty()) {
+                if (mx >= 88 && mx <= 132 && my >= 159 && my <= 169) {
+                    handleSummonSelectedShips();
+                    return true;
+                }
+            }
             this.selectedShips.clear();
             return true;
         }
 
-        if (my >= 180 && my <= 195) {
-            if (mx >= 50 && mx <= 80) {
-                if (pageId > 0) {
-                    pageId--;
-                    syncBookState();
+        if (guiFunc == 2) {
+            if (my >= 180 && my <= 195) {
+                if (mx >= 50 && mx <= 80) {
+                    if (pageId > 0) {
+                        pageId -= (button == 1 ? 10 : 1);
+                        if (pageId < 0) pageId = 0;
+                        syncBookState();
+                    }
+                    return true;
                 }
-                return true;
-            }
-            if (mx >= 170 && mx <= 200) {
-                if (chapId < Values.PageLimit.length && pageId < Values.PageLimit[chapId]) {
-                    pageId++;
-                    syncBookState();
-                }
-                return true;
-            }
-        }
-        
-        if (mx >= 243 && mx <= 256) {
-            if (my >= 34 && my <= 121) {
-                int getbtn = (my - 34) / 12;
-                if (getbtn >= 0 && getbtn < 7) {
-                    this.chapId = getbtn;
-                    this.pageId = 0;
-                    syncBookState();
+                if (mx >= 170 && mx <= 200) {
+                    if (chapId >= 0 && chapId < Values.PageLimit.length && pageId < Values.PageLimit[chapId]) {
+                        pageId += (button == 1 ? 10 : 1);
+                        if (pageId > Values.PageLimit[chapId]) pageId = Values.PageLimit[chapId];
+                        syncBookState();
+                    }
                     return true;
                 }
             }
-        }
-        
-        if (entityTemp != null && (chapId == 4 || chapId == 5)) {
-            if (mx >= 22 && mx <= 30) {
-                if (my >= 158 && my <= 166) { handleBookModelControls(1); return true; }
-                if (my >= 169 && my <= 177) { handleBookModelControls(3); return true; }
-            }
-            if (mx >= 33 && mx <= 41) {
-                if (my >= 158 && my <= 166) { handleBookModelControls(2); return true; }
-                if (my >= 169 && my <= 177) { handleBookModelControls(4); return true; }
-            }
-            int drawIdx = 0;
-            int startIdx = (entityTemp instanceof EntityShipBase ship && ship.hasShipMounts()) ? 1 : 0;
-            for (int i = startIdx; i < 16; i++) {
-                if (i >= ((EntityShipBase)entityTemp).getStateMinor(13)) break;
-                int dx = 45 + (drawIdx % 8) * 9;
-                int dy = 158 + (drawIdx / 8) * 9;
-                if (mx >= dx && mx <= dx + 7 && my >= dy && my <= dy + 9) {
-                    handleBookModelControls(5 + i);
-                    return true;
+            
+            if (mx >= 243 && mx <= 256) {
+                if (my >= 34 && my <= 121) {
+                    int getbtn = (my - 34) / 12;
+                    if (getbtn >= 0 && getbtn < 7) {
+                        this.chapId = getbtn;
+                        this.pageId = 0;
+                        syncBookState();
+                        syncDeskGui();
+                        return true;
+                    }
                 }
-                drawIdx++;
+            }
+            
+            if (entityTemp != null && (chapId == 4 || chapId == 5)) {
+                if (mx >= 22 && mx <= 30) {
+                    if (my >= 158 && my <= 166) { handleBookModelControls(1); return true; }
+                    if (my >= 169 && my <= 177) { handleBookModelControls(3); return true; }
+                }
+                if (mx >= 33 && mx <= 41) {
+                    if (my >= 158 && my <= 166) { handleBookModelControls(2); return true; }
+                    if (my >= 169 && my <= 177) { handleBookModelControls(4); return true; }
+                }
+                int drawIdx = 0;
+                int startIdx = (entityTemp instanceof EntityShipBase ship && ship.hasShipMounts()) ? 1 : 0;
+                for (int i = startIdx; i < 16; i++) {
+                    if (i >= ((EntityShipBase)entityTemp).getStateMinor(13)) break;
+                    int dx = 45 + (drawIdx % 8) * 9;
+                    int dy = 158 + (drawIdx / 8) * 9;
+                    if (mx >= dx && mx <= dx + 7 && my >= dy && my <= dy + 9) {
+                        handleBookModelControls(5 + i);
+                        return true;
+                    }
+                    drawIdx++;
+                }
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void setDeskFunction(int func) {
+        if (this.guiFunc == func) {
+            this.guiFunc = 0;
+        } else {
+            this.guiFunc = func;
+        }
+        syncDeskGui();
+    }
+
+    private void handleSummonSelectedShips() {
+        if (this.selectedShips.isEmpty()) return;
+
+        java.util.List<java.util.UUID> uuids = new java.util.ArrayList<>();
+        for (int index : this.selectedShips) {
+            if (index >= 0 && index < this.shipList.size()) {
+                Entity e = this.shipList.get(index).ship;
+                if (e != null) {
+                    uuids.add(e.getUUID());
+                }
+            }
+        }
+
+        if (!uuids.isEmpty()) {
+            net.minecraft.core.BlockPos pos;
+            if (menu.getDeskType() == 0 && menu.getBlockEntity() != null) {
+                pos = menu.getBlockEntity().getBlockPos();
+            } else {
+                pos = this.minecraft.player.blockPosition();
+            }
+            PacketDistributor.sendToServer(new C2SDeskSummonPayload(pos, uuids));
+            this.minecraft.player.closeContainer();
+        }
     }
 
     private static class RadarEntity {
@@ -706,15 +774,6 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
 
         public RadarEntity(Entity ship) {
             this.ship = ship;
-        }
-
-        public RadarEntity(double px, double py, double pz, int x, int y, int z) {
-            this.pixelx = px;
-            this.pixely = py;
-            this.pixelz = pz;
-            this.posX = x;
-            this.posY = y;
-            this.posZ = z;
         }
     }
 }

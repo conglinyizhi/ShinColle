@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -384,10 +385,11 @@ public class ModelDestroyerShimakaze<T extends EntityShipBase> extends ShipModel
             EquipBase.zRot = 1.57F;
         }
 
-        float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(customAttackAnim) * (float) Math.PI);
             ArmRight.xRot = -0.4F;
             ArmRight.yRot = 0.0F;
             ArmRight.zRot = -0.2F;

@@ -1,26 +1,54 @@
 package org.trp.shincolle.init;
 
 import com.mojang.serialization.Codec;
+import net.minecraft.nbt.CompoundTag;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.attachment.AdmiralData;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 public final class ModDataAttachments {
     public static final DeferredRegister<AttachmentType<?>> ATTACHMENT_TYPES =
             DeferredRegister.create(NeoForgeRegistries.Keys.ATTACHMENT_TYPES, Shincolle.MODID);
 
-    public static final DeferredHolder<AttachmentType<?>, AttachmentType<Set<Integer>>> COLLECTED_SHIPS =
-            ATTACHMENT_TYPES.register("collected_ships", () -> AttachmentType.builder(() -> (Set<Integer>) new HashSet<Integer>())
-                    .serialize(Codec.INT.listOf().xmap(HashSet::new, ArrayList::new))
+    private static final Codec<HashSet<Integer>> SET_CODEC = Codec.INT.listOf().xmap(HashSet::new, ArrayList::new);
+    private static final Codec<AdmiralData> ADMIRAL_CODEC = CompoundTag.CODEC.xmap(
+            tag -> {
+                AdmiralData data = new AdmiralData();
+                data.deserializeNBT(tag);
+                return data;
+            },
+            AdmiralData::serializeNBT
+    );
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<HashSet<Integer>>> COLLECTED_SHIPS =
+            ATTACHMENT_TYPES.register("collected_ships", () -> AttachmentType.builder(() -> new HashSet<Integer>())
+                    .serialize(SET_CODEC)
                     .copyOnDeath()
                     .build());
+
+    public static final DeferredHolder<AttachmentType<?>, AttachmentType<AdmiralData>> ADMIRAL_DATA =
+            ATTACHMENT_TYPES.register("admiral_data", () -> AttachmentType.builder(() -> new AdmiralData())
+                    .serialize(ADMIRAL_CODEC)
+                    .copyOnDeath()
+                    .build());
+
+    private static HashSet<Integer> readSet(net.minecraft.nbt.Tag tag, net.neoforged.neoforge.attachment.IAttachmentHolder holder) {
+        HashSet<Integer> set = new HashSet<>();
+        if (tag instanceof net.minecraft.nbt.IntArrayTag array) {
+            for (int i : array.getAsIntArray()) set.add(i);
+        }
+        return set;
+    }
+
+    private static net.minecraft.nbt.Tag writeSet(HashSet<Integer> set, net.neoforged.neoforge.attachment.IAttachmentHolder holder) {
+        return new net.minecraft.nbt.IntArrayTag(new java.util.ArrayList<>(set));
+    }
 
     private ModDataAttachments() {
     }

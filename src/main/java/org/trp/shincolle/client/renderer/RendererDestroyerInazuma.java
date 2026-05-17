@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelDestroyerInazuma;
-import org.trp.shincolle.entity.EntityDestroyerInazuma;
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
+import org.trp.shincolle.entity.EntityDestroyerInazuma;
 
 public class RendererDestroyerInazuma extends MobRenderer<EntityDestroyerInazuma, ModelDestroyerInazuma<EntityDestroyerInazuma>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_inazuma.png");

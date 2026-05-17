@@ -7,8 +7,8 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelIsolatedHime;
-import org.trp.shincolle.entity.EntityIsolatedHime;
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
+import org.trp.shincolle.entity.EntityIsolatedHime;
 
 public class RendererIsolatedHime extends MobRenderer<EntityIsolatedHime, ModelIsolatedHime<EntityIsolatedHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/isolated_hime.png");

@@ -1,7 +1,7 @@
 package org.trp.shincolle.item;
 
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.util.Mth;

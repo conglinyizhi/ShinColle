@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelCarrierHime;
-import org.trp.shincolle.entity.EntityCarrierHime;
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
+import org.trp.shincolle.entity.EntityCarrierHime;
 
 public class RendererCarrierHime extends MobRenderer<EntityCarrierHime, ModelCarrierHime<EntityCarrierHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/carrier_hime.png");

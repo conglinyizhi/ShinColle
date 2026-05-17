@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.List;
 import java.util.Objects;

@@ -40,6 +40,9 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
     public void aiStep() {
         super.aiStep();
 
+        checkRiderType();
+        checkRidingState();
+
         if (this.level().isClientSide) {
             updateClientLogic();
         }
@@ -91,9 +94,6 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
             return;
         }
 
-        checkRiderType();
-        checkRidingState();
-
         if ((this.tickCount % 128) == 0) {
             applyBuffToOwner();
         }
@@ -102,10 +102,6 @@ public class EntityDestroyerHibiki extends EntityShipBase implements IShipRiderT
     private void updateClientLogic() {
         if ((this.tickCount % 4) == 0) {
             spawnEngineParticles();
-        }
-        if ((this.tickCount % 16) == 0) {
-            checkRiderType();
-            checkRidingState();
         }
     }
 

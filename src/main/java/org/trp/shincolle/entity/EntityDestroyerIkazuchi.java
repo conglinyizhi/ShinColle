@@ -91,6 +91,8 @@ public class EntityDestroyerIkazuchi extends EntityShipBase implements IShipRide
     public void aiStep() {
         super.aiStep();
 
+        updateState();
+
         if (this.level().isClientSide) {
             updateClientLogic();
         }
@@ -166,9 +168,6 @@ protected Item getShipSpawnEggItem() {
                     this.getX() + partPos[1], this.getY() + 1.4D, this.getZ() + partPos[0],
                     0.0D, 0.0D, 0.0D);
         }
-        if ((this.tickCount % 16) == 0) {
-            updateState();
-        }
     }
 
     private void updateServerLogic() {
@@ -176,7 +175,6 @@ protected Item getShipSpawnEggItem() {
             return;
         }
 
-        updateState();
         if (!this.isRaiden) {
             this.raidenGattaiExpireTick = 0L;
         }
@@ -220,10 +218,10 @@ protected Item getShipSpawnEggItem() {
         } else if (this.getVehicle() instanceof EntityDestroyerInazuma inazuma) {
             this.yBodyRot = inazuma.yBodyRot;
             this.yBodyRotO = inazuma.yBodyRotO;
-            this.yHeadRot = inazuma.yHeadRot;
-            this.yHeadRotO = inazuma.yHeadRotO;
-            this.setYRot(inazuma.getYRot());
-            this.yRotO = inazuma.yRotO;
+            this.yHeadRot = inazuma.yBodyRot;
+            this.yHeadRotO = inazuma.yBodyRotO;
+            this.setYRot(inazuma.yBodyRot);
+            this.yRotO = inazuma.yBodyRotO;
         }
     }
 

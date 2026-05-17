@@ -66,7 +66,7 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
         }
 
         boolean canFindTarget = (this.tickCount & 0xFF) == 0 && this.getRandom().nextInt(5) == 0;
-        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed();
+        boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed() || this.isInDeadPose();
         if (canFindTarget && !isActionBlocked) {
             findTargetPush();
         }
@@ -74,7 +74,7 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
 
     private void updatePushingState() {
         this.tickPush++;
-        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush.isAlive()) {
+        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush.isAlive() || this.isInDeadPose()) {
             cancelPush();
             return;
         }

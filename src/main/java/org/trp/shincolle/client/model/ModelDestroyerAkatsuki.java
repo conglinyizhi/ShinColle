@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -789,14 +790,25 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
         if (ridingState > 0) {
             Head.yRot *= 0.5F;
             Head.zRot = 0.0F;
-            ArmLeft01.xRot = -0.8F;
-            ArmLeft01.yRot = -1.5F;
-            ArmLeft01.zRot = 0.0F;
-            ArmLeft02.zRot = 1.45F;
-            ArmRight01.xRot = -0.8F;
-            ArmRight01.yRot = 1.5F;
-            ArmRight01.zRot = 0.0F;
-            ArmRight02.zRot = -1.45F;
+            if (isLegacyEmote1) {
+                ArmLeft01.xRot = 0.1F;
+                ArmLeft01.yRot = 0.0F;
+                ArmLeft01.zRot = -0.4F;
+                ArmLeft02.zRot = 0.8F;
+                ArmRight01.xRot = 0.1F;
+                ArmRight01.yRot = 0.0F;
+                ArmRight01.zRot = 0.4F;
+                ArmRight02.zRot = -0.8F;
+            } else {
+                ArmLeft01.xRot = -0.8F;
+                ArmLeft01.yRot = -1.5F;
+                ArmLeft01.zRot = 0.0F;
+                ArmLeft02.zRot = 1.45F;
+                ArmRight01.xRot = -0.8F;
+                ArmRight01.yRot = 1.5F;
+                ArmRight01.zRot = 0.0F;
+                ArmRight02.zRot = -1.45F;
+            }
             EquipBase.visible = false;
             EquipTL03.visible = false;
             EquipTR03.visible = false;
@@ -959,6 +971,20 @@ public class ModelDestroyerAkatsuki<T extends EntityShipBase> extends ShipModelH
 
         LegLeft01.xRot = legLeftX;
         LegRight01.xRot = legRightX;
+
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+
+        if (customAttackAnim > 0.0F) {
+            float f7 = net.minecraft.util.Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(customAttackAnim) * (float) Math.PI);
+            this.ArmRight01.xRot = -0.4F;
+            this.ArmRight01.yRot = 0.0F;
+            this.ArmRight01.zRot = -0.2F;
+            this.ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
+            this.ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
+            this.ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);
+        }
     }
 
     private void applyHairAnimation(PoseContext ctx, float ageInTicks, float limbSwing) {

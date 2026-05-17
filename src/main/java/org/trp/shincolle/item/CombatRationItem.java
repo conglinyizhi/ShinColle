@@ -104,7 +104,7 @@ public class CombatRationItem extends Item {
                 .withStyle(ChatFormatting.LIGHT_PURPLE));
 
         tooltipComponents.add(Component.literal("+" + getFuelGainMin(variant) + "~" + getFuelGainMax(variant) + " ")
-                .append(Component.translatable("item.shincolle.Grudge.name"))
+                .append(Component.translatable("item.shincolle.grudge"))
                 .withStyle(ChatFormatting.RED));
     }
 }

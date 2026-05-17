@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -686,9 +687,104 @@ public class ModelDestroyerHibiki<T extends EntityShipBase> extends ShipModelHum
             legRightX -= 0.55F;
         }
 
-        if (ctx.isSitting || isPassenger) {
+        int riderType = 0;
+        if (entity instanceof org.trp.shincolle.entity.IShipRiderType shipRider) {
+            riderType = shipRider.getRiderType();
+        }
+        if (riderType > 0) {
+            this.poseTranslateY = 0.0F;
+            Butt.xRot = -0.2F;
+            Butt.y = buttDefaultY + (-0.1F * OFFSET_SCALE);
+            Skirt01.xRot = -0.07F;
+            Skirt01.y = skirt01DefaultY + (-0.1F * OFFSET_SCALE);
+            Skirt02.xRot = -0.16F;
+            Skirt02.y = skirt02DefaultY + (-0.15F * OFFSET_SCALE);
+            ArmLeft01.xRot = -0.3F;
+            ArmLeft01.yRot = -0.2F;
+            ArmLeft01.zRot = 0.0F;
+            ArmLeft02.xRot = -1.2F;
+            ArmRight01.xRot = -0.3F;
+            ArmRight01.yRot = 0.2F;
+            ArmRight01.zRot = 0.0F;
+            ArmRight02.xRot = -1.2F;
+            legLeftX = -0.95F;
+            legRightX = -0.95F;
+            LegLeft01.yRot = -0.5F;
+            LegLeft01.zRot = -0.1F;
+            LegLeft02.z = legLeft02DefaultZ;
+            LegLeft02.xRot = 0.8F;
+            LegLeft02.zRot = 0.0175F;
+            LegRight01.yRot = 0.5F;
+            LegRight01.zRot = 0.1F;
+            LegRight02.z = legRight02DefaultZ;
+            LegRight02.xRot = 0.8F;
+            LegRight02.zRot = -0.0175F;
+            if (ctx.isSitting) {
+                ArmLeft01.xRot = -0.6F;
+                ArmLeft01.yRot = 0.0F;
+                ArmLeft01.zRot = 0.2F;
+                ArmLeft02.xRot = 0.0F;
+                ArmRight01.xRot = -0.6F;
+                ArmRight01.yRot = 0.0F;
+                ArmRight01.zRot = -0.2F;
+                ArmRight02.xRot = 0.0F;
+            }
+            if (riderType > 1) {
+                Head.yRot *= 0.5F;
+                Head.zRot = 0.0F;
+
+                if (entity != null && hasLegacyState(entity, 1, 4)) {
+                    ArmLeft01.xRot = 0.1F;
+                    ArmLeft01.yRot = 0.0F;
+                    ArmLeft01.zRot = -0.4F;
+                    ArmLeft02.xRot = 0.0F;
+                    ArmLeft02.zRot = 0.8F;
+                    ArmRight01.xRot = 0.1F;
+                    ArmRight01.yRot = 0.0F;
+                    ArmRight01.zRot = 0.4F;
+                    ArmRight02.xRot = 0.0F;
+                    ArmRight02.zRot = -0.8F;
+                } else {
+                    ArmLeft01.xRot = -0.8F;
+                    ArmLeft01.yRot = -1.5F;
+                    ArmLeft01.zRot = 0.0F;
+                    ArmLeft02.xRot = 0.0F;
+                    ArmLeft02.zRot = 1.45F;
+                    ArmRight01.xRot = -0.8F;
+                    ArmRight01.yRot = 1.5F;
+                    ArmRight01.zRot = 0.0F;
+                    ArmRight02.xRot = 0.0F;
+                    ArmRight02.zRot = -1.45F;
+                }
+                EquipBase.visible = false;
+                if (ctx.isSitting) {
+                    Head.xRot -= 0.1F;
+                    BodyMain.xRot = 0.0F;
+                    Butt.xRot = -0.2F;
+                    Butt.y = buttDefaultY + (-0.1F * OFFSET_SCALE);
+                    Skirt01.xRot = -0.07F;
+                    Skirt01.y = skirt01DefaultY + (-0.05F * OFFSET_SCALE);
+                    Skirt02.xRot = -0.16F;
+                    Skirt02.y = skirt02DefaultY + (-0.08F * OFFSET_SCALE);
+                    legLeftX = -0.65F;
+                    legRightX = -0.65F;
+                    LegLeft01.yRot = 0.2F;
+                    LegLeft01.zRot = 0.0F;
+                    LegLeft02.z = legLeft02DefaultZ + (0.375F * OFFSET_SCALE);
+                    LegLeft02.xRot = 2.45F;
+                    LegLeft02.zRot = 0.0175F;
+                    LegRight01.yRot = -0.2F;
+                    LegRight01.zRot = 0.0F;
+                    LegRight02.z = legRight02DefaultZ + (0.375F * OFFSET_SCALE);
+                    LegRight02.xRot = 2.45F;
+                    LegRight02.zRot = -0.0175F;
+                }
+            }
+        } else if (ctx.isSitting || isPassenger) {
+            net.minecraft.world.entity.Entity mount = entity != null ? entity.getVehicle() : null;
+            boolean ridingShip = mount instanceof org.trp.shincolle.entity.base.EntityShipBase;
             if (entity != null && hasLegacyState(entity, 1, 4)) {
-                this.poseTranslateY = 0.52F * 3.2F;
+                this.poseTranslateY = ridingShip ? 0.0F : 0.52F * 3.2F;
                 Head.xRot = -0.9F;
                 Head.yRot = -1.1F;
                 Head.zRot = 0.0F;
@@ -711,7 +807,7 @@ public class ModelDestroyerHibiki<T extends EntityShipBase> extends ShipModelHum
                 ArmLeft02.zRot = 0.5F;
                 ArmRight02.zRot = -1.0F;
             } else {
-                this.poseTranslateY = isPassenger ? 0.375F * 3 : 0.3F * 3;
+                this.poseTranslateY = ridingShip ? 0.0F : (isPassenger ? 0.375F * 3 : 0.3F * 3);
                 Head.xRot -= 0.1F;
                 BodyMain.xRot = 0.0F;
                 Butt.xRot = -0.2F;
@@ -749,10 +845,11 @@ public class ModelDestroyerHibiki<T extends EntityShipBase> extends ShipModelHum
             ArmRight02.zRot = 0.0F;
         }
 
-        float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(customAttackAnim) * (float) Math.PI);
             ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
             ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
             ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);

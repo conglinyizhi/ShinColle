@@ -1,21 +1,21 @@
 package org.trp.shincolle.init;
 
+import net.minecraft.util.valueproviders.UniformInt;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DropExperienceBlock;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.util.valueproviders.UniformInt;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
-import org.trp.shincolle.block.AbyssiumBlock;
-import org.trp.shincolle.block.GrudgeHeavyBlock;
-import org.trp.shincolle.block.LargeShipyardBlock;
-import org.trp.shincolle.block.PolymetalBlock;
-import org.trp.shincolle.block.SmallShipyardBlock;
+import org.trp.shincolle.block.*;
+
 
 public class ModBlocks {
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(Shincolle.MODID);
+
+    public static final DeferredBlock<Block> DESK = BLOCKS.register("blockdesk",
+            DeskBlock::new);
 
         public static final DeferredBlock<Block> ABYSSIUM = BLOCKS.register("abyssium",
                         () -> new AbyssiumBlock(BlockBehaviour.Properties.of().strength(3.0F).requiresCorrectToolForDrops().sound(SoundType.METAL)));
@@ -44,4 +44,14 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> POLYMETAL_GRAVEL = BLOCKS.register("polymetal_gravel",
             () -> new Block(BlockBehaviour.Properties.of().strength(0.8F).sound(SoundType.SAND)));
+
+    public static final DeferredBlock<Block> VOL_CORE = BLOCKS.register("blockvolcore",
+            org.trp.shincolle.block.VolCoreBlock::new);
+
+    public static final DeferredBlock<Block> WAYPOINT = BLOCKS.register("blockwaypoint",
+            WayPointBlock::new);
+
+    public static final DeferredBlock<Block> CRANE = BLOCKS.register("blockcrane",
+            CraneBlock::new);
 }
+

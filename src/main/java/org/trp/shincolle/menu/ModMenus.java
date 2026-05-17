@@ -26,4 +26,24 @@ public class ModMenus {
         "desk_menu",
         () -> IMenuTypeExtension.create(DeskMenu::new)
     );
+
+    public static final DeferredHolder<MenuType<?>, MenuType<VolCoreMenu>> VOL_CORE_MENU = MENUS.register(
+            "vol_core_menu",
+            () -> IMenuTypeExtension.create(VolCoreMenu::new)
+    );
+
+    public static final DeferredHolder<MenuType<?>, MenuType<CraneMenu>> CRANE_MENU = MENUS.register(
+            "crane_menu",
+            () -> IMenuTypeExtension.create(CraneMenu::new)
+    );
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FormationMenu>> FORMATION = MENUS.register(
+            "formation",
+            () -> IMenuTypeExtension.create(FormationMenu::new)
+    );
+
+    public static final DeferredHolder<MenuType<?>, MenuType<RecipePaperMenu>> RECIPE_PAPER_MENU = MENUS.register(
+            "recipe_paper_menu",
+            () -> IMenuTypeExtension.create(RecipePaperMenu::new)
+    );
 }

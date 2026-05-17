@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelDestroyerShimakaze;
-import org.trp.shincolle.entity.EntityDestroyerShimakaze;
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
+import org.trp.shincolle.entity.EntityDestroyerShimakaze;
 
 public class RendererDestroyerShimakaze extends MobRenderer<EntityDestroyerShimakaze, ModelDestroyerShimakaze<EntityDestroyerShimakaze>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_shimakaze.png");

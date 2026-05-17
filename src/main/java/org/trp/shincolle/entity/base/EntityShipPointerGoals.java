@@ -16,7 +16,7 @@ class EntityShipPointerMoveGoal extends Goal {
     EntityShipPointerMoveGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
         this.speed = speed;
-        this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
+        this.setFlags(EnumSet.of(Flag.MOVE));
     }
 
     @Override
@@ -30,11 +30,11 @@ class EntityShipPointerMoveGoal extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return ship.hasPointerTarget()
-                && !ship.isOrderedToSit()
-                && !ship.isInSittingPose()
-                && !ship.isPassenger()
-                && !ship.isInDeadPose();
+        if (!ship.hasPointerTarget() || ship.isOrderedToSit() || ship.isInSittingPose() || ship.isPassenger() || ship.isInDeadPose()) {
+            return false;
+        }
+        Vec3 target = ship.getPointerTarget();
+        return target != null && ship.distanceToSqr(target) > TARGET_REACH_SQR;
     }
 
     @Override
@@ -43,23 +43,25 @@ class EntityShipPointerMoveGoal extends Goal {
         moveToTarget();
     }
 
+    private Vec3 lastRawTarget;
+
     @Override
     public void tick() {
         if (!ship.hasPointerTarget()) {
             return;
         }
 
-        Vec3 target = ship.getPointerTarget();
-        if (target == null) {
+        Vec3 rawTarget = ship.getRawPointerTarget();
+        if (rawTarget == null) {
             return;
+        }
+
+        if (lastRawTarget == null || rawTarget.distanceToSqr(lastRawTarget) > 0.01D) {
+            this.nextPathTick = 0;
+            this.lastRawTarget = rawTarget;
         }
 
         ship.resetInteractionEmotionState();
-
-        if (ship.distanceToSqr(target) <= TARGET_REACH_SQR) {
-            ship.getNavigation().stop();
-            return;
-        }
 
         if (this.nextPathTick-- <= 0) {
             this.nextPathTick = 10;

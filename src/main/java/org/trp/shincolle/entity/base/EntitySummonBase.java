@@ -8,7 +8,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
-import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.init.ModSounds;
 
 import javax.annotation.Nullable;

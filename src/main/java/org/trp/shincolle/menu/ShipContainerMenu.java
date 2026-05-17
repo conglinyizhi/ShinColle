@@ -45,6 +45,11 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public static final int SLIDER_FOLLOW_MAX_BASE = 500;
     public static final int SLIDER_FLEE_HP_BASE = 700;
     public static final int SLIDER_RATION_MORALE_BASE = 900;
+    public static final int ACTION_TASK_SELECT_BASE = 1000;
+    public static final int ACTION_TASK_META_TOGGLE = 1010;
+    public static final int ACTION_TASK_ORE_TOGGLE = 1011;
+    public static final int ACTION_TASK_NBT_TOGGLE = 1012;
+    public static final int ACTION_SIDE_TOGGLE_BASE = 1100;
 
     public static final int STATE_FLAG_CAN_MELEE = 3;
     public static final int STATE_FLAG_LIGHT_ATTACK = 4;
@@ -66,6 +71,13 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public static final int STATE_MINOR_FOLLOW_MIN = 10;
     public static final int STATE_MINOR_FOLLOW_MAX = 11;
     public static final int STATE_MINOR_FLEE_HP = 12;
+    public static final int STATE_MINOR_TASK_ID = 40;
+    public static final int STATE_MINOR_TASK_SIDE = 41;
+    public static final int STATE_MINOR_GUARD_X = 14;
+    public static final int STATE_MINOR_GUARD_Y = 15;
+    public static final int STATE_MINOR_GUARD_Z = 16;
+    public static final int STATE_MINOR_GUARD_DIM = 17;
+    public static final int STATE_MINOR_GUARD_TYPE = 18;
     private static final int STATE_MINOR_EQUIP_DRUM = 36;
 
     private static final int FOLLOW_MIN_MIN = 1;
@@ -341,6 +353,28 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             rationMoraleSynced = clampRationMorale(value);
         }
     };
+    private final DataSlot taskIdData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateMinor(STATE_MINOR_TASK_ID);
+        }
+
+        @Override
+        public void set(int value) {
+            taskIdSynced = value;
+        }
+    };
+    private final DataSlot taskSideData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+        }
+
+        @Override
+        public void set(int value) {
+            taskSideSynced = value;
+        }
+    };
     private final DataSlot shipTankFluidAmountLowData = new DataSlot() {
         @Override
         public int get() {
@@ -411,6 +445,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private boolean appearanceSynced;
     private boolean mountSynced;
     private int rationMoraleSynced;
+    private int taskIdSynced;
+    private int taskSideSynced;
     private int shipTankFluidAmountSynced;
     private int shipTankFluidCapacitySynced;
 
@@ -450,6 +486,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.appearanceSynced = ship.isStateAppearance();
         this.mountSynced = (ship.getStateEmotion(0) & 1) != 0;
         this.rationMoraleSynced = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE));
+        this.taskIdSynced = ship.getStateMinor(STATE_MINOR_TASK_ID);
+        this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
         refreshShipTankFluidSyncValues();
 
         ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this.followMinSynced);
@@ -479,6 +517,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.addDataSlot(appearanceData);
         this.addDataSlot(mountData);
         this.addDataSlot(rationMoraleData);
+        this.addDataSlot(taskIdData);
+        this.addDataSlot(taskSideData);
         this.addDataSlot(shipTankFluidAmountLowData);
         this.addDataSlot(shipTankFluidAmountHighData);
         this.addDataSlot(shipTankFluidCapacityLowData);
@@ -654,6 +694,14 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return rationMoraleSynced;
     }
 
+    public int getTaskId() {
+        return taskIdSynced;
+    }
+
+    public int getTaskSideFlags() {
+        return taskSideSynced;
+    }
+
     public int getShipTankFluidAmount() {
         return Math.max(0, shipTankFluidAmountSynced);
     }
@@ -756,23 +804,31 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 return true;
             }
             case TOGGLE_BUTTON_LIGHT_ATTACK -> {
-                ship.setStateLightAttack(!ship.isStateLightAttack());
-                lightAttackSynced = ship.isStateLightAttack();
+                if (ship.isStateGuiBtn1()) {
+                    ship.setStateLightAttack(!ship.isStateLightAttack());
+                    lightAttackSynced = ship.isStateLightAttack();
+                }
                 return true;
             }
             case TOGGLE_BUTTON_HEAVY_ATTACK -> {
-                ship.setStateHeavyAttack(!ship.isStateHeavyAttack());
-                heavyAttackSynced = ship.isStateHeavyAttack();
+                if (ship.isStateGuiBtn2()) {
+                    ship.setStateHeavyAttack(!ship.isStateHeavyAttack());
+                    heavyAttackSynced = ship.isStateHeavyAttack();
+                }
                 return true;
             }
             case TOGGLE_BUTTON_LIGHT_AIRCRAFT -> {
-                ship.setStateLightAircraftAttack(!ship.isStateLightAircraftAttack());
-                lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
+                if (ship.isStateGuiBtn3()) {
+                    ship.setStateLightAircraftAttack(!ship.isStateLightAircraftAttack());
+                    lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
+                }
                 return true;
             }
             case TOGGLE_BUTTON_HEAVY_AIRCRAFT -> {
-                ship.setStateHeavyAircraftAttack(!ship.isStateHeavyAircraftAttack());
-                heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
+                if (ship.isStateGuiBtn4()) {
+                    ship.setStateHeavyAircraftAttack(!ship.isStateHeavyAircraftAttack());
+                    heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
+                }
                 return true;
             }
             case TOGGLE_BUTTON_RING_EFFECT -> {
@@ -872,6 +928,38 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             ship.setEquipFlag(option.key(), next);
             return true;
         }
+
+        if (id >= ACTION_TASK_SELECT_BASE && id <= ACTION_TASK_SELECT_BASE + 4) {
+            int newTask = id - ACTION_TASK_SELECT_BASE;
+            int curTask = ship.getStateMinor(STATE_MINOR_TASK_ID);
+            ship.setStateMinor(STATE_MINOR_TASK_ID, (curTask != newTask) ? newTask : 0);
+            this.taskIdSynced = ship.getStateMinor(STATE_MINOR_TASK_ID);
+            return true;
+        }
+
+        if (id == ACTION_TASK_META_TOGGLE) {
+            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << 18));
+            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            return true;
+        }
+        if (id == ACTION_TASK_ORE_TOGGLE) {
+            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << 19));
+            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            return true;
+        }
+        if (id == ACTION_TASK_NBT_TOGGLE) {
+            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << 20));
+            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            return true;
+        }
+
+        if (id >= ACTION_SIDE_TOGGLE_BASE && id <= ACTION_SIDE_TOGGLE_BASE + 17) {
+            int bit = id - ACTION_SIDE_TOGGLE_BASE;
+            ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << bit));
+            this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
+            return true;
+        }
+
         return super.clickMenuButton(player, id);
     }
 

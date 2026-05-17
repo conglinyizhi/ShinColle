@@ -63,6 +63,8 @@ public class ModTabs {
                 output.accept(ModItems.SUBM_U511_SPAWN_EGG.get());
                 output.accept(ModItems.SUBM_RO500_SPAWN_EGG.get());
                 output.accept(ModItems.POINTER_ITEM.get());
+                output.accept(ModItems.TARGET_WRENCH.get());
+                output.accept(ModItems.RECIPE_PAPER.get());
                 output.accept(ModItems.INSTANT_CON_MAT.get());
                 output.accept(ModItems.KAITAI_HAMMER.get());
                 output.accept(ModItems.MARRIAGE_RING.get());
@@ -84,6 +86,7 @@ public class ModTabs {
                 output.accept(ModItems.BUCKET_REPAIR.get());
                 output.accept(ModItems.TOY_AIRPLANE.get());
                 output.accept(ModItems.TRAINING_BOOK.get());
+                output.accept(ModItems.REPAIR_GODDESS.get());
                 output.accept(ModItems.DESK_ITEM_BOOK.get());
                 output.accept(ModItems.DESK_ITEM_RADAR.get());
                 output.accept(ModItems.AMMO_LIGHT.get());
@@ -100,5 +103,10 @@ public class ModTabs {
                 output.accept(ModItems.POLYMETAL_ORE.get());
                 output.accept(ModItems.POLYMETAL_GRAVEL.get());
                 output.accept(ModBlocks.SMALL_SHIPYARD.get());
+                output.accept(ModItems.DESK.get());
+                output.accept(ModItems.VOL_CORE.get());
+                output.accept(ModItems.WAYPOINT.get());
+                output.accept(ModItems.CRANE.get());
             }).build());
 }
+

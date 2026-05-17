@@ -94,6 +94,13 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         if (isInLiquid()) {
             double hoverY = getLiquidHoverY(target);
             wantedY = Mth.lerp(0.4D, this.mob.getY(), hoverY);
+        } else {
+            BlockPos pos = BlockPos.containing(target.x, target.y - 0.5D, target.z);
+            BlockState state = this.level.getBlockState(pos);
+            double maxY = state.getCollisionShape(this.level, pos).max(net.minecraft.core.Direction.Axis.Y);
+            if (!Double.isInfinite(maxY) && !Double.isNaN(maxY)) {
+                wantedY = pos.getY() + maxY + 0.1D;
+            }
         }
 
         this.mob.getMoveControl().setWantedPosition(target.x, wantedY, target.z, this.speedModifier);
@@ -350,63 +357,68 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     }
 
     private boolean isDirectPathBetweenPoints(Vec3 from, Vec3 to, int sizeX, int sizeY, int sizeZ) {
-        int floorX = Mth.floor(from.x);
-        int floorZ = Mth.floor(from.z);
+        int x1 = Mth.floor(from.x);
+        int y1 = (int) from.y;
+        int z1 = Mth.floor(from.z);
         double dx = to.x - from.x;
+        double dy = to.y - from.y;
         double dz = to.z - from.z;
-        double lengthSq = dx * dx + dz * dz;
+        double offsetSq = dx * dx + dy * dy + dz * dz;
 
-        if (lengthSq < 1.0E-8D) {
+        if (offsetSq < 1.0E-8D) {
             return false;
         }
 
-        double invLength = 1.0D / Math.sqrt(lengthSq);
-        dx *= invLength;
-        dz *= invLength;
-        sizeX += 2;
-        sizeZ += 2;
+        double invDist = 1.0D / Math.sqrt(offsetSq);
+        dx *= invDist;
+        dy *= invDist;
+        dz *= invDist;
 
-        if (!isSafeToStandAt(floorX, (int) from.y, floorZ, sizeX, sizeY, sizeZ, from, dx, dz)) {
+        if (!this.isSafeToStandAt(x1, y1, z1, sizeX + 2, sizeY + 1, sizeZ + 2, from, dx, dz)) {
             return false;
         }
 
-        sizeX -= 2;
-        sizeZ -= 2;
-        double stepX = Math.abs(1.0D / dx);
-        double stepZ = Math.abs(1.0D / dz);
-        double offsetX = floorX - from.x;
-        double offsetZ = floorZ - from.z;
+        double unitX = 1.0D / Math.abs(dx);
+        double unitY = 1.0D / Math.abs(dy);
+        double unitZ = 1.0D / Math.abs(dz);
+        double proX = x1 - from.x;
+        double proY = y1 - from.y;
+        double proZ = z1 - from.z;
 
-        if (dx >= 0.0D) {
-            offsetX++;
-        }
+        if (dx >= 0.0D) proX += 1.0D;
+        if (dy >= 0.0D) proY += 1.0D;
+        if (dz >= 0.0D) proZ += 1.0D;
 
-        if (dz >= 0.0D) {
-            offsetZ++;
-        }
+        proX /= dx;
+        proY /= dy;
+        proZ /= dz;
 
-        offsetX /= dx;
-        offsetZ /= dz;
+        int dirX = dx < 0.0D ? -1 : 1;
+        int dirY = dy < 0.0D ? -1 : 1;
+        int dirZ = dz < 0.0D ? -1 : 1;
+        int x2 = Mth.floor(to.x);
+        int y2 = Mth.floor(to.y);
+        int z2 = Mth.floor(to.z);
+        int xIntOffset = x2 - x1;
+        int yIntOffset = y2 - y1;
+        int zIntOffset = z2 - z1;
 
-        int moveX = dx < 0.0D ? -1 : 1;
-        int moveZ = dz < 0.0D ? -1 : 1;
-        int targetX = Mth.floor(to.x);
-        int targetZ = Mth.floor(to.z);
-        int remainX = targetX - floorX;
-        int remainZ = targetZ - floorZ;
-
-        while (remainX * moveX > 0 || remainZ * moveZ > 0) {
-            if (offsetX < offsetZ) {
-                offsetX += stepX;
-                floorX += moveX;
-                remainX = targetX - floorX;
+        while (xIntOffset * dirX > 0 || yIntOffset * dirY > 0 || zIntOffset * dirZ > 0) {
+            if (proX < proY && proX < proZ) {
+                proX += unitX;
+                x1 += dirX;
+                xIntOffset = x2 - x1;
+            } else if (proY < proX && proY < proZ) {
+                proY += unitY;
+                y1 += dirY;
+                yIntOffset = y2 - y1;
             } else {
-                offsetZ += stepZ;
-                floorZ += moveZ;
-                remainZ = targetZ - floorZ;
+                proZ += unitZ;
+                z1 += dirZ;
+                zIntOffset = z2 - z1;
             }
 
-            if (!isSafeToStandAt(floorX, (int) from.y, floorZ, sizeX, sizeY, sizeZ, from, dx, dz)) {
+            if (!this.isSafeToStandAt(x1, y1, z1, sizeX, sizeY, sizeZ, from, dx, dz)) {
                 return false;
             }
         }
@@ -415,34 +427,38 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     }
 
     private boolean isSafeToStandAt(
-            int x,
-            int y,
-            int z,
-            int sizeX,
-            int sizeY,
-            int sizeZ,
-            Vec3 from,
-            double dirX,
-            double dirZ) {
-        int i = x - sizeX / 2;
-        int k = z - sizeZ / 2;
+            int xOffset,
+            int yOffset,
+            int zOffset,
+            int xSize,
+            int ySize,
+            int zSize,
+            Vec3 orgPos,
+            double vecX,
+            double vecZ) {
+        int xSize2 = xOffset - xSize / 2;
+        int zSize2 = zOffset - zSize / 2;
 
-        if (!isPositionClear(i, y, k, sizeX, sizeY, sizeZ, from, dirX, dirZ)) {
+        if (!this.isPositionClear(xSize2, yOffset, zSize2, xSize, ySize, zSize, orgPos, vecX, vecZ)) {
             return false;
+        }
+
+        if (isInLiquid()) {
+            return true;
         }
 
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 
-        for (int ix = i; ix < i + sizeX; ix++) {
-            for (int iz = k; iz < k + sizeZ; iz++) {
-                double deltaX = ix + 0.5D - from.x;
-                double deltaZ = iz + 0.5D - from.z;
+        for (int x1 = xSize2; x1 < xSize2 + xSize; x1++) {
+            for (int z1 = zSize2; z1 < zSize2 + zSize; z1++) {
+                double x2 = x1 + 0.5D - orgPos.x;
+                double z2 = z1 + 0.5D - orgPos.z;
 
-                if (deltaX * dirX + deltaZ * dirZ < 0.0D) {
+                if (x2 * vecX + z2 * vecZ < 0.0D) {
                     continue;
                 }
 
-                pos.set(ix, y - 1, iz);
+                pos.set(x1, yOffset - 1, z1);
 
                 if (this.level.getBlockState(pos).isAir()) {
                     return false;

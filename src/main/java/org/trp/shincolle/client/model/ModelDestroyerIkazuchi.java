@@ -2,11 +2,11 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -548,8 +548,12 @@ public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelH
 
         if (ctx.isSitting || isPassenger) {
             this.isSittingPose = ctx.isSitting;
-            this.poseTranslateY = ctx.isSitting && !isPassenger ? SITTING_TRANSLATE_Y : RIDING_TRANSLATE_Y;
-            Entity mount = entity != null ? entity.getVehicle() : null;
+            net.minecraft.world.entity.Entity mount = entity != null ? entity.getVehicle() : null;
+            if (mount instanceof org.trp.shincolle.entity.base.EntityShipBase) {
+                this.poseTranslateY = 0.0F;
+            } else {
+                this.poseTranslateY = ctx.isSitting && !isPassenger ? SITTING_TRANSLATE_Y : RIDING_TRANSLATE_Y;
+            }
             boolean ridingInazumaOrAkatsuki = mount instanceof EntityDestroyerInazuma || mount instanceof EntityDestroyerAkatsuki;
             boolean mountScorn = mount instanceof EntityShipBase shipMount && shipMount.getStateEmotion(1) == 4;
             if (ridingInazumaOrAkatsuki) {
@@ -731,9 +735,11 @@ public class ModelDestroyerIkazuchi<T extends EntityShipBase> extends ShipModelH
             }
         }
 
-        if (attackAnim > 0.0F) {
-            float f7 = Mth.sin(attackAnim * attackAnim * (float) Math.PI);
-            float f8 = Mth.sin(Mth.sqrt(attackAnim) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(customAttackAnim) * (float) Math.PI);
             ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
             ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
             ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);

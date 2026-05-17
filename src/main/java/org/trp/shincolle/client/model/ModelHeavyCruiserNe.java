@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -10,8 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
-
-import org.trp.shincolle.client.model.IGlowableModel;
 
 public class ModelHeavyCruiserNe<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "heavy_cruiser_ne"), "main");
@@ -223,7 +222,7 @@ public class ModelHeavyCruiserNe<T extends EntityShipBase> extends ShipModelHuma
 
     @Override
     public void setupAnim(T entity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch) {
-        this.poseTranslateY = 0.0F;
+        this.poseTranslateY = 0.4F;
         this.Head.y = this.headDefaultY;
         this.GlowHead.y = this.glowHeadDefaultY;
         this.ArmLeft01.z = this.armLeft01DefaultZ;
@@ -439,10 +438,11 @@ public class ModelHeavyCruiserNe<T extends EntityShipBase> extends ShipModelHuma
             this.TailR06.zRot = 0.0F;
         }
 
-        float swing = ship.getSwingTime(ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(customAttackAnim) * (float) Math.PI);
             this.ArmRight01.xRot = -0.6F - f8 * 80.0F * ((float) Math.PI / 180F);
             this.ArmRight01.yRot = 0.0F - f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
             this.ArmRight01.zRot = 0.2F - -f8 * 20.0F * ((float) Math.PI / 180F);

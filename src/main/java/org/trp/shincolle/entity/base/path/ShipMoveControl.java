@@ -55,7 +55,7 @@ public class ShipMoveControl extends MoveControl {
                 double motionY = Mth.clamp(motion.y * 0.45D + computeFluidSurfaceCorrection(0.08D), -0.04D, 0.04D);
                 this.mob.setDeltaMovement(0.0D, motionY, 0.0D);
             } else {
-                this.mob.setDeltaMovement(motion.x * 0.75D, motion.y, motion.z * 0.75D);
+                this.mob.setDeltaMovement(motion.x * 0.05D, motion.y, motion.z * 0.05D);
             }
 
             return;
@@ -142,6 +142,9 @@ public class ShipMoveControl extends MoveControl {
 
         this.mob.setSpeed(moveSpeed);
         this.mob.setZza(1.0F);
+
+        Vec3 motion = this.mob.getDeltaMovement();
+        this.mob.setDeltaMovement(motion.x * 0.95D, motion.y, motion.z * 0.95D);
     }
 
     private void applyIdleLiquidStabilization() {

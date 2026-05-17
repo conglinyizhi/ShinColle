@@ -25,7 +25,7 @@ public class ParticleTeam extends TextureSheetParticle {
     private static final float DEFAULT_SCALE = 0.35F;
     private static final float BASE_SCALE_MULTIPLIER = 3.0F;
     private static final float DEFAULT_HEIGHT = 1.5F;
-    private static final float TOP_OFFSET = 1.3F;
+    private static final float TOP_OFFSET = 1.6F;
     private static final float BASE_OFFSET = 0.26F;
 
     private static final EnumMap<FollowKind, Map<Integer, ParticleTeam>> FOLLOW_PARTICLES = new EnumMap<>(
@@ -330,16 +330,23 @@ public class ParticleTeam extends TextureSheetParticle {
                 BASE_SCALE_MULTIPLIER
         );
 
+        public static final RenderStyle SELECTED_YELLOW = new RenderStyle(
+                1.0F, 1.0F, 0.2F,
+                TOP_OFFSET, BASE_OFFSET,
+                0.95F, 0.45F,
+                BASE_SCALE_MULTIPLIER
+        );
+
         public static final RenderStyle TARGET_WHITE = new RenderStyle(
                 1.0F, 1.0F, 1.0F,
-                0.0F, 0.0F,
+                TOP_OFFSET, BASE_OFFSET,
                 0.95F, 0.45F,
                 BASE_SCALE_MULTIPLIER
         );
 
         public static final RenderStyle TARGET_RED = new RenderStyle(
                 1.0F, 0.2F, 0.2F,
-                0.0F, 0.0F,
+                TOP_OFFSET, BASE_OFFSET,
                 0.95F, 0.45F,
                 BASE_SCALE_MULTIPLIER
         );

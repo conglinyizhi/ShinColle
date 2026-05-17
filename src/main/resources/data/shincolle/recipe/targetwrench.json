@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "shincolle:abyss_metal"
+    }
+  },
+  "pattern": [
+    "a a",
+    "aaa",
+    " a "
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:targetwrench"
+  }
+}

@@ -1,6 +1,9 @@
 package org.trp.shincolle.event;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
@@ -51,10 +54,6 @@ public final class ClientPointerItemParticles {
 
         int pointerMode = getPointerMode(pointerStack);
 
-        if (level.getGameTime() % PARTICLE_INTERVAL_TICKS != 0) {
-            return;
-        }
-
         AABB searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS);
         List<EntityShipBase> ships = level.getEntitiesOfClass(EntityShipBase.class, searchArea,
                 ship -> ship.isOwnedBy(player) && !ship.isInDeadPose());
@@ -63,13 +62,22 @@ public final class ClientPointerItemParticles {
             return;
         }
 
+        boolean isIntervalTick = level.getGameTime() % PARTICLE_INTERVAL_TICKS == 0;
         Set<Integer> activeShipIds = new HashSet<>();
+
         for (EntityShipBase ship : ships) {
             activeShipIds.add(ship.getId());
-            spawnShipMarker(level, ship, pointerMode);
+            
+            if (isIntervalTick) {
+                spawnShipMarker(level, ship, pointerMode);
+            }
+
+            handleShipTargetParticles(level, ship);
         }
 
-        ParticleTeam.clearFollowParticles(ParticleTeam.FollowKind.SHIP_MARKER, activeShipIds);
+        if (isIntervalTick) {
+            ParticleTeam.clearFollowParticles(ParticleTeam.FollowKind.SHIP_MARKER, activeShipIds);
+        }
     }
 
     @SubscribeEvent
@@ -120,9 +128,10 @@ public final class ClientPointerItemParticles {
         double baseZ = ship.getZ();
 
         boolean groupMode = pointerMode == PointerItem.MODE_GROUP;
+        boolean formationMode = pointerMode == PointerItem.MODE_FORMATION;
         ParticleTeam.RenderStyle selectedStyle = groupMode
                 ? ParticleTeam.RenderStyle.SELECTED_RED
-                : ParticleTeam.RenderStyle.DEFAULT_BLUE;
+                : (formationMode ? ParticleTeam.RenderStyle.SELECTED_YELLOW : ParticleTeam.RenderStyle.DEFAULT_BLUE);
         ParticleTeam.RenderStyle desiredStyle = ship.isPointerSelected()
                 ? selectedStyle
                 : ParticleTeam.RenderStyle.DEFAULT_GREEN;
@@ -135,7 +144,11 @@ public final class ClientPointerItemParticles {
         }
 
         if (ship.isPointerSelected()) {
-            level.addParticle(groupMode ? ModParticles.PARTICLE_TEAM_SELECTED_RED.get() : ModParticles.PARTICLE_TEAM_SELECTED.get(), baseX, baseY, baseZ,
+            net.minecraft.core.particles.SimpleParticleType type = ModParticles.PARTICLE_TEAM_SELECTED.get();
+            if (groupMode) type = ModParticles.PARTICLE_TEAM_SELECTED_RED.get();
+            else if (formationMode) type = ModParticles.PARTICLE_TEAM_SELECTED_YELLOW.get();
+            
+            level.addParticle(type, baseX, baseY, baseZ,
                     ship.getBbHeight(), ship.getId(), ParticleTeam.FollowKind.SHIP_MARKER.getMarkerId());
         } else {
             level.addParticle(ModParticles.PARTICLE_TEAM.get(), baseX, baseY, baseZ,
@@ -143,16 +156,53 @@ public final class ClientPointerItemParticles {
         }
     }
 
-    private static void spawnTargetMarker(Level level, Vec3 target) {
-        level.addParticle(ModParticles.PARTICLE_TEAM_TARGET.get(),
+    private static void handleShipTargetParticles(Level level, EntityShipBase ship) {
+        Vec3 targetPos = null;
+        boolean isEntity = false;
+
+        if (ship.hasPointerTargetEntity()) {
+            Entity target = ship.getPointerTargetEntity();
+            if (target != null) {
+                targetPos = target.position().add(0, target.getBbHeight() * 0.5, 0);
+                isEntity = true;
+            }
+        } else if (ship.hasPointerTarget()) {
+            targetPos = ship.getPointerTarget();
+        }
+
+        if (targetPos != null) {
+            boolean isIntervalTick = level.getGameTime() % 16 == 0;
+            
+            if (isIntervalTick) {
+                if (isEntity) {
+                    spawnEntityTargetMarker(level, targetPos);
+                } else {
+                    spawnTargetMarker(level, targetPos, ModParticles.PARTICLE_TEAM_TARGET.get(), 1.5D);
+                }
+
+                Vec3 start = ship.position().add(0, ship.getBbHeight() * 0.5, 0);
+                Vec3 dir = targetPos.subtract(start);
+                double dist = dir.length();
+                if (dist > 1.0) {
+                    ParticleType<?> particle = isEntity ? ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get() : ModParticles.PARTICLE_WAYPOINT_LINE.get();
+                    level.addParticle((SimpleParticleType) particle,
+                            start.x, start.y, start.z,
+                            dir.x, dir.y, dir.z);
+                }
+            }
+        }
+    }
+
+    private static void spawnTargetMarker(Level level, Vec3 target, SimpleParticleType type, double height) {
+        level.addParticle(type,
                 target.x, target.y, target.z,
-                0.1D, -1.0D, ParticleTeam.FollowKind.NONE.getMarkerId());
+                height, -1.0D, ParticleTeam.FollowKind.NONE.getMarkerId());
     }
 
     private static void spawnEntityTargetMarker(Level level, Vec3 target) {
         level.addParticle(ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get(),
                 target.x, target.y, target.z,
-                0.1D, -1.0D, ParticleTeam.FollowKind.NONE.getMarkerId());
+                1.5D, -1.0D, ParticleTeam.FollowKind.NONE.getMarkerId());
     }
 
     private static void spawnEntityTargetMarker(Level level, Entity target) {
@@ -160,10 +210,10 @@ public final class ClientPointerItemParticles {
         if (existing != null) {
             ParticleTeam.removeFollowParticle(ParticleTeam.FollowKind.TARGET_ENTITY, target.getId());
         }
-        Vec3 pos = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+        Vec3 pos = target.position();
         level.addParticle(ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get(),
                 pos.x, pos.y, pos.z,
-                0.1D, target.getId(), ParticleTeam.FollowKind.TARGET_ENTITY.getMarkerId());
+                target.getBbHeight(), target.getId(), ParticleTeam.FollowKind.TARGET_ENTITY.getMarkerId());
     }
 
     private static void handlePointerTargetMarker(Level level, Player player) {
@@ -195,7 +245,7 @@ public final class ClientPointerItemParticles {
         if (target == null) {
             return;
         }
-        spawnTargetMarker(level, target);
+        spawnTargetMarker(level, target, ModParticles.PARTICLE_TEAM.get(), 1.5D);
     }
 
     private static void handlePointerEntityMarker(Level level, Player player, Entity target) {
@@ -259,6 +309,10 @@ public final class ClientPointerItemParticles {
             return null;
         }
 
-        return Vec3.atCenterOf(hit.getBlockPos()).add(0.0D, 1.0D, 0.0D);
+        BlockPos pos = hit.getBlockPos();
+        if (level.getBlockEntity(pos) instanceof org.trp.shincolle.block.entity.IWaypoint) {
+            return Vec3.atBottomCenterOf(pos).add(0.0, 1.0, 0.0);
+        }
+        return Vec3.atBottomCenterOf(pos).add(0.0, 1.0, 0.0);
     }
 }

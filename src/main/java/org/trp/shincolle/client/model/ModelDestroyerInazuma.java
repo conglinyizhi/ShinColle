@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -573,8 +574,10 @@ public class ModelDestroyerInazuma<T extends EntityShipBase> extends ShipModelHu
                 LegRight02.zRot = -0.0175F;
             }
         } else if (ctx.isSitting || isPassenger) {
+            net.minecraft.world.entity.Entity mount = entity != null ? entity.getVehicle() : null;
+            boolean ridingShip = mount instanceof org.trp.shincolle.entity.base.EntityShipBase;
             if (entity != null && hasLegacyState(entity, 1, 4)) {
-                this.poseTranslateY = 0.375F * 3.2F;
+                this.poseTranslateY = ridingShip ? 0.0F : 0.375F * 3.2F;
                 Head.yRot -= 0.4F;
                 Head.zRot += 0.2F;
                 BodyMain.xRot = -0.25F;
@@ -606,7 +609,7 @@ public class ModelDestroyerInazuma<T extends EntityShipBase> extends ShipModelHu
                 LegRight02.y = legRight02DefaultY + (0.05F * OFFSET_SCALE);
                 LegRight02.z = legRight02DefaultZ + (0.35F * OFFSET_SCALE);
             } else {
-                this.poseTranslateY = isPassenger ? 0.375F * 3.2F : 0.275F * 3.2F;
+                this.poseTranslateY = ridingShip ? 0.0F : (isPassenger ? 0.375F * 3.2F : 0.275F * 3.2F);
                 Head.xRot -= 0.1F;
                 BodyMain.xRot = 0.0F;
                 Butt.xRot = -0.2F;
@@ -650,10 +653,11 @@ public class ModelDestroyerInazuma<T extends EntityShipBase> extends ShipModelHu
             legRightX -= 0.15F;
         }
 
-        float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(customAttackAnim) * (float) Math.PI);
             ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
             ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
             ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);

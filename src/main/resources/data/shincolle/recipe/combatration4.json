@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:snowball" },
+    { "item": "minecraft:snowball" },
+    { "item": "minecraft:snowball" },
+    { "item": "minecraft:snowball" },
+    { "item": "minecraft:milk_bucket" },
+    { "item": "shincolle:grudge" }
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:combatration",
+    "components": {
+      "minecraft:custom_data": "{LegacyVariant:4}"
+    }
+  }
+}

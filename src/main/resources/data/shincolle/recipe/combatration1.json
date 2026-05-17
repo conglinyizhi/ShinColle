@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "shincolle:combatration" },
+    { "item": "shincolle:grudge_block" },
+    { "item": "shincolle:polymetal_gravel" }
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:combatration",
+    "components": {
+      "minecraft:custom_data": "{LegacyVariant:1}"
+    }
+  }
+}

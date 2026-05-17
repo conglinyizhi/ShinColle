@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelDestroyerHibiki;
-import org.trp.shincolle.entity.EntityDestroyerHibiki;
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
+import org.trp.shincolle.entity.EntityDestroyerHibiki;
 
 public class RendererDestroyerHibiki extends MobRenderer<EntityDestroyerHibiki, ModelDestroyerHibiki<EntityDestroyerHibiki>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_hibiki.png");

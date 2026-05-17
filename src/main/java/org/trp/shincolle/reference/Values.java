@@ -2,9 +2,10 @@ package org.trp.shincolle.reference;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import org.trp.shincolle.init.ModBlocks;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.ShipTankItem;
+
 
 import java.util.*;
 
@@ -16,6 +17,8 @@ public class Values {
     public static final Map<Byte, int[]> ShipTypeIconMap;
     public static final Map<Short, ItemStack> ItemIconMap;
     public static final Map<Integer, List<int[]>> BookList;
+    public static final Map<Integer, float[]> FormationAttrs;
+    public static final Map<Integer, float[]> MoraleAttrs;
     public static final int[] PageLimit = new int[]{2, 29, 6, 20, 26, 19, 4};
 
     static {
@@ -159,11 +162,11 @@ public class Values {
         // tempItemIconMap.put((short)27, new ItemStack(ModItems.ShipSpawnEgg, 1, 2)); // Meta-based
         tempItemIconMap.put((short)28, new ItemStack(ModItems.INSTANT_CON_MAT.get()));
         tempItemIconMap.put((short)29, new ItemStack(Items.DIAMOND_BLOCK));
-        // tempItemIconMap.put((short)30, new ItemStack(ModItems.RepairGoddess.get())); // Missing
+        tempItemIconMap.put((short)30, new ItemStack(ModItems.REPAIR_GODDESS.get()));
         tempItemIconMap.put((short)31, new ItemStack(ModItems.POINTER_ITEM.get()));
         tempItemIconMap.put((short)32, new ItemStack(ModItems.TOY_AIRPLANE.get()));
         // tempItemIconMap.put((short)37, new ItemStack(ModBlocks.BlockChair.get())); // Missing
-        // tempItemIconMap.put((short)33, new ItemStack(ModBlocks.BlockDesk.get())); // Missing
+        tempItemIconMap.put((short)33, new ItemStack(ModItems.DESK.get()));
         tempItemIconMap.put((short)50, new ItemStack(ModItems.DESK_ITEM_BOOK.get()));
         tempItemIconMap.put((short)51, new ItemStack(ModItems.DESK_ITEM_RADAR.get()));
         tempItemIconMap.put((short)52, new ItemStack(Items.WRITABLE_BOOK));
@@ -173,12 +176,12 @@ public class Values {
         tempItemIconMap.put((short)38, new ItemStack(Items.OAK_PLANKS));
         tempItemIconMap.put((short)39, new ItemStack(Items.LEATHER));
         tempItemIconMap.put((short)36, new ItemStack(ModItems.SMALL_SHIPYARD.get()));
-        // tempItemIconMap.put((short)54, new ItemStack(ModItems.TargetWrench.get())); // Missing
-        // tempItemIconMap.put((short)55, new ItemStack(ModBlocks.BlockVolCore.get())); // Missing
+        tempItemIconMap.put((short)54, new ItemStack(ModItems.TARGET_WRENCH.get()));
+        tempItemIconMap.put((short)55, new ItemStack(ModItems.VOL_CORE.get()));
         // tempItemIconMap.put((short)56, new ItemStack(ModBlocks.BlockVolBlock.get())); // Missing
         // tempItemIconMap.put((short)61, new ItemStack(ModBlocks.BlockFrame.get())); // Missing
-        // tempItemIconMap.put((short)62, new ItemStack(ModBlocks.BlockWaypoint.get())); // Missing
-        // tempItemIconMap.put((short)63, new ItemStack(ModBlocks.BlockCrane.get())); // Missing
+        tempItemIconMap.put((short)62, new ItemStack(ModItems.WAYPOINT.get()));
+        tempItemIconMap.put((short)63, new ItemStack(ModItems.CRANE.get()));
         tempItemIconMap.put((short)64, new ItemStack(Items.PISTON));
         tempItemIconMap.put((short)65, new ItemStack(ModItems.TRAINING_BOOK.get()));
         tempItemIconMap.put((short)66, new ItemStack(Items.MAGMA_BLOCK));
@@ -188,9 +191,9 @@ public class Values {
         tempItemIconMap.put((short)70, ((ShipTankItem) ModItems.SHIP_TANK.get()).createVariantStack(3));
         tempItemIconMap.put((short)71, new ItemStack(Items.CAULDRON));
         tempItemIconMap.put((short)72, new ItemStack(Items.LAPIS_LAZULI));
-        // tempItemIconMap.put((short)73, new ItemStack(ModItems.RecipePaper.get())); // Missing
+        tempItemIconMap.put((short)73, new ItemStack(ModItems.RECIPE_PAPER.get()));
         // tempItemIconMap.put((short)74, new ItemStack(ModItems.OPTool.get())); // Missing
-        // tempItemIconMap.put((short)75, new ItemStack(ModItems.EquipAmmo, 1, 7));
+        tempItemIconMap.put((short)75, ((LegacyEquipItem) ModItems.EQUIP_AMMO.get()).createVariantStack(7));
         tempItemIconMap.put((short)76, new ItemStack(Items.POTION));
         // tempItemIconMap.put((short)77, new ItemStack(ModItems.Grudge, 1, 1));
         // tempItemIconMap.put((short)78, new ItemStack(ModBlocks.BlockGrudgeXP.get())); // Missing
@@ -238,5 +241,55 @@ public class Values {
         tempBookList.put(2004, Arrays.asList(new int[] {0, 0, 0, 0}, new int[]{0, 1, 0, 0}));
         tempBookList.put(3013, Arrays.asList(new int[] {0, 0, 0, 0}, new int[]{0, 1, 0, 0}, new int[]{1, 0, 0, 120, 0, 100, 245, 100, 11}));
         BookList = Collections.unmodifiableMap(tempBookList);
+
+        // Formation Attributes
+        Map<Integer, float[]> tempFormationAttrs = new HashMap<>();
+        tempFormationAttrs.put(10, new float[]{0.0f, 2.0f, 2.0f, 1.2f, 1.2f, 0.3f, 1.3f, 0.08f, 4.0f, 1.75f, 1.75f, 1.75f, 1.25f, 0.5f, 0.4f, 0.1f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(11, new float[]{0.0f, 1.75f, 1.75f, 1.2f, 1.2f, 0.4f, 1.3f, 0.08f, 4.0f, 1.55f, 1.55f, 1.55f, 1.2f, 0.5f, 0.4f, 0.1f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(12, new float[]{0.0f, 1.55f, 1.55f, 1.15f, 1.15f, 0.5f, 1.2f, 0.08f, 3.0f, 1.4f, 1.4f, 1.4f, 1.2f, 0.5f, 0.4f, 0.1f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(13, new float[]{0.0f, 1.4f, 1.4f, 1.15f, 1.15f, 0.6f, 1.2f, 0.08f, 3.0f, 1.3f, 1.3f, 1.3f, 1.15f, 0.5f, 0.4f, 0.1f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(14, new float[]{0.0f, 1.3f, 1.3f, 1.1f, 1.1f, 0.7f, 1.1f, 0.08f, 2.0f, 1.2f, 1.2f, 1.2f, 1.15f, 0.5f, 0.4f, 0.1f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(15, new float[]{0.0f, 1.25f, 1.25f, 1.1f, 1.1f, 0.8f, 1.1f, 0.08f, 2.0f, 1.1f, 1.1f, 1.1f, 1.1f, 0.5f, 0.4f, 0.1f, 0.0f, 0.2f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(20, new float[]{0.0f, 1.4f, 1.4f, 1.1f, 1.1f, 0.9f, 1.08f, 0.0f, 2.0f, 1.15f, 1.15f, 1.15f, 1.55f, 1.2f, 1.0f, -0.15f, 0.0f, 0.1f, 0.0f, 0.3f, 0.05f});
+        tempFormationAttrs.put(21, new float[]{0.0f, 1.4f, 1.4f, 1.1f, 1.1f, 0.9f, 1.08f, 0.0f, 2.0f, 1.15f, 1.15f, 1.15f, 1.55f, 1.2f, 1.0f, -0.15f, 0.0f, 0.1f, 0.0f, 0.3f, 0.05f});
+        tempFormationAttrs.put(22, new float[]{0.0f, 1.5f, 1.5f, 1.15f, 1.15f, 0.75f, 1.15f, 0.0f, 3.0f, 1.3f, 1.3f, 1.3f, 1.75f, 1.1f, 1.0f, -0.05f, 0.0f, 0.1f, 0.0f, 0.1f, 0.05f});
+        tempFormationAttrs.put(23, new float[]{0.0f, 1.5f, 1.5f, 1.15f, 1.15f, 0.75f, 1.15f, 0.0f, 3.0f, 1.3f, 1.3f, 1.3f, 1.75f, 1.1f, 1.0f, -0.05f, 0.0f, 0.1f, 0.0f, 0.1f, 0.05f});
+        tempFormationAttrs.put(24, new float[]{0.0f, 1.3f, 1.3f, 1.05f, 1.05f, 1.0f, 1.0f, 0.0f, 1.0f, 1.1f, 1.1f, 1.1f, 1.35f, 1.1f, 1.0f, -0.05f, 0.0f, 0.1f, 0.0f, 0.1f, 0.05f});
+        tempFormationAttrs.put(25, new float[]{0.0f, 1.3f, 1.3f, 1.05f, 1.05f, 1.0f, 1.0f, 0.0f, 1.0f, 1.1f, 1.1f, 1.1f, 1.35f, 1.1f, 1.0f, -0.05f, 0.0f, 0.1f, 0.0f, 0.1f, 0.05f});
+        tempFormationAttrs.put(30, new float[]{0.0f, 0.6f, 0.3f, 2.0f, 2.0f, 1.5f, 1.0f, -0.1f, 4.0f, 1.1f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 0.1f});
+        tempFormationAttrs.put(31, new float[]{0.0f, 1.0f, 0.65f, 1.2f, 1.2f, 1.25f, 1.0f, -0.1f, 1.0f, 1.1f, 1.1f, 1.1f, 1.0f, 1.75f, 1.3f, -0.3f, 0.0f, 0.0f, 0.0f, 0.3f, 0.1f});
+        tempFormationAttrs.put(32, new float[]{0.0f, 1.0f, 0.65f, 1.2f, 1.2f, 1.25f, 1.0f, -0.1f, 1.0f, 1.1f, 1.1f, 1.1f, 1.0f, 1.75f, 1.3f, -0.3f, 0.0f, 0.0f, 0.0f, 0.3f, 0.1f});
+        tempFormationAttrs.put(33, new float[]{0.0f, 1.0f, 0.65f, 1.2f, 1.2f, 1.25f, 1.0f, -0.1f, 1.0f, 1.1f, 1.1f, 1.1f, 1.0f, 1.75f, 1.3f, -0.3f, 0.0f, 0.0f, 0.0f, 0.3f, 0.1f});
+        tempFormationAttrs.put(34, new float[]{0.0f, 1.0f, 0.65f, 1.2f, 1.2f, 1.25f, 1.0f, -0.1f, 1.0f, 1.1f, 1.1f, 1.1f, 1.0f, 1.75f, 1.3f, -0.3f, 0.0f, 0.0f, 0.0f, 0.3f, 0.1f});
+        tempFormationAttrs.put(35, new float[]{0.0f, 0.6f, 0.3f, 2.0f, 2.0f, 1.5f, 1.0f, -0.1f, 4.0f, 1.1f, 1.0f, 1.0f, 1.0f, 2.0f, 1.0f, -0.5f, 0.0f, 0.0f, 0.0f, 0.5f, 0.1f});
+        tempFormationAttrs.put(40, new float[]{0.0f, 1.2f, 1.2f, 1.0f, 1.0f, 0.75f, 1.0f, 0.18f, 2.0f, 1.25f, 1.25f, 1.25f, 0.65f, 0.3f, 0.8f, 0.25f, 0.0f, 0.25f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(41, new float[]{0.0f, 1.1f, 1.1f, 1.0f, 1.0f, 0.85f, 1.0f, 0.18f, 2.0f, 1.2f, 1.2f, 1.2f, 0.7f, 0.3f, 0.8f, 0.25f, 0.0f, 0.25f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(42, new float[]{0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.95f, 1.0f, 0.18f, 2.0f, 1.15f, 1.15f, 1.15f, 0.75f, 0.3f, 0.8f, 0.25f, 0.0f, 0.25f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(43, new float[]{0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.05f, 1.0f, 0.18f, 1.0f, 1.1f, 1.1f, 1.1f, 0.8f, 0.3f, 0.8f, 0.25f, 0.0f, 0.25f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(44, new float[]{0.0f, 0.9f, 0.9f, 1.0f, 1.0f, 1.15f, 1.0f, 0.18f, 1.0f, 1.05f, 1.05f, 1.05f, 0.85f, 0.3f, 0.8f, 0.25f, 0.0f, 0.25f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(45, new float[]{0.0f, 0.8f, 0.8f, 1.0f, 1.0f, 1.25f, 1.0f, 0.18f, 1.0f, 1.0f, 1.0f, 1.0f, 0.9f, 0.3f, 0.8f, 0.25f, 0.0f, 0.25f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(50, new float[]{0.0f, 0.9f, 0.9f, 0.9f, 0.9f, 1.35f, 0.8f, 0.05f, -2.0f, 1.15f, 1.0f, 1.0f, 1.0f, 1.0f, 1.75f, -0.15f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f});
+        tempFormationAttrs.put(51, new float[]{0.0f, 0.9f, 0.9f, 0.9f, 0.9f, 1.35f, 0.8f, 0.05f, -2.0f, 1.15f, 1.0f, 1.0f, 1.0f, 1.0f, 1.75f, -0.15f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f});
+        tempFormationAttrs.put(52, new float[]{0.0f, 0.9f, 0.9f, 0.9f, 0.9f, 1.35f, 0.8f, 0.05f, -2.0f, 1.15f, 1.0f, 1.0f, 1.0f, 1.0f, 1.75f, -0.15f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f});
+        tempFormationAttrs.put(53, new float[]{0.0f, 0.9f, 0.9f, 0.9f, 0.9f, 1.35f, 0.8f, 0.05f, -2.0f, 1.15f, 1.0f, 1.0f, 1.0f, 1.0f, 1.75f, -0.15f, 0.0f, 0.0f, 0.0f, 0.1f, 0.0f});
+        tempFormationAttrs.put(54, new float[]{0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.2f, 0.9f, 0.05f, -1.0f, 1.15f, 1.0f, 1.0f, 1.0f, 1.0f, 1.75f, -0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+        tempFormationAttrs.put(55, new float[]{0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.2f, 0.9f, 0.05f, -1.0f, 1.15f, 1.0f, 1.0f, 1.0f, 1.0f, 1.75f, -0.1f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f});
+        FormationAttrs = Collections.unmodifiableMap(tempFormationAttrs);
+
+        // Morale Attributes
+        Map<Integer, float[]> tempMoraleAttrs = new HashMap<>();
+        tempMoraleAttrs.put(0, new float[]{0.0f, 1.25f, 1.25f, 1.25f, 1.25f, 1.2f, 1.4f, 0.15f, 4.0f, 1.2f, 1.2f, 1.2f, 1.5f, 1.5f, 1.5f, 0.25f, 0.5f, 0.5f, 0.5f, 0.5f, 0.25f});
+        tempMoraleAttrs.put(1, new float[]{0.0f, 1.1f, 1.1f, 1.1f, 1.1f, 1.1f, 1.2f, 0.08f, 2.0f, 1.1f, 1.1f, 1.1f, 1.25f, 1.25f, 1.25f, 0.12f, 0.25f, 0.25f, 0.25f, 0.25f, 0.15f});
+        tempMoraleAttrs.put(2, new float[]{0.0f, 0.9f, 0.9f, 0.9f, 0.9f, 0.9f, 0.8f, -0.08f, -2.0f, 0.9f, 0.9f, 0.9f, 0.75f, 0.75f, 0.75f, -0.12f, -0.25f, -0.25f, -0.25f, -0.25f, -0.1f});
+        tempMoraleAttrs.put(3, new float[]{0.0f, 0.75f, 0.75f, 0.75f, 0.75f, 0.8f, 0.6f, -0.15f, -4.0f, 0.8f, 0.8f, 0.8f, 0.5f, 0.5f, 0.5f, -0.25f, -0.5f, -0.5f, -0.5f, -0.5f, -0.2f});
+        MoraleAttrs = Collections.unmodifiableMap(tempMoraleAttrs);
+    }
+
+    public static float[] getResetFormationValue() {
+        return new float[]{0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
+    }
+
+    public static float[] getResetMoraleValue() {
+        return new float[]{0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};
     }
 }

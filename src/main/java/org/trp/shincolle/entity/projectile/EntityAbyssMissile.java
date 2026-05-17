@@ -20,6 +20,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModSounds;
 
@@ -27,7 +29,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public class EntityAbyssMissile extends Entity {
+public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpawn {
     private static final double MIN_DIST_FOR_ARC = 4.0D;
     private static final double ARC_ACCEL_LIMIT = 0.15D;
     private static final double TORPEDO_VEL_MULTIPLIER = 0.85D;
@@ -111,6 +113,25 @@ public class EntityAbyssMissile extends Entity {
         initializeMovement(moveType, vel0, accY1, accY2, presetVelocity);
     }
 
+    public EntityAbyssMissile(Level level, Entity owner, Entity target, Vec3 targetPos, float damage, MoveType moveType,
+                              float vel0, float accY1, float accY2, Vec3 presetVelocity,
+                              int life, float explosionRadius) {
+        this(ModEntities.ABYSS_MISSILE.get(), level);
+        if (owner != null) {
+            this.setOwner(owner);
+            this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.6D, owner.getZ());
+        }
+        if (target != null) {
+            this.setTarget(target);
+        }
+        this.targetPos = targetPos;
+        this.setDamage(damage);
+        this.setSpeed(vel0);
+        this.setLife(life);
+        this.setExplosionRadius(explosionRadius);
+        initializeMovement(moveType, vel0, accY1, accY2, presetVelocity);
+    }
+
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(OWNER_UUID, Optional.empty());
@@ -185,14 +206,9 @@ public class EntityAbyssMissile extends Entity {
             }
         }
 
-        Vec3 delta;
-        if (!this.level().isClientSide) {
-            updateVelocityByMoveType();
-            delta = new Vec3(this.velX, this.velY, this.velZ);
-            this.setDeltaMovement(delta);
-        } else {
-            delta = this.getDeltaMovement();
-        }
+        updateVelocityByMoveType();
+        Vec3 delta = new Vec3(this.velX, this.velY, this.velZ);
+        this.setDeltaMovement(delta);
         Vec3 start = this.position();
         Vec3 end = start.add(delta);
 
@@ -217,11 +233,44 @@ public class EntityAbyssMissile extends Entity {
         updateRotationFromMovement(delta);
     }
 
+    @Override
+    public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
+        buffer.writeEnum(this.moveType);
+        buffer.writeDouble(this.velX);
+        buffer.writeDouble(this.velY);
+        buffer.writeDouble(this.velZ);
+        buffer.writeDouble(this.accY1);
+        buffer.writeDouble(this.accY2);
+        buffer.writeInt(this.arcSwitchTick);
+
+        buffer.writeBoolean(this.targetPos != null);
+        if (this.targetPos != null) {
+            buffer.writeDouble(this.targetPos.x);
+            buffer.writeDouble(this.targetPos.y);
+            buffer.writeDouble(this.targetPos.z);
+        }
+    }
+
+    @Override
+    public void readSpawnData(RegistryFriendlyByteBuf buffer) {
+        this.moveType = buffer.readEnum(MoveType.class);
+        this.velX = buffer.readDouble();
+        this.velY = buffer.readDouble();
+        this.velZ = buffer.readDouble();
+        this.accY1 = buffer.readDouble();
+        this.accY2 = buffer.readDouble();
+        this.arcSwitchTick = buffer.readInt();
+
+        if (buffer.readBoolean()) {
+            this.targetPos = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
+        }
+
+        this.setDeltaMovement(this.velX, this.velY, this.velZ);
+    }
+
     private void updateHomingMovement() {
         Entity target = getTargetEntity();
-        if (target == null || !target.isAlive()) {
-            return;
-        }
+
         Vec3 aim = getAimVector(target);
         if (aim.lengthSqr() < 1.0E-6D) {
             return;
@@ -235,14 +284,37 @@ public class EntityAbyssMissile extends Entity {
     }
 
     private void updateRotationFromMovement(Vec3 delta) {
+        if (delta.lengthSqr() < 1.0E-5D) {
+            return;
+        }
+
         double d0 = delta.horizontalDistance();
+        
         float yaw = (float) (Mth.atan2(delta.x, delta.z) * (180.0F / Math.PI));
+        
+        if (delta.x > 0) {
+            yaw -= 180.0F;
+        } else {
+            yaw += 180.0F;
+        }
+
         float pitch = (float) (Mth.atan2(delta.y, d0) * (180.0F / Math.PI));
 
-        this.setYRot(Mth.rotLerp(0.2F, this.yRotO, yaw));
-        this.setXRot(Mth.rotLerp(0.2F, this.xRotO, pitch));
-        this.yRotO = this.getYRot();
-        this.xRotO = this.getXRot();
+        if (this.moveType == MoveType.TORPEDO && !this.torpedoStarted) {
+            pitch = 0.0F;
+        }
+
+        if (this.tickCount <= 2 || this.age <= 2) {
+            this.setYRot(yaw);
+            this.setXRot(pitch);
+            this.yRotO = yaw;
+            this.xRotO = pitch;
+        } else {
+            this.setYRot(Mth.rotLerp(1.0F, this.yRotO, yaw));
+            this.setXRot(Mth.rotLerp(1.0F, this.xRotO, pitch));
+            this.yRotO = this.getYRot();
+            this.xRotO = this.getXRot();
+        }
     }
 
     private void initializeMovement(MoveType moveType, float vel0, float accY1, float accY2, Vec3 presetVelocity) {
@@ -306,6 +378,7 @@ public class EntityAbyssMissile extends Entity {
         double dxz = Math.sqrt(dx * dx + dz * dz);
         if (dxz <= MIN_DIST_FOR_ARC) {
             setDirectMovement(to, initialVelocity);
+            this.moveType = MoveType.DIRECT;
             return;
         }
         double t = dxz / initialVelocity;
@@ -337,6 +410,7 @@ public class EntityAbyssMissile extends Entity {
         }
         if (Math.abs(this.accY1) > ARC_ACCEL_LIMIT || Math.abs(this.accY2) > ARC_ACCEL_LIMIT) {
             setDirectMovement(to, initialVelocity);
+            this.moveType = MoveType.DIRECT;
             return;
         }
         this.arcTick = 0;
@@ -474,11 +548,18 @@ public class EntityAbyssMissile extends Entity {
     }
 
     private Vec3 getAimVector(Entity target) {
-        if (target == null) {
+        Vec3 from = this.position();
+        Vec3 to;
+
+        if (target != null && target.isAlive()) {
+            to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+            this.targetPos = to;
+        } else if (this.targetPos != null) {
+            to = this.targetPos;
+        } else {
             return Vec3.ZERO;
         }
-        Vec3 from = this.position();
-        Vec3 to = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+
         Vec3 dir = to.subtract(from);
         if (dir.lengthSqr() < 1.0E-6D) {
             return Vec3.ZERO;

@@ -189,6 +189,9 @@ public class ModItems {
                             .build()
             )));
 
+    public static final DeferredItem<RepairGoddessItem> REPAIR_GODDESS = ITEMS.register("repairgoddess",
+            () -> new RepairGoddessItem(new Item.Properties()));
+
     public static final DeferredItem<Item> COMBAT_RATION = ITEMS.register("combatration",
             () -> new CombatRationItem(new Item.Properties().stacksTo(16)));
 
@@ -256,6 +259,12 @@ public class ModItems {
     public static final DeferredItem<Item> DESK_ITEM_RADAR = ITEMS.register("deskitemradar",
             () -> new DeskItemRadar(new Item.Properties().stacksTo(1)));
 
+    public static final DeferredItem<TargetWrenchItem> TARGET_WRENCH = ITEMS.register("targetwrench",
+            () -> new TargetWrenchItem(new Item.Properties().stacksTo(1)));
+
+    public static final DeferredItem<Item> RECIPE_PAPER = ITEMS.register("recipepaper",
+            () -> new RecipePaperItem(new Item.Properties()));
+
     public static final DeferredItem<Item> AMMO_LIGHT = ITEMS.register("ammo",
             () -> new Item(new Item.Properties()));
 
@@ -280,6 +289,9 @@ public class ModItems {
     public static final DeferredItem<Item> ABYSSIUM = ITEMS.register("abyssium",
             () -> new BlockItem(ModBlocks.ABYSSIUM.get(), new Item.Properties()));
 
+    public static final DeferredItem<Item> DESK = ITEMS.register("blockdesk",
+            () -> new org.trp.shincolle.item.DeskBlockItem(ModBlocks.DESK.get(), new Item.Properties()));
+
     public static final DeferredItem<Item> GRUDGE_BLOCK = ITEMS.register("grudge_block",
             () -> new BlockItem(ModBlocks.GRUDGE_BLOCK.get(), new Item.Properties()));
 
@@ -297,6 +309,15 @@ public class ModItems {
 
     public static final DeferredItem<Item> SMALL_SHIPYARD = ITEMS.register("small_shipyard",
             () -> new SmallShipyardBlockItem(ModBlocks.SMALL_SHIPYARD.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> VOL_CORE = ITEMS.register("blockvolcore",
+            () -> new BlockItem(ModBlocks.VOL_CORE.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> WAYPOINT = ITEMS.register("blockwaypoint",
+            () -> new BlockItem(ModBlocks.WAYPOINT.get(), new Item.Properties()));
+
+    public static final DeferredItem<Item> CRANE = ITEMS.register("blockcrane",
+            () -> new BlockItem(ModBlocks.CRANE.get(), new Item.Properties()));
 
         public static void addLegacyEquipVariants(CreativeModeTab.Output output, DeferredItem<Item> item) {
                 Item resolved = item.get();

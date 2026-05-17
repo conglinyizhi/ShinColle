@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -429,30 +430,25 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
 
     private void applyEquipVisibility(EntityShipBase entity) {
         if (entity == null) return;
-        boolean show_Ear01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EAR01);
-        this.Ear01.visible = show_Ear01;
-        boolean show_Ear02 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EAR02);
-        this.Ear02.visible = show_Ear02;
-        boolean show_EquipABase = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPABASE);
-        this.EquipABase.visible = show_EquipABase;
-        boolean show_EquipB01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPB01);
-        this.EquipB01.visible = show_EquipB01;
-        boolean show_EquipC01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPC01);
-        this.EquipC01.visible = show_EquipC01;
-        boolean show_EquipD01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPD01);
-        this.EquipD01.visible = show_EquipD01;
-        boolean show_EquipE01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPE01);
-        this.EquipE01.visible = show_EquipE01;
-        boolean show_EquipGlove = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPGLOVE);
-        this.EquipGlove.visible = show_EquipGlove;
-        boolean show_EquipS01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPS01);
-        this.EquipS01.visible = show_EquipS01;
-        boolean show_EquipSL01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPSL01);
-        this.EquipSL01.visible = show_EquipSL01;
-        boolean show_EquipSR01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_EQUIPSR01);
-        this.EquipSR01.visible = show_EquipSR01;
-        boolean show_Tail01 = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_TAIL01);
-        this.Tail01.visible = show_Tail01;
+        boolean show_CatParts = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_CAT_PARTS);
+        this.Ear01.visible = show_CatParts;
+        this.Ear02.visible = show_CatParts;
+        this.Tail01.visible = show_CatParts;
+
+        this.EquipABase.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_BACK_QUIVER);
+        this.EquipB01.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_BREASTPLATE);
+        this.EquipC01.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_RIGGING);
+        this.EquipD01.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_DECK_HAND);
+
+        boolean show_Bow = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_BOW);
+        this.EquipE01.visible = show_Bow;
+        this.EquipGlove.visible = show_Bow;
+
+        this.EquipS01.visible = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_SKIRT);
+
+        boolean show_Shoes = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_SHOES);
+        this.EquipSL01.visible = show_Shoes;
+        this.EquipSR01.visible = show_Shoes;
     }
 
     private void applyDeadPose() {
@@ -590,7 +586,7 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
 
         int state = entity != null ? entity.getStateEmotion(0) : 0;
         boolean hasBag = (state & (1 << 3)) != 0;
-        boolean hasTail = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_TAIL01);
+        boolean hasTail = entity.getEquipFlag(org.trp.shincolle.entity.EntityCarrierAkagi.EQUIP_CAT_PARTS);
         if (hasBag) {
             this.ArmRight01.zRot += 0.15F;
         }
@@ -819,10 +815,11 @@ public class ModelCarrierAkagi<T extends EntityShipBase> extends ShipModelHumano
             entity.setAttackTick2(++tick);
         }
 
-        float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = net.minecraft.util.Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(swing) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = net.minecraft.util.Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(customAttackAnim) * (float) Math.PI);
             this.ArmRight01.xRot = -0.4F;
             this.ArmRight01.yRot = 0.0F;
             this.ArmRight01.zRot = -0.2F;

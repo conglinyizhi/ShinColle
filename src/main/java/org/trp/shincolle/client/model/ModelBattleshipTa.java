@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -10,8 +11,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
-
-import org.trp.shincolle.client.model.IGlowableModel;
 
 public class ModelBattleshipTa<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "battleship_ta"), "main");
@@ -442,13 +441,11 @@ public class ModelBattleshipTa<T extends EntityShipBase> extends ShipModelHumano
             EquipLeft.xRot = 0.2618F;
         }
 
-        float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
-            ArmRight01.xRot = 0.35F;
-            ArmRight01.yRot = 0.0F;
-            ArmRight01.zRot = -0.26F;
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(customAttackAnim) * (float) Math.PI);
             ArmRight01.xRot += -f8 * 120.0F * ((float) Math.PI / 180F);
             ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.5F;
             ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);

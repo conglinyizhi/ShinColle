@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "b": { "item": "minecraft:cooked_porkchop" },
+    "c": { "item": "minecraft:golden_carrot" },
+    "g": { "item": "shincolle:grudge" },
+    "w": { "item": "minecraft:wheat" }
+  },
+  "pattern": [
+    "www",
+    "bgc",
+    "www"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:combatration",
+    "components": {
+      "minecraft:custom_data": "{LegacyVariant:2}"
+    }
+  }
+}

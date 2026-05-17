@@ -37,6 +37,13 @@ public class Config {
     private static final ModConfigSpec.IntValue FUEL_CONSUME_ACTION_HEAVY;
     private static final ModConfigSpec.IntValue FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT;
     private static final ModConfigSpec.IntValue FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT;
+    
+    private static final ModConfigSpec.IntValue TICK_FISHING_MIN;
+    private static final ModConfigSpec.IntValue TICK_FISHING_MAX;
+    private static final ModConfigSpec.IntValue TICK_MINING_MIN;
+    private static final ModConfigSpec.IntValue TICK_MINING_MAX;
+    private static final ModConfigSpec.IntValue[] EXP_GAIN_TASK = new ModConfigSpec.IntValue[4];
+    private static final ModConfigSpec.IntValue[] CONSUME_GRUDGE_TASK = new ModConfigSpec.IntValue[4];
 
         private static final ModConfigSpec.DoubleValue HOSTILE_DROP_GRUDGE_RATE;
         private static final ModConfigSpec.IntValue HOSTILE_DEATH_MAX_TICKS;
@@ -51,6 +58,11 @@ public class Config {
         private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_GROUPS;
         private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_GROUP_MIN;
         private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_GROUP_MAX;
+
+    private static final ModConfigSpec.DoubleValue CLIENT_SCALE_HELD_ITEM;
+    private static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_X;
+    private static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_Y;
+    private static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_Z;
 
     public static final ModConfigSpec SPEC;
 
@@ -82,6 +94,13 @@ public class Config {
     public static int fuelConsumeActionHeavy = 8;
     public static int fuelConsumeActionLightAircraft = 6;
     public static int fuelConsumeActionHeavyAircraft = 12;
+    
+    public static int tickFishingMin = 100;
+    public static int tickFishingMax = 300;
+    public static int tickMiningMin = 100;
+    public static int tickMiningMax = 200;
+    public static int[] expGainTask = {10, 10, 20, 5};
+    public static int[] consumeGrudgeTask = {5, 5, 20, 10};
 
         public static float hostileDropGrudgeRate = 1.0F;
         public static int hostileDeathMaxTicks = 400;
@@ -96,6 +115,11 @@ public class Config {
         public static int hostileMobSpawnGroups = 1;
         public static int hostileMobSpawnGroupMin = 1;
         public static int hostileMobSpawnGroupMax = 1;
+        
+        public static float scaleHeldItem = 1.0F;
+        public static float offsetHeldItemX = 0.0F;
+        public static float offsetHeldItemY = 0.0F;
+        public static float offsetHeldItemZ = 0.0F;
 
     static {
         BUILDER.comment("Ship EXP and level settings").push("ship_exp");
@@ -175,6 +199,17 @@ public class Config {
 
         BUILDER.pop();
 
+        BUILDER.comment("Task Automation settings").push("task");
+        TICK_FISHING_MIN = BUILDER.defineInRange("tickFishingMin", tickFishingMin, 1, 10000);
+        TICK_FISHING_MAX = BUILDER.defineInRange("tickFishingMax", tickFishingMax, 1, 10000);
+        TICK_MINING_MIN = BUILDER.defineInRange("tickMiningMin", tickMiningMin, 1, 10000);
+        TICK_MINING_MAX = BUILDER.defineInRange("tickMiningMax", tickMiningMax, 1, 10000);
+        for(int i=0; i<4; i++) {
+            EXP_GAIN_TASK[i] = BUILDER.defineInRange("expGainTask" + i, expGainTask[i], 0, 10000);
+            CONSUME_GRUDGE_TASK[i] = BUILDER.defineInRange("consumeGrudgeTask" + i, consumeGrudgeTask[i], 0, 10000);
+        }
+        BUILDER.pop();
+
         BUILDER.comment("Legacy hostile ship spawn/death/drop settings").push("hostile");
 
         HOSTILE_DROP_GRUDGE_RATE = BUILDER
@@ -230,6 +265,22 @@ public class Config {
                 .defineInRange("mobSpawnGroupMax", hostileMobSpawnGroupMax, 1, 16);
 
         BUILDER.pop();
+
+        BUILDER.comment("Client side settings").push("client");
+        CLIENT_SCALE_HELD_ITEM = BUILDER
+                .comment("Held item scale")
+                .defineInRange("scaleHeldItem", 1.0D, 0.0D, 10.0D);
+        CLIENT_OFFSET_HELD_ITEM_X = BUILDER
+                .comment("Held item offset X")
+                .defineInRange("offsetHeldItemX", 0.0D, -10.0D, 10.0D);
+        CLIENT_OFFSET_HELD_ITEM_Y = BUILDER
+                .comment("Held item offset Y")
+                .defineInRange("offsetHeldItemY", 0.0D, -10.0D, 10.0D);
+        CLIENT_OFFSET_HELD_ITEM_Z = BUILDER
+                .comment("Held item offset Z")
+                .defineInRange("offsetHeldItemZ", 0.0D, -10.0D, 10.0D);
+        BUILDER.pop();
+
         SPEC = BUILDER.build();
     }
 
@@ -268,6 +319,15 @@ public class Config {
         fuelConsumeActionHeavy = FUEL_CONSUME_ACTION_HEAVY.get();
         fuelConsumeActionLightAircraft = FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT.get();
         fuelConsumeActionHeavyAircraft = FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT.get();
+        
+        tickFishingMin = TICK_FISHING_MIN.get();
+        tickFishingMax = TICK_FISHING_MAX.get();
+        tickMiningMin = TICK_MINING_MIN.get();
+        tickMiningMax = TICK_MINING_MAX.get();
+        for(int i=0; i<4; i++) {
+            expGainTask[i] = EXP_GAIN_TASK[i].get();
+            consumeGrudgeTask[i] = CONSUME_GRUDGE_TASK[i].get();
+        }
 
                 hostileDropGrudgeRate = HOSTILE_DROP_GRUDGE_RATE.get().floatValue();
                 hostileDeathMaxTicks = HOSTILE_DEATH_MAX_TICKS.get();
@@ -282,5 +342,10 @@ public class Config {
                 hostileMobSpawnGroups = Math.max(1, HOSTILE_MOB_SPAWN_GROUPS.get());
                 hostileMobSpawnGroupMin = Math.max(1, HOSTILE_MOB_SPAWN_GROUP_MIN.get());
                 hostileMobSpawnGroupMax = Math.max(hostileMobSpawnGroupMin, HOSTILE_MOB_SPAWN_GROUP_MAX.get());
+
+                scaleHeldItem = CLIENT_SCALE_HELD_ITEM.get().floatValue();
+                offsetHeldItemX = CLIENT_OFFSET_HELD_ITEM_X.get().floatValue();
+                offsetHeldItemY = CLIENT_OFFSET_HELD_ITEM_Y.get().floatValue();
+                offsetHeldItemZ = CLIENT_OFFSET_HELD_ITEM_Z.get().floatValue();
     }
 }

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    { "item": "minecraft:bread" },
+    { "item": "minecraft:golden_carrot" },
+    { "item": "shincolle:grudge" }
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:combatration"
+  }
+}

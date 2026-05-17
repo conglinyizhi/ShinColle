@@ -3,6 +3,8 @@ package org.trp.shincolle.entity.base;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.UUID;
@@ -17,6 +19,8 @@ class EntityShipBasePointer {
 
     private Vec3 pointerTarget;
     private long pointerTargetUntil;
+    private boolean pointerAlongX;
+    private boolean pointerFaceP;
 
     private UUID pointerTargetEntityId;
     private long pointerTargetEntityUntil;
@@ -39,6 +43,8 @@ class EntityShipBasePointer {
                 targetTag.putDouble("Y", this.pointerTarget.y);
                 targetTag.putDouble("Z", this.pointerTarget.z);
                 targetTag.putLong("Remaining", remaining);
+                targetTag.putBoolean("AlongX", this.pointerAlongX);
+                targetTag.putBoolean("FaceP", this.pointerFaceP);
                 compound.put("PointerTarget", targetTag);
             }
         }
@@ -63,6 +69,8 @@ class EntityShipBasePointer {
             if (remaining > 0L) {
                 this.pointerTarget = new Vec3(x, y, z);
                 this.pointerTargetUntil = this.ship.level().getGameTime() + remaining;
+                this.pointerAlongX = targetTag.getBoolean("AlongX");
+                this.pointerFaceP = targetTag.getBoolean("FaceP");
             } else {
                 this.pointerTarget = null;
                 this.pointerTargetUntil = 0L;
@@ -108,23 +116,85 @@ class EntityShipBasePointer {
     void setPointerTarget(Vec3 target, long durationTicks) {
         this.pointerTarget = target;
         this.pointerTargetUntil = this.ship.level().getGameTime() + Math.max(0L, durationTicks);
+
+        LivingEntity ownerRaw = this.ship.getOwner();
+        if (ownerRaw instanceof Player owner) {
+            Vec3 refPos = this.ship.position();
+            int teamId = this.ship.getFormationTeam();
+            if (teamId >= 0 && this.ship.getFormationSlot() > 0) {
+                for (Entity e : this.ship.level().getEntities(this.ship, this.ship.getBoundingBox().inflate(64.0))) {
+                    if (e instanceof EntityShipBase other && other.isOwnedBy(owner)
+                            && other.getFormationTeam() == teamId && other.getFormationSlot() == 0) {
+                        refPos = other.position();
+                        break;
+                    }
+                }
+            }
+            boolean[] dir = org.trp.shincolle.utility.FormationHelper.getFormationDirection(
+                    target.x, target.z, refPos.x, refPos.z);
+            this.pointerAlongX = dir[0];
+            this.pointerFaceP = dir[1];
+        }
+
+        updateSynchedData();
     }
 
     boolean hasPointerTarget() {
+        if (this.ship.level().isClientSide) {
+            readSynchedData();
+        }
         return this.pointerTarget != null && this.ship.level().getGameTime() <= this.pointerTargetUntil;
     }
 
     Vec3 getPointerTarget() {
+        if (this.ship.level().isClientSide) {
+            readSynchedData();
+        }
+        if (this.pointerTarget == null) return null;
+        
+        int teamId = this.ship.getFormationTeam();
+        int slotId = this.ship.getFormationSlot();
+        
+        if (teamId >= 0 && slotId > 0) {
+            
+            LivingEntity ownerRaw = this.ship.getOwner();
+            if (ownerRaw instanceof Player owner) {
+                org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+                int formationId = data.getFormationID(teamId);
+
+                Vec3 refPos = this.ship.position();
+                for (Entity e : this.ship.level().getEntities(this.ship, this.ship.getBoundingBox().inflate(64.0))) {
+                    if (e instanceof EntityShipBase other && other.isOwnedBy(owner) 
+                            && other.getFormationTeam() == teamId && other.getFormationSlot() == 0) {
+                        refPos = other.position();
+                        break;
+                    }
+                }
+                return org.trp.shincolle.utility.FormationHelper.getFormationPos(formationId, slotId, this.pointerTarget, this.pointerAlongX, this.pointerFaceP);
+            }
+        }
+        
+        return this.pointerTarget;
+    }
+
+    Vec3 getRawPointerTarget() {
+        if (this.ship.level().isClientSide) {
+            readSynchedData();
+        }
         return this.pointerTarget;
     }
 
     long getPointerTargetRemainingTicks() {
+        if (this.ship.level().isClientSide) {
+            readSynchedData();
+        }
         return this.pointerTarget == null ? 0L : Math.max(0L, this.pointerTargetUntil - this.ship.level().getGameTime());
     }
 
     void clearPointerTarget() {
         this.pointerTarget = null;
         this.pointerTargetUntil = 0L;
+        updateSynchedData();
     }
 
     void setPointerTargetEntity(Entity target, long durationTicks) {
@@ -143,23 +213,40 @@ class EntityShipBasePointer {
         this.pointerTargetEntityHeavyShotTick = this.ship.tickCount + aimDelay;
         this.pointerTargetEntityPathTick = 0;
         this.ship.getCombat().resetAircraftLaunchDelay();
+        updateSynchedData();
     }
 
     boolean hasPointerTargetEntity() {
+        if (this.ship.level().isClientSide) {
+            readSynchedData();
+        }
         return this.pointerTargetEntityId != null && this.ship.level().getGameTime() <= this.pointerTargetEntityUntil;
     }
 
     Entity getPointerTargetEntity() {
+        if (this.ship.level().isClientSide) {
+            readSynchedData();
+        }
         if (!hasPointerTargetEntity() || this.pointerTargetEntityId == null) {
             return null;
         }
         if (this.ship.level() instanceof ServerLevel serverLevel) {
             return serverLevel.getEntity(this.pointerTargetEntityId);
         }
+        if (this.ship.level().isClientSide && this.ship.level() instanceof net.minecraft.client.multiplayer.ClientLevel clientLevel) {
+            for (Entity e : clientLevel.entitiesForRendering()) {
+                if (e.getUUID().equals(this.pointerTargetEntityId)) {
+                    return e;
+                }
+            }
+        }
         return null;
     }
 
     long getPointerTargetEntityRemainingTicks() {
+        if (this.ship.level().isClientSide) {
+            readSynchedData();
+        }
         return this.pointerTargetEntityId == null
                 ? 0L
                 : Math.max(0L, this.pointerTargetEntityUntil - this.ship.level().getGameTime());
@@ -168,6 +255,57 @@ class EntityShipBasePointer {
     void clearPointerTargetEntity() {
         this.pointerTargetEntityId = null;
         this.pointerTargetEntityUntil = 0L;
+        updateSynchedData();
+    }
+
+    private void updateSynchedData() {
+        if (this.ship.level().isClientSide) return;
+
+        CompoundTag tag = new CompoundTag();
+        if (this.pointerTarget != null) {
+            tag.putDouble("PX", this.pointerTarget.x);
+            tag.putDouble("PY", this.pointerTarget.y);
+            tag.putDouble("PZ", this.pointerTarget.z);
+            tag.putLong("PUntil", this.pointerTargetUntil);
+            tag.putBoolean("PAX", this.pointerAlongX);
+            tag.putBoolean("PFP", this.pointerFaceP);
+        }
+        if (this.pointerTargetEntityId != null) {
+            tag.putUUID("PEId", this.pointerTargetEntityId);
+            tag.putLong("PEUntil", this.pointerTargetEntityUntil);
+        }
+        this.ship.getEntityData().set(EntityShipBase.POINTER_TARGET_DATA, tag);
+    }
+
+    private void readSynchedData() {
+        if (!this.ship.level().isClientSide) return;
+
+        CompoundTag tag = this.ship.getEntityData().get(EntityShipBase.POINTER_TARGET_DATA);
+        if (tag.isEmpty()) {
+            this.pointerTarget = null;
+            this.pointerTargetUntil = 0L;
+            this.pointerTargetEntityId = null;
+            this.pointerTargetEntityUntil = 0L;
+            return;
+        }
+
+        if (tag.contains("PX")) {
+            this.pointerTarget = new Vec3(tag.getDouble("PX"), tag.getDouble("PY"), tag.getDouble("PZ"));
+            this.pointerTargetUntil = tag.getLong("PUntil");
+            this.pointerAlongX = tag.getBoolean("PAX");
+            this.pointerFaceP = tag.getBoolean("PFP");
+        } else {
+            this.pointerTarget = null;
+            this.pointerTargetUntil = 0L;
+        }
+
+        if (tag.contains("PEId")) {
+            this.pointerTargetEntityId = tag.getUUID("PEId");
+            this.pointerTargetEntityUntil = tag.getLong("PEUntil");
+        } else {
+            this.pointerTargetEntityId = null;
+            this.pointerTargetEntityUntil = 0L;
+        }
     }
 
     private void handlePointerTargetEntityCombat(Entity target) {

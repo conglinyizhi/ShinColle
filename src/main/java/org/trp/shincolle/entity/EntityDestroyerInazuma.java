@@ -49,6 +49,8 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
     public void aiStep() {
         super.aiStep();
 
+        updateState();
+
         if (this.level().isClientSide) {
             updateClientLogic();
         }
@@ -77,12 +79,12 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         }
 
         if (passenger instanceof EntityDestroyerIkazuchi ikazuchi) {
-            double yOffsetEmotion = this.getStateEmotion(1) == 4 ? -0.6 : -0.45;
+            double yOffsetEmotion = this.getStateEmotion(1) == 4 ? -0.65 : -0.45;
             double baseOffset = this.getIsSitting() ? 0.26 : 0.68;
             float[] partPos = rotateXZByAxis(-0.2f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
             moveFunction.accept(passenger,
                     this.getX() + partPos[1],
-                    this.getY() + baseOffset + yOffsetEmotion,
+                    this.getY() + baseOffset + yOffsetEmotion + 0.375,
                     this.getZ() + partPos[0]);
             return;
         }
@@ -134,9 +136,6 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
                     this.getX() + partPos[1], this.getY() + 1.4D, this.getZ() + partPos[0],
                     0.0D, 0.0D, 0.0D);
         }
-        if ((this.tickCount % 16) == 0) {
-            updateState();
-        }
     }
 
     private void updateServerLogic() {
@@ -144,7 +143,6 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
             return;
         }
 
-        updateState();
         if (!this.isRaiden) {
             this.raidenGattaiExpireTick = 0L;
         }
@@ -191,8 +189,10 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
                 if (rider instanceof LivingEntity living && rider instanceof EntityDestroyerIkazuchi) {
                     living.yBodyRot = this.yBodyRot;
                     living.yBodyRotO = this.yBodyRotO;
-                    living.setYRot(this.getYRot());
-                    living.yRotO = this.yRotO;
+                    living.yHeadRot = this.yBodyRot;
+                    living.yHeadRotO = this.yBodyRotO;
+                    living.setYRot(this.yBodyRot);
+                    living.yRotO = this.yBodyRotO;
                 }
             }
         }

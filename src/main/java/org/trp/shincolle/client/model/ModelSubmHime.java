@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -9,8 +10,6 @@ import net.minecraft.client.model.geom.builders.*;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
-
-import org.trp.shincolle.client.model.IGlowableModel;
 
 public class ModelSubmHime<T extends EntityShipBase> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "subm_hime"), "main");
@@ -1128,10 +1127,11 @@ public class ModelSubmHime<T extends EntityShipBase> extends ShipModelHumanoidBa
 
         setTorpedo(entity.getAttackTick(), showTails);
 
-        float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-        if (swing != 0.0F) {
-            float f7 = net.minecraft.util.Mth.sin(swing * swing * (float) Math.PI);
-            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(swing) * (float) Math.PI);
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = net.minecraft.util.Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(customAttackAnim) * (float) Math.PI);
             this.ArmRight01.xRot = -0.3F;
             this.ArmRight01.yRot = 0.0F;
             this.ArmRight01.zRot = -0.1F;

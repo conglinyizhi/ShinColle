@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -1081,17 +1082,15 @@ public class ModelBBHaruna<T extends EntityShipBase> extends ShipModelHumanoidBa
 			}
         }
 
-		if (entity != null) {
-			float swing = getLegacySwingTime(entity, ageInTicks - (int) ageInTicks);
-			if (swing != 0.0F) {
-				float f7 = Mth.sin(swing * swing * (float) Math.PI);
-				float f8 = Mth.sin(Mth.sqrt(swing) * (float) Math.PI);
-				ArmRight01.xRot = -0.4F; ArmRight01.yRot = 0.0F; ArmRight01.zRot = -0.2F;
-				ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180.0F);
-				ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180.0F) + 0.2F;
-				ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180.0F);
-			}
-		}
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+        if (customAttackAnim > 0.0F) {
+            float f7 = Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = Mth.sin(Mth.sqrt(customAttackAnim) * (float) Math.PI);
+            ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
+            ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
+            ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);
+        }
 
         float handL = BodyMain.xRot + ArmLeft01.xRot + ArmLeft02.xRot;
         float handR = BodyMain.xRot + ArmRight01.xRot + ArmRight02.xRot;

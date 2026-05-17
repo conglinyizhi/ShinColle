@@ -15,18 +15,14 @@ import java.util.Objects;
 
 public class EntityCarrierAkagi extends EntityShipBase {
 
-    public static final String EQUIP_EAR01 = "equip_ear01";
-    public static final String EQUIP_EAR02 = "equip_ear02";
-    public static final String EQUIP_EQUIPABASE = "equip_equipabase";
-    public static final String EQUIP_EQUIPB01 = "equip_equipb01";
-    public static final String EQUIP_EQUIPC01 = "equip_equipc01";
-    public static final String EQUIP_EQUIPD01 = "equip_equipd01";
-    public static final String EQUIP_EQUIPE01 = "equip_equipe01";
-    public static final String EQUIP_EQUIPGLOVE = "equip_equipglove";
-    public static final String EQUIP_EQUIPS01 = "equip_equips01";
-    public static final String EQUIP_EQUIPSL01 = "equip_equipsl01";
-    public static final String EQUIP_EQUIPSR01 = "equip_equipsr01";
-    public static final String EQUIP_TAIL01 = "equip_tail01";
+    public static final String EQUIP_CAT_PARTS = "equip_cat_parts";
+    public static final String EQUIP_BACK_QUIVER = "equip_back_quiver";
+    public static final String EQUIP_BREASTPLATE = "equip_breastplate";
+    public static final String EQUIP_RIGGING = "equip_rigging";
+    public static final String EQUIP_DECK_HAND = "equip_deck_hand";
+    public static final String EQUIP_BOW = "equip_bow";
+    public static final String EQUIP_SKIRT = "equip_skirt";
+    public static final String EQUIP_SHOES = "equip_shoes";
 
     public EntityCarrierAkagi(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -121,18 +117,14 @@ public class EntityCarrierAkagi extends EntityShipBase {
     public List<EquipOption> getEquipOptions() {
         List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
         list.addAll(List.of(
-                new EquipOption(EQUIP_EAR01, "gui.shincolle.equip.ear01"),
-                new EquipOption(EQUIP_EAR02, "gui.shincolle.equip.ear02"),
-                new EquipOption(EQUIP_EQUIPABASE, "gui.shincolle.equip.equipabase"),
-                new EquipOption(EQUIP_EQUIPB01, "gui.shincolle.equip.equipb01"),
-                new EquipOption(EQUIP_EQUIPC01, "gui.shincolle.equip.equipc01"),
-                new EquipOption(EQUIP_EQUIPD01, "gui.shincolle.equip.equipd01"),
-                new EquipOption(EQUIP_EQUIPE01, "gui.shincolle.equip.equipe01"),
-                new EquipOption(EQUIP_EQUIPGLOVE, "gui.shincolle.equip.equipglove"),
-                new EquipOption(EQUIP_EQUIPS01, "gui.shincolle.equip.equips01"),
-                new EquipOption(EQUIP_EQUIPSL01, "gui.shincolle.equip.equipsl01"),
-                new EquipOption(EQUIP_EQUIPSR01, "gui.shincolle.equip.equipsr01"),
-                new EquipOption(EQUIP_TAIL01, "gui.shincolle.equip.tail01")
+                new EquipOption(EQUIP_CAT_PARTS, "gui.shincolle.equip.cat_parts"),
+                new EquipOption(EQUIP_BACK_QUIVER, "gui.shincolle.equip.back_quiver"),
+                new EquipOption(EQUIP_BREASTPLATE, "gui.shincolle.equip.breastplate"),
+                new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
+                new EquipOption(EQUIP_DECK_HAND, "gui.shincolle.equip.deck_hand"),
+                new EquipOption(EQUIP_BOW, "gui.shincolle.equip.bow"),
+                new EquipOption(EQUIP_SKIRT, "gui.shincolle.equip.skirt"),
+                new EquipOption(EQUIP_SHOES, "gui.shincolle.equip.shoes")
         ));
         return list;
     }

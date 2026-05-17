@@ -24,8 +24,12 @@ final class EntityShipBaseSerialization {
         builder.define(EntityShipBase.FUEL, 0);
         builder.define(EntityShipBase.AMMO_LIGHT, 0);
         builder.define(EntityShipBase.AMMO_HEAVY, 0);
+        builder.define(EntityShipBase.AIRCRAFT_LIGHT, 0);
+        builder.define(EntityShipBase.AIRCRAFT_HEAVY, 0);
         builder.define(EntityShipBase.EQUIP_FLAGS, new CompoundTag());
         builder.define(EntityShipBase.POINTER_SELECTED, false);
+        builder.define(EntityShipBase.FORMATION_TEAM, -1);
+        builder.define(EntityShipBase.FORMATION_SLOT, -1);
 
         builder.define(EntityShipBase.LEGACY_EMOTION_0, 0);
         builder.define(EntityShipBase.LEGACY_EMOTION_1, 0);
@@ -49,6 +53,8 @@ final class EntityShipBaseSerialization {
         compound.putInt("ShipExp", this.ship.getExp());
         compound.putInt("AmmoLight", this.ship.getAmmoLight());
         compound.putInt("AmmoHeavy", this.ship.getAmmoHeavy());
+        compound.putInt("AircraftLight", this.ship.getNumAircraftLight());
+        compound.putInt("AircraftHeavy", this.ship.getNumAircraftHeavy());
         compound.putInt("EmotionPrimary", this.ship.getEmotionPrimary());
         compound.putInt("EmotionSecondary", this.ship.getEmotionSecondary());
         compound.putInt("Morale", this.ship.getMorale());
@@ -56,6 +62,8 @@ final class EntityShipBaseSerialization {
         compound.putInt("Fuel", this.ship.getFuel());
         compound.put("EquipFlags", this.ship.copyEquipFlagsTag());
         compound.putBoolean("PointerSelected", this.ship.isPointerSelected());
+        compound.putInt("FormationTeam", this.ship.getFormationTeam());
+        compound.putInt("FormationSlot", this.ship.getFormationSlot());
         compound.putIntArray("StateEmotion", this.ship.getLegacyEmotionSnapshotInternal());
         compound.putInt("AttackTick", this.ship.getAttackTick());
         compound.putInt("AttackTick2", this.ship.getAttackTick2());
@@ -99,14 +107,14 @@ final class EntityShipBaseSerialization {
         if (compound.contains("Morale")) {
             this.ship.setMorale(compound.getInt("Morale"));
         }
-        int fuel = compound.contains("Fuel") ? compound.getInt("Fuel") : 100;
-        this.ship.setFuel(fuel);
 
         if (compound.contains("PointerSelected")) {
             this.ship.setPointerSelected(compound.getBoolean("PointerSelected"));
         } else {
             this.ship.setPointerSelected(false);
         }
+        this.ship.setFormationTeam(compound.getInt("FormationTeam"));
+        this.ship.setFormationSlot(compound.getInt("FormationSlot"));
         this.ship.loadPointerFromNbt(compound);
 
         if (compound.contains("EquipFlags")) {
@@ -150,6 +158,14 @@ final class EntityShipBaseSerialization {
         if (compound.contains("LegacyStateMinor")) {
             legacyState.applyIntArray(legacyState.stateMinor, compound.getIntArray("LegacyStateMinor"));
         }
+
+        // Sync synched data from legacy array or separate tags
+        int fuel = compound.contains("Fuel") ? compound.getInt("Fuel") : legacyState.getInt(legacyState.stateMinor, 6);
+        this.ship.setFuel(fuel);
+        int airLight = compound.contains("AircraftLight") ? compound.getInt("AircraftLight") : legacyState.getInt(legacyState.stateMinor, 7);
+        this.ship.setNumAircraftLight(airLight);
+        int airHeavy = compound.contains("AircraftHeavy") ? compound.getInt("AircraftHeavy") : legacyState.getInt(legacyState.stateMinor, 8);
+        this.ship.setNumAircraftHeavy(airHeavy);
         if (compound.contains("LegacyStateTimer")) {
             legacyState.applyIntArray(legacyState.stateTimer, compound.getIntArray("LegacyStateTimer"));
         }

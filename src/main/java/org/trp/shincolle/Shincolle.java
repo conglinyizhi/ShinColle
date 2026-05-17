@@ -4,7 +4,6 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
-import net.neoforged.fml.ModLoadingContext;
 import org.trp.shincolle.event.ModCapabilityEvents;
 import org.trp.shincolle.init.*;
 import org.trp.shincolle.menu.ModMenus;

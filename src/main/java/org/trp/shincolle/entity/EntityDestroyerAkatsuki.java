@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
@@ -36,7 +37,12 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     private static final int RIDER_TYPE_IKAZUCHI = 4;
     private static final int RIDER_TYPE_ALL = 7;
 
+    private static final long AKATSUKI_GATTAI_DURATION_TICKS = 20L * 60L;
+    private static final long AKATSUKI_GATTAI_COOLDOWN_TICKS = 20L * 120L;
+
     private int riderType = RIDER_TYPE_NONE;
+    private long akatsukiGattaiExpireTick = 0L;
+    private long akatsukiGattaiCooldownUntilTick = 0L;
 
     public EntityDestroyerAkatsuki(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -87,6 +93,8 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     public void aiStep() {
         super.aiStep();
 
+        checkRiderType();
+
         if (this.level().isClientSide) {
             updateClientEffects();
         }
@@ -100,6 +108,7 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     protected void tickAliveLogic() {
         super.tickAliveLogic();
         updateServerLogic();
+        updateGattaiDurationAndCooldown();
     }
 
     @Override
@@ -108,33 +117,26 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             return;
         }
 
-        if (passenger instanceof EntityDestroyerHibiki) {
-            double yOffset = this.getIsSitting() ? 0.22 : 0.68;
+        double baseOffset = this.getIsSitting() ? 0.26 : 0.68;
+        double yOffsetEmotion = this.getStateEmotion(1) == 4 || this.getIsSitting() ? 0.0 : 0.1;
+
+        if (passenger instanceof EntityDestroyerHibiki hibiki) {
+            hibiki.setStateEmotion(1, this.getStateEmotion(1), false);
             float[] partPos = rotateXZByAxis(-0.2f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
-            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + yOffset - 0.45, this.getZ() + partPos[0]);
+            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + baseOffset + yOffsetEmotion*2.5 - 0.4F, this.getZ() + partPos[0]);
             return;
         }
-
         if (passenger instanceof EntityDestroyerInazuma inazuma) {
             inazuma.setStateEmotion(1, this.getStateEmotion(1), false);
-            double yOffset = this.getIsSitting() ? -0.08 : 0.68;
             float[] partPos = rotateXZByAxis(-0.48f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
-            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + yOffset + 0.1, this.getZ() + partPos[0]);
+            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + baseOffset + yOffsetEmotion*4.5 - 0.05F, this.getZ() + partPos[0]);
             return;
         }
-
-        if (passenger instanceof EntityDestroyerIkazuchi) {
-            EntityDestroyerInazuma inazuma = this.getPassengers().stream()
-                    .filter(EntityDestroyerInazuma.class::isInstance)
-                    .map(EntityDestroyerInazuma.class::cast)
-                    .findFirst()
-                    .orElse(null);
-            if (inazuma != null) {
-                double yOffset = inazuma.getStateEmotion(1) == 4 ? 0.5 : 0.6;
-                float[] partPos = rotateXZByAxis(-0.68f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
-                moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + yOffset, this.getZ() + partPos[0]);
-                return;
-            }
+        if (passenger instanceof EntityDestroyerIkazuchi ikazuchi) {
+            ikazuchi.setStateEmotion(1, this.getStateEmotion(1), false);
+            float[] partPos = rotateXZByAxis(-0.68f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f);
+            moveFunction.accept(passenger, this.getX() + partPos[1], this.getY() + baseOffset + yOffsetEmotion*6 + 0.4F, this.getZ() + partPos[0]);
+            return;
         }
 
         super.positionRider(passenger, moveFunction);
@@ -167,9 +169,6 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
                         0.0D, 0.0D, 0.0D);
             }
         }
-        if ((this.tickCount % 16) == 0) {
-            checkRiderType();
-        }
     }
 
     private void updateServerLogic() {
@@ -177,7 +176,6 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             return;
         }
 
-        checkRiderType();
         if (this.riderType == 2 || this.riderType == 4 || this.riderType == 5 || this.riderType == 6) {
             dismountAllRider();
         }
@@ -231,14 +229,41 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
     }
 
     private boolean isGattaiCandidate(EntityShipBase ship) {
-        if (ship == null || !ship.isAlive()) {
+        if (ship == null) {
+            return false;
+        }
+        if (this.getFormationTeam() == -1 || ship.getFormationTeam() != this.getFormationTeam()) {
+            return false;
+        }
+        if (!ship.isAlive()) {
             return false;
         }
         if (!Objects.equals(this.getOwnerUUID(), ship.getOwnerUUID())) {
             return false;
         }
-        return !ship.isPassenger() && !ship.getIsSitting() && !ship.isStateNoEquip()
-                && ship.getStateMinor(43) == 0 && ship.getStateMinor(26) == 1;
+        if (ship.getIsSitting()) {
+            return false;
+        }
+        if (ship.isStateNoEquip()) {
+            return false;
+        }
+        if (ship.getStateMinor(43) > 0) {
+            return false;
+        }
+        if (ship.getStateMinor(26) != 0 && ship.getStateMinor(26) != 1) {
+            return false;
+        }
+        if (ship.isPassenger()) {
+            Entity vehicle = ship.getVehicle();
+            if (vehicle == this) {
+                return true;
+            }
+            if (ship instanceof EntityDestroyerIkazuchi && vehicle instanceof EntityDestroyerInazuma) {
+                return true;
+            }
+            return false;
+        }
+        return true;
     }
 
     private void tryGattai() {
@@ -247,15 +272,18 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             this.stopRiding();
             return;
         }
+        if (isGattaiCooldownActive()) {
+            return;
+        }
+        if (this.getHealth() <= this.getMaxHealth() * 0.5f) {
+            return;
+        }
         if (this.getIsSitting() || this.isStateNoEquip() || this.riderType == RIDER_TYPE_ALL) {
             return;
         }
 
         List<EntityShipBase> ships = this.level().getEntitiesOfClass(EntityShipBase.class,
                 this.getBoundingBox().inflate(6.0D, 5.0D, 6.0D));
-        if (ships.isEmpty()) {
-            return;
-        }
 
         EntityDestroyerHibiki hibiki = null;
         EntityDestroyerInazuma inazuma = null;
@@ -271,14 +299,27 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             }
         }
 
-        if ((this.riderType & RIDER_TYPE_HIBIKI) == 0 && hibiki != null) {
-            hibiki.startRiding(this, true);
-        }
-        if ((this.riderType & RIDER_TYPE_INAZUMA) == 0 && inazuma != null) {
-            inazuma.startRiding(this, true);
-        }
-        if ((this.riderType & RIDER_TYPE_IKAZUCHI) == 0 && ikazuchi != null) {
-            ikazuchi.startRiding(this, true);
+        if (this.riderType == RIDER_TYPE_NONE) {
+            if (hibiki != null) {
+                hibiki.startRiding(this, true);
+                if (inazuma != null) {
+                    inazuma.startRiding(this, true);
+                    if (ikazuchi != null) {
+                        ikazuchi.startRiding(this, true);
+                    }
+                }
+            }
+        } else if (this.riderType == RIDER_TYPE_HIBIKI) {
+            if (inazuma != null) {
+                inazuma.startRiding(this, true);
+                if (ikazuchi != null) {
+                    ikazuchi.startRiding(this, true);
+                }
+            }
+        } else if (this.riderType == (RIDER_TYPE_HIBIKI | RIDER_TYPE_INAZUMA)) {
+            if (ikazuchi != null) {
+                ikazuchi.startRiding(this, true);
+            }
         }
     }
 
@@ -287,13 +328,16 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             if (rider instanceof LivingEntity living) {
                 living.yBodyRot = this.yBodyRot;
                 living.yBodyRotO = this.yBodyRotO;
-                living.setYRot(this.getYRot());
-                living.yRotO = this.yRotO;
+                living.yHeadRot = this.yBodyRot;
+                living.yHeadRotO = this.yBodyRotO;
+                living.setYRot(this.yBodyRot);
+                living.yRotO = this.yBodyRotO;
             }
         }
     }
 
     public void dismountAllRider() {
+        boolean wasFullyCombined = (this.riderType == RIDER_TYPE_ALL);
         this.riderType = RIDER_TYPE_NONE;
         this.setRidingState(0);
         for (Entity rider : this.getPassengers()) {
@@ -305,6 +349,65 @@ public class EntityDestroyerAkatsuki extends EntityShipBase implements IShipRide
             }
         }
         this.ejectPassengers();
+        if (wasFullyCombined) {
+            startGattaiCooldown();
+        }
+    }
+
+    private void updateGattaiDurationAndCooldown() {
+        if (this.level().isClientSide) {
+            return;
+        }
+
+        boolean isFullyCombined = (this.riderType == RIDER_TYPE_ALL);
+
+        if (isFullyCombined) {
+            if (this.akatsukiGattaiExpireTick == 0L) {
+                this.akatsukiGattaiExpireTick = this.level().getGameTime() + AKATSUKI_GATTAI_DURATION_TICKS;
+            }
+            if (this.getIsSitting() || this.isInDeadPose() || this.getHealth() <= this.getMaxHealth() * 0.5f || isGattaiDurationExpired()) {
+                dismountAllRider();
+            }
+        } else {
+            this.akatsukiGattaiExpireTick = 0L;
+            if (this.riderType > 0 && this.riderType != RIDER_TYPE_HIBIKI && this.riderType != (RIDER_TYPE_HIBIKI | RIDER_TYPE_INAZUMA)) {
+                dismountAllRider();
+            }
+        }
+
+        if (this.akatsukiGattaiCooldownUntilTick > 0L && this.level().getGameTime() >= this.akatsukiGattaiCooldownUntilTick) {
+            this.akatsukiGattaiCooldownUntilTick = 0L;
+        }
+    }
+
+    private boolean isGattaiDurationExpired() {
+        return this.akatsukiGattaiExpireTick > 0L && this.level().getGameTime() >= this.akatsukiGattaiExpireTick;
+    }
+
+    public boolean isGattaiCooldownActive() {
+        return this.akatsukiGattaiCooldownUntilTick > this.level().getGameTime();
+    }
+
+    public void startGattaiCooldown() {
+        this.akatsukiGattaiExpireTick = 0L;
+        this.akatsukiGattaiCooldownUntilTick = Math.max(
+                this.akatsukiGattaiCooldownUntilTick,
+                this.level().getGameTime() + AKATSUKI_GATTAI_COOLDOWN_TICKS
+        );
+    }
+
+    @Override
+    public void addAdditionalSaveData(CompoundTag compound) {
+        super.addAdditionalSaveData(compound);
+        compound.putLong("AkatsukiGattaiExpireTick", this.akatsukiGattaiExpireTick);
+        compound.putLong("AkatsukiGattaiCooldownUntilTick", this.akatsukiGattaiCooldownUntilTick);
+    }
+
+    @Override
+    public void readAdditionalSaveData(CompoundTag compound) {
+        super.readAdditionalSaveData(compound);
+        this.akatsukiGattaiExpireTick = compound.getLong("AkatsukiGattaiExpireTick");
+        this.akatsukiGattaiCooldownUntilTick = compound.getLong("AkatsukiGattaiCooldownUntilTick");
     }
 
     @Override

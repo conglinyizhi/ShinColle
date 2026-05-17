@@ -19,6 +19,7 @@ public class BookRenderer {
     public static final ResourceLocation GUI_NAME_ICON1 = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guinameicon1.png");
     public static final ResourceLocation GUI_NAME_ICON2 = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guinameicon2.png");
     public static final ResourceLocation GUI_RADAR = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guideskradar.png");
+    public static final ResourceLocation GUI_DESK = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guidesk.png");
 
     public static void drawBookBase(GuiGraphics guiGraphics, int x, int y, int chapId, int pageId) {
         guiGraphics.blit(GUI_BOOK, x, y, 0, 0, 256, 192);

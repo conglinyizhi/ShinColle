@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "a": {
+      "item": "shincolle:abyss_metal"
+    },
+    "p": {
+      "item": "minecraft:piston"
+    },
+    "g": {
+      "item": "shincolle:grudge_block"
+    }
+  },
+  "pattern": [
+    "aaa",
+    "aga",
+    "apa"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:blockcrane"
+  }
+}

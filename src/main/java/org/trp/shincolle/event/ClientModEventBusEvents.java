@@ -1,7 +1,10 @@
 package org.trp.shincolle.event;
 
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -9,21 +12,17 @@ import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
-import net.neoforged.neoforge.client.event.sound.PlaySoundEvent;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.*;
-import org.trp.shincolle.client.particle.ParticleEmotion;
-import org.trp.shincolle.client.particle.ParticleHealSparkle;
-import org.trp.shincolle.client.particle.ParticleLightning;
-import org.trp.shincolle.client.particle.ParticleSprayRed;
-import org.trp.shincolle.client.particle.ParticleTeam;
-import org.trp.shincolle.client.particle.ParticleTexts;
+import org.trp.shincolle.client.particle.*;
 import org.trp.shincolle.client.renderer.*;
 import org.trp.shincolle.client.renderer.block.RenderLargeShipyard;
 import org.trp.shincolle.client.renderer.block.RenderSmallShipyard;
+import org.trp.shincolle.client.renderer.layer.ShipHeldItemLayer;
+import org.trp.shincolle.client.screen.CraneScreen;
 import org.trp.shincolle.client.screen.LargeShipyardScreen;
-import org.trp.shincolle.client.screen.SmallShipyardScreen;
 import org.trp.shincolle.client.screen.ShipInventoryScreen;
+import org.trp.shincolle.client.screen.SmallShipyardScreen;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
@@ -160,10 +159,29 @@ public class ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.ABYSS_MISSILE.get(), RendererAbyssMissile::new);
         event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get(), RendererProjectileBeam::new);
         event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get(), RendererShipGrudge::new);
+        event.registerEntityRenderer(ModEntities.SHIP_FISHING_HOOK.get(), RendererShipFishingHook::new);
 
         event.registerBlockEntityRenderer(ModBlockEntities.SMALL_SHIPYARD.get(), RenderSmallShipyard::new);
         event.registerBlockEntityRenderer(ModBlockEntities.LARGE_SHIPYARD.get(), RenderLargeShipyard::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.DESK.get(), org.trp.shincolle.client.renderer.block.RenderDesk::new);
     }
+
+        @SubscribeEvent
+        public static void addRenderLayers(EntityRenderersEvent.AddLayers event) {
+                for (var entry : ModEntities.ENTITY_TYPES.getEntries()) {
+                        EntityType<?> type = entry.get();
+                        EntityRenderer<?> renderer = event.getRenderer(type);
+                        if (renderer instanceof LivingEntityRenderer<?, ?> livingRenderer
+                                        && livingRenderer.getModel() instanceof ShipModelBaseAdv) {
+                                addHeldItemLayerUnchecked(livingRenderer);
+                        }
+                }
+        }
+
+        @SuppressWarnings({"rawtypes", "unchecked"})
+        private static void addHeldItemLayerUnchecked(LivingEntityRenderer renderer) {
+                renderer.addLayer(new ShipHeldItemLayer(renderer));
+        }
 
     @SubscribeEvent
     public static void registerLayerDefinitions(EntityRenderersEvent.RegisterLayerDefinitions event) {
@@ -233,6 +251,8 @@ public class ClientModEventBusEvents {
                 event.registerLayerDefinition(ModelSmallShipyard.LAYER_LOCATION, ModelSmallShipyard::createBodyLayer);
                 event.registerLayerDefinition(ModelLargeShipyard.LAYER_LOCATION, ModelLargeShipyard::createBodyLayer);
                 event.registerLayerDefinition(ModelVortex.LAYER_LOCATION, ModelVortex::createBodyLayer);
+                event.registerLayerDefinition(ModelBlockDesk.LAYER_LOCATION, ModelBlockDesk::createBodyLayer);
+                event.registerLayerDefinition(ModelBlockDeskLarge.LAYER_LOCATION, ModelBlockDeskLarge::createBodyLayer);
     }
 
     @SubscribeEvent
@@ -241,23 +261,36 @@ public class ClientModEventBusEvents {
                 event.register(ModMenus.SMALL_SHIPYARD_MENU.get(), SmallShipyardScreen::new);
                 event.register(ModMenus.LARGE_SHIPYARD_MENU.get(), LargeShipyardScreen::new);
                 event.register(ModMenus.DESK_MENU.get(), org.trp.shincolle.client.screen.DeskScreen::new);
+                event.register(ModMenus.VOL_CORE_MENU.get(), org.trp.shincolle.client.screen.VolCoreScreen::new);
+                event.register(ModMenus.CRANE_MENU.get(), CraneScreen::new);
+                event.register(ModMenus.FORMATION.get(), org.trp.shincolle.client.screen.FormationScreen::new);
+                event.register(ModMenus.RECIPE_PAPER_MENU.get(), org.trp.shincolle.client.screen.RecipePaperScreen::new);
     }
 
     @SubscribeEvent
     public static void registerParticles(RegisterParticleProvidersEvent event) {
         event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get(), ParticleEmotion.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_HEAL_SPARKLE.get(), ParticleHealSparkle.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_GODDESS.get(), ParticleGoddess.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEXTS.get(), ParticleTexts.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_LIGHTNING.get(), ParticleLightning.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_RED.get(), ParticleSprayRed.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY.get(), ParticleSpray.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_CRANING.get(), ParticleCraning.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM.get(), ParticleTeam.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED.get(),
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.DEFAULT_BLUE));
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED_RED.get(),
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.SELECTED_RED));
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED_YELLOW.get(),
+                sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.SELECTED_YELLOW));
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET.get(),
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.TARGET_WHITE));
         event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get(),
                 sprites -> new ParticleTeam.Provider(sprites, ParticleTeam.RenderStyle.TARGET_RED));
+        event.registerSpriteSet(ModParticles.PARTICLE_SPARKLE.get(), ParticleSparkle.Provider::new);
+        event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT.get(), ParticleWaypoint.Provider::new);
+        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE.get(), new ParticlePointerLine.Provider(0, null));
+        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get(), new ParticlePointerLine.Provider(1, null));
     }
 }

@@ -1,17 +1,14 @@
 package org.trp.shincolle.entity.base;
 
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModSounds;
-import org.trp.shincolle.menu.ShipContainerMenu;
 
 class EntityShipBaseCombat {
     private static final float HEAVY_MISSILE_DAMAGE_MULTIPLIER = 1.4F;
@@ -39,12 +36,14 @@ class EntityShipBaseCombat {
     }
 
     boolean canUseLightAmmo() {
-        return this.ship.isStateLightAttack()
+        return this.ship.isStateGuiBtn1()
+                && this.ship.isStateLightAttack()
                 && this.ship.getAmmoLight() > 0;
     }
 
     boolean canUseHeavyAmmo() {
-        return this.ship.isStateHeavyAttack()
+        return this.ship.isStateGuiBtn2()
+                && this.ship.isStateHeavyAttack()
                 && this.ship.getAmmoHeavy() > 0;
     }
 
@@ -53,14 +52,14 @@ class EntityShipBaseCombat {
     }
 
     boolean canUseLightAircraft() {
-        return this.ship.supportsAircraftCombat()
+        return this.ship.isStateGuiBtn3()
                 && this.ship.isStateLightAircraftAttack()
                 && this.ship.hasAirLight()
                 && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST;
     }
 
     boolean canUseHeavyAircraft() {
-        return this.ship.supportsAircraftCombat()
+        return this.ship.isStateGuiBtn4()
                 && this.ship.isStateHeavyAircraftAttack()
                 && this.ship.hasAirHeavy()
                 && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST;

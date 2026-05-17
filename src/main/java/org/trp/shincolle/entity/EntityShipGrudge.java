@@ -75,10 +75,13 @@ public class EntityShipGrudge extends Entity {
         if (this.ownerId != null && !this.ownerId.equals(player.getUUID())) {
             return;
         }
-        if (player.getInventory().add(this.storedItem)) {
-            player.take(this, this.storedItem.getCount());
-            this.storedItem = ItemStack.EMPTY;
-            this.discard();
+
+        int count = this.storedItem.getCount();
+        if (player.addItem(this.storedItem)) {
+            if (this.storedItem.isEmpty()) {
+                player.take(this, count);
+                this.discard();
+            }
         }
     }
 

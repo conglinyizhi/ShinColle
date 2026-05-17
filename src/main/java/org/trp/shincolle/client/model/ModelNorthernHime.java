@@ -2,18 +2,16 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.*;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityNorthernHime;
 import org.trp.shincolle.entity.base.EntityShipBase;
-
-import org.trp.shincolle.client.model.IGlowableModel;
 
 public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHumanoidBase<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "northern_hime"), "main");
@@ -768,24 +766,18 @@ public class ModelNorthernHime<T extends EntityNorthernHime> extends ShipModelHu
             }
         }
 
-        float attackAnim = entity != null ? entity.getAttackAnim(ageInTicks) : 0.0F;
-        float attackTicks = attackAnim * 50.0F;
-        float partial = ageInTicks - (int) ageInTicks;
-        if (attackTicks > 49.0F) {
-            ArmRight01.xRot = -3.5F;
-            ArmRight01.yRot = 0.0F;
-            ArmRight01.zRot = -0.35F;
-            ArmRight04.yRot = -1.57F;
-        } else if (attackTicks > 46.0F) {
-            ArmRight01.xRot = (46.0F - attackTicks + partial) * 0.75F - 0.5F;
-            ArmRight01.yRot = 0.0F;
-            ArmRight01.zRot = -0.35F;
-            ArmRight04.yRot = -1.57F;
-        } else if (attackTicks > 35.0F) {
-            ArmRight01.xRot = -0.5F;
-            ArmRight01.yRot = 0.0F;
-            ArmRight01.zRot = 0.5F;
-            ArmRight04.yRot = -1.57F;
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+
+        if (customAttackAnim > 0.0F) {
+            float f7 = net.minecraft.util.Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(customAttackAnim) * (float) Math.PI);
+            this.ArmRight01.xRot = -0.4F;
+            this.ArmRight01.yRot = 0.0F;
+            this.ArmRight01.zRot = -0.2F;
+            this.ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
+            this.ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
+            this.ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);
         }
 
         if (!ctx.isSitting && !isPassenger) {

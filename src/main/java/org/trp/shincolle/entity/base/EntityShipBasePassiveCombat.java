@@ -140,8 +140,12 @@ final class EntityShipBasePassiveCombat {
 
         boolean needsCloser = distanceSqr > stopRangeSqr;
         boolean cannotSee = !onSight && distanceSqr > preferredRangeSqr * 0.5D;
+        boolean hasAttackMeans = hasRangedAttack || combat.canUseMeleeAttack();
 
         if (needsCloser || cannotSee) {
+            if (this.ship.shouldFollowOwner() || this.ship.hasPointerTarget() || !hasAttackMeans) {
+                return;
+            }
             if (this.passiveTargetPathTick-- <= 0) {
                 this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
                 if (!this.ship.getNavigation().moveTo(target, getPassiveMoveSpeed())) {
@@ -151,9 +155,11 @@ final class EntityShipBasePassiveCombat {
             return;
         }
 
-        this.ship.getNavigation().stop();
-        this.ship.getMoveControl().setWantedPosition(
-                this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
+        if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
+            this.ship.getNavigation().stop();
+            this.ship.getMoveControl().setWantedPosition(
+                    this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
+        }
 
         if (!this.isFirstEngagementWaiting) {
             this.isFirstEngagementWaiting = true;

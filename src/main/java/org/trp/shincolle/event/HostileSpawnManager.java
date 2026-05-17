@@ -324,8 +324,8 @@ final class HostileSpawnManager {
         }
 
         Component text = Component.translatable(random.nextBoolean()
-                        ? "chat.shincolle:bossspawn1"
-                        : "chat.shincolle:bossspawn2")
+                        ? "chat.shincolle.bossspawn1"
+                        : "chat.shincolle.bossspawn2")
                 .append(Component.literal(" " + x + " " + y + " " + z));
         level.getServer().getPlayerList().broadcastSystemMessage(text, false);
     }

@@ -6,8 +6,8 @@ import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.client.model.ModelDestroyerHime;
-import org.trp.shincolle.entity.EntityDestroyerHime;
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer;
+import org.trp.shincolle.entity.EntityDestroyerHime;
 
 public class RendererDestroyerHime extends MobRenderer<EntityDestroyerHime, ModelDestroyerHime<EntityDestroyerHime>> {
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/destroyer_hime.png");

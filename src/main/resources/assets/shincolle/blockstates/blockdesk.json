@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "shincolle:block/blockdesk_dummy" },
+    "facing=south": { "model": "shincolle:block/blockdesk_dummy", "y": 180 },
+    "facing=west": { "model": "shincolle:block/blockdesk_dummy", "y": 270 },
+    "facing=east": { "model": "shincolle:block/blockdesk_dummy", "y": 90 }
+  }
+}

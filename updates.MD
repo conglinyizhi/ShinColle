@@ -1,3 +1,17 @@
+## v0.8.5(2026/05/18 JST)
+- Added new blocks, items and recipes
+- Fixed an issue with entity name display
+- Implemented mining, fishing, cooking, and crafting actions for entities
+- Implemented logic for entity formations
+- Fixed issues related to entity appearance
+- Fixed an issue related to the size of an entity's collision box
+- Fixed the behavior of Aircraft and Abyss Missiles
+- Fixed the entity movement logic
+- Added functionality related to Gattai for specific entities
+- Fixed an issue related to CombatRation, PointerItem, and DeskItemRadar
+- Fixed an issue related to the available attack methods for entities
+- Various minor fixes
+
 ## v0.8.0(2026/05/07 JST)
 - Implemented several items and recipes
 - Fixed issues related to entity appearance

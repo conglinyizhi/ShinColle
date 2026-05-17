@@ -6,11 +6,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.control.FlyingMoveControl;
+import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.GoalShipAircraftAttack;
 import org.trp.shincolle.init.ModSounds;
 
 import javax.annotation.Nullable;
@@ -70,10 +77,30 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     private double[] randPos;
     private float attackRangeSq;
 
+    public static AttributeSupplier.Builder createAttributes() {
+        return org.trp.shincolle.entity.base.EntityShincolleSimpleMob.createAttributes()
+                .add(Attributes.FLYING_SPEED, 0.4D);
+    }
+
     protected EntityAircraftBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        this.moveControl = new FlyingMoveControl(this, 36, true);
         this.setNoGravity(true);
         this.randPos = new double[3];
+    }
+
+    @Override
+    protected PathNavigation createNavigation(Level level) {
+        FlyingPathNavigation navigation = new FlyingPathNavigation(this, level);
+        navigation.setCanOpenDoors(false);
+        navigation.setCanFloat(true);
+        navigation.setCanPassDoors(true);
+        return navigation;
+    }
+
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new GoalShipAircraftAttack(this));
     }
 
     public void initCarrierMission(EntityShipBase carrier, Entity target, boolean lightAircraft) {
@@ -172,13 +199,13 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
         this.setNoGravity(true);
         this.fallDistance = 0.0F;
-        updateRotation();
 
         if (this.level().isClientSide) {
             applyFlyParticle();
         } else {
             updateServerLogic();
         }
+        updateRotation();
     }
 
     private void updateServerLogic() {
@@ -202,12 +229,6 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         handleTargeting(carrier);
         checkMissionStatus();
 
-        if (!this.backHome) {
-            Entity target = getMissionTarget();
-            if (target != null && target.isAlive()) {
-                tickCombatMovement(target);
-            }
-        }
     }
 
     private void checkMissionStatus() {
@@ -230,85 +251,14 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (this.isNoGravity() || !this.isDying) {
+        if (this.isEffectiveAi() && (this.isNoGravity() || !this.isDying)) {
+            this.moveRelative(this.getSpeed(), travelVector);
             this.move(MoverType.SELF, this.getDeltaMovement());
+            
+            this.setDeltaMovement(this.getDeltaMovement().scale(0.95D));
         } else {
             super.travel(travelVector);
         }
-    }
-
-    private void tickCombatMovement(Entity target) {
-        double distX = target.getX() - this.getX();
-        double distY = target.getY() + 2.0D - this.getY();
-        double distZ = target.getZ() - this.getZ();
-        double distSq = distX * distX + distY * distY + distZ * distZ;
-
-        if ((this.tickCount & 0xF) == 0) {
-            this.randPos = findRandomPositionNearTarget(target);
-        }
-
-        double speed;
-        if (distSq > this.attackRangeSq) {
-            speed = 1.0D;
-        } else {
-            speed = 0.4D;
-        }
-        navigateToRandomPos(speed);
-
-        boolean canSee = this.hasLineOfSight(target);
-        if (this.attackDelay <= 0 && canSee && distSq < this.attackRangeSq) {
-            EntityShipBase carrier = getCarrier();
-            if (carrier != null) {
-                if (this.missionLightAircraft && this.numAmmoLight > 0) {
-                    attackWithLightAmmo(carrier, target);
-                    this.attackDelay = this.maxAttackDelay;
-                }
-                if (!this.missionLightAircraft && this.numAmmoHeavy > 0) {
-                    attackWithHeavyAmmo(carrier, target);
-                    this.attackDelay = this.maxAttackDelay;
-                }
-            }
-        }
-    }
-
-    private double[] findRandomPositionNearTarget(Entity target) {
-        double minDist, randDist;
-        if (this.missionLightAircraft) {
-            minDist = RAND_POS_MIN_LIGHT;
-            randDist = RAND_POS_RAND_LIGHT;
-        } else {
-            minDist = RAND_POS_MIN_HEAVY;
-            randDist = RAND_POS_RAND_HEAVY;
-        }
-
-        double rdx = this.random.nextDouble() * randDist + minDist;
-        double rdy = this.random.nextDouble() * randDist * 0.5D;
-        double rdz = this.random.nextDouble() * randDist + minDist;
-
-        Vec3 motion = this.getDeltaMovement();
-        double newX = motion.x < 0.0D ? target.getX() - rdx : target.getX() + rdx;
-        double newY = target.getY() + target.getBbHeight() * 0.75D + rdy;
-        double newZ = motion.z < 0.0D ? target.getZ() - rdz : target.getZ() + rdz;
-
-        return new double[]{newX, newY, newZ};
-    }
-
-    private void navigateToRandomPos(double speedFactor) {
-        double dx = this.randPos[0] - this.getX();
-        double dy = this.randPos[1] - this.getY();
-        double dz = this.randPos[2] - this.getZ();
-        double dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (dist < 1.0E-4D) {
-            return;
-        }
-        double maxSpeed = 0.35D * speedFactor;
-        double steerGain = 0.15D;
-
-        Vec3 desired = new Vec3(dx / dist, dy / dist, dz / dist).scale(maxSpeed);
-        Vec3 current = this.getDeltaMovement();
-        Vec3 next = current.scale(1.0D - steerGain).add(desired.scale(steerGain));
-        this.setDeltaMovement(next);
-        this.hasImpulse = true;
     }
 
     private void handleInitialBoost() {
@@ -342,7 +292,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
         Entity currentTarget = getMissionTarget();
         boolean needsNewTarget = currentTarget == null || !currentTarget.isAlive()
-                || isFriendlyTarget(carrier, currentTarget);
+                || !isValidTarget(carrier, currentTarget);
 
         if (!needsNewTarget) {
             return;
@@ -367,13 +317,11 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     private void handleReturnToHome(EntityShipBase carrier) {
-        if (!this.isAlive()) {
-            return;
-        }
+        if (!this.isAlive()) return;
 
         double distSq = this.distanceToSqr(carrier);
         double arrivalDist = Math.pow(2.0D + carrier.getBbHeight(), 2.0D);
-
+        
         if (distSq <= arrivalDist) {
             returnSummonResources(carrier);
             this.discard();
@@ -381,11 +329,11 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         }
 
         Vec3 homePos = carrier.position().add(0.0D, carrier.getBbHeight() + 1.0D, 0.0D);
-        moveToPoint(homePos, 0.55D, 0.12D);
+        this.getNavigation().moveTo(homePos.x, homePos.y, homePos.z, 0.5F);
 
         if (this.tickCount % RETURN_HOME_CHECK_INTERVAL == 0) {
             if (this.distanceToSqr(carrier) >= RETURN_MAX_DISTANCE_SQR) {
-                this.discard();
+            this.discard();
             }
         }
     }
@@ -400,30 +348,57 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         carrier.returnAircraftToDeck(this.missionLightAircraft);
     }
 
-    private void attackWithLightAmmo(EntityShipBase carrier, Entity target) {
+    public void attackWithLightAmmo(Entity target) {
+        EntityShipBase carrier = getCarrier();
+        if (carrier == null) return;
         if (this.numAmmoLight > 0) {
             this.numAmmoLight--;
         }
+        this.attackDelay = this.maxAttackDelay;
         this.playSound(ModSounds.SHIP_MACHINEGUN.get(), 1.0F, 1.0F);
         float atk = Math.max(2.0F, carrier.getLegacyShipStats().getFirepower() * 0.35F);
         target.hurt(this.damageSources().mobProjectile(this, carrier), atk);
     }
 
-    private void attackWithHeavyAmmo(EntityShipBase carrier, Entity target) {
+    public void attackWithHeavyAmmo(Entity target) {
+        EntityShipBase carrier = getCarrier();
+        if (carrier == null) return;
         if (this.numAmmoHeavy > 0) {
             this.numAmmoHeavy--;
         }
+        this.attackDelay = this.maxAttackDelay;
         float atk = Math.max(4.0F, carrier.getLegacyShipStats().getFirepower() * 0.55F);
         if (this.level() instanceof ServerLevel serverLevel) {
             float missileDamage = atk * 1.4F;
+            Vec3 targetPos = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
+            double distance = this.distanceTo(target);
+            
+            if (this.random.nextFloat() <= calcMissRate(carrier, (float) distance)) {
+                double offsetX = -5.0D + this.random.nextDouble() * 10.0D;
+                double offsetY = this.random.nextDouble() * 5.0D;
+                double offsetZ = -5.0D + this.random.nextDouble() * 10.0D;
+                targetPos = targetPos.add(offsetX, offsetY, offsetZ);
+                
+                serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_TEXTS.get(),
+                        this.getX(), this.getY() + 1.2D, this.getZ(),
+                        1, 0.0D, 0.1D, 0.5D, 0.0D);
+            }
+            
             org.trp.shincolle.entity.projectile.EntityAbyssMissile missile =
                     new org.trp.shincolle.entity.projectile.EntityAbyssMissile(
-                            serverLevel, this, target, missileDamage,
+                            serverLevel, this, target, targetPos, missileDamage,
                             org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType.ARC,
-                            0.7F, 1.04F, 1.04F, null,
+                            0.7F, 0.0F, 0.0F, null,
                             200, 3.5F);
             serverLevel.addFreshEntity(missile);
         }
+    }
+
+    public float calcMissRate(EntityShipBase carrier, float distance) {
+        float range = 16.0F;
+        float levelMod = 0.001F * carrier.getLevel();
+        float miss = 0.25F + 0.25F * (distance / range) - levelMod;
+        return Math.max(0.0F, Math.min(miss, 0.5F));
     }
 
     @Override
@@ -507,47 +482,21 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         this.checkInsideBlocks();
     }
 
-    private void moveToPoint(Vec3 target, double maxSpeed, double steerGain) {
-        Vec3 toTarget = target.subtract(this.position());
-        double dist = toTarget.length();
-        if (dist < 1.0E-6D) {
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.8D));
-            return;
-        }
-
-        Vec3 desired = toTarget.scale(1.0D / dist).scale(maxSpeed);
-        Vec3 current = this.getDeltaMovement();
-        Vec3 next = current.scale(1.0D - steerGain).add(desired.scale(steerGain));
-        this.setDeltaMovement(next);
-        this.hasImpulse = true;
-    }
-
     private void updateRotation() {
         Vec3 delta = this.getDeltaMovement();
-        if (delta.lengthSqr() < 1.0E-7D) {
+        if (delta.horizontalDistanceSqr() < 1.0E-5D) {
             return;
         }
-        double horizontal = Math.sqrt(delta.x * delta.x + delta.z * delta.z);
+        
+        double horizontal = delta.horizontalDistance();
         float targetYaw = (float) (Math.toDegrees(Math.atan2(delta.z, delta.x)) - 90.0D);
         float targetPitch = (float) (-Math.toDegrees(Math.atan2(delta.y, horizontal)));
 
-        float smoothFactor = 0.4F;
-        float currentYaw = this.getYRot();
-        float currentPitch = this.getXRot();
-
-        float yawDiff = Mth.wrapDegrees(targetYaw - currentYaw);
-        float smoothYaw = currentYaw + yawDiff * smoothFactor;
-        float smoothPitch = currentPitch + (targetPitch - currentPitch) * smoothFactor;
-
-        this.yRotO = currentYaw;
-        this.yBodyRotO = currentYaw;
-        this.yHeadRotO = currentYaw;
-        this.xRotO = currentPitch;
-
-        this.setYRot(smoothYaw);
-        this.yBodyRot = smoothYaw;
-        this.yHeadRot = smoothYaw;
-        this.setXRot(smoothPitch);
+        this.setYRot(Mth.approachDegrees(this.getYRot(), targetYaw, 15.0F));
+        this.setXRot(Mth.approachDegrees(this.getXRot(), targetPitch, 15.0F));
+        
+        this.yBodyRot = this.getYRot();
+        this.yHeadRot = this.getYRot();
     }
 
 
@@ -587,7 +536,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     @Nullable
-    private Entity getMissionTarget() {
+    public Entity getMissionTarget() {
         if (this.targetId == null || !(this.level() instanceof ServerLevel serverLevel)) {
             return null;
         }
@@ -606,7 +555,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         Entity nearest = null;
         double nearestDistance = Double.MAX_VALUE;
         for (Entity entity : entities) {
-            if (isFriendlyTarget(carrier, entity)) {
+            if (!isValidTarget(carrier, entity)) {
                 continue;
             }
             double dist = this.distanceToSqr(entity);
@@ -616,6 +565,36 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
             }
         }
         return nearest;
+    }
+
+    private boolean isValidTarget(EntityShipBase carrier, Entity target) {
+        if (!(target instanceof LivingEntity)) {
+            return false;
+        }
+        if (isFriendlyTarget(carrier, target)) {
+            return false;
+        }
+        if (target instanceof Enemy) {
+            return true;
+        }
+        boolean pvpEnabled = carrier.getStateFlag(18);
+        if (pvpEnabled) {
+            if (target instanceof Player || target instanceof EntityShipBase) {
+                return true;
+            }
+        }
+        if (carrier.getTarget() == target) {
+            return true;
+        }
+        LivingEntity lastHurtBy = carrier.getLastHurtByMob();
+        if (lastHurtBy == target) {
+            return true;
+        }
+        LivingEntity owner = carrier.getOwner();
+        if (owner != null && (owner.getLastHurtByMob() == target || owner.getLastHurtMob() == target)) {
+            return true;
+        }
+        return false;
     }
 
     private boolean isFriendlyTarget(EntityShipBase carrier, Entity target) {
@@ -646,5 +625,21 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     protected boolean isDefaultLightAircraft() {
         return true;
+    }
+
+    public int getMissionTick() {
+        return this.missionTick;
+    }
+
+    public int getAttackDelay() {
+        return this.attackDelay;
+    }
+
+    public boolean hasAmmoLight() {
+        return this.numAmmoLight > 0;
+    }
+
+    public boolean hasAmmoHeavy() {
+        return this.numAmmoHeavy > 0;
     }
 }

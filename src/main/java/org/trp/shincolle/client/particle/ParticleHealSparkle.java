@@ -1,11 +1,7 @@
 package org.trp.shincolle.client.particle;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexConsumer;
-import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -31,37 +27,37 @@ public class ParticleHealSparkle extends Particle {
             RenderSystem.setShader(GameRenderer::getPositionColorShader);
             return tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
         }
-
-        @Override
-        public String toString() {
-            return "SHINCOLLE_HEAL_SPARKLE";
-        }
     };
 
-    private static final int LIFETIME = 20;
-    private static final int MAX_BEAM_AGE = 20;
-    private static final float BASE_SCALE = 0.075F;
-
-    private final float beamFad;
-    private final float beamRiseSpeed;
-    private final float beamHeight;
-    private final float[][] beams;
-    private int beamCurrent;
-    private final float quadSize;
+    protected int maxBeamAge;
+    protected final float beamFad;
+    protected final float motionX;
+    protected final float motionY;
+    protected final float motionZ;
+    protected final float beamHeight;
+    protected float[][] beams;
+    protected int beamCurrent;
+    protected final float quadSize;
 
     protected ParticleHealSparkle(ClientLevel level, double x, double y, double z,
-                                  double beamFad, double beamRiseSpeed, double beamHeight) {
+                                   double beamFad, double beamRiseSpeed, double beamHeight) {
         super(level, x, y, z);
         this.beamFad = (float) Math.max(0.0D, beamFad);
-        this.beamRiseSpeed = (float) beamRiseSpeed;
+        this.motionX = 0.0F;
+        this.motionY = (float) beamRiseSpeed;
+        this.motionZ = 0.0F;
         this.beamHeight = (float) Math.max(0.0D, beamHeight);
-        this.lifetime = LIFETIME;
+        this.lifetime = 20;
+        this.maxBeamAge = 20;
         this.hasPhysics = false;
-        this.quadSize = BASE_SCALE;
+        this.quadSize = 0.075F;
 
         int setting = getParticleSetting(level);
         int numBeam = Math.max(1, (3 - setting) * 15);
         this.beams = new float[numBeam][8];
+        for (int i = 0; i < numBeam; i++) {
+            this.beams[i][7] = this.maxBeamAge;
+        }
         this.beamCurrent = 0;
     }
 
@@ -83,7 +79,9 @@ public class ParticleHealSparkle extends Particle {
         }
 
         for (float[] beam : this.beams) {
-            beam[1] += this.beamRiseSpeed;
+            beam[0] += this.motionX;
+            beam[1] += this.motionY;
+            beam[2] += this.motionZ;
             beam[7] += 1.0F;
             beam[6] = Math.min(1.0F, this.random.nextFloat() + 0.1F);
         }
@@ -100,11 +98,11 @@ public class ParticleHealSparkle extends Particle {
 
         for (float[] beam : this.beams) {
             float beamAge = beam[7];
-            if (beamAge >= MAX_BEAM_AGE) {
+            if (beamAge >= this.maxBeamAge) {
                 continue;
             }
 
-            float size = (MAX_BEAM_AGE - beamAge) * 0.05F * this.quadSize;
+            float size = (this.maxBeamAge - beamAge) * 0.05F * this.quadSize;
             if (size <= 0.0F) {
                 continue;
             }
@@ -152,14 +150,14 @@ public class ParticleHealSparkle extends Particle {
         return UNTEXTURED_RENDER;
     }
 
-    private void spawnBeam() {
+    protected void spawnBeam() {
         float randFactor = this.random.nextFloat() * 1.2F - 0.5F;
         float red = 1.0F;
         float green = 1.0F + randFactor;
         float blue = 1.0F;
 
         this.beams[this.beamCurrent][0] = (this.random.nextFloat() * 2.0F - 1.0F) * this.beamFad;
-        this.beams[this.beamCurrent][1] = (this.random.nextFloat() * 2.0F - 1.0F) * this.beamFad;
+        this.beams[this.beamCurrent][1] = this.beamHeight + (this.random.nextFloat() * 2.0F - 1.0F) * this.beamFad;
         this.beams[this.beamCurrent][2] = (this.random.nextFloat() * 2.0F - 1.0F) * this.beamFad;
         this.beams[this.beamCurrent][3] = red;
         this.beams[this.beamCurrent][4] = green;
@@ -170,7 +168,7 @@ public class ParticleHealSparkle extends Particle {
         this.beamCurrent = (this.beamCurrent + 1) % this.beams.length;
     }
 
-    private int getParticleSetting(Level level) {
+    protected int getParticleSetting(Level level) {
         if (Minecraft.getInstance().level != level) {
             return 0;
         }

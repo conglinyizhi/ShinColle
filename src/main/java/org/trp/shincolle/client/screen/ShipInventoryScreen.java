@@ -41,6 +41,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int DETAIL_TAB_MISC = 3;
     private static final int SETTINGS_TAB_1 = 1;
     private static final int SETTINGS_TAB_6 = 6;
+    private static final int SETTINGS_TAB_7 = 7;
+    private static final int SETTINGS_TAB_8 = 8;
     private static final int APPEARANCE_MAX_ITEMS = 16;
     private static final int APPEARANCE_COLS = 4;
     private static final int GRID_X = 176;
@@ -59,6 +61,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int MODEL_BOX_TOP_GATTAI = 195;
     private static final int MODEL_BOX_BOTTOM_GATTAI = 130;
     private static final float MODEL_SCALE_GATTAI_MULTIPLIER = 0.90F;
+    private static final int HELD_MAIN_COL = 1;
+    private static final int HELD_MAIN_ROW = 5;
+    private static final int HELD_OFF_COL = 2;
+    private static final int HELD_OFF_ROW = 5;
 
         private static final float[] LEGACY_MORALE_NEUTRAL =
             {0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F};
@@ -97,6 +103,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private int rationMorale;
     private boolean appearance;
     private boolean mount;
+    private int taskId;
+    private int taskSideFlags;
 
     public ShipInventoryScreen(ShipContainerMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
@@ -119,6 +127,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
         guiGraphics.blit(TEXTURE_BG, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
         drawLockedInventoryPageOverlays(guiGraphics);
         drawInventoryPageIndicator(guiGraphics);
@@ -126,7 +136,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         drawSettingsTabIndicator(guiGraphics);
         drawToggleStateMarks(guiGraphics);
         drawShipAndNameIcons(guiGraphics);
+        drawTaskIcons(guiGraphics);
         drawShipEntityModel(guiGraphics, mouseX, mouseY);
+        RenderSystem.disableBlend();
     }
 
     @Override
@@ -171,20 +183,30 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawLabel(guiGraphics, tr("gui.shincolle.formation.formation"), 75, 41);
             drawValueRight(guiGraphics, tr("gui.shincolle.formation.format0"), 135, 51, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AIRCRAFT L", 75, 83);
-            drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftLight()), 135, 93, 0xFFFF00);
+            if (this.menu.getShip().supportsAircraftCombat()) {
+                drawLabel(guiGraphics, "AIRCRAFT L", 75, 83);
+                drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftLight()), 135, 93, 0xFFFF00);
 
-            drawLabel(guiGraphics, "AIRCRAFT H", 75, 104);
-            drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftHeavy()), 135, 114, 0xFFFF00);
+                drawLabel(guiGraphics, "AIRCRAFT H", 75, 104);
+                drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftHeavy()), 135, 114, 0xFFFF00);
+            }
         }
 
         switch (this.activeSettingsTab) {
             case 1 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.canmelee"), 187, 133);
-                drawLabel(guiGraphics, tr("gui.shincolle.canlightattack"), 187, 146);
-                drawLabel(guiGraphics, tr("gui.shincolle.canheavyattack"), 187, 159);
-                drawLabel(guiGraphics, tr("gui.shincolle.canairlightattack"), 187, 172);
-                drawLabel(guiGraphics, tr("gui.shincolle.canairheavyattack"), 187, 185);
+                if (this.menu.getShip().isStateGuiBtn1()) {
+                    drawLabel(guiGraphics, tr("gui.shincolle.canlightattack"), 187, 146);
+                }
+                if (this.menu.getShip().isStateGuiBtn2()) {
+                    drawLabel(guiGraphics, tr("gui.shincolle.canheavyattack"), 187, 159);
+                }
+                if (this.menu.getShip().isStateGuiBtn3()) {
+                    drawLabel(guiGraphics, tr("gui.shincolle.canairlightattack"), 187, 172);
+                }
+                if (this.menu.getShip().isStateGuiBtn4()) {
+                    drawLabel(guiGraphics, tr("gui.shincolle.canairheavyattack"), 187, 185);
+                }
                 drawLabel(guiGraphics, tr("gui.shincolle.auraeffect"), 187, 198);
             }
             case 2 -> {
@@ -218,6 +240,16 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             case 6 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.showhelditem"), 187, 133);
                 drawAppearanceLabels(guiGraphics);
+            }
+            case 7 -> {
+                drawLabel(guiGraphics, tr("gui.shincolle.crane.usemeta"), 187, 159);
+                drawLabel(guiGraphics, tr("gui.shincolle.crane.useoredict"), 187, 172);
+                drawLabel(guiGraphics, tr("gui.shincolle.crane.usenbt"), 187, 185);
+            }
+            case 8 -> {
+                drawLabel(guiGraphics, tr("gui.shincolle.ai.inputside"), 177, 133);
+                drawLabel(guiGraphics, tr("gui.shincolle.ai.outputside"), 177, 159);
+                drawLabel(guiGraphics, tr("gui.shincolle.ai.fuelside"), 177, 185);
             }
         }
     }
@@ -291,10 +323,12 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             return true;
         }
 
-        for (int tab = SETTINGS_TAB_1; tab <= SETTINGS_TAB_6; tab++) {
-            int y1 = 131 + (tab - 1) * 13;
+        for (int tab = SETTINGS_TAB_1; tab <= SETTINGS_TAB_8; tab++) {
+            int curTab = (tab - 1) % 6;
+            int y1 = 131 + curTab * 13;
             int y2 = y1 + 11;
-            if (inside(x, y, 239, y1, 245, y2)) {
+            int x1 = tab <= 6 ? 239 : 246;
+            if (inside(x, y, x1, y1, x1 + 6, y2)) {
                 this.activeSettingsTab = tab;
                 this.activeSlider = SLIDER_NONE;
                 return true;
@@ -310,19 +344,19 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_CAN_MELEE);
                 return true;
             }
-            if (inside(x, y, 173, 144, 237, 156)) {
+            if (this.menu.getShip().isStateGuiBtn1() && inside(x, y, 173, 144, 237, 156)) {
                 sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_LIGHT_ATTACK);
                 return true;
             }
-            if (inside(x, y, 173, 157, 237, 169)) {
+            if (this.menu.getShip().isStateGuiBtn2() && inside(x, y, 173, 157, 237, 169)) {
                 sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_HEAVY_ATTACK);
                 return true;
             }
-            if (inside(x, y, 173, 170, 237, 182)) {
+            if (this.menu.getShip().isStateGuiBtn3() && inside(x, y, 173, 170, 237, 182)) {
                 sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_LIGHT_AIRCRAFT);
                 return true;
             }
-            if (inside(x, y, 173, 183, 237, 195)) {
+            if (this.menu.getShip().isStateGuiBtn4() && inside(x, y, 173, 183, 237, 195)) {
                 sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_HEAVY_AIRCRAFT);
                 return true;
             }
@@ -379,6 +413,35 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 int by = GRID_Y + row * GAP_Y;
                 if (inside(x, y, bx, by, bx + 11, by + 11)) {
                     sendMenuButton(this.menu.getEquipOptionButtonId(i));
+                    return true;
+                }
+            }
+        } else if (this.activeSettingsTab == 7) {
+            if (inside(x, y, 174, 136, 238, 152)) {
+                int newTask = (x - 174) / 16 + 1;
+                sendMenuButton(ShipContainerMenu.ACTION_TASK_SELECT_BASE + newTask);
+                return true;
+            }
+            if (inside(x, y, 177, 157, 188, 168)) {
+                sendMenuButton(ShipContainerMenu.ACTION_TASK_META_TOGGLE);
+                return true;
+            }
+            if (inside(x, y, 177, 170, 188, 181)) {
+                sendMenuButton(ShipContainerMenu.ACTION_TASK_ORE_TOGGLE);
+                return true;
+            }
+            if (inside(x, y, 177, 183, 188, 194)) {
+                sendMenuButton(ShipContainerMenu.ACTION_TASK_NBT_TOGGLE);
+                return true;
+            }
+        } else if (this.activeSettingsTab == 8) {
+            for (int i = 0; i < 18; i++) {
+                int dx = i % 6 * 11;
+                int dy = (i / 6) * 26;
+                int bx = 173 + dx;
+                int by = 144 + dy;
+                if (inside(x, y, bx, by, bx + 10, by + 10)) {
+                    sendMenuButton(ShipContainerMenu.ACTION_SIDE_TOGGLE_BASE + i);
                     return true;
                 }
             }
@@ -459,6 +522,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         this.rationMorale = this.menu.getRationMoraleThreshold();
         this.appearance = this.menu.isAppearanceEnabled();
         this.mount = this.menu.isMountEnabled();
+        this.taskId = this.menu.getTaskId();
+        this.taskSideFlags = this.menu.getTaskSideFlags();
     }
 
     private void drawInventoryPageIndicator(GuiGraphics guiGraphics) {
@@ -495,18 +560,29 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawSettingsTabIndicator(GuiGraphics guiGraphics) {
-        int y = 131 + (Math.max(SETTINGS_TAB_1, Math.min(SETTINGS_TAB_6, this.activeSettingsTab)) - 1) * 13;
-        guiGraphics.blit(TEXTURE_BG, this.leftPos + 239, this.topPos + y, 74, 214, 6, 11, 256, 256);
+        int tab = Math.max(SETTINGS_TAB_1, Math.min(SETTINGS_TAB_8, this.activeSettingsTab));
+        int curTab = (tab - 1) % 6;
+        int y = 131 + curTab * 13;
+        int x = tab <= 6 ? 239 : 246;
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + x, this.topPos + y, 74, 214, 6, 11, 256, 256);
     }
 
     private void drawToggleStateMarks(GuiGraphics guiGraphics) {
         switch (this.activeSettingsTab) {
             case 1 -> {
                 drawOnOff(guiGraphics, 174, 131, this.canMelee);
-                drawOnOff(guiGraphics, 174, 144, this.lightAttack);
-                drawOnOff(guiGraphics, 174, 157, this.heavyAttack);
-                drawOnOff(guiGraphics, 174, 170, this.lightAircraftAttack);
-                drawOnOff(guiGraphics, 174, 183, this.heavyAircraftAttack);
+                if (this.menu.getShip().isStateGuiBtn1()) {
+                    drawOnOff(guiGraphics, 174, 144, this.lightAttack);
+                }
+                if (this.menu.getShip().isStateGuiBtn2()) {
+                    drawOnOff(guiGraphics, 174, 157, this.heavyAttack);
+                }
+                if (this.menu.getShip().isStateGuiBtn3()) {
+                    drawOnOff(guiGraphics, 174, 170, this.lightAircraftAttack);
+                }
+                if (this.menu.getShip().isStateGuiBtn4()) {
+                    drawOnOff(guiGraphics, 174, 183, this.heavyAircraftAttack);
+                }
                 drawOnOff(guiGraphics, 174, 196, this.ringEffect);
             }
             case 2 -> drawFollowSliderTab(guiGraphics);
@@ -526,7 +602,37 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             }
             case 5 -> drawRationSliderTab(guiGraphics);
             case 6 -> drawAppearanceToggleMarks(guiGraphics);
+            case 7 -> drawAIPage7Background(guiGraphics);
+            case 8 -> drawAIPage8Background(guiGraphics);
             default -> {
+            }
+        }
+    }
+
+    private void drawAIPage7Background(GuiGraphics guiGraphics) {
+        int tside = this.taskSideFlags;
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 174, this.topPos + 136, 87, 214, 64, 16, 256, 256);
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 174, this.topPos + 138, 151, 237, 64, 16, 256, 256);
+        int taskType = this.taskId;
+        if (taskType >= 1 && taskType <= 4) {
+            guiGraphics.blit(TEXTURE_BG, this.leftPos + 174 + (taskType - 1) * 16, this.topPos + 136, 87 + (taskType - 1) * 16, 230, 16, 16, 256, 256);
+        }
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 177, this.topPos + 157, 0, (tside & (1 << 18)) != 0 ? 236 : 225, 11, 11, 256, 256);
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 177, this.topPos + 170, 11, (tside & (1 << 19)) != 0 ? 236 : 225, 11, 11, 256, 256);
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 177, this.topPos + 183, 22, (tside & (1 << 20)) != 0 ? 236 : 225, 11, 11, 256, 256);
+    }
+
+    private void drawAIPage8Background(GuiGraphics guiGraphics) {
+        int tside = this.taskSideFlags;
+        int[] yCoords = {144, 170, 196};
+        for (int y : yCoords) {
+            guiGraphics.blit(TEXTURE_BG, this.leftPos + 173, this.topPos + y, 151, 214, 66, 11, 256, 256);
+        }
+        for (int i = 0; i < 18; ++i) {
+            if ((tside & (1 << i)) != 0) {
+                int dx = i % 6 * 11;
+                int dy = i / 6 * 26;
+                guiGraphics.blit(TEXTURE_BG, this.leftPos + 173 + dx, this.topPos + 144 + dy, 151 + dx, 225, 11, 11, 256, 256);
             }
         }
     }
@@ -692,15 +798,51 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             return;
         }
 
-        if (this.activeSettingsTab == SETTINGS_TAB_6) {
-            renderEquipOptionTooltips(guiGraphics, mouseX, mouseY);
+        if (this.activeSettingsTab == SETTINGS_TAB_7) {
+            renderAIPage7Tooltips(guiGraphics, mouseX, mouseY);
+            return;
+        }
+        if (this.activeSettingsTab == SETTINGS_TAB_8) {
+            renderAIPage8Tooltips(guiGraphics, mouseX, mouseY);
+            return;
         }
 
         renderFixedToggleTooltips(guiGraphics, mouseX, mouseY);
     }
 
-    private void renderFixedToggleTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+    private void renderAIPage7Tooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int x = mouseX - this.leftPos;
+        int y = mouseY - this.topPos;
+        if (inside(x, y, 174, 136, 238, 152)) {
+            int taskIdx = (x - 174) / 16 + 1;
+            String key = switch (taskIdx) {
+                case 1 -> "gui.shincolle.ai.cooking";
+                case 2 -> "gui.shincolle.ai.fishing";
+                case 3 -> "gui.shincolle.ai.mining";
+                case 4 -> "gui.shincolle.ai.crafting";
+                default -> null;
+            };
+            if (key != null) renderTooltip(guiGraphics, key, mouseX, mouseY);
+        } else if (inside(x, y, 177, 157, 188, 168)) renderTooltip(guiGraphics, "gui.shincolle.crane.usemeta", mouseX, mouseY);
+        else if (inside(x, y, 177, 170, 188, 181)) renderTooltip(guiGraphics, "gui.shincolle.crane.useoredict", mouseX, mouseY);
+        else if (inside(x, y, 177, 183, 188, 194)) renderTooltip(guiGraphics, "gui.shincolle.crane.usenbt", mouseX, mouseY);
+    }
 
+    private void renderAIPage8Tooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        int x = mouseX - this.leftPos;
+        int y = mouseY - this.topPos;
+        if (inside(x, y, 173, 144, 238, 155)) renderTooltip(guiGraphics, "gui.shincolle.ai.inputside", mouseX, mouseY);
+        else if (inside(x, y, 173, 170, 238, 181)) renderTooltip(guiGraphics, "gui.shincolle.ai.outputside", mouseX, mouseY);
+        else if (inside(x, y, 173, 196, 238, 207)) renderTooltip(guiGraphics, "gui.shincolle.ai.fuelside", mouseX, mouseY);
+    }
+
+    private void renderFixedToggleTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        if (this.activeSettingsTab == SETTINGS_TAB_6) {
+            if (isHovering(mouseX, mouseY, 174, 131, 11, 11)) {
+                renderTooltip(guiGraphics, "gui.shincolle.equip", mouseX, mouseY);
+            }
+            renderEquipOptionTooltips(guiGraphics, mouseX, mouseY);
+        }
     }
 
     private void renderTooltip(GuiGraphics guiGraphics, String key, int mouseX, int mouseY) {
@@ -1121,5 +1263,57 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         map.put(83, new int[]{4, 0, 177});
         map.put(84, new int[]{4, 11, 177});
         return map;
+    }
+    private void drawTaskIcons(GuiGraphics guiGraphics) {
+        if (this.menu.getInventoryPage() != 0) return;
+
+        int u = 0, v = 0;
+        switch (this.taskId) {
+            case 1 -> {
+                u = 151;
+                v = 236;
+            }
+            case 2 -> {
+                u = 167;
+                v = 236;
+            }
+            case 3 -> {
+                u = 183;
+                v = 236;
+            }
+            case 4 -> {
+                u = 199;
+                v = 236;
+            }
+            default -> {
+                return;
+            }
+        }
+
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 25, this.topPos + 107, 33, 225, 18, 18, 256, 256);
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 26, this.topPos + 109, u, v, 18, 18, 256, 256);
+
+        if (this.taskId == 1) {
+            drawSlotOverlay(guiGraphics, HELD_MAIN_COL, HELD_MAIN_ROW, 33, 225); 
+            drawSlotOverlay(guiGraphics, HELD_OFF_COL, HELD_OFF_ROW, 33, 225); 
+        }
+        if (this.taskId == 2) drawSlotOverlay(guiGraphics, HELD_MAIN_COL, HELD_MAIN_ROW, 33, 225);
+        if (this.taskId == 3) drawSlotOverlay(guiGraphics, HELD_MAIN_COL, HELD_MAIN_ROW, 33, 225);
+        if (this.taskId == 4) {
+            drawSlotOverlay(guiGraphics, HELD_MAIN_COL, HELD_MAIN_ROW, 33, 225); 
+            drawCraftingSlots(guiGraphics);
+        }
+    }
+
+    private void drawSlotOverlay(GuiGraphics guiGraphics, int col, int row, int u, int v) {
+        guiGraphics.blit(TEXTURE_BG, this.leftPos + 8 + col * 18, this.topPos + 18 + row * 18, u, v, 18, 18, 256, 256);
+    }
+
+    private void drawCraftingSlots(GuiGraphics guiGraphics) {
+        for (int i = 0; i < 9; i++) {
+            int col = i % 3;
+            int row = i / 3 + 2;
+            drawSlotOverlay(guiGraphics, col, row, 33, 225);
+        }
     }
 }

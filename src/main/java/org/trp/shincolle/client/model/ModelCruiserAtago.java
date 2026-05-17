@@ -2,6 +2,7 @@ package org.trp.shincolle.client.model;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -882,6 +883,20 @@ public class ModelCruiserAtago<T extends EntityShipBase> extends ShipModelHumano
 
         LegLeft01.xRot = legLeftX;
         LegRight01.xRot = legRightX;
+
+        float partialTick = Minecraft.getInstance().getTimer().getGameTimeDeltaTicks();
+        float customAttackAnim = entity != null ? entity.getCustomAttackAnim(partialTick) : 0.0F;
+
+        if (customAttackAnim > 0.0F) {
+            float f7 = net.minecraft.util.Mth.sin(customAttackAnim * customAttackAnim * (float) Math.PI);
+            float f8 = net.minecraft.util.Mth.sin(net.minecraft.util.Mth.sqrt(customAttackAnim) * (float) Math.PI);
+            this.ArmRight01.xRot = -0.4F;
+            this.ArmRight01.yRot = 0.0F;
+            this.ArmRight01.zRot = -0.2F;
+            this.ArmRight01.xRot += -f8 * 80.0F * ((float) Math.PI / 180F);
+            this.ArmRight01.yRot += -f7 * 20.0F * ((float) Math.PI / 180F) + 0.2F;
+            this.ArmRight01.zRot += -f8 * 20.0F * ((float) Math.PI / 180F);
+        }
     }
 
     private void applyHairAndBoobAnimation(PoseContext ctx, float ageInTicks, float limbSwing) {

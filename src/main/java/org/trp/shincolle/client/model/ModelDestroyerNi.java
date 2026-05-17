@@ -13,8 +13,6 @@ import net.minecraft.world.entity.Entity;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-import org.trp.shincolle.client.model.IGlowableModel;
-
 public class ModelDestroyerNi<T extends Entity> extends EntityModel<T> implements IGlowableModel {
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "destroyer_ni"), "main");
     private static final float SITTING_TRANSLATE_Y = LegacyPoseOffsets.sittingY("ModelDestroyerNi");

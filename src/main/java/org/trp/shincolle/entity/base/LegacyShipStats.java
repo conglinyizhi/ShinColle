@@ -131,7 +131,7 @@ public class LegacyShipStats {
         return false;
     }
 
-    public void recalculate(int shipClass, int level, float[] equipBonuses) {
+    public void recalculate(int shipClass, int level, float[] equipBonuses, float[] formationBuffs, float[] moraleBuffs) {
         float[] base = SHIP_ATTR_MAP.getOrDefault(shipClass, DEFAULT_BASE);
         float[] type = new float[]{base[6], base[7], base[8], base[9], base[10], base[11]};
 
@@ -166,6 +166,29 @@ public class LegacyShipStats {
         }
 
         System.arraycopy(raw, 0, buffed, 0, raw.length);
+
+        if (formationBuffs != null) {
+            int len = Math.min(buffed.length, formationBuffs.length);
+            for (int i = 0; i < len; i++) {
+                if ((i >= 1 && i <= 6) || (i >= 9 && i <= 14)) {
+                    buffed[i] *= formationBuffs[i];
+                } else {
+                    buffed[i] += formationBuffs[i];
+                }
+            }
+        }
+
+        if (moraleBuffs != null) {
+            int len = Math.min(buffed.length, moraleBuffs.length);
+            for (int i = 0; i < len; i++) {
+                if ((i >= 1 && i <= 6) || (i >= 9 && i <= 14)) {
+                    buffed[i] *= moraleBuffs[i];
+                } else {
+                    buffed[i] += moraleBuffs[i];
+                }
+            }
+        }
+
         applyLimits(buffed);
     }
 
@@ -254,5 +277,12 @@ public class LegacyShipStats {
             return 0.0F;
         }
         return this.buffed[index];
+    }
+
+    public float getRawAttr(int index) {
+        if (index < 0 || index >= this.raw.length) {
+            return 0.0F;
+        }
+        return this.raw[index];
     }
 }

@@ -1,17 +1,36 @@
 package org.trp.shincolle.client.model;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.model.ArmedModel;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
 import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.world.entity.HumanoidArm;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
-public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityModel<T> {
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityModel<T> implements ArmedModel {
 
     public ModelPart Face0, Face1, Face2, Face3, Face4;
     public ModelPart Mouth0, Mouth1, Mouth2;
     public ModelPart Flush0, Flush1;
+
+    protected float[] offsetItem = new float[]{0.0F, 0.0F, 0.0F};
+    protected float[] rotateItem = new float[]{0.0F, 0.0F, 0.0F};
+    protected float[] offsetBlock = new float[]{0.0F, 0.0F, 0.0F};
+    protected float[] rotateBlock = new float[]{0.0F, 0.0F, 0.0F};
+    protected float modelScale = 1.0F;
+    private ModelPart[] armMain;
+    private ModelPart[] armOff;
+    private boolean armsResolved;
+    private static final Map<Class<?>, Field> POSE_TRANSLATE_Y_FIELDS = new ConcurrentHashMap<>();
 
     public void initFaceParts(ModelPart headPart) {
         this.Face0 = getChildOrNull(headPart, "Face0");
@@ -26,6 +45,22 @@ public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityM
 
         this.Flush0 = getChildOrNull(headPart, "Flush0");
         this.Flush1 = getChildOrNull(headPart, "Flush1");
+    }
+
+    public float getScale(EntityShipBase entity) {
+        return getLegacyScale(entity);
+    }
+
+    public float getPoseTranslateY() {
+        Field field = POSE_TRANSLATE_Y_FIELDS.computeIfAbsent(getClass(), ShipModelBaseAdv::findPoseTranslateYField);
+        if (field == null) {
+            return 0.0F;
+        }
+        try {
+            return field.getFloat(this);
+        } catch (IllegalAccessException ignored) {
+            return 0.0F;
+        }
     }
 
     private ModelPart getChildOrNull(ModelPart parent, String name) {
@@ -177,6 +212,91 @@ public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityM
         };
     }
 
+    public ModelPart[] getArmForSide(HumanoidArm side) {
+        resolveArmParts();
+        return side == HumanoidArm.RIGHT ? armMain : armOff;
+    }
+
+    public float[] getHeldItemOffset(EntityShipBase entity, HumanoidArm side, boolean isBlock) {
+        return isBlock ? offsetBlock : offsetItem;
+    }
+
+    public float[] getHeldItemRotate(EntityShipBase entity, HumanoidArm side, boolean isBlock) {
+        return isBlock ? rotateBlock : rotateItem;
+    }
+
+    @Override
+    public void translateToHand(HumanoidArm arm, PoseStack poseStack) {
+        ModelPart[] parts = getArmForSide(arm);
+        if (parts == null) {
+            return;
+        }
+        for (ModelPart part : parts) {
+            part.translateAndRotate(poseStack);
+        }
+    }
+
+    private void resolveArmParts() {
+        if (armsResolved) {
+            return;
+        }
+        armMain = resolveArmParts("ArmRight");
+        armOff = resolveArmParts("ArmLeft");
+        armsResolved = true;
+    }
+
+    private ModelPart[] resolveArmParts(String baseName) {
+        List<ModelPart> parts = new ArrayList<>();
+        addArmPart(parts, "BodyMain");
+        addArmPart(parts, baseName + "01");
+        addArmPart(parts, baseName + "02");
+        addArmPart(parts, baseName + "03");
+        if (parts.isEmpty()) {
+            addArmPart(parts, baseName);
+        }
+        return parts.isEmpty() ? null : parts.toArray(new ModelPart[0]);
+    }
+
+    private void addArmPart(List<ModelPart> parts, String fieldName) {
+        ModelPart part = findModelPartField(fieldName);
+        if (part != null) {
+            parts.add(part);
+        }
+    }
+
+    private ModelPart findModelPartField(String fieldName) {
+        Class<?> type = this.getClass();
+        while (type != null) {
+            try {
+                Field field = type.getDeclaredField(fieldName);
+                field.setAccessible(true);
+                Object value = field.get(this);
+                if (value instanceof ModelPart part) {
+                    return part;
+                }
+            } catch (NoSuchFieldException ignored) {
+            } catch (IllegalAccessException ignored) {
+                return null;
+            }
+            type = type.getSuperclass();
+        }
+        return null;
+    }
+
+    private static Field findPoseTranslateYField(Class<?> type) {
+        Class<?> current = type;
+        while (current != null) {
+            try {
+                Field field = current.getDeclaredField("poseTranslateY");
+                field.setAccessible(true);
+                return field;
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
+    }
+
     protected void setFacePartVisible(int index, boolean mirror) {
         ModelPart part = getFacePart(index);
         if (part == null) return;
@@ -205,9 +325,6 @@ public abstract class ShipModelBaseAdv<T extends EntityShipBase> extends EntityM
         return (state & mask) == mask;
     }
 
-    protected float getLegacySwingTime(T entity, float partialTick) {
-        return entity != null ? entity.getSwingTime(partialTick) : 0.0F;
-    }
 
     public float getLegacyScale(EntityShipBase entity) {
         float base = switch (this.getClass().getSimpleName()) {
