@@ -1776,7 +1776,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
     }
 
-    void tryFlareTarget(@Nullable Entity target) {
+    protected void tryFlareTarget(@Nullable Entity target) {
         if (target == null || this.getStateMinor(STATE_MINOR_EQUIP_FLARE) <= 0) {
             return;
         }

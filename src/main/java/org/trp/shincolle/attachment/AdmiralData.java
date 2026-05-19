@@ -17,6 +17,7 @@ public class AdmiralData {
     private final int[] formationIDs = new int[TEAM_COUNT];
     private final String[] teamNames = new String[TEAM_COUNT];
     private int currentTeamID = 0;
+    private boolean hasReceivedBook = false;
 
     public AdmiralData() {
         for (int i = 0; i < TEAM_COUNT; i++) {
@@ -25,6 +26,14 @@ public class AdmiralData {
                 selectionStates[i][j] = true;
             }
         }
+    }
+
+    public boolean hasReceivedBook() {
+        return hasReceivedBook;
+    }
+
+    public void setHasReceivedBook(boolean hasReceivedBook) {
+        this.hasReceivedBook = hasReceivedBook;
     }
 
     public UUID getShipUUID(int teamId, int slotId) {
@@ -133,6 +142,7 @@ public class AdmiralData {
         }
         nbt.put("Teams", teamsList);
         nbt.putInt("CurrentTeam", currentTeamID);
+        nbt.putBoolean("HasReceivedBook", hasReceivedBook);
         return nbt;
     }
 
@@ -158,6 +168,7 @@ public class AdmiralData {
             }
         }
         currentTeamID = nbt.getInt("CurrentTeam");
+        hasReceivedBook = nbt.getBoolean("HasReceivedBook");
     }
 
     public static AdmiralData read(CompoundTag nbt, IAttachmentHolder holder) {

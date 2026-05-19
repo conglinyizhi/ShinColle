@@ -356,9 +356,8 @@ class EntityShipBasePointer {
         if (this.ship.getCombat().canUseHeavyAmmo()) {
             int heavyInterval = Math.max(1, this.ship.getLegacyShipStats().getHeavyDelay());
             if ((this.ship.tickCount - this.pointerTargetEntityHeavyShotTick) >= heavyInterval) {
-                if (this.ship.performHeavyAttack(target)) {
-                    this.pointerTargetEntityHeavyShotTick = this.ship.tickCount;
-                }
+                this.ship.performHeavyAttack(target);
+                this.pointerTargetEntityHeavyShotTick = this.ship.tickCount;
             }
         }
 

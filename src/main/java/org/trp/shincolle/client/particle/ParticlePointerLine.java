@@ -92,6 +92,13 @@ public class ParticlePointerLine extends Particle {
             this.rCol = 1.0f;
             this.gCol = 1.0f;
             this.bCol = 1.0f;
+        } else if (this.particleType == 2) {
+            this.lifetime = 11;
+            this.age = 4;
+            this.rCol = 1.0f;
+            this.gCol = 0.0f;
+            this.bCol = 0.0f;
+            this.alpha = 1.0f;
         } else {
             this.lifetime = 11;
             this.age = 4;

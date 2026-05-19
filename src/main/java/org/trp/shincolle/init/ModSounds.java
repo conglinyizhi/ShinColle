@@ -26,6 +26,11 @@ public class ModSounds {
     public static final Supplier<SoundEvent> SHIP_AIRCRAFT = register("ship-aircraft");
     public static final Supplier<SoundEvent> SHIP_MARRY = register("ship-marry");
     public static final Supplier<SoundEvent> SHIP_FEED = register("ship-feed");
+    public static final Supplier<SoundEvent> SHIP_AP_P1 = register("ship-ap_phase1");
+    public static final Supplier<SoundEvent> SHIP_AP_P2 = register("ship-ap_phase2");
+    public static final Supplier<SoundEvent> SHIP_AP_ATTACK = register("ship-ap_attack");
+    public static final Supplier<SoundEvent> SHIP_YAMATO_READY = register("ship-yamato_ready");
+    public static final Supplier<SoundEvent> SHIP_YAMATO_SHOT = register("ship-yamato_shot");
 
     private static Supplier<SoundEvent>[] createShipTimeSounds() {
         @SuppressWarnings("unchecked")

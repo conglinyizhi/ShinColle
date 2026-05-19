@@ -6,6 +6,7 @@ import net.minecraft.core.particles.SimpleParticleType;
 
 public class ParticleSprayRed extends TextureSheetParticle {
     private final SpriteSet sprites;
+    private final float maxQuadSize;
 
     protected ParticleSprayRed(ClientLevel level, double x, double y, double z, double vx, double vy, double vz, SpriteSet sprites) {
         super(level, x, y, z, vx, vy, vz);
@@ -13,8 +14,8 @@ public class ParticleSprayRed extends TextureSheetParticle {
 
         double speedSq = vx * vx + vy * vy + vz * vz;
         double speedLimit = 0.3D;
+        double speed = Math.sqrt(speedSq);
         if (speedSq > speedLimit * speedLimit) {
-            double speed = Math.sqrt(speedSq);
             this.xd = (vx / speed) * speedLimit;
             this.yd = (vy / speed) * speedLimit;
             this.zd = (vz / speed) * speedLimit;
@@ -35,7 +36,12 @@ public class ParticleSprayRed extends TextureSheetParticle {
         this.gravity = 0.0F;
         this.friction = 0.96F;
 
-        this.quadSize = 0.3F;
+        if (speed > 0.25D) {
+            this.maxQuadSize = 1.5F;
+        } else {
+            this.maxQuadSize = 0.3F;
+        }
+        this.quadSize = 0.0F;
 
         this.setSpriteFromAge(sprites);
     }
@@ -45,6 +51,8 @@ public class ParticleSprayRed extends TextureSheetParticle {
         super.tick();
         if (!this.removed) {
             this.setSpriteFromAge(this.sprites);
+            float ageRatio = (float) this.age / (float) this.lifetime;
+            this.quadSize = this.maxQuadSize * ageRatio;
         }
     }
 

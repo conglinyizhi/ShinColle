@@ -181,9 +181,8 @@ final class EntityShipBasePassiveCombat {
         }
 
         if (combat.canUseHeavyAmmo() && this.passiveHeavyCooldownTick <= 0) {
-            if (this.ship.performHeavyAttack(target)) {
-                this.passiveHeavyCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getHeavyDelay());
-            }
+            this.ship.performHeavyAttack(target);
+            this.passiveHeavyCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getHeavyDelay());
         }
 
         if (combat.canUseMeleeAttack()
@@ -345,9 +344,17 @@ final class EntityShipBasePassiveCombat {
     private void resetPassiveCombatCooldowns() {
         int aimTime = getPassiveAimTime();
         this.passiveTargetScanTick = PASSIVE_TARGET_SCAN_INTERVAL;
-        this.passiveMeleeCooldownTick = Math.max(20, this.ship.getLegacyShipStats().getMeleeDelay());
-        this.passiveLightCooldownTick = Math.max(this.ship.getLegacyShipStats().getLightDelay(), aimTime);
-        this.passiveHeavyCooldownTick = Math.max(this.ship.getLegacyShipStats().getHeavyDelay(), aimTime * 2);
+        
+        if (this.passiveMeleeCooldownTick <= 20) {
+            this.passiveMeleeCooldownTick = 20;
+        }
+        if (this.passiveLightCooldownTick <= aimTime) {
+            this.passiveLightCooldownTick = aimTime;
+        }
+        if (this.passiveHeavyCooldownTick <= aimTime * 2) {
+            this.passiveHeavyCooldownTick = aimTime * 2;
+        }
+        
         this.ship.getCombat().resetAircraftLaunchDelay();
     }
 
@@ -368,11 +375,18 @@ final class EntityShipBasePassiveCombat {
     }
 
     private boolean canAttackTarget(@Nullable LivingEntity target, boolean revengeContext, boolean commandContext) {
+        if (target == null) return false;
         if (!isAttackAllowed(target, revengeContext, commandContext)) {
             return false;
         }
 
-        if (target == null || target == this.ship || !target.isAlive() || target.isSpectator()) {
+        if (target == this.ship) {
+            return false;
+        }
+        if (!target.isAlive()) {
+            return false;
+        }
+        if (target.isSpectator()) {
             return false;
         }
 

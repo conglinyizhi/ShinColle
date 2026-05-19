@@ -68,7 +68,18 @@ public final class ClientPointerItemParticles {
         for (EntityShipBase ship : ships) {
             activeShipIds.add(ship.getId());
             
-            if (isIntervalTick) {
+            boolean groupMode = pointerMode == PointerItem.MODE_GROUP;
+            boolean formationMode = pointerMode == PointerItem.MODE_FORMATION;
+            ParticleTeam.RenderStyle selectedStyle = groupMode
+                    ? ParticleTeam.RenderStyle.SELECTED_RED
+                    : (formationMode ? ParticleTeam.RenderStyle.SELECTED_YELLOW : ParticleTeam.RenderStyle.DEFAULT_BLUE);
+            ParticleTeam.RenderStyle desiredStyle = ship.isPointerSelected()
+                    ? selectedStyle
+                    : ParticleTeam.RenderStyle.DEFAULT_GREEN;
+            ParticleTeam existing = ParticleTeam.getFollowParticle(ParticleTeam.FollowKind.SHIP_MARKER, ship.getId());
+            boolean styleMismatch = existing == null || !existing.isAliveParticle() || existing.getRenderStyle() != desiredStyle;
+
+            if (isIntervalTick || styleMismatch) {
                 spawnShipMarker(level, ship, pointerMode);
             }
 

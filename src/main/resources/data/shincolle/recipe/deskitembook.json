@@ -1,22 +1,18 @@
 {
   "type": "minecraft:crafting_shaped",
-  "category": "misc",
+  "pattern": [
+    "ggg",
+    "gbg",
+    "ggg"
+  ],
   "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
+    "g": {
+      "item": "shincolle:grudge"
     },
-    "P": {
-      "item": "minecraft:paper"
-    },
-    "B": {
-      "item": "minecraft:book"
+    "b": {
+      "item": "minecraft:writable_book"
     }
   },
-  "pattern": [
-    "IPI",
-    "IBI",
-    "III"
-  ],
   "result": {
     "count": 1,
     "id": "shincolle:deskitembook"

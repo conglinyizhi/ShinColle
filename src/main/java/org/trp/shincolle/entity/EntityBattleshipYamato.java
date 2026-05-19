@@ -56,9 +56,8 @@ public class EntityBattleshipYamato extends EntityShipBase {
             applyBuffToNearbyAllies();
         }
 
-	if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            Entity target = this.getTarget();
-            if (target == null || !target.isAlive()) {
+        if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
+            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0) {
                 this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
             }
         }
@@ -105,12 +104,21 @@ public class EntityBattleshipYamato extends EntityShipBase {
             this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
             float baseDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float damage = Math.max(6.0F, baseDamage * 1.6F);
+            this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_SHOT.get(), 1.0F, 1.0F);
             spawnBeamEntity(serverLevel, target, damage);
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
         } else {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 1, true);
-            serverLevel.sendParticles(ParticleTypes.END_ROD, this.getX(), this.getY() + 1.4D, this.getZ(),
-                    6, 0.3D, 0.2D, 0.3D, 0.02D);
+            this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_READY.get(), 1.0F, 1.0F);
+            serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_CUBE.get(),
+                    this.getX(), this.getY() + this.getBbHeight() * 0.6D, this.getZ(),
+                    0, 1.5D, (double) this.getId(), 0.0D, 1.0D);
+            for (int i = 0; i < 6; ++i) {
+                serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_LIGHTNING.get(),
+                        this.getX(), this.getY() + 1.2D, this.getZ(),
+                        0, 0.1D, (double) this.getId(), 3.0D, 1.0D);
+            }
+            this.tryFlareTarget(target);
             this.setAttackTick(50);
             this.applyEmotesReaction(3);
             return false;
@@ -126,16 +134,18 @@ public class EntityBattleshipYamato extends EntityShipBase {
                 && !this.getIsSitting() && !this.isStateNoEquip()) {
             float[] partPos = rotateXZByAxis(-0.63f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f);
             for (int i = 0; i < 3; i++) {
-            this.level().addParticle(ParticleTypes.SMOKE,
-                this.getX() + partPos[1], this.getY() + 1.65D + i * 0.1D, this.getZ() + partPos[0],
-                0.0D, 0.0D, 0.0D);
+                this.level().addParticle(ParticleTypes.SMOKE,
+                    this.getX() + partPos[1], this.getY() + 1.65D + i * 0.1D, this.getZ() + partPos[0],
+                    0.0D, 0.0D, 0.0D);
             }
         }
 
         if (this.tickCount % 16 == 0 && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            this.level().addParticle(ParticleTypes.END_ROD,
-                    this.getX(), this.getY() + 1.2D, this.getZ(),
-                    0.0D, 0.02D, 0.0D);
+            for (int i = 0; i < 4; i++) {
+                this.level().addParticle(org.trp.shincolle.init.ModParticles.PARTICLE_LIGHTNING.get(),
+                        this.getX(), this.getY() + 1.2D, this.getZ(),
+                        0.1D, (double) this.getId(), 1.0D);
+            }
         }
     }
 
@@ -166,6 +176,10 @@ public class EntityBattleshipYamato extends EntityShipBase {
         Vec3 start = this.position().add(0.0D, this.getBbHeight() * 0.7D, 0.0D);
         Vec3 end = target.position().add(0.0D, target.getBbHeight() * 0.5D, 0.0D);
         Vec3 delta = end.subtract(start);
+        double dist = delta.length();
+        if (dist > 1.0E-4D) {
+            delta = delta.scale(1.0D / dist);
+        }
         EntityProjectileBeam beam = new EntityProjectileBeam(serverLevel);
         beam.initAttrs(this, 0, (float) delta.x, (float) delta.y, (float) delta.z, damage);
         serverLevel.addFreshEntity(beam);

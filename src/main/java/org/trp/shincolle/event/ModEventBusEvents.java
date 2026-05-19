@@ -123,6 +123,13 @@ public class ModEventBusEvents {
     public static void onPlayerLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
             org.trp.shincolle.attachment.AdmiralData data = serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            if (!data.hasReceivedBook()) {
+                ItemStack bookStack = new ItemStack(ModItems.DESK_ITEM_BOOK.get());
+                if (!serverPlayer.addItem(bookStack)) {
+                    serverPlayer.drop(bookStack, false);
+                }
+                data.setHasReceivedBook(true);
+            }
             net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
         }
     }
@@ -166,18 +173,49 @@ public class ModEventBusEvents {
         if (mode == PointerItem.MODE_GROUP || mode == PointerItem.MODE_FORMATION) {
             org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
             int teamId = data.getCurrentTeamID();
-            int slot = -1;
-            for (int i = 0; i < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT; i++) {
-                if (ship.getUUID().equals(data.getShipUUID(teamId, i))) {
-                    slot = i;
-                    break;
+            int existingTeam = -1;
+            int existingSlot = -1;
+            for (int t = 0; t < org.trp.shincolle.attachment.AdmiralData.TEAM_COUNT; t++) {
+                for (int s = 0; s < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT; s++) {
+                    if (ship.getUUID().equals(data.getShipUUID(t, s))) {
+                        existingTeam = t;
+                        existingSlot = s;
+                        break;
+                    }
                 }
+                if (existingTeam != -1) break;
             }
 
-            if (slot != -1) {
-                boolean nextState = !data.isSelected(teamId, slot);
-                data.setSelected(teamId, slot, nextState);
-                ship.setPointerSelected(nextState);
+            if (existingTeam != -1) {
+                if (existingTeam == teamId) {
+                    if (mode == PointerItem.MODE_FORMATION) {
+                        data.setShipUUID(teamId, existingSlot, null);
+                        data.setSelected(teamId, existingSlot, true);
+                        ship.setFormationTeam(-1);
+                        ship.setFormationSlot(-1);
+                        ship.setPointerSelected(false);
+                    } else {
+                        boolean nextState = !data.isSelected(teamId, existingSlot);
+                        data.setSelected(teamId, existingSlot, nextState);
+                        ship.setPointerSelected(nextState);
+                    }
+                } else {
+                    if (mode == PointerItem.MODE_FORMATION) {
+                        int emptySlot = data.findFirstEmptySlot(teamId);
+                        if (emptySlot != -1) {
+                            data.setShipUUID(existingTeam, existingSlot, null);
+                            data.setSelected(existingTeam, existingSlot, true);
+                            
+                            data.setShipUUID(teamId, emptySlot, ship.getUUID());
+                            data.setSelected(teamId, emptySlot, true);
+                            ship.setFormationTeam(teamId);
+                            ship.setFormationSlot(emptySlot);
+                            ship.setPointerSelected(true);
+                        }
+                    } else {
+                        ship.togglePointerSelected();
+                    }
+                }
                 net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
             } else if (mode == PointerItem.MODE_FORMATION) {
                 int emptySlot = data.findFirstEmptySlot(teamId);

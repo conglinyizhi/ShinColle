@@ -115,7 +115,7 @@ public final class LegacyPoseOffsets {
             case "ModelBattleshipRu" -> 0.54F * 2;
             case "ModelBattleshipRe" -> 0.51F * 3;
             case "ModelBattleshipTa" -> 0.51F * 3;
-            case "ModelBattleshipNagato" -> 0.55F * 2.2F;
+            case "ModelBattleshipNagato" -> 0.55F * 2.7F;
             case "ModelBBKongou" -> 0.31F * 3;
             case "ModelBBKirishima" -> 0.31F * 3;
             case "ModelBBHaruna" -> 0.55F * 3;

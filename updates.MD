@@ -1,3 +1,8 @@
+## v0.8.6(2026/05/19 JST)
+- Fixed the recipe for creating deskitembooks
+- Implemented Nagato and Yamato's Heavy Attack
+- Fixed an issue related to Formation mode
+
 ## v0.8.5(2026/05/18 JST)
 - Added new blocks, items and recipes
 - Fixed an issue with entity name display

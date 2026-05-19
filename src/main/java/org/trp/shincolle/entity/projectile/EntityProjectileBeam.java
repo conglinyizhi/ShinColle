@@ -22,6 +22,7 @@ import java.util.UUID;
 
 public class EntityProjectileBeam extends Entity {
     private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId(EntityProjectileBeam.class, EntityDataSerializers.OPTIONAL_UUID);
+    private static final EntityDataAccessor<Integer> OWNER_ID = SynchedEntityData.defineId(EntityProjectileBeam.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Float> DAMAGE = SynchedEntityData.defineId(EntityProjectileBeam.class, EntityDataSerializers.FLOAT);
     private static final EntityDataAccessor<Integer> LIFE = SynchedEntityData.defineId(EntityProjectileBeam.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> TYPE = SynchedEntityData.defineId(EntityProjectileBeam.class, EntityDataSerializers.INT);
@@ -50,6 +51,7 @@ public class EntityProjectileBeam extends Entity {
 
     public void initAttrs(Entity owner, int type, float ax, float ay, float az, float damage) {
         this.setOwner(owner);
+        this.entityData.set(OWNER_ID, owner.getId());
         this.setBeamType(type);
         this.setDamage(damage);
 
@@ -74,6 +76,7 @@ public class EntityProjectileBeam extends Entity {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(OWNER_UUID, Optional.empty());
+        builder.define(OWNER_ID, -1);
         builder.define(DAMAGE, 6.0F);
         builder.define(LIFE, LIFE_LONG);
         builder.define(TYPE, 0);
@@ -83,6 +86,9 @@ public class EntityProjectileBeam extends Entity {
     protected void readAdditionalSaveData(CompoundTag tag) {
         if (tag.hasUUID("Owner")) {
             this.entityData.set(OWNER_UUID, Optional.of(tag.getUUID("Owner")));
+        }
+        if (tag.contains("OwnerId")) {
+            this.entityData.set(OWNER_ID, tag.getInt("OwnerId"));
         }
         this.entityData.set(DAMAGE, tag.getFloat("Damage"));
         this.entityData.set(LIFE, tag.getInt("Life"));
@@ -97,6 +103,7 @@ public class EntityProjectileBeam extends Entity {
     @Override
     protected void addAdditionalSaveData(CompoundTag tag) {
         getOwnerUuid().ifPresent(uuid -> tag.putUUID("Owner", uuid));
+        tag.putInt("OwnerId", this.entityData.get(OWNER_ID));
         tag.putFloat("Damage", getDamage());
         tag.putInt("Life", getLife());
         tag.putInt("Type", getBeamType());
@@ -110,6 +117,35 @@ public class EntityProjectileBeam extends Entity {
     public void tick() {
         super.tick();
         if (this.level().isClientSide) {
+            Vec3 delta = this.getDeltaMovement();
+            this.setPos(this.getX() + delta.x, this.getY() + delta.y, this.getZ() + delta.z);
+
+            this.age++;
+            if (this.age > getLife()) {
+                this.discard();
+                return;
+            }
+
+            if (this.age == 1) {
+                int ownerId = this.entityData.get(OWNER_ID);
+                if (ownerId != -1) {
+                    this.level().addParticle(org.trp.shincolle.init.ModParticles.PARTICLE_BEAM.get(),
+                            this.getX(), this.getY(), this.getZ(),
+                            (double) ownerId, (double) this.getId(), 2.0D);
+                    this.level().addParticle(org.trp.shincolle.init.ModParticles.PARTICLE_CUBE.get(),
+                            this.getX(), this.getY(), this.getZ(),
+                            2.5D, (double) ownerId, 1.0D);
+                }
+            }
+
+            double lifeLeft = getLife() - this.age;
+            if (lifeLeft > 0) {
+                for (int i = 0; i < 4; i++) {
+                    this.level().addParticle(org.trp.shincolle.init.ModParticles.PARTICLE_LIGHTNING.get(),
+                            this.getX(), this.getY(), this.getZ(),
+                            lifeLeft, (double) this.getId(), 6.0D);
+                }
+            }
             return;
         }
 

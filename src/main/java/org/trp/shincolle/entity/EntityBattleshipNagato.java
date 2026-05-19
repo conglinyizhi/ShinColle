@@ -58,6 +58,12 @@ public class EntityBattleshipNagato extends EntityShipBase {
                 applyBuffToNearbyAllies();
             }
         }
+
+        if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
+            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0) {
+                this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
+            }
+        }
     }
 
     public double getPassengersRidingOffset() {
@@ -95,17 +101,28 @@ public class EntityBattleshipNagato extends EntityShipBase {
         this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
 
         int phase = this.getStateEmotion(EMOTION_ATTACK_PHASE) + 1;
+        
+        switch (phase) {
+            case 1 -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_P2.get(), 1.0F, 1.0F);
+            case 3 -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_ATTACK.get(), 1.0F, 1.0F);
+            default -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_P1.get(), 1.0F, 1.0F);
+        }
+
         if (phase > 3) {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
             performFinalAttack(serverLevel, target);
+            this.tryFlareTarget(target);
+            this.setAttackTick(50);
+            this.applyEmotesReaction(3);
+            return true;
         } else {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, phase, true);
             spawnAttackChargeParticles(serverLevel, phase);
+            this.tryFlareTarget(target);
+            this.setAttackTick(50);
+            this.applyEmotesReaction(3);
+            return false;
         }
-
-        this.setAttackTick(50);
-        this.applyEmotesReaction(3);
-        return true;
     }
 
     private void updateClientParticles() {
@@ -121,9 +138,9 @@ public class EntityBattleshipNagato extends EntityShipBase {
         if (this.tickCount % 8 == 0) {
             int atkPhase = this.getStateEmotion(EMOTION_ATTACK_PHASE);
             if (atkPhase == 1 || atkPhase == 3) {
-                this.level().addParticle(ParticleTypes.SMOKE,
-                        this.getX(), this.getY() + 1.2D, this.getZ(),
-                        0.0D, 0.02D, 0.0D);
+                this.level().addParticle(org.trp.shincolle.init.ModParticles.PARTICLE_CHI.get(),
+                        this.getX(), this.getY(), this.getZ(),
+                        0.12D, (double) this.getId(), 1.0D);
             }
         }
     }
@@ -170,15 +187,32 @@ public class EntityBattleshipNagato extends EntityShipBase {
     }
 
     private void spawnAttackChargeParticles(ServerLevel serverLevel, int phase) {
-        int count = phase == 2 ? 8 : 4;
-        serverLevel.sendParticles(ParticleTypes.SMOKE, this.getX(), this.getY() + 1.0D, this.getZ(),
-                count, 0.3D, 0.2D, 0.3D, 0.02D);
+        if (phase == 2) {
+            for (int i = 0; i < 20; ++i) {
+                float[] newPos1 = rotateXZByAxis(0.35F, 0.0F, 0.314F * i, 1.0F);
+                serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_SPRAY.get(),
+                        this.getX(), this.getY() + 0.3D, this.getZ(),
+                        0, newPos1[0], 0.0D, newPos1[1], 1.0D);
+            }
+        } else {
+            for (int i = 0; i < 20; ++i) {
+                float[] newPos1 = rotateXZByAxis(2.0F, 0.0F, 0.314F * i, 1.0F);
+                serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_SPRAY.get(),
+                        this.getX() + newPos1[0], this.getY() + 1.0D, this.getZ() + newPos1[1],
+                        0, -newPos1[0] * 0.06D, 0.0D, -newPos1[1] * 0.06D, 1.0D);
+            }
+        }
     }
 
     private void performFinalAttack(ServerLevel serverLevel, Entity target) {
         Vec3 delta = target.position().subtract(this.position());
         Vec3 dir = delta.lengthSqr() < 1.0E-6D ? Vec3.ZERO : delta.normalize();
         Vec3 newPos = target.position().add(dir.scale(2.0D));
+
+        double originX = this.getX();
+        double originY = this.getY();
+        double originZ = this.getZ();
+
         this.moveTo(newPos.x, newPos.y, newPos.z, this.getYRot(), this.getXRot());
 
         float baseDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
@@ -192,6 +226,28 @@ public class EntityBattleshipNagato extends EntityShipBase {
             }
             hit.hurt(this.damageSources().mobAttack(this), damage * 0.5F);
         }
+
+        double tx = target.getX();
+        double ty = target.getY() + target.getBbHeight() * 0.5D;
+        double tz = target.getZ();
+        double dx = tx - originX;
+        double dy = ty - originY;
+        double dz = tz - originZ;
+
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), originX, originY, originZ, 0, dx, dy, dz, 1.0D);
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), originX, originY + 0.4D, originZ, 0, dx, dy, dz, 1.0D);
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), originX, originY + 0.8D, originZ, 0, dx, dy, dz, 1.0D);
+
+        for (int i = 0; i < 20; ++i) {
+            float[] newPos1 = rotateXZByAxis(1.0F, 0.0F, 0.314F * i, 1.0F);
+            serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_SPRAY_RED.get(),
+                    tx, ty + 0.3D, tz,
+                    0, newPos1[0] * 0.35D, 0.0D, newPos1[1] * 0.35D, 1.0D);
+        }
+
+        serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_91TYPE.get(),
+                tx, ty + 3.0D, tz,
+                1, 0.6D, 0.0D, 0.0D, 0.0D);
 
         serverLevel.sendParticles(ParticleTypes.EXPLOSION, this.getX(), this.getY() + 1.0D, this.getZ(),
                 6, 0.2D, 0.2D, 0.2D, 0.0D);

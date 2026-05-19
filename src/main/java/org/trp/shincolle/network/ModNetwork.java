@@ -78,6 +78,37 @@ public class ModNetwork {
             if (player != null) {
                 AdmiralData data = player.getData(ModDataAttachments.ADMIRAL_DATA);
                 data.deserializeNBT(payload.nbt());
+
+                if (player.level().isClientSide) {
+                    int mode = PointerItem.MODE_SINGLE;
+                    ItemStack pointerStack = ItemStack.EMPTY;
+                    ItemStack main = player.getMainHandItem();
+                    if (main.is(org.trp.shincolle.init.ModItems.POINTER_ITEM.get())) {
+                        pointerStack = main;
+                    } else {
+                        ItemStack off = player.getOffhandItem();
+                        if (off.is(org.trp.shincolle.init.ModItems.POINTER_ITEM.get())) {
+                            pointerStack = off;
+                        }
+                    }
+                    if (!pointerStack.isEmpty() && pointerStack.getItem() instanceof PointerItem pi) {
+                        mode = pi.getMode(pointerStack);
+                    }
+
+                    if (mode == PointerItem.MODE_FORMATION) {
+                        int teamId = data.getCurrentTeamID();
+                        List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class, player.getBoundingBox().inflate(100.0),
+                                ship -> ship.isOwnedBy(player) && !ship.isInDeadPose());
+                        for (EntityShipBase ship : ships) {
+                            if (ship.getFormationTeam() == teamId) {
+                                int slot = ship.getFormationSlot();
+                                ship.setPointerSelected(data.isSelected(teamId, slot));
+                            } else {
+                                ship.setPointerSelected(false);
+                            }
+                        }
+                    }
+                }
             }
         });
     }
@@ -325,8 +356,23 @@ public class ModNetwork {
 
             switch (payload.action()) {
                 case 0: 
-                    data.setCurrentTeamID(payload.param1());
+                {
+                    int nextTeam = payload.param1();
+                    data.setCurrentTeamID(nextTeam);
+                    if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
+                        List<EntityShipBase> ships = serverLevel.getEntitiesOfClass(EntityShipBase.class, player.getBoundingBox().inflate(100.0),
+                            ship -> player.getUUID().equals(ship.getOwnerUUID()) && !ship.isInDeadPose());
+                        for (EntityShipBase ship : ships) {
+                            if (ship.getFormationTeam() == nextTeam) {
+                                int slot = ship.getFormationSlot();
+                                ship.setPointerSelected(data.isSelected(nextTeam, slot));
+                            } else {
+                                ship.setPointerSelected(false);
+                            }
+                        }
+                    }
                     break;
+                }
                 case 1: 
                     data.setFormationID(data.getCurrentTeamID(), payload.param1());
                     break;
