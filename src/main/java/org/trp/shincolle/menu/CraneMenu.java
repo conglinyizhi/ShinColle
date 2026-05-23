@@ -118,19 +118,25 @@ public class CraneMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        if (player.level().getBlockEntity(this.blockEntity.getBlockPos()) != this.blockEntity) {
+            return false;
+        }
         return player.distanceToSqr(blockEntity.getBlockPos().getX() + 0.5, blockEntity.getBlockPos().getY() + 0.5, blockEntity.getBlockPos().getZ() + 0.5) <= 64.0;
     }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        
-        
+        // Legacy crane UI intentionally disables shift-transfer because the first 18 slots
+        // are ghost filters rather than real storage destinations.
         return ItemStack.EMPTY;
     }
 
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
-        
+        if (player.level().isClientSide) {
+            return;
+        }
+
         if (slotId >= 0 && slotId < 18) {
             ItemStack held = player.containerMenu.getCarried();
             Slot slot = this.slots.get(slotId);
@@ -161,6 +167,10 @@ public class CraneMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
+        if (player.level().isClientSide) {
+            return true;
+        }
+
         switch (id) {
             case 0: 
                 blockEntity.setActive(!blockEntity.isActive());
@@ -197,6 +207,10 @@ public class CraneMenu extends AbstractContainerMenu {
             case 8: 
                 int l = (blockEntity.getModeLiquid() + 1) % 3;
                 blockEntity.setModeLiquid(l);
+                return true;
+            case 9:
+                int e = (blockEntity.getModeEnergy() + 1) % 3;
+                blockEntity.setModeEnergy(e);
                 return true;
         }
         return super.clickMenuButton(player, id);
@@ -294,6 +308,9 @@ public class CraneMenu extends AbstractContainerMenu {
     public CraneBlockEntity getBlockEntity() { return blockEntity; }
 
     private static CraneBlockEntity getBlockEntity(Inventory playerInventory, RegistryFriendlyByteBuf buffer) {
+        if (buffer == null) {
+            throw new IllegalStateException("Missing crane menu data.");
+        }
         BlockPos pos = buffer.readBlockPos();
         if (playerInventory.player.level().getBlockEntity(pos) instanceof CraneBlockEntity crane) {
             return crane;
