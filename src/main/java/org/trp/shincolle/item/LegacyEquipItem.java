@@ -117,7 +117,7 @@ public class LegacyEquipItem extends Item {
             return java.util.Optional.empty();
         }
 
-        return java.util.Optional.of(new ScaledTextTooltipData(scaledLines, 0.75F));
+        return java.util.Optional.of(new ScaledTextTooltipData(scaledLines, 1.0F));
     }
 
     private void addSpecialTooltip(ItemStack stack, List<Component> tooltipComponents) {
@@ -183,10 +183,10 @@ public class LegacyEquipItem extends Item {
         addFlatStat(tooltipComponents, main[14], "gui.shincolle.antiss", ChatFormatting.AQUA, 1);
 
         addLabelPercent(tooltipComponents, main[16], "gui.shincolle.equip.xp", ChatFormatting.GREEN);
-        addLabelPercent(tooltipComponents, main[17], "gui.shincolle.equip.grudge", ChatFormatting.DARK_PURPLE);
-        addLabelPercent(tooltipComponents, main[18], "gui.shincolle.equip.ammo", ChatFormatting.DARK_AQUA);
-        addLabelPercent(tooltipComponents, main[19], "gui.shincolle.equip.hpres", ChatFormatting.DARK_GREEN);
-        addLabelPercent(tooltipComponents, main[20], "gui.shincolle.equip.kb", ChatFormatting.DARK_RED);
+        addLabelPercent(tooltipComponents, main[17], "gui.shincolle.equip.grudge", ChatFormatting.LIGHT_PURPLE);
+        addLabelPercent(tooltipComponents, main[18], "gui.shincolle.equip.ammo", ChatFormatting.AQUA);
+        addLabelPercent(tooltipComponents, main[19], "gui.shincolle.equip.hpres", ChatFormatting.GREEN);
+        addLabelPercent(tooltipComponents, main[20], "gui.shincolle.equip.kb", ChatFormatting.RED);
     }
 
     private static void addMiscTooltip(int[] misc, List<Component> tooltipComponents) {
@@ -195,14 +195,14 @@ public class LegacyEquipItem extends Item {
                 .append(getEnchantTypeComponent(misc[5]));
 
         if (misc[0] == 1) {
-            line.append(Component.literal("  ").append(Component.translatable("gui.shincolle.notforcarrier").withStyle(ChatFormatting.DARK_RED)));
+            line.append(Component.literal("  ").append(Component.translatable("gui.shincolle.notforcarrier").withStyle(ChatFormatting.RED)));
         } else if (misc[0] == 3) {
-            line.append(Component.literal("  ").append(Component.translatable("gui.shincolle.carrieronly").withStyle(ChatFormatting.DARK_AQUA)));
+            line.append(Component.literal("  ").append(Component.translatable("gui.shincolle.carrieronly").withStyle(ChatFormatting.AQUA)));
         }
         tooltipComponents.add(line);
 
         tooltipComponents.add(Component.translatable(misc[3] > 400 ? "block.shincolle.large_shipyard" : "block.shincolle.small_shipyard")
-                .withStyle(ChatFormatting.DARK_RED));
+                .withStyle(ChatFormatting.GOLD));
 
         String materialKey = switch (misc[4]) {
             case 1 -> "item.shincolle.abyss_metal";
@@ -212,11 +212,11 @@ public class LegacyEquipItem extends Item {
         };
 
         MutableComponent mats = Component.translatable("gui.shincolle.equip.matstype")
-                .withStyle(ChatFormatting.DARK_PURPLE)
+                .withStyle(ChatFormatting.LIGHT_PURPLE)
                 .append(Component.literal(" (").withStyle(ChatFormatting.GRAY))
                 .append(Component.translatable(materialKey).withStyle(ChatFormatting.GRAY))
                 .append(Component.literal(") " + misc[3] + "  ").withStyle(ChatFormatting.GRAY))
-                .append(Component.translatable("gui.shincolle.equip.matsrarelevel").withStyle(ChatFormatting.DARK_PURPLE))
+                .append(Component.translatable("gui.shincolle.equip.matsrarelevel").withStyle(ChatFormatting.LIGHT_PURPLE))
                 .append(Component.literal(" " + misc[2]).withStyle(ChatFormatting.GRAY));
         tooltipComponents.add(mats);
     }
