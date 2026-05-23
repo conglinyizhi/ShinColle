@@ -10,12 +10,15 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.block.SmallShipyardBlock;
 import org.trp.shincolle.crafting.ShipyardRecipes;
 import org.trp.shincolle.init.ModBlockEntities;
+import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.menu.SmallShipyardMenu;
 
 public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvider {
@@ -27,13 +30,10 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
     public static final int SLOT_OUTPUT = 5;
     public static final int SLOT_COUNT = 6;
 
-    public static final int POWER_MAX = 460800;
-    public static final int BUILD_SPEED = 48;
-
     private final ItemStackHandler inventory = new ItemStackHandler(SLOT_COUNT) {
         @Override
         protected void onContentsChanged(int slot) {
-            setChanged();
+            markForSync();
         }
     };
 
@@ -66,8 +66,12 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
         }
 
         if (blockEntity.isBuilding()) {
-            blockEntity.powerRemained -= BUILD_SPEED;
-            blockEntity.powerConsumed += BUILD_SPEED;
+            if (blockEntity.consumeInstantConstructionMaterial()) {
+                stateChanged = true;
+            }
+
+            blockEntity.powerRemained -= Config.smallShipyardBuildSpeed;
+            blockEntity.powerConsumed += Config.smallShipyardBuildSpeed;
             stateChanged = true;
 
             if (blockEntity.powerConsumed >= blockEntity.powerGoal) {
@@ -89,12 +93,27 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
         }
 
         if (stateChanged) {
-            blockEntity.setChanged();
+            blockEntity.markForSync();
         }
     }
 
     public ItemStackHandler getInventory() {
         return this.inventory;
+    }
+
+    public void dropContents() {
+        if (this.level == null) {
+            return;
+        }
+
+        for (int i = 0; i < SLOT_COUNT; i++) {
+            ItemStack stack = this.inventory.getStackInSlot(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            Block.popResource(this.level, this.worldPosition, stack.copy());
+            this.inventory.setStackInSlot(i, ItemStack.EMPTY);
+        }
     }
 
     public int getBuildType() {
@@ -107,7 +126,7 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
         if (clamped == 3 || clamped == 4) {
             this.buildRecord = getCurrentMaterialAmount();
         }
-        setChanged();
+        markForSync();
     }
 
     public int getPowerConsumed() {
@@ -123,21 +142,21 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public boolean hasRemainedPower() {
-        return this.powerRemained > BUILD_SPEED;
+        return this.powerRemained > Config.smallShipyardBuildSpeed;
     }
 
     public int getPowerRemainingScaled(int scale) {
         if (scale <= 0) {
             return 0;
         }
-        return this.powerRemained * scale / POWER_MAX;
+        return this.powerRemained * scale / Config.smallShipyardPowerMax;
     }
 
     public int getRemainingTimeSeconds() {
         if (this.powerGoal <= 0 || this.powerConsumed >= this.powerGoal) {
             return 0;
         }
-        return (int) (((double) (this.powerGoal - this.powerConsumed) / BUILD_SPEED) * 0.05D);
+        return (int) (((double) (this.powerGoal - this.powerConsumed) / Config.smallShipyardBuildSpeed) * 0.05D);
     }
 
     public String getBuildTimeString() {
@@ -186,7 +205,7 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle:BlockSmallShipyard.name");
+        return Component.translatable("tile.shincolle.BlockSmallShipyard.name");
     }
 
     @Override
@@ -195,23 +214,39 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     private boolean consumeFuel() {
-        if (this.powerRemained >= POWER_MAX) {
+        if (this.powerRemained >= Config.smallShipyardPowerMax) {
             return false;
         }
 
         ItemStack fuel = this.inventory.getStackInSlot(SLOT_FUEL);
-        if (fuel.isEmpty()) {
+        if (fuel.isEmpty() || fuel.is(ModItems.INSTANT_CON_MAT.get())) {
             return false;
         }
 
-        int fuelPower = ShipyardRecipes.getFuelValue(fuel);
-        if (fuelPower <= 0 || this.powerRemained + fuelPower > POWER_MAX) {
+        int fuelPower = ShipyardRecipes.getFuelValue(fuel, Config.smallShipyardFuelMagnification);
+        if (fuelPower <= 0 || this.powerRemained + fuelPower > Config.smallShipyardPowerMax) {
             return false;
         }
 
         this.inventory.setStackInSlot(SLOT_FUEL, ShipyardRecipes.consumeOneFuel(fuel));
 
         this.powerRemained += fuelPower;
+        return true;
+    }
+
+    private boolean consumeInstantConstructionMaterial() {
+        if (this.powerConsumed >= this.powerGoal) {
+            return false;
+        }
+
+        ItemStack stack = this.inventory.getStackInSlot(SLOT_FUEL);
+        if (stack.isEmpty() || !stack.is(ModItems.INSTANT_CON_MAT.get())) {
+            return false;
+        }
+
+        stack.shrink(1);
+        this.inventory.setStackInSlot(SLOT_FUEL, stack);
+        this.powerConsumed += Config.smallShipyardBuildSpeed * Config.smallShipyardInstantTicks;
         return true;
     }
 
@@ -319,5 +354,22 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
         if (state.getValue(SmallShipyardBlock.ACTIVE) != nowActive) {
             this.level.setBlock(this.worldPosition, state.setValue(SmallShipyardBlock.ACTIVE, nowActive), 3);
         }
+    }
+
+    public void markForSync() {
+        setChanged();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 }

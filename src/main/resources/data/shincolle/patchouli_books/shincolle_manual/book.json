@@ -1,0 +1,23 @@
+{
+  "name": "patchouli.shincolle.book.name",
+  "landing_text": "patchouli.shincolle.book.landing_text",
+  "version": "1",
+  "subtitle": "patchouli.shincolle.book.subtitle",
+  "use_resource_pack": true,
+  "dont_generate_book": true,
+  "custom_book_item": "shincolle:deskitembook",
+  "model": "shincolle:deskitembook",
+  "book_texture": "patchouli:textures/gui/book_brown.png",
+  "open_sound": "minecraft:item.book.page_turn",
+  "flip_sound": "minecraft:item.book.page_turn",
+  "index_icon": "shincolle:deskitembook",
+  "text_overflow_mode": "resize",
+  "use_blocky_font": false,
+  "show_progress": false,
+  "i18n": true,
+  "macros": {
+    "$(thing)": "$(l)",
+    "$(item)": "$(6)",
+    "$(ship)": "$(c)"
+  }
+}

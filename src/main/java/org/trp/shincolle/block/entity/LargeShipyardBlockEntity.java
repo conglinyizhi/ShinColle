@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.block.GrudgeHeavyBlock;
 import org.trp.shincolle.block.LargeShipyardBlock;
 import org.trp.shincolle.crafting.ShipyardRecipes;
@@ -28,16 +29,12 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     public static final int SLOT_IO_END = 9;
     public static final int SLOT_COUNT = 10;
 
-    public static final int POWER_MAX = 1382400;
-    public static final int BUILD_SPEED = 48;
-    public static final int INSTANT_BUILD_BONUS = BUILD_SPEED * 1200;
-
     private static final int MAT_COUNT = 4;
 
     private final ItemStackHandler inventory = new ItemStackHandler(SLOT_COUNT) {
         @Override
         protected void onContentsChanged(int slot) {
-            setChanged();
+            markForSync();
         }
     };
 
@@ -85,8 +82,8 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         }
 
         if (blockEntity.isBuilding()) {
-            blockEntity.powerRemained -= BUILD_SPEED;
-            blockEntity.powerConsumed += BUILD_SPEED;
+            blockEntity.powerRemained -= Config.largeShipyardBuildSpeed;
+            blockEntity.powerConsumed += Config.largeShipyardBuildSpeed;
             stateChanged = true;
 
             if (blockEntity.consumeInstantConstructionMaterial()) {
@@ -110,7 +107,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         }
 
         if (stateChanged) {
-            blockEntity.setChanged();
+            blockEntity.markForSync();
         }
     }
 
@@ -120,6 +117,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         }
 
         dropInventoryContents();
+        Block.popResource(this.level, this.worldPosition, createStoredHeavyGrudgeStack());
         GrudgeHeavyBlock.setLargeShipyardSupportFormed(this.level, this.worldPosition, false);
         this.level.setBlock(this.worldPosition, ModBlocks.GRUDGE_HEAVY_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
     }
@@ -137,6 +135,16 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
             Block.popResource(this.level, this.worldPosition, stack.copy());
             this.inventory.setStackInSlot(i, ItemStack.EMPTY);
         }
+    }
+
+    public ItemStack createStoredHeavyGrudgeStack() {
+        ItemStack stack = new ItemStack(ModItems.GRUDGE_HEAVY_BLOCK.get());
+        int[] mats = new int[MAT_COUNT];
+        for (int i = 0; i < MAT_COUNT; i++) {
+            mats[i] = Math.max(0, this.matsBuild[i] + this.matsStock[i]);
+        }
+        ShipyardRecipes.putHeavyGrudgeStorageTag(stack, mats, this.powerRemained);
+        return stack;
     }
 
     public ItemStackHandler getInventory() {
@@ -161,7 +169,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     public void setBuildType(int buildType) {
         this.buildType = Math.max(0, Math.min(buildType, 4));
-        setChanged();
+        markForSync();
     }
 
     public int getInvMode() {
@@ -170,7 +178,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     public void setInvMode(int invMode) {
         this.invMode = invMode <= 0 ? 0 : 1;
-        setChanged();
+        markForSync();
     }
 
     public int getSelectMat() {
@@ -179,7 +187,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     public void setSelectMat(int selectMat) {
         this.selectMat = Math.max(0, Math.min(selectMat, MAT_COUNT - 1));
-        setChanged();
+        markForSync();
     }
 
     public int[] getMatsBuild() {
@@ -202,18 +210,18 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
         if (scale <= 0) {
             return 0;
         }
-        return this.powerRemained * scale / POWER_MAX;
+        return this.powerRemained * scale / Config.largeShipyardPowerMax;
     }
 
     public boolean hasRemainedPower() {
-        return this.powerRemained > BUILD_SPEED;
+        return this.powerRemained > Config.largeShipyardBuildSpeed;
     }
 
     public int getRemainingTimeSeconds() {
         if (this.powerGoal <= 0 || this.powerConsumed >= this.powerGoal) {
             return 0;
         }
-        return (int) (((double) (this.powerGoal - this.powerConsumed) / BUILD_SPEED) * 0.05D);
+        return (int) (((double) (this.powerGoal - this.powerConsumed) / Config.largeShipyardBuildSpeed) * 0.05D);
     }
 
     public String getBuildTimeString() {
@@ -226,7 +234,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     public void moveBuildMaterialAmount(int matType, int value) {
         ShipyardRecipes.moveBuildMaterialAmount(this.matsBuild, this.matsStock, matType, value);
-        setChanged();
+        markForSync();
     }
 
     @Override
@@ -261,7 +269,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("tile.shincolle:BlockLargeShipyard.name");
+        return Component.translatable("tile.shincolle.BlockLargeShipyard.name");
     }
 
     @Override
@@ -288,7 +296,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     private boolean consumeFuel() {
-        if (this.powerRemained >= POWER_MAX) {
+        if (this.powerRemained >= Config.largeShipyardPowerMax) {
             return false;
         }
 
@@ -298,8 +306,8 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
                 continue;
             }
 
-            int fuelPower = ShipyardRecipes.getFuelValue(stack);
-            if (fuelPower <= 0 || this.powerRemained + fuelPower > POWER_MAX) {
+            int fuelPower = ShipyardRecipes.getFuelValue(stack, Config.largeShipyardFuelMagnification);
+            if (fuelPower <= 0 || this.powerRemained + fuelPower > Config.largeShipyardPowerMax) {
                 continue;
             }
 
@@ -404,7 +412,7 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
 
             stack.shrink(1);
             this.inventory.setStackInSlot(i, stack);
-            this.powerConsumed += INSTANT_BUILD_BONUS;
+            this.powerConsumed += Config.largeShipyardBuildSpeed * Config.largeShipyardInstantTicks;
             return true;
         }
 
@@ -469,5 +477,22 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
             return new int[]{0, 0, 0, 0};
         }
         return new int[]{input[0], input[1], input[2], input[3]};
+    }
+
+    public void markForSync() {
+        setChanged();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
     }
 }
