@@ -45,15 +45,21 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int SETTINGS_TAB_8 = 8;
     private static final int APPEARANCE_MAX_ITEMS = 16;
     private static final int APPEARANCE_COLS = 4;
-    private static final int GRID_X = 176;
-    private static final int GRID_Y = 157;
-    private static final int GAP_X = 16;
-    private static final int GAP_Y = 13;
+    private static final int TOGGLE_SIZE = 11;
+    private static final int TOGGLE_X = 174;
+    private static final int TOGGLE_ROW_1_Y = 131;
+    private static final int TOGGLE_ROW_2_Y = 144;
+    private static final int TOGGLE_ROW_STEP = 13;
+    private static final int APPEARANCE_GRID_X = 176;
+    private static final int APPEARANCE_GRID_Y = 157;
+    private static final int APPEARANCE_GAP_X = 16;
+    private static final int APPEARANCE_GAP_Y = 13;
     private static final int SLIDER_NONE = -1;
     private static final int SLIDER_FOLLOW_MIN = 0;
     private static final int SLIDER_FOLLOW_MAX = 1;
     private static final int SLIDER_FLEE_HP = 2;
-    private static final int SLIDER_RATION_MORALE = 3;
+    private static final int SLIDER_WP_STAY = 3;
+    private static final int SLIDER_RATION_MORALE = 4;
     private static final int MODEL_BOX_HALF_WIDTH = 150;
     private static final int MODEL_BOX_TOP = 170;
     private static final int MODEL_BOX_BOTTOM = 110;
@@ -239,6 +245,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             }
             case 6 -> {
                 drawLabel(guiGraphics, tr("gui.shincolle.showhelditem"), 187, 133);
+                drawLabel(guiGraphics, tr("gui.shincolle.equip.mount"), 187, 146);
                 drawAppearanceLabels(guiGraphics);
             }
             case 7 -> {
@@ -399,8 +406,12 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 return true;
             }
         } else if (this.activeSettingsTab == 6) {
-            if (inside(x, y, 173, 131, 237, 143)) {
+            if (inside(x, y, TOGGLE_X - 1, TOGGLE_ROW_1_Y, 237, TOGGLE_ROW_1_Y + TOGGLE_SIZE + 1)) {
                 sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_SHOW_HELD);
+                return true;
+            }
+            if (inside(x, y, TOGGLE_X - 1, TOGGLE_ROW_2_Y, 237, TOGGLE_ROW_2_Y + TOGGLE_SIZE + 1)) {
+                sendMenuButton(ShipContainerMenu.TOGGLE_BUTTON_MOUNT);
                 return true;
             }
 
@@ -409,15 +420,15 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             for (int i = 0; i < Math.min(count, APPEARANCE_MAX_ITEMS); i++) {
                 int col = i % APPEARANCE_COLS;
                 int row = i / APPEARANCE_COLS;
-                int bx = GRID_X + col * GAP_X;
-                int by = GRID_Y + row * GAP_Y;
-                if (inside(x, y, bx, by, bx + 11, by + 11)) {
+                int bx = APPEARANCE_GRID_X + col * APPEARANCE_GAP_X;
+                int by = APPEARANCE_GRID_Y + row * APPEARANCE_GAP_Y;
+                if (inside(x, y, bx, by, bx + TOGGLE_SIZE, by + TOGGLE_SIZE)) {
                     sendMenuButton(this.menu.getEquipOptionButtonId(i));
                     return true;
                 }
             }
         } else if (this.activeSettingsTab == 7) {
-            if (inside(x, y, 174, 136, 238, 152)) {
+            if (inside(x, y, 174, 136, 237, 152)) {
                 int newTask = (x - 174) / 16 + 1;
                 sendMenuButton(ShipContainerMenu.ACTION_TASK_SELECT_BASE + newTask);
                 return true;
@@ -474,6 +485,11 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             this.sliderBarPos = Mth.clamp(x - 191, 0, 42);
             return true;
         }
+        if (this.activeSettingsTab == 5 && inside(x, y, 187, 145, 237, 154)) {
+            this.activeSlider = SLIDER_WP_STAY;
+            this.sliderBarPos = Mth.clamp(x - 191, 0, 42);
+            return true;
+        }
 
         return false;
     }
@@ -491,6 +507,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             case SLIDER_FLEE_HP -> {
                 int value = (int) (this.sliderBarPos / 42.0f * 100.0f);
                 sendMenuButton(ShipContainerMenu.SLIDER_FLEE_HP_BASE + value);
+            }
+            case SLIDER_WP_STAY -> {
+                int value = Math.max(0, Math.min(16, (int) (this.sliderBarPos / (42.0f * 0.0625f))));
+                sendMenuButton(ShipContainerMenu.SLIDER_WP_STAY_BASE + value);
             }
             case SLIDER_RATION_MORALE -> {
                 int value = Math.max(1, Math.min(4, (this.sliderBarPos / 14) + 1));
@@ -654,7 +674,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawRationSliderTab(GuiGraphics guiGraphics) {
-        int wpStayPos = (int) (Math.max(0, this.menu.getShip().getStateMinor(44)) * 0.0625f * 42.0f);
+        int wpStayPos = this.activeSlider == SLIDER_WP_STAY
+                ? this.sliderBarPos
+                : (int) (Math.max(0, this.menu.getWpStaySetting()) * 0.0625f * 42.0f);
         int rationPos = this.activeSlider == SLIDER_RATION_MORALE
                 ? this.sliderBarPos
                 : (int) ((Math.max(1, Math.min(4, this.rationMorale)) - 1) * 14.0f);
@@ -670,13 +692,14 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawAppearanceToggleMarks(GuiGraphics guiGraphics) {
-        drawOnOff(guiGraphics, 174, 131, this.appearance);
+        drawOnOff(guiGraphics, TOGGLE_X, TOGGLE_ROW_1_Y, this.appearance);
+        drawOnOff(guiGraphics, TOGGLE_X, TOGGLE_ROW_2_Y, this.mount);
 
         int optionCount = this.menu.getEquipOptionCount();
         for (int i = 0; i < Math.min(optionCount, APPEARANCE_MAX_ITEMS); i++) {
             int col = i % APPEARANCE_COLS;
             int row = i / APPEARANCE_COLS;
-            drawOnOff(guiGraphics, GRID_X + col * GAP_X, GRID_Y + row * GAP_Y, this.menu.isEquipOptionEnabled(i));
+            drawOnOff(guiGraphics, APPEARANCE_GRID_X + col * APPEARANCE_GAP_X, APPEARANCE_GRID_Y + row * APPEARANCE_GAP_Y, this.menu.isEquipOptionEnabled(i));
         }
     }
 
@@ -740,7 +763,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawAppearanceLabels(GuiGraphics guiGraphics) {
-        drawLabel(guiGraphics, "Appearance", 177, 146);
+        drawLabel(guiGraphics, tr("gui.shincolle.appearance"), 177, 159);
     }
 
     private int getFollowMinDisplayValue() {
@@ -765,12 +788,13 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private String getWpStayDisplay() {
-        int wpStay = Math.max(0, this.menu.getShip().getStateMinor(44));
-        int seconds = wpStay * 5;
-        if (seconds >= 60) {
-            return (seconds / 60) + "m";
+        int wpStay;
+        if (this.activeSlider == SLIDER_WP_STAY) {
+            wpStay = Math.max(0, Math.min(16, (int) (this.sliderBarPos / (42.0f * 0.0625f))));
+        } else {
+            wpStay = Math.max(0, this.menu.getWpStaySetting());
         }
-        return seconds + "s";
+        return formatWpStay(wpStay);
     }
 
     private String getRationMoraleDisplay() {
@@ -781,6 +805,19 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             threshold = Math.max(1, Math.min(4, this.rationMorale));
         }
         return tr("gui.shincolle.morale" + threshold);
+    }
+
+    private String formatWpStay(int wpStay) {
+        if (wpStay <= 0) {
+            return "OFF";
+        }
+        if (wpStay <= 5) {
+            return (wpStay * 5) + "s";
+        }
+        if (wpStay <= 10) {
+            return (wpStay - 5) + "m";
+        }
+        return (wpStay - 10) + "h";
     }
 
     private String tr(String key) {
@@ -838,8 +875,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     private void renderFixedToggleTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if (this.activeSettingsTab == SETTINGS_TAB_6) {
-            if (isHovering(mouseX, mouseY, 174, 131, 11, 11)) {
-                renderTooltip(guiGraphics, "gui.shincolle.equip", mouseX, mouseY);
+            if (isHovering(mouseX, mouseY, TOGGLE_X, TOGGLE_ROW_1_Y, TOGGLE_SIZE, TOGGLE_SIZE)) {
+                renderTooltip(guiGraphics, "gui.shincolle.showhelditem", mouseX, mouseY);
+            } else if (isHovering(mouseX, mouseY, TOGGLE_X, TOGGLE_ROW_2_Y, TOGGLE_SIZE, TOGGLE_SIZE)) {
+                renderTooltip(guiGraphics, "gui.shincolle.equip.mount", mouseX, mouseY);
             }
             renderEquipOptionTooltips(guiGraphics, mouseX, mouseY);
         }
@@ -856,9 +895,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         for (int i = 0; i < Math.min(optionCount, APPEARANCE_MAX_ITEMS); i++) {
             int col = i % APPEARANCE_COLS;
             int row = i / APPEARANCE_COLS;
-            int bx = GRID_X + col * GAP_X;
-            int by = GRID_Y + row * GAP_Y;
-            if (inside(x, y, bx, by, bx + 11, by + 11)) {
+            int bx = APPEARANCE_GRID_X + col * APPEARANCE_GAP_X;
+            int by = APPEARANCE_GRID_Y + row * APPEARANCE_GAP_Y;
+            if (inside(x, y, bx, by, bx + TOGGLE_SIZE, by + TOGGLE_SIZE)) {
                 guiGraphics.renderComponentTooltip(this.font, List.of(this.menu.getEquipOptionLabel(i)), mouseX, mouseY);
                 return;
             }
