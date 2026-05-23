@@ -40,6 +40,8 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
     private final float[] totalFP = new float[6];
     private final float[] unbuffedAttrs = new float[21];
     private String teamNameStr = "";
+    private long lastShipRowClickTime = 0L;
+    private int lastShipRowClicked = -1;
 
     static {
         FORMATION_POSITIONS.put(0, new int[][]{{25, 25, 25, 25, 25, 25}, {25, 25, 25, 25, 25, 25}});
@@ -307,6 +309,10 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (this.editingName && this.nameBox.mouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+
         int xClick = (int) (mouseX - leftPos);
         int yClick = (int) (mouseY - topPos);
         AdmiralData data = menu.getAdmiralData();
@@ -338,10 +344,33 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
             for (int i = 0; i < 6; i++) {
                 int rowY = 5 + i * 27;
                 if (yClick >= rowY && yClick < rowY + 27) {
-                    if (this.selectedSlot == i) {
-                        if (ships[i] != null) {
-                            sendAction(8, i, 0, "", Optional.empty());
+                    if (button == 1) {
+                        if (data.getShipUUID(data.getCurrentTeamID(), i) != null) {
+                            sendAction(3, i, 0, "", Optional.empty());
+                            this.tickWaitSync = 20;
                         }
+                        this.selectedSlot = i;
+                        return true;
+                    }
+
+                    if (hasShiftDown()) {
+                        Optional<UUID> selectedShip = findAssignableSelectedShip(data, data.getCurrentTeamID(), i);
+                        if (selectedShip.isPresent()) {
+                            sendAction(5, i, 0, "", selectedShip);
+                            this.selectedSlot = i;
+                            this.tickWaitSync = 20;
+                            return true;
+                        }
+                    }
+
+                    long now = System.currentTimeMillis();
+                    boolean doubleClick = this.lastShipRowClicked == i && now - this.lastShipRowClickTime <= 250L;
+                    this.lastShipRowClicked = i;
+                    this.lastShipRowClickTime = now;
+
+                    if (doubleClick && ships[i] != null) {
+                        this.selectedSlot = i;
+                        sendAction(8, i, 0, "", Optional.empty());
                     } else {
                         this.selectedSlot = i;
                     }
@@ -382,6 +411,9 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
 
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (editingName && this.nameBox.keyPressed(keyCode, scanCode, modifiers)) {
+            return true;
+        }
         if (editingName && (keyCode == 257 || keyCode == 335)) {
             submitNameEdit();
             return true;
@@ -391,6 +423,14 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean charTyped(char codePoint, int modifiers) {
+        if (editingName && this.nameBox.charTyped(codePoint, modifiers)) {
+            return true;
+        }
+        return super.charTyped(codePoint, modifiers);
     }
 
     private void sendAction(int action, int p1, int p2, String s, Optional<java.util.UUID> uuid) {
@@ -515,6 +555,35 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
         return 4;
     }
 
+    private Optional<UUID> findAssignableSelectedShip(AdmiralData data, int currentTeam, int targetSlot) {
+        if (this.minecraft == null || this.minecraft.player == null || this.minecraft.level == null) {
+            return Optional.empty();
+        }
+
+        UUID currentUuid = data.getShipUUID(currentTeam, targetSlot);
+        List<EntityShipBase> candidates = this.minecraft.level.getEntitiesOfClass(
+                EntityShipBase.class,
+                this.minecraft.player.getBoundingBox().inflate(64.0),
+                ship -> ship.isAlive()
+                        && !ship.isInDeadPose()
+                        && ship.isPointerSelected()
+                        && this.minecraft.player.getUUID().equals(ship.getOwnerUUID())
+        );
+        candidates.sort(Comparator.comparingDouble(ship -> ship.distanceToSqr(this.minecraft.player)));
+
+        for (EntityShipBase ship : candidates) {
+            UUID uuid = ship.getUUID();
+            if (uuid.equals(currentUuid)) {
+                return Optional.of(uuid);
+            }
+            if (!data.isShipInTeam(currentTeam, uuid)) {
+                return Optional.of(uuid);
+            }
+        }
+
+        return Optional.empty();
+    }
+
     private void toggleNameEdit() {
         if (!editingName) {
             nameBox.setEditable(true);
@@ -529,7 +598,7 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
 
     private void submitNameEdit() {
         if (!editingName) return;
-        sendAction(4, 0, 0, nameBox.getValue(), Optional.empty());
+        sendAction(4, 0, 0, nameBox.getValue().strip(), Optional.empty());
         cancelNameEdit();
     }
 

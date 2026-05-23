@@ -46,6 +46,6 @@ public class FormationMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        return !player.isRemoved() && player.isAlive();
     }
 }

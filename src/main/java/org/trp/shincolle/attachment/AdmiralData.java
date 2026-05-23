@@ -18,6 +18,7 @@ public class AdmiralData {
     private final String[] teamNames = new String[TEAM_COUNT];
     private int currentTeamID = 0;
     private boolean hasReceivedBook = false;
+    private int marriedShipCount = 0;
 
     public AdmiralData() {
         for (int i = 0; i < TEAM_COUNT; i++) {
@@ -34,6 +35,18 @@ public class AdmiralData {
 
     public void setHasReceivedBook(boolean hasReceivedBook) {
         this.hasReceivedBook = hasReceivedBook;
+    }
+
+    public int getMarriedShipCount() {
+        return marriedShipCount;
+    }
+
+    public void setMarriedShipCount(int marriedShipCount) {
+        this.marriedShipCount = Math.max(0, marriedShipCount);
+    }
+
+    public void addMarriedShipCount(int delta) {
+        this.marriedShipCount = Math.max(0, this.marriedShipCount + delta);
     }
 
     public UUID getShipUUID(int teamId, int slotId) {
@@ -63,7 +76,7 @@ public class AdmiralData {
 
     public void setFormationID(int teamId, int formationId) {
         if (teamId < 0 || teamId >= TEAM_COUNT) return;
-        formationIDs[teamId] = formationId;
+        formationIDs[teamId] = Math.max(0, formationId);
     }
 
     public String getTeamName(int teamId) {
@@ -86,7 +99,11 @@ public class AdmiralData {
 
     public void setTeamName(int teamId, String name) {
         if (teamId < 0 || teamId >= TEAM_COUNT) return;
-        teamNames[teamId] = name;
+        if (name == null || name.isBlank()) {
+            teamNames[teamId] = "Team " + (teamId + 1);
+        } else {
+            teamNames[teamId] = name.strip();
+        }
     }
 
     public int getCurrentTeamID() {
@@ -94,7 +111,7 @@ public class AdmiralData {
     }
 
     public void setCurrentTeamID(int currentTeamID) {
-        this.currentTeamID = currentTeamID;
+        this.currentTeamID = Math.max(0, Math.min(TEAM_COUNT - 1, currentTeamID));
     }
 
     public int findFirstEmptySlot(int teamId) {
@@ -121,6 +138,59 @@ public class AdmiralData {
         return false;
     }
 
+    public int findShipTeam(UUID uuid) {
+        if (uuid == null) return -1;
+        for (int teamId = 0; teamId < TEAM_COUNT; teamId++) {
+            if (isShipInTeam(teamId, uuid)) {
+                return teamId;
+            }
+        }
+        return -1;
+    }
+
+    public int findShipSlot(int teamId, UUID uuid) {
+        if (teamId < 0 || teamId >= TEAM_COUNT || uuid == null) return -1;
+        for (int slotId = 0; slotId < SLOT_COUNT; slotId++) {
+            if (uuid.equals(teams[teamId][slotId])) {
+                return slotId;
+            }
+        }
+        return -1;
+    }
+
+    public boolean removeShip(UUID uuid) {
+        int teamId = findShipTeam(uuid);
+        if (teamId == -1) return false;
+        int slotId = findShipSlot(teamId, uuid);
+        if (slotId == -1) return false;
+        teams[teamId][slotId] = null;
+        selectionStates[teamId][slotId] = true;
+        return true;
+    }
+
+    public int assignShipToTeam(int teamId, UUID uuid) {
+        if (teamId < 0 || teamId >= TEAM_COUNT || uuid == null) return -1;
+        int existingSlot = findShipSlot(teamId, uuid);
+        if (existingSlot != -1) return existingSlot;
+
+        int slotId = findFirstEmptySlot(teamId);
+        if (slotId == -1) return -1;
+        removeShip(uuid);
+        teams[teamId][slotId] = uuid;
+        selectionStates[teamId][slotId] = true;
+        return slotId;
+    }
+
+    public void sanitize() {
+        currentTeamID = Math.max(0, Math.min(TEAM_COUNT - 1, currentTeamID));
+        for (int i = 0; i < TEAM_COUNT; i++) {
+            if (teamNames[i] == null || teamNames[i].isBlank()) {
+                teamNames[i] = "Team " + (i + 1);
+            }
+            formationIDs[i] = Math.max(0, formationIDs[i]);
+        }
+    }
+
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
         ListTag teamsList = new ListTag();
@@ -143,6 +213,7 @@ public class AdmiralData {
         nbt.put("Teams", teamsList);
         nbt.putInt("CurrentTeam", currentTeamID);
         nbt.putBoolean("HasReceivedBook", hasReceivedBook);
+        nbt.putInt("MarriedShipCount", marriedShipCount);
         return nbt;
     }
 
@@ -169,6 +240,8 @@ public class AdmiralData {
         }
         currentTeamID = nbt.getInt("CurrentTeam");
         hasReceivedBook = nbt.getBoolean("HasReceivedBook");
+        marriedShipCount = Math.max(0, nbt.getInt("MarriedShipCount"));
+        sanitize();
     }
 
     public static AdmiralData read(CompoundTag nbt, IAttachmentHolder holder) {

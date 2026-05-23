@@ -16,6 +16,7 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.item.ShipTankItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -43,6 +44,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public static final int SLIDER_FOLLOW_MIN_BASE = 400;
     public static final int SLIDER_FOLLOW_MAX_BASE = 500;
+    public static final int SLIDER_WP_STAY_BASE = 600;
     public static final int SLIDER_FLEE_HP_BASE = 700;
     public static final int SLIDER_RATION_MORALE_BASE = 900;
     public static final int ACTION_TASK_SELECT_BASE = 1000;
@@ -73,6 +75,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     public static final int STATE_MINOR_FLEE_HP = 12;
     public static final int STATE_MINOR_TASK_ID = 40;
     public static final int STATE_MINOR_TASK_SIDE = 41;
+    public static final int STATE_MINOR_WP_STAY = 44;
     public static final int STATE_MINOR_GUARD_X = 14;
     public static final int STATE_MINOR_GUARD_Y = 15;
     public static final int STATE_MINOR_GUARD_Z = 16;
@@ -86,6 +89,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private static final int FOLLOW_MAX_MAX = 32;
     private static final int FLEE_HP_MIN = 0;
     private static final int FLEE_HP_MAX = 100;
+    private static final int WP_STAY_MIN = 0;
+    private static final int WP_STAY_MAX = 16;
     private static final int RATION_MORALE_MIN = 1;
     private static final int RATION_MORALE_MAX = 4;
 
@@ -118,7 +123,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
         @Override
         public void set(int value) {
-            inventoryPage = clampPage(value);
+            setInventoryPage(clampPage(value));
         }
     };
     private final DataSlot unlockedStoragePagesData = new DataSlot() {
@@ -130,7 +135,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         @Override
         public void set(int value) {
             unlockedStoragePagesSynced = Mth.clamp(value, 0, SHIP_PAGE_COUNT - 1);
-            inventoryPage = clampPage(inventoryPage);
+            setInventoryPage(clampPage(inventoryPage));
         }
     };
     private final DataSlot canMeleeData = new DataSlot() {
@@ -353,6 +358,17 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             rationMoraleSynced = clampRationMorale(value);
         }
     };
+    private final DataSlot wpStayData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getStateMinor(STATE_MINOR_WP_STAY);
+        }
+
+        @Override
+        public void set(int value) {
+            wpStaySynced = clampWpStay(value);
+        }
+    };
     private final DataSlot taskIdData = new DataSlot() {
         @Override
         public int get() {
@@ -424,6 +440,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
     };
     private int inventoryPage = 0;
+    private final List<PagedShipSlot> pagedShipSlots = new ArrayList<>();
     private int unlockedStoragePagesSynced;
     private boolean canMeleeSynced;
     private boolean lightAttackSynced;
@@ -445,6 +462,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private boolean appearanceSynced;
     private boolean mountSynced;
     private int rationMoraleSynced;
+    private int wpStaySynced;
     private int taskIdSynced;
     private int taskSideSynced;
     private int shipTankFluidAmountSynced;
@@ -461,7 +479,16 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         if (!ship.level().isClientSide && playerInv.player != null) {
             int classID = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
             if (classID >= 0) {
-                playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS).add(classID);
+                var collectedShips = playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
+                if (collectedShips.add(classID) && playerInv.player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                    net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
+                            serverPlayer,
+                            org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
+                                    playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).serializeNBT(),
+                                    collectedShips
+                            )
+                    );
+                }
             }
         }
 
@@ -486,6 +513,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.appearanceSynced = ship.isStateAppearance();
         this.mountSynced = (ship.getStateEmotion(0) & 1) != 0;
         this.rationMoraleSynced = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE));
+        this.wpStaySynced = clampWpStay(ship.getStateMinor(STATE_MINOR_WP_STAY));
         this.taskIdSynced = ship.getStateMinor(STATE_MINOR_TASK_ID);
         this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
         refreshShipTankFluidSyncValues();
@@ -494,6 +522,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxSynced);
         ship.setStateMinor(STATE_MINOR_FLEE_HP, this.fleeHpSynced);
         ship.setStateMinor(STATE_MINOR_RATION_MORALE, this.rationMoraleSynced);
+        ship.setStateMinor(STATE_MINOR_WP_STAY, this.wpStaySynced);
 
         this.addDataSlot(pageData);
         this.addDataSlot(unlockedStoragePagesData);
@@ -517,6 +546,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.addDataSlot(appearanceData);
         this.addDataSlot(mountData);
         this.addDataSlot(rationMoraleData);
+        this.addDataSlot(wpStayData);
         this.addDataSlot(taskIdData);
         this.addDataSlot(taskSideData);
         this.addDataSlot(shipTankFluidAmountLowData);
@@ -531,7 +561,9 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         for (int row = 0; row < 6; row++) {
             for (int col = 0; col < 3; col++) {
                 int localIndex = row * 3 + col;
-                this.addSlot(new PagedShipSlot(localIndex, SHIP_INV_X + col * 18, SHIP_INV_Y + row * 18));
+                PagedShipSlot pagedSlot = new PagedShipSlot(localIndex, SHIP_INV_X + col * 18, SHIP_INV_Y + row * 18);
+                this.pagedShipSlots.add(pagedSlot);
+                this.addSlot(pagedSlot);
             }
         }
 
@@ -694,6 +726,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return rationMoraleSynced;
     }
 
+    public int getWpStaySetting() {
+        return wpStaySynced;
+    }
+
     public int getTaskId() {
         return taskIdSynced;
     }
@@ -771,9 +807,13 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean clickMenuButton(Player player, int id) {
+        if (player.level().isClientSide) {
+            return true;
+        }
+
         switch (id) {
             case PAGE_BUTTON_0 -> {
-                this.inventoryPage = 0;
+                this.setInventoryPage(0);
                 this.broadcastFullState();
                 return true;
             }
@@ -781,7 +821,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 if (!isPageUnlocked(1)) {
                     return true;
                 }
-                this.inventoryPage = 1;
+                this.setInventoryPage(1);
                 this.broadcastFullState();
                 return true;
             }
@@ -789,7 +829,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 if (!isPageUnlocked(2)) {
                     return true;
                 }
-                this.inventoryPage = 2;
+                this.setInventoryPage(2);
                 this.broadcastFullState();
                 return true;
             }
@@ -914,6 +954,13 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             return true;
         }
 
+        if (id >= SLIDER_WP_STAY_BASE && id <= SLIDER_WP_STAY_BASE + WP_STAY_MAX) {
+            int requested = id - SLIDER_WP_STAY_BASE;
+            this.wpStaySynced = clampWpStay(requested);
+            ship.setStateMinor(STATE_MINOR_WP_STAY, this.wpStaySynced);
+            return true;
+        }
+
         if (id >= SLIDER_RATION_MORALE_BASE && id <= SLIDER_RATION_MORALE_BASE + RATION_MORALE_MAX) {
             int requested = id - SLIDER_RATION_MORALE_BASE;
             this.rationMoraleSynced = clampRationMorale(requested);
@@ -929,7 +976,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             return true;
         }
 
-        if (id >= ACTION_TASK_SELECT_BASE && id <= ACTION_TASK_SELECT_BASE + 4) {
+        if (id >= ACTION_TASK_SELECT_BASE + 1 && id <= ACTION_TASK_SELECT_BASE + 4) {
             int newTask = id - ACTION_TASK_SELECT_BASE;
             int curTask = ship.getStateMinor(STATE_MINOR_TASK_ID);
             ship.setStateMinor(STATE_MINOR_TASK_ID, (curTask != newTask) ? newTask : 0);
@@ -953,7 +1000,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             return true;
         }
 
-        if (id >= ACTION_SIDE_TOGGLE_BASE && id <= ACTION_SIDE_TOGGLE_BASE + 17) {
+        if (id >= ACTION_SIDE_TOGGLE_BASE && id <= ACTION_SIDE_TOGGLE_BASE + 18) {
             int bit = id - ACTION_SIDE_TOGGLE_BASE;
             ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << bit));
             this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
@@ -1002,8 +1049,27 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return Math.max(min, Math.min(FOLLOW_MAX_MAX, value));
     }
 
+    private void setInventoryPage(int page) {
+        int next = clampPage(page);
+        if (this.inventoryPage == next) {
+            return;
+        }
+        this.inventoryPage = next;
+        clearPagedSlotClientCache();
+    }
+
+    private void clearPagedSlotClientCache() {
+        for (PagedShipSlot slot : this.pagedShipSlots) {
+            slot.clearClientCache();
+        }
+    }
+
     private int clampFleeHp(int value) {
         return Math.max(FLEE_HP_MIN, Math.min(FLEE_HP_MAX, value));
+    }
+
+    private int clampWpStay(int value) {
+        return Math.max(WP_STAY_MIN, Math.min(WP_STAY_MAX, value));
     }
 
     private int clampRationMorale(int value) {
@@ -1165,6 +1231,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 ship.onInventoryChanged();
             }
             super.setChanged();
+        }
+
+        private void clearClientCache() {
+            this.clientStack = ItemStack.EMPTY;
         }
     }
 
