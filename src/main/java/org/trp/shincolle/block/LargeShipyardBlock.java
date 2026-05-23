@@ -22,6 +22,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.level.block.Block;
 import org.trp.shincolle.block.entity.LargeShipyardBlockEntity;
 import org.trp.shincolle.init.ModBlockEntities;
 
@@ -109,6 +110,10 @@ public class LargeShipyardBlock extends BaseEntityBlock {
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof LargeShipyardBlockEntity shipyard) {
+                Block.popResource(level, pos, shipyard.createStoredHeavyGrudgeStack());
+            }
             GrudgeHeavyBlock.setLargeShipyardSupportFormed(level, pos, false);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

@@ -15,10 +15,14 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
+import org.trp.shincolle.item.RandomShipSpawnEggItem;
+import org.trp.shincolle.item.ShipClass;
+import org.trp.shincolle.item.ShipSpawnEggItem;
 
 import java.util.List;
 import java.util.Map;
@@ -147,13 +151,27 @@ public final class ShipyardRecipes {
             return 0;
         }
         if (stack.is(Items.LAVA_BUCKET)) {
-            return LAVA_FUEL_VALUE;
+            return getScaledFuelValue(LAVA_FUEL_VALUE);
         }
         int burn = stack.getBurnTime(RecipeType.SMELTING);
         if (burn > 0) {
-            return burn;
+            return getScaledFuelValue(burn);
         }
-        return canDrainLavaFuel(stack) ? LAVA_FUEL_VALUE : 0;
+        return canDrainLavaFuel(stack) ? getScaledFuelValue(LAVA_FUEL_VALUE) : 0;
+    }
+
+    public static int getFuelValue(ItemStack stack, float magnification) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        if (stack.is(Items.LAVA_BUCKET)) {
+            return getScaledFuelValue(LAVA_FUEL_VALUE, magnification);
+        }
+        int burn = stack.getBurnTime(RecipeType.SMELTING);
+        if (burn > 0) {
+            return getScaledFuelValue(burn, magnification);
+        }
+        return canDrainLavaFuel(stack) ? getScaledFuelValue(LAVA_FUEL_VALUE, magnification) : 0;
     }
 
     public static ItemStack consumeOneFuel(ItemStack stack) {
@@ -200,6 +218,15 @@ public final class ShipyardRecipes {
         return !stack.isEmpty()
                 && stack.getAmount() == LAVA_FUEL_MB
                 && (stack.getFluid() == Fluids.LAVA || stack.getFluid() == Fluids.FLOWING_LAVA);
+    }
+
+    private static int getScaledFuelValue(int baseValue) {
+        return getScaledFuelValue(baseValue, 1.0F);
+    }
+
+    private static int getScaledFuelValue(int baseValue, float magnification) {
+        float safeMagnification = Math.max(0.0F, magnification);
+        return Math.max(0, Math.round(baseValue * safeMagnification));
     }
 
     public static boolean canSmallBuild(int[] mats) {
@@ -292,11 +319,31 @@ public final class ShipyardRecipes {
             return false;
         }
 
+        int[] heavyGrudgeMats = getHeavyGrudgeMatsTag(stack);
+        if (heavyGrudgeMats != null) {
+            matStock[0] += 81 + heavyGrudgeMats[0];
+            matStock[1] += heavyGrudgeMats[1];
+            matStock[2] += heavyGrudgeMats[2];
+            matStock[3] += heavyGrudgeMats[3];
+            return true;
+        }
+
         int[] taggedMats = getShipyardMatsTag(stack);
         if (taggedMats != null) {
             for (int i = 0; i < 4; i++) {
                 matStock[i] += taggedMats[i];
             }
+            return true;
+        }
+
+        if (stack.getItem() instanceof RandomShipSpawnEggItem randomShipSpawnEggItem) {
+            addShipRecycleMats(matStock, randomShipSpawnEggItem.getShipClass(),
+                    randomShipSpawnEggItem == ModItems.SHIPSPAWNEGGL.get());
+            return true;
+        }
+
+        if (stack.getItem() instanceof ShipSpawnEggItem shipSpawnEggItem) {
+            addShipRecycleMats(matStock, shipSpawnEggItem.getShipClass(), false);
             return true;
         }
 
@@ -377,7 +424,11 @@ public final class ShipyardRecipes {
         return mats;
     }
 
-    private static void putShipyardMatsTag(ItemStack stack, int[] mats, boolean large) {
+    public static void putShipyardMatsTag(ItemStack stack, int[] mats, boolean large) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
         int[] data = new int[]{mats[0], mats[1], mats[2], mats[3]};
         stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, customData -> customData.update(tag -> {
             tag.putIntArray("ShipyardMats", data);
@@ -385,7 +436,7 @@ public final class ShipyardRecipes {
         }));
     }
 
-    private static int[] getShipyardMatsTag(ItemStack stack) {
+    public static int[] getShipyardMatsTag(ItemStack stack) {
         CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
         if (customData == null) {
             return null;
@@ -399,6 +450,45 @@ public final class ShipyardRecipes {
             return null;
         }
         return new int[]{mats[0], mats[1], mats[2], mats[3]};
+    }
+
+    public static void putHeavyGrudgeStorageTag(ItemStack stack, int[] mats, int fuel) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        int[] data = new int[]{mats[0], mats[1], mats[2], mats[3]};
+        stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, customData -> customData.update(tag -> {
+            tag.putIntArray("HeavyGrudgeMats", data);
+            tag.putInt("HeavyGrudgeFuel", Math.max(0, fuel));
+        }));
+    }
+
+    public static int[] getHeavyGrudgeMatsTag(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return null;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        if (tag.contains("HeavyGrudgeMats", Tag.TAG_INT_ARRAY)) {
+            int[] mats = tag.getIntArray("HeavyGrudgeMats");
+            if (mats.length >= 4) {
+                return new int[]{mats[0], mats[1], mats[2], mats[3]};
+            }
+        }
+
+        return null;
+    }
+
+    public static int getHeavyGrudgeFuelTag(ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return 0;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        return Math.max(0, tag.getInt("HeavyGrudgeFuel"));
     }
 
     private static EntityType<? extends Mob> getShipEntityTypeForType(int type, boolean largeShipyard) {
@@ -620,6 +710,38 @@ public final class ShipyardRecipes {
 
     private static int sumMats(int[] mats) {
         return mats[0] + mats[1] + mats[2] + mats[3];
+    }
+
+    private static void addShipRecycleMats(int[] matStock, ShipClass shipClass, boolean largeRandomEgg) {
+        int[] mats;
+
+        if (largeRandomEgg) {
+            mats = new int[]{
+                    90 + ThreadLocalRandom.current().nextInt(8),
+                    90 + ThreadLocalRandom.current().nextInt(8),
+                    90 + ThreadLocalRandom.current().nextInt(8),
+                    90 + ThreadLocalRandom.current().nextInt(8)
+            };
+        } else {
+            mats = switch (shipClass) {
+                case BATTLESHIP, AIRCRAFT_CARRIER, PRINCESS, DEMON -> new int[]{
+                        (10 + ThreadLocalRandom.current().nextInt(3)) * 9,
+                        (10 + ThreadLocalRandom.current().nextInt(3)) * 9,
+                        (10 + ThreadLocalRandom.current().nextInt(3)) * 9,
+                        (10 + ThreadLocalRandom.current().nextInt(3)) * 9
+                };
+                default -> new int[]{
+                        12 + ThreadLocalRandom.current().nextInt(8),
+                        12 + ThreadLocalRandom.current().nextInt(8),
+                        12 + ThreadLocalRandom.current().nextInt(8),
+                        12 + ThreadLocalRandom.current().nextInt(8)
+                };
+            };
+        }
+
+        for (int i = 0; i < 4; i++) {
+            matStock[i] += mats[i];
+        }
     }
 
     private static float getNormDist(int x) {

@@ -94,4 +94,15 @@ public class SmallShipyardBlock extends BaseEntityBlock {
         }
         return createTickerHelper(blockEntityType, ModBlockEntities.SMALL_SHIPYARD.get(), SmallShipyardBlockEntity::serverTick);
     }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock())) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof SmallShipyardBlockEntity shipyard) {
+                shipyard.dropContents();
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
 }
