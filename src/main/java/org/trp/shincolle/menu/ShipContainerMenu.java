@@ -204,6 +204,17 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             ringEffectSynced = value != 0;
         }
     };
+    private final DataSlot marriedData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.isStateMarried() ? 1 : 0;
+        }
+
+        @Override
+        public void set(int value) {
+            marriedSynced = value != 0;
+        }
+    };
     private final DataSlot followMinData = new DataSlot() {
         @Override
         public int get() {
@@ -448,6 +459,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private boolean lightAircraftAttackSynced;
     private boolean heavyAircraftAttackSynced;
     private boolean ringEffectSynced;
+    private boolean marriedSynced;
     private int followMinSynced;
     private int followMaxSynced;
     private int fleeHpSynced;
@@ -499,6 +511,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
         this.heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
         this.ringEffectSynced = ship.isStateRingEffect();
+        this.marriedSynced = ship.isStateMarried();
         this.followMinSynced = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN));
         this.followMaxSynced = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this.followMinSynced);
         this.fleeHpSynced = clampFleeHp(ship.getStateMinor(STATE_MINOR_FLEE_HP));
@@ -532,6 +545,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.addDataSlot(lightAircraftAttackData);
         this.addDataSlot(heavyAircraftAttackData);
         this.addDataSlot(ringEffectData);
+        this.addDataSlot(marriedData);
         this.addDataSlot(followMinData);
         this.addDataSlot(followMaxData);
         this.addDataSlot(fleeHpData);
@@ -668,6 +682,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public boolean isRingEffectEnabled() {
         return ringEffectSynced;
+    }
+
+    public boolean isMarried() {
+        return marriedSynced;
     }
 
     public int getFollowMinDistance() {

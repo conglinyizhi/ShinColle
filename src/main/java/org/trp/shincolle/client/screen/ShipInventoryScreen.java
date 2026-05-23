@@ -184,7 +184,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawValueRight(guiGraphics, String.format("%.1f", this.menu.getShipRange()), 135, 114, getModernizationColor(this.menu.getShip().getAttrBonus(5)));
         } else {
             drawLabel(guiGraphics, tr("gui.shincolle.marriage"), 75, 20);
-            drawValueRight(guiGraphics, this.menu.getShip().getStateFlag(EntityShipBase.STATE_FLAG_MARRIED) ? tr("gui.shincolle.married") : tr("gui.shincolle.unmarried"), 135, 30, 0xFFFF00);
+            drawValueRight(guiGraphics, this.menu.isMarried() ? tr("gui.shincolle.married") : tr("gui.shincolle.unmarried"), 135, 30, 0xFFFF00);
 
             drawLabel(guiGraphics, tr("gui.shincolle.formation.formation"), 75, 41);
             drawValueRight(guiGraphics, tr("gui.shincolle.formation.format0"), 135, 51, 0xFFFFFF);
