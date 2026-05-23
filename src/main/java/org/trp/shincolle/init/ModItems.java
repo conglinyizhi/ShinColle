@@ -196,7 +196,7 @@ public class ModItems {
             () -> new CombatRationItem(new Item.Properties().stacksTo(16)));
 
     public static final DeferredItem<Item> BUCKET_REPAIR = ITEMS.register("bucketrepair",
-            () -> new BucketRepairItem(new Item.Properties().stacksTo(1)));
+            () -> new BucketRepairItem(new Item.Properties().stacksTo(16)));
 
     public static final DeferredItem<Item> TOY_AIRPLANE = ITEMS.register("toyairplane",
             () -> new ToyAirplaneItem(new Item.Properties().stacksTo(16)));

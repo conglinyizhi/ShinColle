@@ -13,6 +13,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.menu.RecipePaperMenu;
 
@@ -54,6 +56,16 @@ public class RecipePaperItem extends Item {
                     if (slot >= 0 && slot < 10) {
                         stacks[slot] = ItemStack.parseOptional(context.registries(), itemTag);
                     }
+                }
+
+                if (stacks[9].isEmpty() && context.level() != null) {
+                    List<ItemStack> inputList = new java.util.ArrayList<>();
+                    for (int i = 0; i < 9; i++) {
+                        inputList.add(stacks[i]);
+                    }
+                    CraftingInput input = CraftingInput.of(3, 3, inputList);
+                    context.level().getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, context.level())
+                            .ifPresent(recipe -> stacks[9] = recipe.value().assemble(input, context.registries()));
                 }
 
                 if (!stacks[9].isEmpty()) {

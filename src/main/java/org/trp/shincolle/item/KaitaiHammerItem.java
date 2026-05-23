@@ -5,6 +5,7 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.EntitySummonBase;
 
@@ -12,6 +13,22 @@ public class KaitaiHammerItem extends Item {
 
     public KaitaiHammerItem(Properties properties) {
         super(properties.stacksTo(1).durability(20));
+    }
+
+    @Override
+    public boolean hasCraftingRemainingItem(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public ItemStack getCraftingRemainingItem(ItemStack stack) {
+        ItemStack remainder = stack.copy();
+        remainder.setCount(1);
+        remainder.setDamageValue(remainder.getDamageValue() + 1);
+        if (remainder.getDamageValue() >= remainder.getMaxDamage()) {
+            return ItemStack.EMPTY;
+        }
+        return remainder;
     }
 
     @Override
