@@ -22,6 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecipePaperMenu extends AbstractContainerMenu {
+    private static final int SLOT_INPUT_START = 0;
+    private static final int SLOT_INPUT_END = 9;
+    private static final int SLOT_RESULT = 9;
+    private static final int SLOT_PLAYER_START = 10;
+    private static final int SLOT_HOTBAR_START = 37;
+    private static final int SLOT_ALL_END = 46;
 
     private final ItemStack hostStack;
     private final InteractionHand hand;
@@ -105,12 +111,6 @@ public class RecipePaperMenu extends AbstractContainerMenu {
                 list.add(itemTag);
             }
         }
-        ItemStack result = craftResult.getItem(0);
-        if (!result.isEmpty()) {
-            CompoundTag itemTag = (CompoundTag) result.save(level.registryAccess());
-            itemTag.putInt("Slot", 9);
-            list.add(itemTag);
-        }
 
         hostStack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY,
                 data -> data.update(tag -> tag.put("Recipe", list)));
@@ -148,7 +148,7 @@ public class RecipePaperMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return player.getItemInHand(hand) == hostStack;
+        return ItemStack.isSameItemSameComponents(player.getItemInHand(hand), hostStack);
     }
 
     @Override
@@ -170,11 +170,70 @@ public class RecipePaperMenu extends AbstractContainerMenu {
             updateResult();
             return;
         }
+        if (slotId == 9) {
+            // Legacy recipe paper uses the output slot as a preview only.
+            return;
+        }
         super.clicked(slotId, button, clickType, player);
     }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
+        if (index < 0 || index >= this.slots.size()) {
+            return ItemStack.EMPTY;
+        }
+
+        Slot slot = this.slots.get(index);
+        if (!slot.hasItem()) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack stackInSlot = slot.getItem();
+        ItemStack copy = stackInSlot.copy();
+
+        if (index >= SLOT_INPUT_START && index < SLOT_INPUT_END) {
+            slot.set(ItemStack.EMPTY);
+            slot.setChanged();
+            updateResult();
+            return copy;
+        }
+
+        if (index == SLOT_RESULT) {
+            return ItemStack.EMPTY;
+        }
+
+        if (index >= SLOT_PLAYER_START && index < SLOT_ALL_END) {
+            if (!placeGhostIngredient(stackInSlot)) {
+                return ItemStack.EMPTY;
+            }
+            updateResult();
+            return copy;
+        }
+
         return ItemStack.EMPTY;
+    }
+
+    private boolean placeGhostIngredient(ItemStack stack) {
+        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_END; i++) {
+            ItemStack existing = this.craftMatrix.getItem(i);
+            if (existing.isEmpty()) {
+                ItemStack ghost = stack.copy();
+                ghost.setCount(1);
+                this.craftMatrix.setItem(i, ghost);
+                return true;
+            }
+        }
+
+        for (int i = SLOT_INPUT_START; i < SLOT_INPUT_END; i++) {
+            ItemStack existing = this.craftMatrix.getItem(i);
+            if (ItemStack.isSameItemSameComponents(existing, stack)) {
+                ItemStack ghost = stack.copy();
+                ghost.setCount(1);
+                this.craftMatrix.setItem(i, ghost);
+                return true;
+            }
+        }
+
+        return false;
     }
 }
