@@ -18,6 +18,7 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.event.ModEventBusEvents;
 import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.server.ShipRegistrySavedData;
+import org.trp.shincolle.utility.ShipTeleportHelper;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -328,7 +329,10 @@ public final class ModCommands {
             return 0;
         }
 
-        ship.teleportTo(player.getX(), player.getY() + 0.5D, player.getZ());
+        if (!ShipTeleportHelper.teleportNearLiving(ship, player, 0.5D)) {
+            source.sendFailure(Component.literal("No safe recall position found near player."));
+            return 0;
+        }
         ship.getNavigation().stop();
         ship.clearPointerTarget();
         ship.clearPointerTargetEntity();

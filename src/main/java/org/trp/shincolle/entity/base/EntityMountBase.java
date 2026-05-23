@@ -23,6 +23,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
 import org.trp.shincolle.entity.base.path.ShipMoveControl;
+import org.trp.shincolle.utility.ShipTeleportHelper;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -104,6 +105,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (h == null || !h.isAlive() || h.isOrderedToSit() || mount.isPassenger()) return false;
 
             if (h.hasPointerTarget()) return true;
+            if (hasGuardTarget(h)) return true;
 
             LivingEntity owner = h.getOwner();
             if (owner == null) return false;
@@ -120,6 +122,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (h == null || !h.isAlive() || h.isOrderedToSit() || mount.isPassenger()) return false;
 
             if (h.hasPointerTarget()) return true;
+            if (hasGuardTarget(h)) return true;
 
             LivingEntity owner = h.getOwner();
             if (owner == null) return false;
@@ -143,6 +146,10 @@ public abstract class EntityMountBase extends PathfinderMob {
                 return;
             }
 
+            if (tickGuardTarget(h)) {
+                return;
+            }
+
             LivingEntity owner = h.getOwner();
             if (owner == null) return;
 
@@ -156,12 +163,72 @@ public abstract class EntityMountBase extends PathfinderMob {
                     tpTimer = 0;
                     if (mount.level() instanceof ServerLevel) {
                         mount.getNavigation().stop();
-                        mount.teleportTo(owner.getX(), owner.getY() + 0.75, owner.getZ());
+                        ShipTeleportHelper.teleportNearLiving(mount, owner, 0.75D);
                     }
                 }
             } else {
                 tpTimer = 0;
             }
+        }
+
+        private static boolean hasGuardTarget(EntityShipBase host) {
+            int guardType = host.getGuardedPos(4);
+            if (guardType == 2) {
+                Entity guarded = host.getGuardedEntity();
+                return guarded != null && guarded.isAlive();
+            }
+            return guardType == 1 && host.getGuardedPos(1) > 0;
+        }
+
+        private boolean tickGuardTarget(EntityShipBase host) {
+            int guardType = host.getGuardedPos(4);
+            if (guardType == 2) {
+                Entity guarded = host.getGuardedEntity();
+                if (guarded == null || !guarded.isAlive()) {
+                    return false;
+                }
+
+                mount.getLookControl().setLookAt(guarded, 30.0F, 30.0F);
+                mount.getNavigation().moveTo(guarded, 1.0D);
+
+                double distSq = mount.distanceToSqr(guarded);
+                ++tpTimer;
+                if (distSq > 256.0D) {
+                    if (tpTimer > TP_COOLDOWN && mount.level() instanceof ServerLevel) {
+                        tpTimer = 0;
+                        mount.getNavigation().stop();
+                        if (guarded instanceof LivingEntity livingGuarded) {
+                            ShipTeleportHelper.teleportNearLiving(mount, livingGuarded, 0.75D);
+                        } else {
+                            mount.teleportTo(guarded.getX(), guarded.getY() + 0.75D, guarded.getZ());
+                        }
+                    }
+                } else {
+                    tpTimer = 0;
+                }
+                return true;
+            }
+
+            if (guardType == 1 && host.getGuardedPos(1) > 0) {
+                Vec3 guardPos = new Vec3(host.getGuardedPos(0) + 0.5D, host.getGuardedPos(1), host.getGuardedPos(2) + 0.5D);
+                mount.getLookControl().setLookAt(guardPos.x, guardPos.y, guardPos.z, 30.0F, 30.0F);
+                mount.getNavigation().moveTo(guardPos.x, guardPos.y, guardPos.z, 1.0D);
+
+                double distSq = mount.distanceToSqr(guardPos.x, guardPos.y, guardPos.z);
+                ++tpTimer;
+                if (distSq > 256.0D) {
+                    if (tpTimer > TP_COOLDOWN && mount.level() instanceof ServerLevel) {
+                        tpTimer = 0;
+                        mount.getNavigation().stop();
+                        mount.teleportTo(guardPos.x, guardPos.y + 0.75D, guardPos.z);
+                    }
+                } else {
+                    tpTimer = 0;
+                }
+                return true;
+            }
+
+            return false;
         }
     }
 

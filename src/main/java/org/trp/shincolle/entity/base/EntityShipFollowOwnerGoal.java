@@ -6,6 +6,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.menu.ShipContainerMenu;
+import org.trp.shincolle.utility.ShipTeleportHelper;
 
 import java.util.EnumSet;
 
@@ -167,7 +168,6 @@ final class EntityShipFollowOwnerGoal extends Goal {
 
     private void applyTeleport(LivingEntity owner) {
         double tx = owner.getX();
-        double ty = owner.getY() + 0.75;
         double tz = owner.getZ();
         if (ship.level() instanceof ServerLevel serverLevel) {
             int cx = Mth.floor(tx) >> 4;
@@ -177,7 +177,9 @@ final class EntityShipFollowOwnerGoal extends Goal {
             }
         }
         ship.getNavigation().stop();
-        ship.teleportTo(tx, ty, tz);
+        if (!ShipTeleportHelper.teleportNearLiving(ship, owner, 0.75D)) {
+            return;
+        }
         this.checkTP_T = 0;
         this.checkTP_D = 0;
     }

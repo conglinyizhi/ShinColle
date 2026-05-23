@@ -47,6 +47,7 @@ public final class FormationHelper {
         for (UUID uuid : shipUuids) {
             Entity entity = world.getEntity(uuid);
             if (!(entity instanceof EntityShipBase ship)) continue;
+            if (!ship.isOwnedBy(player) || !ship.isAlive() || ship.isInDeadPose()) continue;
 
             if (totalShips == 1) {
                 col = 1;
@@ -69,7 +70,9 @@ public final class FormationHelper {
             }
 
             if (ship.distanceToSqr(spawnX, spawnY, spawnZ) > 1024.0D) {
-                ship.teleportTo(spawnX, spawnY, spawnZ);
+                if (!ShipTeleportHelper.teleportNearLiving(ship, serverPlayer, 0.75D)) {
+                    ship.teleportTo(spawnX, spawnY, spawnZ);
+                }
             }
             
             float yaw = facing.toYRot();
@@ -87,9 +90,29 @@ public final class FormationHelper {
         if (ship == null) return;
         ship.setOrderedToSit(false);
         ship.setInSittingPose(false);
+        ship.setGuardedEntity(null);
         ship.setGuardedPos(x, y, z, 0, 1);
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
         ship.getNavigation().moveTo(x + 0.5, y, z + 0.5, 1.2);
+        ship.setStateTimer(18, 200);
+    }
+
+    public static void applyShipGuardEntity(EntityShipBase ship, Entity guarded) {
+        if (ship == null || guarded == null) return;
+
+        Entity current = ship.getGuardedEntity();
+        if (current != null && current.getUUID().equals(guarded.getUUID())) {
+            ship.setGuardedEntity(null);
+            ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
+            ship.getNavigation().stop();
+            return;
+        }
+
+        ship.setOrderedToSit(false);
+        ship.setInSittingPose(false);
+        ship.setGuardedEntity(guarded);
+        ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
+        ship.getNavigation().moveTo(guarded, 1.2D);
         ship.setStateTimer(18, 200);
     }
 
