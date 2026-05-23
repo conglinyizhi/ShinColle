@@ -30,6 +30,12 @@ public class SmallShipyardScreen extends AbstractContainerScreen<SmallShipyardMe
         if (inside(mouseX - this.leftPos, mouseY - this.topPos, 9, 17, 23, 49)) {
             guiGraphics.renderTooltip(this.font, Component.literal(String.valueOf(this.menu.getPowerRemained())), mouseX, mouseY);
         }
+        if (inside(mouseX - this.leftPos, mouseY - this.topPos, 8, 53, 26, 71)) {
+            guiGraphics.renderComponentTooltip(this.font, java.util.List.of(
+                    Component.translatable("gui.shincolle.shipyard.fuel_slot").withStyle(net.minecraft.ChatFormatting.GOLD),
+                    Component.translatable("gui.shincolle.shipyard.instant_tip").withStyle(net.minecraft.ChatFormatting.GRAY)
+            ), mouseX, mouseY);
+        }
 
         this.guiTicks += 0.125F;
     }

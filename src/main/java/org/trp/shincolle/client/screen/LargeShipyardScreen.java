@@ -34,6 +34,12 @@ public class LargeShipyardScreen extends AbstractContainerScreen<LargeShipyardMe
         if (inside(mx, my, 8, 19, 22, 84)) {
             guiGraphics.renderTooltip(this.font, Component.literal(String.valueOf(this.menu.getPowerRemained())), mouseX, mouseY);
         }
+        if (insideInclusive(mx, my, 151, 95, 169, 113)) {
+            guiGraphics.renderComponentTooltip(this.font, java.util.List.of(
+                    Component.translatable("gui.shincolle.shipyard.fuel_slot").withStyle(net.minecraft.ChatFormatting.GOLD),
+                    Component.translatable("gui.shincolle.shipyard.instant_tip").withStyle(net.minecraft.ChatFormatting.GRAY)
+            ), mouseX, mouseY);
+        }
 
         this.guiTicks += 0.125F;
     }

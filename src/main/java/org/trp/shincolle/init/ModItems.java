@@ -202,7 +202,7 @@ public class ModItems {
             () -> new ToyAirplaneItem(new Item.Properties().stacksTo(16)));
 
     public static final DeferredItem<Item> INSTANT_CON_MAT = ITEMS.register("instantconmat",
-            () -> new Item(new Item.Properties()));
+            () -> new InstantConstructionMaterialItem(new Item.Properties()));
 
     public static final DeferredItem<Item> KAITAI_HAMMER = ITEMS.register("kaitaihammer",
             () -> new KaitaiHammerItem(new Item.Properties()));
