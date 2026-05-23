@@ -4,6 +4,8 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -13,6 +15,8 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.trp.shincolle.block.entity.IWaypoint;
 import org.trp.shincolle.network.C2SWaypointActionPayload;
+import org.trp.shincolle.server.PlayerTargetListSavedData;
+import org.trp.shincolle.server.UnattackableTargetData;
 
 import java.util.List;
 
@@ -85,6 +89,29 @@ public class TargetWrenchItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
+    @Override
+    public InteractionResultHolder<ItemStack> use(net.minecraft.world.level.Level level, Player player, net.minecraft.world.InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (player.isShiftKeyDown()) {
+            return InteractionResultHolder.pass(stack);
+        }
+
+        if (!level.isClientSide) {
+            showPlayerTargets(player);
+        }
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+    }
+
+    @Override
+    public boolean onLeftClickEntity(ItemStack stack, Player player, Entity entity) {
+        if (player.level().isClientSide || player.isShiftKeyDown()) {
+            return false;
+        }
+
+        togglePlayerTarget(player, entity);
+        return true;
+    }
+
     private boolean hasMarked(ItemStack stack) {
         var tag = stack.get(net.minecraft.core.component.DataComponents.CUSTOM_DATA);
         if (tag == null) return false;
@@ -128,6 +155,8 @@ public class TargetWrenchItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("gui.shincolle.wrench1").withStyle(ChatFormatting.YELLOW));
+        tooltipComponents.add(Component.translatable("gui.shincolle.wrench2").withStyle(ChatFormatting.YELLOW));
         tooltipComponents.add(Component.translatable("gui.shincolle.wrench3").withStyle(ChatFormatting.YELLOW));
         if (hasMarked(stack)) {
             BlockPos p = getMarked(stack);
@@ -153,6 +182,50 @@ public class TargetWrenchItem extends Item {
                     );
                 }
             }
+        }
+    }
+
+    private void toggleUnattackableTarget(Player player, Entity entity) {
+        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) || !player.hasPermissions(2)) {
+            return;
+        }
+
+        String className = entity.getClass().getName();
+        boolean added = UnattackableTargetData.get(serverLevel).toggle(className);
+        Component prefix = Component.translatable(added ? "chat.shincolle.optool.add" : "chat.shincolle.optool.remove");
+        player.displayClientMessage(prefix.copy().append(" " + className), false);
+    }
+
+    private void showUnattackableTargets(Player player) {
+        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
+        }
+
+        player.displayClientMessage(Component.translatable("chat.shincolle.optool.show").withStyle(ChatFormatting.GOLD), false);
+        for (String className : UnattackableTargetData.get(serverLevel).entries()) {
+            player.displayClientMessage(Component.literal(className).withStyle(ChatFormatting.AQUA), false);
+        }
+    }
+
+    private void togglePlayerTarget(Player player, Entity entity) {
+        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
+        }
+
+        String className = entity.getClass().getName();
+        boolean added = PlayerTargetListSavedData.get(serverLevel).toggle(player.getUUID(), className);
+        Component prefix = Component.translatable(added ? "chat.shincolle.target.add" : "chat.shincolle.target.remove");
+        player.displayClientMessage(prefix.copy().append(" " + className), false);
+    }
+
+    private void showPlayerTargets(Player player) {
+        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return;
+        }
+
+        player.displayClientMessage(Component.translatable("gui.shincolle.targetAI").withStyle(ChatFormatting.GOLD), false);
+        for (String className : PlayerTargetListSavedData.get(serverLevel).entries(player.getUUID())) {
+            player.displayClientMessage(Component.literal(className).withStyle(ChatFormatting.AQUA), false);
         }
     }
 }

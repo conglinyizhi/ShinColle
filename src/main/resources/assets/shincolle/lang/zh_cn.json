@@ -31,6 +31,8 @@
   "chat.shincolle.optool.add": "管理员工具：将目标添加到§e不可攻击列表§r：",
   "chat.shincolle.optool.remove": "管理员工具：将目标从§c不可攻击列表§r移除：",
   "chat.shincolle.optool.show": "管理员工具：显示不可攻击实体列表：",
+  "chat.shincolle.target.add": "已添加攻击目标类型：",
+  "chat.shincolle.target.remove": "已移除攻击目标类型：",
   "chat.shincolle.team.ally_added": "已添加盟友：",
   "chat.shincolle.team.ally_missing": "未找到盟友：",
   "chat.shincolle.team.ally_removed": "已移除盟友：",

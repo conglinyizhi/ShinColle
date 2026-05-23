@@ -31,6 +31,8 @@
   "chat.shincolle.optool.add": "OP Tool: §eADD§r to unattackable entity list:",
   "chat.shincolle.optool.remove": "OP Tool: §cREMOVE§r from unattackable entity list:",
   "chat.shincolle.optool.show": "OP Tool: Show unattackable entity list:",
+  "chat.shincolle.target.add": "Added attack target class:",
+  "chat.shincolle.target.remove": "Removed attack target class:",
   "chat.shincolle.team.ally_added": "Added ally: ",
   "chat.shincolle.team.ally_missing": "Ally not found: ",
   "chat.shincolle.team.ally_removed": "Removed ally: ",

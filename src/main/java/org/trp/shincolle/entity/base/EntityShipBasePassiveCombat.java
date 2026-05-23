@@ -1,6 +1,7 @@
 package org.trp.shincolle.entity.base;
 
 import net.minecraft.util.Mth;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
@@ -9,11 +10,16 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.menu.ShipContainerMenu;
+import org.trp.shincolle.server.PlayerTargetListSavedData;
+import org.trp.shincolle.server.TeamDiplomacySavedData;
+import org.trp.shincolle.server.UnattackableTargetData;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 final class EntityShipBasePassiveCombat {
 
@@ -394,14 +400,18 @@ final class EntityShipBasePassiveCombat {
             return false;
         }
 
-        boolean pvpEnabled = this.ship.getStateFlag(STATE_FLAG_PVP);
-
-        if (isPlayerOrShip(target) && !pvpEnabled) {
+        if (isUnattackableTargetClass(target)) {
             return false;
         }
 
         if (commandContext) {
             return true;
+        }
+
+        boolean pvpEnabled = this.ship.getStateFlag(STATE_FLAG_PVP);
+
+        if (isPlayerOrShip(target) && !pvpEnabled) {
+            return false;
         }
 
         if (target.isInvisible() && this.ship.getStateMinor(38) < 1 && this.ship.getStateMinor(39) < 1) {
@@ -412,11 +422,21 @@ final class EntityShipBasePassiveCombat {
             return false;
         }
 
+        if (isDiplomaticAlly(target)) {
+            return false;
+        }
+
         if (this.ship.getOwnerUUID() != null) {
             if (target instanceof Enemy) {
                 return true;
             }
             if (target instanceof EntityShipBase shipTarget && shipTarget.getOwnerUUID() == null) {
+                return true;
+            }
+            if (isPlayerConfiguredTargetClass(target)) {
+                return true;
+            }
+            if (isDiplomaticBanned(target)) {
                 return true;
             }
             return isPlayerOrShip(target) && pvpEnabled;
@@ -446,8 +466,20 @@ final class EntityShipBasePassiveCombat {
             return false;
         }
 
+        if (target == this.ship) {
+            return true;
+        }
+
         if (sharesOwner(target)) {
             return true;
+        }
+
+        if (target instanceof EntityMountBase mount) {
+            EntityShipBase host = mount.getHost();
+            if (host != null) {
+                return Objects.equals(host.getOwnerUUID(), this.ship.getOwnerUUID());
+            }
+            return Objects.equals(mount.getHostUUID(), this.ship.getOwnerUUID());
         }
 
         return target instanceof EntityShipBase shipTarget
@@ -473,6 +505,57 @@ final class EntityShipBasePassiveCombat {
 
     private boolean isPlayerOrShip(Entity target) {
         return target instanceof Player || target instanceof EntityShipBase;
+    }
+
+    private boolean isUnattackableTargetClass(LivingEntity target) {
+        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        return UnattackableTargetData.get(serverLevel).contains(target.getClass().getName());
+    }
+
+    private boolean isPlayerConfiguredTargetClass(Entity target) {
+        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        UUID owner = this.ship.getOwnerUUID();
+        return owner != null && PlayerTargetListSavedData.get(serverLevel).contains(owner, target.getClass().getName());
+    }
+
+    private boolean isDiplomaticAlly(Entity target) {
+        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        UUID owner = this.ship.getOwnerUUID();
+        UUID targetOwner = getTargetOwnerUUID(target);
+        return TeamDiplomacySavedData.get(serverLevel).areAllies(owner, targetOwner);
+    }
+
+    private boolean isDiplomaticBanned(Entity target) {
+        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        UUID owner = this.ship.getOwnerUUID();
+        UUID targetOwner = getTargetOwnerUUID(target);
+        return TeamDiplomacySavedData.get(serverLevel).isBanned(owner, targetOwner);
+    }
+
+    @Nullable
+    private UUID getTargetOwnerUUID(Entity target) {
+        if (target instanceof Player player) {
+            return player.getUUID();
+        }
+        if (target instanceof TamableAnimal tamable) {
+            return tamable.getOwnerUUID();
+        }
+        if (target instanceof EntityMountBase mount) {
+            EntityShipBase host = mount.getHost();
+            if (host != null) {
+                return host.getOwnerUUID();
+            }
+            return mount.getHostUUID();
+        }
+        return null;
     }
 
     private int getPassiveAimTime() {
