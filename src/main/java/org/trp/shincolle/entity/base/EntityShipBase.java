@@ -51,6 +51,7 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.trp.shincolle.Config;
+import org.trp.shincolle.command.ModCommands;
 import org.trp.shincolle.entity.EntityShipFishingHook;
 import org.trp.shincolle.entity.EntityShipGrudge;
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
@@ -63,16 +64,20 @@ import org.trp.shincolle.item.CombatRationItem;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
 import org.trp.shincolle.menu.ShipContainerMenu;
+import org.trp.shincolle.server.ShipRegistrySavedData;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 public abstract class EntityShipBase extends TamableAnimal {
+    private boolean marriageCountReleased = false;
 
     public static final int EMOTION_NORMAL = 0;
     public static final int EMOTION_BLINK = 1;
@@ -152,6 +157,8 @@ public abstract class EntityShipBase extends TamableAnimal {
     private static final int STATE_MINOR_EQUIP_COMPASS = 37;
     private static final int STATE_MINOR_EQUIP_FLARE = 38;
     private static final int STATE_MINOR_EQUIP_SEARCHLIGHT = 39;
+    private static final int STATE_MINOR_EQUIP_SPECIAL_AMMO = 40;
+    private static final int STATE_MINOR_EQUIP_TORPEDO_SPEED = 41;
     public static final int STATE_MINOR_PUMPED_XP = 42;
     public static final int STATE_MINOR_GUARD_X = 14;
     public static final int STATE_MINOR_GUARD_Y = 15;
@@ -250,6 +257,8 @@ public abstract class EntityShipBase extends TamableAnimal {
     private final EntityShipBaseSerialization serialization;
     private final LegacyShipStats legacyShipStats;
     private final EntityShipLegacyState legacyState;
+    @Nullable
+    private UUID guardedEntityId;
     private EntityShipFishingHook fishHook;
     private boolean legacyStateInitialized = false;
     private int shipDeathTicks = 0;
@@ -883,6 +892,58 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.setStateMinor(STATE_MINOR_GUARD_Z, z);
         this.setStateMinor(STATE_MINOR_GUARD_DIM, dim);
         this.setStateMinor(STATE_MINOR_GUARD_TYPE, type);
+        if (type != 2) {
+            this.guardedEntityId = null;
+        }
+    }
+
+    public void setGuardedEntity(@Nullable Entity entity) {
+        if (entity == null) {
+            this.guardedEntityId = null;
+            if (this.getGuardedPos(4) == 2) {
+                this.setGuardedPos(-1, -1, -1, 0, 0);
+            }
+            return;
+        }
+
+        this.guardedEntityId = entity.getUUID();
+        this.setGuardedPos(-1, -1, -1, getLegacyDimensionId(entity.level()), 2);
+    }
+
+    @Nullable
+    public Entity getGuardedEntity() {
+        if (this.guardedEntityId == null) {
+            return null;
+        }
+
+        if (this.level() instanceof ServerLevel serverLevel) {
+            if (this.getGuardedPos(3) == getLegacyDimensionId(serverLevel)) {
+                return serverLevel.getEntity(this.guardedEntityId);
+            }
+
+            for (ServerLevel level : serverLevel.getServer().getAllLevels()) {
+                if (this.getGuardedPos(3) == getLegacyDimensionId(level)) {
+                    return level.getEntity(this.guardedEntityId);
+                }
+            }
+            return null;
+        }
+
+        for (Entity entity : this.level().getEntities(this, this.getBoundingBox().inflate(128.0D), candidate -> candidate.getUUID().equals(this.guardedEntityId))) {
+            if (entity.getUUID().equals(this.guardedEntityId)) {
+                return entity;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    UUID getGuardedEntityIdInternal() {
+        return this.guardedEntityId;
+    }
+
+    void loadGuardedEntityIdInternal(@Nullable UUID guardedEntityId) {
+        this.guardedEntityId = guardedEntityId;
     }
 
     public int getStateTimer(int index) {
@@ -915,6 +976,9 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     public void setStateMarried(boolean value) {
         setStateFlag(STATE_FLAG_MARRIED, value);
+        if (value) {
+            this.marriageCountReleased = false;
+        }
     }
 
     public boolean isStateNoEquip() {
@@ -1175,14 +1239,13 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
 
-    private static final float SHIP_SOUND_VOLUME = 0.6F;
     private static final int AMBIENT_SOUND_MIN_INTERVAL_TICKS = 80;
     private static final int AMBIENT_SOUND_MAX_PER_TICK = 3;
     private static final ConcurrentMap<Long, Integer> AMBIENT_SOUNDS_PER_TICK = new ConcurrentHashMap<>();
 
     @Override
     protected float getSoundVolume() {
-        return SHIP_SOUND_VOLUME;
+        return Math.max(0.0F, Config.volumeShip);
     }
 
     protected float getShipSoundPitch() {
@@ -1340,6 +1403,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     public void initializeHostileSpawnState(int scaleLevel) {
         int clampedScale = Mth.clamp(scaleLevel, 0, 3);
 
+        adjustOwnerMarriageCount(-1);
         this.setTame(false, false);
         this.setOwnerUUID(null);
         this.setOrderedToSit(false);
@@ -1468,6 +1532,10 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     public void tick() {
+        if (!this.level().isClientSide && ModCommands.isStopShipAi()) {
+            this.setDeltaMovement(Vec3.ZERO);
+            return;
+        }
         super.tick();
 
         if (this.isCustomSwinging) {
@@ -1591,11 +1659,17 @@ public abstract class EntityShipBase extends TamableAnimal {
         tickAutoRecovery();
         tickAutoSupplies();
         tickLegacyTimers();
+        if ((this.tickCount % 20) == 0) {
+            syncFormationMembershipFromOwnerData();
+        }
         if ((this.tickCount % 16) == 0) {
             tickWaypointMove();
         }
         if ((this.tickCount % 40) == 0) {
             this.recalculateLegacyShipStats();
+        }
+        if ((this.tickCount % 40) == 0 && this.level() instanceof ServerLevel serverLevel) {
+            ShipRegistrySavedData.get(serverLevel).updateShip(this);
         }
     }
 
@@ -1662,12 +1736,86 @@ public abstract class EntityShipBase extends TamableAnimal {
         return pos.getY() + fluid.getHeight(level, pos);
     }
 
+    private void syncFormationMembershipFromOwnerData() {
+        LivingEntity ownerRaw = this.getOwner();
+        if (!(ownerRaw instanceof ServerPlayer owner)) {
+            return;
+        }
+
+        org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        int actualTeam = data.findShipTeam(this.getUUID());
+        if (actualTeam >= 0) {
+            int actualSlot = data.findShipSlot(actualTeam, this.getUUID());
+            if (this.getFormationTeam() != actualTeam) {
+                this.setFormationTeam(actualTeam);
+            }
+            if (this.getFormationSlot() != actualSlot) {
+                this.setFormationSlot(actualSlot);
+            }
+            if (actualTeam == data.getCurrentTeamID()) {
+                boolean selected = data.isSelected(actualTeam, actualSlot);
+                if (this.isPointerSelected() != selected) {
+                    this.setPointerSelected(selected);
+                }
+            } else if (this.isPointerSelected()) {
+                this.setPointerSelected(false);
+            }
+            return;
+        }
+
+        if (this.getFormationTeam() != -1) {
+            this.setFormationTeam(-1);
+        }
+        if (this.getFormationSlot() != -1) {
+            this.setFormationSlot(-1);
+        }
+        if (this.isPointerSelected()) {
+            this.setPointerSelected(false);
+        }
+    }
+
     @Override
     public void remove(Entity.RemovalReason reason) {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            ShipRegistrySavedData.get(serverLevel).markRemoved(this);
+        }
+        if (!this.level().isClientSide && shouldReleaseMarriageCountOnRemove(reason)) {
+            adjustOwnerMarriageCount(-1);
+        }
         if (this.level() instanceof ServerLevel serverLevel) {
             clearCompassForcedChunks(serverLevel);
         }
         super.remove(reason);
+    }
+
+    private boolean shouldReleaseMarriageCountOnRemove(Entity.RemovalReason reason) {
+        return reason != Entity.RemovalReason.CHANGED_DIMENSION
+                && reason != Entity.RemovalReason.UNLOADED_TO_CHUNK
+                && reason != Entity.RemovalReason.UNLOADED_WITH_PLAYER;
+    }
+
+    private void adjustOwnerMarriageCount(int delta) {
+        if (delta == 0 || !this.isStateMarried()) {
+            return;
+        }
+
+        UUID ownerId = this.getOwnerUUID();
+        if (ownerId == null || !(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        if (delta < 0 && this.marriageCountReleased) {
+            return;
+        }
+
+        ServerPlayer owner = serverLevel.getServer().getPlayerList().getPlayer(ownerId);
+        if (owner != null) {
+            owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).addMarriedShipCount(delta);
+        }
+
+        if (delta < 0) {
+            this.marriageCountReleased = true;
+        }
     }
 
     private void spawnShipGrudge() {
@@ -1761,7 +1909,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     private void tickTimeKeepingSound() {
-        if (!this.getStateFlag(ShipContainerMenu.STATE_FLAG_TIMEKEEP) || !this.isAlive() || this.isInDeadPose()) {
+        if (!Config.canTimeKeeping || !this.getStateFlag(ShipContainerMenu.STATE_FLAG_TIMEKEEP) || !this.isAlive() || this.isInDeadPose()) {
             return;
         }
         long worldTime = this.level().getDayTime();
@@ -1772,7 +1920,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         int hour = (int) ((worldTime / TIMEKEEP_INTERVAL_TICKS) % 24L);
         SoundEvent timeSound = ModSounds.getShipTimeSound(hour);
         if (timeSound != null) {
-            this.playSound(timeSound, this.getSoundVolume(), 1.0F);
+            this.playSound(timeSound, Math.max(0.0F, Config.volumeTimeKeeping), 1.0F);
         }
     }
 
@@ -2440,6 +2588,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                     stack.shrink(1);
                 }
                 this.setStateMarried(true);
+                player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).addMarriedShipCount(1);
                 this.setMorale(16000);
                 this.setEmotionPrimary(EMOTION_HAPPY);
                 this.applyParticleEmotion(EmotionParticleType.HEART);
@@ -2475,6 +2624,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
 
             if (stack.is(ModItems.KAITAI_HAMMER.get()) && player.isShiftKeyDown()) {
+                spawnKaitaiDrops();
                 this.applyParticleEmotion(8);
                 this.applyEmotesAOE(10.0, 6, false);
                 this.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
@@ -2547,6 +2697,80 @@ public abstract class EntityShipBase extends TamableAnimal {
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
         return super.mobInteract(player, hand);
+    }
+
+    private void spawnKaitaiDrops() {
+        if (!(this.level() instanceof ServerLevel serverLevel)) {
+            return;
+        }
+
+        for (ItemStack drop : buildKaitaiMaterialDrops()) {
+            if (!drop.isEmpty()) {
+                serverLevel.addFreshEntity(new ItemEntity(serverLevel, this.getX(), this.getY() + 0.8D, this.getZ(), drop));
+            }
+        }
+
+        for (int i = 0; i < this.getInventory().getSlots(); i++) {
+            ItemStack stack = this.getInventory().getStackInSlot(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            serverLevel.addFreshEntity(new ItemEntity(serverLevel, this.getX(), this.getY() + 0.8D, this.getZ(), stack.copy()));
+            this.getInventory().setStackInSlot(i, ItemStack.EMPTY);
+        }
+    }
+
+    private List<ItemStack> buildKaitaiMaterialDrops() {
+        List<ItemStack> drops = new ArrayList<>(4);
+        int shipClass = this.getStateMinor(STATE_MINOR_SHIP_CLASS);
+        int rarity = Math.max(0, this.getStateMinor(STATE_MINOR_RARITY));
+        float firepower = Math.max(1.0F, this.getLegacyShipStats().getFirepower());
+        float maxHealth = Math.max(1.0F, this.getLegacyShipStats().getMaxHealth());
+
+        Item primary = ModItems.GRUDGE.get();
+        int grudge = 4 + rarity;
+        int abyssMetal = 0;
+        int ammo = 0;
+        int polymetal = 0;
+
+        if (shipClass >= 20 || shipClass == 12 || shipClass == 13 || shipClass == 14 || shipClass == 15 || shipClass == 16) {
+            grudge += 4;
+            abyssMetal += 6 + rarity;
+            ammo += 6 + Mth.floor(firepower * 0.2F);
+        }
+
+        if (shipClass >= 26 || shipClass == 20 || shipClass == 21 || shipClass == 30 || shipClass == 31 || shipClass == 33 || shipClass == 49) {
+            primary = ModItems.ABYSS_POLYMETAL.get();
+            grudge = 0;
+            abyssMetal += 10 + rarity * 2;
+            ammo += 10 + Mth.floor(firepower * 0.25F);
+            polymetal += 3 + rarity;
+        } else if (shipClass == 17 || shipClass == 18 || shipClass == 19 || shipClass == 38 || shipClass == 39 || shipClass == 44 || shipClass == 72) {
+            ammo += 4 + rarity;
+            abyssMetal += 2 + Mth.floor(maxHealth * 0.03F);
+        } else if (shipClass == 12 || shipClass == 20 || shipClass == 33 || shipClass == 47 || shipClass == 48) {
+            ammo += 8 + rarity;
+            polymetal += 1 + rarity / 2;
+        } else if (shipClass == 13 || shipClass == 14 || shipClass == 15 || shipClass == 26 || shipClass == 37 || shipClass == 46 || shipClass == 60 || shipClass == 61 || shipClass == 62 || shipClass == 63) {
+            abyssMetal += 8 + rarity;
+            ammo += 5 + Mth.floor(firepower * 0.15F);
+        } else {
+            abyssMetal += 2 + rarity / 2;
+            ammo += 2 + rarity / 2;
+        }
+
+        addNonEmptyDrop(drops, primary, grudge);
+        addNonEmptyDrop(drops, ModItems.ABYSS_METAL.get(), abyssMetal);
+        addNonEmptyDrop(drops, ModItems.AMMO_LIGHT.get(), ammo);
+        addNonEmptyDrop(drops, ModItems.ABYSS_POLYMETAL.get(), polymetal);
+        return drops;
+    }
+
+    private static void addNonEmptyDrop(List<ItemStack> drops, Item item, int amount) {
+        if (item == null || amount <= 0) {
+            return;
+        }
+        drops.add(new ItemStack(item, amount));
     }
 
     @Override
@@ -2785,6 +3009,8 @@ public abstract class EntityShipBase extends TamableAnimal {
         int compassCount = 0;
         int flareCount = 0;
         int searchlightCount = 0;
+        int specialAmmoVariant = -1;
+        int torpedoSpeedLevel = 0;
 
         for (int slot = 0; slot < equipSlots; slot++) {
             ItemStack stack = this.inventory.getStackInSlot(slot);
@@ -2799,6 +3025,24 @@ public abstract class EntityShipBase extends TamableAnimal {
                 case EQUIP_TYPE_FLARE -> flareCount++;
                 case EQUIP_TYPE_SEARCHLIGHT -> searchlightCount++;
                 default -> {
+                }
+            }
+
+            if (equipItem.getEquipTypeId(stack) == 29) {
+                int variant = equipItem.getVariant(stack);
+                if (variant == 5 || variant == 6 || variant == 8) {
+                    specialAmmoVariant = Math.max(specialAmmoVariant, variant);
+                }
+            } else if (equipItem.getEquipTypeId(stack) == 5) {
+                int variant = equipItem.getVariant(stack);
+                if (variant >= 3) {
+                    int speed = switch (variant) {
+                        case 3, 4 -> 1;
+                        case 5 -> 2;
+                        case 6 -> 3;
+                        default -> 0;
+                    };
+                    torpedoSpeedLevel = Math.max(torpedoSpeedLevel, speed);
                 }
             }
 
@@ -2817,8 +3061,18 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.setStateMinor(STATE_MINOR_EQUIP_COMPASS, compassCount);
         this.setStateMinor(STATE_MINOR_EQUIP_FLARE, flareCount);
         this.setStateMinor(STATE_MINOR_EQUIP_SEARCHLIGHT, searchlightCount);
+        this.setStateMinor(STATE_MINOR_EQUIP_SPECIAL_AMMO, specialAmmoVariant);
+        this.setStateMinor(STATE_MINOR_EQUIP_TORPEDO_SPEED, torpedoSpeedLevel);
 
         return equipBonuses;
+    }
+
+    int getSpecialAmmoVariant() {
+        return this.getStateMinor(STATE_MINOR_EQUIP_SPECIAL_AMMO);
+    }
+
+    int getTorpedoSpeedLevel() {
+        return this.getStateMinor(STATE_MINOR_EQUIP_TORPEDO_SPEED);
     }
 
     protected void setFaceNormal() {
@@ -2983,8 +3237,40 @@ public abstract class EntityShipBase extends TamableAnimal {
         return 0;
     }
 
+    static int getLegacyDimensionId(Level level) {
+        String key = level.dimension().location().toString();
+        return switch (key) {
+            case "minecraft:overworld" -> 0;
+            case "minecraft:the_nether" -> -1;
+            case "minecraft:the_end" -> 1;
+            default -> Integer.MIN_VALUE;
+        };
+    }
+
     protected void tickWaypointMove() {
-        if (this.getStateFlag(11) || this.getStateMinor(15) <= 0 || this.isOrderedToSit() || this.isLeashed() || this.isVehicle()) {
+        if (this.getStateFlag(11) || this.isOrderedToSit() || this.isLeashed() || this.isVehicle()) {
+            return;
+        }
+
+        if (this.getGuardedPos(4) == 2) {
+            Entity guardedEntity = this.getGuardedEntity();
+            if (guardedEntity == null || !guardedEntity.isAlive()) {
+                this.setGuardedEntity(null);
+            } else {
+                int guardedDim = getLegacyDimensionId(guardedEntity.level());
+                if (guardedDim != this.getGuardedPos(3)) {
+                    this.setGuardedPos(-1, -1, -1, guardedDim, 2);
+                }
+            }
+            return;
+        }
+
+        if (this.getStateMinor(15) <= 0) {
+            if (this.getGuardedPos(4) == 1) {
+                this.setGuardedPos(this.getStateMinor(14), this.getStateMinor(15), this.getStateMinor(16), this.getStateMinor(17), 0);
+            }
+            this.setStateMinor(43, 0);
+            this.setStateTimer(4, 0);
             return;
         }
 
@@ -3031,9 +3317,13 @@ public abstract class EntityShipBase extends TamableAnimal {
                             targetPos = next;
                         }
                         if (targetPos != null) {
-                            this.setStateMinor(14, targetPos.getX());
-                            this.setStateMinor(15, targetPos.getY());
-                            this.setStateMinor(16, targetPos.getZ());
+                            this.setGuardedPos(
+                                    targetPos.getX(),
+                                    targetPos.getY(),
+                                    targetPos.getZ(),
+                                    getLegacyDimensionId(this.level()),
+                                    this.getGuardedPos(4)
+                            );
                             if (this.getStateMinor(6) > 0) {
                                 this.setStateMinor(10, 2);
                                 this.getNavigation().moveTo(targetPos.getX() + 0.5D, targetPos.getY(), targetPos.getZ() + 0.5D, 1.0D);
