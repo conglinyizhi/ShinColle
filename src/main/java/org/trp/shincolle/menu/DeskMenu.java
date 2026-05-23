@@ -2,12 +2,16 @@ package org.trp.shincolle.menu;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.trp.shincolle.block.entity.DeskBlockEntity;
+import org.trp.shincolle.network.S2CDeskDiplomacySyncPayload;
+import org.trp.shincolle.server.TeamDiplomacySavedData;
 
 public class DeskMenu extends AbstractContainerMenu {
     private final int deskType;
@@ -113,6 +117,11 @@ public class DeskMenu extends AbstractContainerMenu {
                     DeskMenu.this.radarZoom = value;
                 }
             });
+
+            if (!this.clientSide && this.guiFunc >= 3 && this.guiFunc <= 4 && playerInventory.player instanceof ServerPlayer serverPlayer) {
+                TeamDiplomacySavedData.TeamDiplomacyEntry entry = TeamDiplomacySavedData.get(serverPlayer.serverLevel()).getOrCreate(serverPlayer.getUUID());
+                PacketDistributor.sendToPlayer(serverPlayer, S2CDeskDiplomacySyncPayload.of(serverPlayer.getUUID(), entry.allies(), entry.banned()));
+            }
         }
     }
 
@@ -123,7 +132,10 @@ public class DeskMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return true;
+        if (blockEntity != null) {
+            return AbstractContainerMenu.stillValid(net.minecraft.world.inventory.ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()), player, blockEntity.getBlockState().getBlock());
+        }
+        return !player.isRemoved() && player.isAlive();
     }
 
     public int getDeskType() {

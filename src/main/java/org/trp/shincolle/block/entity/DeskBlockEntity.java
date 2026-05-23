@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.menu.DeskMenu;
+import org.trp.shincolle.reference.Values;
 
 public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     private int guiFunc = 0;
@@ -28,8 +29,8 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setGuiFunc(int guiFunc) {
-        this.guiFunc = guiFunc;
-        setChanged();
+        this.guiFunc = Math.max(0, Math.min(4, guiFunc));
+        markForSync();
     }
 
     public int getRadarZoomLv() {
@@ -37,8 +38,8 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setRadarZoomLv(int radarZoomLv) {
-        this.radarZoomLv = radarZoomLv;
-        setChanged();
+        this.radarZoomLv = Math.max(0, Math.min(2, radarZoomLv));
+        markForSync();
     }
 
     public int getBookChap() {
@@ -46,8 +47,9 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setBookChap(int bookChap) {
-        this.bookChap = bookChap;
-        setChanged();
+        this.bookChap = clampChapter(bookChap);
+        this.bookPage = clampPageForChapter(this.bookChap, this.bookPage);
+        markForSync();
     }
 
     public int getBookPage() {
@@ -55,8 +57,8 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setBookPage(int bookPage) {
-        this.bookPage = bookPage;
-        setChanged();
+        this.bookPage = clampPageForChapter(this.bookChap, bookPage);
+        markForSync();
     }
 
     @Override
@@ -71,10 +73,10 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.guiFunc = tag.getInt("guiFunc");
-        this.radarZoomLv = tag.getInt("radarZoom");
-        this.bookChap = tag.getInt("bookChap");
-        this.bookPage = tag.getInt("bookPage");
+        this.guiFunc = Math.max(0, Math.min(4, tag.getInt("guiFunc")));
+        this.radarZoomLv = Math.max(0, Math.min(2, tag.getInt("radarZoom")));
+        this.bookChap = clampChapter(tag.getInt("bookChap"));
+        this.bookPage = clampPageForChapter(this.bookChap, tag.getInt("bookPage"));
     }
 
     @Override
@@ -85,5 +87,31 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     @Override
     public AbstractContainerMenu createMenu(int containerId, Inventory playerInventory, Player player) {
         return new DeskMenu(containerId, playerInventory, 0, this.bookChap, this.bookPage, this.guiFunc, this.radarZoomLv, this);
+    }
+
+    public void markForSync() {
+        setChanged();
+        if (level != null) {
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Override
+    public net.minecraft.network.protocol.Packet<net.minecraft.network.protocol.game.ClientGamePacketListener> getUpdatePacket() {
+        return net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
+    }
+
+    private static int clampChapter(int chapter) {
+        return Math.max(0, Math.min(Values.PageLimit.length - 1, chapter));
+    }
+
+    private static int clampPageForChapter(int chapter, int page) {
+        int clampedChapter = clampChapter(chapter);
+        return Math.max(0, Math.min(Values.PageLimit[clampedChapter], page));
     }
 }
