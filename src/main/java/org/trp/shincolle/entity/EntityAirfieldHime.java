@@ -24,6 +24,9 @@ import java.util.Objects;
 public class EntityAirfieldHime extends EntityShipBase {
 
     public static final String EQUIP_HAND = "equip_hand";
+    public static final String EQUIP_ARMOR = "equip_armor";
+    public static final String EQUIP_POSE_1 = "equip_pose_1";
+    public static final String EQUIP_POSE_2 = "equip_pose_2";
 
     public EntityAirfieldHime(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -64,6 +67,9 @@ public class EntityAirfieldHime extends EntityShipBase {
     public List<EquipOption> getEquipOptions() {
         List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
         list.add(new EquipOption(EQUIP_HAND, "gui.shincolle.equip.hand"));
+        list.add(new EquipOption(EQUIP_ARMOR, "gui.shincolle.equip.armor"));
+        list.add(new EquipOption(EQUIP_POSE_1, "gui.shincolle.equip.pose1"));
+        list.add(new EquipOption(EQUIP_POSE_2, "gui.shincolle.equip.pose2"));
         return list;
     }
 

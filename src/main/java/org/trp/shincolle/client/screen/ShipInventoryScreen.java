@@ -156,31 +156,31 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawLabel(guiGraphics, tr("gui.shincolle.kills"), 75, 20);
             drawValueRight(guiGraphics, "0", 135, 30, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "EXP", 75, 41);
+            drawLabel(guiGraphics, tr("gui.shincolle.exp"), 75, 41);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipExp()), 135, 51, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AMMO L", 75, 62);
+            drawLabel(guiGraphics, tr("gui.shincolle.ammolight"), 75, 62);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoLight()), 135, 72, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "AMMO H", 75, 83);
+            drawLabel(guiGraphics, tr("gui.shincolle.ammoheavy"), 75, 83);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoHeavy()), 135, 93, 0xFFFFFF);
 
-            drawLabel(guiGraphics, "GRUDGE", 75, 104);
+            drawLabel(guiGraphics, tr("gui.shincolle.grudge"), 75, 104);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipFuel()), 135, 114, 0xFFFFFF);
         } else if (this.activeDetailTab == DETAIL_TAB_STATUS) {
-            drawLabel(guiGraphics, "FIREPWR", 75, 20);
+            drawLabel(guiGraphics, tr("gui.shincolle.firepower1"), 75, 20);
             drawValueRight(guiGraphics, String.format("%.0f", this.menu.getShipFirepower()), 135, 30, getModernizationColor(this.menu.getShip().getAttrBonus(1)));
 
-            drawLabel(guiGraphics, "ARMOR", 75, 41);
+            drawLabel(guiGraphics, tr("gui.shincolle.armor"), 75, 41);
             drawValueRight(guiGraphics, String.format("%.1f%%", this.menu.getShipArmor() * 100.0f), 135, 51, getModernizationColor(this.menu.getShip().getAttrBonus(2)));
 
-            drawLabel(guiGraphics, "RELOAD", 75, 62);
+            drawLabel(guiGraphics, tr("gui.shincolle.attackspeed"), 75, 62);
             drawValueRight(guiGraphics, String.format("%.2f", this.menu.getShipReloadSpeed()), 135, 72, getModernizationColor(this.menu.getShip().getAttrBonus(3)));
 
-            drawLabel(guiGraphics, "MOVE", 75, 83);
+            drawLabel(guiGraphics, tr("gui.shincolle.movespeed"), 75, 83);
             drawValueRight(guiGraphics, String.format("%.2f", this.menu.getShipMoveSpeed()), 135, 93, getModernizationColor(this.menu.getShip().getAttrBonus(4)));
 
-            drawLabel(guiGraphics, "RANGE", 75, 104);
+            drawLabel(guiGraphics, tr("gui.shincolle.range"), 75, 104);
             drawValueRight(guiGraphics, String.format("%.1f", this.menu.getShipRange()), 135, 114, getModernizationColor(this.menu.getShip().getAttrBonus(5)));
         } else {
             drawLabel(guiGraphics, tr("gui.shincolle.marriage"), 75, 20);
@@ -190,10 +190,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawValueRight(guiGraphics, tr("gui.shincolle.formation.format0"), 135, 51, 0xFFFFFF);
 
             if (this.menu.getShip().supportsAircraftCombat()) {
-                drawLabel(guiGraphics, "AIRCRAFT L", 75, 83);
+                drawLabel(guiGraphics, tr("gui.shincolle.airplanelight"), 75, 83);
                 drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftLight()), 135, 93, 0xFFFF00);
 
-                drawLabel(guiGraphics, "AIRCRAFT H", 75, 104);
+                drawLabel(guiGraphics, tr("gui.shincolle.airplaneheavy"), 75, 104);
                 drawValueRight(guiGraphics, String.valueOf(this.menu.getAircraftHeavy()), 135, 114, 0xFFFF00);
             }
         }
@@ -715,8 +715,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawTopRightStatus(GuiGraphics guiGraphics) {
-        String levelLabel = "LEVEL";
-        String hpLabel = "HP";
+        String levelLabel = tr("gui.shincolle.level");
+        String hpLabel = tr("gui.shincolle.hp");
         int shipLevel = this.menu.getShipLevel();
         int hpCurrentValue = Math.round(this.menu.getShipHealth());
         int hpMaxValue = Math.round(this.menu.getShipMaxHealth());

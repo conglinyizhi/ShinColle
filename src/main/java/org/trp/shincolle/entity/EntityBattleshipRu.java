@@ -28,6 +28,7 @@ public class EntityBattleshipRu extends EntityShipBase {
     public static final String EQUIP_WEAPON = "equip_weapon";
     public static final String EQUIP_BASE = "equip_base";
     public static final String EQUIP_GLOVES = "equip_gloves";
+    public static final String EQUIP_EYE_EFFECT = "equip_eye_effect";
 
     private static final int EMOTION_SKILL_PHASE = 5;
 
@@ -127,6 +128,7 @@ public class EntityBattleshipRu extends EntityShipBase {
         list.add(new EquipOption(EQUIP_WEAPON, "gui.shincolle.equip.weapon"));
         list.add(new EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"));
         list.add(new EquipOption(EQUIP_GLOVES, "gui.shincolle.equip.gloves"));
+        list.add(new EquipOption(EQUIP_EYE_EFFECT, "gui.shincolle.equip.eye_effect"));
         return list;
     }
 

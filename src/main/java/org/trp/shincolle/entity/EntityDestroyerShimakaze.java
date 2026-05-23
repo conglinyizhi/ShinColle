@@ -23,6 +23,7 @@ import java.util.List;
 public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSummonAttack {
 
     public static final String EQUIP_RIGGING = "equip_rigging";
+    public static final String EQUIP_RENSOUHOU_TYPE = "equip_rensouhou_type";
     public static final String EQUIP_HAIR_ANCHOR = "equip_hair_anchor";
     public static final String EQUIP_HAIR_FRONT_1 = "equip_hair_front_1";
     public static final String EQUIP_HAIR_FRONT_2 = "equip_hair_front_2";
@@ -67,6 +68,7 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
     public List<EquipOption> getEquipOptions() {
         List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
         list.addAll(List.of(
+                new EquipOption(EQUIP_RENSOUHOU_TYPE, "gui.shincolle.equip.rensouhou_type"),
                 new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"),
                 new EquipOption(EQUIP_HAIR_ANCHOR, "gui.shincolle.equip.hair_anchor"),
                 new EquipOption(EQUIP_HAIR_FRONT_1, "gui.shincolle.equip.hair_front_1"),
@@ -341,4 +343,3 @@ protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_SHIMAKAZE_SPAWN_EGG.get();
     }
 }
-

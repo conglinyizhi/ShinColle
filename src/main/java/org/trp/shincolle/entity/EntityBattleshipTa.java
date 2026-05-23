@@ -21,6 +21,7 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
 
     public static final String EQUIP_CLOAK = "equip_cloak";
     public static final String EQUIP_RIGGING = "equip_rigging";
+    public static final String EQUIP_ARMOR = "equip_armor";
 
     private static final int MAX_RENSOUHOU = 6;
 
@@ -57,6 +58,7 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         List<EquipOption> list = new java.util.ArrayList<>(super.getEquipOptions());
         list.add(new EquipOption(EQUIP_CLOAK, "gui.shincolle.equip.cloak"));
         list.add(new EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"));
+        list.add(new EquipOption(EQUIP_ARMOR, "gui.shincolle.equip.armor"));
         return list;
     }
 
@@ -159,4 +161,3 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         return ModItems.BATTLESHIP_TA_SPAWN_EGG.get();
     }
 }
-
