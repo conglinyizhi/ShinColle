@@ -87,6 +87,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     private int syncedShipId = -1;
     private int liquidTransferRate = 0;
     private IItemHandler chestHandler = null;
+    private IItemHandler combinedChestHandler = null;
     private int partDelay = 0;
 
     public CraneBlockEntity(BlockPos pos, BlockState blockState) {
@@ -196,6 +197,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                 this.isPaired = false;
                 this.chestPos = BlockPos.ZERO;
                 this.chestHandler = null;
+                this.combinedChestHandler = null;
                 markForSync();
             }
         }
@@ -214,9 +216,11 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         var handler = this.level.getCapability(Capabilities.ItemHandler.BLOCK, this.chestPos, null);
         if (handler != null) {
             this.chestHandler = handler;
+            this.combinedChestHandler = createCombinedChestHandler(handler);
             return true;
         }
         this.chestHandler = null;
+        this.combinedChestHandler = null;
         return false;
     }
 
@@ -289,9 +293,9 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     }
 
     private boolean applyItemTransfer(boolean isLoading) {
-        if (this.craningShip == null || this.chestHandler == null) return false;
-        IItemHandler invFrom = isLoading ? this.chestHandler : this.craningShip.getInventory();
-        IItemHandler invTo = isLoading ? this.craningShip.getInventory() : this.chestHandler;
+        if (this.craningShip == null || this.combinedChestHandler == null) return false;
+        IItemHandler invFrom = isLoading ? this.combinedChestHandler : this.craningShip.getInventory();
+        IItemHandler invTo = isLoading ? this.craningShip.getInventory() : this.combinedChestHandler;
         
         int filterStart = isLoading ? 0 : 9;
         boolean hasNormalFilter = false;
@@ -350,11 +354,11 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
 
     private boolean canMoveItem(boolean isLoading, ItemStack temp) {
         if (this.craneMode == 3) { 
-            IItemHandler targetInv = isLoading ? this.craningShip.getInventory() : this.chestHandler;
+            IItemHandler targetInv = isLoading ? this.craningShip.getInventory() : this.combinedChestHandler;
             int current = InventoryHelper.calcItemStackAmount(targetInv, temp, this.checkMetadata, this.checkNbt, this.checkOredict);
             return current < temp.getCount();
         } else if (this.craneMode == 4) { 
-            IItemHandler sourceInv = isLoading ? this.chestHandler : this.craningShip.getInventory();
+            IItemHandler sourceInv = isLoading ? this.combinedChestHandler : this.craningShip.getInventory();
             int current = InventoryHelper.calcItemStackAmount(sourceInv, temp, this.checkMetadata, this.checkNbt, this.checkOredict);
             return current > temp.getCount();
         }
@@ -458,7 +462,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         if (this.enabLoad && !isInventoryFull(this.craningShip.getInventory())) {
             return false;
         }
-        if (this.enabUnload && !isInventoryFull(this.chestHandler)) {
+        if (this.enabUnload && !isInventoryFull(this.combinedChestHandler)) {
             return false;
         }
         if (this.modeLiquid == 1 && !InventoryHelper.checkInventoryFluidContainer(this.craningShip.getInventory(), this.fluidTank.getFluid(), true)) {
@@ -471,7 +475,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     }
 
     private boolean isWaitModeEmpty() {
-        if (this.enabLoad && !isInventoryEmpty(this.chestHandler)) {
+        if (this.enabLoad && !isInventoryEmpty(this.combinedChestHandler)) {
             return false;
         }
         if (this.enabUnload && !isInventoryEmpty(this.craningShip.getInventory())) {
@@ -493,14 +497,14 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         if (this.enabLoad && !matchesRequestedAmounts(this.craningShip.getInventory(), 0, true)) {
             return false;
         }
-        if (this.enabUnload && !matchesRequestedAmounts(this.chestHandler, 9, true)) {
+        if (this.enabUnload && !matchesRequestedAmounts(this.combinedChestHandler, 9, true)) {
             return false;
         }
         return true;
     }
 
     private boolean isInventoryRemain() {
-        if (this.enabLoad && !matchesRequestedAmounts(this.chestHandler, 0, false)) {
+        if (this.enabLoad && !matchesRequestedAmounts(this.combinedChestHandler, 0, false)) {
             return false;
         }
         if (this.enabUnload && !matchesRequestedAmounts(this.craningShip.getInventory(), 9, false)) {
@@ -610,6 +614,14 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         }
 
         return null;
+    }
+
+    private IItemHandler createCombinedChestHandler(IItemHandler primary) {
+        IItemHandler adjacent = getAdjacentChestHandler();
+        if (adjacent == null) {
+            return primary;
+        }
+        return new CombinedItemHandler(primary, adjacent);
     }
 
     private FluidStack drainFromChestContainers(@Nullable FluidStack targetFluid, int maxDrain) {
@@ -1047,6 +1059,50 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         setChanged();
         if (level != null) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    private static final class CombinedItemHandler implements IItemHandler {
+        private final IItemHandler first;
+        private final IItemHandler second;
+
+        private CombinedItemHandler(IItemHandler first, IItemHandler second) {
+            this.first = first;
+            this.second = second;
+        }
+
+        @Override
+        public int getSlots() {
+            return this.first.getSlots() + this.second.getSlots();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return isFirst(slot) ? this.first.getStackInSlot(slot) : this.second.getStackInSlot(slot - this.first.getSlots());
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            return isFirst(slot) ? this.first.insertItem(slot, stack, simulate) : this.second.insertItem(slot - this.first.getSlots(), stack, simulate);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return isFirst(slot) ? this.first.extractItem(slot, amount, simulate) : this.second.extractItem(slot - this.first.getSlots(), amount, simulate);
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            return isFirst(slot) ? this.first.getSlotLimit(slot) : this.second.getSlotLimit(slot - this.first.getSlots());
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return isFirst(slot) ? this.first.isItemValid(slot, stack) : this.second.isItemValid(slot - this.first.getSlots(), stack);
+        }
+
+        private boolean isFirst(int slot) {
+            return slot < this.first.getSlots();
         }
     }
 }
