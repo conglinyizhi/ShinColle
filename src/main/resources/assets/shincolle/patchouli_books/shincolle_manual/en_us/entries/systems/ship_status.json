@@ -1,0 +1,28 @@
+{
+  "name": "patchouli.shincolle.entry.ship_status.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:deskitemradar",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ship_status.page0.title",
+      "text": "patchouli.shincolle.entry.ship_status.page0.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ship_status.page1.title",
+      "text": "patchouli.shincolle.entry.ship_status.page1.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ship_status.page2.title",
+      "text": "patchouli.shincolle.entry.ship_status.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ship_status.page3.title",
+      "text": "patchouli.shincolle.entry.ship_status.page3.text"
+    }
+  ]
+}
