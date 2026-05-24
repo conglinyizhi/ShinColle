@@ -135,6 +135,9 @@ public class RecipePaperMenu extends AbstractContainerMenu {
     public void slotsChanged(Container container) {
         if (container == craftMatrix) {
             updateResult();
+            if (!level.isClientSide) {
+                saveRecipe();
+            }
         }
     }
 
