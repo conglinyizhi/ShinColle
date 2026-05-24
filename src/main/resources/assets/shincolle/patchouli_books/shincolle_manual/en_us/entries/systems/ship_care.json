@@ -1,0 +1,33 @@
+{
+  "name": "patchouli.shincolle.entry.ship_care.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:trainingbook",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ship_care.page0.title",
+      "text": "patchouli.shincolle.entry.ship_care.page0.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.ship_care.page1.title",
+      "recipe": "shincolle:bucketrepair",
+      "recipe2": "shincolle:toyairplane",
+      "text": "patchouli.shincolle.entry.ship_care.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.ship_care.page2.title",
+      "recipe": "shincolle:marriagering",
+      "recipe2": "shincolle:repairgoddess_2",
+      "text": "patchouli.shincolle.entry.ship_care.page2.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.ship_care.page3.title",
+      "item": "shincolle:trainingbook",
+      "text": "patchouli.shincolle.entry.ship_care.page3.text"
+    }
+  ]
+}
