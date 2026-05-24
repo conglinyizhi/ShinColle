@@ -16,6 +16,7 @@ import java.util.List;
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class Config {
     private static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+    private static final ModConfigSpec.Builder CLIENT_BUILDER = new ModConfigSpec.Builder();
 
     private static final ModConfigSpec.IntValue SHIP_EXP_MODIFIER;
     private static final ModConfigSpec.IntValue SHIP_EXP_GAIN_MELEE;
@@ -103,6 +104,7 @@ public class Config {
     private static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_Z;
 
     public static final ModConfigSpec SPEC;
+    public static final ModConfigSpec CLIENT_SPEC;
 
     public static int shipExpModifier = 20;
     public static int shipExpGainMelee = 4;
@@ -434,132 +436,134 @@ public class Config {
 
         BUILDER.pop();
 
-        BUILDER.comment("Ship sound and timekeeping settings").push("ship_sound");
-        SHIP_CAN_TIMEKEEPING = BUILDER
+        CLIENT_BUILDER.comment("Ship sound and timekeeping settings").push("ship_sound");
+        SHIP_CAN_TIMEKEEPING = CLIENT_BUILDER
                 .comment("Play ship timekeeping voice every Minecraft hour when enabled in ship GUI")
                 .define("canTimeKeeping", canTimeKeeping);
-        SHIP_VOLUME_TIMEKEEPING = BUILDER
+        SHIP_VOLUME_TIMEKEEPING = CLIENT_BUILDER
                 .comment("Timekeeping voice volume multiplier")
                 .defineInRange("volumeTimeKeeping", volumeTimeKeeping, 0.0D, 10.0D);
-        SHIP_VOLUME_GENERAL = BUILDER
+        SHIP_VOLUME_GENERAL = CLIENT_BUILDER
                 .comment("General ship voice volume multiplier")
                 .defineInRange("volumeShip", volumeShip, 0.0D, 10.0D);
-        SHIP_VOLUME_ATTACK = BUILDER
+        SHIP_VOLUME_ATTACK = CLIENT_BUILDER
                 .comment("Attack sound volume multiplier")
                 .defineInRange("volumeAttack", volumeAttack, 0.0D, 10.0D);
-        BUILDER.pop();
+        CLIENT_BUILDER.pop();
 
-        BUILDER.comment("Client side settings").push("client");
-        CLIENT_SCALE_HELD_ITEM = BUILDER
+        CLIENT_BUILDER.comment("Client side settings").push("client");
+        CLIENT_SCALE_HELD_ITEM = CLIENT_BUILDER
                 .comment("Held item scale")
                 .defineInRange("scaleHeldItem", 1.0D, 0.0D, 10.0D);
-        CLIENT_OFFSET_HELD_ITEM_X = BUILDER
+        CLIENT_OFFSET_HELD_ITEM_X = CLIENT_BUILDER
                 .comment("Held item offset X")
                 .defineInRange("offsetHeldItemX", 0.0D, -10.0D, 10.0D);
-        CLIENT_OFFSET_HELD_ITEM_Y = BUILDER
+        CLIENT_OFFSET_HELD_ITEM_Y = CLIENT_BUILDER
                 .comment("Held item offset Y")
                 .defineInRange("offsetHeldItemY", 0.0D, -10.0D, 10.0D);
-        CLIENT_OFFSET_HELD_ITEM_Z = BUILDER
+        CLIENT_OFFSET_HELD_ITEM_Z = CLIENT_BUILDER
                 .comment("Held item offset Z")
                 .defineInRange("offsetHeldItemZ", 0.0D, -10.0D, 10.0D);
-        BUILDER.pop();
+        CLIENT_BUILDER.pop();
 
         SPEC = BUILDER.build();
+        CLIENT_SPEC = CLIENT_BUILDER.build();
     }
 
     @SubscribeEvent
     static void onLoad(final ModConfigEvent event) {
-        if (event.getConfig().getSpec() != SPEC) {
+        if (event.getConfig().getSpec() == SPEC) {
+            shipExpModifier = SHIP_EXP_MODIFIER.get();
+            shipExpGainMelee = SHIP_EXP_GAIN_MELEE.get();
+            shipExpGainKill = SHIP_EXP_GAIN_KILL.get();
+            shipExpGainLightAttack = SHIP_EXP_GAIN_LIGHT_ATTACK.get();
+            shipExpGainHeavyAttack = SHIP_EXP_GAIN_HEAVY_ATTACK.get();
+            shipExpGainLightAircraft = SHIP_EXP_GAIN_LIGHT_AIRCRAFT.get();
+            shipExpGainHeavyAircraft = SHIP_EXP_GAIN_HEAVY_AIRCRAFT.get();
+            shipMaxLevelNormal = SHIP_MAX_LEVEL_NORMAL.get();
+            shipMaxLevelMarried = Math.max(shipMaxLevelNormal, SHIP_MAX_LEVEL_MARRIED.get());
+            trainingBookLevelMin = TRAINING_BOOK_LEVEL_MIN.get();
+            trainingBookLevelMax = Math.max(trainingBookLevelMin, TRAINING_BOOK_LEVEL_MAX.get());
+
+            fuelDecayInterval = FUEL_DECAY_INTERVAL.get();
+            fuelMoveDecayFactor = FUEL_MOVE_DECAY_FACTOR.get();
+            fuelConsumeDD = FUEL_CONSUME_DD.get();
+            fuelConsumeCL = FUEL_CONSUME_CL.get();
+            fuelConsumeCA = FUEL_CONSUME_CA.get();
+            fuelConsumeCAV = FUEL_CONSUME_CAV.get();
+            fuelConsumeCLT = FUEL_CONSUME_CLT.get();
+            fuelConsumeCVL = FUEL_CONSUME_CVL.get();
+            fuelConsumeCV = FUEL_CONSUME_CV.get();
+            fuelConsumeBB = FUEL_CONSUME_BB.get();
+            fuelConsumeBBV = FUEL_CONSUME_BBV.get();
+            fuelConsumeSS = FUEL_CONSUME_SS.get();
+            fuelConsumeAP = FUEL_CONSUME_AP.get();
+            fuelConsumeActionLight = FUEL_CONSUME_ACTION_LIGHT.get();
+            fuelConsumeActionHeavy = FUEL_CONSUME_ACTION_HEAVY.get();
+            fuelConsumeActionLightAircraft = FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT.get();
+            fuelConsumeActionHeavyAircraft = FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT.get();
+
+            tickFishingMin = TICK_FISHING_MIN.get();
+            tickFishingMax = TICK_FISHING_MAX.get();
+            tickMiningMin = TICK_MINING_MIN.get();
+            tickMiningMax = TICK_MINING_MAX.get();
+            smallShipyardPowerMax = SMALL_SHIPYARD_POWER_MAX.get();
+            smallShipyardBuildSpeed = SMALL_SHIPYARD_BUILD_SPEED.get();
+            smallShipyardInstantTicks = SMALL_SHIPYARD_INSTANT_TICKS.get();
+            smallShipyardFuelMagnification = SMALL_SHIPYARD_FUEL_MAGNIFICATION.get().floatValue();
+            largeShipyardPowerMax = LARGE_SHIPYARD_POWER_MAX.get();
+            largeShipyardBuildSpeed = LARGE_SHIPYARD_BUILD_SPEED.get();
+            largeShipyardInstantTicks = LARGE_SHIPYARD_INSTANT_TICKS.get();
+            largeShipyardFuelMagnification = LARGE_SHIPYARD_FUEL_MAGNIFICATION.get().floatValue();
+            ringAbilityWaterBreathing = RING_ABILITY_WATER_BREATHING.get();
+            ringAbilitySwimFlight = RING_ABILITY_SWIM_FLIGHT.get();
+            ringAbilityUnderwaterDigCap = RING_ABILITY_UNDERWATER_DIG_CAP.get();
+            ringAbilityUnderwaterFogCap = RING_ABILITY_UNDERWATER_FOG_CAP.get();
+            ringAbilityFireImmunity = RING_ABILITY_FIRE_IMMUNITY.get();
+            drumLiquidBaseRate = DRUM_LIQUID_BASE_RATE.get();
+            drumLiquidEnchantRate = DRUM_LIQUID_ENCHANT_RATE.get();
+            drumEnergyBaseRate = DRUM_ENERGY_BASE_RATE.get();
+            drumEnergyEnchantRate = DRUM_ENERGY_ENCHANT_RATE.get();
+            pairDistChest = PAIR_DIST_CHEST.get();
+            pairDistWaypoint = PAIR_DIST_WAYPOINT.get();
+            craneTankCapacity = CRANE_TANK_CAPACITY.get();
+            volCorePowerMax = VOLCORE_POWER_MAX.get();
+            volCoreConsumeSpeed = VOLCORE_CONSUME_SPEED.get();
+            volCoreFuelMagnitude = VOLCORE_FUEL_MAGNITUDE.get();
+            miningEntries = parseMiningEntries(MINING_ENTRIES.get());
+            lootEntries = parseLootEntries(LOOT_ENTRIES.get());
+            for (int i = 0; i < 4; i++) {
+                expGainTask[i] = EXP_GAIN_TASK[i].get();
+                consumeGrudgeTask[i] = CONSUME_GRUDGE_TASK[i].get();
+            }
+
+            hostileDropGrudgeRate = HOSTILE_DROP_GRUDGE_RATE.get().floatValue();
+            hostileDeathMaxTicks = HOSTILE_DEATH_MAX_TICKS.get();
+            hostileDespawnBossTicks = HOSTILE_DESPAWN_BOSS_TICKS.get();
+            hostileDespawnMinionTicks = HOSTILE_DESPAWN_MINION_TICKS.get();
+            hostileBossCooldownTicks = HOSTILE_BOSS_COOLDOWN_TICKS.get();
+            hostileSpawnBossCount = HOSTILE_SPAWN_BOSS_COUNT.get();
+            hostileSpawnMinionCount = HOSTILE_SPAWN_MINION_COUNT.get();
+            hostileSpawnRequireRing = HOSTILE_SPAWN_REQUIRE_RING.get();
+            hostileMobSpawnMax = HOSTILE_MOB_SPAWN_MAX.get();
+            hostileMobSpawnChancePercent = HOSTILE_MOB_SPAWN_CHANCE_PERCENT.get();
+            hostileMobSpawnGroups = Math.max(1, HOSTILE_MOB_SPAWN_GROUPS.get());
+            hostileMobSpawnGroupMin = Math.max(1, HOSTILE_MOB_SPAWN_GROUP_MIN.get());
+            hostileMobSpawnGroupMax = Math.max(hostileMobSpawnGroupMin, HOSTILE_MOB_SPAWN_GROUP_MAX.get());
             return;
         }
 
-        shipExpModifier = SHIP_EXP_MODIFIER.get();
-        shipExpGainMelee = SHIP_EXP_GAIN_MELEE.get();
-        shipExpGainKill = SHIP_EXP_GAIN_KILL.get();
-        shipExpGainLightAttack = SHIP_EXP_GAIN_LIGHT_ATTACK.get();
-        shipExpGainHeavyAttack = SHIP_EXP_GAIN_HEAVY_ATTACK.get();
-        shipExpGainLightAircraft = SHIP_EXP_GAIN_LIGHT_AIRCRAFT.get();
-        shipExpGainHeavyAircraft = SHIP_EXP_GAIN_HEAVY_AIRCRAFT.get();
-        shipMaxLevelNormal = SHIP_MAX_LEVEL_NORMAL.get();
-        shipMaxLevelMarried = Math.max(shipMaxLevelNormal, SHIP_MAX_LEVEL_MARRIED.get());
-        trainingBookLevelMin = TRAINING_BOOK_LEVEL_MIN.get();
-        trainingBookLevelMax = Math.max(trainingBookLevelMin, TRAINING_BOOK_LEVEL_MAX.get());
+        if (event.getConfig().getSpec() == CLIENT_SPEC) {
+            canTimeKeeping = SHIP_CAN_TIMEKEEPING.get();
+            volumeTimeKeeping = SHIP_VOLUME_TIMEKEEPING.get().floatValue();
+            volumeShip = SHIP_VOLUME_GENERAL.get().floatValue();
+            volumeAttack = SHIP_VOLUME_ATTACK.get().floatValue();
 
-        fuelDecayInterval = FUEL_DECAY_INTERVAL.get();
-        fuelMoveDecayFactor = FUEL_MOVE_DECAY_FACTOR.get();
-        fuelConsumeDD = FUEL_CONSUME_DD.get();
-        fuelConsumeCL = FUEL_CONSUME_CL.get();
-        fuelConsumeCA = FUEL_CONSUME_CA.get();
-        fuelConsumeCAV = FUEL_CONSUME_CAV.get();
-        fuelConsumeCLT = FUEL_CONSUME_CLT.get();
-        fuelConsumeCVL = FUEL_CONSUME_CVL.get();
-        fuelConsumeCV = FUEL_CONSUME_CV.get();
-        fuelConsumeBB = FUEL_CONSUME_BB.get();
-        fuelConsumeBBV = FUEL_CONSUME_BBV.get();
-        fuelConsumeSS = FUEL_CONSUME_SS.get();
-        fuelConsumeAP = FUEL_CONSUME_AP.get();
-        fuelConsumeActionLight = FUEL_CONSUME_ACTION_LIGHT.get();
-        fuelConsumeActionHeavy = FUEL_CONSUME_ACTION_HEAVY.get();
-        fuelConsumeActionLightAircraft = FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT.get();
-        fuelConsumeActionHeavyAircraft = FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT.get();
-        
-        tickFishingMin = TICK_FISHING_MIN.get();
-        tickFishingMax = TICK_FISHING_MAX.get();
-        tickMiningMin = TICK_MINING_MIN.get();
-        tickMiningMax = TICK_MINING_MAX.get();
-        smallShipyardPowerMax = SMALL_SHIPYARD_POWER_MAX.get();
-        smallShipyardBuildSpeed = SMALL_SHIPYARD_BUILD_SPEED.get();
-        smallShipyardInstantTicks = SMALL_SHIPYARD_INSTANT_TICKS.get();
-        smallShipyardFuelMagnification = SMALL_SHIPYARD_FUEL_MAGNIFICATION.get().floatValue();
-        largeShipyardPowerMax = LARGE_SHIPYARD_POWER_MAX.get();
-        largeShipyardBuildSpeed = LARGE_SHIPYARD_BUILD_SPEED.get();
-        largeShipyardInstantTicks = LARGE_SHIPYARD_INSTANT_TICKS.get();
-        largeShipyardFuelMagnification = LARGE_SHIPYARD_FUEL_MAGNIFICATION.get().floatValue();
-        ringAbilityWaterBreathing = RING_ABILITY_WATER_BREATHING.get();
-        ringAbilitySwimFlight = RING_ABILITY_SWIM_FLIGHT.get();
-        ringAbilityUnderwaterDigCap = RING_ABILITY_UNDERWATER_DIG_CAP.get();
-        ringAbilityUnderwaterFogCap = RING_ABILITY_UNDERWATER_FOG_CAP.get();
-        ringAbilityFireImmunity = RING_ABILITY_FIRE_IMMUNITY.get();
-        drumLiquidBaseRate = DRUM_LIQUID_BASE_RATE.get();
-        drumLiquidEnchantRate = DRUM_LIQUID_ENCHANT_RATE.get();
-        drumEnergyBaseRate = DRUM_ENERGY_BASE_RATE.get();
-        drumEnergyEnchantRate = DRUM_ENERGY_ENCHANT_RATE.get();
-        pairDistChest = PAIR_DIST_CHEST.get();
-        pairDistWaypoint = PAIR_DIST_WAYPOINT.get();
-        craneTankCapacity = CRANE_TANK_CAPACITY.get();
-        volCorePowerMax = VOLCORE_POWER_MAX.get();
-        volCoreConsumeSpeed = VOLCORE_CONSUME_SPEED.get();
-        volCoreFuelMagnitude = VOLCORE_FUEL_MAGNITUDE.get();
-        miningEntries = parseMiningEntries(MINING_ENTRIES.get());
-        lootEntries = parseLootEntries(LOOT_ENTRIES.get());
-        for(int i=0; i<4; i++) {
-            expGainTask[i] = EXP_GAIN_TASK[i].get();
-            consumeGrudgeTask[i] = CONSUME_GRUDGE_TASK[i].get();
+            scaleHeldItem = CLIENT_SCALE_HELD_ITEM.get().floatValue();
+            offsetHeldItemX = CLIENT_OFFSET_HELD_ITEM_X.get().floatValue();
+            offsetHeldItemY = CLIENT_OFFSET_HELD_ITEM_Y.get().floatValue();
+            offsetHeldItemZ = CLIENT_OFFSET_HELD_ITEM_Z.get().floatValue();
         }
-
-                hostileDropGrudgeRate = HOSTILE_DROP_GRUDGE_RATE.get().floatValue();
-                hostileDeathMaxTicks = HOSTILE_DEATH_MAX_TICKS.get();
-                hostileDespawnBossTicks = HOSTILE_DESPAWN_BOSS_TICKS.get();
-                hostileDespawnMinionTicks = HOSTILE_DESPAWN_MINION_TICKS.get();
-                hostileBossCooldownTicks = HOSTILE_BOSS_COOLDOWN_TICKS.get();
-                hostileSpawnBossCount = HOSTILE_SPAWN_BOSS_COUNT.get();
-                hostileSpawnMinionCount = HOSTILE_SPAWN_MINION_COUNT.get();
-                hostileSpawnRequireRing = HOSTILE_SPAWN_REQUIRE_RING.get();
-                hostileMobSpawnMax = HOSTILE_MOB_SPAWN_MAX.get();
-        hostileMobSpawnChancePercent = HOSTILE_MOB_SPAWN_CHANCE_PERCENT.get();
-        hostileMobSpawnGroups = Math.max(1, HOSTILE_MOB_SPAWN_GROUPS.get());
-        hostileMobSpawnGroupMin = Math.max(1, HOSTILE_MOB_SPAWN_GROUP_MIN.get());
-        hostileMobSpawnGroupMax = Math.max(hostileMobSpawnGroupMin, HOSTILE_MOB_SPAWN_GROUP_MAX.get());
-
-        canTimeKeeping = SHIP_CAN_TIMEKEEPING.get();
-        volumeTimeKeeping = SHIP_VOLUME_TIMEKEEPING.get().floatValue();
-        volumeShip = SHIP_VOLUME_GENERAL.get().floatValue();
-        volumeAttack = SHIP_VOLUME_ATTACK.get().floatValue();
-
-        scaleHeldItem = CLIENT_SCALE_HELD_ITEM.get().floatValue();
-        offsetHeldItemX = CLIENT_OFFSET_HELD_ITEM_X.get().floatValue();
-        offsetHeldItemY = CLIENT_OFFSET_HELD_ITEM_Y.get().floatValue();
-        offsetHeldItemZ = CLIENT_OFFSET_HELD_ITEM_Z.get().floatValue();
     }
 
     private static List<String> defaultMiningEntries() {

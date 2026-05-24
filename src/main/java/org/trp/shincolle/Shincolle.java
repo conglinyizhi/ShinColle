@@ -14,6 +14,7 @@ public class Shincolle {
 
     public Shincolle(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
+        modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
 
         ModItems.ITEMS.register(modEventBus);
         ModDataComponents.DATA_COMPONENTS.register(modEventBus);
