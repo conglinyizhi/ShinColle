@@ -22,9 +22,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.manual_tools.page1_recipe.title",
+      "title": "patchouli.shincolle.entry.manual_tools.page1b_recipe.title",
       "recipe": "shincolle:recipepaper",
-      "text": ""
+      "text": "patchouli.shincolle.entry.manual_tools.page1b_recipe.text"
     },
     {
       "type": "patchouli:text",
@@ -39,9 +39,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.manual_tools.page2_recipe.title",
+      "title": "patchouli.shincolle.entry.manual_tools.page2b_recipe.title",
       "recipe": "shincolle:desk_radar",
-      "text": ""
+      "text": "patchouli.shincolle.entry.manual_tools.page2b_recipe.text"
     },
     {
       "type": "patchouli:text",
@@ -56,9 +56,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.manual_tools.page3_recipe.title",
+      "title": "patchouli.shincolle.entry.manual_tools.page3b_recipe.title",
       "recipe": "shincolle:blockdesk",
-      "text": ""
+      "text": "patchouli.shincolle.entry.manual_tools.page3b_recipe.text"
     },
     {
       "type": "patchouli:spotlight",
