@@ -1102,6 +1102,9 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
         this.inventoryPage = next;
         clearPagedSlotClientCache();
+        if (!this.ship.level().isClientSide) {
+            this.broadcastFullState();
+        }
     }
 
     private void clearPagedSlotClientCache() {
