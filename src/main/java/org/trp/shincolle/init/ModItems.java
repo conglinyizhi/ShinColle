@@ -310,6 +310,9 @@ public class ModItems {
     public static final DeferredItem<Item> SMALL_SHIPYARD = ITEMS.register("small_shipyard",
             () -> new SmallShipyardBlockItem(ModBlocks.SMALL_SHIPYARD.get(), new Item.Properties()));
 
+    public static final DeferredItem<Item> LARGE_SHIPYARD = ITEMS.register("large_shipyard",
+            () -> new BlockItem(ModBlocks.LARGE_SHIPYARD.get(), new Item.Properties()));
+
     public static final DeferredItem<Item> VOL_CORE = ITEMS.register("blockvolcore",
             () -> new BlockItem(ModBlocks.VOL_CORE.get(), new Item.Properties()));
 

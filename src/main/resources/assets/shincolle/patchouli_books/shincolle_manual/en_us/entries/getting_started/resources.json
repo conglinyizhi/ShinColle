@@ -10,16 +10,32 @@
       "text": "patchouli.shincolle.entry.resources.page0.text"
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.resources.page1.title",
-      "item": "shincolle:grudge",
+      "recipe": "shincolle:grude_stack",
+      "recipe2": "shincolle:grude_block",
       "text": "patchouli.shincolle.entry.resources.page1.text"
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.resources.page2.title",
-      "item": "shincolle:abyss_metal",
+      "recipe": "shincolle:abyssium_stack",
+      "recipe2": "shincolle:polymetal_stack",
       "text": "patchouli.shincolle.entry.resources.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page3.title",
+      "recipe": "shincolle:ammo_container",
+      "recipe2": "shincolle:ammo_heavy_container",
+      "text": "patchouli.shincolle.entry.resources.page3.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page4.title",
+      "recipe": "shincolle:ammo9",
+      "recipe2": "shincolle:ammo_heavy9",
+      "text": "patchouli.shincolle.entry.resources.page4.text"
     }
   ]
 }

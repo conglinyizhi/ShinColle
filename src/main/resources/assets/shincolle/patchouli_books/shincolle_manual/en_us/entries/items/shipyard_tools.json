@@ -13,7 +13,7 @@
       "type": "patchouli:image",
       "title": "patchouli.shincolle.entry.shipyard_tools.page1.title",
       "images": [
-        "shincolle:textures/gui/book/BookPic01.png"
+        "shincolle:textures/gui/book/bookpic01.png"
       ],
       "border": true,
       "text": "patchouli.shincolle.entry.shipyard_tools.page1.text"

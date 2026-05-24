@@ -103,7 +103,7 @@ public class ModTabs {
                 output.accept(ModItems.POLYMETAL_ORE.get());
                 output.accept(ModItems.POLYMETAL_GRAVEL.get());
                 output.accept(ModBlocks.SMALL_SHIPYARD.get());
-                output.accept(ModBlocks.LARGE_SHIPYARD.get());
+                output.accept(ModItems.LARGE_SHIPYARD.get());
                 output.accept(ModItems.DESK.get());
                 output.accept(ModItems.VOL_CORE.get());
                 output.accept(ModItems.WAYPOINT.get());
