@@ -1,0 +1,23 @@
+{
+  "name": "patchouli.shincolle.entry.technical_notes.name",
+  "category": "shincolle:systems",
+  "icon": "minecraft:comparator",
+  "sortnum": 99,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.technical_notes.page0.title",
+      "text": "patchouli.shincolle.entry.technical_notes.page0.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.technical_notes.page1.title",
+      "text": "patchouli.shincolle.entry.technical_notes.page1.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.technical_notes.page2.title",
+      "text": "patchouli.shincolle.entry.technical_notes.page2.text"
+    }
+  ]
+}

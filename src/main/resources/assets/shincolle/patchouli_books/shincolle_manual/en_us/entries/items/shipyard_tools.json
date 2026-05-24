@@ -26,21 +26,27 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.shipyard_tools.page2.title",
-      "recipe": "shincolle:instant_mat32",
-      "text": ""
-    },
-    {
-      "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.shipyard_tools.page3.title",
-      "recipe": "shincolle:small_shipyard",
+      "recipe": "shincolle:instant_mat32",
       "text": "patchouli.shincolle.entry.shipyard_tools.page3.text"
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.shipyard_tools.page3.title",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page4.title",
+      "recipe": "shincolle:small_shipyard",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page4.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page5.title",
       "recipe": "shincolle:blockvolcore_2",
-      "text": ""
+      "text": "patchouli.shincolle.entry.shipyard_tools.page5.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page6.title",
+      "item": "shincolle:instantconmat",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page6.text"
     }
   ]
 }
