@@ -509,6 +509,20 @@ public class TaskHelper {
         
         List<IItemHandler> inHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 0); 
         List<IItemHandler> outHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 1);
+        if (inHandlers.isEmpty() && outHandlers.isEmpty()) {
+            IItemHandler fallbackHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, chestPos, null);
+            if (fallbackHandler == null) {
+                net.minecraft.world.level.block.entity.BlockEntity targetBE = level.getBlockEntity(chestPos);
+                if (targetBE instanceof net.minecraft.world.Container container) {
+                    fallbackHandler = new net.neoforged.neoforge.items.wrapper.InvWrapper(container);
+                }
+            }
+            if (fallbackHandler == null) {
+                return;
+            }
+            inHandlers = List.of(fallbackHandler);
+            outHandlers = List.of(fallbackHandler);
+        }
         int maxCraft = host.getLevel() / 20 + 1;
         int craftedCount = 0;
 
