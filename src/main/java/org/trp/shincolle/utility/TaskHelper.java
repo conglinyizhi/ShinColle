@@ -1,9 +1,6 @@
 package org.trp.shincolle.utility;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -11,7 +8,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
@@ -450,28 +446,19 @@ public class TaskHelper {
         ItemStack recipePaper = host.getHeldItemMainhandSlot();
         if (recipePaper.isEmpty() || !recipePaper.is(ModItems.RECIPE_PAPER.get())) return;
 
-        
-        CustomData customData = recipePaper.get(DataComponents.CUSTOM_DATA);
-        if (customData == null) return;
-        CompoundTag tag = customData.copyTag();
-        if (!tag.contains("Recipe", 9)) return;
-        ListTag recipeList = tag.getList("Recipe", 10);
-
         Level level = host.level();
-        List<ItemStack> recipeSlots = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            recipeSlots.add(ItemStack.EMPTY);
-        }
+        ItemStack[] recipeGrid = RecipePaperData.loadRecipeGrid(recipePaper, level.registryAccess());
+        List<ItemStack> recipeSlots = new ArrayList<>(9);
         List<ItemStack> materials = new ArrayList<>();
-        for (int i = 0; i < recipeList.size(); i++) {
-            CompoundTag itemTag = recipeList.getCompound(i);
-            int slot = itemTag.getInt("Slot");
-            ItemStack stack = ItemStack.parseOptional(host.level().registryAccess(), itemTag);
-            if (slot >= 0 && slot < 9 && !stack.isEmpty()) {
-                recipeSlots.set(slot, stack.copy());
+        for (int i = 0; i < 9; i++) {
+            ItemStack stack = recipeGrid[i];
+            recipeSlots.add(stack);
+            if (!stack.isEmpty()) {
                 materials.add(stack);
             }
         }
+
+        if (materials.isEmpty()) return;
 
         CraftingInput recipeInput = CraftingInput.of(3, 3, recipeSlots);
         var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, recipeInput, level);
