@@ -181,6 +181,11 @@ public class ModNetwork {
                 ModNetwork::handleDeskSummon
         );
         registrar.playToServer(
+                C2SDeskOpenShipPayload.TYPE,
+                C2SDeskOpenShipPayload.STREAM_CODEC,
+                ModNetwork::handleDeskOpenShip
+        );
+        registrar.playToServer(
                 C2STeamDiplomacyPayload.TYPE,
                 C2STeamDiplomacyPayload.STREAM_CODEC,
                 ModNetwork::handleTeamDiplomacy
@@ -689,6 +694,20 @@ public class ModNetwork {
         context.enqueueWork(() -> {
             Player player = context.player();
             org.trp.shincolle.utility.FormationHelper.applySummonShipsToDesk(player, payload.deskPos(), payload.shipUuids());
+        });
+    }
+
+    private static void handleDeskOpenShip(final C2SDeskOpenShipPayload payload, final IPayloadContext context) {
+        context.enqueueWork(() -> {
+            Player player = context.player();
+            if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+                return;
+            }
+
+            Entity entity = serverLevel.getEntity(payload.shipUuid());
+            if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player)) {
+                ship.openShipMenu(player);
+            }
         });
     }
 

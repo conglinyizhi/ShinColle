@@ -20,6 +20,7 @@ import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.menu.DeskMenu;
 import org.trp.shincolle.network.C2SBookStatePayload;
 import org.trp.shincolle.network.C2SDeskGuiPayload;
+import org.trp.shincolle.network.C2SDeskOpenShipPayload;
 import org.trp.shincolle.network.C2SDeskSummonPayload;
 import org.trp.shincolle.network.C2STeamDiplomacyPayload;
 import org.trp.shincolle.network.DeskDiplomacySync;
@@ -846,6 +847,11 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
                             if (shipUuid == null) {
                                 return true;
                             }
+                            boolean sameSelection = this.selectedShips.size() == 1 && this.selectedShips.contains(shipUuid);
+                            if (!hasShiftDown() && sameSelection) {
+                                openRadarSelectedShip(shipUuid);
+                                return true;
+                            }
                             if (hasShiftDown()) {
                                 if (this.selectedShips.contains(shipUuid)) {
                                     this.selectedShips.remove(shipUuid);
@@ -943,6 +949,14 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    private void openRadarSelectedShip(UUID shipUuid) {
+        if (shipUuid == null || this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
+        PacketDistributor.sendToServer(new C2SDeskOpenShipPayload(shipUuid));
+        this.minecraft.player.closeContainer();
     }
 
     private void setDeskFunction(int func) {
