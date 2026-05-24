@@ -247,7 +247,10 @@ public class ModNetwork {
         context.enqueueWork(() -> DeskDiplomacySync.update(
                 payload.ownerUuid(),
                 java.util.List.of(payload.allies()),
-                java.util.List.of(payload.banned())
+                java.util.List.of(payload.banned()),
+                java.util.List.of(payload.displayUuids()),
+                java.util.List.of(payload.displayTeamNames()),
+                java.util.List.of(payload.displayLeaderNames())
         ));
     }
 
@@ -744,7 +747,41 @@ public class ModNetwork {
     }
 
     private static void sendDeskDiplomacySync(net.minecraft.server.level.ServerPlayer player) {
-        TeamDiplomacySavedData.TeamDiplomacyEntry entry = TeamDiplomacySavedData.get(player.serverLevel()).getOrCreate(player.getUUID());
-        PacketDistributor.sendToPlayer(player, S2CDeskDiplomacySyncPayload.of(player.getUUID(), entry.allies(), entry.banned()));
+        TeamDiplomacySavedData diplomacy = TeamDiplomacySavedData.get(player.serverLevel());
+        updateDiplomacyDisplayData(player, diplomacy);
+        TeamDiplomacySavedData.TeamDiplomacyEntry entry = diplomacy.getOrCreate(player.getUUID());
+
+        java.util.LinkedHashSet<UUID> displayIds = new java.util.LinkedHashSet<>();
+        displayIds.addAll(entry.allies());
+        displayIds.addAll(entry.banned());
+
+        java.util.ArrayList<UUID> uuids = new java.util.ArrayList<>();
+        java.util.ArrayList<String> teamNames = new java.util.ArrayList<>();
+        java.util.ArrayList<String> leaderNames = new java.util.ArrayList<>();
+        for (UUID target : displayIds) {
+            if (target == null) {
+                continue;
+            }
+            uuids.add(target);
+            TeamDiplomacySavedData.TeamDiplomacyEntry targetEntry = diplomacy.get(target);
+            teamNames.add(targetEntry == null ? "" : targetEntry.teamName());
+            leaderNames.add(targetEntry == null ? "" : targetEntry.leaderName());
+        }
+
+        PacketDistributor.sendToPlayer(player, S2CDeskDiplomacySyncPayload.of(
+                player.getUUID(),
+                entry.allies(),
+                entry.banned(),
+                uuids,
+                teamNames,
+                leaderNames
+        ));
+    }
+
+    private static void updateDiplomacyDisplayData(net.minecraft.server.level.ServerPlayer player, TeamDiplomacySavedData diplomacy) {
+        AdmiralData data = player.getData(ModDataAttachments.ADMIRAL_DATA);
+        String teamName = data.getTeamName(data.getCurrentTeamID());
+        String leaderName = player.getName().getString();
+        diplomacy.setDisplayData(player.getUUID(), teamName, leaderName);
     }
 }

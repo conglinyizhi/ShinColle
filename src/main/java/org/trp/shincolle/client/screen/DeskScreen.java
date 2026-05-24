@@ -456,6 +456,17 @@ public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         if (uuid == null) {
             return "-";
         }
+        String leaderName = DeskDiplomacySync.getLeaderName(uuid);
+        String teamName = DeskDiplomacySync.getTeamName(uuid);
+        if (!leaderName.isBlank() && !teamName.isBlank()) {
+            return leaderName + " - " + teamName;
+        }
+        if (!leaderName.isBlank()) {
+            return leaderName;
+        }
+        if (!teamName.isBlank()) {
+            return teamName;
+        }
         return uuid.toString().substring(0, 8) + "…";
     }
 

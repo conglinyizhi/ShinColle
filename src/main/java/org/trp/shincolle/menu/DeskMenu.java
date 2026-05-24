@@ -119,8 +119,16 @@ public class DeskMenu extends AbstractContainerMenu {
             });
 
             if (!this.clientSide && this.guiFunc >= 3 && this.guiFunc <= 4 && playerInventory.player instanceof ServerPlayer serverPlayer) {
-                TeamDiplomacySavedData.TeamDiplomacyEntry entry = TeamDiplomacySavedData.get(serverPlayer.serverLevel()).getOrCreate(serverPlayer.getUUID());
-                PacketDistributor.sendToPlayer(serverPlayer, S2CDeskDiplomacySyncPayload.of(serverPlayer.getUUID(), entry.allies(), entry.banned()));
+                TeamDiplomacySavedData diplomacy = TeamDiplomacySavedData.get(serverPlayer.serverLevel());
+                TeamDiplomacySavedData.TeamDiplomacyEntry entry = diplomacy.getOrCreate(serverPlayer.getUUID());
+                PacketDistributor.sendToPlayer(serverPlayer, S2CDeskDiplomacySyncPayload.of(
+                        serverPlayer.getUUID(),
+                        entry.allies(),
+                        entry.banned(),
+                        java.util.List.of(),
+                        java.util.List.of(),
+                        java.util.List.of()
+                ));
             }
         }
     }
