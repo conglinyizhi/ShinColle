@@ -106,6 +106,9 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     compileOnly "vazkii.patchouli:Patchouli:1.21.1-93-NEOFORGE:api"
     runtimeOnly "vazkii.patchouli:Patchouli:1.21.1-93-NEOFORGE"
+    testImplementation platform("org.junit:junit-bom:5.10.2")
+    testImplementation "org.junit.jupiter:junit-jupiter"
+    testRuntimeOnly "org.junit.platform:junit-platform-launcher"
 
     // Example mod dependency with JEI
     // The JEI API is declared for compile time use, while the full JEI artifact is used at runtime
@@ -127,6 +130,10 @@ dependencies {
     // For more info:
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.

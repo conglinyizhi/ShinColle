@@ -67,7 +67,8 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     private int[] listNum = new int[]{0, 0, 0, 0, 0};
     private float guiScale = PREFERRED_GUI_SCALE;
     private float guiScaleInv = 1.0f / PREFERRED_GUI_SCALE;
-public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
+
+    public DeskScreen(DeskMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
         this.imageWidth = Math.round(BASE_GUI_WIDTH * this.guiScale);
         this.imageHeight = Math.round(BASE_GUI_HEIGHT * this.guiScale);

@@ -8,8 +8,10 @@ import net.minecraft.world.entity.EntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import org.trp.shincolle.Shincolle;
@@ -23,6 +25,7 @@ import org.trp.shincolle.client.screen.CraneScreen;
 import org.trp.shincolle.client.screen.LargeShipyardScreen;
 import org.trp.shincolle.client.screen.ShipInventoryScreen;
 import org.trp.shincolle.client.screen.SmallShipyardScreen;
+import org.trp.shincolle.client.tooltip.ScaledTextClientTooltip;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
@@ -30,10 +33,11 @@ import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.item.CombatRationItem;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.PointerItem;
+import org.trp.shincolle.item.ScaledTextTooltipData;
 import org.trp.shincolle.item.ShipTankItem;
 import org.trp.shincolle.menu.ModMenus;
 
-@EventBusSubscriber(modid = Shincolle.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Shincolle.MODID, bus = Bus.MOD, value = Dist.CLIENT)
 public class ClientModEventBusEvents {
 
     private static final float DEFAULT_MODEL_SCALE = 0.34f;
@@ -297,5 +301,10 @@ public class ClientModEventBusEvents {
         event.registerSpriteSet(ModParticles.PARTICLE_91TYPE.get(), org.trp.shincolle.client.particle.Particle91Type.Provider::new);
         event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get(), org.trp.shincolle.client.particle.ParticleCube.Provider::new);
         event.registerSpecial(ModParticles.PARTICLE_BEAM.get(), new ParticleBeam.Provider());
+    }
+
+    @SubscribeEvent
+    public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
+        event.register(ScaledTextTooltipData.class, ScaledTextClientTooltip::new);
     }
 }

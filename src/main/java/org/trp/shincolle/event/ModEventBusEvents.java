@@ -20,7 +20,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.*;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
@@ -32,7 +31,6 @@ import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.block.entity.CraneBlockEntity;
 import org.trp.shincolle.command.ModCommands;
-import org.trp.shincolle.client.tooltip.ScaledTextClientTooltip;
 import org.trp.shincolle.entity.EntityAirfieldHime;
 import org.trp.shincolle.entity.EntityBattleshipRu;
 import org.trp.shincolle.entity.EntityDestroyerIkazuchi;
@@ -47,7 +45,6 @@ import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.MarriageRingItem;
 import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.network.ModNetwork;
-import org.trp.shincolle.item.ScaledTextTooltipData;
 import org.trp.shincolle.utility.FormationHelper;
 
 import java.util.HashSet;
@@ -689,11 +686,6 @@ public class ModEventBusEvents {
         AABB searchBox = player.getBoundingBox().expandTowards(look.scale(reach)).inflate(1.0D);
         return ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, end, searchBox,
                 entity -> !entity.isSpectator() && entity.isPickable() && entity != player);
-    }
-
-    @SubscribeEvent
-    public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
-        event.register(ScaledTextTooltipData.class, ScaledTextClientTooltip::new);
     }
 
     private static void syncPlayerAdmiralState(ServerPlayer serverPlayer) {
