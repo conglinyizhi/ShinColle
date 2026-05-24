@@ -274,7 +274,9 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     }
 
     private void drawRadarIcon(GuiGraphics guiGraphics) {
-        if (this.minecraft == null || this.minecraft.player == null) return;
+        if (this.minecraft == null || this.minecraft.player == null || this.minecraft.level == null) {
+            return;
+        }
         
         double ox = this.minecraft.player.getX();
         double oy = this.minecraft.player.getY();
@@ -954,7 +956,9 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     }
 
     private void handleSummonSelectedShips() {
-        if (this.selectedShips.isEmpty()) return;
+        if (this.selectedShips.isEmpty() || this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
 
         java.util.List<java.util.UUID> uuids = new java.util.ArrayList<>();
         for (RadarEntity radarEntity : this.shipList) {
@@ -987,7 +991,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     }
 
     private void handleDiplomacyClick(PlayerEntry entry, int button) {
-        if (entry == null || entry.uuid == null) {
+        if (entry == null || entry.uuid == null || this.minecraft == null || this.minecraft.player == null) {
             return;
         }
 
