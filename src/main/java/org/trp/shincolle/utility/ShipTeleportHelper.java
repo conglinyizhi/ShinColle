@@ -44,10 +44,10 @@ public final class ShipTeleportHelper {
 
         Vec3 candidate = findCandidate(serverLevel, entity, anchor, basePos, horizontalFacing, right, PREFERRED_OFFSETS, true);
         if (candidate == null) {
-            candidate = findCandidate(serverLevel, entity, anchor, basePos, horizontalFacing, right, FALLBACK_OFFSETS, false);
+            candidate = findCandidate(serverLevel, entity, anchor, basePos, horizontalFacing, right, FALLBACK_OFFSETS, true);
         }
         if (candidate == null) {
-            candidate = findVerticalFallback(serverLevel, entity, basePos);
+            candidate = findVerticalFallback(serverLevel, entity, anchor, basePos, horizontalFacing);
         }
         if (candidate == null) {
             return false;
@@ -100,12 +100,13 @@ public final class ShipTeleportHelper {
         return null;
     }
 
-    private static Vec3 findVerticalFallback(ServerLevel level, Entity entity, Vec3 basePos) {
+    private static Vec3 findVerticalFallback(ServerLevel level, Entity entity, LivingEntity anchor, Vec3 basePos, Vec3 facing) {
         BlockPos baseBlock = BlockPos.containing(basePos.x, basePos.y, basePos.z);
         for (int dy = 4; dy >= -4; dy--) {
             BlockPos testPos = baseBlock.offset(0, dy, 0);
-            if (canStandAt(level, entity, testPos)) {
-                return new Vec3(testPos.getX() + 0.5D, testPos.getY(), testPos.getZ() + 0.5D);
+            Vec3 candidate = new Vec3(testPos.getX() + 0.5D, testPos.getY(), testPos.getZ() + 0.5D);
+            if (validateCandidate(level, entity, anchor, candidate, facing, true) != null) {
+                return candidate;
             }
         }
         return null;
