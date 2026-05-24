@@ -18,7 +18,7 @@
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.desk_and_radar.page1.title",
-      "recipe": "shincolle:deskitemradar",
+      "recipe": "shincolle:desk_radar",
       "text": ""
     }
   ]
