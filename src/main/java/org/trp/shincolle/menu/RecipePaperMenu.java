@@ -104,6 +104,12 @@ public class RecipePaperMenu extends AbstractContainerMenu {
         this.craftResult.setItem(0, RecipePaperData.getRecipePreviewResult(this.level, inputList));
     }
 
+    private void saveRecipeIfServer() {
+        if (!this.level.isClientSide) {
+            saveRecipe();
+        }
+    }
+
     @Override
     public void slotsChanged(Container container) {
         if (container == craftMatrix) {
@@ -144,6 +150,7 @@ public class RecipePaperMenu extends AbstractContainerMenu {
                 slot.set(ItemStack.EMPTY);
             }
             updateResult();
+            saveRecipeIfServer();
             return;
         }
         if (slotId == 9) {
@@ -171,6 +178,7 @@ public class RecipePaperMenu extends AbstractContainerMenu {
             slot.set(ItemStack.EMPTY);
             slot.setChanged();
             updateResult();
+            saveRecipeIfServer();
             return copy;
         }
 
@@ -183,6 +191,7 @@ public class RecipePaperMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
             updateResult();
+            saveRecipeIfServer();
             return copy;
         }
 
