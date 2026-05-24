@@ -504,6 +504,10 @@ public final class ModCommands {
         ship.setTame(true, false);
         ship.setOrderedToSit(false);
         ship.setInSittingPose(false);
+        ship.getNavigation().stop();
+        ship.clearPointerTarget();
+        ship.clearPointerTargetEntity();
+        ShipRegistrySavedData.get(player.serverLevel()).updateShip(ship);
 
         source.sendSuccess(() -> Component.literal(String.format(
                 "Changed ship owner: %s %s -> %s",
