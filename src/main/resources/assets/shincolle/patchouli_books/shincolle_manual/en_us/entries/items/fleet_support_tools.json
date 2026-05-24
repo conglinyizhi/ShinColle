@@ -1,0 +1,33 @@
+{
+  "name": "patchouli.shincolle.entry.fleet_support_tools.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:pointer_item",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page0.title",
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page0.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page1.title",
+      "recipe": "shincolle:pointer",
+      "recipe2": "shincolle:toyairplane",
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page2.title",
+      "recipe": "shincolle:bucketrepair",
+      "recipe2": "shincolle:repairgoddess_1",
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page2.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page3.title",
+      "item": "shincolle:trainingbook",
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page3.text"
+    }
+  ]
+}
