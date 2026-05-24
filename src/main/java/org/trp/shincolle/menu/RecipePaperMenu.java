@@ -1,8 +1,5 @@
 package org.trp.shincolle.menu;
 
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
@@ -13,10 +10,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
-import net.minecraft.world.item.crafting.CraftingInput;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
+import org.trp.shincolle.utility.RecipePaperData;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,36 +79,21 @@ public class RecipePaperMenu extends AbstractContainerMenu {
     }
 
     private void loadRecipe() {
-        CustomData customData = hostStack.get(DataComponents.CUSTOM_DATA);
-        if (customData != null) {
-            CompoundTag tag = customData.copyTag();
-            if (tag.contains("Recipe", 9)) {
-                ListTag list = tag.getList("Recipe", 10);
-                for (int i = 0; i < list.size(); i++) {
-                    CompoundTag itemTag = list.getCompound(i);
-                    int slot = itemTag.getInt("Slot");
-                    if (slot >= 0 && slot < 9) {
-                        this.craftMatrix.setItem(slot, ItemStack.parseOptional(level.registryAccess(), itemTag));
-                    }
-                }
+        ItemStack[] recipeGrid = RecipePaperData.loadRecipeGrid(this.hostStack, this.level.registryAccess());
+        for (int i = 0; i < recipeGrid.length; i++) {
+            if (!recipeGrid[i].isEmpty()) {
+                this.craftMatrix.setItem(i, recipeGrid[i]);
             }
         }
         updateResult();
     }
 
     private void saveRecipe() {
-        ListTag list = new ListTag();
+        List<ItemStack> grid = new ArrayList<>(9);
         for (int i = 0; i < 9; i++) {
-            ItemStack stack = craftMatrix.getItem(i);
-            if (!stack.isEmpty()) {
-                CompoundTag itemTag = (CompoundTag) stack.save(level.registryAccess());
-                itemTag.putInt("Slot", i);
-                list.add(itemTag);
-            }
+            grid.add(this.craftMatrix.getItem(i));
         }
-
-        hostStack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY,
-                data -> data.update(tag -> tag.put("Recipe", list)));
+        RecipePaperData.saveRecipeGrid(this.hostStack, this.level.registryAccess(), grid);
     }
 
     private void updateResult() {
@@ -121,14 +101,7 @@ public class RecipePaperMenu extends AbstractContainerMenu {
         for (int i = 0; i < 9; i++) {
             inputList.add(craftMatrix.getItem(i));
         }
-        CraftingInput input = CraftingInput.of(3, 3, inputList);
-        
-        var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, input, level);
-        if (recipe.isPresent()) {
-            this.craftResult.setItem(0, recipe.get().value().assemble(input, level.registryAccess()));
-        } else {
-            this.craftResult.setItem(0, ItemStack.EMPTY);
-        }
+        this.craftResult.setItem(0, RecipePaperData.getRecipePreviewResult(this.level, inputList));
     }
 
     @Override
