@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.players.GameProfileCache;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
@@ -772,7 +773,11 @@ public class ModNetwork {
             uuids.add(target);
             TeamDiplomacySavedData.TeamDiplomacyEntry targetEntry = diplomacy.get(target);
             teamNames.add(targetEntry == null ? "" : targetEntry.teamName());
-            leaderNames.add(targetEntry == null ? "" : targetEntry.leaderName());
+            String leaderName = targetEntry == null ? "" : targetEntry.leaderName();
+            if (leaderName.isBlank()) {
+                leaderName = resolveDiplomacyLeaderName(player, target);
+            }
+            leaderNames.add(leaderName);
         }
 
         PacketDistributor.sendToPlayer(player, S2CDeskDiplomacySyncPayload.of(
@@ -790,5 +795,20 @@ public class ModNetwork {
         String teamName = data.getTeamName(data.getCurrentTeamID());
         String leaderName = player.getName().getString();
         diplomacy.setDisplayData(player.getUUID(), teamName, leaderName);
+    }
+
+    private static String resolveDiplomacyLeaderName(net.minecraft.server.level.ServerPlayer player, UUID target) {
+        if (target == null) {
+            return "";
+        }
+        net.minecraft.server.level.ServerPlayer onlinePlayer = player.server.getPlayerList().getPlayer(target);
+        if (onlinePlayer != null) {
+            return onlinePlayer.getName().getString();
+        }
+        GameProfileCache profileCache = player.server.getProfileCache();
+        if (profileCache == null) {
+            return "";
+        }
+        return profileCache.get(target).map(com.mojang.authlib.GameProfile::getName).orElse("");
     }
 }
