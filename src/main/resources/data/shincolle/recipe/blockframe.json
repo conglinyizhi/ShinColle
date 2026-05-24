@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "a a",
+    " i ",
+    "a a"
+  ],
+  "key": {
+    "a": {
+      "item": "shincolle:abyss_metal"
+    },
+    "i": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "count": 16,
+    "id": "shincolle:blockframe"
+  }
+}

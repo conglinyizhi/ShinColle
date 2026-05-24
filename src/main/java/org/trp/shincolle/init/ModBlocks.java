@@ -33,6 +33,9 @@ public class ModBlocks {
     public static final DeferredBlock<Block> GRUDGE_HEAVY_BLOCK = BLOCKS.register("grudge_heavy_block",
             () -> new GrudgeHeavyBlock(BlockBehaviour.Properties.of().strength(1.5F)));
 
+    public static final DeferredBlock<Block> FRAME_BLOCK = BLOCKS.register("blockframe",
+            FrameBlock::new);
+
     public static final DeferredBlock<Block> SMALL_SHIPYARD = BLOCKS.register("small_shipyard",
             SmallShipyardBlock::new);
 
