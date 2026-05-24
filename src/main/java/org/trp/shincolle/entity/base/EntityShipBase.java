@@ -741,6 +741,9 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.isOrderedToSit() || this.isInSittingPose() || this.isInDeadPose() || this.isPassenger()) {
             return false;
         }
+        if (this.isNoFuel()) {
+            return false;
+        }
         LivingEntity owner = this.getOwner();
         if (owner == null) {
             return false;
@@ -2677,6 +2680,10 @@ public abstract class EntityShipBase extends TamableAnimal {
             boolean isSitting = !this.isOrderedToSit();
             this.setOrderedToSit(isSitting);
             this.setInSittingPose(isSitting);
+            if (!isSitting && this.getGuardedPos(4) == 1) {
+                this.setGuardedPos(-1, -1, -1, 0, 0);
+                this.getNavigation().stop();
+            }
             this.resetInteractionEmotionState();
             this.focusOnPlayer(player);
 
