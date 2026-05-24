@@ -3,6 +3,7 @@ package org.trp.shincolle.menu;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -1171,11 +1172,12 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
     }
 
-    private final class PagedShipSlot extends SlotItemHandler {
+    private final class PagedShipSlot extends Slot {
         private final int localVisibleSlot;
+        private static final int DUMMY_SLOT_INDEX = 0;
 
         private PagedShipSlot(int localVisibleSlot, int x, int y) {
-            super(ship.getInventory(), localVisibleSlot + EQUIP_SLOTS, x, y);
+            super(new SimpleContainer(1), DUMMY_SLOT_INDEX, x, y);
             this.localVisibleSlot = localVisibleSlot;
         }
 
@@ -1203,7 +1205,6 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             setChanged();
         }
 
-        @Override
         public void initialize(ItemStack stack) {
             this.set(stack);
         }
