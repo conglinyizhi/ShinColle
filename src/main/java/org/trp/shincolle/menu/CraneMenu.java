@@ -287,6 +287,9 @@ public class CraneMenu extends AbstractContainerMenu {
     }
     public int getCraneMode() { return clientSide ? craneMode : blockEntity.getCraneMode(); }
     public int getModeItem() { return clientSide ? modeItem : blockEntity.getModeItem(); }
+    public boolean getItemMode(int slotId) {
+        return (getModeItem() & (1 << slotId)) != 0;
+    }
     public int getModeRedstone() { return clientSide ? modeRedstone : blockEntity.getModeRedstone(); }
     public int getModeLiquid() { return clientSide ? modeLiquid : blockEntity.getModeLiquid(); }
     public int getModeEnergy() { return clientSide ? modeEnergy : blockEntity.getModeEnergy(); }

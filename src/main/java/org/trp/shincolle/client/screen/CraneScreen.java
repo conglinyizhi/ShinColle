@@ -89,7 +89,7 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
         for (int i = 0; i < 18; i++) {
             ItemStack stack = menu.getSlot(i).getItem();
             if (!stack.isEmpty()) {
-                boolean slotMode = menu.getBlockEntity().getItemMode(i);
+                boolean slotMode = menu.getItemMode(i);
                 int sx = x + 7 + (i % 9) * 18;
                 int sy = y + (i < 9 ? 64 : 95);
                 if (slotMode) {
