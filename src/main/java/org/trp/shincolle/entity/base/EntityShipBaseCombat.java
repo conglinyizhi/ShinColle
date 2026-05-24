@@ -450,15 +450,25 @@ class EntityShipBaseCombat {
         if (count <= 0) {
             return;
         }
-        ItemStack remaining = new ItemStack(item, count);
-        for (int i = 0; i < this.ship.getInventory().getSlots() && !remaining.isEmpty(); i++) {
-            if (i == avoidSlot) {
-                continue;
+        int remaining = count;
+        int maxStackSize = item.getDefaultInstance().getMaxStackSize();
+        while (remaining > 0) {
+            ItemStack stack = new ItemStack(item, Math.min(remaining, maxStackSize));
+            ItemStack leftover = stack;
+            for (int i = 0; i < this.ship.getInventory().getSlots() && !leftover.isEmpty(); i++) {
+                if (i == avoidSlot) {
+                    continue;
+                }
+                leftover = this.ship.getInventory().insertItem(i, leftover, false);
             }
-            remaining = this.ship.getInventory().insertItem(i, remaining, false);
-        }
-        if (!remaining.isEmpty() && this.ship.level() instanceof ServerLevel serverLevel) {
-            serverLevel.addFreshEntity(new ItemEntity(serverLevel, this.ship.getX(), this.ship.getY(), this.ship.getZ(), remaining));
+            int inserted = stack.getCount() - leftover.getCount();
+            remaining -= inserted;
+            if (!leftover.isEmpty()) {
+                if (this.ship.level() instanceof ServerLevel serverLevel) {
+                    serverLevel.addFreshEntity(new ItemEntity(serverLevel, this.ship.getX(), this.ship.getY(), this.ship.getZ(), leftover));
+                }
+                remaining -= leftover.getCount();
+            }
         }
     }
 

@@ -2756,7 +2756,13 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (item == null || amount <= 0) {
             return;
         }
-        drops.add(new ItemStack(item, amount));
+        int remaining = amount;
+        int maxStackSize = item.getDefaultInstance().getMaxStackSize();
+        while (remaining > 0) {
+            int stackCount = Math.min(remaining, maxStackSize);
+            drops.add(new ItemStack(item, stackCount));
+            remaining -= stackCount;
+        }
     }
 
     @Override
