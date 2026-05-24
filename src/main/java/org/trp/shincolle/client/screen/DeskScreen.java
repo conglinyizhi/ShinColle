@@ -42,6 +42,10 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     private static final int DIPLOMACY_LIST_Y = 56;
     private static final int DIPLOMACY_ROW_HEIGHT = 24;
     private static final int DIPLOMACY_ROW_BOX_HEIGHT = 20;
+    private static final int DIPLOMACY_BUTTON_LEFT = 8;
+    private static final int DIPLOMACY_BUTTON_RIGHT = 54;
+    private static final int DIPLOMACY_BUTTON_TOP_Y = 158;
+    private static final int DIPLOMACY_BUTTON_BOTTOM_Y = 172;
     
     private int pageId = 0;
     private int chapId = 0;
@@ -360,6 +364,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         }
 
         updateDiplomacyPlayers();
+        drawDiplomacyButtons(guiGraphics);
 
         String titleKey = this.guiFunc == 3 ? "gui.shincolle.team.allylist" : "gui.shincolle.team.banlist";
         guiGraphics.drawString(this.font, Component.translatable(titleKey), 10, 28, 0xFFFFFF, false);
@@ -375,7 +380,8 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
                 case 2 -> 0xFFAA00;
                 default -> 0xFFFFFF;
             };
-            guiGraphics.fill(8, y - 2, 248, y + 18, 0x30000000);
+            int bgColor = entry.selected ? 0x50505090 : 0x30000000;
+            guiGraphics.fill(8, y - 2, 248, y + 18, bgColor);
             guiGraphics.drawString(this.font, entry.name, 14, y, color, false);
             Component state = switch (entry.relation) {
                 case 1 -> Component.translatable("gui.shincolle.team.state.ally");
@@ -390,6 +396,22 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
             String page = (startIndex + 1) + "-" + endIndex + " / " + this.diplomacyPlayers.size();
             guiGraphics.drawString(this.font, page, 150, 40, 0xB0B0B0, false);
         }
+    }
+
+    private void drawDiplomacyButtons(GuiGraphics guiGraphics) {
+        PlayerEntry selected = getSelectedDiplomacyEntry();
+        Component topLabel = Component.empty();
+        int topColor = 0x7F7F7F;
+        if (selected != null) {
+            boolean activeRelation = this.guiFunc == 3 ? selected.relation == 1 : selected.relation == 2;
+            topLabel = Component.translatable(activeRelation
+                    ? (this.guiFunc == 3 ? "gui.shincolle.team.break" : "gui.shincolle.team.unban")
+                    : (this.guiFunc == 3 ? "gui.shincolle.team.ally" : "gui.shincolle.team.ban"));
+            topColor = activeRelation ? 0xFFD54F : (this.guiFunc == 3 ? 0x55FFFF : 0xFFAA00);
+        }
+
+        guiGraphics.drawString(this.font, topLabel, DIPLOMACY_BUTTON_LEFT, DIPLOMACY_BUTTON_TOP_Y, topColor, false);
+        guiGraphics.drawString(this.font, Component.translatable("gui.shincolle.team.back"), DIPLOMACY_BUTTON_LEFT, DIPLOMACY_BUTTON_BOTTOM_Y, 0xFFFFFF, false);
     }
 
     private void drawDiplomacyHoverText(GuiGraphics guiGraphics, int mx, int my, int mouseX, int mouseY) {
@@ -407,10 +429,20 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     }
 
     private void updateDiplomacyPlayers() {
-        this.diplomacyPlayers.clear();
         if (this.minecraft == null || this.minecraft.player == null || this.minecraft.level == null) {
+            this.diplomacyPlayers.clear();
             return;
         }
+
+        UUID previouslySelected = null;
+        for (PlayerEntry existing : this.diplomacyPlayers) {
+            if (existing.selected) {
+                previouslySelected = existing.uuid;
+                break;
+            }
+        }
+        final UUID selectedUuid = previouslySelected;
+        this.diplomacyPlayers.clear();
 
         java.util.Map<UUID, PlayerEntry> entriesByUuid = new java.util.LinkedHashMap<>();
 
@@ -422,6 +454,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
             entry.uuid = uuid;
             entry.name = formatDiplomacyName(uuid);
             entry.relation = 1;
+            entry.selected = uuid.equals(previouslySelected);
             entriesByUuid.put(uuid, entry);
         }
 
@@ -433,6 +466,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
                 PlayerEntry created = new PlayerEntry();
                 created.uuid = key;
                 created.name = formatDiplomacyName(key);
+                created.selected = key.equals(selectedUuid);
                 return created;
             });
             entry.relation = 2;
@@ -445,6 +479,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
             PlayerEntry entry = entriesByUuid.computeIfAbsent(player.getUUID(), key -> {
                 PlayerEntry created = new PlayerEntry();
                 created.uuid = key;
+                created.selected = key.equals(selectedUuid);
                 return created;
             });
             entry.name = player.getName().getString();
@@ -869,13 +904,16 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         }
 
         if (guiFunc == 3 || guiFunc == 4) {
+            if (handleDiplomacyButtonClick(mx, my)) {
+                return true;
+            }
             int startIndex = getDiplomacyScrollIndex();
             int endIndex = Math.min(this.diplomacyPlayers.size(), startIndex + DIPLOMACY_VISIBLE_ROWS);
             int y = DIPLOMACY_LIST_Y;
             for (int index = startIndex; index < endIndex; index++) {
                 if (mx >= 8 && mx <= 248 && my >= y - 2 && my <= y + 18) {
                     PlayerEntry entry = this.diplomacyPlayers.get(index);
-                    handleDiplomacyClick(entry, button);
+                    selectDiplomacyEntry(entry);
                     return true;
                 }
                 y += DIPLOMACY_ROW_HEIGHT;
@@ -994,6 +1032,47 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         PacketDistributor.sendToServer(new C2STeamDiplomacyPayload(action, entry.uuid));
     }
 
+    private void selectDiplomacyEntry(PlayerEntry selected) {
+        if (selected == null) {
+            return;
+        }
+        for (PlayerEntry entry : this.diplomacyPlayers) {
+            entry.selected = entry == selected;
+        }
+    }
+
+    private boolean handleDiplomacyButtonClick(int mx, int my) {
+        if (mx < DIPLOMACY_BUTTON_LEFT || mx > DIPLOMACY_BUTTON_RIGHT) {
+            return false;
+        }
+        if (my >= DIPLOMACY_BUTTON_TOP_Y && my <= DIPLOMACY_BUTTON_TOP_Y + 10) {
+            PlayerEntry selected = getSelectedDiplomacyEntry();
+            if (selected != null) {
+                handleDiplomacyClick(selected, selected.relation == (this.guiFunc == 3 ? 1 : 2) ? 1 : 0);
+            }
+            return true;
+        }
+        if (my >= DIPLOMACY_BUTTON_BOTTOM_Y && my <= DIPLOMACY_BUTTON_BOTTOM_Y + 10) {
+            setDeskFunction(0);
+            return true;
+        }
+        return false;
+    }
+
+    private PlayerEntry getSelectedDiplomacyEntry() {
+        int startIndex = getDiplomacyScrollIndex();
+        int endIndex = Math.min(this.diplomacyPlayers.size(), startIndex + DIPLOMACY_VISIBLE_ROWS);
+        int y = DIPLOMACY_LIST_Y;
+        for (int index = startIndex; index < endIndex; index++) {
+            PlayerEntry entry = this.diplomacyPlayers.get(index);
+            if (entry.selected) {
+                return entry;
+            }
+            y += DIPLOMACY_ROW_HEIGHT;
+        }
+        return null;
+    }
+
     private static class RadarEntity {
         public Entity ship;
         public double pixelx, pixely, pixelz;
@@ -1008,5 +1087,6 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         private UUID uuid;
         private String name;
         private int relation;
+        private boolean selected;
     }
 }
