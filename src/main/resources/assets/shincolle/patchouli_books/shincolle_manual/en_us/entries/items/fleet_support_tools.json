@@ -38,6 +38,11 @@
       "title": "patchouli.shincolle.entry.fleet_support_tools.page3.title",
       "item": "shincolle:repairgoddess",
       "text": "patchouli.shincolle.entry.fleet_support_tools.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page4.title",
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page4.text"
     }
   ]
 }

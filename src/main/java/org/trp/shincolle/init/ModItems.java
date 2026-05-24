@@ -7,11 +7,16 @@ import net.minecraft.world.food.FoodProperties;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.neoforged.neoforge.registries.DeferredItem;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.item.*;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Shincolle.MODID);
@@ -354,6 +359,51 @@ public class ModItems {
                 }
 
                 output.accept(resolved);
+        }
+
+        public static void addSortedLegacyEquipVariants(CreativeModeTab.Output output, DeferredItem<Item> item) {
+                Item resolved = item.get();
+                if (!(resolved instanceof LegacyEquipItem legacyEquipItem)) {
+                        output.accept(resolved);
+                        return;
+                }
+
+                List<ItemStack> variants = new ArrayList<>();
+                for (int variant = 0; variant < legacyEquipItem.getVariantCount(); variant++) {
+                        variants.add(legacyEquipItem.createVariantStack(variant));
+                }
+
+                variants.sort(Comparator
+                        .comparingDouble((ItemStack stack) -> getLegacyEquipSortScore(legacyEquipItem, stack))
+                        .thenComparingInt(legacyEquipItem::getEquipId)
+                        .thenComparingInt(legacyEquipItem::getVariant));
+
+                for (ItemStack stack : variants) {
+                        output.accept(stack);
+                }
+        }
+
+        private static double getLegacyEquipSortScore(LegacyEquipItem item, ItemStack stack) {
+                float[] main = LegacyEquipStats.getMainAttrs(item.getEquipId(stack));
+                if (main == null) {
+                        return 0.0D;
+                }
+
+                return switch (item.getEquipTypeId(stack)) {
+                        case 0, 1, 2, 3 -> main[1] + main[3] * 0.5F + main[8] * 0.05F;
+                        case 4, 5 -> main[2] + main[14] * 0.15F + main[8] * 0.05F;
+                        case 6, 7, 8, 9, 10, 11, 12, 13 -> main[3] + main[4] + main[13] * 0.25F + main[8] * 0.05F;
+                        case 14, 15 -> main[13] + main[14] + main[8] * 0.2F + main[9] * 25.0F;
+                        case 16, 17 -> main[7] * 100.0F + main[15] * 25.0F + main[17] * 10.0F;
+                        case 18, 19 -> main[0] + main[5] * 100.0F + main[20] * 50.0F;
+                        case 20, 21 -> main[13] + main[1] * 0.25F;
+                        case 22, 23 -> main[6] * 100.0F + main[8] * 0.2F;
+                        case 24 -> main[16] * 100.0F + main[19] * 100.0F;
+                        case 25 -> main[8] * 0.3F + main[12] * 100.0F;
+                        case 26, 27 -> main[12] * 100.0F + main[8] * 0.2F;
+                        case 28, 29 -> main[1] + main[3] + main[2] + main[4] + main[13] * 0.2F;
+                        default -> 0.0D;
+                };
         }
 
         public static void addShipTankVariants(CreativeModeTab.Output output) {

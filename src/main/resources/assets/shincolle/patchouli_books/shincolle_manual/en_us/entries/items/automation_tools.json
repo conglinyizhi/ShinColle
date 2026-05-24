@@ -28,10 +28,20 @@
       "text": "patchouli.shincolle.entry.automation_tools.page2.text"
     },
     {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.automation_tools.page3.title",
+      "text": "patchouli.shincolle.entry.automation_tools.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.automation_tools.page4.title",
+      "text": "patchouli.shincolle.entry.automation_tools.page4.text"
+    },
+    {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.automation_tools.page2.title",
+      "title": "patchouli.shincolle.entry.automation_tools.page5.title",
       "recipe": "shincolle:blockcrane",
-      "text": ""
+      "text": "patchouli.shincolle.entry.automation_tools.page5.text"
     }
   ]
 }
