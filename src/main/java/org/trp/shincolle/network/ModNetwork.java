@@ -176,11 +176,6 @@ public class ModNetwork {
                 ModNetwork::handleFormationAction
         );
         registrar.playToServer(
-                C2SDeskSummonPayload.TYPE,
-                C2SDeskSummonPayload.STREAM_CODEC,
-                ModNetwork::handleDeskSummon
-        );
-        registrar.playToServer(
                 C2SDeskOpenShipPayload.TYPE,
                 C2SDeskOpenShipPayload.STREAM_CODEC,
                 ModNetwork::handleDeskOpenShip
@@ -687,13 +682,6 @@ public class ModNetwork {
             if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
                 PacketDistributor.sendToPlayer(serverPlayer, S2CAdmiralDataSyncPayload.of(data.serializeNBT(), player.getData(ModDataAttachments.COLLECTED_SHIPS)));
             }
-        });
-    }
-
-    private static void handleDeskSummon(final C2SDeskSummonPayload payload, final IPayloadContext context) {
-        context.enqueueWork(() -> {
-            Player player = context.player();
-            org.trp.shincolle.utility.FormationHelper.applySummonShipsToDesk(player, payload.deskPos(), payload.shipUuids());
         });
     }
 

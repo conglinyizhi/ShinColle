@@ -21,7 +21,6 @@ import org.trp.shincolle.menu.DeskMenu;
 import org.trp.shincolle.network.C2SBookStatePayload;
 import org.trp.shincolle.network.C2SDeskGuiPayload;
 import org.trp.shincolle.network.C2SDeskOpenShipPayload;
-import org.trp.shincolle.network.C2SDeskSummonPayload;
 import org.trp.shincolle.network.C2STeamDiplomacyPayload;
 import org.trp.shincolle.network.DeskDiplomacySync;
 import org.trp.shincolle.reference.Values;
@@ -848,20 +847,12 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
                                 return true;
                             }
                             boolean sameSelection = this.selectedShips.size() == 1 && this.selectedShips.contains(shipUuid);
-                            if (!hasShiftDown() && sameSelection) {
+                            if (sameSelection) {
                                 openRadarSelectedShip(shipUuid);
                                 return true;
                             }
-                            if (hasShiftDown()) {
-                                if (this.selectedShips.contains(shipUuid)) {
-                                    this.selectedShips.remove(shipUuid);
-                                } else {
-                                    this.selectedShips.add(shipUuid);
-                                }
-                            } else {
-                                this.selectedShips.clear();
-                                this.selectedShips.add(shipUuid);
-                            }
+                            this.selectedShips.clear();
+                            this.selectedShips.add(shipUuid);
                         }
                         return true;
                     }
@@ -972,34 +963,6 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     private void handleRadarActionButton() {
         if (this.selectedShips.size() == 1) {
             openRadarSelectedShip(this.selectedShips.iterator().next());
-            return;
-        }
-        handleSummonSelectedShips();
-    }
-
-    private void handleSummonSelectedShips() {
-        if (this.selectedShips.isEmpty() || this.minecraft == null || this.minecraft.player == null) {
-            return;
-        }
-
-        java.util.List<java.util.UUID> uuids = new java.util.ArrayList<>();
-        for (RadarEntity radarEntity : this.shipList) {
-            UUID shipUuid = getShipUuid(radarEntity);
-            if (shipUuid != null && this.selectedShips.contains(shipUuid)) {
-                uuids.add(shipUuid);
-            }
-        }
-
-        if (!uuids.isEmpty()) {
-            net.minecraft.core.BlockPos pos;
-            if (menu.getDeskType() == 0 && menu.getBlockEntity() != null) {
-                pos = menu.getBlockEntity().getBlockPos();
-            } else {
-                pos = this.minecraft.player.blockPosition();
-            }
-            PacketDistributor.sendToServer(new C2SDeskSummonPayload(pos, uuids));
-            this.selectedShips.clear();
-            this.minecraft.player.closeContainer();
         }
     }
 

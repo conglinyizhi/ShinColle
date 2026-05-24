@@ -20,7 +20,7 @@ class DeskRadarOpenShipRegressionTest {
 
         assertTrue(screenSource.contains("boolean sameSelection = this.selectedShips.size() == 1 && this.selectedShips.contains(shipUuid);"),
                 "Desk radar should detect clicking the already selected ship");
-        assertTrue(screenSource.contains("if (!hasShiftDown() && sameSelection) {\n                                openRadarSelectedShip(shipUuid);\n                                return true;\n                            }"),
+        assertTrue(screenSource.contains("if (sameSelection) {\n                                openRadarSelectedShip(shipUuid);\n                                return true;\n                            }"),
                 "Desk radar should reopen the selected ship menu on repeated click");
         assertTrue(screenSource.contains("PacketDistributor.sendToServer(new C2SDeskOpenShipPayload(shipUuid));"),
                 "Desk radar should send a dedicated payload to open ship GUI");
@@ -32,8 +32,12 @@ class DeskRadarOpenShipRegressionTest {
 
         assertTrue(screenSource.contains("private void handleRadarActionButton() {"),
                 "Desk radar should keep a dedicated action-button handler");
-        assertTrue(screenSource.contains("if (this.selectedShips.size() == 1) {\n            openRadarSelectedShip(this.selectedShips.iterator().next());\n            return;\n        }\n        handleSummonSelectedShips();"),
-                "Desk radar action button should open ship GUI for a single selection and only summon for multi-select");
+        assertTrue(screenSource.contains("if (this.selectedShips.size() == 1) {\n            openRadarSelectedShip(this.selectedShips.iterator().next());\n        }"),
+                "Desk radar action button should open ship GUI for a single selection");
+        assertTrue(!screenSource.contains("handleSummonSelectedShips();"),
+                "Desk radar should not keep the non-legacy summon path");
+        assertTrue(!screenSource.contains("hasShiftDown()"),
+                "Desk radar should keep legacy single-selection behavior instead of multi-select");
     }
 
     @Test
@@ -42,6 +46,8 @@ class DeskRadarOpenShipRegressionTest {
 
         assertTrue(networkSource.contains("C2SDeskOpenShipPayload.TYPE"),
                 "Desk radar ship-open payload should be registered");
+        assertTrue(!networkSource.contains("C2SDeskSummonPayload.TYPE"),
+                "Desk radar should not keep the non-legacy summon payload registered");
         assertTrue(networkSource.contains("Entity entity = serverLevel.getEntity(payload.shipUuid());"),
                 "Server should resolve the ship from the payload UUID");
         assertTrue(networkSource.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player)) {\n                ship.openShipMenu(player);\n            }"),
