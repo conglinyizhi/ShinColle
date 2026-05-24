@@ -1,0 +1,20 @@
+Shinkaiseikan Collection (this repository)
+
+This repository is distributed under the MIT License. See LICENSE.
+
+Upstream projects:
+
+1. reiwa/Shincolle-1.21.1
+   Repository: https://github.com/reiwa/Shincolle-1.21.1
+   Role: NeoForge 1.21.1 upstream continuation used as the primary migration base
+   Observed license: MIT License
+   License file: https://github.com/reiwa/Shincolle-1.21.1/blob/main/LICENSE
+
+2. PinkaLulan/ShinColle
+   Repository: https://github.com/PinkaLulan/ShinColle
+   Role: Original ShinColle upstream project and primary gameplay/functionality reference
+   Observed license: MIT License
+   License file: https://github.com/PinkaLulan/ShinColle/blob/mc-1.12.2/LICENSE
+
+This repository contains migration, adaptation, and derivative work based on the two upstream projects above.
+When redistributing substantial portions of this software, include this NOTICE file together with the MIT LICENSE.
