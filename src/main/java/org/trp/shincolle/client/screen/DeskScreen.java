@@ -869,7 +869,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
             }
             if (!this.selectedShips.isEmpty()) {
                 if (mx >= 88 && mx <= 132 && my >= 159 && my <= 169) {
-                    handleSummonSelectedShips();
+                    handleRadarActionButton();
                     return true;
                 }
             }
@@ -967,6 +967,14 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
             this.guiFunc = func;
         }
         syncDeskGui();
+    }
+
+    private void handleRadarActionButton() {
+        if (this.selectedShips.size() == 1) {
+            openRadarSelectedShip(this.selectedShips.iterator().next());
+            return;
+        }
+        handleSummonSelectedShips();
     }
 
     private void handleSummonSelectedShips() {

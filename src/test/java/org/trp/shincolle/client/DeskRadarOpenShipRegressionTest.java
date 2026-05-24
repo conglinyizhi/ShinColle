@@ -27,6 +27,16 @@ class DeskRadarOpenShipRegressionTest {
     }
 
     @Test
+    void radarActionButtonShouldKeepLegacySingleSelectionOpenBehavior() throws IOException {
+        String screenSource = Files.readString(SCREEN_SOURCE);
+
+        assertTrue(screenSource.contains("private void handleRadarActionButton() {"),
+                "Desk radar should keep a dedicated action-button handler");
+        assertTrue(screenSource.contains("if (this.selectedShips.size() == 1) {\n            openRadarSelectedShip(this.selectedShips.iterator().next());\n            return;\n        }\n        handleSummonSelectedShips();"),
+                "Desk radar action button should open ship GUI for a single selection and only summon for multi-select");
+    }
+
+    @Test
     void serverShouldAuthorizeDeskRadarShipOpenByOwner() throws IOException {
         String networkSource = Files.readString(NETWORK_SOURCE);
 
