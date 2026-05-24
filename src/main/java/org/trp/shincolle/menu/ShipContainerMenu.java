@@ -1276,6 +1276,16 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
 
         @Override
+        public int getContainerSlot() {
+            return toActualShipSlot(localVisibleSlot);
+        }
+
+        @Override
+        public int getSlotIndex() {
+            return toActualShipSlot(localVisibleSlot);
+        }
+
+        @Override
         public int getMaxStackSize() {
             int idx = toActualShipSlot(localVisibleSlot);
             if (!ship.getInventory().isSlotAvailable(idx)) {
