@@ -193,15 +193,15 @@
     "shincolle:time23"
   ]},
   
-  "ship-ap_phase1": { "sounds": [
+  "ship-ap_phase1": { "subtitle": "subtitle.shincolle.ship_ap_phase1", "sounds": [
     "shincolle:ap_p1"
   ]},
   
-  "ship-ap_phase2": { "sounds": [
+  "ship-ap_phase2": { "subtitle": "subtitle.shincolle.ship_ap_phase2", "sounds": [
     "shincolle:ap_p2"
   ]},
   
-  "ship-ap_attack": { "sounds": [
+  "ship-ap_attack": { "subtitle": "subtitle.shincolle.ship_ap_attack", "sounds": [
     "shincolle:ap_attack"
   ]},
   
@@ -209,11 +209,11 @@
     "shincolle:garuru"
   ]},
   
-  "ship-yamato_ready": { "sounds": [
+  "ship-yamato_ready": { "subtitle": "subtitle.shincolle.ship_yamato_ready", "sounds": [
     "shincolle:laser05"
   ]},
   
-  "ship-yamato_shot": { "sounds": [
+  "ship-yamato_shot": { "subtitle": "subtitle.shincolle.ship_yamato_shot", "sounds": [
     "shincolle:laser06"
   ]},
   
