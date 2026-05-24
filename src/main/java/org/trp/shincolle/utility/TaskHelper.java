@@ -26,6 +26,7 @@ import org.trp.shincolle.block.entity.WayPointBlockEntity;
 import org.trp.shincolle.entity.EntityShipFishingHook;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.ArrayList;
@@ -33,6 +34,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class TaskHelper {
+    private static final int CRAFTING_WORK_START_SLOT = 12;
+    private static final int CRAFTING_WORK_SLOT_COUNT = 9;
     
     private TaskHelper() {}
 
@@ -442,7 +445,7 @@ public class TaskHelper {
         if (host == null || host.level().isClientSide) return;
 
         
-        IItemHandler inv = host.getInventory();
+        ShipInventoryHandler inv = host.getInventory();
         ItemStack recipePaper = host.getHeldItemMainhandSlot();
         if (recipePaper.isEmpty() || !recipePaper.is(ModItems.RECIPE_PAPER.get())) return;
 
@@ -526,30 +529,31 @@ public class TaskHelper {
         int maxCraft = host.getLevel() / 20 + 1;
         int craftedCount = 0;
 
-        for (int i = 0; i < uniqueMaterials.size(); i++) {
-            ItemStack temp = uniqueMaterials.get(i);
-            int needed = counts.get(i) * maxCraft;
-            int has = InventoryHelper.calcItemStackAmount(inv, temp, checkMeta, checkNbt, checkOre);
-            
-            if (has < needed) {
-                int pullCount = needed - has;
-                for (IItemHandler h : inHandlers) {
-                    ItemStack pulled = InventoryHelper.getAndRemoveItem(h, temp, pullCount, checkMeta, checkNbt, checkOre, null);
-                    if (!pulled.isEmpty()) {
-                        InventoryHelper.moveItemstackToInv(inv, pulled, null);
-                        pullCount -= pulled.getCount();
-                        if (pullCount <= 0) break;
+        for (int craftIndex = 0; craftIndex < maxCraft; craftIndex++) {
+            List<ItemStack> workingRecipeSlots = new ArrayList<>(CRAFTING_WORK_SLOT_COUNT);
+            for (int slot = 0; slot < CRAFTING_WORK_SLOT_COUNT; slot++) {
+                ItemStack template = recipeSlots.get(slot);
+                if (template.isEmpty()) {
+                    workingRecipeSlots.add(ItemStack.EMPTY);
+                    continue;
+                }
+
+                ItemStack workStack = inv.getStackInSlot(CRAFTING_WORK_START_SLOT + slot);
+                if (workStack.isEmpty()) {
+                    workStack = pullCraftingIngredient(inv, inHandlers, template, checkMeta, checkNbt, checkOre);
+                    if (!workStack.isEmpty()) {
+                        inv.setStackInSlot(CRAFTING_WORK_START_SLOT + slot, workStack);
                     }
                 }
-            }
-            
-            if (InventoryHelper.calcItemStackAmount(inv, temp, checkMeta, checkNbt, checkOre) < needed) {
-                return; 
-            }
-        }
 
-        for (int craftIndex = 0; craftIndex < maxCraft; craftIndex++) {
-            CraftingInput craftInput = CraftingInput.of(3, 3, recipeSlots);
+                if (!InventoryHelper.matchTargetItem(workStack, template, checkMeta, checkNbt, checkOre)) {
+                    return;
+                }
+
+                workingRecipeSlots.add(workStack);
+            }
+
+            CraftingInput craftInput = CraftingInput.of(3, 3, workingRecipeSlots);
             var currentRecipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftInput, level);
             if (currentRecipe.isEmpty()) {
                 break;
@@ -561,23 +565,29 @@ public class TaskHelper {
                 break;
             }
 
-            for (ItemStack slotStack : recipeSlots) {
-                if (!slotStack.isEmpty()) {
-                    if (InventoryHelper.calcItemStackAmount(inv, slotStack, checkMeta, checkNbt, checkOre) <= 0) {
-                        craftIndex = maxCraft;
-                        break;
-                    }
+            for (int slot = 0; slot < CRAFTING_WORK_SLOT_COUNT; slot++) {
+                ItemStack slotStack = recipeSlots.get(slot);
+                if (slotStack.isEmpty()) {
+                    continue;
+                }
+
+                int workSlot = CRAFTING_WORK_START_SLOT + slot;
+                ItemStack consumeStack = inv.getStackInSlot(workSlot);
+                if (consumeStack.isEmpty()) {
+                    craftIndex = maxCraft;
+                    break;
+                }
+
+                consumeStack.shrink(1);
+                if (consumeStack.isEmpty()) {
+                    inv.setStackInSlot(workSlot, ItemStack.EMPTY);
+                } else {
+                    inv.setStackInSlot(workSlot, consumeStack);
                 }
             }
 
             if (craftIndex >= maxCraft) {
                 break;
-            }
-
-            for (ItemStack slotStack : recipeSlots) {
-                if (!slotStack.isEmpty()) {
-                    InventoryHelper.getAndRemoveItem(inv, slotStack, 1, checkMeta, checkNbt, checkOre, null);
-                }
             }
 
             ItemStack finalResult = currentRecipe.get().value().assemble(craftInput, level.registryAccess());
@@ -599,6 +609,9 @@ public class TaskHelper {
                     continue;
                 }
                 ItemStack remaining = remainStack.copy();
+                if (InventoryHelper.moveItemstackToInv(inv, remaining, craftWorkingSlots())) {
+                    continue;
+                }
                 for (IItemHandler h : outHandlers) {
                     remaining = ItemHandlerHelper.insertItemStacked(h, remaining, false);
                     if (remaining.isEmpty()) break;
@@ -633,6 +646,32 @@ public class TaskHelper {
         int guardedDimension = host.getGuardedPos(3);
         int currentDimension = getLegacyDimensionId(level);
         return guardedDimension == currentDimension || guardedDimension == Integer.MIN_VALUE;
+    }
+
+    private static int[] craftWorkingSlots() {
+        int[] slots = new int[CRAFTING_WORK_SLOT_COUNT];
+        for (int i = 0; i < CRAFTING_WORK_SLOT_COUNT; i++) {
+            slots[i] = CRAFTING_WORK_START_SLOT + i;
+        }
+        return slots;
+    }
+
+    private static ItemStack pullCraftingIngredient(IItemHandler shipInv, List<IItemHandler> inHandlers, ItemStack template,
+                                                    boolean checkMeta, boolean checkNbt, boolean checkOre) {
+        ItemStack existing = InventoryHelper.getAndRemoveItem(
+                shipInv, template, 1, checkMeta, checkNbt, checkOre, craftWorkingSlots());
+        if (!existing.isEmpty()) {
+            return existing;
+        }
+
+        for (IItemHandler handler : inHandlers) {
+            ItemStack pulled = InventoryHelper.getAndRemoveItem(handler, template, 1, checkMeta, checkNbt, checkOre, null);
+            if (!pulled.isEmpty()) {
+                return pulled;
+            }
+        }
+
+        return ItemStack.EMPTY;
     }
 
     private static IItemHandler singleSlotView(IItemHandler handler, int slot) {
