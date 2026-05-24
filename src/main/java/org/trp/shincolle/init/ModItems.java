@@ -219,6 +219,9 @@ public class ModItems {
     public static final DeferredItem<Item> OP_TOOL = ITEMS.register("optool",
             () -> new OPToolItem(new Item.Properties()));
 
+    public static final DeferredItem<Item> SHIN_COMB = ITEMS.register("shincomb",
+            () -> new Item(new Item.Properties()));
+
     public static final DeferredItem<Item> EQUIP_AIRPLANE = ITEMS.register("equipairplane",
             () -> new LegacyEquipItem(new Item.Properties(), "EquipAirplane", EQUIP_AIRPLANE_TYPES, EQUIP_AIRPLANE_MODELS));
 

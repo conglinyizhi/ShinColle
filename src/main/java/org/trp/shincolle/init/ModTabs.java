@@ -71,6 +71,7 @@ public class ModTabs {
                 output.accept(ModItems.MODERN_KIT.get());
                 output.accept(ModItems.OWNER_PAPER.get());
                 output.accept(ModItems.OP_TOOL.get());
+                output.accept(ModItems.SHIN_COMB.get());
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE);
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_AMMO);
                 ModItems.addLegacyEquipVariants(output, ModItems.EQUIP_ARMOR);
