@@ -210,6 +210,15 @@ public class ModItems {
     public static final DeferredItem<Item> MARRIAGE_RING = ITEMS.register("marriagering",
             () -> new org.trp.shincolle.item.MarriageRingItem(new Item.Properties().stacksTo(1)));
 
+    public static final DeferredItem<Item> MODERN_KIT = ITEMS.register("modernkit",
+            () -> new ModernKitItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> OWNER_PAPER = ITEMS.register("ownerpaper",
+            () -> new OwnerPaperItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> OP_TOOL = ITEMS.register("optool",
+            () -> new OPToolItem(new Item.Properties()));
+
     public static final DeferredItem<Item> EQUIP_AIRPLANE = ITEMS.register("equipairplane",
             () -> new LegacyEquipItem(new Item.Properties(), "EquipAirplane", EQUIP_AIRPLANE_TYPES, EQUIP_AIRPLANE_MODELS));
 

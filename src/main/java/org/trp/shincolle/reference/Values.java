@@ -153,10 +153,10 @@ public class Values {
         tempItemIconMap.put((short)18, new ItemStack(Items.NETHER_STAR));
         tempItemIconMap.put((short)19, new ItemStack(ModItems.MARRIAGE_RING.get()));
         tempItemIconMap.put((short)20, new ItemStack(Items.PAPER));
-        // tempItemIconMap.put((short)21, new ItemStack(ModItems.OwnerPaper.get())); // Missing
+        tempItemIconMap.put((short)21, new ItemStack(ModItems.OWNER_PAPER.get()));
         tempItemIconMap.put((short)22, new ItemStack(Items.STICK));
         tempItemIconMap.put((short)23, new ItemStack(ModItems.KAITAI_HAMMER.get()));
-        // tempItemIconMap.put((short)24, new ItemStack(ModItems.ModernKit.get())); // Missing
+        tempItemIconMap.put((short)24, new ItemStack(ModItems.MODERN_KIT.get()));
         tempItemIconMap.put((short)25, new ItemStack(ModItems.SHIPSPAWNEGGS.get()));
         tempItemIconMap.put((short)26, new ItemStack(ModItems.SHIPSPAWNEGGL.get()));
         // tempItemIconMap.put((short)27, new ItemStack(ModItems.ShipSpawnEgg, 1, 2)); // Meta-based
@@ -192,7 +192,7 @@ public class Values {
         tempItemIconMap.put((short)71, new ItemStack(Items.CAULDRON));
         tempItemIconMap.put((short)72, new ItemStack(Items.LAPIS_LAZULI));
         tempItemIconMap.put((short)73, new ItemStack(ModItems.RECIPE_PAPER.get()));
-        // tempItemIconMap.put((short)74, new ItemStack(ModItems.OPTool.get())); // Missing
+        tempItemIconMap.put((short)74, new ItemStack(ModItems.OP_TOOL.get()));
         tempItemIconMap.put((short)75, ((LegacyEquipItem) ModItems.EQUIP_AMMO.get()).createVariantStack(7));
         tempItemIconMap.put((short)76, new ItemStack(Items.POTION));
         // tempItemIconMap.put((short)77, new ItemStack(ModItems.Grudge, 1, 1));
