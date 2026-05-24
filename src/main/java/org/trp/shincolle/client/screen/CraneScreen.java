@@ -78,9 +78,10 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
         else if (liqMode == 1) graphics.blit(TEXTURE, x + 23, y + 36, 176, 101, 13, 13);
         else if (liqMode == 2) graphics.blit(TEXTURE, x + 23, y + 36, 189, 101, 13, 13);
 
-        
-        
-        
+        int energyMode = menu.getModeEnergy();
+        if (energyMode == 0) graphics.blit(TEXTURE, x + 39, y + 36, 202, 114, 13, 13);
+        else if (energyMode == 1) graphics.blit(TEXTURE, x + 39, y + 36, 176, 114, 13, 13);
+        else if (energyMode == 2) graphics.blit(TEXTURE, x + 39, y + 36, 189, 114, 13, 13);
 
         
         for (int i = 0; i < 18; i++) {
@@ -200,6 +201,10 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
             sendButton(8);
             return true;
         }
+        if (inside(xClick, yClick, 39, 36, 52, 49)) {
+            sendButton(9);
+            return true;
+        }
 
         return super.mouseClicked(mouseX, mouseY, button);
     }
@@ -233,6 +238,9 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
             if (mx > 22 && mx < 37) {
                 int l = menu.getModeLiquid();
                 tooltip.add(Component.translatable("gui.shincolle.crane.liquid" + l));
+            } else if (mx > 38 && mx < 53) {
+                int e = menu.getModeEnergy();
+                tooltip.add(Component.translatable("gui.shincolle.crane.energy" + e));
             }
         }
 

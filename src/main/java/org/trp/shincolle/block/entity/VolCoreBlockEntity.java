@@ -18,6 +18,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.trp.shincolle.Config;
+import org.trp.shincolle.entity.EntityAircraftBase;
+import org.trp.shincolle.entity.base.EntityMountBase;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModItems;
@@ -28,14 +31,10 @@ import java.util.List;
 
 public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
     public static final int SLOT_COUNT = 9;
-    public static final int POWER_MAX = 9600;
-    public static final int CONSUME_SPEED = 16;
-    public static final int FUEL_MAGNITUDE = 240;
-
     private final ItemStackHandler inventory = new ItemStackHandler(SLOT_COUNT) {
         @Override
         protected void onContentsChanged(int slot) {
-            setChanged();
+            markForSync();
         }
 
         @Override
@@ -57,9 +56,9 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
         blockEntity.syncTime++;
 
         if (blockEntity.syncTime % 16 == 0) {
-            boolean canWork = blockEntity.remainedPower >= CONSUME_SPEED;
+            boolean canWork = blockEntity.remainedPower >= Config.volCoreConsumeSpeed;
             if (canWork && blockEntity.btnActive) {
-                blockEntity.remainedPower -= CONSUME_SPEED;
+                blockEntity.remainedPower -= Config.volCoreConsumeSpeed;
                 blockEntity.markForSync();
             }
             if (blockEntity.isWorking() && level instanceof ServerLevel serverLevel) {
@@ -113,12 +112,12 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
 
             int fuelx = 0;
             if (stack.is(ModItems.GRUDGE.get())) {
-                fuelx = FUEL_MAGNITUDE;
+                fuelx = Config.volCoreFuelMagnitude;
             } else if (stack.is(ModItems.GRUDGE_BLOCK.get())) {
-                fuelx = FUEL_MAGNITUDE * 9;
+                fuelx = Config.volCoreFuelMagnitude * 9;
             }
 
-            if (fuelx > 0 && remainedPower + fuelx <= POWER_MAX) {
+            if (fuelx > 0 && remainedPower + fuelx <= Config.volCorePowerMax) {
                 stack.shrink(1);
                 remainedPower += fuelx;
                 markForSync();
@@ -128,7 +127,7 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     private boolean isWorking() {
-        return btnActive && remainedPower >= CONSUME_SPEED;
+        return btnActive && remainedPower >= Config.volCoreConsumeSpeed;
     }
 
     private void volcoreFunction() {
@@ -155,8 +154,13 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
             List<LivingEntity> elist = level.getEntitiesOfClass(LivingEntity.class, box);
             DamageSource fireSource = level.damageSources().onFire();
             for (LivingEntity ent : elist) {
-                if (ent instanceof EntityShipBase) continue;
-                if (ent instanceof Player) continue;
+                if (ent instanceof EntityShipBase
+                        || ent instanceof EntityMountBase
+                        || ent instanceof EntityAircraftBase
+                        || ent instanceof EntityShipBase ship && ship.isHostileShipMob()
+                        || ent instanceof Player) {
+                    continue;
+                }
 
                 ent.igniteForTicks(40);
                 ent.hurt(fireSource, 4.0f);
@@ -184,7 +188,7 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
 
     public void setRemainedPower(int remainedPower) {
         this.remainedPower = remainedPower;
-        setChanged();
+        markForSync();
     }
 
     public boolean isBtnActive() {
@@ -193,7 +197,7 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
 
     public void setBtnActive(boolean btnActive) {
         this.btnActive = btnActive;
-        setChanged();
+        markForSync();
     }
 
     @Override

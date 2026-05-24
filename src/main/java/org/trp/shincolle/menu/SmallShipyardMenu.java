@@ -238,6 +238,10 @@ public class SmallShipyardMenu extends AbstractContainerMenu {
                     if (!this.moveItemStackTo(stack, SLOT_FUEL, SLOT_FUEL + 1, false)) {
                         return ItemStack.EMPTY;
                     }
+                } else if (stack.is(ModItems.INSTANT_CON_MAT.get())) {
+                    if (!this.moveItemStackTo(stack, SLOT_FUEL, SLOT_FUEL + 1, false)) {
+                        return ItemStack.EMPTY;
+                    }
                 } else if (index >= PLAYER_INV_START && index < PLAYER_INV_END) {
                     if (!this.moveItemStackTo(stack, HOTBAR_START, HOTBAR_END, false)) {
                         return ItemStack.EMPTY;
@@ -318,7 +322,7 @@ public class SmallShipyardMenu extends AbstractContainerMenu {
                         || stack.is(ModItems.AMMO_HEAVY.get())
                         || stack.is(ModItems.AMMO_HEAVY_CONTAINER.get());
                 case SLOT_POLYMETAL -> stack.is(ModItems.ABYSS_POLYMETAL.get());
-                case SLOT_FUEL -> ShipyardRecipes.isFuel(stack);
+                case SLOT_FUEL -> ShipyardRecipes.isFuel(stack) || stack.is(ModItems.INSTANT_CON_MAT.get());
                 default -> false;
             };
         }

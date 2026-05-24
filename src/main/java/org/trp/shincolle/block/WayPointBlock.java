@@ -74,8 +74,6 @@ public class WayPointBlock extends BaseEntityBlock {
                         Component.translatable("chat.shincolle.waypoint.setstaytime", wp.getStayTimeDisplay()),
                         true
                     );
-                    wp.setChanged();
-                    level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
                 }
             }
             return InteractionResult.SUCCESS;
@@ -92,8 +90,6 @@ public class WayPointBlock extends BaseEntityBlock {
             if (level.getBlockEntity(pos) instanceof WayPointBlockEntity wp) {
                 wp.setOwnerUUID(player.getUUID());
                 wp.setOwnerName(player.getName().getString());
-                wp.setChanged();
-                level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
             }
         }
     }

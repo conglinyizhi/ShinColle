@@ -91,7 +91,7 @@ public class EntityBattleshipRe extends EntityShipBase {
                 target.getX(), target.getY() + target.getBbHeight() * 0.5D, target.getZ(),
                 4, 0.2D, 0.2D, 0.2D, 0.0D);
         
-        this.playSound(org.trp.shincolle.init.ModSounds.SHIP_FIRELIGHT.get(), this.getSoundVolume(),
+        this.playSound(org.trp.shincolle.init.ModSounds.SHIP_FIRELIGHT.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack),
                 this.getRandom().nextFloat() * 0.12F + 0.98F);
 
         this.setAttackTick(50);
@@ -305,4 +305,3 @@ public class EntityBattleshipRe extends EntityShipBase {
         return ModItems.BATTLESHIP_RE_SPAWN_EGG.get();
     }
 }
-

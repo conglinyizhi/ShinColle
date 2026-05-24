@@ -76,7 +76,7 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
 
     public void nextWpStayTime() {
         wpStayTime = (wpStayTime + 1) % 17;
-        setChanged();
+        markForSync();
     }
 
     @Override
@@ -95,7 +95,7 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
     public String getOwnerName() { return ownerName; }
     public void setOwnerName(String name) {
         this.ownerName = name;
-        setChanged();
+        markForSync();
     }
 
     @Override

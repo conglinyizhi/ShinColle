@@ -1,9 +1,17 @@
 package org.trp.shincolle;
 
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.neoforge.common.ModConfigSpec;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class Config {
@@ -42,6 +50,31 @@ public class Config {
     private static final ModConfigSpec.IntValue TICK_FISHING_MAX;
     private static final ModConfigSpec.IntValue TICK_MINING_MIN;
     private static final ModConfigSpec.IntValue TICK_MINING_MAX;
+    private static final ModConfigSpec.IntValue SMALL_SHIPYARD_POWER_MAX;
+    private static final ModConfigSpec.IntValue SMALL_SHIPYARD_BUILD_SPEED;
+    private static final ModConfigSpec.IntValue SMALL_SHIPYARD_INSTANT_TICKS;
+    private static final ModConfigSpec.DoubleValue SMALL_SHIPYARD_FUEL_MAGNIFICATION;
+    private static final ModConfigSpec.IntValue LARGE_SHIPYARD_POWER_MAX;
+    private static final ModConfigSpec.IntValue LARGE_SHIPYARD_BUILD_SPEED;
+    private static final ModConfigSpec.IntValue LARGE_SHIPYARD_INSTANT_TICKS;
+    private static final ModConfigSpec.DoubleValue LARGE_SHIPYARD_FUEL_MAGNIFICATION;
+    private static final ModConfigSpec.IntValue RING_ABILITY_WATER_BREATHING;
+    private static final ModConfigSpec.IntValue RING_ABILITY_SWIM_FLIGHT;
+    private static final ModConfigSpec.IntValue RING_ABILITY_UNDERWATER_DIG_CAP;
+    private static final ModConfigSpec.IntValue RING_ABILITY_UNDERWATER_FOG_CAP;
+    private static final ModConfigSpec.IntValue RING_ABILITY_FIRE_IMMUNITY;
+    private static final ModConfigSpec.IntValue DRUM_LIQUID_BASE_RATE;
+    private static final ModConfigSpec.IntValue DRUM_LIQUID_ENCHANT_RATE;
+    private static final ModConfigSpec.IntValue DRUM_ENERGY_BASE_RATE;
+    private static final ModConfigSpec.IntValue DRUM_ENERGY_ENCHANT_RATE;
+    private static final ModConfigSpec.IntValue PAIR_DIST_CHEST;
+    private static final ModConfigSpec.IntValue PAIR_DIST_WAYPOINT;
+    private static final ModConfigSpec.IntValue CRANE_TANK_CAPACITY;
+    private static final ModConfigSpec.IntValue VOLCORE_POWER_MAX;
+    private static final ModConfigSpec.IntValue VOLCORE_CONSUME_SPEED;
+    private static final ModConfigSpec.IntValue VOLCORE_FUEL_MAGNITUDE;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> MINING_ENTRIES;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> LOOT_ENTRIES;
     private static final ModConfigSpec.IntValue[] EXP_GAIN_TASK = new ModConfigSpec.IntValue[4];
     private static final ModConfigSpec.IntValue[] CONSUME_GRUDGE_TASK = new ModConfigSpec.IntValue[4];
 
@@ -57,7 +90,12 @@ public class Config {
         private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_CHANCE_PERCENT;
         private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_GROUPS;
         private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_GROUP_MIN;
-        private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_GROUP_MAX;
+    private static final ModConfigSpec.IntValue HOSTILE_MOB_SPAWN_GROUP_MAX;
+
+    private static final ModConfigSpec.BooleanValue SHIP_CAN_TIMEKEEPING;
+    private static final ModConfigSpec.DoubleValue SHIP_VOLUME_TIMEKEEPING;
+    private static final ModConfigSpec.DoubleValue SHIP_VOLUME_GENERAL;
+    private static final ModConfigSpec.DoubleValue SHIP_VOLUME_ATTACK;
 
     private static final ModConfigSpec.DoubleValue CLIENT_SCALE_HELD_ITEM;
     private static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_X;
@@ -99,6 +137,31 @@ public class Config {
     public static int tickFishingMax = 300;
     public static int tickMiningMin = 100;
     public static int tickMiningMax = 200;
+    public static int smallShipyardPowerMax = 460800;
+    public static int smallShipyardBuildSpeed = 48;
+    public static int smallShipyardInstantTicks = 2400;
+    public static float smallShipyardFuelMagnification = 1.0F;
+    public static int largeShipyardPowerMax = 1382400;
+    public static int largeShipyardBuildSpeed = 48;
+    public static int largeShipyardInstantTicks = 1200;
+    public static float largeShipyardFuelMagnification = 1.0F;
+    public static int ringAbilityWaterBreathing = 0;
+    public static int ringAbilitySwimFlight = 6;
+    public static int ringAbilityUnderwaterDigCap = 30;
+    public static int ringAbilityUnderwaterFogCap = 20;
+    public static int ringAbilityFireImmunity = 12;
+    public static int drumLiquidBaseRate = 40;
+    public static int drumLiquidEnchantRate = 5;
+    public static int drumEnergyBaseRate = 400;
+    public static int drumEnergyEnchantRate = 100;
+    public static int pairDistChest = 16;
+    public static int pairDistWaypoint = 48;
+    public static int craneTankCapacity = 2048000;
+    public static int volCorePowerMax = 9600;
+    public static int volCoreConsumeSpeed = 16;
+    public static int volCoreFuelMagnitude = 240;
+    public static List<MiningEntry> miningEntries = Collections.emptyList();
+    public static List<LootEntry> lootEntries = Collections.emptyList();
     public static int[] expGainTask = {10, 10, 20, 5};
     public static int[] consumeGrudgeTask = {5, 5, 20, 10};
 
@@ -111,15 +174,45 @@ public class Config {
         public static int hostileSpawnMinionCount = 4;
         public static boolean hostileSpawnRequireRing = true;
         public static int hostileMobSpawnMax = 50;
-        public static int hostileMobSpawnChancePercent = 10;
-        public static int hostileMobSpawnGroups = 1;
-        public static int hostileMobSpawnGroupMin = 1;
-        public static int hostileMobSpawnGroupMax = 1;
-        
-        public static float scaleHeldItem = 1.0F;
-        public static float offsetHeldItemX = 0.0F;
-        public static float offsetHeldItemY = 0.0F;
-        public static float offsetHeldItemZ = 0.0F;
+    public static int hostileMobSpawnChancePercent = 10;
+    public static int hostileMobSpawnGroups = 1;
+    public static int hostileMobSpawnGroupMin = 1;
+    public static int hostileMobSpawnGroupMax = 1;
+
+    public static boolean canTimeKeeping = true;
+    public static float volumeTimeKeeping = 1.0F;
+    public static float volumeShip = 0.6F;
+    public static float volumeAttack = 0.7F;
+
+    public static float scaleHeldItem = 1.0F;
+    public static float offsetHeldItemX = 0.0F;
+    public static float offsetHeldItemY = 0.0F;
+    public static float offsetHeldItemZ = 0.0F;
+
+    public record MiningEntry(
+            int dimensionId,
+            String dimensionPath,
+            String biomePath,
+            Item item,
+            int itemMeta,
+            int weight,
+            int min,
+            int max,
+            int minShipLevel,
+            int maxY,
+            int minToolLevel,
+            float enchantFactor
+    ) {}
+
+    public record LootEntry(
+            int chestId,
+            Item item,
+            int itemMeta,
+            int weight,
+            float chance,
+            int min,
+            int max
+    ) {}
 
     static {
         BUILDER.comment("Ship EXP and level settings").push("ship_exp");
@@ -204,6 +297,81 @@ public class Config {
         TICK_FISHING_MAX = BUILDER.defineInRange("tickFishingMax", tickFishingMax, 1, 10000);
         TICK_MINING_MIN = BUILDER.defineInRange("tickMiningMin", tickMiningMin, 1, 10000);
         TICK_MINING_MAX = BUILDER.defineInRange("tickMiningMax", tickMiningMax, 1, 10000);
+        SMALL_SHIPYARD_POWER_MAX = BUILDER
+                .comment("Small shipyard max fuel storage")
+                .defineInRange("smallShipyardPowerMax", smallShipyardPowerMax, 1, 100000000);
+        SMALL_SHIPYARD_BUILD_SPEED = BUILDER
+                .comment("Small shipyard build progress per tick while active")
+                .defineInRange("smallShipyardBuildSpeed", smallShipyardBuildSpeed, 1, 1000000);
+        SMALL_SHIPYARD_INSTANT_TICKS = BUILDER
+                .comment("Build ticks skipped per instant construction material in the small shipyard")
+                .defineInRange("smallShipyardInstantTicks", smallShipyardInstantTicks, 0, 1000000);
+        SMALL_SHIPYARD_FUEL_MAGNIFICATION = BUILDER
+                .comment("Small shipyard fuel magnification multiplier")
+                .defineInRange("smallShipyardFuelMagnification", (double) smallShipyardFuelMagnification, 0.0D, 1000.0D);
+        LARGE_SHIPYARD_POWER_MAX = BUILDER
+                .comment("Large shipyard max fuel storage")
+                .defineInRange("largeShipyardPowerMax", largeShipyardPowerMax, 1, 100000000);
+        LARGE_SHIPYARD_BUILD_SPEED = BUILDER
+                .comment("Large shipyard build progress per tick while active")
+                .defineInRange("largeShipyardBuildSpeed", largeShipyardBuildSpeed, 1, 1000000);
+        LARGE_SHIPYARD_INSTANT_TICKS = BUILDER
+                .comment("Build ticks skipped per instant construction material in the large shipyard")
+                .defineInRange("largeShipyardInstantTicks", largeShipyardInstantTicks, 0, 1000000);
+        LARGE_SHIPYARD_FUEL_MAGNIFICATION = BUILDER
+                .comment("Large shipyard fuel magnification multiplier")
+                .defineInRange("largeShipyardFuelMagnification", (double) largeShipyardFuelMagnification, 0.0D, 1000.0D);
+        RING_ABILITY_WATER_BREATHING = BUILDER
+                .comment("Married ship count needed for passive water breathing, negative disables")
+                .defineInRange("ringAbilityWaterBreathing", ringAbilityWaterBreathing, -1, 1000);
+        RING_ABILITY_SWIM_FLIGHT = BUILDER
+                .comment("Legacy swim flight threshold. Kept for config parity, no direct NeoForge flight mode yet")
+                .defineInRange("ringAbilitySwimFlight", ringAbilitySwimFlight, -1, 1000);
+        RING_ABILITY_UNDERWATER_DIG_CAP = BUILDER
+                .comment("Maximum married ship count contributing to underwater dig speed, 0 disables")
+                .defineInRange("ringAbilityUnderwaterDigCap", ringAbilityUnderwaterDigCap, 0, 1000);
+        RING_ABILITY_UNDERWATER_FOG_CAP = BUILDER
+                .comment("Legacy underwater fog reduction threshold. Stored for config parity; client fog hook not migrated yet")
+                .defineInRange("ringAbilityUnderwaterFogCap", ringAbilityUnderwaterFogCap, -1, 1000);
+        RING_ABILITY_FIRE_IMMUNITY = BUILDER
+                .comment("Married ship count needed for active ring fire immunity, negative disables")
+                .defineInRange("ringAbilityFireImmunity", ringAbilityFireImmunity, -1, 1000);
+        DRUM_LIQUID_BASE_RATE = BUILDER
+                .comment("Crane liquid transfer base rate per liquid drum in mB/t")
+                .defineInRange("drumLiquidBaseRate", drumLiquidBaseRate, 0, 1000000);
+        DRUM_LIQUID_ENCHANT_RATE = BUILDER
+                .comment("Additional crane liquid transfer rate per enchantment level in mB/t")
+                .defineInRange("drumLiquidEnchantRate", drumLiquidEnchantRate, 0, 1000000);
+        DRUM_ENERGY_BASE_RATE = BUILDER
+                .comment("Crane energy transfer base rate per energy drum in FE/t")
+                .defineInRange("drumEnergyBaseRate", drumEnergyBaseRate, 0, 1000000);
+        DRUM_ENERGY_ENCHANT_RATE = BUILDER
+                .comment("Additional crane energy transfer rate per enchantment level in FE/t")
+                .defineInRange("drumEnergyEnchantRate", drumEnergyEnchantRate, 0, 1000000);
+        PAIR_DIST_CHEST = BUILDER
+                .comment("Max pairing distance between waypoint and chest/crane")
+                .defineInRange("pairDistChest", pairDistChest, 0, 64);
+        PAIR_DIST_WAYPOINT = BUILDER
+                .comment("Max pairing distance between waypoints")
+                .defineInRange("pairDistWaypoint", pairDistWaypoint, 0, 64);
+        CRANE_TANK_CAPACITY = BUILDER
+                .comment("Crane internal fluid tank capacity in mB")
+                .defineInRange("craneTankCapacity", craneTankCapacity, 1, 1000000000);
+        VOLCORE_POWER_MAX = BUILDER
+                .comment("Volcano Core max fuel storage")
+                .defineInRange("volCorePowerMax", volCorePowerMax, 1, 100000000);
+        VOLCORE_CONSUME_SPEED = BUILDER
+                .comment("Volcano Core power consumed every 16 ticks while active")
+                .defineInRange("volCoreConsumeSpeed", volCoreConsumeSpeed, 1, 1000000);
+        VOLCORE_FUEL_MAGNITUDE = BUILDER
+                .comment("Volcano Core fuel value per grudge item")
+                .defineInRange("volCoreFuelMagnitude", volCoreFuelMagnitude, 1, 1000000);
+        MINING_ENTRIES = BUILDER
+                .comment("Mining table entries: dimension, biome, item, meta, weight, min, max, shipLevel, maxY, toolLevel, enchantPercent. Use '*' for all dimensions/biomes or legacy numeric dimension ids like 0/-1/1.")
+                .defineList("miningEntries", defaultMiningEntries(), value -> value instanceof String str && isValidMiningEntry(str));
+        LOOT_ENTRIES = BUILDER
+                .comment("Legacy chest loot entries: chestId, item, meta, weight, chancePercent, min, max. chestId: 0 spawn, 1 igloo, 2 dungeon, 3 village, 4 mineshaft, 5 pyramid, 6 jungle temple, 7 nether bridge, 8 stronghold, 9 end city.")
+                .defineList("lootEntries", defaultLootEntries(), value -> value instanceof String str && isValidLootEntry(str));
         for(int i=0; i<4; i++) {
             EXP_GAIN_TASK[i] = BUILDER.defineInRange("expGainTask" + i, expGainTask[i], 0, 10000);
             CONSUME_GRUDGE_TASK[i] = BUILDER.defineInRange("consumeGrudgeTask" + i, consumeGrudgeTask[i], 0, 10000);
@@ -266,6 +434,21 @@ public class Config {
 
         BUILDER.pop();
 
+        BUILDER.comment("Ship sound and timekeeping settings").push("ship_sound");
+        SHIP_CAN_TIMEKEEPING = BUILDER
+                .comment("Play ship timekeeping voice every Minecraft hour when enabled in ship GUI")
+                .define("canTimeKeeping", canTimeKeeping);
+        SHIP_VOLUME_TIMEKEEPING = BUILDER
+                .comment("Timekeeping voice volume multiplier")
+                .defineInRange("volumeTimeKeeping", volumeTimeKeeping, 0.0D, 10.0D);
+        SHIP_VOLUME_GENERAL = BUILDER
+                .comment("General ship voice volume multiplier")
+                .defineInRange("volumeShip", volumeShip, 0.0D, 10.0D);
+        SHIP_VOLUME_ATTACK = BUILDER
+                .comment("Attack sound volume multiplier")
+                .defineInRange("volumeAttack", volumeAttack, 0.0D, 10.0D);
+        BUILDER.pop();
+
         BUILDER.comment("Client side settings").push("client");
         CLIENT_SCALE_HELD_ITEM = BUILDER
                 .comment("Held item scale")
@@ -324,6 +507,31 @@ public class Config {
         tickFishingMax = TICK_FISHING_MAX.get();
         tickMiningMin = TICK_MINING_MIN.get();
         tickMiningMax = TICK_MINING_MAX.get();
+        smallShipyardPowerMax = SMALL_SHIPYARD_POWER_MAX.get();
+        smallShipyardBuildSpeed = SMALL_SHIPYARD_BUILD_SPEED.get();
+        smallShipyardInstantTicks = SMALL_SHIPYARD_INSTANT_TICKS.get();
+        smallShipyardFuelMagnification = SMALL_SHIPYARD_FUEL_MAGNIFICATION.get().floatValue();
+        largeShipyardPowerMax = LARGE_SHIPYARD_POWER_MAX.get();
+        largeShipyardBuildSpeed = LARGE_SHIPYARD_BUILD_SPEED.get();
+        largeShipyardInstantTicks = LARGE_SHIPYARD_INSTANT_TICKS.get();
+        largeShipyardFuelMagnification = LARGE_SHIPYARD_FUEL_MAGNIFICATION.get().floatValue();
+        ringAbilityWaterBreathing = RING_ABILITY_WATER_BREATHING.get();
+        ringAbilitySwimFlight = RING_ABILITY_SWIM_FLIGHT.get();
+        ringAbilityUnderwaterDigCap = RING_ABILITY_UNDERWATER_DIG_CAP.get();
+        ringAbilityUnderwaterFogCap = RING_ABILITY_UNDERWATER_FOG_CAP.get();
+        ringAbilityFireImmunity = RING_ABILITY_FIRE_IMMUNITY.get();
+        drumLiquidBaseRate = DRUM_LIQUID_BASE_RATE.get();
+        drumLiquidEnchantRate = DRUM_LIQUID_ENCHANT_RATE.get();
+        drumEnergyBaseRate = DRUM_ENERGY_BASE_RATE.get();
+        drumEnergyEnchantRate = DRUM_ENERGY_ENCHANT_RATE.get();
+        pairDistChest = PAIR_DIST_CHEST.get();
+        pairDistWaypoint = PAIR_DIST_WAYPOINT.get();
+        craneTankCapacity = CRANE_TANK_CAPACITY.get();
+        volCorePowerMax = VOLCORE_POWER_MAX.get();
+        volCoreConsumeSpeed = VOLCORE_CONSUME_SPEED.get();
+        volCoreFuelMagnitude = VOLCORE_FUEL_MAGNITUDE.get();
+        miningEntries = parseMiningEntries(MINING_ENTRIES.get());
+        lootEntries = parseLootEntries(LOOT_ENTRIES.get());
         for(int i=0; i<4; i++) {
             expGainTask[i] = EXP_GAIN_TASK[i].get();
             consumeGrudgeTask[i] = CONSUME_GRUDGE_TASK[i].get();
@@ -338,14 +546,243 @@ public class Config {
                 hostileSpawnMinionCount = HOSTILE_SPAWN_MINION_COUNT.get();
                 hostileSpawnRequireRing = HOSTILE_SPAWN_REQUIRE_RING.get();
                 hostileMobSpawnMax = HOSTILE_MOB_SPAWN_MAX.get();
-                hostileMobSpawnChancePercent = HOSTILE_MOB_SPAWN_CHANCE_PERCENT.get();
-                hostileMobSpawnGroups = Math.max(1, HOSTILE_MOB_SPAWN_GROUPS.get());
-                hostileMobSpawnGroupMin = Math.max(1, HOSTILE_MOB_SPAWN_GROUP_MIN.get());
-                hostileMobSpawnGroupMax = Math.max(hostileMobSpawnGroupMin, HOSTILE_MOB_SPAWN_GROUP_MAX.get());
+        hostileMobSpawnChancePercent = HOSTILE_MOB_SPAWN_CHANCE_PERCENT.get();
+        hostileMobSpawnGroups = Math.max(1, HOSTILE_MOB_SPAWN_GROUPS.get());
+        hostileMobSpawnGroupMin = Math.max(1, HOSTILE_MOB_SPAWN_GROUP_MIN.get());
+        hostileMobSpawnGroupMax = Math.max(hostileMobSpawnGroupMin, HOSTILE_MOB_SPAWN_GROUP_MAX.get());
 
-                scaleHeldItem = CLIENT_SCALE_HELD_ITEM.get().floatValue();
-                offsetHeldItemX = CLIENT_OFFSET_HELD_ITEM_X.get().floatValue();
-                offsetHeldItemY = CLIENT_OFFSET_HELD_ITEM_Y.get().floatValue();
-                offsetHeldItemZ = CLIENT_OFFSET_HELD_ITEM_Z.get().floatValue();
+        canTimeKeeping = SHIP_CAN_TIMEKEEPING.get();
+        volumeTimeKeeping = SHIP_VOLUME_TIMEKEEPING.get().floatValue();
+        volumeShip = SHIP_VOLUME_GENERAL.get().floatValue();
+        volumeAttack = SHIP_VOLUME_ATTACK.get().floatValue();
+
+        scaleHeldItem = CLIENT_SCALE_HELD_ITEM.get().floatValue();
+        offsetHeldItemX = CLIENT_OFFSET_HELD_ITEM_X.get().floatValue();
+        offsetHeldItemY = CLIENT_OFFSET_HELD_ITEM_Y.get().floatValue();
+        offsetHeldItemZ = CLIENT_OFFSET_HELD_ITEM_Z.get().floatValue();
+    }
+
+    private static List<String> defaultMiningEntries() {
+        List<String> entries = new ArrayList<>();
+        entries.add("*,*,minecraft:cobblestone,0,100,1,4,1,256,0,0");
+
+        entries.add("minecraft:overworld,*,minecraft:cobblestone,0,4000,1,4,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:stone,0,500,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:granite,0,500,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:diorite,0,500,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:andesite,0,500,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:dirt,0,500,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:sand,0,500,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:gravel,0,200,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:obsidian,0,200,1,1,40,24,3,0");
+        entries.add("minecraft:overworld,*,minecraft:flint,0,250,1,1,1,256,0,0");
+        entries.add("minecraft:overworld,*,minecraft:gunpowder,0,400,1,1,40,64,0,0");
+        entries.add("minecraft:overworld,*,minecraft:bone,0,400,1,1,1,64,0,0");
+        entries.add("minecraft:overworld,*,minecraft:coal,0,500,1,3,1,100,1,150");
+        entries.add("minecraft:overworld,*,minecraft:redstone,0,500,1,3,20,15,2,150");
+        entries.add("minecraft:overworld,*,minecraft:iron_ore,0,350,1,2,1,64,2,100");
+        entries.add("minecraft:overworld,*,shincolle:abyssium,0,350,1,3,1,64,2,100");
+        entries.add("minecraft:overworld,*,minecraft:gold_ore,0,100,1,1,30,32,2,100");
+        entries.add("minecraft:overworld,*,minecraft:lapis_lazuli,0,200,1,3,30,30,2,150");
+        entries.add("minecraft:overworld,*,minecraft:diamond,0,50,1,1,60,16,3,100");
+        entries.add("minecraft:overworld,*,minecraft:emerald,0,80,1,1,40,32,3,100");
+        entries.add("minecraft:overworld,*,shincolle:marriagering,0,25,1,1,1,16,3,0");
+
+        entries.add("minecraft:overworld,minecraft:warm_ocean,minecraft:prismarine_shard,0,500,1,4,30,128,0,0");
+        entries.add("minecraft:overworld,minecraft:warm_ocean,minecraft:prismarine_crystals,0,200,1,3,60,128,2,100");
+        entries.add("minecraft:overworld,minecraft:warm_ocean,shincolle:abyssium,0,500,1,3,1,64,2,100");
+        entries.add("minecraft:overworld,minecraft:warm_ocean,minecraft:sponge,0,200,1,1,80,128,0,100");
+        entries.add("minecraft:overworld,minecraft:deep_ocean,minecraft:prismarine_shard,0,500,1,4,30,128,0,0");
+        entries.add("minecraft:overworld,minecraft:deep_ocean,minecraft:prismarine_crystals,0,200,1,3,60,128,2,100");
+        entries.add("minecraft:overworld,minecraft:deep_ocean,shincolle:abyssium,0,500,1,3,1,64,2,100");
+        entries.add("minecraft:overworld,minecraft:deep_ocean,minecraft:sponge,0,200,1,1,80,128,0,100");
+        entries.add("minecraft:overworld,minecraft:mushroom_fields,minecraft:clay_ball,0,500,1,4,30,128,0,0");
+        entries.add("minecraft:overworld,minecraft:mushroom_fields,minecraft:mycelium,0,500,1,1,50,128,0,0");
+        entries.add("minecraft:overworld,minecraft:frozen_ocean,minecraft:packed_ice,0,1000,1,4,1,256,2,0");
+        entries.add("minecraft:overworld,minecraft:deep_frozen_ocean,minecraft:packed_ice,0,1000,1,4,1,256,2,0");
+        entries.add("minecraft:overworld,minecraft:frozen_river,minecraft:packed_ice,0,1000,1,4,1,256,2,0");
+
+        entries.add("minecraft:the_nether,*,minecraft:netherrack,0,4500,1,4,1,256,0,0");
+        entries.add("minecraft:the_nether,*,minecraft:nether_bricks,0,1000,1,1,1,256,0,0");
+        entries.add("minecraft:the_nether,*,minecraft:soul_sand,0,1000,1,1,1,256,0,0");
+        entries.add("minecraft:the_nether,*,minecraft:gravel,0,1000,1,1,1,256,0,0");
+        entries.add("minecraft:the_nether,*,minecraft:magma_block,0,500,1,1,40,256,3,0");
+        entries.add("minecraft:the_nether,*,minecraft:flint,0,500,1,1,1,256,0,0");
+        entries.add("minecraft:the_nether,*,shincolle:marriagering,0,50,1,1,1,256,3,0");
+        entries.add("minecraft:the_nether,*,minecraft:quartz,0,1000,1,3,1,256,2,150");
+        entries.add("minecraft:the_nether,*,minecraft:glowstone_dust,0,500,1,2,1,256,0,100");
+        entries.add("minecraft:the_nether,*,minecraft:ghast_tear,0,50,1,1,90,256,3,100");
+        entries.add("minecraft:the_nether,*,minecraft:blaze_rod,0,80,1,1,60,256,3,100");
+
+        entries.add("minecraft:the_end,*,minecraft:end_stone,0,4000,1,4,1,256,0,0");
+        entries.add("minecraft:the_end,*,minecraft:ender_pearl,0,200,1,1,40,256,3,100");
+        entries.add("minecraft:the_end,*,minecraft:chorus_fruit,0,200,1,3,60,256,3,100");
+        entries.add("minecraft:the_end,*,shincolle:marriagering,0,25,1,1,1,256,3,0");
+        return entries;
+    }
+
+    private static List<String> defaultLootEntries() {
+        List<String> entries = new ArrayList<>();
+        entries.add("0,shincolle:grudge,0,1,100,10,15");
+        entries.add("0,shincolle:destroyer_i_spawn_egg,0,2,100,1,1");
+        entries.add("0,shincolle:ammo,0,1,100,5,8");
+
+        entries.add("1,shincolle:grudge,0,1,100,5,8");
+        entries.add("1,shincolle:destroyer_i_spawn_egg,0,1,100,1,1");
+        entries.add("1,shincolle:ammo,0,1,100,2,3");
+        entries.add("1,shincolle:instantconmat,0,1,100,3,5");
+
+        entries.add("2,shincolle:marriagering,0,4,70,1,1");
+        entries.add("2,shincolle:trainingbook,0,4,80,1,3");
+        entries.add("2,shincolle:destroyer_i_spawn_egg,0,3,100,1,1");
+        entries.add("2,shincolle:destroyer_ro_spawn_egg,0,3,100,1,1");
+        entries.add("2,shincolle:destroyer_akatsuki_spawn_egg,0,1,80,1,1");
+        entries.add("2,shincolle:destroyer_hibiki_spawn_egg,0,1,80,1,1");
+
+        entries.add("3,shincolle:instantconmat,0,20,100,10,20");
+        entries.add("3,shincolle:abyssium,0,10,100,5,10");
+        entries.add("3,shincolle:polymetal,0,10,100,5,10");
+        entries.add("3,shincolle:destroyer_i_spawn_egg,0,5,100,1,1");
+
+        entries.add("4,shincolle:trainingbook,0,6,80,1,3");
+        entries.add("4,shincolle:marriagering,0,6,70,1,1");
+        entries.add("4,shincolle:destroyer_i_spawn_egg,0,3,100,1,1");
+        entries.add("4,shincolle:destroyer_ro_spawn_egg,0,3,100,1,1");
+        entries.add("4,shincolle:equipcannon,-1,8,100,1,1");
+        entries.add("4,shincolle:equipairplane,-1,8,100,1,1");
+        entries.add("4,shincolle:equiptorpedo,-1,8,100,1,1");
+
+        entries.add("5,shincolle:trainingbook,0,6,80,1,3");
+        entries.add("5,shincolle:marriagering,0,6,70,1,1");
+        entries.add("5,shincolle:destroyer_i_spawn_egg,0,3,100,1,1");
+        entries.add("5,shincolle:destroyer_ro_spawn_egg,0,3,100,1,1");
+        entries.add("5,shincolle:equipcannon,-1,8,100,1,1");
+        entries.add("5,shincolle:equipairplane,-1,8,100,1,1");
+        entries.add("5,shincolle:equiptorpedo,-1,8,100,1,1");
+
+        entries.add("6,shincolle:marriagering,0,4,70,1,1");
+        entries.add("6,shincolle:destroyer_ro_spawn_egg,0,2,100,1,1");
+        entries.add("6,shincolle:destroyer_akatsuki_spawn_egg,0,1,80,1,1");
+        entries.add("6,shincolle:destroyer_hibiki_spawn_egg,0,1,80,1,1");
+
+        entries.add("7,shincolle:trainingbook,0,4,80,1,3");
+        entries.add("7,shincolle:instantconmat,0,4,100,10,12");
+        entries.add("7,shincolle:marriagering,0,4,70,1,1");
+        entries.add("7,shincolle:abyssium,0,4,100,5,15");
+        entries.add("7,shincolle:polymetal,0,4,100,5,15");
+
+        entries.add("8,shincolle:trainingbook,0,6,80,1,3");
+        entries.add("8,shincolle:marriagering,0,6,70,1,1");
+        entries.add("8,shincolle:destroyer_i_spawn_egg,0,3,100,1,1");
+        entries.add("8,shincolle:destroyer_ro_spawn_egg,0,3,100,1,1");
+        entries.add("8,shincolle:equipcannon,-1,8,100,1,1");
+        entries.add("8,shincolle:equipairplane,-1,8,100,1,1");
+        entries.add("8,shincolle:equiptorpedo,-1,8,100,1,1");
+
+        entries.add("9,shincolle:trainingbook,0,6,80,1,3");
+        entries.add("9,shincolle:marriagering,0,6,70,1,1");
+        entries.add("9,shincolle:destroyer_i_spawn_egg,0,3,100,1,1");
+        entries.add("9,shincolle:destroyer_ro_spawn_egg,0,3,100,1,1");
+        entries.add("9,shincolle:equipcannon,-1,8,100,1,1");
+        entries.add("9,shincolle:equipairplane,-1,8,100,1,1");
+        entries.add("9,shincolle:equiptorpedo,-1,8,100,1,1");
+        return entries;
+    }
+
+    private static boolean isValidMiningEntry(String line) {
+        String[] parts = line.replace(" ", "").split(",");
+        if (parts.length != 11) return false;
+        if (parts[2].isBlank()) return false;
+        try {
+            Integer.parseInt(parts[3]);
+            Integer.parseInt(parts[4]);
+            Integer.parseInt(parts[5]);
+            Integer.parseInt(parts[6]);
+            Integer.parseInt(parts[7]);
+            Integer.parseInt(parts[8]);
+            Integer.parseInt(parts[9]);
+            Integer.parseInt(parts[10]);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+    }
+
+    private static boolean isValidLootEntry(String line) {
+        String[] parts = line.replace(" ", "").split(",");
+        if (parts.length != 7 || parts[1].isBlank()) return false;
+        try {
+            Integer.parseInt(parts[0]);
+            Integer.parseInt(parts[2]);
+            Integer.parseInt(parts[3]);
+            Integer.parseInt(parts[4]);
+            Integer.parseInt(parts[5]);
+            Integer.parseInt(parts[6]);
+            return true;
+        } catch (NumberFormatException ex) {
+            return false;
+        }
+    }
+
+    private static List<MiningEntry> parseMiningEntries(List<? extends String> rawEntries) {
+        List<MiningEntry> parsed = new ArrayList<>();
+        for (String raw : rawEntries) {
+            String[] parts = raw.replace(" ", "").split(",");
+            if (parts.length != 11) continue;
+            Item item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(parts[2])).orElse(Items.COBBLESTONE);
+            int dimensionId = parseDimensionId(parts[0]);
+            String dimensionPath = parts[0];
+            String biomePath = parts[1];
+            try {
+                parsed.add(new MiningEntry(
+                        dimensionId,
+                        dimensionPath,
+                        biomePath,
+                        item,
+                        Integer.parseInt(parts[3]),
+                        Math.max(1, Integer.parseInt(parts[4])),
+                        Math.max(1, Integer.parseInt(parts[5])),
+                        Math.max(1, Integer.parseInt(parts[6])),
+                        Math.max(1, Integer.parseInt(parts[7])),
+                        Integer.parseInt(parts[8]),
+                        Math.max(0, Integer.parseInt(parts[9])),
+                        Integer.parseInt(parts[10]) * 0.01F
+                ));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return List.copyOf(parsed);
+    }
+
+    private static List<LootEntry> parseLootEntries(List<? extends String> rawEntries) {
+        List<LootEntry> parsed = new ArrayList<>();
+        for (String raw : rawEntries) {
+            String[] parts = raw.replace(" ", "").split(",");
+            if (parts.length != 7) continue;
+            Item item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(parts[1])).orElse(Items.AIR);
+            if (item == Items.AIR) continue;
+            try {
+                parsed.add(new LootEntry(
+                        Integer.parseInt(parts[0]),
+                        item,
+                        Integer.parseInt(parts[2]),
+                        Math.max(1, Integer.parseInt(parts[3])),
+                        Integer.parseInt(parts[4]) * 0.01F,
+                        Math.max(1, Integer.parseInt(parts[5])),
+                        Math.max(1, Integer.parseInt(parts[6]))
+                ));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        return List.copyOf(parsed);
+    }
+
+    private static int parseDimensionId(String value) {
+        return switch (value) {
+            case "0", "minecraft:overworld" -> 0;
+            case "-1", "minecraft:the_nether" -> -1;
+            case "1", "minecraft:the_end" -> 1;
+            default -> Integer.MIN_VALUE;
+        };
     }
 }

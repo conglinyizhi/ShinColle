@@ -2,6 +2,7 @@ package org.trp.shincolle.entity.base;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -23,12 +24,14 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
     protected int numAmmoLight;
     protected int numAmmoHeavy;
     protected float attackRangeSq;
+    protected boolean resourcesReturned;
 
     protected EntitySummonBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         this.numAmmoLight = 6;
         this.numAmmoHeavy = 0;
         this.attackRangeSq = 16.0F;
+        this.resourcesReturned = false;
     }
 
     @Override
@@ -136,6 +139,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         this.carrierId = carrier.getUUID();
         this.targetId = target == null ? null : target.getUUID();
         this.missionTick = 0;
+        this.resourcesReturned = false;
         this.setScaleLevel(scaleLevel);
 
         double offsetX = (this.random.nextDouble() * 3.0D - 1.5D);
@@ -176,6 +180,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         compound.putInt("NumAmmoLight", this.numAmmoLight);
         compound.putInt("NumAmmoHeavy", this.numAmmoHeavy);
         compound.putFloat("AttackRangeSq", this.attackRangeSq);
+        compound.putBoolean("ResourcesReturned", this.resourcesReturned);
     }
 
     @Override
@@ -187,6 +192,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         this.numAmmoLight = compound.getInt("NumAmmoLight");
         this.numAmmoHeavy = compound.getInt("NumAmmoHeavy");
         this.attackRangeSq = compound.getFloat("AttackRangeSq");
+        this.resourcesReturned = compound.getBoolean("ResourcesReturned");
     }
 
     @Override
@@ -242,14 +248,31 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
     protected void handleReturnToCarrier(EntityShipBase carrier) {
         double distSq = this.distanceToSqr(carrier);
         if (distSq <= 4.0D && this.missionTick > 40) {
-            returnSummonResources(carrier);
+            returnSummonResourcesOnce(carrier);
             this.discard();
         } else {
             this.getNavigation().moveTo(carrier, 1.2D);
             if (this.tickCount % 20 == 0 && this.distanceToSqr(carrier) > 1024.0D) {
+                returnSummonResourcesOnce(carrier);
                 this.discard();
             }
         }
+    }
+
+    @Override
+    public void die(DamageSource damageSource) {
+        if (!this.level().isClientSide) {
+            returnSummonResourcesOnce(getCarrier());
+        }
+        super.die(damageSource);
+    }
+
+    protected final void returnSummonResourcesOnce(@Nullable EntityShipBase carrier) {
+        if (this.resourcesReturned || carrier == null) {
+            return;
+        }
+        this.resourcesReturned = true;
+        returnSummonResources(carrier);
     }
 
     protected void returnSummonResources(EntityShipBase carrier) {

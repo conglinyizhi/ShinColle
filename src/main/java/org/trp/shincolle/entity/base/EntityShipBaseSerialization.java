@@ -89,6 +89,9 @@ final class EntityShipBaseSerialization {
         compound.putByteArray("LegacyBodyHeightSit", legacyState.bodyHeightSit);
         compound.putIntArray("LegacyModelPos", legacyState.getModelPosBits());
         compound.putIntArray("LegacyWaypoints", legacyState.getWaypointBits());
+        if (this.ship.getGuardedEntityIdInternal() != null) {
+            compound.putUUID("GuardedEntityId", this.ship.getGuardedEntityIdInternal());
+        }
         this.ship.savePointerToNbt(compound);
     }
 
@@ -186,6 +189,11 @@ final class EntityShipBaseSerialization {
         }
         if (compound.contains("LegacyWaypoints")) {
             legacyState.applyWaypointBits(compound.getIntArray("LegacyWaypoints"));
+        }
+        if (compound.hasUUID("GuardedEntityId")) {
+            this.ship.loadGuardedEntityIdInternal(compound.getUUID("GuardedEntityId"));
+        } else {
+            this.ship.loadGuardedEntityIdInternal(null);
         }
 
         this.ship.refreshDimensions();

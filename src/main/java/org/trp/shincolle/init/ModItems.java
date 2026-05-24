@@ -296,7 +296,7 @@ public class ModItems {
             () -> new BlockItem(ModBlocks.GRUDGE_BLOCK.get(), new Item.Properties()));
 
     public static final DeferredItem<Item> GRUDGE_HEAVY_BLOCK = ITEMS.register("grudge_heavy_block",
-            () -> new BlockItem(ModBlocks.GRUDGE_HEAVY_BLOCK.get(), new Item.Properties()));
+            () -> new GrudgeHeavyBlockItem(ModBlocks.GRUDGE_HEAVY_BLOCK.get(), new Item.Properties()));
 
     public static final DeferredItem<Item> POLYMETAL = ITEMS.register("polymetal",
             () -> new BlockItem(ModBlocks.POLYMETAL.get(), new Item.Properties()));

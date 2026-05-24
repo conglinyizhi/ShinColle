@@ -333,7 +333,8 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
         if (this.tickCount % RETURN_HOME_CHECK_INTERVAL == 0) {
             if (this.distanceToSqr(carrier) >= RETURN_MAX_DISTANCE_SQR) {
-            this.discard();
+                returnSummonResources(carrier);
+                this.discard();
             }
         }
     }
@@ -399,6 +400,32 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         float levelMod = 0.001F * carrier.getLevel();
         float miss = 0.25F + 0.25F * (distance / range) - levelMod;
         return Math.max(0.0F, Math.min(miss, 0.5F));
+    }
+
+    public Vec3 getRandomCruisePos(@Nullable Entity reference) {
+        double minDist = this.missionLightAircraft ? RAND_POS_MIN_LIGHT : RAND_POS_MIN_HEAVY;
+        double randDist = this.missionLightAircraft ? RAND_POS_RAND_LIGHT : RAND_POS_RAND_HEAVY;
+
+        Entity ref = reference != null ? reference : this;
+        Level level = this.level();
+        float currentYaw = this.getYRot();
+
+        for (int i = 0; i < 25; i++) {
+            float angle = currentYaw + (i * 15.0F);
+            double rad = Math.toRadians(angle);
+
+            double dist = minDist + this.getRandom().nextDouble() * randDist;
+            double newX = ref.getX() + Math.cos(rad) * dist;
+            double newZ = ref.getZ() + Math.sin(rad) * dist;
+            double newY = ref.getY() + ref.getBbHeight() + 2.0D + this.getRandom().nextDouble() * 2.0D;
+
+            net.minecraft.core.BlockPos targetPos = net.minecraft.core.BlockPos.containing(newX, newY, newZ);
+            if (level.getBlockState(targetPos).getCollisionShape(level, targetPos).isEmpty()) {
+                return new Vec3(newX, newY, newZ);
+            }
+        }
+
+        return new Vec3(ref.getX(), ref.getY() + 5.0D, ref.getZ());
     }
 
     @Override

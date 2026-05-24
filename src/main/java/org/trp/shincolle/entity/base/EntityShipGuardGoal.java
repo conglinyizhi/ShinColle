@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity.base;
 
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
@@ -25,10 +26,15 @@ final class EntityShipGuardGoal extends Goal {
         if (ship.getStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS)) {
             return false;
         }
-        if (ship.getGuardedPos(4) != 1) {
-            return false;
+        int guardType = ship.getGuardedPos(4);
+        if (guardType == 1) {
+            return ship.getGuardedPos(1) > 0;
         }
-        return true;
+        if (guardType == 2) {
+            Entity guarded = ship.getGuardedEntity();
+            return guarded != null && guarded.isAlive();
+        }
+        return false;
     }
 
     @Override
@@ -43,20 +49,31 @@ final class EntityShipGuardGoal extends Goal {
 
     @Override
     public void tick() {
-        int gx = ship.getGuardedPos(0);
-        int gy = ship.getGuardedPos(1);
-        int gz = ship.getGuardedPos(2);
-        
+        Entity guardedEntity = ship.getGuardedEntity();
+        int guardType = ship.getGuardedPos(4);
+
         int timer = ship.getStateTimer(18);
         boolean isSummoning = timer > 0;
         if (isSummoning) {
             ship.setStateTimer(18, timer - 1);
         }
 
-        Vec3 target = new Vec3(gx + 0.5, gy, gz + 0.5);
+        Vec3 target;
+        if (guardType == 2 && guardedEntity != null) {
+            if (ship.getGuardedPos(3) != EntityShipBase.getLegacyDimensionId(guardedEntity.level())) {
+                ship.setGuardedPos(-1, -1, -1, EntityShipBase.getLegacyDimensionId(guardedEntity.level()), 2);
+            }
+            target = guardedEntity.position();
+        } else {
+            int gx = ship.getGuardedPos(0);
+            int gy = ship.getGuardedPos(1);
+            int gz = ship.getGuardedPos(2);
+            target = new Vec3(gx + 0.5, gy, gz + 0.5);
+        }
         double distSq = ship.distanceToSqr(target.x, ship.getY(), target.z);
-        
-        if (distSq > 0.5D) {
+
+        double stopDistanceSq = guardType == 2 ? 9.0D : 0.5D;
+        if (distSq > stopDistanceSq) {
             if (this.nextPathTick-- <= 0 || ship.getNavigation().isDone()) {
                 this.nextPathTick = 10;
                 ship.getNavigation().moveTo(target.x, target.y, target.z, speed);
@@ -66,13 +83,11 @@ final class EntityShipGuardGoal extends Goal {
             ship.getNavigation().stop();
         }
 
-        if (!isSummoning) {
-            ship.setGuardedPos(gx, gy, gz, ship.getGuardedPos(3), 0);
-            ship.getNavigation().stop();
-            return;
-        }
-
-        if (isSummoning || distSq < 16.0D) {
+        if (guardedEntity instanceof LivingEntity livingEntity) {
+            ship.getLookControl().setLookAt(livingEntity.getX(), livingEntity.getEyeY(), livingEntity.getZ(), 60.0F, 60.0F);
+        } else if (guardedEntity != null) {
+            ship.getLookControl().setLookAt(guardedEntity.getX(), guardedEntity.getY(), guardedEntity.getZ(), 60.0F, 60.0F);
+        } else if (isSummoning || distSq < 16.0D) {
             lookAtOwnerOrNearestPlayer();
         } else {
             ship.getLookControl().setLookAt(target.x, target.y + ship.getEyeHeight(), target.z, 30.0F, 30.0F);

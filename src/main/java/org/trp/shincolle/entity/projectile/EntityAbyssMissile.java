@@ -1,7 +1,11 @@
 package org.trp.shincolle.entity.projectile;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -10,10 +14,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -36,6 +43,21 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
     private static final double TORPEDO_ACCEL_MULTIPLIER = 1.05D;
     private static final int TORPEDO_START_DELAY = 3;
     private static final float ARC_FACTOR_DEFAULT = 0.35F;
+    private static final int CLUSTER_SPLIT_START = 6;
+    private static final int CLUSTER_SPLIT_END = 40;
+    private static final int CLUSTER_SPLIT_INTERVAL = 8;
+    private static final int CLUSTER_SUB_LIFE = 140;
+    private static final float CLUSTER_SUB_DAMAGE_SCALE = 0.5F;
+    private static final float CLUSTER_SUB_EXPLOSION_RADIUS = 1.8F;
+    private static final float CLUSTER_SUB_SPEED = 0.5F;
+    private static final float CLUSTER_SUB_VERTICAL_ACCEL = -0.06F;
+    private static final double BLACK_HOLE_PULL_RADIUS = 7.5D;
+    private static final double BLACK_HOLE_PULL_STRENGTH = 0.12D;
+    private static final String TAG_IMPACT_EFFECTS = "ImpactEffects";
+    private static final String TAG_EFFECT_ID = "EffectId";
+    private static final String TAG_EFFECT_LEVEL = "Amplifier";
+    private static final String TAG_EFFECT_DURATION = "Duration";
+    private static final String TAG_EFFECT_CHANCE = "Chance";
 
     public enum MoveType {
         DIRECT,
@@ -71,6 +93,10 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
     private boolean torpedoStarted;
     private int torpedoDelay;
     private Vec3 targetPos;
+    private boolean clusterMain;
+    private boolean clusterSub;
+    private boolean blackHole;
+    private final List<ImpactEffectData> impactEffects = new java.util.ArrayList<>();
 
     public EntityAbyssMissile(EntityType<EntityAbyssMissile> type, Level level) {
         super(type, level);
@@ -164,6 +190,19 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.arcSwitchTick = tag.getInt("ArcSwitch");
         this.torpedoStarted = tag.getBoolean("TorpedoStarted");
         this.torpedoDelay = tag.getInt("TorpedoDelay");
+        this.clusterMain = tag.getBoolean("ClusterMain");
+        this.clusterSub = tag.getBoolean("ClusterSub");
+        this.blackHole = tag.getBoolean("BlackHole");
+        this.impactEffects.clear();
+        if (tag.contains(TAG_IMPACT_EFFECTS, Tag.TAG_LIST)) {
+            ListTag listTag = tag.getList(TAG_IMPACT_EFFECTS, Tag.TAG_COMPOUND);
+            for (int i = 0; i < listTag.size(); i++) {
+                ImpactEffectData effectData = ImpactEffectData.fromTag(listTag.getCompound(i));
+                if (effectData != null) {
+                    this.impactEffects.add(effectData);
+                }
+            }
+        }
         if (tag.contains("TargetX")) {
             this.targetPos = new Vec3(tag.getDouble("TargetX"), tag.getDouble("TargetY"), tag.getDouble("TargetZ"));
         }
@@ -188,6 +227,16 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         tag.putInt("ArcSwitch", this.arcSwitchTick);
         tag.putBoolean("TorpedoStarted", this.torpedoStarted);
         tag.putInt("TorpedoDelay", this.torpedoDelay);
+        tag.putBoolean("ClusterMain", this.clusterMain);
+        tag.putBoolean("ClusterSub", this.clusterSub);
+        tag.putBoolean("BlackHole", this.blackHole);
+        if (!this.impactEffects.isEmpty()) {
+            ListTag listTag = new ListTag();
+            for (ImpactEffectData effectData : this.impactEffects) {
+                listTag.add(effectData.toTag());
+            }
+            tag.put(TAG_IMPACT_EFFECTS, listTag);
+        }
         if (this.targetPos != null) {
             tag.putDouble("TargetX", this.targetPos.x);
             tag.putDouble("TargetY", this.targetPos.y);
@@ -204,6 +253,7 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
                 onImpact(null);
                 return;
             }
+            tickClusterSplit();
         }
 
         updateVelocityByMoveType();
@@ -242,6 +292,13 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         buffer.writeDouble(this.accY1);
         buffer.writeDouble(this.accY2);
         buffer.writeInt(this.arcSwitchTick);
+        buffer.writeBoolean(this.clusterMain);
+        buffer.writeBoolean(this.clusterSub);
+        buffer.writeBoolean(this.blackHole);
+        buffer.writeInt(this.impactEffects.size());
+        for (ImpactEffectData effectData : this.impactEffects) {
+            effectData.write(buffer);
+        }
 
         buffer.writeBoolean(this.targetPos != null);
         if (this.targetPos != null) {
@@ -260,6 +317,17 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.accY1 = buffer.readDouble();
         this.accY2 = buffer.readDouble();
         this.arcSwitchTick = buffer.readInt();
+        this.clusterMain = buffer.readBoolean();
+        this.clusterSub = buffer.readBoolean();
+        this.blackHole = buffer.readBoolean();
+        this.impactEffects.clear();
+        int impactEffectCount = buffer.readInt();
+        for (int i = 0; i < impactEffectCount; i++) {
+            ImpactEffectData effectData = ImpactEffectData.read(buffer);
+            if (effectData != null) {
+                this.impactEffects.add(effectData);
+            }
+        }
 
         if (buffer.readBoolean()) {
             this.targetPos = new Vec3(buffer.readDouble(), buffer.readDouble(), buffer.readDouble());
@@ -428,6 +496,13 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
     }
 
     private void updateVelocityByMoveType() {
+        if (this.clusterSub) {
+            this.velX *= 0.95D;
+            this.velY += this.accY1;
+            this.velZ *= 0.95D;
+            return;
+        }
+
         switch (this.moveType) {
             case DIRECT -> {
 
@@ -474,6 +549,27 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         this.velZ *= accel;
     }
 
+    private void tickClusterSplit() {
+        if (!this.clusterMain || this.level().isClientSide) {
+            return;
+        }
+
+        if (this.age <= CLUSTER_SPLIT_START || this.age >= CLUSTER_SPLIT_END || (this.age % CLUSTER_SPLIT_INTERVAL) != 0) {
+            return;
+        }
+
+        ServerLevel serverLevel = (ServerLevel) this.level();
+        Vec3 sourceVelocity = new Vec3(this.velX, this.velY, this.velZ);
+        Vec3 spawnPos = this.position().add(0.0D, -0.65D - Math.abs(this.velY), 0.0D);
+
+        EntityAbyssMissile sub = new EntityAbyssMissile(serverLevel, getOwnerEntity(), getTargetEntity(), spawnPos,
+                getDamage() * CLUSTER_SUB_DAMAGE_SCALE, MoveType.PRESET_VELOCITY,
+                CLUSTER_SUB_SPEED, CLUSTER_SUB_VERTICAL_ACCEL, CLUSTER_SUB_VERTICAL_ACCEL,
+                sourceVelocity, CLUSTER_SUB_LIFE, CLUSTER_SUB_EXPLOSION_RADIUS);
+        sub.markClusterSub();
+        serverLevel.addFreshEntity(sub);
+    }
+
     private boolean canHitEntity(Entity entity) {
         Entity owner = getOwnerEntity();
         return entity.isPickable() && entity.isAlive() && entity != owner;
@@ -488,6 +584,9 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         spawnImpactParticles(serverLevel);
         this.playSound(ModSounds.SHIP_EXPLODE.get(), 0.7F,
                 this.getRandom().nextFloat() * 0.12F + 0.98F);
+        if (this.blackHole) {
+            applyBlackHoleEffect(serverLevel);
+        }
         applyExplosionDamage(serverLevel, hit);
         this.discard();
     }
@@ -519,9 +618,23 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
                 entity -> entity.isAlive() && entity.isPickable() && !(entity instanceof EntityAbyssMissile) && !isFriendlyTarget(owner, entity));
         for (Entity entity : targets) {
             entity.hurt(source, damage);
+            applyImpactEffects(entity);
         }
         if (directHit != null && directHit.isAlive() && !isFriendlyTarget(owner, directHit)) {
-            directHit.hurt(source, damage);
+            if (!targets.contains(directHit)) {
+                directHit.hurt(source, damage);
+            }
+            applyImpactEffects(directHit);
+        }
+    }
+
+    private void applyImpactEffects(Entity entity) {
+        if (this.impactEffects.isEmpty() || !(entity instanceof LivingEntity living)) {
+            return;
+        }
+
+        for (ImpactEffectData effectData : this.impactEffects) {
+            effectData.apply(this.random, living);
         }
     }
 
@@ -631,6 +744,42 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
         return this.entityData.get(EXPLOSION_RADIUS);
     }
 
+    public void markClusterMain() {
+        this.clusterMain = true;
+        this.clusterSub = false;
+    }
+
+    public void markClusterSub() {
+        this.clusterMain = false;
+        this.clusterSub = true;
+    }
+
+    public void markBlackHole() {
+        this.blackHole = true;
+    }
+
+    public void addImpactEffect(Holder<net.minecraft.world.effect.MobEffect> effect, int amplifier, int duration, int chance) {
+        if (effect == null || duration <= 0 || chance <= 0) {
+            return;
+        }
+        this.impactEffects.add(new ImpactEffectData(effect, amplifier, duration, chance));
+    }
+
+    private void applyBlackHoleEffect(ServerLevel serverLevel) {
+        Vec3 center = this.position();
+        Entity owner = getOwnerEntity();
+        List<LivingEntity> targets = serverLevel.getEntitiesOfClass(LivingEntity.class,
+                this.getBoundingBox().inflate(BLACK_HOLE_PULL_RADIUS),
+                entity -> entity.isAlive() && !isFriendlyTarget(owner, entity));
+
+        for (LivingEntity target : targets) {
+            Vec3 pull = center.subtract(target.position()).normalize().scale(BLACK_HOLE_PULL_STRENGTH);
+            target.setDeltaMovement(target.getDeltaMovement().add(pull.x, pull.y * 0.35D, pull.z));
+            target.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1, false, true));
+            target.addEffect(new MobEffectInstance(MobEffects.LEVITATION, 20, 0, false, true));
+        }
+    }
+
     @Override
     public boolean isPickable() {
         return true;
@@ -653,5 +802,55 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
     @Override
     public boolean isNoGravity() {
         return true;
+    }
+
+    private record ImpactEffectData(Holder<net.minecraft.world.effect.MobEffect> effect, int amplifier, int duration, int chance) {
+        private CompoundTag toTag() {
+            CompoundTag tag = new CompoundTag();
+            tag.putString(TAG_EFFECT_ID, BuiltInRegistries.MOB_EFFECT.getKey(this.effect.value()).toString());
+            tag.putInt(TAG_EFFECT_LEVEL, this.amplifier);
+            tag.putInt(TAG_EFFECT_DURATION, this.duration);
+            tag.putInt(TAG_EFFECT_CHANCE, this.chance);
+            return tag;
+        }
+
+        private static ImpactEffectData fromTag(CompoundTag tag) {
+            net.minecraft.resources.ResourceLocation effectId = net.minecraft.resources.ResourceLocation.tryParse(tag.getString(TAG_EFFECT_ID));
+            net.minecraft.world.effect.MobEffect effect = effectId == null ? null : BuiltInRegistries.MOB_EFFECT.get(effectId);
+            if (effect == null) {
+                return null;
+            }
+            return new ImpactEffectData(
+                    Holder.direct(effect),
+                    tag.getInt(TAG_EFFECT_LEVEL),
+                    tag.getInt(TAG_EFFECT_DURATION),
+                    tag.getInt(TAG_EFFECT_CHANCE)
+            );
+        }
+
+        private void write(RegistryFriendlyByteBuf buffer) {
+            buffer.writeResourceLocation(BuiltInRegistries.MOB_EFFECT.getKey(this.effect.value()));
+            buffer.writeVarInt(this.amplifier);
+            buffer.writeVarInt(this.duration);
+            buffer.writeVarInt(this.chance);
+        }
+
+        private static ImpactEffectData read(RegistryFriendlyByteBuf buffer) {
+            net.minecraft.world.effect.MobEffect effect = BuiltInRegistries.MOB_EFFECT.get(buffer.readResourceLocation());
+            int amplifier = buffer.readVarInt();
+            int duration = buffer.readVarInt();
+            int chance = buffer.readVarInt();
+            if (effect == null) {
+                return null;
+            }
+            return new ImpactEffectData(Holder.direct(effect), amplifier, duration, chance);
+        }
+
+        private void apply(net.minecraft.util.RandomSource random, LivingEntity target) {
+            if (random.nextInt(100) >= this.chance) {
+                return;
+            }
+            target.addEffect(new MobEffectInstance(this.effect, this.duration, this.amplifier, false, true));
+        }
     }
 }

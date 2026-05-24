@@ -11,22 +11,27 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.block.CraneBlock;
 import org.trp.shincolle.client.WaypointClientHelper;
+import org.trp.shincolle.entity.EntityTransportWa;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;
+import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.menu.CraneMenu;
 import org.trp.shincolle.utility.InventoryHelper;
 
@@ -47,6 +52,11 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         @Override
         protected void onContentsChanged() {
             markForSync();
+        }
+
+        @Override
+        public int getCapacity() {
+            return Math.max(1, Config.craneTankCapacity);
         }
     };
 
@@ -75,6 +85,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     private int tickRedstone = 0;
     private EntityShipBase craningShip = null;
     private int syncedShipId = -1;
+    private int liquidTransferRate = 0;
     private IItemHandler chestHandler = null;
     private int partDelay = 0;
 
@@ -135,6 +146,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                     applyPreLiquidTransfer(this.modeLiquid);
 
                     if (checkCraningShip()) {
+                        this.craningShip.setStateTimer(1, this.craningShip.getStateTimer(1) + 16);
                         boolean moved = false;
 
                         if (this.enabLoad) {
@@ -150,7 +162,9 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                             if (applyLiquidTransfer(this.modeLiquid)) moved = true;
                         }
 
-                        
+                        if (this.modeEnergy != 0) {
+                            if (applyEnergyTransfer()) moved = true;
+                        }
 
                         if (moved) {
                             this.tickRedstone = 24;
@@ -233,6 +247,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
             if (ship.isAlive() && ship.isTame() && this.ownerUUID != null && this.ownerUUID.equals(ship.getOwnerUUID())) {
                 if (ship.getStateMinor(43) == 1 || ship.getStateMinor(43) == 2) {
                     this.craningShip = ship;
+                    this.liquidTransferRate = calculateLiquidTransferRate(ship);
                     if (this.syncedShipId != ship.getId()) {
                         this.syncedShipId = ship.getId();
                         markForSync();
@@ -247,6 +262,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         }
         if (this.syncedShipId != -1) {
             this.syncedShipId = -1;
+            this.liquidTransferRate = 0;
             markForSync();
         }
         return false;
@@ -254,15 +270,20 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
 
     private void applyPreLiquidTransfer(int mode) {
         if (this.chestHandler == null) return;
+        int preTransferAmount = Math.max(1000, this.liquidTransferRate);
         if (mode == 1) { 
-            FluidStack drained = InventoryHelper.tryDrainContainer(this.chestHandler, this.fluidTank.getFluid(), 1000);
+            int maxDrain = Math.min(preTransferAmount, this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount());
+            if (maxDrain <= 0) return;
+            FluidStack drained = drainFromChestContainers(this.fluidTank.getFluid(), maxDrain);
             if (!drained.isEmpty()) {
                 this.fluidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+                markChestForSync();
             }
         } else if (mode == 2) { 
             if (!this.fluidTank.getFluid().isEmpty()) {
-                InventoryHelper.tryFillContainer(this.chestHandler, this.fluidTank.getFluid());
-                markChestForSync();
+                if (fillChestContainers(this.fluidTank.getFluid())) {
+                    markChestForSync();
+                }
             }
         }
     }
@@ -353,10 +374,13 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
 
     private boolean applyLiquidTransfer(int mode) {
         if (this.craningShip == null) return false;
+        int transferRate = Math.max(0, this.liquidTransferRate);
+        if (transferRate <= 0) return false;
         if (mode == 1) { 
             if (this.fluidTank.getFluidAmount() <= 0) return false;
             FluidStack toFill = this.fluidTank.getFluid().copy();
-            int amountBefore = toFill.getAmount();
+            int amountBefore = Math.min(transferRate, toFill.getAmount());
+            toFill.setAmount(amountBefore);
             if (InventoryHelper.tryFillContainer(this.craningShip.getInventory(), toFill)) {
                 int filled = amountBefore - toFill.getAmount();
                 if (filled > 0) {
@@ -365,7 +389,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                 }
             }
         } else if (mode == 2) { 
-            int maxDrain = Math.min(1000, this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount());
+            int maxDrain = Math.min(transferRate, this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount());
             if (maxDrain <= 0) return false;
             FluidStack drained = InventoryHelper.tryDrainContainer(this.craningShip.getInventory(), this.fluidTank.getFluid(), maxDrain);
             if (!drained.isEmpty()) {
@@ -377,23 +401,152 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     }
 
     private boolean applyEnergyTransfer() {
+        if (this.craningShip == null) {
+            return false;
+        }
+
+        int transferRate = calculateEnergyTransferRate(this.craningShip);
+        if (transferRate <= 0) {
+            return false;
+        }
+
+        if (this.modeEnergy == 1) {
+            boolean moved = pullEnergyFromChest(transferRate);
+            moved |= transferEnergyToShip(this.craningShip.getInventory(), transferRate);
+            if (moved) {
+                markChestForSync();
+            }
+            return moved;
+        } else if (this.modeEnergy == 2) {
+            boolean moved = extractEnergyFromShip(this.craningShip.getInventory(), transferRate);
+            moved |= pushEnergyToChest(transferRate);
+            if (moved) {
+                markChestForSync();
+            }
+            return moved;
+        }
+
         return false;
     }
 
     private void checkCraneEnding() {
         if (this.craningShip == null) return;
         boolean stop = false;
-        if (this.craneMode == 1) { 
-            stop = isInventoryFull(this.enabLoad ? this.craningShip.getInventory() : this.chestHandler);
-        } else if (this.craneMode == 2) { 
-            stop = isInventoryEmpty(this.enabLoad ? this.chestHandler : this.craningShip.getInventory());
+        if (this.craneMode == 0) {
+            stop = true;
+        } else if (this.craneMode == 1) {
+            stop = isWaitModeFull();
+        } else if (this.craneMode == 2) {
+            stop = isWaitModeEmpty();
+        } else if (this.craneMode == 3) {
+            stop = isInventoryExcess();
+        } else if (this.craneMode == 4) {
+            stop = isInventoryRemain();
+        } else {
+            stop = this.craningShip.getStateTimer(1) >= getWaitTime(this.craneMode);
         }
 
         if (stop) {
             this.craningShip.setStateMinor(43, 0);
+            this.craningShip.setStateTimer(1, 0);
             this.craningShip = null;
             markForSync();
         }
+    }
+
+    private boolean isWaitModeFull() {
+        if (this.enabLoad && !isInventoryFull(this.craningShip.getInventory())) {
+            return false;
+        }
+        if (this.enabUnload && !isInventoryFull(this.chestHandler)) {
+            return false;
+        }
+        if (this.modeLiquid == 1 && !InventoryHelper.checkInventoryFluidContainer(this.craningShip.getInventory(), this.fluidTank.getFluid(), true)) {
+            return false;
+        }
+        if (this.modeLiquid == 2 && !isChestFluidContainersFull(this.fluidTank.getFluid())) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isWaitModeEmpty() {
+        if (this.enabLoad && !isInventoryEmpty(this.chestHandler)) {
+            return false;
+        }
+        if (this.enabUnload && !isInventoryEmpty(this.craningShip.getInventory())) {
+            return false;
+        }
+        if (this.modeLiquid == 1 && !InventoryHelper.checkInventoryFluidContainer(this.chestHandler, this.fluidTank.getFluid(), false)) {
+            return false;
+        }
+        if (this.modeLiquid == 1 && !isChestFluidContainersEmpty(this.fluidTank.getFluid())) {
+            return false;
+        }
+        if (this.modeLiquid == 2 && !InventoryHelper.checkInventoryFluidContainer(this.craningShip.getInventory(), this.fluidTank.getFluid(), false)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isInventoryExcess() {
+        if (this.enabLoad && !matchesRequestedAmounts(this.craningShip.getInventory(), 0, true)) {
+            return false;
+        }
+        if (this.enabUnload && !matchesRequestedAmounts(this.chestHandler, 9, true)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean isInventoryRemain() {
+        if (this.enabLoad && !matchesRequestedAmounts(this.chestHandler, 0, false)) {
+            return false;
+        }
+        if (this.enabUnload && !matchesRequestedAmounts(this.craningShip.getInventory(), 9, false)) {
+            return false;
+        }
+        return true;
+    }
+
+    private boolean matchesRequestedAmounts(IItemHandler target, int filterStart, boolean atLeast) {
+        if (target == null) {
+            return true;
+        }
+
+        boolean foundNormalFilter = false;
+        for (int i = 0; i < 9; i++) {
+            ItemStack filter = this.inventory.getStackInSlot(filterStart + i);
+            if (!filter.isEmpty() && !getItemMode(filterStart + i)) {
+                foundNormalFilter = true;
+                int current = InventoryHelper.calcItemStackAmount(target, filter, this.checkMetadata, this.checkNbt, this.checkOredict);
+                if (atLeast) {
+                    if (current < filter.getCount()) {
+                        return false;
+                    }
+                } else if (current > filter.getCount()) {
+                    return false;
+                }
+            }
+        }
+
+        return foundNormalFilter;
+    }
+
+    private static int getWaitTime(int mode) {
+        if (mode >= 5 && mode <= 9) {
+            return (mode - 4) * 16;
+        }
+        if (mode >= 10 && mode <= 14) {
+            return (mode - 9) * 20 * 5;
+        }
+        if (mode >= 15 && mode <= 19) {
+            return (mode - 14) * 20 * 60;
+        }
+        if (mode >= 20 && mode <= 24) {
+            return (mode - 19) * 20 * 60 * 10;
+        }
+        return 0;
     }
 
     private boolean isInventoryFull(IItemHandler inv) {
@@ -440,6 +593,292 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         }
     }
 
+    @Nullable
+    private IItemHandler getAdjacentChestHandler() {
+        if (this.level == null || this.chestPos == BlockPos.ZERO) {
+            return null;
+        }
+
+        for (net.minecraft.core.Direction direction : net.minecraft.core.Direction.Plane.HORIZONTAL) {
+            BlockPos adjacentPos = this.chestPos.relative(direction);
+            BlockState adjacentState = this.level.getBlockState(adjacentPos);
+            if (!adjacentState.is(this.level.getBlockState(this.chestPos).getBlock())) {
+                continue;
+            }
+
+            return this.level.getCapability(Capabilities.ItemHandler.BLOCK, adjacentPos, null);
+        }
+
+        return null;
+    }
+
+    private FluidStack drainFromChestContainers(@Nullable FluidStack targetFluid, int maxDrain) {
+        FluidStack drained = InventoryHelper.tryDrainContainer(this.chestHandler, targetFluid, maxDrain);
+        if (!drained.isEmpty()) {
+            return drained;
+        }
+
+        IItemHandler adjacent = getAdjacentChestHandler();
+        if (adjacent == null) {
+            return FluidStack.EMPTY;
+        }
+
+        return InventoryHelper.tryDrainContainer(adjacent, targetFluid, maxDrain);
+    }
+
+    private boolean fillChestContainers(FluidStack fluid) {
+        if (fluid.isEmpty()) {
+            return false;
+        }
+
+        boolean moved = InventoryHelper.tryFillContainer(this.chestHandler, fluid);
+        if (!fluid.isEmpty()) {
+            IItemHandler adjacent = getAdjacentChestHandler();
+            if (adjacent != null) {
+                moved |= InventoryHelper.tryFillContainer(adjacent, fluid);
+            }
+        }
+        return moved;
+    }
+
+    private boolean isChestFluidContainersFull(@Nullable FluidStack targetFluid) {
+        if (!InventoryHelper.checkInventoryFluidContainer(this.chestHandler, targetFluid, true)) {
+            return false;
+        }
+        IItemHandler adjacent = getAdjacentChestHandler();
+        return adjacent == null || InventoryHelper.checkInventoryFluidContainer(adjacent, targetFluid, true);
+    }
+
+    private boolean isChestFluidContainersEmpty(@Nullable FluidStack targetFluid) {
+        if (!InventoryHelper.checkInventoryFluidContainer(this.chestHandler, targetFluid, false)) {
+            return false;
+        }
+        IItemHandler adjacent = getAdjacentChestHandler();
+        return adjacent == null || InventoryHelper.checkInventoryFluidContainer(adjacent, targetFluid, false);
+    }
+
+    private int calculateLiquidTransferRate(EntityShipBase ship) {
+        int drumCount = 0;
+        int enchantCount = 0;
+        int equipSlots = Math.min(6, ship.getInventory().getSlots());
+
+        if (ship instanceof EntityTransportWa && ship.isStateMarried()) {
+            drumCount = 1;
+        }
+
+        for (int slot = 0; slot < equipSlots; slot++) {
+            ItemStack stack = ship.getInventory().getStackInSlot(slot);
+            if (stack.isEmpty() || !(stack.getItem() instanceof LegacyEquipItem equipItem)) {
+                continue;
+            }
+
+            if (equipItem.getEquipTypeId(stack) != 24 || equipItem.getVariant(stack) != 1) {
+                continue;
+            }
+
+            drumCount++;
+            enchantCount += EnchantmentHelper.getEnchantmentsForCrafting(stack).size();
+        }
+
+        int perTickRate = drumCount * Math.max(0, Config.drumLiquidBaseRate)
+                + enchantCount * Math.max(0, Config.drumLiquidEnchantRate);
+        if (perTickRate <= 0) {
+            return 0;
+        }
+
+        int shipLevelMultiplier = (int) (ship.getLevel() * 0.1F) + 1;
+        return perTickRate * 16 * Math.max(1, shipLevelMultiplier);
+    }
+
+    private int calculateEnergyTransferRate(EntityShipBase ship) {
+        int drumCount = 0;
+        int enchantCount = 0;
+        int equipSlots = Math.min(6, ship.getInventory().getSlots());
+
+        if (ship instanceof EntityTransportWa && ship.isStateMarried()) {
+            drumCount = 1;
+        }
+
+        for (int slot = 0; slot < equipSlots; slot++) {
+            ItemStack stack = ship.getInventory().getStackInSlot(slot);
+            if (stack.isEmpty() || !(stack.getItem() instanceof LegacyEquipItem equipItem)) {
+                continue;
+            }
+
+            if (equipItem.getEquipTypeId(stack) != 24 || equipItem.getVariant(stack) != 2) {
+                continue;
+            }
+
+            drumCount++;
+            enchantCount += EnchantmentHelper.getEnchantmentsForCrafting(stack).size();
+        }
+
+        int perTickRate = drumCount * Math.max(0, Config.drumEnergyBaseRate)
+                + enchantCount * Math.max(0, Config.drumEnergyEnchantRate);
+        if (perTickRate <= 0) {
+            return 0;
+        }
+
+        int shipLevelMultiplier = (int) (ship.getLevel() * 0.1F) + 1;
+        return perTickRate * 16 * Math.max(1, shipLevelMultiplier);
+    }
+
+    private boolean transferEnergyToShip(IItemHandler shipInventory, int maxTransfer) {
+        int available = Math.min(maxTransfer, this.remainedPower);
+        if (available <= 0) {
+            return false;
+        }
+
+        for (int slot = 0; slot < shipInventory.getSlots(); slot++) {
+            ItemStack stack = shipInventory.getStackInSlot(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (energy == null || !energy.canReceive()) {
+                continue;
+            }
+
+            int accepted = energy.receiveEnergy(available, false);
+            if (accepted > 0) {
+                this.remainedPower = Math.max(0, this.remainedPower - accepted);
+                markForSync();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean extractEnergyFromShip(IItemHandler shipInventory, int maxTransfer) {
+        int capacityLeft = Math.max(0, this.powerMax - this.remainedPower);
+        int allowed = Math.min(maxTransfer, capacityLeft);
+        if (allowed <= 0) {
+            return false;
+        }
+
+        for (int slot = 0; slot < shipInventory.getSlots(); slot++) {
+            ItemStack stack = shipInventory.getStackInSlot(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (energy == null || !energy.canExtract()) {
+                continue;
+            }
+
+            int extracted = energy.extractEnergy(allowed, false);
+            if (extracted > 0) {
+                this.remainedPower = Math.min(this.powerMax, this.remainedPower + extracted);
+                markForSync();
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean pullEnergyFromChest(int maxTransfer) {
+        int capacityLeft = Math.max(0, this.powerMax - this.remainedPower);
+        int allowed = Math.min(maxTransfer, capacityLeft);
+        if (allowed <= 0 || this.chestHandler == null) {
+            return false;
+        }
+
+        int moved = extractEnergyFromInventory(this.chestHandler, allowed);
+        if (moved > 0) {
+            this.remainedPower = Math.min(this.powerMax, this.remainedPower + moved);
+            markForSync();
+            return true;
+        }
+
+        IItemHandler adjacent = getAdjacentChestHandler();
+        if (adjacent == null) {
+            return false;
+        }
+
+        moved = extractEnergyFromInventory(adjacent, allowed);
+        if (moved > 0) {
+            this.remainedPower = Math.min(this.powerMax, this.remainedPower + moved);
+            markForSync();
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean pushEnergyToChest(int maxTransfer) {
+        int available = Math.min(maxTransfer, this.remainedPower);
+        if (available <= 0 || this.chestHandler == null) {
+            return false;
+        }
+
+        int moved = receiveEnergyIntoInventory(this.chestHandler, available);
+        if (moved > 0) {
+            this.remainedPower = Math.max(0, this.remainedPower - moved);
+            markForSync();
+            return true;
+        }
+
+        IItemHandler adjacent = getAdjacentChestHandler();
+        if (adjacent == null) {
+            return false;
+        }
+
+        moved = receiveEnergyIntoInventory(adjacent, available);
+        if (moved > 0) {
+            this.remainedPower = Math.max(0, this.remainedPower - moved);
+            markForSync();
+            return true;
+        }
+
+        return false;
+    }
+
+    private static int extractEnergyFromInventory(IItemHandler inventory, int maxTransfer) {
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            ItemStack stack = inventory.getStackInSlot(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (energy == null || !energy.canExtract()) {
+                continue;
+            }
+
+            int extracted = energy.extractEnergy(maxTransfer, false);
+            if (extracted > 0) {
+                return extracted;
+            }
+        }
+
+        return 0;
+    }
+
+    private static int receiveEnergyIntoInventory(IItemHandler inventory, int maxTransfer) {
+        for (int slot = 0; slot < inventory.getSlots(); slot++) {
+            ItemStack stack = inventory.getStackInSlot(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+
+            IEnergyStorage energy = stack.getCapability(Capabilities.EnergyStorage.ITEM);
+            if (energy == null || !energy.canReceive()) {
+                continue;
+            }
+
+            int accepted = energy.receiveEnergy(maxTransfer, false);
+            if (accepted > 0) {
+                return accepted;
+            }
+        }
+
+        return 0;
+    }
+
 
 
     @Override
@@ -467,6 +906,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         if (ownerUUID != null) tag.putUUID("OwnerUUID", ownerUUID);
         tag.putString("OwnerName", ownerName);
         tag.putInt("SyncedShipId", syncedShipId);
+        tag.putInt("LiquidTransferRate", liquidTransferRate);
     }
 
     @Override
@@ -494,6 +934,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         if (tag.hasUUID("OwnerUUID")) ownerUUID = tag.getUUID("OwnerUUID");
         ownerName = tag.getString("OwnerName");
         syncedShipId = tag.getInt("SyncedShipId");
+        liquidTransferRate = tag.getInt("LiquidTransferRate");
     }
 
     @Override

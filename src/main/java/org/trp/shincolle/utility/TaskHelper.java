@@ -9,14 +9,20 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.trp.shincolle.Config;
@@ -28,6 +34,7 @@ import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class TaskHelper {
     
@@ -60,6 +67,7 @@ public class TaskHelper {
         if (host == null || host.level().isClientSide) return;
         ItemStack mainStack = host.getHeldItemMainhandSlot();
         ItemStack offhandStack = host.getHeldItemOffhandSlot();
+        if (mainStack.isEmpty()) return;
 
         final net.minecraft.world.item.Item originalMainItem = mainStack.getItem();
         final net.minecraft.world.item.Item originalOffhandItem = offhandStack.getItem();
@@ -69,6 +77,7 @@ public class TaskHelper {
         int gy = host.getGuardedPos(1);
         int gz = host.getGuardedPos(2);
         if (gy <= 0) return;
+        if (!isWaypointGuardContext(host, level)) return;
 
         BlockPos wpPos = new BlockPos(gx, gy, gz);
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 25.0D) {
@@ -82,72 +91,114 @@ public class TaskHelper {
 
             net.minecraft.world.level.block.entity.BlockEntity targetBE = level.getBlockEntity(chestPos);
             if (targetBE == null) return;
+            int taskSide = host.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_SIDE);
+            boolean checkMeta = (taskSide & (1 << 18)) != 0;
+            boolean checkOre = (taskSide & (1 << 19)) != 0;
+            boolean checkNbt = (taskSide & (1 << 20)) != 0;
+            List<IItemHandler> inHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 0);
+            List<IItemHandler> outHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 1);
+            List<IItemHandler> fuelHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 2);
 
-            net.neoforged.neoforge.items.IItemHandler entireHandler = null;
-            if (targetBE instanceof net.minecraft.world.Container container) {
-                entireHandler = new net.neoforged.neoforge.items.wrapper.InvWrapper(container);
-            } else {
-                entireHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, chestPos, null);
+            if (inHandlers.isEmpty() && fuelHandlers.isEmpty() && outHandlers.isEmpty()) {
+                IItemHandler fallbackHandler;
+                if (targetBE instanceof net.minecraft.world.Container container) {
+                    fallbackHandler = new net.neoforged.neoforge.items.wrapper.InvWrapper(container);
+                } else {
+                    fallbackHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, chestPos, null);
+                }
+                if (fallbackHandler == null || fallbackHandler.getSlots() < 3) return;
+                inHandlers = List.of(fallbackHandler);
+                fuelHandlers = List.of(fallbackHandler);
+                outHandlers = List.of(fallbackHandler);
             }
-
-            if (entireHandler == null || entireHandler.getSlots() < 3) return;
 
             boolean swing = false;
             
             if (!mainStack.isEmpty()) {
                 var smeltingRecipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(mainStack), level);
                 if (smeltingRecipe.isPresent()) {
-                    ItemStack remainderSim = entireHandler.insertItem(0, mainStack, true);
-                    int canFit = mainStack.getCount() - remainderSim.getCount();
-                    
+                    int canFit = 0;
+                    for (IItemHandler handler : inHandlers) {
+                        ItemStack remainderSim = handler.insertItem(0, mainStack, true);
+                        canFit += mainStack.getCount() - remainderSim.getCount();
+                    }
+
                     if (canFit > 0) {
-                        ItemStack material = InventoryHelper.getAndRemoveItem(host.getInventory(), mainStack, canFit, false, false, false, null);
+                        ItemStack material = InventoryHelper.getAndRemoveItem(host.getInventory(), mainStack, canFit, checkMeta, checkNbt, checkOre, null);
                         if (!material.isEmpty()) {
-                            swing = true;
-                            ItemStack left = entireHandler.insertItem(0, material, false);
-                            if (!left.isEmpty()) InventoryHelper.moveItemstackToInv(host.getInventory(), left, null);
+                            ItemStack remaining = material;
+                            for (IItemHandler handler : inHandlers) {
+                                if (remaining.isEmpty()) break;
+                                remaining = handler.insertItem(0, remaining, false);
+                            }
+                            if (remaining.getCount() < material.getCount()) {
+                                swing = true;
+                            }
+                            if (!remaining.isEmpty()) {
+                                InventoryHelper.moveItemstackToInv(host.getInventory(), remaining, null);
+                            }
                         }
                     }
                 }
             }
 
             offhandStack = host.getHeldItemOffhandSlot();
-            if (!offhandStack.isEmpty()) {
-                ItemStack remainderSim = entireHandler.insertItem(1, offhandStack, true);
-                int canFit = offhandStack.getCount() - remainderSim.getCount();
+            if (!offhandStack.isEmpty() && !fuelHandlers.isEmpty()) {
+                int canFit = 0;
+                for (IItemHandler handler : fuelHandlers) {
+                    ItemStack remainderSim = handler.insertItem(0, offhandStack, true);
+                    canFit += offhandStack.getCount() - remainderSim.getCount();
+                }
 
                 if (canFit > 0) {
-                    ItemStack fuel = InventoryHelper.getAndRemoveItem(host.getInventory(), offhandStack, canFit, false, false, false, null);
+                    ItemStack fuel = InventoryHelper.getAndRemoveItem(host.getInventory(), offhandStack, canFit, checkMeta, checkNbt, checkOre, null);
                     if (!fuel.isEmpty()) {
-                        swing = true;
-                        ItemStack left = entireHandler.insertItem(1, fuel, false);
-                        if (!left.isEmpty()) InventoryHelper.moveItemstackToInv(host.getInventory(), left, null);
+                        ItemStack remaining = fuel;
+                        for (IItemHandler handler : fuelHandlers) {
+                            if (remaining.isEmpty()) break;
+                            remaining = handler.insertItem(0, remaining, false);
+                        }
+                        if (remaining.getCount() < fuel.getCount()) {
+                            swing = true;
+                        }
+                        if (!remaining.isEmpty()) InventoryHelper.moveItemstackToInv(host.getInventory(), remaining, null);
                     }
                 }
             }
 
-            ItemStack inOutputSlot = entireHandler.getStackInSlot(2);
-            if (!inOutputSlot.isEmpty()) {
-                if (!inOutputSlot.is(originalMainItem) && !inOutputSlot.is(originalOffhandItem)) {
-                    boolean isPotentialMaterial = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(inOutputSlot), level).isPresent();
-                    if (!isPotentialMaterial) {
-                        ItemStack taken = entireHandler.extractItem(2, 64, false);
-                        if (!taken.isEmpty()) {
-                            swing = true;
-                            InventoryHelper.moveItemstackToInv(host.getInventory(), taken, null);
-                            
-                            host.addShipExp(Config.expGainTask[0]);
-                            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[0]);
-                            host.addMorale(100);
-                            
-                            float failChance = (Config.shipMaxLevelNormal - host.getLevel()) / (float) Config.shipMaxLevelNormal * 0.2F + 0.05F;
-                            if (host.getRandom().nextFloat() < failChance) {
-                                ItemEntity entity = new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, new ItemStack(Items.CHARCOAL));
-                                level.addFreshEntity(entity);
-                                host.applyParticleEmotion(6);
+            boolean tookOutput = false;
+            for (IItemHandler handler : outHandlers) {
+                for (int slot = 0; slot < handler.getSlots(); slot++) {
+                    ItemStack inOutputSlot = handler.getStackInSlot(slot);
+                    if (inOutputSlot.isEmpty()) {
+                        continue;
+                    }
+                    if (!inOutputSlot.is(originalMainItem) && !inOutputSlot.is(originalOffhandItem)) {
+                        boolean isPotentialMaterial = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(inOutputSlot), level).isPresent();
+                        if (!isPotentialMaterial) {
+                            ItemStack taken = handler.extractItem(slot, 64, false);
+                            if (!taken.isEmpty()) {
+                                swing = true;
+                                tookOutput = true;
+                                InventoryHelper.moveItemstackToInv(host.getInventory(), taken, null);
+
+                                host.addShipExp(Config.expGainTask[0]);
+                                host.setFuel(host.getFuel() - Config.consumeGrudgeTask[0]);
+                                host.addMorale(100);
+
+                                float failChance = (Config.shipMaxLevelNormal - host.getLevel()) / (float) Config.shipMaxLevelNormal * 0.2F + 0.05F;
+                                if (host.getRandom().nextFloat() < failChance) {
+                                    ItemEntity entity = new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, new ItemStack(Items.CHARCOAL));
+                                    level.addFreshEntity(entity);
+                                    host.applyParticleEmotion(6);
+                                }
+                                break;
                             }
                         }
                     }
+                }
+                if (tookOutput) {
+                    break;
                 }
             }
 
@@ -170,10 +221,7 @@ public class TaskHelper {
         int gy = host.getGuardedPos(1);
         int gz = host.getGuardedPos(2);
         if (gy <= 0) return;
-        
-        
-        
-        
+        if (!isWaypointGuardContext(host, level)) return;
 
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 10.0D) {
             host.getNavigation().moveTo(gx + 0.5D, gy, gz + 0.5D, 1.0D);
@@ -288,12 +336,7 @@ public class TaskHelper {
                 }
             }
             if (canMine) {
-                ItemStack result = new ItemStack(Items.COBBLESTONE);
-                int rng = host.getRandom().nextInt(100);
-                if (rng < 2) result = new ItemStack(Items.DIAMOND);
-                else if (rng < 10) result = new ItemStack(Items.GOLD_ORE);
-                else if (rng < 30) result = new ItemStack(Items.IRON_ORE);
-                else if (rng < 60) result = new ItemStack(Items.COAL);
+                ItemStack result = rollMiningDrop(host).orElseGet(() -> new ItemStack(Items.COBBLESTONE));
                 ItemHandlerHelper.insertItemStacked(host.getInventory(), result, false);
                 
                 host.addShipExp(Config.expGainTask[2]);
@@ -304,6 +347,99 @@ public class TaskHelper {
                 host.setStateTimer(15, host.tickCount);
             }
         }
+    }
+
+    private static Optional<ItemStack> rollMiningDrop(EntityShipBase host) {
+        if (Config.miningEntries.isEmpty()) {
+            return Optional.empty();
+        }
+
+        Level level = host.level();
+        int shipLevel = host.getLevel();
+        int y = host.blockPosition().getY();
+        int toolLevel = getToolLevel(host.getHeldItemMainhandSlot());
+        String biomePath = level.getBiome(host.blockPosition())
+                .unwrapKey()
+                .map(key -> key.location().toString())
+                .orElse("*");
+        int dimensionId = getLegacyDimensionId(level);
+
+        List<Config.MiningEntry> candidates = new ArrayList<>();
+        int totalWeight = 0;
+        for (Config.MiningEntry entry : Config.miningEntries) {
+            if (!matchesDimension(entry, dimensionId, level)) continue;
+            if (!matchesBiome(entry, biomePath)) continue;
+            if (shipLevel < entry.minShipLevel()) continue;
+            if (y > entry.maxY()) continue;
+            if (toolLevel < entry.minToolLevel()) continue;
+            candidates.add(entry);
+            totalWeight += entry.weight();
+        }
+
+        if (candidates.isEmpty() || totalWeight <= 0) {
+            return Optional.empty();
+        }
+
+        int roll = host.getRandom().nextInt(totalWeight);
+        Config.MiningEntry chosen = candidates.get(0);
+        for (Config.MiningEntry entry : candidates) {
+            roll -= entry.weight();
+            if (roll < 0) {
+                chosen = entry;
+                break;
+            }
+        }
+
+        int amount = chosen.min();
+        if (chosen.max() > chosen.min()) {
+            amount += host.getRandom().nextInt(chosen.max() - chosen.min() + 1);
+        }
+
+        int fortuneLevel = getFortuneLevel(host.getHeldItemMainhandSlot(), level);
+        float scaledAmount = amount * (1.0F + chosen.enchantFactor() * fortuneLevel);
+        int finalAmount = Math.max(1, Math.round(scaledAmount));
+        return Optional.of(new ItemStack(chosen.item(), finalAmount));
+    }
+
+    private static boolean matchesDimension(Config.MiningEntry entry, int dimensionId, Level level) {
+        if ("*".equals(entry.dimensionPath())) return true;
+        if (entry.dimensionId() != Integer.MIN_VALUE) {
+            return entry.dimensionId() == dimensionId;
+        }
+        return level.dimension().location().toString().equals(entry.dimensionPath());
+    }
+
+    private static boolean matchesBiome(Config.MiningEntry entry, String biomePath) {
+        return "*".equals(entry.biomePath()) || biomePath.equals(entry.biomePath());
+    }
+
+    private static int getLegacyDimensionId(Level level) {
+        String key = level.dimension().location().toString();
+        return switch (key) {
+            case "minecraft:overworld" -> 0;
+            case "minecraft:the_nether" -> -1;
+            case "minecraft:the_end" -> 1;
+            default -> Integer.MIN_VALUE;
+        };
+    }
+
+    private static int getToolLevel(ItemStack pickaxe) {
+        if (pickaxe.isEmpty()) return 0;
+        if (pickaxe.is(Items.NETHERITE_PICKAXE) || pickaxe.is(Items.DIAMOND_PICKAXE)) return 3;
+        if (pickaxe.is(Items.IRON_PICKAXE)) return 2;
+        if (pickaxe.is(Items.STONE_PICKAXE)) return 1;
+        return 0;
+    }
+
+    private static int getFortuneLevel(ItemStack pickaxe, Level level) {
+        if (pickaxe.isEmpty()) {
+            return 0;
+        }
+
+        Holder<Enchantment> fortune = level.registryAccess()
+                .lookupOrThrow(Registries.ENCHANTMENT)
+                .getOrThrow(Enchantments.FORTUNE);
+        return pickaxe.getEnchantmentLevel(fortune);
     }
 
     public static void onUpdateCrafting(EntityShipBase host) {
@@ -321,18 +457,27 @@ public class TaskHelper {
         if (!tag.contains("Recipe", 9)) return;
         ListTag recipeList = tag.getList("Recipe", 10);
 
-        ItemStack resultTemplate = ItemStack.EMPTY;
+        Level level = host.level();
+        List<ItemStack> recipeSlots = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            recipeSlots.add(ItemStack.EMPTY);
+        }
         List<ItemStack> materials = new ArrayList<>();
         for (int i = 0; i < recipeList.size(); i++) {
             CompoundTag itemTag = recipeList.getCompound(i);
             int slot = itemTag.getInt("Slot");
             ItemStack stack = ItemStack.parseOptional(host.level().registryAccess(), itemTag);
-            if (slot == 9) {
-                resultTemplate = stack;
-            } else if (slot >= 0 && slot < 9 && !stack.isEmpty()) {
+            if (slot >= 0 && slot < 9 && !stack.isEmpty()) {
+                recipeSlots.set(slot, stack.copy());
                 materials.add(stack);
             }
         }
+
+        CraftingInput recipeInput = CraftingInput.of(3, 3, recipeSlots);
+        var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, recipeInput, level);
+        if (recipe.isEmpty()) return;
+
+        ItemStack resultTemplate = recipe.get().value().assemble(recipeInput, level.registryAccess());
         if (resultTemplate.isEmpty()) return;
 
         
@@ -358,11 +503,11 @@ public class TaskHelper {
             }
         }
 
-        
         int gx = host.getGuardedPos(0);
         int gy = host.getGuardedPos(1);
         int gz = host.getGuardedPos(2);
         if (gy <= 0) return;
+        if (!isWaypointGuardContext(host, level)) return;
 
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 25.0D) {
             host.getNavigation().moveTo(gx + 0.5D, gy, gz + 0.5D, 1.0D);
@@ -370,18 +515,19 @@ public class TaskHelper {
         }
 
         BlockPos wpPos = new BlockPos(gx, gy, gz);
-        Level level = host.level();
         if (!(level.getBlockEntity(wpPos) instanceof WayPointBlockEntity wpbe)) return;
         BlockPos chestPos = wpbe.getChestPos();
         if (chestPos.getY() <= 0) return;
 
         
         List<IItemHandler> inHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 0); 
-        boolean swing = false;
+        List<IItemHandler> outHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 1);
+        int maxCraft = host.getLevel() / 20 + 1;
+        int craftedCount = 0;
 
         for (int i = 0; i < uniqueMaterials.size(); i++) {
             ItemStack temp = uniqueMaterials.get(i);
-            int needed = counts.get(i);
+            int needed = counts.get(i) * maxCraft;
             int has = InventoryHelper.calcItemStackAmount(inv, temp, checkMeta, checkNbt, checkOre);
             
             if (has < needed) {
@@ -401,37 +547,78 @@ public class TaskHelper {
             }
         }
 
-        
-        for (int i = 0; i < uniqueMaterials.size(); i++) {
-            InventoryHelper.getAndRemoveItem(inv, uniqueMaterials.get(i), counts.get(i), checkMeta, checkNbt, checkOre, null);
-            swing = true;
-        }
+        for (int craftIndex = 0; craftIndex < maxCraft; craftIndex++) {
+            for (ItemStack slotStack : recipeSlots) {
+                if (!slotStack.isEmpty()) {
+                    if (InventoryHelper.calcItemStackAmount(inv, slotStack, checkMeta, checkNbt, checkOre) <= 0) {
+                        craftIndex = maxCraft;
+                        break;
+                    }
+                }
+            }
 
-        if (swing) {
-            host.startCustomSwing();
-            ItemStack finalResult = resultTemplate.copy();
-            
-            List<IItemHandler> outHandlers = InventoryHelper.getHandlersFromSide(level, chestPos, taskSide, 1); 
+            if (craftIndex >= maxCraft) {
+                break;
+            }
+
+            for (ItemStack slotStack : recipeSlots) {
+                if (!slotStack.isEmpty()) {
+                    InventoryHelper.getAndRemoveItem(inv, slotStack, 1, checkMeta, checkNbt, checkOre, null);
+                }
+            }
+
+            ItemStack finalResult = recipe.get().value().assemble(recipeInput, level.registryAccess());
             for (IItemHandler h : outHandlers) {
                 finalResult = ItemHandlerHelper.insertItemStacked(h, finalResult, false);
                 if (finalResult.isEmpty()) break;
             }
-            
             if (!finalResult.isEmpty()) {
-                InventoryHelper.moveItemstackToInv(inv, finalResult, null);
+                ItemStack remainder = finalResult.copy();
+                InventoryHelper.moveItemstackToInv(inv, remainder, null);
+                finalResult = remainder;
             }
-            
             if (!finalResult.isEmpty()) {
-                ItemEntity entity = new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, finalResult);
-                level.addFreshEntity(entity);
+                level.addFreshEntity(new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, finalResult));
             }
-            
-            host.addShipExp(Config.expGainTask[3]);
-            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[3]);
-            host.addMorale(200);
+
+            for (ItemStack remainStack : recipe.get().value().getRemainingItems(recipeInput)) {
+                if (remainStack.isEmpty()) {
+                    continue;
+                }
+                ItemStack remaining = remainStack.copy();
+                for (IItemHandler h : outHandlers) {
+                    remaining = ItemHandlerHelper.insertItemStacked(h, remaining, false);
+                    if (remaining.isEmpty()) break;
+                }
+                if (!remaining.isEmpty()) {
+                    InventoryHelper.moveItemstackToInv(inv, remaining, null);
+                }
+                if (!remaining.isEmpty()) {
+                    level.addFreshEntity(new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, remaining));
+                }
+            }
+
+            craftedCount++;
+        }
+
+        if (craftedCount > 0) {
+            host.startCustomSwing();
+            host.addShipExp(Config.expGainTask[3] * craftedCount);
+            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[3] * craftedCount);
+            host.addMorale(-10 * craftedCount);
             if (host.getRandom().nextInt(5) == 0) {
                 host.applyParticleEmotion(host.getRandom().nextInt(5));
             }
         }
+    }
+
+    private static boolean isWaypointGuardContext(EntityShipBase host, Level level) {
+        if (host.getGuardedPos(4) != 1) {
+            return false;
+        }
+
+        int guardedDimension = host.getGuardedPos(3);
+        int currentDimension = getLegacyDimensionId(level);
+        return guardedDimension == currentDimension || guardedDimension == Integer.MIN_VALUE;
     }
 }

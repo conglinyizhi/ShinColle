@@ -1,10 +1,20 @@
 package org.trp.shincolle.entity.base;
 
+import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.core.registries.BuiltInRegistries;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 import org.trp.shincolle.init.ModItems;
@@ -15,6 +25,13 @@ class EntityShipBaseCombat {
     private static final float HEAVY_MISSILE_SPEED = 0.7F;
     private static final int HEAVY_MISSILE_LIFE = 200;
     private static final float HEAVY_MISSILE_EXPLOSION_RADIUS = 3.5F;
+    private static final float TORPEDO_SPEED_STEP = 0.025F;
+    private static final float TORPEDO_ACCEL_STEP = 0.004F;
+    private static final String TAG_POTION_LIST = "PList";
+    private static final String TAG_POTION_ID = "PID";
+    private static final String TAG_POTION_LEVEL = "PLV";
+    private static final String TAG_POTION_TIME = "PTick";
+    private static final String TAG_POTION_CHANCE = "PChance";
 
     private static final int AMMO_LIGHT_VALUE = 1;
     private static final int AMMO_LIGHT_CONTAINER_VALUE = 10;
@@ -198,7 +215,7 @@ class EntityShipBaseCombat {
         target.hurt(this.ship.damageSources().mobAttack(this.ship), damage);
         this.ship.spawnLightAttackTargetParticles(serverLevel, target);
         this.ship.spawnLightAttackMuzzleParticles(serverLevel, target);
-        this.ship.playSound(ModSounds.SHIP_FIRELIGHT.get(), this.ship.getSoundVolume(),
+        this.ship.playSound(ModSounds.SHIP_FIRELIGHT.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.98F);
         this.ship.setAttackTick(50);
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLight);
@@ -225,15 +242,107 @@ class EntityShipBaseCombat {
         }
         float missileDamage = damage * HEAVY_MISSILE_DAMAGE_MULTIPLIER;
 
-        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship, target,
-                missileDamage, HEAVY_MISSILE_SPEED, HEAVY_MISSILE_LIFE, HEAVY_MISSILE_EXPLOSION_RADIUS);
+        EntityAbyssMissile missile = createHeavyMissile(serverLevel, target, missileDamage);
         serverLevel.addFreshEntity(missile);
-        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), this.ship.getSoundVolume(),
+        this.ship.playSound(ModSounds.SHIP_FIREHEAVY.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack),
                 this.ship.getRandom().nextFloat() * 0.12F + 0.83F);
         this.ship.setAttackTick(50);
         this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         this.ship.applyEmotesReaction(3);
         return true;
+    }
+
+    private EntityAbyssMissile createHeavyMissile(ServerLevel serverLevel, Entity target, float damage) {
+        int specialAmmoVariant = this.ship.getSpecialAmmoVariant();
+        int torpedoSpeedLevel = this.ship.getTorpedoSpeedLevel();
+
+        EntityAbyssMissile.MoveType moveType = EntityAbyssMissile.MoveType.DIRECT;
+        float speed = HEAVY_MISSILE_SPEED;
+        float accY1 = 1.04F;
+        float accY2 = 1.04F;
+        float explosionRadius = HEAVY_MISSILE_EXPLOSION_RADIUS;
+        Vec3 presetVelocity = null;
+
+        if (torpedoSpeedLevel > 0) {
+            moveType = EntityAbyssMissile.MoveType.TORPEDO;
+            speed += torpedoSpeedLevel * TORPEDO_SPEED_STEP;
+            accY2 = 1.05F + torpedoSpeedLevel * TORPEDO_ACCEL_STEP;
+        }
+
+        if (specialAmmoVariant == 5) {
+            moveType = EntityAbyssMissile.MoveType.ARC_HOMING;
+            accY1 = 0.9F;
+            accY2 = 0.9F;
+            explosionRadius += 0.5F;
+        } else if (specialAmmoVariant == 8) {
+            moveType = EntityAbyssMissile.MoveType.ARC;
+            explosionRadius += 1.0F;
+        } else if (specialAmmoVariant == 6) {
+            moveType = EntityAbyssMissile.MoveType.DIRECT;
+            accY1 = -0.045F;
+            accY2 = -0.045F;
+        }
+
+        EntityAbyssMissile missile = new EntityAbyssMissile(serverLevel, this.ship, target, damage,
+                moveType, speed, accY1, accY2, presetVelocity, HEAVY_MISSILE_LIFE, explosionRadius);
+        if (specialAmmoVariant == 8) {
+            missile.markClusterMain();
+        } else if (specialAmmoVariant == 5) {
+            missile.markBlackHole();
+        }
+        configureAmmoEffects(missile);
+        return missile;
+    }
+
+    private void configureAmmoEffects(EntityAbyssMissile missile) {
+        for (int i = 0; i < this.ship.getInventory().getSlots(); i++) {
+            ItemStack stack = this.ship.getInventory().getStackInSlot(i);
+            if (stack.isEmpty() || !(stack.getItem() instanceof org.trp.shincolle.item.LegacyEquipItem equipItem)) {
+                continue;
+            }
+            if (equipItem.getEquipTypeId(stack) != 29) {
+                continue;
+            }
+
+            int variant = equipItem.getVariant(stack);
+            switch (variant) {
+                case 0 -> missile.addImpactEffect(MobEffects.POISON, 0, 120, 50);
+                case 1 -> missile.addImpactEffect(MobEffects.POISON, 1, 120, 70);
+                case 3 -> missile.addImpactEffect(MobEffects.CONFUSION, 0, 120, 50);
+                case 4 -> missile.addImpactEffect(MobEffects.WITHER, 0, 100, 25);
+                case 6 -> missile.addImpactEffect(MobEffects.LEVITATION, 0, 100, 50);
+                case 7 -> addEnchantShellEffects(missile, stack);
+                default -> {
+                }
+            }
+        }
+    }
+
+    private void addEnchantShellEffects(EntityAbyssMissile missile, ItemStack stack) {
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        if (!tag.contains(TAG_POTION_LIST, Tag.TAG_LIST)) {
+            return;
+        }
+
+        ListTag effectList = tag.getList(TAG_POTION_LIST, Tag.TAG_COMPOUND);
+        for (int i = 0; i < effectList.size(); i++) {
+            CompoundTag effectTag = effectList.getCompound(i);
+            MobEffect effect = BuiltInRegistries.MOB_EFFECT.byId(effectTag.getInt(TAG_POTION_ID));
+            if (effect == null) {
+                continue;
+            }
+            missile.addImpactEffect(
+                    Holder.direct(effect),
+                    effectTag.getInt(TAG_POTION_LEVEL),
+                    effectTag.getInt(TAG_POTION_TIME),
+                    effectTag.getInt(TAG_POTION_CHANCE)
+            );
+        }
     }
 
     boolean consumeHeavyAmmo(int amount) {

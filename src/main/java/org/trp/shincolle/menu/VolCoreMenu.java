@@ -106,7 +106,7 @@ public class VolCoreMenu extends AbstractContainerMenu {
                     return ItemStack.EMPTY;
                 }
             } else {
-                if (blockEntity.getInventory().isItemValid(0, stack)) {
+                if (isValidFuel(stack)) {
                     if (!this.moveItemStackTo(stack, 0, TILE_SLOT_COUNT, false)) {
                         return ItemStack.EMPTY;
                     }
@@ -136,8 +136,21 @@ public class VolCoreMenu extends AbstractContainerMenu {
         return copied;
     }
 
+    private boolean isValidFuel(ItemStack stack) {
+        for (int slot = 0; slot < TILE_SLOT_COUNT; slot++) {
+            if (blockEntity.getInventory().isItemValid(slot, stack)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     public boolean clickMenuButton(Player player, int id) {
+        if (player.level().isClientSide) {
+            return true;
+        }
+
         if (id == 0) {
             blockEntity.setBtnActive(!blockEntity.isBtnActive());
             return true;

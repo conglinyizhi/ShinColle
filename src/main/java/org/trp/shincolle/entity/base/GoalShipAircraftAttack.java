@@ -1,9 +1,7 @@
 package org.trp.shincolle.entity.base;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.EntityAircraftBase;
 
@@ -51,7 +49,8 @@ public class GoalShipAircraftAttack extends Goal {
     @Override
     public void stop() {
         this.target = null;
-        this.host.getNavigation().stop();
+        this.randPos = this.host.getRandomCruisePos(null);
+        this.host.getNavigation().moveTo(this.randPos.x, this.randPos.y, this.randPos.z, 1.0D);
     }
 
     @Override
@@ -82,35 +81,7 @@ public class GoalShipAircraftAttack extends Goal {
     }
 
     private void updateRandomPos() {
-        double minDist, randDist;
-        if (this.host.isMissionLightAircraft()) {
-            minDist = 5.0D;
-            randDist = 2.0D;
-            } else {
-            minDist = 12.0D;
-            randDist = 5.0D;
-        }
-
         Entity ref = this.target != null ? this.target : this.host;
-        Level level = this.host.level();
-
-        float currentYaw = this.host.getYRot();
-    
-        for (int i = 0; i < 25; i++) {
-            float angle = currentYaw + (i * 15.0F); 
-            double rad = Math.toRadians(angle);
-        
-            double dist = minDist + this.host.getRandom().nextDouble() * randDist;
-            double newX = ref.getX() + Math.cos(rad) * dist;
-            double newZ = ref.getZ() + Math.sin(rad) * dist;
-            double newY = ref.getY() + ref.getBbHeight() + 2.0D + this.host.getRandom().nextDouble() * 2.0D;
-
-            BlockPos targetPos = BlockPos.containing(newX, newY, newZ);
-            if (level.getBlockState(targetPos).getCollisionShape(level, targetPos).isEmpty()) {
-                this.randPos = new Vec3(newX, newY, newZ);
-                return;
-            }
-        }
-        this.randPos = new Vec3(ref.getX(), ref.getY() + 5.0D, ref.getZ());
+        this.randPos = this.host.getRandomCruisePos(ref);
     }
 }

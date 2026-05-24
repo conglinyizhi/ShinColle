@@ -2,6 +2,8 @@ package org.trp.shincolle.event;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.AbstractGolem;
@@ -9,6 +11,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ClipContext;
@@ -21,11 +24,14 @@ import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactori
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.block.entity.CraneBlockEntity;
+import org.trp.shincolle.command.ModCommands;
 import org.trp.shincolle.client.tooltip.ScaledTextClientTooltip;
 import org.trp.shincolle.entity.EntityAirfieldHime;
 import org.trp.shincolle.entity.EntityBattleshipRu;
@@ -35,12 +41,19 @@ import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.entity.base.EntityShincolleSimpleMob;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.EntityShipBaseSimple;
+import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.item.MarriageRingItem;
 import org.trp.shincolle.item.PointerItem;
+import org.trp.shincolle.network.ModNetwork;
 import org.trp.shincolle.item.ScaledTextTooltipData;
+import org.trp.shincolle.utility.FormationHelper;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class ModEventBusEvents {
@@ -48,6 +61,11 @@ public class ModEventBusEvents {
     private static final double POINTER_SEARCH_RADIUS = 100.0;
     private static final long POINTER_TARGET_DURATION_TICKS = 20L * 60L * 5L;
     private static final double POINTER_TARGET_SAME_DISTANCE_SQR = 0.25D;
+
+    @SubscribeEvent
+    public static void onRegisterCommands(RegisterCommandsEvent event) {
+        ModCommands.register(event.getDispatcher());
+    }
 
     @SubscribeEvent
     public static void registerAttributes(EntityAttributeCreationEvent event) {
@@ -116,7 +134,35 @@ public class ModEventBusEvents {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
-        HostileSpawnManager.tickPlayer(event.getEntity());
+        Player player = event.getEntity();
+        HostileSpawnManager.tickPlayer(player);
+
+        if (player.level().isClientSide) {
+            return;
+        }
+
+        applyMarriageRingAbilities(player);
+    }
+
+    @SubscribeEvent
+    public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
+        Player player = event.getEntity();
+        if (player == null || Config.ringAbilityUnderwaterDigCap <= 0) {
+            return;
+        }
+
+        if (!hasActiveMarriageRing(player) || !player.isInWaterOrBubble()) {
+            return;
+        }
+
+        int marriedCount = getOwnedMarriedShipCount(player);
+        if (marriedCount <= 0) {
+            return;
+        }
+
+        int effectiveCount = Math.min(marriedCount, Config.ringAbilityUnderwaterDigCap);
+        float digBoost = effectiveCount * 0.2F + 1.0F;
+        event.setNewSpeed(event.getOriginalSpeed() * 5.0F * digBoost);
     }
 
     @SubscribeEvent
@@ -130,8 +176,34 @@ public class ModEventBusEvents {
                 }
                 data.setHasReceivedBook(true);
             }
-            net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(serverPlayer, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
+            syncPlayerAdmiralState(serverPlayer);
         }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerRespawn(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            syncPlayerAdmiralState(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerChangedDimension(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent event) {
+        if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+            syncPlayerAdmiralState(serverPlayer);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerClone(PlayerEvent.Clone event) {
+        var originalData = event.getOriginal().getData(ModDataAttachments.ADMIRAL_DATA);
+        var clonedData = event.getEntity().getData(ModDataAttachments.ADMIRAL_DATA);
+        clonedData.deserializeNBT(originalData.serializeNBT());
+
+        HashSet<Integer> originalCollected = event.getOriginal().getData(ModDataAttachments.COLLECTED_SHIPS);
+        HashSet<Integer> clonedCollected = event.getEntity().getData(ModDataAttachments.COLLECTED_SHIPS);
+        clonedCollected.clear();
+        clonedCollected.addAll(originalCollected);
     }
 
     @SubscribeEvent
@@ -161,7 +233,13 @@ public class ModEventBusEvents {
 
         event.setCanceled(true);
 
-        if (!(event.getTarget() instanceof EntityShipBase ship)) {
+        Entity targetEntity = event.getTarget();
+        EntityShipBase ship;
+        if (targetEntity instanceof EntityShipBase targetShip) {
+            ship = targetShip;
+        } else if (targetEntity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getHost() instanceof EntityShipBase hostShip) {
+            ship = hostShip;
+        } else {
             return;
         }
 
@@ -201,31 +279,34 @@ public class ModEventBusEvents {
                     }
                 } else {
                     if (mode == PointerItem.MODE_FORMATION) {
-                        int emptySlot = data.findFirstEmptySlot(teamId);
-                        if (emptySlot != -1) {
-                            data.setShipUUID(existingTeam, existingSlot, null);
-                            data.setSelected(existingTeam, existingSlot, true);
-                            
-                            data.setShipUUID(teamId, emptySlot, ship.getUUID());
-                            data.setSelected(teamId, emptySlot, true);
+                        int assignedSlot = data.assignShipToTeam(teamId, ship.getUUID());
+                        if (assignedSlot != -1) {
                             ship.setFormationTeam(teamId);
-                            ship.setFormationSlot(emptySlot);
+                            ship.setFormationSlot(assignedSlot);
                             ship.setPointerSelected(true);
+                        } else {
+                            player.displayClientMessage(net.minecraft.network.chat.Component.translatable("chat.shincolle.formation.teamfull"), false);
                         }
                     } else {
                         ship.togglePointerSelected();
                     }
                 }
-                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
+                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
+                        data.serializeNBT(),
+                        player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS)
+                ));
             } else if (mode == PointerItem.MODE_FORMATION) {
-                int emptySlot = data.findFirstEmptySlot(teamId);
-                if (emptySlot != -1) {
-                    data.setShipUUID(teamId, emptySlot, ship.getUUID());
-                    data.setSelected(teamId, emptySlot, true);
+                int assignedSlot = data.assignShipToTeam(teamId, ship.getUUID());
+                if (assignedSlot != -1) {
                     ship.setFormationTeam(teamId);
-                    ship.setFormationSlot(emptySlot);
+                    ship.setFormationSlot(assignedSlot);
                     ship.setPointerSelected(true);
-                    net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, new org.trp.shincolle.network.S2CAdmiralDataSyncPayload(data.serializeNBT()));
+                    net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
+                            data.serializeNBT(),
+                            player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS)
+                    ));
+                } else {
+                    player.displayClientMessage(net.minecraft.network.chat.Component.translatable("chat.shincolle.formation.teamfull"), false);
                 }
             } else {
                 ship.togglePointerSelected();
@@ -346,6 +427,103 @@ public class ModEventBusEvents {
         return !stack.isEmpty() && stack.is(ModItems.POINTER_ITEM.get());
     }
 
+    private static void applyMarriageRingAbilities(Player player) {
+        if (!hasActiveMarriageRing(player)) {
+            return;
+        }
+
+        int marriedCount = getOwnedMarriedShipCount(player);
+
+        if (Config.ringAbilityWaterBreathing >= 0
+                && marriedCount >= Config.ringAbilityWaterBreathing
+                && player.isInWaterOrBubble()
+                && player.getAirSupply() < player.getMaxAirSupply()) {
+            player.setAirSupply(player.getMaxAirSupply());
+        }
+
+        if (Config.ringAbilityFireImmunity >= 0
+                && marriedCount >= Config.ringAbilityFireImmunity
+                && (player.isOnFire() || player.getRemainingFireTicks() > 0)) {
+            player.clearFire();
+        }
+    }
+
+    private static boolean hasActiveMarriageRing(Player player) {
+        return findActiveMarriageRing(player) != ItemStack.EMPTY;
+    }
+
+    private static ItemStack findActiveMarriageRing(Player player) {
+        for (ItemStack stack : player.getInventory().items) {
+            if (isActiveMarriageRingStack(stack)) {
+                return stack;
+            }
+        }
+
+        for (ItemStack stack : player.getInventory().offhand) {
+            if (isActiveMarriageRingStack(stack)) {
+                return stack;
+            }
+        }
+
+        for (ItemStack stack : player.getInventory().armor) {
+            if (isActiveMarriageRingStack(stack)) {
+                return stack;
+            }
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    private static boolean isActiveMarriageRingStack(ItemStack stack) {
+        Item item = stack.getItem();
+        return !stack.isEmpty()
+                && item == ModItems.MARRIAGE_RING.get()
+                && item instanceof MarriageRingItem
+                && MarriageRingItem.isActive(stack);
+    }
+
+    private static int getOwnedMarriedShipCount(Player player) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            return reconcileOwnedMarriedShipCount(serverPlayer);
+        }
+
+        int stored = player.getData(ModDataAttachments.ADMIRAL_DATA).getMarriedShipCount();
+        if (stored > 0) {
+            return stored;
+        }
+
+        UUID ownerId = player.getUUID();
+        AABB search = player.getBoundingBox().inflate(256.0D, 128.0D, 256.0D);
+        List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class, search,
+                ship -> ship.isAlive()
+                        && ship.isTame()
+                        && ship.isStateMarried()
+                        && Objects.equals(ship.getOwnerUUID(), ownerId));
+        int scanned = ships.size();
+        if (scanned > 0) {
+            player.getData(ModDataAttachments.ADMIRAL_DATA).setMarriedShipCount(scanned);
+        }
+        return scanned;
+    }
+
+    private static int reconcileOwnedMarriedShipCount(ServerPlayer serverPlayer) {
+        UUID ownerId = serverPlayer.getUUID();
+        int marriedCount = 0;
+        for (ServerLevel level : serverPlayer.server.getAllLevels()) {
+            marriedCount += level.getEntitiesOfClass(
+                    EntityShipBase.class,
+                    AABB.INFINITE,
+                    ship -> ship.isAlive()
+                            && ship.isTame()
+                            && ship.isStateMarried()
+                            && Objects.equals(ship.getOwnerUUID(), ownerId)
+            ).size();
+        }
+
+        serverPlayer.getData(ModDataAttachments.ADMIRAL_DATA).setMarriedShipCount(marriedCount);
+        return marriedCount;
+    }
+
 
 
     private static void handlePointerTargetCommand(Player player, ItemStack pointerStack) {
@@ -384,10 +562,27 @@ public class ModEventBusEvents {
         EntityHitResult hitRes = getLookTargetResult(player);
         if (hitRes != null) {
             Entity target = hitRes.getEntity();
+            if (player.isShiftKeyDown()) {
+                Entity guardTarget = target;
+                if (guardTarget instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getHost() != null) {
+                    guardTarget = mount.getHost();
+                }
+                if (guardTarget instanceof EntityShipBase ownShip && ownShip.isOwnedBy(player)) {
+                    for (EntityShipBase ship : ships) {
+                        FormationHelper.applyShipGuardEntity(ship, ownShip);
+                        ship.clearPointerTarget();
+                        ship.clearPointerTargetEntity();
+                    }
+                }
+                return;
+            }
             if (target == player || target instanceof EntityShipBase ship && ship.isOwnedBy(player)) {
                 return;
             }
             for (EntityShipBase ship : ships) {
+                if (!ModNetwork.canAssignPointerEntityTarget(player, ship, target)) {
+                    continue;
+                }
                 if (ship.hasPointerTargetEntity() && ship.getPointerTargetEntity() == target) {
                     ship.clearPointerTargetEntity();
                     ship.clearPointerTarget();
@@ -499,5 +694,16 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void registerTooltipComponents(RegisterClientTooltipComponentFactoriesEvent event) {
         event.register(ScaledTextTooltipData.class, ScaledTextClientTooltip::new);
+    }
+
+    private static void syncPlayerAdmiralState(ServerPlayer serverPlayer) {
+        reconcileOwnedMarriedShipCount(serverPlayer);
+        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
+                serverPlayer,
+                org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
+                        serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).serializeNBT(),
+                        serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS)
+                )
+        );
     }
 }

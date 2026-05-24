@@ -61,6 +61,9 @@ public class InventoryHelper {
             return false;
         }
         if (target.getItem() == temp.getItem()) {
+            if (checkMetadata && target.getDamageValue() != temp.getDamageValue()) {
+                return false;
+            }
             
             
             if (checkNbt && !ItemStack.isSameItemSameComponents(target, temp)) {
@@ -68,10 +71,42 @@ public class InventoryHelper {
             }
             return true;
         }
-        
-        
-        
+
+        if (checkOredict && sharesMatchableTag(target, temp)) {
+            return true;
+        }
+
         return false;
+    }
+
+    private static boolean sharesMatchableTag(ItemStack first, ItemStack second) {
+        var firstTags = first.getTags().toList();
+        if (firstTags.isEmpty()) {
+            return false;
+        }
+
+        for (var firstTag : firstTags) {
+            if (!isLooseMatchingTag(firstTag.location().getPath())) {
+                continue;
+            }
+            if (second.is(firstTag)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static boolean isLooseMatchingTag(String path) {
+        return path.startsWith("c/")
+                || path.startsWith("forge/")
+                || path.startsWith("ores/")
+                || path.startsWith("ingots/")
+                || path.startsWith("nuggets/")
+                || path.startsWith("storage_blocks/")
+                || path.startsWith("dusts/")
+                || path.startsWith("gems/")
+                || path.startsWith("plates/")
+                || path.startsWith("rods/");
     }
 
     public static boolean getItemMode(int slotID, int stackMode) {
@@ -278,5 +313,55 @@ public class InventoryHelper {
             }
         }
         return drainedTotal;
+    }
+
+    public static boolean checkInventoryFluidContainer(IItemHandler inv, FluidStack targetFluid, boolean checkFull) {
+        if (inv == null) {
+            return true;
+        }
+
+        int startSlot = getFluidContainerStartSlot(inv);
+        for (int i = startSlot; i < inv.getSlots(); i++) {
+            if (!checkFluidContainer(inv.getStackInSlot(i), targetFluid, checkFull)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static boolean checkFluidContainer(ItemStack stack, FluidStack targetFluid, boolean checkFull) {
+        if (stack.isEmpty()) {
+            return true;
+        }
+
+        var handler = FluidUtil.getFluidHandler(stack.copyWithCount(1));
+        if (handler.isEmpty()) {
+            return true;
+        }
+
+        IFluidHandlerItem fluidHandler = handler.orElseThrow();
+        if (checkFull) {
+            FluidStack probe = targetFluid == null || targetFluid.isEmpty()
+                    ? new FluidStack(net.minecraft.world.level.material.Fluids.WATER, 1)
+                    : targetFluid.copyWithAmount(1);
+            return fluidHandler.fill(probe, IFluidHandler.FluidAction.SIMULATE) <= 0;
+        }
+
+        if (targetFluid != null && !targetFluid.isEmpty()) {
+            FluidStack drained = fluidHandler.drain(new FluidStack(targetFluid.getFluid(), 1), IFluidHandler.FluidAction.SIMULATE);
+            return drained.isEmpty();
+        }
+
+        FluidStack drained = fluidHandler.drain(1, IFluidHandler.FluidAction.SIMULATE);
+        return drained.isEmpty();
+    }
+
+    private static int getFluidContainerStartSlot(IItemHandler inv) {
+        String handlerName = inv.getClass().getName();
+        if (handlerName.endsWith("ShipInventoryHandler")) {
+            return 6;
+        }
+        return 0;
     }
 }

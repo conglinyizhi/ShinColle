@@ -88,29 +88,23 @@ public class BookRenderer {
         Font font = Minecraft.getInstance().font;
         int startX = x + (side == 0 ? 13 : 132) + offX;
         int startY = y + 44 + offY;
-        
-        float scale = 0.75f;
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(startX, startY, 0);
-        guiGraphics.pose().scale(scale, scale, scale);
-        
+
         String[] lines = text.split("<BR>|<BR/>|<br>|<br/>|#");
         int curY = 0;
-        int maxWidth = (int) (105 / scale);
-        
+        int maxWidth = 102;
+
         for (String line : lines) {
             if (line.isEmpty()) {
                 curY += font.lineHeight;
                 continue;
             }
 
-            guiGraphics.drawWordWrap(font, Component.literal(line), 0, curY, maxWidth, 0);
-            
-            int linesDrawn = font.split(Component.literal(line), maxWidth).size();
-            curY += linesDrawn * font.lineHeight;
+            List<net.minecraft.util.FormattedCharSequence> wrapped = font.split(Component.literal(line), maxWidth);
+            for (net.minecraft.util.FormattedCharSequence seq : wrapped) {
+                guiGraphics.drawString(font, seq, startX, startY + curY, 0, false);
+                curY += font.lineHeight;
+            }
         }
-        
-        guiGraphics.pose().popPose();
     }
 
     private static void drawBookPic(GuiGraphics guiGraphics, int x, int y, int[] data) {
@@ -149,13 +143,9 @@ public class BookRenderer {
         if (text.equals(key)) return;
 
         Font font = Minecraft.getInstance().font;
-        int strlen = (int) (font.width(text) * 0.5f);
-        
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().scale(0.8f, 0.8f, 0.8f);
         Component comp = Component.literal(text).withStyle(net.minecraft.ChatFormatting.UNDERLINE).withStyle(net.minecraft.ChatFormatting.DARK_RED);
-        int centerPos = 66;
-        guiGraphics.drawString(font, comp, (int)((x + centerPos - strlen) / 0.8f), (int)((y + 35f) / 0.8f), 0xFFFFFF, false);
-        guiGraphics.pose().popPose();
+        int titleAreaCenterX = x + 64;
+        int titleX = titleAreaCenterX - font.width(comp) / 2;
+        guiGraphics.drawString(font, comp, titleX, y + 34, 0xFFFFFF, false);
     }
 }

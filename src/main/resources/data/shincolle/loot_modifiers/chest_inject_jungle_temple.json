@@ -1,0 +1,10 @@
+{
+  "type": "shincolle:legacy_chest_loot",
+  "conditions": [
+    {
+      "condition": "neoforge:loot_table_id",
+      "loot_table_id": "minecraft:chests/jungle_temple"
+    }
+  ],
+  "category": "id:6"
+}

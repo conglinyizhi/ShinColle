@@ -103,9 +103,9 @@ public class EntityBattleshipNagato extends EntityShipBase {
         int phase = this.getStateEmotion(EMOTION_ATTACK_PHASE) + 1;
         
         switch (phase) {
-            case 1 -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_P2.get(), 1.0F, 1.0F);
-            case 3 -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_ATTACK.get(), 1.0F, 1.0F);
-            default -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_P1.get(), 1.0F, 1.0F);
+            case 1 -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_P2.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack), 1.0F);
+            case 3 -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_ATTACK.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack), 1.0F);
+            default -> this.playSound(org.trp.shincolle.init.ModSounds.SHIP_AP_P1.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack), 1.0F);
         }
 
         if (phase > 3) {
@@ -258,4 +258,3 @@ public class EntityBattleshipNagato extends EntityShipBase {
         return ModItems.BATTLESHIP_NAGATO_SPAWN_EGG.get();
     }
 }
-

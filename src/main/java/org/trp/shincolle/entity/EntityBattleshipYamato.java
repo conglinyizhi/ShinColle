@@ -104,12 +104,12 @@ public class EntityBattleshipYamato extends EntityShipBase {
             this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
             float baseDamage = (float) this.getAttributeValue(Attributes.ATTACK_DAMAGE);
             float damage = Math.max(6.0F, baseDamage * 1.6F);
-            this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_SHOT.get(), 1.0F, 1.0F);
+            this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_SHOT.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack), 1.0F);
             spawnBeamEntity(serverLevel, target, damage);
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true);
         } else {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 1, true);
-            this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_READY.get(), 1.0F, 1.0F);
+            this.playSound(org.trp.shincolle.init.ModSounds.SHIP_YAMATO_READY.get(), Math.max(0.0F, org.trp.shincolle.Config.volumeAttack), 1.0F);
             serverLevel.sendParticles(org.trp.shincolle.init.ModParticles.PARTICLE_CUBE.get(),
                     this.getX(), this.getY() + this.getBbHeight() * 0.6D, this.getZ(),
                     0, 1.5D, (double) this.getId(), 0.0D, 1.0D);
@@ -190,4 +190,3 @@ public class EntityBattleshipYamato extends EntityShipBase {
         return ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get();
     }
 }
-
