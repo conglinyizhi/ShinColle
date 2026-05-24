@@ -16,7 +16,15 @@ public class RecipePaperScreen extends AbstractContainerScreen<RecipePaperMenu> 
         super(menu, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.titleLabelY = 6;
+        this.inventoryLabelX = 8;
         this.inventoryLabelY = this.imageHeight - 94;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
     }
 
     @Override
