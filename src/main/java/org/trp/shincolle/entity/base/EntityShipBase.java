@@ -2504,27 +2504,9 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
         }
 
-        if (this.getAmmoLight() <= 0) {
-            float modAmmo = this.legacyShipStats.getBuffedAttr(18);
-            if (this.consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
-                this.setAmmoLight((int) (30 * modAmmo));
-                this.applyAutoSupplyEffects();
-            } else if (this.consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())) {
-                this.setAmmoLight((int) (270 * modAmmo));
-                this.applyAutoSupplyEffects();
-            }
-        }
-
-        if (this.getAmmoHeavy() <= 0) {
-            float modAmmo = this.legacyShipStats.getBuffedAttr(18);
-            if (this.consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
-                this.setAmmoHeavy((int) (15 * modAmmo));
-                this.applyAutoSupplyEffects();
-            } else if (this.consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())) {
-                this.setAmmoHeavy((int) (135 * modAmmo));
-                this.applyAutoSupplyEffects();
-            }
-        }
+        // Ammo is derived directly from carried ammo items and containers in the
+        // modern inventory model. Consuming a single stack here would reintroduce
+        // the old hidden ammo-pool behavior and desync the live GUI counts.
     }
 
     private void applyAutoSupplyEffects() {
