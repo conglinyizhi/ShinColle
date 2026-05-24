@@ -1,0 +1,32 @@
+{
+  "name": "patchouli.shincolle.entry.manual_tools.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:deskitembook",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.manual_tools.page0.title",
+      "text": "patchouli.shincolle.entry.manual_tools.page0.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.manual_tools.page1.title",
+      "recipe": "shincolle:deskitembook",
+      "recipe2": "shincolle:recipepaper",
+      "text": "patchouli.shincolle.entry.manual_tools.page1.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.manual_tools.page2.title",
+      "item": "shincolle:targetwrench",
+      "text": "patchouli.shincolle.entry.manual_tools.page2.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.manual_tools.page3.title",
+      "item": "shincolle:marriagering",
+      "text": "patchouli.shincolle.entry.manual_tools.page3.text"
+    }
+  ]
+}

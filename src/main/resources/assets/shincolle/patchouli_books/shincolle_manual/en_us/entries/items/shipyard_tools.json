@@ -1,0 +1,36 @@
+{
+  "name": "patchouli.shincolle.entry.shipyard_tools.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:instantconmat",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page0.title",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page0.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page1.title",
+      "images": [
+        "shincolle:textures/gui/book/BookPic01.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.shipyard_tools.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page2.title",
+      "recipe": "shincolle:instant_mat8",
+      "recipe2": "shincolle:instant_mat32",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page3.title",
+      "recipe": "shincolle:small_shipyard",
+      "recipe2": "shincolle:blockvolcore_1",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page3.text"
+    }
+  ]
+}

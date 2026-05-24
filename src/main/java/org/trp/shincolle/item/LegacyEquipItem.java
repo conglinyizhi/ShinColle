@@ -10,6 +10,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 
 import java.util.List;
 import java.util.Locale;
@@ -97,6 +98,15 @@ public class LegacyEquipItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+    }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        if (super.isFoil(stack)) {
+            return true;
+        }
+
+        return hasLegacyEnchantData(stack);
     }
 
     @Override
@@ -261,5 +271,19 @@ public class LegacyEquipItem extends Item {
         tooltipComponents.add(Component.translatable(key)
                 .withStyle(color)
                 .append(Component.literal(String.format(Locale.ROOT, " %.0f%%", value * 100.0F)).withStyle(color)));
+    }
+
+    private static boolean hasLegacyEnchantData(ItemStack stack) {
+        ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+        if (!enchantments.isEmpty()) {
+            return true;
+        }
+
+        CustomData customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return false;
+        }
+
+        return customData.copyTag().contains("PList");
     }
 }
