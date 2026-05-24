@@ -1204,6 +1204,11 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
 
         @Override
+        public void initialize(ItemStack stack) {
+            this.set(stack);
+        }
+
+        @Override
         public ItemStack safeInsert(ItemStack stack, int count) {
             int idx = toActualShipSlot(localVisibleSlot);
             if (stack.isEmpty() || !ship.getInventory().isSlotAvailable(idx) || !mayPlace(stack)) {
@@ -1261,6 +1266,15 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
             return ship.getInventory().extractItem(idx, amount, false);
+        }
+
+        @Override
+        public ItemStack safeTake(int count, int decrement, Player player) {
+            ItemStack taken = super.safeTake(count, decrement, player);
+            if (!taken.isEmpty() && !ship.level().isClientSide) {
+                ship.onInventoryChanged();
+            }
+            return taken;
         }
 
         @Override
