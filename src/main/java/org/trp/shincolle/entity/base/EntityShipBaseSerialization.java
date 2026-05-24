@@ -206,6 +206,9 @@ final class EntityShipBaseSerialization {
             this.ship.initializeLegacyStateInternal();
         }
 
-        this.ship.recalculateLegacyShipStats();
+        // Rebuild derived combat/resource counts from the restored inventory so
+        // stale legacy NBT values do not leave ships with visible ammo items but
+        // zero usable light/heavy ammo after load.
+        this.ship.onInventoryChanged();
     }
 }
