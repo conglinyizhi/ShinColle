@@ -17,16 +17,17 @@
       "text": "patchouli.shincolle.entry.manual_tools.page1.text"
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.manual_tools.page2.title",
-      "item": "shincolle:targetwrench",
+      "recipe": "shincolle:targetwrench",
+      "recipe2": "shincolle:desk_radar",
       "text": "patchouli.shincolle.entry.manual_tools.page2.text"
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.manual_tools.page3.title",
       "recipe": "shincolle:marriagering",
-      "recipe2": "shincolle:deskitembook",
+      "recipe2": "shincolle:blockdesk",
       "text": "patchouli.shincolle.entry.manual_tools.page3.text"
     },
     {

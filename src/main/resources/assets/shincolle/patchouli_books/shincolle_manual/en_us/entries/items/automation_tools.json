@@ -17,9 +17,10 @@
       "text": "patchouli.shincolle.entry.automation_tools.page1.text"
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.automation_tools.page2.title",
-      "item": "shincolle:recipepaper",
+      "recipe": "shincolle:recipepaper",
+      "recipe2": "shincolle:blockcrane",
       "text": "patchouli.shincolle.entry.automation_tools.page2.text"
     }
   ]

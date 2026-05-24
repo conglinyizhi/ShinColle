@@ -29,7 +29,7 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.shipyard_tools.page3.title",
       "recipe": "shincolle:small_shipyard",
-      "recipe2": "shincolle:blockvolcore_1",
+      "recipe2": "shincolle:blockvolcore_2",
       "text": "patchouli.shincolle.entry.shipyard_tools.page3.text"
     }
   ]

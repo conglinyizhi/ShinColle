@@ -10,9 +10,12 @@
       "text": "patchouli.shincolle.entry.equipment_special.page0.text"
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "patchouli:image",
       "title": "patchouli.shincolle.entry.equipment_special.page1.title",
-      "item": "shincolle:equipdrum",
+      "images": [
+        "shincolle:textures/gui/book/BookPic01.png"
+      ],
+      "border": true,
       "text": "patchouli.shincolle.entry.equipment_special.page1.text"
     },
     {
