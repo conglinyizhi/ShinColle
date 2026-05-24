@@ -14,6 +14,8 @@ class GrudgeXpBlockResourceRegressionTest {
             Path.of("src/main/resources/assets/shincolle/textures/block/grudge_xp_block.png");
     private static final Path GRUDGE_XP_BLOCK_ANIMATION =
             Path.of("src/main/resources/assets/shincolle/textures/block/grudge_xp_block.png.mcmeta");
+    private static final Path GRUDGE_XP_BLOCK_MODEL =
+            Path.of("src/main/resources/assets/shincolle/models/block/grudge_xp_block.json");
 
     @Test
     void animatedGrudgeXpBlockTextureShouldKeepItsMcmeta() throws IOException {
@@ -23,5 +25,12 @@ class GrudgeXpBlockResourceRegressionTest {
                 "Animated GrudgeXP block texture should keep its mcmeta");
         assertTrue(Files.readString(GRUDGE_XP_BLOCK_ANIMATION).contains("\"frametime\": 2"),
                 "GrudgeXP animation metadata should keep the legacy animation speed");
+    }
+
+    @Test
+    void grudgeXpBlockModelShouldNotForceTranslucentRenderType() throws IOException {
+        String model = Files.readString(GRUDGE_XP_BLOCK_MODEL);
+        assertTrue(!model.contains("\"render_type\": \"minecraft:translucent\""),
+                "GrudgeXP block should use the default cube render path like the legacy block");
     }
 }
