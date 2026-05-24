@@ -828,6 +828,14 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public void broadcastChanges() {
+        if (!this.ship.level().isClientSide) {
+            this.ship.onInventoryChanged();
+        }
+        super.broadcastChanges();
+    }
+
+    @Override
     public boolean clickMenuButton(Player player, int id) {
         if (player.level().isClientSide) {
             return true;
@@ -1150,7 +1158,6 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     private final class PagedShipSlot extends SlotItemHandler {
         private final int localVisibleSlot;
-        private ItemStack clientStack = ItemStack.EMPTY;
 
         private PagedShipSlot(int localVisibleSlot, int x, int y) {
             super(ship.getInventory(), localVisibleSlot + EQUIP_SLOTS, x, y);
@@ -1168,9 +1175,6 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             if (!ship.getInventory().isSlotAvailable(idx)) {
                 return ItemStack.EMPTY;
             }
-            if (ship.level().isClientSide) {
-                return this.clientStack;
-            }
             return ship.getInventory().getStackInSlot(idx);
         }
 
@@ -1178,10 +1182,6 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         public void set(ItemStack stack) {
             int idx = toActualShipSlot(localVisibleSlot);
             if (!ship.getInventory().isSlotAvailable(idx)) {
-                return;
-            }
-            if (ship.level().isClientSide) {
-                this.clientStack = stack.copy();
                 return;
             }
             ship.getInventory().setStackInSlot(idx, stack);
@@ -1245,18 +1245,6 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             if (!ship.getInventory().isSlotAvailable(idx)) {
                 return ItemStack.EMPTY;
             }
-            if (ship.level().isClientSide) {
-                if (this.clientStack.isEmpty() || amount <= 0) {
-                    return ItemStack.EMPTY;
-                }
-                int taken = Math.min(amount, this.clientStack.getCount());
-                ItemStack result = this.clientStack.copyWithCount(taken);
-                this.clientStack.shrink(taken);
-                if (this.clientStack.isEmpty()) {
-                    this.clientStack = ItemStack.EMPTY;
-                }
-                return result;
-            }
             return ship.getInventory().extractItem(idx, amount, false);
         }
 
@@ -1272,9 +1260,6 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             int idx = toActualShipSlot(localVisibleSlot);
             if (!ship.getInventory().isSlotAvailable(idx)) {
                 return false;
-            }
-            if (ship.level().isClientSide) {
-                return !this.clientStack.isEmpty();
             }
             return !ship.getInventory().extractItem(idx, 1, true).isEmpty();
         }
@@ -1307,7 +1292,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
 
         private void clearClientCache() {
-            this.clientStack = ItemStack.EMPTY;
+            // Slot contents are mirrored into the ship inventory directly on both sides.
         }
     }
 
