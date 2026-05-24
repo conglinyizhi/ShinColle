@@ -419,22 +419,31 @@ public final class ModCommands {
             return 0;
         }
 
-        double baseX = player.getX();
-        double baseY = player.getY();
-        double baseZ = player.getZ();
+        int successCount = 0;
         for (int i = 0; i < ships.size(); i++) {
             EntityShipBase ship = ships.get(i);
-            double x = baseX + (i % 3) - 1;
-            double z = baseZ + (i / 3) + 2;
-            ship.teleportTo(x, baseY, z);
+            if (!ShipTeleportHelper.teleportNearLiving(ship, player, 0.5D)) {
+                continue;
+            }
             ship.getNavigation().stop();
             ship.clearPointerTarget();
             ship.clearPointerTargetEntity();
+            successCount++;
         }
 
-        int count = ships.size();
-        source.sendSuccess(() -> Component.literal("Teleported " + count + " selected ships."), true);
-        return count;
+        if (successCount <= 0) {
+            source.sendFailure(Component.literal("No safe teleport positions found near player."));
+            return 0;
+        }
+
+        final int teleportedCount = successCount;
+        final int failedCount = ships.size() - teleportedCount;
+        source.sendSuccess(() -> Component.literal(
+                failedCount > 0
+                        ? "Teleported " + teleportedCount + " selected ships; " + failedCount + " had no safe positions."
+                        : "Teleported " + teleportedCount + " selected ships."
+        ), true);
+        return teleportedCount;
     }
 
     private static EntityShipBase getNearestOwnedShip(ServerPlayer player, double radius) {
