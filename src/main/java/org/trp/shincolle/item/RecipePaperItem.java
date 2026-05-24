@@ -29,9 +29,8 @@ public class RecipePaperItem extends Item {
                     (id, inv, p) -> new RecipePaperMenu(id, inv, stack, hand),
                     Component.translatable("gui.shincolle.recipepaper.title")
             ), buf -> buf.writeEnum(hand));
-            return InteractionResultHolder.success(stack);
         }
-        return InteractionResultHolder.consume(stack);
+        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
     }
 
     @Override
