@@ -1,5 +1,5 @@
 {
-  "ship-idle": { "sounds": [
+  "ship-idle": { "subtitle": "subtitle.shincolle.ship_idle", "sounds": [
     "shincolle:idle01",
     "shincolle:idle02",
     "shincolle:idle03",
@@ -24,7 +24,7 @@
     "shincolle:idle11"
   ]},
   
-  "ship-hurt": { "sounds": [
+  "ship-hurt": { "subtitle": "subtitle.shincolle.ship_hurt", "sounds": [
     "shincolle:hurt01",
     "shincolle:hurt02",
     "shincolle:hurt03",
@@ -35,7 +35,7 @@
     "shincolle:hurt08"
   ]},
   
-  "ship-death": { "sounds": [
+  "ship-death": { "subtitle": "subtitle.shincolle.ship_death", "sounds": [
     "shincolle:death01",
     "shincolle:death02", 
     "shincolle:death03",
@@ -88,7 +88,7 @@
     "shincolle:laser03"
   ]},
   
-  "ship-marry": { "sounds": [
+  "ship-marry": { "subtitle": "subtitle.shincolle.ship_marry", "sounds": [
     "shincolle:love01",
   	"shincolle:love02",
   	"shincolle:love03",
@@ -97,99 +97,99 @@
     "shincolle:love06"
   ]},
   
-  "ship-time0": { "sounds": [
+  "ship-time0": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time00"
   ]},
   
-  "ship-time1": { "sounds": [
+  "ship-time1": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time01"
   ]},
   
-  "ship-time2": { "sounds": [
+  "ship-time2": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time02"
   ]},
   
-  "ship-time3": { "sounds": [
+  "ship-time3": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time03"
   ]},
   
-  "ship-time4": { "sounds": [
+  "ship-time4": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time04"
   ]},
   
-  "ship-time5": { "sounds": [
+  "ship-time5": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time05"
   ]},
   
-  "ship-time6": { "sounds": [
+  "ship-time6": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time06"
   ]},
   
-  "ship-time7": { "sounds": [
+  "ship-time7": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time07"
   ]},
   
-  "ship-time8": { "sounds": [
+  "ship-time8": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time08"
   ]},
   
-  "ship-time9": { "sounds": [
+  "ship-time9": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time09"
   ]},
   
-  "ship-time10": { "sounds": [
+  "ship-time10": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time10"
   ]},
   
-  "ship-time11": { "sounds": [
+  "ship-time11": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time11"
   ]},
   
-  "ship-time12": { "sounds": [
+  "ship-time12": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time12"
   ]},
   
-  "ship-time13": { "sounds": [
+  "ship-time13": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time13"
   ]},
   
-  "ship-time14": { "sounds": [
+  "ship-time14": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time14"
   ]},
   
-  "ship-time15": { "sounds": [
+  "ship-time15": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time15"
   ]},
   
-  "ship-time16": { "sounds": [
+  "ship-time16": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time16"
   ]},
   
-  "ship-time17": { "sounds": [
+  "ship-time17": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time17"
   ]},
   
-  "ship-time18": { "sounds": [
+  "ship-time18": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time18"
   ]},
   
-  "ship-time19": { "sounds": [
+  "ship-time19": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time19"
   ]},
   
-  "ship-time20": { "sounds": [
+  "ship-time20": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time20"
   ]},
   
-  "ship-time21": { "sounds": [
+  "ship-time21": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time21"
   ]},
   
-  "ship-time22": { "sounds": [
+  "ship-time22": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time22"
   ]},
   
-  "ship-time23": { "sounds": [
+  "ship-time23": { "subtitle": "subtitle.shincolle.ship_time", "sounds": [
     "shincolle:time23"
   ]},
   
@@ -236,7 +236,7 @@
     "shincolle:level01"
   ]},
   
-  "ship-feed": { "sounds": [
+  "ship-feed": { "subtitle": "subtitle.shincolle.ship_feed", "sounds": [
     "shincolle:feed01",
     "shincolle:feed02",
     "shincolle:feed03",
