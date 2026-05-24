@@ -1,0 +1,26 @@
+{
+  "name": "patchouli.shincolle.entry.automation_tools.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:targetwrench",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.automation_tools.page0.title",
+      "text": "patchouli.shincolle.entry.automation_tools.page0.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.automation_tools.page1.title",
+      "recipe": "shincolle:targetwrench",
+      "recipe2": "shincolle:blockwaypoint",
+      "text": "patchouli.shincolle.entry.automation_tools.page1.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.automation_tools.page2.title",
+      "item": "shincolle:recipepaper",
+      "text": "patchouli.shincolle.entry.automation_tools.page2.text"
+    }
+  ]
+}

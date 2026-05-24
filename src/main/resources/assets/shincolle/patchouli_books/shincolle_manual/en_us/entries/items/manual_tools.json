@@ -23,10 +23,17 @@
       "text": "patchouli.shincolle.entry.manual_tools.page2.text"
     },
     {
-      "type": "patchouli:spotlight",
+      "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.manual_tools.page3.title",
-      "item": "shincolle:marriagering",
+      "recipe": "shincolle:marriagering",
+      "recipe2": "shincolle:deskitembook",
       "text": "patchouli.shincolle.entry.manual_tools.page3.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.manual_tools.page4.title",
+      "item": "shincolle:marriagering",
+      "text": "patchouli.shincolle.entry.manual_tools.page4.text"
     }
   ]
 }

@@ -106,7 +106,7 @@ public class LegacyEquipItem extends Item {
             return true;
         }
 
-        return hasLegacyEnchantData(stack);
+        return hasLegacyEnchantData(stack) || hasLegacyFoilVariant(stack);
     }
 
     @Override
@@ -285,5 +285,9 @@ public class LegacyEquipItem extends Item {
         }
 
         return customData.copyTag().contains("PList");
+    }
+
+    private boolean hasLegacyFoilVariant(ItemStack stack) {
+        return "EquipAmmo".equals(this.legacyNameBase) && getVariant(stack) == 7;
     }
 }
