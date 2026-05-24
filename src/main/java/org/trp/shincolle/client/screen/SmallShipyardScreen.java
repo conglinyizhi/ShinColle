@@ -19,6 +19,8 @@ public class SmallShipyardScreen extends AbstractContainerScreen<SmallShipyardMe
         super(menu, playerInventory, title);
         this.imageWidth = 176;
         this.imageHeight = 164;
+        this.inventoryLabelX = 8;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
@@ -56,6 +58,7 @@ public class SmallShipyardScreen extends AbstractContainerScreen<SmallShipyardMe
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.imageWidth / 2 - this.font.width(this.title) / 2, 6, 0x404040, false);
+        guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040, false);
 
         String time = this.menu.getBuildTimeString();
         guiGraphics.drawString(this.font, time, 71 - this.font.width(time) / 2, 51, 0x404040, false);

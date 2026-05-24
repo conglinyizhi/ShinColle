@@ -21,6 +21,8 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
         super(menu, playerInventory, title);
         this.imageWidth = 176;
         this.imageHeight = 201;
+        this.inventoryLabelX = 8;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
@@ -101,6 +103,9 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
 
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, (this.imageWidth - this.font.width(this.title)) / 2, 6, 0x404040, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040, false);
+
         
         String modeStr = getModeString(menu.getCraneMode());
         int len = this.font.width(modeStr) / 2;

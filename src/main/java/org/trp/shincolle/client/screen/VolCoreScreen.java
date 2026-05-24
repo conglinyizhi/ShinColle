@@ -18,6 +18,8 @@ public class VolCoreScreen extends AbstractContainerScreen<VolCoreMenu> {
         super(menu, inventory, title);
         this.imageWidth = 176;
         this.imageHeight = 166;
+        this.inventoryLabelX = 8;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
@@ -45,6 +47,7 @@ public class VolCoreScreen extends AbstractContainerScreen<VolCoreMenu> {
     @Override
     protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
         graphics.drawString(this.font, this.title, this.imageWidth / 2 - this.font.width(this.title) / 2, 6, 0x404040, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 0x404040, false);
     }
 
     @Override
