@@ -33,10 +33,10 @@ class EntityShipBaseCombat {
     private static final String TAG_POTION_TIME = "PTick";
     private static final String TAG_POTION_CHANCE = "PChance";
 
-    private static final int AMMO_LIGHT_VALUE = 1;
-    private static final int AMMO_LIGHT_CONTAINER_VALUE = 10;
-    private static final int AMMO_HEAVY_VALUE = 1;
-    private static final int AMMO_HEAVY_CONTAINER_VALUE = 10;
+    private static final int AMMO_LIGHT_VALUE = 30;
+    private static final int AMMO_LIGHT_CONTAINER_VALUE = 270;
+    private static final int AMMO_HEAVY_VALUE = 15;
+    private static final int AMMO_HEAVY_CONTAINER_VALUE = 135;
     private static final int AIRCRAFT_LIGHT_AMMO_COST = 6;
     private static final int AIRCRAFT_HEAVY_AMMO_COST = 2;
     private static final int AIRCRAFT_RECOVERY_BASE_DELAY = 120;
