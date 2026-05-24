@@ -1185,6 +1185,47 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
 
         @Override
+        public ItemStack safeInsert(ItemStack stack, int count) {
+            int idx = toActualShipSlot(localVisibleSlot);
+            if (stack.isEmpty() || !ship.getInventory().isSlotAvailable(idx) || !mayPlace(stack)) {
+                return stack;
+            }
+
+            ItemStack existing = ship.getInventory().getStackInSlot(idx);
+            int limit = Math.min(getMaxStackSize(stack), ship.getInventory().getSlotLimit(idx));
+            if (!existing.isEmpty()) {
+                if (!ItemStack.isSameItemSameComponents(existing, stack)) {
+                    return stack;
+                }
+                limit -= existing.getCount();
+            }
+
+            if (limit <= 0) {
+                return stack;
+            }
+
+            int move = Math.min(limit, Math.min(count, stack.getCount()));
+            if (move <= 0) {
+                return stack;
+            }
+
+            ItemStack remainder = stack.copy();
+            ItemStack inserted = stack.copyWithCount(move);
+            remainder.shrink(move);
+
+            if (existing.isEmpty()) {
+                ship.getInventory().setStackInSlot(idx, inserted);
+            } else {
+                ItemStack merged = existing.copy();
+                merged.grow(move);
+                ship.getInventory().setStackInSlot(idx, merged);
+            }
+
+            setChanged();
+            return remainder;
+        }
+
+        @Override
         public void setByPlayer(ItemStack newStack) {
             set(newStack);
         }
