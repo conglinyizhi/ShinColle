@@ -17,9 +17,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.fleet_support_tools.page1.title",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page1b.title",
       "recipe": "shincolle:toyairplane",
-      "text": ""
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page1b.text"
     },
     {
       "type": "patchouli:crafting",
@@ -29,21 +29,15 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.fleet_support_tools.page2.title",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page2b.title",
       "recipe": "shincolle:repairgoddess_2",
-      "text": ""
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page2b.text"
     },
     {
-      "type": "patchouli:crafting",
+      "type": "patchouli:spotlight",
       "title": "patchouli.shincolle.entry.fleet_support_tools.page3.title",
-      "recipe": "shincolle:toyairplane",
+      "item": "shincolle:repairgoddess",
       "text": "patchouli.shincolle.entry.fleet_support_tools.page3.text"
-    },
-    {
-      "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.fleet_support_tools.page3.title",
-      "recipe": "shincolle:bucketrepair",
-      "text": ""
     }
   ]
 }
