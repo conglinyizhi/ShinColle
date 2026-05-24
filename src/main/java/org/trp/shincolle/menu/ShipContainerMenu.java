@@ -488,6 +488,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         super(ModMenus.SHIP_MENU.get(), containerId);
         this.ship = ship;
 
+        if (!ship.level().isClientSide) {
+            ship.onInventoryChanged();
+        }
+
         if (!ship.level().isClientSide && playerInv.player != null) {
             int classID = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
             if (classID >= 0) {
