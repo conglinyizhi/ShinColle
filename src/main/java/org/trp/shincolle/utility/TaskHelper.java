@@ -458,7 +458,7 @@ public class TaskHelper {
             }
         }
 
-        if (materials.isEmpty()) return;
+        if (!RecipePaperData.hasAnyRecipeIngredient(recipeGrid)) return;
 
         CraftingInput recipeInput = CraftingInput.of(3, 3, recipeSlots);
         var recipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, recipeInput, level);

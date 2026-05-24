@@ -64,4 +64,14 @@ object RecipePaperData {
             ItemStack.EMPTY
         }
     }
+
+    @JvmStatic
+    fun hasAnyRecipeIngredient(grid: List<ItemStack>): Boolean {
+        return grid.any { !it.isEmpty }
+    }
+
+    @JvmStatic
+    fun hasAnyRecipeIngredient(grid: Array<ItemStack>): Boolean {
+        return grid.any { !it.isEmpty }
+    }
 }

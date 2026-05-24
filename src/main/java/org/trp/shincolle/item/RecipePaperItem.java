@@ -37,17 +37,13 @@ public class RecipePaperItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         ItemStack[] recipeGrid = RecipePaperData.loadRecipeGrid(stack, context.registries());
-        boolean hasRecipe = false;
         List<ItemStack> inputList = new java.util.ArrayList<>(9);
         for (int i = 0; i < 9; i++) {
             ItemStack ingredient = recipeGrid[i];
             inputList.add(ingredient);
-            if (!ingredient.isEmpty()) {
-                hasRecipe = true;
-            }
         }
 
-        if (!hasRecipe) {
+        if (!RecipePaperData.hasAnyRecipeIngredient(recipeGrid)) {
             return;
         }
 
