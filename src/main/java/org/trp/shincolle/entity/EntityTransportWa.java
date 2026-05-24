@@ -105,17 +105,20 @@ public class EntityTransportWa extends EntityShipBase {
             boolean supplied = false;
             if (this.getStateMinor(6) > 5400 && ship.getStateMinor(6) < 2700) {
                 addGrudge(-5400);
-                ship.setStateMinor(6, Math.max(0, ship.getStateMinor(6) + 5400));
+                int grant = Math.max(0, (int) (5400.0F * ship.getLegacyShipStats().getBuffedAttr(17)));
+                ship.setStateMinor(6, Math.max(0, ship.getStateMinor(6) + grant));
                 supplied = true;
             }
             if (this.getAmmoLight() >= 540 && ship.getAmmoLight() < 270) {
                 addAmmoLight(-540);
-                ship.setAmmoLight(Math.max(0, ship.getAmmoLight() + 540));
+                int grant = Math.max(0, (int) (540.0F * ship.getLegacyShipStats().getBuffedAttr(18)));
+                ship.setAmmoLight(Math.max(0, ship.getAmmoLight() + grant));
                 supplied = true;
             }
             if (this.getAmmoHeavy() >= 270 && ship.getAmmoHeavy() < 135) {
                 addAmmoHeavy(-270);
-                ship.setAmmoHeavy(Math.max(0, ship.getAmmoHeavy() + 270));
+                int grant = Math.max(0, (int) (270.0F * ship.getLegacyShipStats().getBuffedAttr(18)));
+                ship.setAmmoHeavy(Math.max(0, ship.getAmmoHeavy() + grant));
                 supplied = true;
             }
 
@@ -150,20 +153,20 @@ public class EntityTransportWa extends EntityShipBase {
                 break;
             case 1:
                 if (consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
-                    addAmmoLight(300);
+                    addAmmoLight(30);
                     break;
                 }
                 if (consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())) {
-                    addAmmoLight(2700);
+                    addAmmoLight(270);
                 }
                 break;
             case 2:
                 if (consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
-                    addAmmoHeavy(150);
+                    addAmmoHeavy(15);
                     break;
                 }
                 if (consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())) {
-                    addAmmoHeavy(1350);
+                    addAmmoHeavy(135);
                 }
                 break;
             default:
@@ -194,4 +197,3 @@ protected Item getShipSpawnEggItem() {
         return ModItems.TRANSPORT_WA_SPAWN_EGG.get();
     }
 }
-
