@@ -535,6 +535,18 @@ public class TaskHelper {
         }
 
         for (int craftIndex = 0; craftIndex < maxCraft; craftIndex++) {
+            CraftingInput craftInput = CraftingInput.of(3, 3, recipeSlots);
+            var currentRecipe = level.getRecipeManager().getRecipeFor(RecipeType.CRAFTING, craftInput, level);
+            if (currentRecipe.isEmpty()) {
+                break;
+            }
+
+            ItemStack resultPreview = currentRecipe.get().value().assemble(craftInput, level.registryAccess());
+            if (resultPreview.isEmpty()
+                    || !InventoryHelper.matchTargetItem(resultPreview, resultTemplate, checkMeta, checkNbt, checkOre)) {
+                break;
+            }
+
             for (ItemStack slotStack : recipeSlots) {
                 if (!slotStack.isEmpty()) {
                     if (InventoryHelper.calcItemStackAmount(inv, slotStack, checkMeta, checkNbt, checkOre) <= 0) {
@@ -554,7 +566,7 @@ public class TaskHelper {
                 }
             }
 
-            ItemStack finalResult = recipe.get().value().assemble(recipeInput, level.registryAccess());
+            ItemStack finalResult = currentRecipe.get().value().assemble(craftInput, level.registryAccess());
             for (IItemHandler h : outHandlers) {
                 finalResult = ItemHandlerHelper.insertItemStacked(h, finalResult, false);
                 if (finalResult.isEmpty()) break;
@@ -568,7 +580,7 @@ public class TaskHelper {
                 level.addFreshEntity(new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, finalResult));
             }
 
-            for (ItemStack remainStack : recipe.get().value().getRemainingItems(recipeInput)) {
+            for (ItemStack remainStack : currentRecipe.get().value().getRemainingItems(craftInput)) {
                 if (remainStack.isEmpty()) {
                     continue;
                 }
