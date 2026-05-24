@@ -838,6 +838,21 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     @Override
     public boolean clickMenuButton(Player player, int id) {
         if (player.level().isClientSide) {
+            switch (id) {
+                case PAGE_BUTTON_0 -> this.setInventoryPage(0);
+                case PAGE_BUTTON_1 -> {
+                    if (isPageUnlocked(1)) {
+                        this.setInventoryPage(1);
+                    }
+                }
+                case PAGE_BUTTON_2 -> {
+                    if (isPageUnlocked(2)) {
+                        this.setInventoryPage(2);
+                    }
+                }
+                default -> {
+                }
+            }
             return true;
         }
 
