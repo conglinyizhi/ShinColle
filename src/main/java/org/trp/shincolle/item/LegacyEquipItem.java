@@ -200,16 +200,11 @@ public class LegacyEquipItem extends Item {
     }
 
     private static void addMiscTooltip(int[] misc, List<Component> tooltipComponents) {
-        MutableComponent line = Component.translatable("gui.shincolle.equip.enchtype")
-                .append(" ")
-                .append(getEnchantTypeComponent(misc[5]));
-
         if (misc[0] == 1) {
-            line.append(Component.literal("  ").append(Component.translatable("gui.shincolle.notforcarrier").withStyle(ChatFormatting.RED)));
+            tooltipComponents.add(Component.translatable("gui.shincolle.notforcarrier").withStyle(ChatFormatting.RED));
         } else if (misc[0] == 3) {
-            line.append(Component.literal("  ").append(Component.translatable("gui.shincolle.carrieronly").withStyle(ChatFormatting.AQUA)));
+            tooltipComponents.add(Component.translatable("gui.shincolle.carrieronly").withStyle(ChatFormatting.AQUA));
         }
-        tooltipComponents.add(line);
 
         tooltipComponents.add(Component.translatable(misc[3] > 400 ? "block.shincolle.large_shipyard" : "block.shincolle.small_shipyard")
                 .withStyle(ChatFormatting.GOLD));
@@ -229,15 +224,6 @@ public class LegacyEquipItem extends Item {
                 .append(Component.translatable("gui.shincolle.equip.matsrarelevel").withStyle(ChatFormatting.LIGHT_PURPLE))
                 .append(Component.literal(" " + misc[2]).withStyle(ChatFormatting.GRAY));
         tooltipComponents.add(mats);
-    }
-
-    private static MutableComponent getEnchantTypeComponent(int enchType) {
-        return switch (enchType) {
-            case 1 -> Component.translatable("gui.shincolle.equip.enchtype1").withStyle(ChatFormatting.RED);
-            case 2 -> Component.translatable("gui.shincolle.equip.enchtype0").withStyle(ChatFormatting.AQUA);
-            case 3 -> Component.translatable("gui.shincolle.equip.enchtype2").withStyle(ChatFormatting.GRAY);
-            default -> Component.empty();
-        };
     }
 
     private static void addFlatStat(List<Component> tooltipComponents, float value, String key, ChatFormatting color, int precision) {
