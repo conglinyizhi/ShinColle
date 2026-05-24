@@ -1,0 +1,31 @@
+{
+  "name": "patchouli.shincolle.entry.equipment_weapons.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:equipcannon",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.equipment_weapons.page0.title",
+      "text": "patchouli.shincolle.entry.equipment_weapons.page0.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.equipment_weapons.page1.title",
+      "item": "shincolle:equipcannon",
+      "text": "patchouli.shincolle.entry.equipment_weapons.page1.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.equipment_weapons.page2.title",
+      "item": "shincolle:equiptorpedo",
+      "text": "patchouli.shincolle.entry.equipment_weapons.page2.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.equipment_weapons.page3.title",
+      "item": "shincolle:equipammo",
+      "text": "patchouli.shincolle.entry.equipment_weapons.page3.text"
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "name": "patchouli.shincolle.entry.equipment_support.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:equipradar",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.equipment_support.page0.title",
+      "text": "patchouli.shincolle.entry.equipment_support.page0.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.equipment_support.page1.title",
+      "item": "shincolle:equipairplane",
+      "text": "patchouli.shincolle.entry.equipment_support.page1.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.equipment_support.page2.title",
+      "item": "shincolle:equipradar",
+      "text": "patchouli.shincolle.entry.equipment_support.page2.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.equipment_support.page3.title",
+      "item": "shincolle:equipmachinegun",
+      "text": "patchouli.shincolle.entry.equipment_support.page3.text"
+    }
+  ]
+}
