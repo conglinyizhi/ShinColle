@@ -17,9 +17,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.logistics_and_energy.page1.title",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page1b.title",
       "recipe": "shincolle:grude_block",
-      "text": ""
+      "text": "patchouli.shincolle.entry.logistics_and_energy.page1b.text"
     },
     {
       "type": "patchouli:crafting",
@@ -29,9 +29,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.logistics_and_energy.page2.title",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page2b.title",
       "recipe": "shincolle:blockvolcore_2",
-      "text": ""
+      "text": "patchouli.shincolle.entry.logistics_and_energy.page2b.text"
     },
     {
       "type": "patchouli:crafting",
@@ -41,9 +41,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.logistics_and_energy.page3.title",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page3b.title",
       "recipe": "shincolle:blockcrane",
-      "text": ""
+      "text": "patchouli.shincolle.entry.logistics_and_energy.page3b.text"
     },
     {
       "type": "patchouli:crafting",
@@ -53,9 +53,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.logistics_and_energy.page4.title",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page4b.title",
       "recipe": "shincolle:shiptank3",
-      "text": ""
+      "text": "patchouli.shincolle.entry.logistics_and_energy.page4b.text"
     }
   ]
 }
