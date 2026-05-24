@@ -147,6 +147,11 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                     applyPreLiquidTransfer(this.modeLiquid);
 
                     if (checkCraningShip()) {
+                        if (this.modeRedstone == 1) {
+                            this.tickRedstone = 18;
+                            setRedstoneSignal(true);
+                        }
+
                         this.craningShip.setStateTimer(1, this.craningShip.getStateTimer(1) + 16);
                         boolean moved = false;
 
@@ -168,8 +173,6 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                         }
 
                         if (moved) {
-                            this.tickRedstone = 24;
-                            setRedstoneSignal(true);
                             if (this.level != null) {
                                 this.level.playSound(null, this.worldPosition, ModSounds.SHIP_AIRCRAFT.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
                             }
@@ -451,6 +454,10 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         }
 
         if (stop) {
+            if (this.modeRedstone == 2) {
+                this.tickRedstone = 2;
+                setRedstoneSignal(true);
+            }
             this.craningShip.setStateMinor(43, 0);
             this.craningShip.setStateTimer(1, 0);
             this.craningShip = null;

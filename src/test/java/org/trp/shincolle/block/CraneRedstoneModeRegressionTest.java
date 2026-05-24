@@ -1,0 +1,32 @@
+package org.trp.shincolle.block;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class CraneRedstoneModeRegressionTest {
+    private static final Path CRANE_BE =
+            Path.of("src/main/java/org/trp/shincolle/block/entity/CraneBlockEntity.java");
+
+    @Test
+    void redstoneModeOneShouldPulseDuringActiveCraning() throws IOException {
+        String source = Files.readString(CRANE_BE);
+        assertTrue(source.contains("if (this.modeRedstone == 1) {"),
+                "Crane should keep the legacy redstone mode 1 branch");
+        assertTrue(source.contains("this.tickRedstone = 18;"),
+                "Crane redstone mode 1 should refresh an 18-tick working pulse");
+    }
+
+    @Test
+    void redstoneModeTwoShouldPulseWhenCraningEnds() throws IOException {
+        String source = Files.readString(CRANE_BE);
+        assertTrue(source.contains("if (this.modeRedstone == 2) {"),
+                "Crane should keep the legacy redstone mode 2 branch");
+        assertTrue(source.contains("this.tickRedstone = 2;"),
+                "Crane redstone mode 2 should emit a short completion pulse");
+    }
+}
