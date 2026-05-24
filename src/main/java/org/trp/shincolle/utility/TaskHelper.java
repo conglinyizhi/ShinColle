@@ -103,9 +103,9 @@ public class TaskHelper {
                     fallbackHandler = level.getCapability(net.neoforged.neoforge.capabilities.Capabilities.ItemHandler.BLOCK, chestPos, null);
                 }
                 if (fallbackHandler == null || fallbackHandler.getSlots() < 3) return;
-                inHandlers = List.of(fallbackHandler);
-                fuelHandlers = List.of(fallbackHandler);
-                outHandlers = List.of(fallbackHandler);
+                inHandlers = List.of(singleSlotView(fallbackHandler, 0));
+                fuelHandlers = List.of(singleSlotView(fallbackHandler, 1));
+                outHandlers = List.of(singleSlotView(fallbackHandler, 2));
             }
 
             boolean swing = false;
@@ -115,7 +115,7 @@ public class TaskHelper {
                 if (smeltingRecipe.isPresent()) {
                     int canFit = 0;
                     for (IItemHandler handler : inHandlers) {
-                        ItemStack remainderSim = handler.insertItem(0, mainStack, true);
+                    ItemStack remainderSim = handler.insertItem(0, mainStack, true);
                         canFit += mainStack.getCount() - remainderSim.getCount();
                     }
 
@@ -619,5 +619,45 @@ public class TaskHelper {
         int guardedDimension = host.getGuardedPos(3);
         int currentDimension = getLegacyDimensionId(level);
         return guardedDimension == currentDimension || guardedDimension == Integer.MIN_VALUE;
+    }
+
+    private static IItemHandler singleSlotView(IItemHandler handler, int slot) {
+        return new IItemHandler() {
+            @Override
+            public int getSlots() {
+                return 1;
+            }
+
+            @Override
+            public ItemStack getStackInSlot(int viewSlot) {
+                return viewSlot == 0 ? handler.getStackInSlot(slot) : ItemStack.EMPTY;
+            }
+
+            @Override
+            public ItemStack insertItem(int viewSlot, ItemStack stack, boolean simulate) {
+                if (viewSlot != 0) {
+                    return stack;
+                }
+                return handler.insertItem(slot, stack, simulate);
+            }
+
+            @Override
+            public ItemStack extractItem(int viewSlot, int amount, boolean simulate) {
+                if (viewSlot != 0) {
+                    return ItemStack.EMPTY;
+                }
+                return handler.extractItem(slot, amount, simulate);
+            }
+
+            @Override
+            public int getSlotLimit(int viewSlot) {
+                return viewSlot == 0 ? handler.getSlotLimit(slot) : 0;
+            }
+
+            @Override
+            public boolean isItemValid(int viewSlot, ItemStack stack) {
+                return viewSlot == 0 && handler.isItemValid(slot, stack);
+            }
+        };
     }
 }
