@@ -42,24 +42,24 @@
     "shincolle:death04"
   ]},
   
-  "ship-firelight": { "sounds": [
+  "ship-firelight": { "subtitle": "subtitle.shincolle.ship_firelight", "sounds": [
     "shincolle:fire01",
     "shincolle:fire02",
     "shincolle:fire03",
     "shincolle:fire04"
   ]},
   
-  "ship-explode": { "sounds": [
+  "ship-explode": { "subtitle": "subtitle.shincolle.ship_explode", "sounds": [
     "shincolle:fire05"
   ]},
   
-  "ship-fireheavy": { "sounds": [
+  "ship-fireheavy": { "subtitle": "subtitle.shincolle.ship_fireheavy", "sounds": [
     "shincolle:fireheavy01",
     "shincolle:fireheavy02",
     "shincolle:fireheavy03"
   ]},
   
-  "ship-hit": { "sounds": [
+  "ship-hit": { "subtitle": "subtitle.shincolle.ship_hit", "sounds": [
     "shincolle:hits01",
     "shincolle:hits02",
     "shincolle:hits03",
@@ -70,13 +70,13 @@
     "shincolle:hits08"
   ]},
   
-  "ship-aircraft": { "sounds": [
+  "ship-aircraft": { "subtitle": "subtitle.shincolle.ship_aircraft", "sounds": [
     "shincolle:aircraft01",
     "shincolle:aircraft02",
     "shincolle:aircraft03"
   ]},
   
-  "ship-machinegun": { "sounds": [
+  "ship-machinegun": { "subtitle": "subtitle.shincolle.ship_machinegun", "sounds": [
     "shincolle:gun01",
     "shincolle:gun02",
     "shincolle:gun03"
@@ -232,7 +232,7 @@
     "shincolle:item05"
   ]},
   
-  "ship-levelup": { "sounds": [
+  "ship-levelup": { "subtitle": "subtitle.shincolle.ship_levelup", "sounds": [
     "shincolle:level01"
   ]},
   
