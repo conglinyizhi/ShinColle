@@ -18,8 +18,12 @@ class VolBlockRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
     private static final Path VOL_BLOCK_RECIPE =
             Path.of("src/main/resources/data/shincolle/recipe/blockvolblock.json");
+    private static final Path VOL_BLOCK_RECIPE_ALT =
+            Path.of("src/main/resources/data/shincolle/recipe/blockvolblock_2.json");
     private static final Path VOL_CORE_RECIPE =
             Path.of("src/main/resources/data/shincolle/recipe/blockvolcore.json");
+    private static final Path VOL_CORE_RECIPE_ALT =
+            Path.of("src/main/resources/data/shincolle/recipe/blockvolcore_3.json");
 
     @Test
     void volBlockShouldStayRestoredForLegacyVolcanoCraftChain() throws IOException {
@@ -27,7 +31,9 @@ class VolBlockRegressionTest {
         String modBlocksSource = Files.readString(MOD_BLOCKS_SOURCE);
         String modItemsSource = Files.readString(MOD_ITEMS_SOURCE);
         String volBlockRecipe = Files.readString(VOL_BLOCK_RECIPE);
+        String volBlockRecipeAlt = Files.readString(VOL_BLOCK_RECIPE_ALT);
         String volCoreRecipe = Files.readString(VOL_CORE_RECIPE);
+        String volCoreRecipeAlt = Files.readString(VOL_CORE_RECIPE_ALT);
 
         assertTrue(modBlocksSource.contains("VOL_BLOCK = BLOCKS.register(\"blockvolblock\""),
                 "ModBlocks should keep registering the legacy volcano block");
@@ -39,7 +45,11 @@ class VolBlockRegressionTest {
                 "VolBlock recipe should stay present");
         assertTrue(volBlockRecipe.contains("\"item\": \"shincolle:grudge_block\""),
                 "VolBlock recipe should keep using the legacy grudge block");
+        assertTrue(volBlockRecipeAlt.contains("\"id\": \"shincolle:blockvolblock\""),
+                "VolBlock should keep the mirrored legacy recipe variant");
         assertTrue(volCoreRecipe.contains("\"item\": \"shincolle:blockvolblock\""),
                 "VolCore recipe should keep consuming the restored volcano block");
+        assertTrue(volCoreRecipeAlt.contains("\"id\": \"shincolle:blockvolcore\""),
+                "VolCore should keep the mirrored legacy recipe variant");
     }
 }

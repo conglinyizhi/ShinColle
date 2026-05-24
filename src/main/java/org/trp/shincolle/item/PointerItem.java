@@ -171,7 +171,10 @@ public class PointerItem extends Item {
                     ChatFormatting color = data.isSelected(teamId, i) ? ChatFormatting.WHITE : ChatFormatting.GRAY;
                     tooltipComponents.add(Component.literal(displayedCount + ": " + name + " - Lv " + level).withStyle(color));
                 } else {
-                    tooltipComponents.add(Component.translatable("gui.shincolle.formation.nosignal").withStyle(ChatFormatting.DARK_RED, ChatFormatting.OBFUSCATED));
+                    tooltipComponents.add(Component.translatable("gui.shincolle.formation.nosignal")
+                            .withStyle(ChatFormatting.DARK_RED)
+                            .append(Component.literal(" |||")
+                                    .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.OBFUSCATED)));
                 }
                 displayedCount++;
             }
