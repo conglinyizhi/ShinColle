@@ -31,6 +31,7 @@ import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.item.CombatRationItem;
+import org.trp.shincolle.item.GrudgeItem;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.item.ScaledTextTooltipData;
@@ -57,6 +58,7 @@ public class ClientModEventBusEvents {
                         registerLegacyVariantProperty(ModItems.SHIP_TANK.get());
                         registerLegacyVariantProperty(ModItems.COMBAT_RATION.get());
                         registerLegacyVariantProperty(ModItems.POINTER_ITEM.get());
+                        registerLegacyVariantProperty(ModItems.GRUDGE.get());
                 });
         }
 
@@ -73,6 +75,9 @@ public class ClientModEventBusEvents {
                         }
                         if (stack.getItem() instanceof PointerItem pointerItem) {
                                 return pointerItem.getModelVariant(stack);
+                        }
+                        if (stack.getItem() instanceof GrudgeItem grudgeItem) {
+                                return grudgeItem.getModelVariant(stack);
                         }
                         return 0.0F;
                 });

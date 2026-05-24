@@ -2,5 +2,13 @@
   "parent": "item/generated",
   "textures": {
     "layer0": "shincolle:item/grudge0"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 1.0
+      },
+      "model": "shincolle:item/grudge1"
+    }
+  ]
 }

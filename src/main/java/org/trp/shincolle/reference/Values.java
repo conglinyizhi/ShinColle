@@ -134,6 +134,9 @@ public class Values {
         Map<Short, ItemStack> tempItemIconMap = new HashMap<>();
         tempItemIconMap.put((short)0, new ItemStack(Items.IRON_INGOT));
         tempItemIconMap.put((short)1, new ItemStack(ModItems.GRUDGE.get()));
+        if (ModItems.GRUDGE.get() instanceof org.trp.shincolle.item.GrudgeItem grudgeItem) {
+            tempItemIconMap.put((short)77, grudgeItem.createVariantStack(1));
+        }
         tempItemIconMap.put((short)2, new ItemStack(ModItems.GRUDGE_BLOCK.get()));
         tempItemIconMap.put((short)3, new ItemStack(ModItems.GRUDGE_HEAVY_BLOCK.get()));
         tempItemIconMap.put((short)4, new ItemStack(ModItems.ABYSS_METAL.get()));
@@ -196,7 +199,7 @@ public class Values {
         tempItemIconMap.put((short)75, ((LegacyEquipItem) ModItems.EQUIP_AMMO.get()).createVariantStack(7));
         tempItemIconMap.put((short)76, new ItemStack(Items.POTION));
         // tempItemIconMap.put((short)77, new ItemStack(ModItems.Grudge, 1, 1));
-        // tempItemIconMap.put((short)78, new ItemStack(ModBlocks.BlockGrudgeXP.get())); // Missing
+        tempItemIconMap.put((short)78, new ItemStack(ModItems.GRUDGE_XP_BLOCK.get()));
         tempItemIconMap.put((short)79, new ItemStack(Items.EXPERIENCE_BOTTLE));
         ItemIconMap = Collections.unmodifiableMap(tempItemIconMap);
 

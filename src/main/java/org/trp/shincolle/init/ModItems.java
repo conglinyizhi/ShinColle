@@ -304,6 +304,9 @@ public class ModItems {
     public static final DeferredItem<Item> GRUDGE_BLOCK = ITEMS.register("grudge_block",
             () -> new BlockItem(ModBlocks.GRUDGE_BLOCK.get(), new Item.Properties()));
 
+    public static final DeferredItem<Item> GRUDGE_XP_BLOCK = ITEMS.register("grudge_xp_block",
+            () -> new BlockItem(ModBlocks.GRUDGE_XP_BLOCK.get(), new Item.Properties()));
+
     public static final DeferredItem<Item> GRUDGE_HEAVY_BLOCK = ITEMS.register("grudge_heavy_block",
             () -> new GrudgeHeavyBlockItem(ModBlocks.GRUDGE_HEAVY_BLOCK.get(), new Item.Properties()));
 
@@ -355,6 +358,16 @@ public class ModItems {
                 Item resolved = COMBAT_RATION.get();
                 if (resolved instanceof CombatRationItem combatRationItem) {
                         combatRationItem.addAllVariantsToCreativeTab(output);
+                        return;
+                }
+
+                output.accept(resolved);
+        }
+
+        public static void addGrudgeVariants(CreativeModeTab.Output output) {
+                Item resolved = GRUDGE.get();
+                if (resolved instanceof GrudgeItem grudgeItem) {
+                        grudgeItem.addAllVariantsToCreativeTab(output);
                         return;
                 }
 

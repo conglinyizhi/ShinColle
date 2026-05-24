@@ -99,7 +99,7 @@ public class ModTabs {
                 output.accept(ModItems.ABYSS_METAL.get());
                 output.accept(ModItems.ABYSSIUM.get());
                 output.accept(ModItems.ABYSS_POLYMETAL.get());
-                output.accept(ModItems.GRUDGE.get());
+                ModItems.addGrudgeVariants(output);
                 output.accept(ModItems.GRUDGE_BLOCK.get());
                 output.accept(ModItems.GRUDGE_HEAVY_BLOCK.get());
                 output.accept(ModItems.POLYMETAL.get());

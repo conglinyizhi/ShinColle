@@ -23,6 +23,13 @@ public class ModBlocks {
     public static final DeferredBlock<Block> GRUDGE_BLOCK = BLOCKS.register("grudge_block",
             () -> new Block(BlockBehaviour.Properties.of().strength(1.5F).noOcclusion()));
 
+    public static final DeferredBlock<Block> GRUDGE_XP_BLOCK = BLOCKS.register("grudge_xp_block",
+            () -> new Block(BlockBehaviour.Properties.of()
+                    .strength(1.0F, 200.0F)
+                    .lightLevel(state -> 15)
+                    .sound(SoundType.SAND)
+                    .noOcclusion()));
+
     public static final DeferredBlock<Block> GRUDGE_HEAVY_BLOCK = BLOCKS.register("grudge_heavy_block",
             () -> new GrudgeHeavyBlock(BlockBehaviour.Properties.of().strength(1.5F)));
 
@@ -54,4 +61,3 @@ public class ModBlocks {
     public static final DeferredBlock<Block> CRANE = BLOCKS.register("blockcrane",
             CraneBlock::new);
 }
-

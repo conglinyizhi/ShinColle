@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "pattern": [
+    "xxx",
+    "xxx",
+    "xxx"
+  ],
+  "key": {
+    "x": {
+      "item": "shincolle:grudge",
+      "components": {
+        "minecraft:custom_data": "{LegacyVariant:1}"
+      }
+    }
+  },
+  "result": {
+    "count": 1,
+    "id": "shincolle:grudge_xp_block"
+  }
+}

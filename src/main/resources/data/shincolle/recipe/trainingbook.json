@@ -1,0 +1,31 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "shincolle:grudge_xp_block"
+    },
+    {
+      "item": "shincolle:grudge_xp_block"
+    },
+    {
+      "item": "shincolle:grudge_xp_block"
+    },
+    {
+      "item": "shincolle:grudge_xp_block"
+    },
+    {
+      "item": "minecraft:writable_book"
+    },
+    {
+      "item": "shincolle:modernkit"
+    },
+    {
+      "item": "shincolle:kaitaihammer"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:trainingbook"
+  }
+}
