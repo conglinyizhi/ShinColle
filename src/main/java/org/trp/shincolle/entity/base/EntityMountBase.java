@@ -161,7 +161,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (distSq > 256.0) {
                 if (tpTimer > TP_COOLDOWN) {
                     tpTimer = 0;
-                    if (mount.level() instanceof ServerLevel) {
+                    if (org.trp.shincolle.Config.canTeleport && mount.level() instanceof ServerLevel) {
                         mount.getNavigation().stop();
                         ShipTeleportHelper.teleportNearLiving(mount, owner, 0.75D);
                     }
@@ -194,7 +194,7 @@ public abstract class EntityMountBase extends PathfinderMob {
                 double distSq = mount.distanceToSqr(guarded);
                 ++tpTimer;
                 if (distSq > 256.0D) {
-                    if (tpTimer > TP_COOLDOWN && mount.level() instanceof ServerLevel) {
+                    if (tpTimer > TP_COOLDOWN && org.trp.shincolle.Config.canTeleport && mount.level() instanceof ServerLevel) {
                         tpTimer = 0;
                         mount.getNavigation().stop();
                         if (guarded instanceof LivingEntity livingGuarded) {
@@ -217,7 +217,7 @@ public abstract class EntityMountBase extends PathfinderMob {
                 double distSq = mount.distanceToSqr(guardPos.x, guardPos.y, guardPos.z);
                 ++tpTimer;
                 if (distSq > 256.0D) {
-                    if (tpTimer > TP_COOLDOWN && mount.level() instanceof ServerLevel) {
+                    if (tpTimer > TP_COOLDOWN && org.trp.shincolle.Config.canTeleport && mount.level() instanceof ServerLevel) {
                         tpTimer = 0;
                         mount.getNavigation().stop();
                         mount.teleportTo(guardPos.x, guardPos.y + 0.75D, guardPos.z);

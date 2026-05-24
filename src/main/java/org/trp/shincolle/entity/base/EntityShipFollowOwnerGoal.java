@@ -167,6 +167,9 @@ final class EntityShipFollowOwnerGoal extends Goal {
     }
 
     private void applyTeleport(LivingEntity owner) {
+        if (!org.trp.shincolle.Config.canTeleport) {
+            return;
+        }
         double tx = owner.getX();
         double tz = owner.getZ();
         if (ship.level() instanceof ServerLevel serverLevel) {

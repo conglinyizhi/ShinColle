@@ -70,6 +70,7 @@ public class Config {
     private static final ModConfigSpec.IntValue DRUM_ENERGY_ENCHANT_RATE;
     private static final ModConfigSpec.IntValue PAIR_DIST_CHEST;
     private static final ModConfigSpec.IntValue PAIR_DIST_WAYPOINT;
+    private static final ModConfigSpec.BooleanValue SHIP_CAN_TELEPORT;
     private static final ModConfigSpec.IntValue CRANE_TANK_CAPACITY;
     private static final ModConfigSpec.IntValue VOLCORE_POWER_MAX;
     private static final ModConfigSpec.IntValue VOLCORE_CONSUME_SPEED;
@@ -158,6 +159,7 @@ public class Config {
     public static int drumEnergyEnchantRate = 100;
     public static int pairDistChest = 16;
     public static int pairDistWaypoint = 48;
+    public static boolean canTeleport = true;
     public static int craneTankCapacity = 2048000;
     public static int volCorePowerMax = 9600;
     public static int volCoreConsumeSpeed = 16;
@@ -356,6 +358,9 @@ public class Config {
         PAIR_DIST_WAYPOINT = BUILDER
                 .comment("Max pairing distance between waypoints")
                 .defineInRange("pairDistWaypoint", pairDistWaypoint, 0, 64);
+        SHIP_CAN_TELEPORT = BUILDER
+                .comment("Can ship teleport to owner or guarding position if too far away")
+                .define("canTeleport", canTeleport);
         CRANE_TANK_CAPACITY = BUILDER
                 .comment("Crane internal fluid tank capacity in mB")
                 .defineInRange("craneTankCapacity", craneTankCapacity, 1, 1000000000);
@@ -526,6 +531,7 @@ public class Config {
             drumEnergyEnchantRate = DRUM_ENERGY_ENCHANT_RATE.get();
             pairDistChest = PAIR_DIST_CHEST.get();
             pairDistWaypoint = PAIR_DIST_WAYPOINT.get();
+            canTeleport = SHIP_CAN_TELEPORT.get();
             craneTankCapacity = CRANE_TANK_CAPACITY.get();
             volCorePowerMax = VOLCORE_POWER_MAX.get();
             volCoreConsumeSpeed = VOLCORE_CONSUME_SPEED.get();
