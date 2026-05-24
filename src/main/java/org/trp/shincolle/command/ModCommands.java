@@ -68,20 +68,23 @@ public final class ModCommands {
                                 .executes(context -> setTargetShipAttrs(
                                         context.getSource(),
                                         IntegerArgumentType.getInteger(context, "level"),
-                                        null, null, null, null))
+                                        null, null, null, null,
+                                        null, null, null, null, null, null))
                                 .then(Commands.argument("fuel", IntegerArgumentType.integer(0, 30000))
                                         .executes(context -> setTargetShipAttrs(
                                                 context.getSource(),
                                                 IntegerArgumentType.getInteger(context, "level"),
                                                 IntegerArgumentType.getInteger(context, "fuel"),
-                                                null, null, null))
+                                                null, null, null,
+                                                null, null, null, null, null, null))
                                         .then(Commands.argument("ammo_light", IntegerArgumentType.integer(0, 30000))
                                                 .executes(context -> setTargetShipAttrs(
                                                         context.getSource(),
                                                         IntegerArgumentType.getInteger(context, "level"),
                                                         IntegerArgumentType.getInteger(context, "fuel"),
                                                         IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                        null, null))
+                                                        null, null,
+                                                        null, null, null, null, null, null))
                                                 .then(Commands.argument("ammo_heavy", IntegerArgumentType.integer(0, 30000))
                                                         .executes(context -> setTargetShipAttrs(
                                                                 context.getSource(),
@@ -89,7 +92,8 @@ public final class ModCommands {
                                                                 IntegerArgumentType.getInteger(context, "fuel"),
                                                                 IntegerArgumentType.getInteger(context, "ammo_light"),
                                                                 IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                null))
+                                                                null,
+                                                                null, null, null, null, null, null))
                                                         .then(Commands.argument("morale", IntegerArgumentType.integer(0, 16000))
                                                                 .executes(context -> setTargetShipAttrs(
                                                                         context.getSource(),
@@ -97,7 +101,27 @@ public final class ModCommands {
                                                                         IntegerArgumentType.getInteger(context, "fuel"),
                                                                         IntegerArgumentType.getInteger(context, "ammo_light"),
                                                                         IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                        IntegerArgumentType.getInteger(context, "morale")))))))))
+                                                                        IntegerArgumentType.getInteger(context, "morale"),
+                                                                        null, null, null, null, null, null))
+                                                                .then(Commands.argument("bonus_hp", IntegerArgumentType.integer(0, 100))
+                                                                        .then(Commands.argument("bonus_atk", IntegerArgumentType.integer(0, 100))
+                                                                                .then(Commands.argument("bonus_def", IntegerArgumentType.integer(0, 100))
+                                                                                        .then(Commands.argument("bonus_spd", IntegerArgumentType.integer(0, 100))
+                                                                                                .then(Commands.argument("bonus_mov", IntegerArgumentType.integer(0, 100))
+                                                                                                        .then(Commands.argument("bonus_hit", IntegerArgumentType.integer(0, 100))
+                                                                                                                .executes(context -> setTargetShipAttrs(
+                                                                                                                        context.getSource(),
+                                                                                                                        IntegerArgumentType.getInteger(context, "level"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "fuel"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "ammo_light"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "ammo_heavy"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "morale"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_hp"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_atk"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_def"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_spd"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_mov"),
+                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_hit")))))))))))))))
                 .then(Commands.literal("tp_selected")
                         .executes(context -> teleportSelectedShips(context.getSource())))
                 .then(Commands.literal("change_owner")
@@ -149,20 +173,23 @@ public final class ModCommands {
                         .executes(context -> setTargetShipAttrs(
                                 context.getSource(),
                                 IntegerArgumentType.getInteger(context, "level"),
-                                null, null, null, null))
+                                null, null, null, null,
+                                null, null, null, null, null, null))
                         .then(Commands.argument("fuel", IntegerArgumentType.integer(0, 30000))
                                 .executes(context -> setTargetShipAttrs(
                                         context.getSource(),
                                         IntegerArgumentType.getInteger(context, "level"),
                                         IntegerArgumentType.getInteger(context, "fuel"),
-                                        null, null, null))
+                                        null, null, null,
+                                        null, null, null, null, null, null))
                                 .then(Commands.argument("ammo_light", IntegerArgumentType.integer(0, 30000))
                                         .executes(context -> setTargetShipAttrs(
                                                 context.getSource(),
                                                 IntegerArgumentType.getInteger(context, "level"),
                                                 IntegerArgumentType.getInteger(context, "fuel"),
                                                 IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                null, null))
+                                                null, null,
+                                                null, null, null, null, null, null))
                                         .then(Commands.argument("ammo_heavy", IntegerArgumentType.integer(0, 30000))
                                                 .executes(context -> setTargetShipAttrs(
                                                         context.getSource(),
@@ -170,7 +197,8 @@ public final class ModCommands {
                                                         IntegerArgumentType.getInteger(context, "fuel"),
                                                         IntegerArgumentType.getInteger(context, "ammo_light"),
                                                         IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                        null))
+                                                        null,
+                                                        null, null, null, null, null, null))
                                                 .then(Commands.argument("morale", IntegerArgumentType.integer(0, 16000))
                                                         .executes(context -> setTargetShipAttrs(
                                                                 context.getSource(),
@@ -178,7 +206,27 @@ public final class ModCommands {
                                                                 IntegerArgumentType.getInteger(context, "fuel"),
                                                                 IntegerArgumentType.getInteger(context, "ammo_light"),
                                                                 IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                IntegerArgumentType.getInteger(context, "morale")))))))));
+                                                                IntegerArgumentType.getInteger(context, "morale"),
+                                                                null, null, null, null, null, null))
+                                                        .then(Commands.argument("bonus_hp", IntegerArgumentType.integer(0, 100))
+                                                                .then(Commands.argument("bonus_atk", IntegerArgumentType.integer(0, 100))
+                                                                        .then(Commands.argument("bonus_def", IntegerArgumentType.integer(0, 100))
+                                                                                .then(Commands.argument("bonus_spd", IntegerArgumentType.integer(0, 100))
+                                                                                        .then(Commands.argument("bonus_mov", IntegerArgumentType.integer(0, 100))
+                                                                                                .then(Commands.argument("bonus_hit", IntegerArgumentType.integer(0, 100))
+                                                                                                        .executes(context -> setTargetShipAttrs(
+                                                                                                                context.getSource(),
+                                                                                                                IntegerArgumentType.getInteger(context, "level"),
+                                                                                                                IntegerArgumentType.getInteger(context, "fuel"),
+                                                                                                                IntegerArgumentType.getInteger(context, "ammo_light"),
+                                                                                                                IntegerArgumentType.getInteger(context, "ammo_heavy"),
+                                                                                                                IntegerArgumentType.getInteger(context, "morale"),
+                                                                                                                IntegerArgumentType.getInteger(context, "bonus_hp"),
+                                                                                                                IntegerArgumentType.getInteger(context, "bonus_atk"),
+                                                                                                                IntegerArgumentType.getInteger(context, "bonus_def"),
+                                                                                                                IntegerArgumentType.getInteger(context, "bonus_spd"),
+                                                                                                                IntegerArgumentType.getInteger(context, "bonus_mov"),
+                                                                                                                IntegerArgumentType.getInteger(context, "bonus_hit")))))))))))))));
 
         dispatcher.register(Commands.literal("shipcleardrop")
                 .requires(source -> source.hasPermission(2))
@@ -624,7 +672,20 @@ public final class ModCommands {
         return 1;
     }
 
-    private static int setTargetShipAttrs(CommandSourceStack source, int level, Integer fuel, Integer ammoLight, Integer ammoHeavy, Integer morale) {
+    private static int setTargetShipAttrs(
+            CommandSourceStack source,
+            int level,
+            Integer fuel,
+            Integer ammoLight,
+            Integer ammoHeavy,
+            Integer morale,
+            Integer bonusHp,
+            Integer bonusAtk,
+            Integer bonusDef,
+            Integer bonusSpd,
+            Integer bonusMov,
+            Integer bonusHit
+    ) {
         Entity entity = source.getEntity();
         if (!(entity instanceof ServerPlayer player)) {
             source.sendFailure(Component.literal("Player only command."));
@@ -652,16 +713,40 @@ public final class ModCommands {
         if (morale != null) {
             ship.setMorale(morale);
         }
+        if (bonusHp != null) {
+            ship.setAttrBonus(0, bonusHp);
+        }
+        if (bonusAtk != null) {
+            ship.setAttrBonus(1, bonusAtk);
+        }
+        if (bonusDef != null) {
+            ship.setAttrBonus(2, bonusDef);
+        }
+        if (bonusSpd != null) {
+            ship.setAttrBonus(3, bonusSpd);
+        }
+        if (bonusMov != null) {
+            ship.setAttrBonus(4, bonusMov);
+        }
+        if (bonusHit != null) {
+            ship.setAttrBonus(5, bonusHit);
+        }
 
         source.sendSuccess(() -> Component.literal(String.format(
                 Locale.ROOT,
-                "Updated ship attrs: %s lv=%d fuel=%d ammoLight=%d ammoHeavy=%d morale=%d",
+                "Updated ship attrs: %s lv=%d fuel=%d ammoLight=%d ammoHeavy=%d morale=%d bonus=[%d,%d,%d,%d,%d,%d]",
                 ship.getName().getString(),
                 ship.getLevel(),
                 ship.getFuel(),
                 ship.getAmmoLight(),
                 ship.getAmmoHeavy(),
-                ship.getMorale()
+                ship.getMorale(),
+                ship.getAttrBonus(0),
+                ship.getAttrBonus(1),
+                ship.getAttrBonus(2),
+                ship.getAttrBonus(3),
+                ship.getAttrBonus(4),
+                ship.getAttrBonus(5)
         )), true);
         return 1;
     }
