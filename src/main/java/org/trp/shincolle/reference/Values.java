@@ -181,7 +181,7 @@ public class Values {
         tempItemIconMap.put((short)36, new ItemStack(ModItems.SMALL_SHIPYARD.get()));
         tempItemIconMap.put((short)54, new ItemStack(ModItems.TARGET_WRENCH.get()));
         tempItemIconMap.put((short)55, new ItemStack(ModItems.VOL_CORE.get()));
-        // tempItemIconMap.put((short)56, new ItemStack(ModBlocks.BlockVolBlock.get())); // Missing
+        tempItemIconMap.put((short)56, new ItemStack(ModItems.VOL_BLOCK.get()));
         tempItemIconMap.put((short)61, new ItemStack(ModItems.FRAME_BLOCK.get()));
         tempItemIconMap.put((short)62, new ItemStack(ModItems.WAYPOINT.get()));
         tempItemIconMap.put((short)63, new ItemStack(ModItems.CRANE.get()));

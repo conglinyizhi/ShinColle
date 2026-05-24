@@ -55,6 +55,9 @@ public class ModBlocks {
     public static final DeferredBlock<Block> POLYMETAL_GRAVEL = BLOCKS.register("polymetal_gravel",
             () -> new Block(BlockBehaviour.Properties.of().strength(0.8F).sound(SoundType.SAND)));
 
+    public static final DeferredBlock<Block> VOL_BLOCK = BLOCKS.register("blockvolblock",
+            VolBlock::new);
+
     public static final DeferredBlock<Block> VOL_CORE = BLOCKS.register("blockvolcore",
             org.trp.shincolle.block.VolCoreBlock::new);
 

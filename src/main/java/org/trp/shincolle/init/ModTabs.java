@@ -110,6 +110,7 @@ public class ModTabs {
                 output.accept(ModItems.LARGE_SHIPYARD.get());
                 output.accept(ModItems.DESK.get());
                 output.accept(ModItems.FRAME_BLOCK.get());
+                output.accept(ModItems.VOL_BLOCK.get());
                 output.accept(ModItems.VOL_CORE.get());
                 output.accept(ModItems.WAYPOINT.get());
                 output.accept(ModItems.CRANE.get());

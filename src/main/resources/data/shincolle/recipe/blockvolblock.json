@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "g": {
+      "item": "shincolle:grudge_block"
+    },
+    "m": {
+      "item": "minecraft:magma_block"
+    },
+    "o": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "pattern": [
+    "mom",
+    "ogo",
+    "mom"
+  ],
+  "result": {
+    "count": 1,
+    "id": "shincolle:blockvolblock"
+  }
+}
