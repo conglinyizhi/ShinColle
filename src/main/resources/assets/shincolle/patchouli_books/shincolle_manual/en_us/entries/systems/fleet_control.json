@@ -1,0 +1,25 @@
+{
+  "name": "patchouli.shincolle.entry.fleet_control.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:pointer_item",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.fleet_control.page0.title",
+      "text": "patchouli.shincolle.entry.fleet_control.page0.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.fleet_control.page1.title",
+      "recipe": "shincolle:pointer",
+      "recipe2": "shincolle:blockdesk",
+      "text": "patchouli.shincolle.entry.fleet_control.page1.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.fleet_control.page2.title",
+      "text": "patchouli.shincolle.entry.fleet_control.page2.text"
+    }
+  ]
+}

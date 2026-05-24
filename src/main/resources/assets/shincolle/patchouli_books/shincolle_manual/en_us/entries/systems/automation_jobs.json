@@ -1,0 +1,29 @@
+{
+  "name": "patchouli.shincolle.entry.automation_jobs.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:recipepaper",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.automation_jobs.page0.title",
+      "text": "patchouli.shincolle.entry.automation_jobs.page0.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.automation_jobs.page1.title",
+      "item": "shincolle:recipepaper",
+      "text": "patchouli.shincolle.entry.automation_jobs.page1.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.automation_jobs.page2.title",
+      "text": "patchouli.shincolle.entry.automation_jobs.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.automation_jobs.page3.title",
+      "text": "patchouli.shincolle.entry.automation_jobs.page3.text"
+    }
+  ]
+}
