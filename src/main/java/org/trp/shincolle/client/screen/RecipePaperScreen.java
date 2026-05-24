@@ -12,7 +12,8 @@ public class RecipePaperScreen extends AbstractContainerScreen<RecipePaperMenu> 
 
     private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guirecipepaper.png");
     private static final int LABEL_COLOR = 0x404040;
-    private static final int SECTION_COLOR = 0x6A5640;
+    private static final int SECTION_COLOR = 0xFFF1C8;
+    private static final int SECTION_SHADOW_COLOR = 0x6A5640;
 
     public RecipePaperScreen(RecipePaperMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -32,9 +33,14 @@ public class RecipePaperScreen extends AbstractContainerScreen<RecipePaperMenu> 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, LABEL_COLOR, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.shincolle.recipepaper.material"), 29, 6, SECTION_COLOR, false);
-        guiGraphics.drawString(this.font, Component.translatable("gui.shincolle.recipepaper.result"), 114, 24, SECTION_COLOR, false);
+        drawSectionLabel(guiGraphics, Component.translatable("gui.shincolle.recipepaper.material"), 29, 6);
+        drawSectionLabel(guiGraphics, Component.translatable("gui.shincolle.recipepaper.result"), 114, 24);
         guiGraphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, LABEL_COLOR, false);
+    }
+
+    private void drawSectionLabel(GuiGraphics guiGraphics, Component text, int x, int y) {
+        guiGraphics.drawString(this.font, text, x + 1, y + 1, SECTION_SHADOW_COLOR, false);
+        guiGraphics.drawString(this.font, text, x, y, SECTION_COLOR, false);
     }
 
     @Override
