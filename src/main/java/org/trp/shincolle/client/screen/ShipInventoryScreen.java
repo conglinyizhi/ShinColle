@@ -71,6 +71,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int HELD_MAIN_ROW = 5;
     private static final int HELD_OFF_COL = 2;
     private static final int HELD_OFF_ROW = 5;
+    private static final int LEGACY_LABEL_COLOR = 0xF6E7D0;
+    private static final int LEGACY_LABEL_SHADOW_COLOR = 0x301010;
 
         private static final float[] LEGACY_MORALE_NEUTRAL =
             {0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F};
@@ -826,12 +828,12 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     private void renderLegacyHoverTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         if (isHovering(mouseX, mouseY, 239, 18, 11, 11)) {
-            renderMoraleTooltip(guiGraphics);
+            renderMoraleTooltip(guiGraphics, mouseX, mouseY);
             return;
         }
 
         if (isHovering(mouseX, mouseY, 145, 4, 57, 11)) {
-            renderModernizationHpTooltip(guiGraphics);
+            renderModernizationHpTooltip(guiGraphics, mouseX, mouseY);
             return;
         }
 
@@ -904,48 +906,37 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         }
     }
 
-    private void renderMoraleTooltip(GuiGraphics guiGraphics) {
+    private void renderMoraleTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         EntityShipBase ship = this.menu.getShip();
         float[] moraleBuffs = getLegacyMoraleBuffs(ship.getMorale());
 
-        List<Component> moraleState = new ArrayList<>();
-        moraleState.add(Component.literal(tr("gui.shincolle.morale" + getMoraleLevel(ship.getMorale()))));
-        guiGraphics.renderComponentTooltip(this.font, moraleState, this.leftPos + 120, this.topPos + 30);
-
-        List<Component> labels = new ArrayList<>();
-        List<Component> values = new ArrayList<>();
-        addMoraleStat(labels, values, ChatFormatting.RED, tr("gui.shincolle.firepower1"), "x %.0f %% / %.0f %%", moraleBuffs[1] * 100.0F, moraleBuffs[2] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.RED, tr("gui.shincolle.firepower2"), "x %.0f %% / %.0f %%", moraleBuffs[3] * 100.0F, moraleBuffs[4] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.WHITE, tr("gui.shincolle.attackspeed"), "x %.0f %%", moraleBuffs[6] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.LIGHT_PURPLE, tr("gui.shincolle.range"), "+ %.1f", moraleBuffs[8]);
-        addMoraleStat(labels, values, ChatFormatting.AQUA, tr("gui.shincolle.critical"), "x %.0f %%", moraleBuffs[9] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.YELLOW, tr("gui.shincolle.doublehit"), "x %.0f %%", moraleBuffs[10] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.GOLD, tr("gui.shincolle.triplehit"), "x %.0f %%", moraleBuffs[11] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.RED, tr("gui.shincolle.missreduce"), "x %.0f %%", moraleBuffs[12] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.YELLOW, tr("gui.shincolle.antiair"), "x %.0f %%", moraleBuffs[13] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.AQUA, tr("gui.shincolle.antiss"), "x %.0f %%", moraleBuffs[14] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.WHITE, tr("gui.shincolle.armor"), "+ %.0f %%", moraleBuffs[5] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.GOLD, tr("gui.shincolle.dodge"), "+ %.0f %%", moraleBuffs[15] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.GREEN, tr("gui.shincolle.equip.xp"), "+ %.0f %%", moraleBuffs[16] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.DARK_PURPLE, tr("gui.shincolle.equip.grudge"), "+ %.0f %%", moraleBuffs[17] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.DARK_AQUA, tr("gui.shincolle.equip.ammo"), "+ %.0f %%", moraleBuffs[18] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.DARK_GREEN, tr("gui.shincolle.equip.hpres"), "+ %.0f %%", moraleBuffs[19] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.DARK_RED, tr("gui.shincolle.equip.kb"), "+ %.0f %%", moraleBuffs[20] * 100.0F);
-        addMoraleStat(labels, values, ChatFormatting.GRAY, tr("gui.shincolle.movespeed"), "+ %.2f", moraleBuffs[7]);
-
-        int labelWidth = 0;
-        for (Component label : labels) {
-            labelWidth = Math.max(labelWidth, this.font.width(label));
-        }
-
-        guiGraphics.renderComponentTooltip(this.font, labels, this.leftPos + 120, this.topPos + 46);
-        guiGraphics.renderComponentTooltip(this.font, values, this.leftPos + 126 + labelWidth, this.topPos + 46);
+        List<Component> lines = new ArrayList<>();
+        lines.add(Component.literal(tr("gui.shincolle.morale" + getMoraleLevel(ship.getMorale()))).withStyle(ChatFormatting.GOLD));
+        addMoraleStat(lines, ChatFormatting.RED, tr("gui.shincolle.firepower1"), "x %.0f %% / %.0f %%", moraleBuffs[1] * 100.0F, moraleBuffs[2] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.RED, tr("gui.shincolle.firepower2"), "x %.0f %% / %.0f %%", moraleBuffs[3] * 100.0F, moraleBuffs[4] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.WHITE, tr("gui.shincolle.attackspeed"), "x %.0f %%", moraleBuffs[6] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.LIGHT_PURPLE, tr("gui.shincolle.range"), "+ %.1f", moraleBuffs[8]);
+        addMoraleStat(lines, ChatFormatting.AQUA, tr("gui.shincolle.critical"), "x %.0f %%", moraleBuffs[9] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.YELLOW, tr("gui.shincolle.doublehit"), "x %.0f %%", moraleBuffs[10] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.GOLD, tr("gui.shincolle.triplehit"), "x %.0f %%", moraleBuffs[11] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.RED, tr("gui.shincolle.missreduce"), "x %.0f %%", moraleBuffs[12] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.YELLOW, tr("gui.shincolle.antiair"), "x %.0f %%", moraleBuffs[13] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.AQUA, tr("gui.shincolle.antiss"), "x %.0f %%", moraleBuffs[14] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.WHITE, tr("gui.shincolle.armor"), "+ %.0f %%", moraleBuffs[5] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.GOLD, tr("gui.shincolle.dodge"), "+ %.0f %%", moraleBuffs[15] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.GREEN, tr("gui.shincolle.equip.xp"), "+ %.0f %%", moraleBuffs[16] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.DARK_PURPLE, tr("gui.shincolle.equip.grudge"), "+ %.0f %%", moraleBuffs[17] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.DARK_AQUA, tr("gui.shincolle.equip.ammo"), "+ %.0f %%", moraleBuffs[18] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.DARK_GREEN, tr("gui.shincolle.equip.hpres"), "+ %.0f %%", moraleBuffs[19] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.DARK_RED, tr("gui.shincolle.equip.kb"), "+ %.0f %%", moraleBuffs[20] * 100.0F);
+        addMoraleStat(lines, ChatFormatting.GRAY, tr("gui.shincolle.movespeed"), "+ %.2f", moraleBuffs[7]);
+        guiGraphics.renderComponentTooltip(this.font, lines, mouseX, mouseY);
     }
 
-    private void addMoraleStat(List<Component> labels, List<Component> values, ChatFormatting color,
+    private void addMoraleStat(List<Component> lines, ChatFormatting color,
                                String label, String format, Object... args) {
-        labels.add(Component.literal(label).withStyle(color));
-        values.add(Component.literal(String.format(format, args)));
+        lines.add(Component.literal(label + ": ").withStyle(color)
+                .append(Component.literal(String.format(format, args)).withStyle(ChatFormatting.WHITE)));
     }
 
     private float[] getLegacyMoraleBuffs(int morale) {
@@ -964,26 +955,27 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         return LEGACY_MORALE_LEVEL_4;
     }
 
-    private void renderModernizationHpTooltip(GuiGraphics guiGraphics) {
+    private void renderModernizationHpTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int hpBonus = this.menu.getShip().getAttrBonus(0);
 
         List<Component> lines = new ArrayList<>();
         lines.add(Component.literal(tr("gui.shincolle.modernlevel") + " " + hpBonus));
-        guiGraphics.renderComponentTooltip(this.font, lines, this.leftPos + 145, this.topPos + 32);
+        guiGraphics.renderComponentTooltip(this.font, lines, mouseX, mouseY);
     }
 
     private void drawLabel(GuiGraphics guiGraphics, String text, int x, int y) {
-        guiGraphics.drawString(this.font, text, x, y, 0x000000, false);
+        guiGraphics.drawString(this.font, text, x + 1, y + 1, LEGACY_LABEL_SHADOW_COLOR, false);
+        guiGraphics.drawString(this.font, text, x, y, LEGACY_LABEL_COLOR, false);
     }
 
     private void drawValueLeft(GuiGraphics guiGraphics, String text, int x, int y, int color) {
-        guiGraphics.drawString(this.font, text, x + 1, y + 1, 0x000000, false);
+        guiGraphics.drawString(this.font, text, x + 1, y + 1, LEGACY_LABEL_SHADOW_COLOR, false);
         guiGraphics.drawString(this.font, text, x, y, color, false);
     }
 
     private void drawValueRight(GuiGraphics guiGraphics, String text, int xRight, int y, int color) {
         int x = xRight - this.font.width(text);
-        guiGraphics.drawString(this.font, text, x + 1, y + 1, 0x000000, false);
+        guiGraphics.drawString(this.font, text, x + 1, y + 1, LEGACY_LABEL_SHADOW_COLOR, false);
         guiGraphics.drawString(this.font, text, x, y, color, false);
     }
 
