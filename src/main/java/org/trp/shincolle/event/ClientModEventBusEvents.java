@@ -32,6 +32,7 @@ import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.item.CombatRationItem;
 import org.trp.shincolle.item.GrudgeItem;
+import org.trp.shincolle.item.AbyssNuggetItem;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.item.ScaledTextTooltipData;
@@ -59,6 +60,7 @@ public class ClientModEventBusEvents {
                         registerLegacyVariantProperty(ModItems.COMBAT_RATION.get());
                         registerLegacyVariantProperty(ModItems.POINTER_ITEM.get());
                         registerLegacyVariantProperty(ModItems.GRUDGE.get());
+                        registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get());
                 });
         }
 
@@ -78,6 +80,9 @@ public class ClientModEventBusEvents {
                         }
                         if (stack.getItem() instanceof GrudgeItem grudgeItem) {
                                 return grudgeItem.getModelVariant(stack);
+                        }
+                        if (stack.getItem() instanceof AbyssNuggetItem abyssNuggetItem) {
+                                return abyssNuggetItem.getModelVariant(stack);
                         }
                         return 0.0F;
                 });

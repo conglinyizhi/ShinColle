@@ -1,0 +1,14 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "shincolle:item/abyss_nugget0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "shincolle:legacy_variant": 1.0
+      },
+      "model": "shincolle:item/abyss_nugget1"
+    }
+  ]
+}

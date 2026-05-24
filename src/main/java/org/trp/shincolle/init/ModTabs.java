@@ -96,6 +96,7 @@ public class ModTabs {
                 output.accept(ModItems.AMMO_LIGHT_CONTAINER.get());
                 output.accept(ModItems.AMMO_HEAVY.get());
                 output.accept(ModItems.AMMO_HEAVY_CONTAINER.get());
+                ModItems.addAbyssNuggetVariants(output);
                 output.accept(ModItems.ABYSS_METAL.get());
                 output.accept(ModItems.ABYSSIUM.get());
                 output.accept(ModItems.ABYSS_POLYMETAL.get());

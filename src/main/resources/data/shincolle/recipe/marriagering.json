@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "key": {
     "a": {
-      "item": "shincolle:abyss_metal"
+      "item": "shincolle:abyss_nugget"
     },
     "s": {
       "item": "minecraft:nether_star"

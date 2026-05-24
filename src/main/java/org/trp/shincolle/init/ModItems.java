@@ -289,6 +289,9 @@ public class ModItems {
     public static final DeferredItem<Item> GRUDGE = ITEMS.register("grudge",
             () -> new GrudgeItem(new Item.Properties().food(GRUDGE_FOOD)));
 
+    public static final DeferredItem<Item> ABYSS_NUGGET = ITEMS.register("abyss_nugget",
+            () -> new AbyssNuggetItem(new Item.Properties()));
+
     public static final DeferredItem<Item> ABYSS_METAL = ITEMS.register("abyss_metal",
             () -> new Item(new Item.Properties()));
 
@@ -371,6 +374,16 @@ public class ModItems {
                 Item resolved = GRUDGE.get();
                 if (resolved instanceof GrudgeItem grudgeItem) {
                         grudgeItem.addAllVariantsToCreativeTab(output);
+                        return;
+                }
+
+                output.accept(resolved);
+        }
+
+        public static void addAbyssNuggetVariants(CreativeModeTab.Output output) {
+                Item resolved = ABYSS_NUGGET.get();
+                if (resolved instanceof AbyssNuggetItem abyssNuggetItem) {
+                        abyssNuggetItem.addAllVariantsToCreativeTab(output);
                         return;
                 }
 
