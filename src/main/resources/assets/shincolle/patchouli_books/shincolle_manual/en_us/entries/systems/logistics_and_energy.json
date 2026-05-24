@@ -13,29 +13,49 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.logistics_and_energy.page1.title",
       "recipe": "shincolle:grude_stack",
-      "recipe2": "shincolle:grude_block",
       "text": "patchouli.shincolle.entry.logistics_and_energy.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page1.title",
+      "recipe": "shincolle:grude_block",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.logistics_and_energy.page2.title",
       "recipe": "shincolle:blockvolcore_1",
-      "recipe2": "shincolle:blockvolcore_2",
       "text": "patchouli.shincolle.entry.logistics_and_energy.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page2.title",
+      "recipe": "shincolle:blockvolcore_2",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.logistics_and_energy.page3.title",
       "recipe": "shincolle:blockwaypoint",
-      "recipe2": "shincolle:blockcrane",
       "text": "patchouli.shincolle.entry.logistics_and_energy.page3.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page3.title",
+      "recipe": "shincolle:blockcrane",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.logistics_and_energy.page4.title",
       "recipe": "shincolle:shiptank",
-      "recipe2": "shincolle:shiptank3",
       "text": "patchouli.shincolle.entry.logistics_and_energy.page4.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page4.title",
+      "recipe": "shincolle:shiptank3",
+      "text": ""
     }
   ]
 }

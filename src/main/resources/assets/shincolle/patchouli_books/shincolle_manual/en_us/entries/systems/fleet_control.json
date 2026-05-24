@@ -13,8 +13,13 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.fleet_control.page1.title",
       "recipe": "shincolle:pointer",
-      "recipe2": "shincolle:blockdesk",
       "text": "patchouli.shincolle.entry.fleet_control.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.fleet_control.page1.title",
+      "recipe": "shincolle:blockdesk",
+      "text": ""
     },
     {
       "type": "patchouli:text",

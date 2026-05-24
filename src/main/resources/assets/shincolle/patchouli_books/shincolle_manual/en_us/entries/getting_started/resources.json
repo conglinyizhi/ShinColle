@@ -10,32 +10,73 @@
       "text": "patchouli.shincolle.entry.resources.page0.text"
     },
     {
-      "type": "patchouli:crafting",
+      "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.resources.page1.title",
-      "recipe": "shincolle:grude_stack",
-      "recipe2": "shincolle:grude_block",
       "text": "patchouli.shincolle.entry.resources.page1.text"
     },
     {
       "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page1_recipe.title",
+      "recipe": "shincolle:grude_stack",
+      "text": "patchouli.shincolle.entry.resources.page1_recipe.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page1_recipe.title",
+      "recipe": "shincolle:grude_block",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.resources.page2.title",
-      "recipe": "shincolle:abyssium_stack",
-      "recipe2": "shincolle:polymetal_stack",
       "text": "patchouli.shincolle.entry.resources.page2.text"
     },
     {
       "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page2_recipe.title",
+      "recipe": "shincolle:abyssium_stack",
+      "text": "patchouli.shincolle.entry.resources.page2_recipe.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page2_recipe.title",
+      "recipe": "shincolle:polymetal_stack",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.resources.page3.title",
-      "recipe": "shincolle:ammo_container",
-      "recipe2": "shincolle:ammo_heavy_container",
       "text": "patchouli.shincolle.entry.resources.page3.text"
     },
     {
       "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page3_recipe.title",
+      "recipe": "shincolle:ammo_container",
+      "text": "patchouli.shincolle.entry.resources.page3_recipe.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page3_recipe.title",
+      "recipe": "shincolle:ammo_heavy_container",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.resources.page4.title",
-      "recipe": "shincolle:ammo9",
-      "recipe2": "shincolle:ammo_heavy9",
       "text": "patchouli.shincolle.entry.resources.page4.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page4_recipe.title",
+      "recipe": "shincolle:ammo9",
+      "text": "patchouli.shincolle.entry.resources.page4_recipe.text"
+    }
+    ,
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.resources.page4_recipe.title",
+      "recipe": "shincolle:ammo_heavy9",
+      "text": ""
     }
   ]
 }

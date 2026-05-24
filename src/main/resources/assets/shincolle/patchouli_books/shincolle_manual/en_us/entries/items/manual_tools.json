@@ -10,25 +10,55 @@
       "text": "patchouli.shincolle.entry.manual_tools.page0.text"
     },
     {
-      "type": "patchouli:crafting",
+      "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.manual_tools.page1.title",
-      "recipe": "shincolle:deskitembook",
-      "recipe2": "shincolle:recipepaper",
       "text": "patchouli.shincolle.entry.manual_tools.page1.text"
     },
     {
       "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.manual_tools.page1_recipe.title",
+      "recipe": "shincolle:deskitembook",
+      "text": "patchouli.shincolle.entry.manual_tools.page1_recipe.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.manual_tools.page1_recipe.title",
+      "recipe": "shincolle:recipepaper",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.manual_tools.page2.title",
-      "recipe": "shincolle:targetwrench",
-      "recipe2": "shincolle:desk_radar",
       "text": "patchouli.shincolle.entry.manual_tools.page2.text"
     },
     {
       "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.manual_tools.page2_recipe.title",
+      "recipe": "shincolle:targetwrench",
+      "text": "patchouli.shincolle.entry.manual_tools.page2_recipe.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.manual_tools.page2_recipe.title",
+      "recipe": "shincolle:desk_radar",
+      "text": ""
+    },
+    {
+      "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.manual_tools.page3.title",
-      "recipe": "shincolle:marriagering",
-      "recipe2": "shincolle:blockdesk",
       "text": "patchouli.shincolle.entry.manual_tools.page3.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.manual_tools.page3_recipe.title",
+      "recipe": "shincolle:marriagering",
+      "text": "patchouli.shincolle.entry.manual_tools.page3_recipe.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.manual_tools.page3_recipe.title",
+      "recipe": "shincolle:blockdesk",
+      "text": ""
     },
     {
       "type": "patchouli:spotlight",

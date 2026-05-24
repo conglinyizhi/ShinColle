@@ -13,15 +13,25 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.automation_tools.page1.title",
       "recipe": "shincolle:targetwrench",
-      "recipe2": "shincolle:blockwaypoint",
       "text": "patchouli.shincolle.entry.automation_tools.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.automation_tools.page1.title",
+      "recipe": "shincolle:blockwaypoint",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.automation_tools.page2.title",
       "recipe": "shincolle:recipepaper",
-      "recipe2": "shincolle:blockcrane",
       "text": "patchouli.shincolle.entry.automation_tools.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.automation_tools.page2.title",
+      "recipe": "shincolle:blockcrane",
+      "text": ""
     }
   ]
 }

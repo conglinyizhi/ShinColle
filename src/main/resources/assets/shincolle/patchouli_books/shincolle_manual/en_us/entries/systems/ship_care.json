@@ -13,15 +13,25 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.ship_care.page1.title",
       "recipe": "shincolle:bucketrepair",
-      "recipe2": "shincolle:toyairplane",
       "text": "patchouli.shincolle.entry.ship_care.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.ship_care.page1.title",
+      "recipe": "shincolle:toyairplane",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.ship_care.page2.title",
       "recipe": "shincolle:marriagering",
-      "recipe2": "shincolle:repairgoddess_2",
       "text": "patchouli.shincolle.entry.ship_care.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.ship_care.page2.title",
+      "recipe": "shincolle:repairgoddess_2",
+      "text": ""
     },
     {
       "type": "patchouli:spotlight",

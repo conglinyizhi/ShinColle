@@ -22,15 +22,25 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.equipment_special.page2.title",
       "recipe": "shincolle:shiptank",
-      "recipe2": "shincolle:shiptank3",
       "text": "patchouli.shincolle.entry.equipment_special.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.equipment_special.page2.title",
+      "recipe": "shincolle:shiptank3",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.equipment_special.page3.title",
       "recipe": "shincolle:combatration",
-      "recipe2": "shincolle:combatration5",
       "text": "patchouli.shincolle.entry.equipment_special.page3.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.equipment_special.page3.title",
+      "recipe": "shincolle:combatration5",
+      "text": ""
     }
   ]
 }

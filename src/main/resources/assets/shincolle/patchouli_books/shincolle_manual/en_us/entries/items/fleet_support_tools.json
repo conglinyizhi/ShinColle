@@ -13,22 +13,37 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.fleet_support_tools.page1.title",
       "recipe": "shincolle:pointer",
-      "recipe2": "shincolle:toyairplane",
       "text": "patchouli.shincolle.entry.fleet_support_tools.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page1.title",
+      "recipe": "shincolle:toyairplane",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.fleet_support_tools.page2.title",
       "recipe": "shincolle:bucketrepair",
-      "recipe2": "shincolle:repairgoddess_2",
       "text": "patchouli.shincolle.entry.fleet_support_tools.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page2.title",
+      "recipe": "shincolle:repairgoddess_2",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.fleet_support_tools.page3.title",
       "recipe": "shincolle:toyairplane",
-      "recipe2": "shincolle:bucketrepair",
       "text": "patchouli.shincolle.entry.fleet_support_tools.page3.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page3.title",
+      "recipe": "shincolle:bucketrepair",
+      "text": ""
     }
   ]
 }

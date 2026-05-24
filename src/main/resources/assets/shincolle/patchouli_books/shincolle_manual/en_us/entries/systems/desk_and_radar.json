@@ -13,8 +13,13 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.desk_and_radar.page1.title",
       "recipe": "shincolle:blockdesk",
-      "recipe2": "shincolle:deskitemradar",
       "text": "patchouli.shincolle.entry.desk_and_radar.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.desk_and_radar.page1.title",
+      "recipe": "shincolle:deskitemradar",
+      "text": ""
     }
   ]
 }

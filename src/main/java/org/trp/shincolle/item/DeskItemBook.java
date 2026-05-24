@@ -1,5 +1,6 @@
 package org.trp.shincolle.item;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -9,9 +10,12 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.menu.DeskMenu;
 import vazkii.patchouli.api.PatchouliAPI;
+
+import java.util.List;
 
 public class DeskItemBook extends Item {
     public static final ResourceLocation PATCHOULI_BOOK_ID = ResourceLocation.fromNamespaceAndPath("shincolle", "shincolle_manual");
@@ -54,5 +58,12 @@ public class DeskItemBook extends Item {
         }
 
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("tooltip.shincolle.deskitembook.open_manual").withStyle(ChatFormatting.GOLD));
+        tooltipComponents.add(Component.translatable("tooltip.shincolle.deskitembook.patchouli_manual").withStyle(ChatFormatting.AQUA));
     }
 }

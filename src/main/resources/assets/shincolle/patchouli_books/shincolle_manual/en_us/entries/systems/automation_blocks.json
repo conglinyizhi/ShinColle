@@ -13,15 +13,25 @@
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.automation_blocks.page1.title",
       "recipe": "shincolle:blockcrane",
-      "recipe2": "shincolle:blockwaypoint",
       "text": "patchouli.shincolle.entry.automation_blocks.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.automation_blocks.page1.title",
+      "recipe": "shincolle:blockwaypoint",
+      "text": ""
     },
     {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.automation_blocks.page2.title",
       "recipe": "shincolle:blockvolcore_1",
-      "recipe2": "shincolle:blockvolcore_2",
       "text": "patchouli.shincolle.entry.automation_blocks.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.automation_blocks.page2.title",
+      "recipe": "shincolle:blockvolcore_2",
+      "text": ""
     }
   ]
 }
