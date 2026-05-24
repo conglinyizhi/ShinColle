@@ -3,9 +3,13 @@ package org.trp.shincolle.init;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.RandomSource;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public class ModSounds {
@@ -26,6 +30,8 @@ public class ModSounds {
     public static final Supplier<SoundEvent> SHIP_AIRCRAFT = register("ship-aircraft");
     public static final Supplier<SoundEvent> SHIP_MARRY = register("ship-marry");
     public static final Supplier<SoundEvent> SHIP_FEED = register("ship-feed");
+    public static final Supplier<SoundEvent> SHIP_KNOCKBACK = register("ship-knockback");
+    public static final Supplier<SoundEvent> SHIP_ITEM = register("ship-item");
     public static final Supplier<SoundEvent> SHIP_AP_P1 = register("ship-ap_phase1");
     public static final Supplier<SoundEvent> SHIP_AP_P2 = register("ship-ap_phase2");
     public static final Supplier<SoundEvent> SHIP_AP_ATTACK = register("ship-ap_attack");
@@ -44,6 +50,69 @@ public class ModSounds {
     public static SoundEvent getShipTimeSound(int hour) {
         int idx = Math.floorMod(hour, SHIP_TIME_SOUNDS.length);
         return SHIP_TIME_SOUNDS[idx].get();
+    }
+
+    public static SoundEvent getShipSound(Config.ShipCustomSoundType type, int shipClass, RandomSource random) {
+        if (type == null) {
+            return null;
+        }
+
+        Map<Integer, EnumMap<Config.ShipCustomSoundType, Float>> rateMap = Config.customSoundRates;
+        if (rateMap != null && !rateMap.isEmpty()) {
+            EnumMap<Config.ShipCustomSoundType, Float> shipRates = rateMap.get(shipClass);
+            if (shipRates != null) {
+                Float chance = shipRates.get(type);
+                if (chance != null && chance > 0.0F && random.nextFloat() < chance) {
+                    ResourceLocation customId = ResourceLocation.fromNamespaceAndPath(
+                            Shincolle.MODID,
+                            type.soundPath() + "-" + shipClass
+                    );
+                    SoundEvent customSound = net.minecraft.core.registries.BuiltInRegistries.SOUND_EVENT.get(customId);
+                    if (customSound != null) {
+                        return customSound;
+                    }
+                }
+            }
+        }
+
+        return defaultSound(type);
+    }
+
+    private static SoundEvent defaultSound(Config.ShipCustomSoundType type) {
+        return switch (type) {
+            case IDLE -> SHIP_IDLE.get();
+            case ATTACK -> SHIP_HIT.get();
+            case HURT -> SHIP_HURT.get();
+            case DEAD -> SHIP_DEATH.get();
+            case MARRY -> SHIP_MARRY.get();
+            case KNOCKBACK -> SHIP_KNOCKBACK.get();
+            case ITEM -> SHIP_ITEM.get();
+            case FEED -> SHIP_FEED.get();
+            case TIMEKEEP00 -> SHIP_TIME_SOUNDS[0].get();
+            case TIMEKEEP01 -> SHIP_TIME_SOUNDS[1].get();
+            case TIMEKEEP02 -> SHIP_TIME_SOUNDS[2].get();
+            case TIMEKEEP03 -> SHIP_TIME_SOUNDS[3].get();
+            case TIMEKEEP04 -> SHIP_TIME_SOUNDS[4].get();
+            case TIMEKEEP05 -> SHIP_TIME_SOUNDS[5].get();
+            case TIMEKEEP06 -> SHIP_TIME_SOUNDS[6].get();
+            case TIMEKEEP07 -> SHIP_TIME_SOUNDS[7].get();
+            case TIMEKEEP08 -> SHIP_TIME_SOUNDS[8].get();
+            case TIMEKEEP09 -> SHIP_TIME_SOUNDS[9].get();
+            case TIMEKEEP10 -> SHIP_TIME_SOUNDS[10].get();
+            case TIMEKEEP11 -> SHIP_TIME_SOUNDS[11].get();
+            case TIMEKEEP12 -> SHIP_TIME_SOUNDS[12].get();
+            case TIMEKEEP13 -> SHIP_TIME_SOUNDS[13].get();
+            case TIMEKEEP14 -> SHIP_TIME_SOUNDS[14].get();
+            case TIMEKEEP15 -> SHIP_TIME_SOUNDS[15].get();
+            case TIMEKEEP16 -> SHIP_TIME_SOUNDS[16].get();
+            case TIMEKEEP17 -> SHIP_TIME_SOUNDS[17].get();
+            case TIMEKEEP18 -> SHIP_TIME_SOUNDS[18].get();
+            case TIMEKEEP19 -> SHIP_TIME_SOUNDS[19].get();
+            case TIMEKEEP20 -> SHIP_TIME_SOUNDS[20].get();
+            case TIMEKEEP21 -> SHIP_TIME_SOUNDS[21].get();
+            case TIMEKEEP22 -> SHIP_TIME_SOUNDS[22].get();
+            case TIMEKEEP23 -> SHIP_TIME_SOUNDS[23].get();
+        };
     }
 
     private static Supplier<SoundEvent> register(String name) {

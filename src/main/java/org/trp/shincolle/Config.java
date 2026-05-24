@@ -11,7 +11,9 @@ import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class Config {
@@ -98,6 +100,7 @@ public class Config {
     private static final ModConfigSpec.DoubleValue SHIP_VOLUME_TIMEKEEPING;
     private static final ModConfigSpec.DoubleValue SHIP_VOLUME_GENERAL;
     private static final ModConfigSpec.DoubleValue SHIP_VOLUME_ATTACK;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> CUSTOM_SOUND_RATES;
 
     private static final ModConfigSpec.DoubleValue CLIENT_SCALE_HELD_ITEM;
     private static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_X;
@@ -187,6 +190,7 @@ public class Config {
     public static float volumeTimeKeeping = 1.0F;
     public static float volumeShip = 0.6F;
     public static float volumeAttack = 0.7F;
+    public static Map<Integer, EnumMap<ShipCustomSoundType, Float>> customSoundRates = Collections.emptyMap();
 
     public static float scaleHeldItem = 1.0F;
     public static float offsetHeldItemX = 0.0F;
@@ -217,6 +221,61 @@ public class Config {
             int min,
             int max
     ) {}
+
+    public enum ShipCustomSoundType {
+        IDLE("idle", "ship-idle"),
+        ATTACK("attack", "ship-hit"),
+        HURT("hurt", "ship-hurt"),
+        DEAD("dead", "ship-death"),
+        MARRY("marry", "ship-marry"),
+        KNOCKBACK("knockback", "ship-knockback"),
+        ITEM("item", "ship-item"),
+        FEED("feed", "ship-feed"),
+        TIMEKEEP00("time0", "ship-time0"),
+        TIMEKEEP01("time1", "ship-time1"),
+        TIMEKEEP02("time2", "ship-time2"),
+        TIMEKEEP03("time3", "ship-time3"),
+        TIMEKEEP04("time4", "ship-time4"),
+        TIMEKEEP05("time5", "ship-time5"),
+        TIMEKEEP06("time6", "ship-time6"),
+        TIMEKEEP07("time7", "ship-time7"),
+        TIMEKEEP08("time8", "ship-time8"),
+        TIMEKEEP09("time9", "ship-time9"),
+        TIMEKEEP10("time10", "ship-time10"),
+        TIMEKEEP11("time11", "ship-time11"),
+        TIMEKEEP12("time12", "ship-time12"),
+        TIMEKEEP13("time13", "ship-time13"),
+        TIMEKEEP14("time14", "ship-time14"),
+        TIMEKEEP15("time15", "ship-time15"),
+        TIMEKEEP16("time16", "ship-time16"),
+        TIMEKEEP17("time17", "ship-time17"),
+        TIMEKEEP18("time18", "ship-time18"),
+        TIMEKEEP19("time19", "ship-time19"),
+        TIMEKEEP20("time20", "ship-time20"),
+        TIMEKEEP21("time21", "ship-time21"),
+        TIMEKEEP22("time22", "ship-time22"),
+        TIMEKEEP23("time23", "ship-time23");
+
+        private final String configKey;
+        private final String soundPath;
+
+        ShipCustomSoundType(String configKey, String soundPath) {
+            this.configKey = configKey;
+            this.soundPath = soundPath;
+        }
+
+        public String configKey() {
+            return this.configKey;
+        }
+
+        public String soundPath() {
+            return this.soundPath;
+        }
+
+        public static ShipCustomSoundType timeKeeping(int hour) {
+            return values()[8 + Math.floorMod(hour, 24)];
+        }
+    }
 
     static {
         BUILDER.comment("Ship EXP and level settings").push("ship_exp");
@@ -454,6 +513,9 @@ public class Config {
         SHIP_VOLUME_ATTACK = CLIENT_BUILDER
                 .comment("Attack sound volume multiplier")
                 .defineInRange("volumeAttack", volumeAttack, 0.0D, 10.0D);
+        CUSTOM_SOUND_RATES = CLIENT_BUILDER
+                .comment("Custom ship voice rates: shipClass,idle,attack,hurt,dead,marry,knockback,item,feed,timekeep00~timekeep23. Value is 0-100 percent.")
+                .defineList("customSoundRates", defaultCustomSoundRates(), value -> value instanceof String str && isValidCustomSoundRate(str));
         CLIENT_BUILDER.pop();
 
         CLIENT_BUILDER.comment("Client side settings").push("client");
@@ -564,6 +626,7 @@ public class Config {
             volumeTimeKeeping = SHIP_VOLUME_TIMEKEEPING.get().floatValue();
             volumeShip = SHIP_VOLUME_GENERAL.get().floatValue();
             volumeAttack = SHIP_VOLUME_ATTACK.get().floatValue();
+            customSoundRates = parseCustomSoundRates(CUSTOM_SOUND_RATES.get());
 
             scaleHeldItem = CLIENT_SCALE_HELD_ITEM.get().floatValue();
             offsetHeldItemX = CLIENT_OFFSET_HELD_ITEM_X.get().floatValue();
@@ -629,6 +692,72 @@ public class Config {
         entries.add("minecraft:the_end,*,minecraft:chorus_fruit,0,200,1,3,60,256,3,100");
         entries.add("minecraft:the_end,*,shincolle:marriagering,0,25,1,1,1,256,3,0");
         return entries;
+    }
+
+    private static List<String> defaultCustomSoundRates() {
+        List<String> entries = new ArrayList<>();
+        entries.add("54,25,0,25,0,50,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+        entries.add("56,50,50,50,100,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+        entries.add("60,25,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+        entries.add("62,0,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0");
+        return entries;
+    }
+
+    private static boolean isValidCustomSoundRate(String rawEntry) {
+        String[] parts = rawEntry.replaceAll("\\s", "").split(",");
+        if (parts.length != 33) {
+            return false;
+        }
+
+        try {
+            Integer.parseInt(parts[0]);
+            for (int i = 1; i < parts.length; i++) {
+                int percent = Integer.parseInt(parts[i]);
+                if (percent < 0 || percent > 100) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (NumberFormatException exception) {
+            return false;
+        }
+    }
+
+    private static Map<Integer, EnumMap<ShipCustomSoundType, Float>> parseCustomSoundRates(List<? extends String> rawEntries) {
+        if (rawEntries == null || rawEntries.isEmpty()) {
+            return Collections.emptyMap();
+        }
+
+        Map<Integer, EnumMap<ShipCustomSoundType, Float>> parsed = new java.util.HashMap<>();
+        ShipCustomSoundType[] soundTypes = ShipCustomSoundType.values();
+
+        for (String rawEntry : rawEntries) {
+            if (rawEntry == null || rawEntry.isBlank()) {
+                continue;
+            }
+
+            String[] parts = rawEntry.replaceAll("\\s", "").split(",");
+            if (parts.length != soundTypes.length + 1) {
+                continue;
+            }
+
+            try {
+                int shipClass = Integer.parseInt(parts[0]);
+                EnumMap<ShipCustomSoundType, Float> rates = new EnumMap<>(ShipCustomSoundType.class);
+                for (int i = 0; i < soundTypes.length; i++) {
+                    int percent = Integer.parseInt(parts[i + 1]);
+                    if (percent > 0) {
+                        rates.put(soundTypes[i], Math.min(100, percent) / 100.0F);
+                    }
+                }
+                if (!rates.isEmpty()) {
+                    parsed.put(shipClass, rates);
+                }
+            } catch (NumberFormatException ignored) {
+            }
+        }
+
+        return Collections.unmodifiableMap(parsed);
     }
 
     private static List<String> defaultLootEntries() {

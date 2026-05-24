@@ -1275,19 +1275,19 @@ public abstract class EntityShipBase extends TamableAnimal {
     @Nullable
     @Override
     protected SoundEvent getAmbientSound() {
-        return ModSounds.SHIP_IDLE.get();
+        return ModSounds.getShipSound(Config.ShipCustomSoundType.IDLE, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom());
     }
 
     @Nullable
     @Override
     protected SoundEvent getHurtSound(DamageSource source) {
-        return ModSounds.SHIP_HURT.get();
+        return ModSounds.getShipSound(Config.ShipCustomSoundType.HURT, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom());
     }
 
     @Nullable
     @Override
     protected SoundEvent getDeathSound() {
-        return ModSounds.SHIP_DEATH.get();
+        return ModSounds.getShipSound(Config.ShipCustomSoundType.DEAD, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom());
     }
 
     @Override
@@ -1303,7 +1303,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
         SoundEvent sound;
         if (this.getStateFlag(1) && this.getRandom().nextInt(5) == 0) {
-            sound = ModSounds.SHIP_MARRY.get();
+            sound = ModSounds.getShipSound(Config.ShipCustomSoundType.MARRY, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom());
         } else {
             sound = this.getAmbientSound();
         }
@@ -1918,7 +1918,11 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
 
         int hour = (int) ((worldTime / TIMEKEEP_INTERVAL_TICKS) % 24L);
-        SoundEvent timeSound = ModSounds.getShipTimeSound(hour);
+        SoundEvent timeSound = ModSounds.getShipSound(
+                Config.ShipCustomSoundType.timeKeeping(hour),
+                this.getStateMinor(STATE_MINOR_SHIP_CLASS),
+                this.getRandom()
+        );
         if (timeSound != null) {
             this.playSound(timeSound, Math.max(0.0F, Config.volumeTimeKeeping), 1.0F);
         }
@@ -2394,7 +2398,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
 
         if (this.feedSoundCooldown <= 0) {
-            this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+            this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.FEED, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
             this.feedSoundCooldown = 30;
         }
 
@@ -2430,7 +2434,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
             this.setEmotionPrimary(EMOTION_HAPPY);
             this.applyParticleEmotion(EmotionParticleType.HEART);
-            this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+            this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.FEED, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
             this.focusOnPlayer(player);
             return true;
         }
@@ -2450,7 +2454,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.addMorale(200);
         this.setEmotionPrimary(EMOTION_HAPPY);
         this.applyParticleEmotion(EmotionParticleType.HAPPY_BOB);
-        this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+        this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.FEED, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
 
         if (!player.getAbilities().instabuild) {
             stack.shrink(1);
@@ -2603,7 +2607,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                         serverLevel.sendParticles(ParticleTypes.HEART, px, py, pz, 0, d0, d1, d2, 1.0D);
                     }
                 }
-                this.playSound(ModSounds.SHIP_MARRY.get(), this.getSoundVolume(), this.getShipSoundPitch());
+                this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.MARRY, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
 
                 java.util.Random javaRand = new java.util.Random();
                 for (int i = 0; i < 3; ++i) {
@@ -2654,7 +2658,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                     stack.shrink(1);
                 }
                 if (this.feedSoundCooldown <= 0) {
-                    this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+                    this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.FEED, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
                     this.feedSoundCooldown = 30;
                 }
                 this.setEmotionPrimary(EMOTION_HAPPY);
@@ -2671,7 +2675,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                         stack.shrink(1);
                     }
                     if (this.feedSoundCooldown <= 0) {
-                        this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+                        this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.FEED, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
                         this.feedSoundCooldown = 30;
                     }
                     this.setEmotionPrimary(EMOTION_HAPPY);
@@ -2783,7 +2787,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
         boolean result = super.doHurtTarget(target);
         if (result && !this.level().isClientSide) {
-            this.playSound(ModSounds.SHIP_HIT.get(), this.getSoundVolume(), this.getShipSoundPitch());
+            this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.ATTACK, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
             this.setAttackTick(50);
             applyEmotesReaction(3);
         }
@@ -2815,7 +2819,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                 this.setHealth(this.getMaxHealth());
                 this.customHurtTime = 120;
                 this.spawnGoddessParticles();
-                this.playSound(ModSounds.SHIP_FEED.get(), this.getSoundVolume(), this.getShipSoundPitch());
+                this.playSound(ModSounds.getShipSound(Config.ShipCustomSoundType.FEED, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()), this.getSoundVolume(), this.getShipSoundPitch());
                 return false;
             }
         }
