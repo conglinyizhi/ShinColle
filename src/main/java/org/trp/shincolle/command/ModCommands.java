@@ -531,11 +531,16 @@ public final class ModCommands {
                 ship -> ship.getOwnerUUID() != null && !ship.isInDeadPose()
         );
 
+        ShipRegistrySavedData registry = ShipRegistrySavedData.get(player.serverLevel());
         for (EntityShipBase ship : ships) {
             ship.setTame(true, false);
+            ship.getNavigation().stop();
+            ship.clearPointerTarget();
+            ship.clearPointerTargetEntity();
             if (ship.isOrderedToSit()) {
                 ship.setInSittingPose(true);
             }
+            registry.updateShip(ship);
         }
 
         int count = ships.size();
