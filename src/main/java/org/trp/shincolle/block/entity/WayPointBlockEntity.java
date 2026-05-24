@@ -31,29 +31,20 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
 
     public BlockPos getLastPos() { return lastPos; }
     public void setLastPos(BlockPos pos) {
-        this.lastPos = pos;
-        setChanged();
-        if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
+        this.lastPos = pos == null ? BlockPos.ZERO : pos;
+        markForSync();
     }
 
     public BlockPos getNextPos() { return nextPos; }
     public void setNextPos(BlockPos pos) {
-        this.nextPos = pos;
-        setChanged();
-        if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
+        this.nextPos = pos == null ? BlockPos.ZERO : pos;
+        markForSync();
     }
 
     public BlockPos getChestPos() { return chestPos; }
     public void setChestPos(BlockPos pos) {
-        this.chestPos = pos;
-        setChanged();
-        if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
+        this.chestPos = pos == null ? BlockPos.ZERO : pos;
+        markForSync();
     }
 
     public int getWpStayTime() { return wpStayTime; }
@@ -85,10 +76,7 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
 
     public void setOwnerUUID(@Nullable UUID uuid) {
         this.ownerUUID = uuid;
-        setChanged();
-        if (level != null && !level.isClientSide) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
+        markForSync();
     }
 
     @Override
