@@ -612,10 +612,7 @@ public class ModEventBusEvents {
 
             
             if (guardPos != null) {
-                ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_X, guardPos.getX());
-                ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_Y, guardPos.getY());
-                ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_Z, guardPos.getZ());
-                ship.setStateMinor(24, 1); 
+                ship.setGuardBlockTarget(guardPos);
                 ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false); 
             }
         }

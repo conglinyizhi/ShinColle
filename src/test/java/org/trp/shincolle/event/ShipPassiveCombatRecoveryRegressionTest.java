@@ -26,5 +26,9 @@ class ShipPassiveCombatRecoveryRegressionTest {
                 "Passive combat should clear targets after remaining stuck for too long");
         assertTrue(source.contains("trackPassiveProgress();"),
                 "Passive combat should track whether the ship is making chase progress");
+        assertTrue(source.contains("private final ShipMovementCoordinator movement;"),
+                "Passive combat should use the shared movement coordinator");
+        assertTrue(source.contains("this.movement.moveTo(target, getPassiveMoveSpeed())"),
+                "Passive combat chase movement should route through the movement coordinator");
     }
 }

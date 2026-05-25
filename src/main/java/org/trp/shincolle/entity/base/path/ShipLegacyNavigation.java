@@ -13,11 +13,13 @@ import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Shincolle;
 
 public class ShipLegacyNavigation extends GroundPathNavigation {
 
     private static final int STUCK_CHECK_INTERVAL = 32;
     private static final int STUCK_MAX_TICKS = 100;
+    private static final int NAVIGATION_DEBUG_LOG_INTERVAL = 200;
     private static final double STUCK_DISTANCE_SQR = 1.0D;
     private static final double POSITION_TIMEOUT_MOVED_SQR = 0.25D;
     private static final float JUMP_SPRINT_FACTOR = 0.35F;
@@ -36,6 +38,11 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     private int ticksAtLastPos;
     private Vec3 lastPosCheck = Vec3.ZERO;
     private Vec3 lastPosStuck = Vec3.ZERO;
+    private BlockPos loggedTargetPos;
+    private BlockPos lastExceededLogTarget;
+    private boolean loggedPathFailure;
+    private int loggedPathLength = -1;
+    private int lastExceededLogTick = Integer.MIN_VALUE;
     private long timeoutCachedNode;
     private long timeoutTimer;
     private double timeoutLimit;
@@ -152,6 +159,12 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
     private boolean setPath(ShipLegacyPath path, double speed) {
         if (path == null) {
+            if (!this.loggedPathFailure || !java.util.Objects.equals(this.loggedTargetPos, this.targetPos)) {
+                Shincolle.debugLog("Navigation setPath failed mob={} targetPos={}", this.mob.getUUID(), this.targetPos);
+                this.loggedTargetPos = this.targetPos;
+                this.loggedPathFailure = true;
+                this.loggedPathLength = -1;
+            }
             this.currentPath = null;
             this.path = null;
             return false;
@@ -168,6 +181,18 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         this.timeoutCachedNode = 0L;
         this.timeoutTimer = 0L;
         this.timeoutLimit = 0.0D;
+        this.lastExceededLogTarget = null;
+        this.lastExceededLogTick = Integer.MIN_VALUE;
+        int pathLength = path.getCurrentPathLength();
+        if (this.loggedPathFailure
+                || !java.util.Objects.equals(this.loggedTargetPos, this.targetPos)
+                || this.loggedPathLength != pathLength) {
+            Shincolle.debugLog("Navigation setPath success mob={} targetPos={} speed={} pathLength={}",
+                    this.mob.getUUID(), this.targetPos, speed, pathLength);
+            this.loggedTargetPos = this.targetPos;
+            this.loggedPathFailure = false;
+            this.loggedPathLength = pathLength;
+        }
         return true;
     }
 
@@ -217,12 +242,25 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     }
 
     private void checkForStuck(Vec3 hostPos) {
-        if (hasExceededMaxTicks()) {
+        double progressDistanceSqr = hostPos.distanceToSqr(this.lastPosStuck);
+        if (progressDistanceSqr >= STUCK_DISTANCE_SQR) {
             this.lastPosStuck = hostPos;
             this.ticksAtLastPos = this.totalTicks;
+            checkPathTimeout(hostPos);
+            return;
         }
 
-        if (isStuck(hostPos) && this.currentPath != null) {
+        int stationaryTicks = this.totalTicks - this.ticksAtLastPos;
+        if (stationaryTicks > STUCK_CHECK_INTERVAL && shouldLogExceededCheck()) {
+            Shincolle.debugLog("Navigation exceededCheck mob={} pos={} targetPos={}",
+                    this.mob.getUUID(), hostPos, this.targetPos);
+            this.lastExceededLogTarget = this.targetPos;
+            this.lastExceededLogTick = this.totalTicks;
+        }
+
+        if (stationaryTicks > STUCK_MAX_TICKS && this.currentPath != null) {
+            Shincolle.debugLog("Navigation stuckApply mob={} pos={} targetPos={}",
+                    this.mob.getUUID(), hostPos, this.targetPos);
             applyUnstuckMotion(hostPos);
             this.lastPosStuck = hostPos;
             this.ticksAtLastPos = this.totalTicks;
@@ -231,13 +269,9 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         checkPathTimeout(hostPos);
     }
 
-    private boolean hasExceededMaxTicks() {
-        return this.totalTicks - this.ticksAtLastPos > STUCK_CHECK_INTERVAL;
-    }
-
-    private boolean isStuck(Vec3 hostPos) {
-        return hostPos.distanceToSqr(this.lastPosStuck) < STUCK_DISTANCE_SQR
-                && this.totalTicks - this.ticksAtLastPos > STUCK_MAX_TICKS;
+    private boolean shouldLogExceededCheck() {
+        return !java.util.Objects.equals(this.lastExceededLogTarget, this.targetPos)
+                || this.totalTicks - this.lastExceededLogTick >= NAVIGATION_DEBUG_LOG_INTERVAL;
     }
 
     private void applyUnstuckMotion(Vec3 hostPos) {

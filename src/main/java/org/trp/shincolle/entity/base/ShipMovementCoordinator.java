@@ -1,0 +1,80 @@
+package org.trp.shincolle.entity.base;
+
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Config;
+import org.trp.shincolle.utility.ShipTeleportHelper;
+
+public final class ShipMovementCoordinator {
+    private static final double SAME_MOVE_TARGET_SQR = 0.25D;
+
+    private final PathfinderMob mob;
+    private Vec3 lastMoveTarget;
+
+    public ShipMovementCoordinator(PathfinderMob mob) {
+        this.mob = mob;
+    }
+
+    public void reset() {
+        this.lastMoveTarget = null;
+    }
+
+    public void stop() {
+        reset();
+        mob.getNavigation().stop();
+    }
+
+    public boolean moveTo(Vec3 target, double speed) {
+        if (!mob.getNavigation().isDone()
+                && this.lastMoveTarget != null
+                && this.lastMoveTarget.distanceToSqr(target) < SAME_MOVE_TARGET_SQR) {
+            return true;
+        }
+
+        this.lastMoveTarget = target;
+        return mob.getNavigation().moveTo(target.x, target.y, target.z, speed);
+    }
+
+    public boolean moveTo(Entity target, double speed) {
+        Vec3 targetPos = target.position();
+        if (!mob.getNavigation().isDone()
+                && this.lastMoveTarget != null
+                && this.lastMoveTarget.distanceToSqr(targetPos) < SAME_MOVE_TARGET_SQR) {
+            return true;
+        }
+
+        this.lastMoveTarget = targetPos;
+        return mob.getNavigation().moveTo(target, speed);
+    }
+
+    public boolean teleportNearLiving(LivingEntity anchor, double verticalOffset) {
+        if (!Config.canTeleport || !isAnchorChunkLoaded(anchor.position())) {
+            return false;
+        }
+
+        stop();
+        return ShipTeleportHelper.teleportNearLiving(mob, anchor, verticalOffset);
+    }
+
+    public boolean teleportNearPoint(Vec3 anchor, double verticalOffset) {
+        if (!Config.canTeleport || !isAnchorChunkLoaded(anchor)) {
+            return false;
+        }
+
+        stop();
+        return ShipTeleportHelper.teleportNearPoint(mob, anchor, verticalOffset);
+    }
+
+    private boolean isAnchorChunkLoaded(Vec3 anchor) {
+        if (!(mob.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
+            return false;
+        }
+
+        int cx = Mth.floor(anchor.x) >> 4;
+        int cz = Mth.floor(anchor.z) >> 4;
+        return serverLevel.hasChunk(cx, cz);
+    }
+}

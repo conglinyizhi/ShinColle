@@ -8,6 +8,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.menu.ShipContainerMenu;
 import org.trp.shincolle.server.PlayerTargetListSavedData;
@@ -43,6 +44,7 @@ final class EntityShipBasePassiveCombat {
     private static final int PASSIVE_STUCK_TICK_LIMIT = 120;
 
     private final EntityShipBase ship;
+    private final ShipMovementCoordinator movement;
 
     private int passiveTargetScanTick;
     private int passiveTargetPathTick;
@@ -60,6 +62,7 @@ final class EntityShipBasePassiveCombat {
 
     EntityShipBasePassiveCombat(EntityShipBase ship) {
         this.ship = ship;
+        this.movement = new ShipMovementCoordinator(ship);
     }
 
     void tickTargeting() {
@@ -159,14 +162,20 @@ final class EntityShipBasePassiveCombat {
             }
             trackPassiveProgress();
             if (this.passiveStuckTicks > PASSIVE_STUCK_TICK_LIMIT) {
+                Shincolle.debugLog("PassiveCombat stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
+                        this.ship.getUUID(), target.getUUID(), this.passiveStuckTicks, distanceSqr);
                 clearTarget(true);
                 return;
             }
             if (this.passiveTargetPathTick-- <= 0) {
                 this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
-                if (!this.ship.getNavigation().moveTo(target, getPassiveMoveSpeed())) {
+                if (!this.movement.moveTo(target, getPassiveMoveSpeed())) {
                     this.passiveMoveFailCount++;
+                    Shincolle.debugLog("PassiveCombat moveFail ship={} target={} failCount={} distanceSqr={}",
+                            this.ship.getUUID(), target.getUUID(), this.passiveMoveFailCount, distanceSqr);
                     if (this.passiveMoveFailCount > PASSIVE_MOVE_FAIL_LIMIT) {
+                        Shincolle.debugLog("PassiveCombat failClear ship={} target={} failCount={}",
+                                this.ship.getUUID(), target.getUUID(), this.passiveMoveFailCount);
                         clearTarget(true);
                         return;
                     }
@@ -182,7 +191,7 @@ final class EntityShipBasePassiveCombat {
         this.passiveStuckTicks = 0;
         this.passiveLastProgressPos = this.ship.position();
         if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
-            this.ship.getNavigation().stop();
+            this.movement.stop();
             this.ship.getMoveControl().setWantedPosition(
                     this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
         }
@@ -229,8 +238,9 @@ final class EntityShipBasePassiveCombat {
         this.passiveMoveFailCount = 0;
         this.passiveStuckTicks = 0;
         this.passiveLastProgressPos = null;
+        this.movement.reset();
         if (stopNavigation) {
-            this.ship.getNavigation().stop();
+            this.movement.stop();
         }
     }
 
@@ -364,6 +374,7 @@ final class EntityShipBasePassiveCombat {
         this.passiveTargetPathTick = 0;
         this.passiveTargetSightTick = 0;
         this.isFirstEngagementWaiting = false;
+        this.movement.reset();
 
         if (resetCooldown) {
             resetPassiveCombatCooldowns();

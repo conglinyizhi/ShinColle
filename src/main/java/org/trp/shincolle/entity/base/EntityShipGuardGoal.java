@@ -4,22 +4,28 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Shincolle;
 
 import java.util.EnumSet;
 
 final class EntityShipGuardGoal extends Goal {
     private static final int GUARD_MOVE_FAIL_LIMIT = 40;
     private static final int GUARD_STUCK_TICK_LIMIT = 120;
+    private static final int GUARD_TELEPORT_COOLDOWN_TICKS = 100;
+    private static final double GUARD_TELEPORT_DISTANCE_SQ = 256.0D;
 
     private final EntityShipBase ship;
+    private final ShipMovementCoordinator movement;
     private final double speed;
     private int nextPathTick;
     private int moveFailCount;
     private int stuckTicks;
+    private int teleportCooldown;
     private Vec3 lastProgressPos;
 
     EntityShipGuardGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
+        this.movement = new ShipMovementCoordinator(ship);
         this.speed = speed;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
@@ -32,11 +38,11 @@ final class EntityShipGuardGoal extends Goal {
         if (ship.getStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS)) {
             return false;
         }
-        int guardType = ship.getGuardedPos(4);
-        if (guardType == 1) {
-            return ship.getGuardedPos(1) > 0;
+        ShipGuardTarget guardTarget = ship.getGuardTarget();
+        if (guardTarget.isBlock()) {
+            return guardTarget.isIn(ship.level());
         }
-        if (guardType == 2) {
+        if (guardTarget.isEntity()) {
             Entity guarded = ship.getGuardedEntity();
             return guarded != null && guarded.isAlive();
         }
@@ -53,13 +59,15 @@ final class EntityShipGuardGoal extends Goal {
         this.nextPathTick = 0;
         this.moveFailCount = 0;
         this.stuckTicks = 0;
+        this.teleportCooldown = 0;
         this.lastProgressPos = ship.position();
+        this.movement.reset();
     }
 
     @Override
     public void tick() {
         Entity guardedEntity = ship.getGuardedEntity();
-        int guardType = ship.getGuardedPos(4);
+        ShipGuardTarget guardTarget = ship.getGuardTarget();
 
         int timer = ship.getStateTimer(18);
         boolean isSummoning = timer > 0;
@@ -68,31 +76,43 @@ final class EntityShipGuardGoal extends Goal {
         }
 
         Vec3 target;
-        if (guardType == 2 && guardedEntity != null) {
+        if (guardTarget.isEntity() && guardedEntity != null) {
             if (ship.getGuardedPos(3) != EntityShipBase.getLegacyDimensionId(guardedEntity.level())) {
-                ship.setGuardedPos(-1, -1, -1, EntityShipBase.getLegacyDimensionId(guardedEntity.level()), 2);
+                ship.setGuardedPos(-1, -1, -1, EntityShipBase.getLegacyDimensionId(guardedEntity.level()), ShipGuardTarget.Type.ENTITY.legacyId());
             }
             target = guardedEntity.position();
         } else {
-            int gx = ship.getGuardedPos(0);
-            int gy = ship.getGuardedPos(1);
-            int gz = ship.getGuardedPos(2);
-            target = new Vec3(gx + 0.5, gy, gz + 0.5);
+            target = guardTarget.blockCenter();
         }
         double distSq = ship.distanceToSqr(target.x, ship.getY(), target.z);
 
-        double stopDistanceSq = guardType == 2 ? 9.0D : 0.5D;
+        double stopDistanceSq = guardTarget.isEntity() ? 9.0D : 0.5D;
         if (distSq > stopDistanceSq) {
             trackProgress();
+            if (tryTeleportRecovery(target, guardedEntity, distSq, false)) {
+                return;
+            }
             if (this.stuckTicks > GUARD_STUCK_TICK_LIMIT) {
+                if (tryTeleportRecovery(target, guardedEntity, distSq, true)) {
+                    return;
+                }
+                Shincolle.debugLog("GuardGoal stuckDisable ship={} target={} stuckTicks={}",
+                        ship.getUUID(), target, this.stuckTicks);
                 disableGuardState();
                 return;
             }
             if (this.nextPathTick-- <= 0 || ship.getNavigation().isDone()) {
                 this.nextPathTick = 10;
-                if (!ship.getNavigation().moveTo(target.x, target.y, target.z, speed)) {
+                if (!this.movement.moveTo(target, speed)) {
                     this.moveFailCount++;
+                    Shincolle.debugLog("GuardGoal moveFail ship={} target={} failCount={}",
+                            ship.getUUID(), target, this.moveFailCount);
                     if (this.moveFailCount > GUARD_MOVE_FAIL_LIMIT) {
+                        if (tryTeleportRecovery(target, guardedEntity, distSq, true)) {
+                            return;
+                        }
+                        Shincolle.debugLog("GuardGoal failDisable ship={} target={} failCount={}",
+                                ship.getUUID(), target, this.moveFailCount);
                         disableGuardState();
                         return;
                     }
@@ -104,8 +124,9 @@ final class EntityShipGuardGoal extends Goal {
             this.nextPathTick = 0;
             this.moveFailCount = 0;
             this.stuckTicks = 0;
+            this.teleportCooldown = 0;
             this.lastProgressPos = ship.position();
-            ship.getNavigation().stop();
+            this.movement.stop();
         }
 
         if (guardedEntity instanceof LivingEntity livingEntity) {
@@ -153,14 +174,39 @@ final class EntityShipGuardGoal extends Goal {
         }
     }
 
+    private boolean tryTeleportRecovery(Vec3 target, Entity guardedEntity, double distSq, boolean force) {
+        if (!force && distSq <= GUARD_TELEPORT_DISTANCE_SQ) {
+            return false;
+        }
+        if (!force && this.teleportCooldown++ < GUARD_TELEPORT_COOLDOWN_TICKS) {
+            return false;
+        }
+
+        this.teleportCooldown = 0;
+        boolean teleported = guardedEntity instanceof LivingEntity livingGuarded
+                ? this.movement.teleportNearLiving(livingGuarded, 0.75D)
+                : this.movement.teleportNearPoint(target, 0.75D);
+        if (!teleported) {
+            return false;
+        }
+
+        Shincolle.debugLog("GuardGoal teleportRecovery ship={} target={} force={} distSq={}",
+                ship.getUUID(), target, force, distSq);
+        this.nextPathTick = 0;
+        this.moveFailCount = 0;
+        this.stuckTicks = 0;
+        this.lastProgressPos = ship.position();
+        return true;
+    }
+
     private void disableGuardState() {
         this.nextPathTick = 0;
         this.moveFailCount = 0;
         this.stuckTicks = 0;
+        this.teleportCooldown = 0;
         this.lastProgressPos = null;
-        ship.getNavigation().stop();
+        this.movement.stop();
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);
-        ship.setGuardedEntity(null);
-        ship.setGuardedPos(-1, -1, -1, 0, 0);
+        ship.clearGuardTarget();
     }
 }

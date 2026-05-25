@@ -70,14 +70,7 @@ final class EntityShipBaseSerialization {
         compound.putInt("RidingState", this.ship.getRidingState());
         compound.putInt("ScaleLevel", this.ship.getScaleLevel());
 
-        CompoundTag legacyPoint = new CompoundTag();
-        legacyPoint.putByte("HP", (byte) this.ship.getLegacyShipStats().getBonus(0));
-        legacyPoint.putByte("ATK", (byte) this.ship.getLegacyShipStats().getBonus(1));
-        legacyPoint.putByte("DEF", (byte) this.ship.getLegacyShipStats().getBonus(2));
-        legacyPoint.putByte("SPD", (byte) this.ship.getLegacyShipStats().getBonus(3));
-        legacyPoint.putByte("MOV", (byte) this.ship.getLegacyShipStats().getBonus(4));
-        legacyPoint.putByte("HIT", (byte) this.ship.getLegacyShipStats().getBonus(5));
-        compound.put("LegacyPoint", legacyPoint);
+        compound.put("LegacyPoint", this.ship.createLegacyBonusTag());
 
         compound.putBoolean("LegacyStateInit", this.ship.isLegacyStateInitializedInternal());
         EntityShipLegacyState legacyState = this.ship.getLegacyStateInternal();
@@ -144,13 +137,7 @@ final class EntityShipBaseSerialization {
         }
 
         if (compound.contains("LegacyPoint")) {
-            CompoundTag point = compound.getCompound("LegacyPoint");
-            this.ship.getLegacyShipStats().setBonus(0, point.getByte("HP"));
-            this.ship.getLegacyShipStats().setBonus(1, point.getByte("ATK"));
-            this.ship.getLegacyShipStats().setBonus(2, point.getByte("DEF"));
-            this.ship.getLegacyShipStats().setBonus(3, point.getByte("SPD"));
-            this.ship.getLegacyShipStats().setBonus(4, point.getByte("MOV"));
-            this.ship.getLegacyShipStats().setBonus(5, point.getByte("HIT"));
+            this.ship.applyLegacyBonusTag(compound.getCompound("LegacyPoint"));
         }
 
         if (compound.contains("LegacyStateInit")) {
@@ -205,6 +192,8 @@ final class EntityShipBaseSerialization {
         if (!this.ship.isLegacyStateInitializedInternal()) {
             this.ship.initializeLegacyStateInternal();
         }
+
+        this.ship.syncLegacyBonusData();
 
         // Rebuild derived combat/resource counts from the restored inventory so
         // stale legacy NBT values do not leave ships with visible ammo items but

@@ -33,4 +33,16 @@ class ShipTeleportHelperRegressionTest {
         assertTrue(source.contains("if (dot > 0.0D) {"),
                 "Teleport helper should reject candidate positions in front of the player");
     }
+
+    @Test
+    void teleportNearPointShouldUseSafeCandidateSearchForGuardRecovery() throws IOException {
+        String source = Files.readString(TELEPORT_HELPER_SOURCE);
+
+        assertTrue(source.contains("public static boolean teleportNearPoint(Entity entity, Vec3 anchor, double verticalOffset)"),
+                "Teleport helper should support guard-point recovery, not only living anchors");
+        assertTrue(source.contains("private static final int[][] POINT_OFFSETS"),
+                "Guard-point teleport should search nearby offsets before teleporting");
+        assertTrue(source.contains("Vec3 candidate = findPointCandidate(serverLevel, entity, anchor.add(0.0D, verticalOffset, 0.0D));"),
+                "Guard-point teleport should validate safe stand positions before teleporting");
+    }
 }

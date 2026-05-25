@@ -23,4 +23,18 @@ class ShipNavigationRecoveryRegressionTest {
         assertTrue(source.contains("stop();"),
                 "Legacy ship navigation should still fall back to stop when retry pathfinding fails");
     }
+
+    @Test
+    void navigationDebugLoggingShouldNotResetStuckRecoveryProgress() throws IOException {
+        String source = Files.readString(NAVIGATION_SOURCE);
+
+        assertTrue(source.contains("private static final int NAVIGATION_DEBUG_LOG_INTERVAL = 200;"),
+                "Navigation exceeded-check diagnostics should be rate-limited");
+        assertTrue(source.contains("double progressDistanceSqr = hostPos.distanceToSqr(this.lastPosStuck);"),
+                "Navigation should track real movement progress separately from diagnostic logging");
+        assertTrue(source.contains("if (progressDistanceSqr >= STUCK_DISTANCE_SQR) {"),
+                "Navigation should reset stuck recovery only after real movement progress");
+        assertTrue(source.contains("if (stationaryTicks > STUCK_CHECK_INTERVAL && shouldLogExceededCheck()) {"),
+                "Navigation exceeded-check logs should not fire every check interval");
+    }
 }

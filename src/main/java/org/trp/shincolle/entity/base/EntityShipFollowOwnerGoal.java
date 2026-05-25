@@ -1,12 +1,10 @@
 package org.trp.shincolle.entity.base;
 
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.menu.ShipContainerMenu;
-import org.trp.shincolle.utility.ShipTeleportHelper;
 
 import java.util.EnumSet;
 
@@ -16,6 +14,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
     private static final double TP_DIST_SQ = 256.0;
 
     private final EntityShipBase ship;
+    private final ShipMovementCoordinator movement;
     private final double speed;
     private final float defaultMaxDist;
     private final float defaultMinDist;
@@ -29,6 +28,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
 
     EntityShipFollowOwnerGoal(EntityShipBase ship, double speed, float maxDist, float minDist) {
         this.ship = ship;
+        this.movement = new ShipMovementCoordinator(ship);
         this.speed = speed;
         this.defaultMaxDist = maxDist;
         this.defaultMinDist = minDist;
@@ -75,6 +75,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
         this.checkTP_T = 0;
         this.checkTP_D = 0;
         this.hasOwnerPos = false;
+        this.movement.reset();
     }
 
     @Override
@@ -117,7 +118,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
             moveTarget = org.trp.shincolle.utility.FormationHelper.getFormationPos(formationId, slotId, owner.position(), formationDir[0], formationDir[1]);
         }
 
-        ship.getNavigation().moveTo(moveTarget.x, moveTarget.y, moveTarget.z, this.speed);
+        this.movement.moveTo(moveTarget, this.speed);
 
         double distSq = ship.distanceToSqr(owner);
 
@@ -140,7 +141,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
 
     @Override
     public void stop() {
-        ship.getNavigation().stop();
+        this.movement.stop();
     }
 
     private boolean canFollowOwner() {
@@ -167,20 +168,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
     }
 
     private void applyTeleport(LivingEntity owner) {
-        if (!org.trp.shincolle.Config.canTeleport) {
-            return;
-        }
-        double tx = owner.getX();
-        double tz = owner.getZ();
-        if (ship.level() instanceof ServerLevel serverLevel) {
-            int cx = Mth.floor(tx) >> 4;
-            int cz = Mth.floor(tz) >> 4;
-            if (!serverLevel.hasChunk(cx, cz)) {
-                return;
-            }
-        }
-        ship.getNavigation().stop();
-        if (!ShipTeleportHelper.teleportNearLiving(ship, owner, 0.75D)) {
+        if (!this.movement.teleportNearLiving(owner, 0.75D)) {
             return;
         }
         this.checkTP_T = 0;

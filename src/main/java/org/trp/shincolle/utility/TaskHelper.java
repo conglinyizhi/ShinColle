@@ -17,6 +17,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -25,6 +26,8 @@ import org.trp.shincolle.Config;
 import org.trp.shincolle.block.entity.WayPointBlockEntity;
 import org.trp.shincolle.entity.EntityShipFishingHook;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.ShipGuardTarget;
+import org.trp.shincolle.entity.base.ShipTaskRuntime;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.menu.ShipContainerMenu;
@@ -41,28 +44,37 @@ public class TaskHelper {
 
     public static void onUpdateTask(EntityShipBase host) {
         if (host.getIsSitting() || !host.isAlive()) {
+            host.getTaskRuntime().clearTask();
             return;
         }
         int taskId = host.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID);
+        ShipTaskRuntime runtime = host.getTaskRuntime();
+        runtime.beginTaskTick(taskId);
         switch (taskId) {
             case 1: 
-                onUpdateCooking(host);
+                onUpdateCooking(host, runtime);
                 break;
             case 2: 
-                onUpdateFishing(host);
+                onUpdateFishing(host, runtime);
                 break;
             case 3: 
-                onUpdateMining(host);
+                onUpdateMining(host, runtime);
                 break;
             case 4: 
-                onUpdateCrafting(host);
+                onUpdateCrafting(host, runtime);
                 break;
             default:
+                runtime.clearTask();
                 break;
         }
     }
 
     public static void onUpdateCooking(EntityShipBase host) {
+        if (host == null) return;
+        onUpdateCooking(host, host.getTaskRuntime());
+    }
+
+    private static void onUpdateCooking(EntityShipBase host, ShipTaskRuntime runtime) {
         if (host == null || host.level().isClientSide) return;
         ItemStack mainStack = host.getHeldItemMainhandSlot();
         ItemStack offhandStack = host.getHeldItemOffhandSlot();
@@ -72,15 +84,15 @@ public class TaskHelper {
         final net.minecraft.world.item.Item originalOffhandItem = offhandStack.getItem();
 
         Level level = host.level();
-        int gx = host.getGuardedPos(0);
-        int gy = host.getGuardedPos(1);
-        int gz = host.getGuardedPos(2);
-        if (gy <= 0) return;
-        if (!isWaypointGuardContext(host, level)) return;
+        ShipGuardTarget guardTarget = host.getGuardTarget();
+        if (!isWaypointGuardContext(guardTarget, level)) return;
+        int gx = guardTarget.x();
+        int gy = guardTarget.y();
+        int gz = guardTarget.z();
 
         BlockPos wpPos = new BlockPos(gx, gy, gz);
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 25.0D) {
-            host.getNavigation().moveTo(gx + 0.5D, gy, gz + 0.5D, 1.0D);
+            runtime.moveTo(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
             return;
         }
 
@@ -212,18 +224,23 @@ public class TaskHelper {
 
     public static void onUpdateFishing(EntityShipBase host) {
         if (host == null) return;
+        onUpdateFishing(host, host.getTaskRuntime());
+    }
+
+    private static void onUpdateFishing(EntityShipBase host, ShipTaskRuntime runtime) {
+        if (host == null) return;
         Level level = host.level();
         ItemStack rod = host.getHeldItemMainhandSlot();
         if (rod.isEmpty() || rod.getItem() != Items.FISHING_ROD) return;
 
-        int gx = host.getGuardedPos(0);
-        int gy = host.getGuardedPos(1);
-        int gz = host.getGuardedPos(2);
-        if (gy <= 0) return;
-        if (!isWaypointGuardContext(host, level)) return;
+        ShipGuardTarget guardTarget = host.getGuardTarget();
+        if (!isWaypointGuardContext(guardTarget, level)) return;
+        int gx = guardTarget.x();
+        int gy = guardTarget.y();
+        int gz = guardTarget.z();
 
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 10.0D) {
-            host.getNavigation().moveTo(gx + 0.5D, gy, gz + 0.5D, 1.0D);
+            runtime.moveTo(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
             return;
         }
 
@@ -296,6 +313,11 @@ public class TaskHelper {
 
     public static void onUpdateMining(EntityShipBase host) {
         if (host == null) return;
+        onUpdateMining(host, host.getTaskRuntime());
+    }
+
+    private static void onUpdateMining(EntityShipBase host, ShipTaskRuntime runtime) {
+        if (host == null) return;
         Level level = host.level();
         ItemStack pickaxe = host.getHeldItemMainhandSlot();
         if (pickaxe.isEmpty() || !pickaxe.is(net.minecraft.tags.ItemTags.PICKAXES)) return;
@@ -303,7 +325,11 @@ public class TaskHelper {
         if (Math.abs(host.getDeltaMovement().x) > 0.1D || Math.abs(host.getDeltaMovement().z) > 0.1D || host.getDeltaMovement().y > 0.1D) return;
 
         if ((host.tickCount & 63) == 0) {
-            host.getNavigation().moveTo(host.getX() + host.getRandom().nextInt(9) - 4.0D, host.getY() + host.getRandom().nextInt(5) - 2.0D, host.getZ() + host.getRandom().nextInt(9) - 4.0D, 1.0D);
+            runtime.moveTo(new Vec3(
+                    host.getX() + host.getRandom().nextInt(9) - 4.0D,
+                    host.getY() + host.getRandom().nextInt(5) - 2.0D,
+                    host.getZ() + host.getRandom().nextInt(9) - 4.0D
+            ), 1.0D);
             return;
         }
 
@@ -442,6 +468,11 @@ public class TaskHelper {
     }
 
     public static void onUpdateCrafting(EntityShipBase host) {
+        if (host == null) return;
+        onUpdateCrafting(host, host.getTaskRuntime());
+    }
+
+    private static void onUpdateCrafting(EntityShipBase host, ShipTaskRuntime runtime) {
         if (host == null || host.level().isClientSide) return;
 
         
@@ -493,14 +524,14 @@ public class TaskHelper {
             }
         }
 
-        int gx = host.getGuardedPos(0);
-        int gy = host.getGuardedPos(1);
-        int gz = host.getGuardedPos(2);
-        if (gy <= 0) return;
-        if (!isWaypointGuardContext(host, level)) return;
+        ShipGuardTarget guardTarget = host.getGuardTarget();
+        if (!isWaypointGuardContext(guardTarget, level)) return;
+        int gx = guardTarget.x();
+        int gy = guardTarget.y();
+        int gz = guardTarget.z();
 
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 25.0D) {
-            host.getNavigation().moveTo(gx + 0.5D, gy, gz + 0.5D, 1.0D);
+            runtime.moveTo(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
             return;
         }
 
@@ -638,12 +669,12 @@ public class TaskHelper {
         }
     }
 
-    private static boolean isWaypointGuardContext(EntityShipBase host, Level level) {
-        if (host.getGuardedPos(4) != 1) {
+    private static boolean isWaypointGuardContext(ShipGuardTarget guardTarget, Level level) {
+        if (!guardTarget.isBlock()) {
             return false;
         }
 
-        int guardedDimension = host.getGuardedPos(3);
+        int guardedDimension = guardTarget.dimensionId();
         int currentDimension = getLegacyDimensionId(level);
         return guardedDimension == currentDimension || guardedDimension == Integer.MIN_VALUE;
     }

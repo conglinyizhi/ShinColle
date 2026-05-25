@@ -386,14 +386,7 @@ public final class ModCommands {
         ship.clearPointerTargetEntity();
         ship.setOrderedToSit(false);
         ship.setInSittingPose(false);
-        ship.setGuardedEntity(null);
-        int legacyDim = switch (player.level().dimension().location().toString()) {
-            case "minecraft:overworld" -> 0;
-            case "minecraft:the_nether" -> -1;
-            case "minecraft:the_end" -> 1;
-            default -> Integer.MIN_VALUE;
-        };
-        ship.setGuardedPos(player.blockPosition().getX(), player.blockPosition().getY(), player.blockPosition().getZ(), legacyDim, 1);
+        ship.setGuardBlockTarget(player.blockPosition());
         registry.updateShip(ship);
 
         source.sendSuccess(() -> Component.literal("Recalled ship " + ship.getName().getString() + " (" + shipUuid + ")."), true);

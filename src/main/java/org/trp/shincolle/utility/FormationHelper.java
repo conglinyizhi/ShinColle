@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.block.DeskBlock;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 
 import java.util.List;
 import java.util.UUID;
@@ -70,7 +71,8 @@ public final class FormationHelper {
             }
 
             if (ship.distanceToSqr(spawnX, spawnY, spawnZ) > 1024.0D) {
-                if (!ShipTeleportHelper.teleportNearLiving(ship, serverPlayer, 0.75D)) {
+                ShipMovementCoordinator movement = new ShipMovementCoordinator(ship);
+                if (!movement.teleportNearLiving(serverPlayer, 0.75D)) {
                     ship.teleportTo(spawnX, spawnY, spawnZ);
                 }
             }
@@ -90,10 +92,9 @@ public final class FormationHelper {
         if (ship == null) return;
         ship.setOrderedToSit(false);
         ship.setInSittingPose(false);
-        ship.setGuardedEntity(null);
-        ship.setGuardedPos(x, y, z, 0, 1);
+        ship.setGuardBlockTarget(new BlockPos(x, y, z));
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
-        ship.getNavigation().moveTo(x + 0.5, y, z + 0.5, 1.2);
+        new ShipMovementCoordinator(ship).moveTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);
         ship.setStateTimer(18, 200);
     }
 
@@ -104,7 +105,7 @@ public final class FormationHelper {
         if (current != null && current.getUUID().equals(guarded.getUUID())) {
             ship.setGuardedEntity(null);
             ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
-            ship.getNavigation().stop();
+            new ShipMovementCoordinator(ship).stop();
             return;
         }
 
@@ -112,7 +113,7 @@ public final class FormationHelper {
         ship.setInSittingPose(false);
         ship.setGuardedEntity(guarded);
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
-        ship.getNavigation().moveTo(guarded, 1.2D);
+        new ShipMovementCoordinator(ship).moveTo(guarded, 1.2D);
         ship.setStateTimer(18, 200);
     }
 

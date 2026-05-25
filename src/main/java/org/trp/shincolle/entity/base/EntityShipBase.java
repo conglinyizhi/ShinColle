@@ -51,6 +51,7 @@ import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import org.trp.shincolle.Config;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.command.ModCommands;
 import org.trp.shincolle.entity.EntityShipFishingHook;
 import org.trp.shincolle.entity.EntityShipGrudge;
@@ -245,6 +246,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     protected static final EntityDataAccessor<Integer> LEGACY_ATTACK_TICK_2 = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> LEGACY_RIDING_STATE = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> LEGACY_SCALE_LEVEL = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<CompoundTag> LEGACY_BONUS_DATA = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.COMPOUND_TAG);
     protected static final EntityDataAccessor<CompoundTag> POINTER_TARGET_DATA = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.COMPOUND_TAG);
 
     protected final ShipInventoryHandler inventory;
@@ -257,6 +259,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private final EntityShipBaseSerialization serialization;
     private final LegacyShipStats legacyShipStats;
     private final EntityShipLegacyState legacyState;
+    private final ShipTaskRuntime taskRuntime;
     @Nullable
     private UUID guardedEntityId;
     private EntityShipFishingHook fishHook;
@@ -286,6 +289,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.serialization = new EntityShipBaseSerialization(this);
         this.legacyShipStats = new LegacyShipStats();
         this.legacyState = new EntityShipLegacyState();
+        this.taskRuntime = new ShipTaskRuntime(this);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
@@ -306,6 +310,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
         EntityShipBaseSerialization.defineSynchedData(builder);
+        builder.define(LEGACY_BONUS_DATA, new CompoundTag());
         builder.define(POINTER_TARGET_DATA, new CompoundTag());
     }
 
@@ -466,8 +471,8 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void setPointerTarget(Vec3 target, long durationTicks) {
-        if (this.getGuardedPos(4) == 1) {
-            this.setGuardedPos(this.getGuardedPos(0), this.getGuardedPos(1), this.getGuardedPos(2), this.getGuardedPos(3), 0);
+        if (this.hasBlockGuardTarget()) {
+            this.suspendBlockGuardTarget();
         }
         this.pointer.setPointerTarget(target, durationTicks);
     }
@@ -493,8 +498,8 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void setPointerTargetEntity(Entity target, long durationTicks) {
-        if (this.getGuardedPos(4) == 1) {
-            this.setGuardedPos(this.getGuardedPos(0), this.getGuardedPos(1), this.getGuardedPos(2), this.getGuardedPos(3), 0);
+        if (this.hasBlockGuardTarget()) {
+            this.suspendBlockGuardTarget();
         }
         this.pointer.setPointerTargetEntity(target, durationTicks);
     }
@@ -556,6 +561,9 @@ public abstract class EntityShipBase extends TamableAnimal {
             int packed = this.entityData.get(EMOTION_PARTICLE);
             int typeId = packed & 0xFF;
             this.reactions.spawnEmotionParticleClient(EmotionParticleType.fromId(typeId));
+        } else if (LEGACY_BONUS_DATA.equals(key) && this.level().isClientSide) {
+            this.applyLegacyBonusTag(this.entityData.get(LEGACY_BONUS_DATA));
+            this.recalculateLegacyShipStats();
         }
     }
 
@@ -748,7 +756,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (owner == null) {
             return false;
         }
-        if (this.getGuardedPos(4) == 1 || this.hasPointerTarget()) {
+        if (this.hasBlockGuardTarget() || this.hasPointerTarget()) {
             return false;
         }
         if (this.hasPointerTargetEntity()) {
@@ -900,17 +908,56 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
     }
 
+    public ShipGuardTarget getGuardTarget() {
+        return ShipGuardTarget.fromShip(this);
+    }
+
+    public boolean hasBlockGuardTarget() {
+        return this.getGuardTarget().isBlock();
+    }
+
+    public boolean hasEntityGuardTarget() {
+        return this.getGuardTarget().isEntity();
+    }
+
+    public void setGuardBlockTarget(BlockPos pos) {
+        this.setGuardBlockTarget(pos, getLegacyDimensionId(this.level()));
+    }
+
+    public void setGuardBlockTarget(BlockPos pos, int dimensionId) {
+        this.guardedEntityId = null;
+        this.setGuardedPos(pos.getX(), pos.getY(), pos.getZ(), dimensionId, ShipGuardTarget.Type.BLOCK.legacyId());
+    }
+
+    public void suspendBlockGuardTarget() {
+        ShipGuardTarget target = this.getGuardTarget();
+        if (target.isBlock()) {
+            this.setGuardedPos(target.x(), target.y(), target.z(), target.dimensionId(), ShipGuardTarget.Type.NONE.legacyId());
+        }
+    }
+
+    public void clearGuardTarget() {
+        this.guardedEntityId = null;
+        this.setGuardedPos(
+                ShipGuardTarget.NONE.x(),
+                ShipGuardTarget.NONE.y(),
+                ShipGuardTarget.NONE.z(),
+                ShipGuardTarget.NONE.dimensionId(),
+                ShipGuardTarget.NONE.legacyType()
+        );
+    }
+
     public void setGuardedEntity(@Nullable Entity entity) {
         if (entity == null) {
             this.guardedEntityId = null;
-            if (this.getGuardedPos(4) == 2) {
-                this.setGuardedPos(-1, -1, -1, 0, 0);
+            if (this.hasEntityGuardTarget()) {
+                this.clearGuardTarget();
             }
             return;
         }
 
         this.guardedEntityId = entity.getUUID();
-        this.setGuardedPos(-1, -1, -1, getLegacyDimensionId(entity.level()), 2);
+        this.setGuardedPos(-1, -1, -1, getLegacyDimensionId(entity.level()), ShipGuardTarget.Type.ENTITY.legacyId());
     }
 
     @Nullable
@@ -1487,6 +1534,10 @@ public abstract class EntityShipBase extends TamableAnimal {
         return this.legacyState;
     }
 
+    public ShipTaskRuntime getTaskRuntime() {
+        return this.taskRuntime;
+    }
+
     void savePointerToNbt(CompoundTag compound) {
         this.pointer.saveToNbt(compound);
     }
@@ -1501,7 +1552,37 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     public void setAttrBonus(int index, int value) {
         this.legacyShipStats.setBonus(index, value);
+        this.syncLegacyBonusData();
         this.recalculateLegacyShipStats();
+    }
+
+    CompoundTag createLegacyBonusTag() {
+        CompoundTag legacyBonus = new CompoundTag();
+        legacyBonus.putByte("HP", (byte) this.legacyShipStats.getBonus(0));
+        legacyBonus.putByte("ATK", (byte) this.legacyShipStats.getBonus(1));
+        legacyBonus.putByte("DEF", (byte) this.legacyShipStats.getBonus(2));
+        legacyBonus.putByte("SPD", (byte) this.legacyShipStats.getBonus(3));
+        legacyBonus.putByte("MOV", (byte) this.legacyShipStats.getBonus(4));
+        legacyBonus.putByte("HIT", (byte) this.legacyShipStats.getBonus(5));
+        return legacyBonus;
+    }
+
+    void applyLegacyBonusTag(CompoundTag legacyBonus) {
+        if (legacyBonus == null) {
+            return;
+        }
+        this.legacyShipStats.setBonus(0, legacyBonus.getByte("HP"));
+        this.legacyShipStats.setBonus(1, legacyBonus.getByte("ATK"));
+        this.legacyShipStats.setBonus(2, legacyBonus.getByte("DEF"));
+        this.legacyShipStats.setBonus(3, legacyBonus.getByte("SPD"));
+        this.legacyShipStats.setBonus(4, legacyBonus.getByte("MOV"));
+        this.legacyShipStats.setBonus(5, legacyBonus.getByte("HIT"));
+    }
+
+    void syncLegacyBonusData() {
+        if (this.level() != null && !this.level().isClientSide) {
+            this.entityData.set(LEGACY_BONUS_DATA, this.createLegacyBonusTag());
+        }
     }
 
     public void resetInteractionEmotionState() {
@@ -2441,6 +2522,28 @@ public abstract class EntityShipBase extends TamableAnimal {
         return false;
     }
 
+    public boolean interactModernKit(Player player, ItemStack stack) {
+        if (!this.getLegacyShipStats().addBonusRandom(new java.util.Random())) {
+            return false;
+        }
+
+        this.syncLegacyBonusData();
+        this.recalculateLegacyShipStats();
+        this.setEmotionPrimary(EMOTION_HAPPY);
+        this.applyParticleEmotion(EmotionParticleType.HEART);
+        this.playSound(
+                ModSounds.getShipSound(Config.ShipCustomSoundType.MARRY, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.getRandom()),
+                Math.max(0.0F, Config.volumeShip),
+                1.0F);
+        this.focusOnPlayer(player);
+
+        if (!player.getAbilities().instabuild) {
+            stack.shrink(1);
+        }
+
+        return true;
+    }
+
     private boolean consumeToyAirplaneInHand(ItemStack stack, Player player) {
         if (!stack.is(ModItems.TOY_AIRPLANE.get())) {
             return false;
@@ -2556,10 +2659,10 @@ public abstract class EntityShipBase extends TamableAnimal {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        InteractionResult itemInteractionResult = stack.getItem().interactLivingEntity(stack, player, this, hand);
-        if (itemInteractionResult != InteractionResult.PASS) {
-            return itemInteractionResult;
-        }
+        Shincolle.debugLog("Ship mobInteract ship={} player={} client={} hand={} item={} count={} canRide={} passenger={} tame={} ownerMatch={}",
+                this.getUUID(), player.getUUID(), this.level().isClientSide, hand,
+                BuiltInRegistries.ITEM.getKey(stack.getItem()), stack.getCount(), this.isStateCanRide(),
+                this.isPassenger(), this.isTame(), this.isOwnedBy(player));
 
         if (!this.level().isClientSide && hand == InteractionHand.MAIN_HAND) {
             if (!this.isTame()) {
@@ -2569,7 +2672,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             if (!this.isOwnedBy(player)) {
                 return InteractionResult.PASS;
             }
-            if (stack.is(ModItems.TRAINING_BOOK.get())) {
+            if (stack.is(ModItems.TRAINING_BOOK.get()) || stack.is(ModItems.MODERN_KIT.get())) {
                 return InteractionResult.PASS;
             }
 
@@ -2672,6 +2775,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
 
             if (player.isShiftKeyDown()) {
+                Shincolle.debugLog("Ship mobInteract openMenu ship={}", this.getUUID());
                 this.openShipMenu(player);
                 this.resetInteractionEmotionState();
                 this.focusOnPlayer(player);
@@ -2681,15 +2785,17 @@ public abstract class EntityShipBase extends TamableAnimal {
             boolean isSitting = !this.isOrderedToSit();
             this.setOrderedToSit(isSitting);
             this.setInSittingPose(isSitting);
-            if (!isSitting && this.getGuardedPos(4) == 1) {
-                this.setGuardedPos(-1, -1, -1, 0, 0);
+            if (!isSitting && this.hasBlockGuardTarget()) {
+                this.clearGuardTarget();
                 this.getNavigation().stop();
             }
             this.resetInteractionEmotionState();
             this.focusOnPlayer(player);
+            Shincolle.debugLog("Ship mobInteract toggleSit ship={} newSitting={}", this.getUUID(), isSitting);
 
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
+        Shincolle.debugLog("Ship mobInteract fallbackSuper ship={}", this.getUUID());
         return super.mobInteract(player, hand);
     }
 
@@ -2960,7 +3066,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.recalculateLegacyShipStats();
     }
 
-    protected void recalculateLegacyShipStats() {
+    public void recalculateLegacyShipStats() {
         int teamId = this.getFormationTeam();
         int slotId = this.getFormationSlot();
         float[] formationBuffs = org.trp.shincolle.reference.Values.getResetFormationValue();
@@ -3252,29 +3358,27 @@ public abstract class EntityShipBase extends TamableAnimal {
             return;
         }
 
-        if (this.getGuardedPos(4) == 2) {
+        if (this.hasEntityGuardTarget()) {
             Entity guardedEntity = this.getGuardedEntity();
             if (guardedEntity == null || !guardedEntity.isAlive()) {
                 this.setGuardedEntity(null);
             } else {
                 int guardedDim = getLegacyDimensionId(guardedEntity.level());
                 if (guardedDim != this.getGuardedPos(3)) {
-                    this.setGuardedPos(-1, -1, -1, guardedDim, 2);
+                    this.setGuardedPos(-1, -1, -1, guardedDim, ShipGuardTarget.Type.ENTITY.legacyId());
                 }
             }
             return;
         }
 
-        if (this.getStateMinor(15) <= 0) {
-            if (this.getGuardedPos(4) == 1) {
-                this.setGuardedPos(this.getStateMinor(14), this.getStateMinor(15), this.getStateMinor(16), this.getStateMinor(17), 0);
-            }
+        ShipGuardTarget guardTarget = this.getGuardTarget();
+        if (!guardTarget.isBlock()) {
             this.setStateMinor(43, 0);
             this.setStateTimer(4, 0);
             return;
         }
 
-        BlockPos pos = new BlockPos(this.getStateMinor(14), this.getStateMinor(15), this.getStateMinor(16));
+        BlockPos pos = guardTarget.blockPos();
         double distSq = this.distanceToSqr(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D);
 
         net.minecraft.world.level.block.entity.BlockEntity be = this.level().getBlockEntity(pos);
@@ -3322,7 +3426,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                                     targetPos.getY(),
                                     targetPos.getZ(),
                                     getLegacyDimensionId(this.level()),
-                                    this.getGuardedPos(4)
+                                    guardTarget.legacyType()
                             );
                             if (this.getStateMinor(6) > 0) {
                                 this.setStateMinor(10, 2);

@@ -19,11 +19,12 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
 import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
 import org.trp.shincolle.entity.base.path.ShipMoveControl;
-import org.trp.shincolle.utility.ShipTeleportHelper;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
@@ -92,10 +93,12 @@ public abstract class EntityMountBase extends PathfinderMob {
         private static final int TP_COOLDOWN    = 100;
 
         private final EntityMountBase mount;
+        private final ShipMovementCoordinator movement;
         private int tpTimer = 0;
 
         MountFollowHostGoal(EntityMountBase mount) {
             this.mount = mount;
+            this.movement = new ShipMovementCoordinator(mount);
             this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
@@ -133,8 +136,14 @@ public abstract class EntityMountBase extends PathfinderMob {
             return distSq > minDistSq;
         }
 
-        @Override public void start() { tpTimer = 0; }
-        @Override public void stop() { mount.getNavigation().stop(); }
+        @Override public void start() {
+            tpTimer = 0;
+            movement.reset();
+        }
+
+        @Override public void stop() {
+            movement.stop();
+        }
 
         @Override public void tick() {
             EntityShipBase h = mount.getHost();
@@ -142,7 +151,7 @@ public abstract class EntityMountBase extends PathfinderMob {
 
             if (h.hasPointerTarget()) {
                 Vec3 pt = h.getPointerTarget();
-                mount.getNavigation().moveTo(pt.x, pt.y, pt.z, 1.0);
+                movement.moveTo(pt, 1.0D);
                 return;
             }
 
@@ -154,17 +163,14 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (owner == null) return;
 
             mount.getLookControl().setLookAt(owner, 30.0F, 30.0F);
-            mount.getNavigation().moveTo(owner, 1.0);
+            movement.moveTo(owner, 1.0D);
 
             double distSq = mount.distanceToSqr(owner);
             ++tpTimer;
             if (distSq > 256.0) {
                 if (tpTimer > TP_COOLDOWN) {
                     tpTimer = 0;
-                    if (org.trp.shincolle.Config.canTeleport && mount.level() instanceof ServerLevel) {
-                        mount.getNavigation().stop();
-                        ShipTeleportHelper.teleportNearLiving(mount, owner, 0.75D);
-                    }
+                    movement.teleportNearLiving(owner, 0.75D);
                 }
             } else {
                 tpTimer = 0;
@@ -172,35 +178,34 @@ public abstract class EntityMountBase extends PathfinderMob {
         }
 
         private static boolean hasGuardTarget(EntityShipBase host) {
-            int guardType = host.getGuardedPos(4);
-            if (guardType == 2) {
+            ShipGuardTarget guardTarget = host.getGuardTarget();
+            if (guardTarget.isEntity()) {
                 Entity guarded = host.getGuardedEntity();
                 return guarded != null && guarded.isAlive();
             }
-            return guardType == 1 && host.getGuardedPos(1) > 0;
+            return guardTarget.isBlock() && guardTarget.isIn(host.level());
         }
 
         private boolean tickGuardTarget(EntityShipBase host) {
-            int guardType = host.getGuardedPos(4);
-            if (guardType == 2) {
+            ShipGuardTarget guardTarget = host.getGuardTarget();
+            if (guardTarget.isEntity()) {
                 Entity guarded = host.getGuardedEntity();
                 if (guarded == null || !guarded.isAlive()) {
                     return false;
                 }
 
                 mount.getLookControl().setLookAt(guarded, 30.0F, 30.0F);
-                mount.getNavigation().moveTo(guarded, 1.0D);
+                movement.moveTo(guarded, 1.0D);
 
                 double distSq = mount.distanceToSqr(guarded);
                 ++tpTimer;
                 if (distSq > 256.0D) {
-                    if (tpTimer > TP_COOLDOWN && org.trp.shincolle.Config.canTeleport && mount.level() instanceof ServerLevel) {
+                    if (tpTimer > TP_COOLDOWN) {
                         tpTimer = 0;
-                        mount.getNavigation().stop();
                         if (guarded instanceof LivingEntity livingGuarded) {
-                            ShipTeleportHelper.teleportNearLiving(mount, livingGuarded, 0.75D);
+                            movement.teleportNearLiving(livingGuarded, 0.75D);
                         } else {
-                            mount.teleportTo(guarded.getX(), guarded.getY() + 0.75D, guarded.getZ());
+                            movement.teleportNearPoint(guarded.position(), 0.75D);
                         }
                     }
                 } else {
@@ -209,18 +214,17 @@ public abstract class EntityMountBase extends PathfinderMob {
                 return true;
             }
 
-            if (guardType == 1 && host.getGuardedPos(1) > 0) {
-                Vec3 guardPos = new Vec3(host.getGuardedPos(0) + 0.5D, host.getGuardedPos(1), host.getGuardedPos(2) + 0.5D);
+            if (guardTarget.isBlock() && guardTarget.isIn(host.level())) {
+                Vec3 guardPos = guardTarget.blockCenter();
                 mount.getLookControl().setLookAt(guardPos.x, guardPos.y, guardPos.z, 30.0F, 30.0F);
-                mount.getNavigation().moveTo(guardPos.x, guardPos.y, guardPos.z, 1.0D);
+                movement.moveTo(guardPos, 1.0D);
 
                 double distSq = mount.distanceToSqr(guardPos.x, guardPos.y, guardPos.z);
                 ++tpTimer;
                 if (distSq > 256.0D) {
-                    if (tpTimer > TP_COOLDOWN && org.trp.shincolle.Config.canTeleport && mount.level() instanceof ServerLevel) {
+                    if (tpTimer > TP_COOLDOWN) {
                         tpTimer = 0;
-                        mount.getNavigation().stop();
-                        mount.teleportTo(guardPos.x, guardPos.y + 0.75D, guardPos.z);
+                        movement.teleportNearPoint(guardPos, 0.75D);
                     }
                 } else {
                     tpTimer = 0;
@@ -608,19 +612,29 @@ public abstract class EntityMountBase extends PathfinderMob {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        Shincolle.debugLog("Mount mobInteract mount={} host={} player={} client={} hand={} secondary={} item={}",
+                this.getUUID(), this.host != null ? this.host.getUUID() : null, player.getUUID(), this.level().isClientSide,
+                hand, player.isSecondaryUseActive(), net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(player.getItemInHand(hand).getItem()));
+        ItemStack heldStack = player.getItemInHand(hand);
+        if (this.host != null && this.host.isOwnedBy(player) && ShipHostInteractionRouter.shouldForwardToHost(heldStack)) {
+            InteractionResult hostInteractionResult = ShipHostInteractionRouter.forwardToHost(this.host, player, hand, heldStack);
+            Shincolle.debugLog("Mount mobInteract hostResult mount={} host={} result={}",
+                    this.getUUID(), this.host.getUUID(), hostInteractionResult);
+            if (hostInteractionResult != InteractionResult.PASS) {
+                return hostInteractionResult;
+            }
+        }
+
         if (this.level().isClientSide) return InteractionResult.SUCCESS;
 
-        if (player.isSecondaryUseActive()) {
-            if (this.host != null && this.host.isOwnedBy(player)) {
-                this.host.mobInteract(player, hand);
-                return InteractionResult.SUCCESS;
-            }
-        } else {
+        if (!player.isSecondaryUseActive()) {
             if (this.distanceToSqr(player) < 16.0) {
+                Shincolle.debugLog("Mount mobInteract startRiding mount={} player={}", this.getUUID(), player.getUUID());
                 player.startRiding(this, true);
                 return InteractionResult.SUCCESS;
             }
         }
+        Shincolle.debugLog("Mount mobInteract fallbackSuper mount={}", this.getUUID());
         return super.mobInteract(player, hand);
     }
 

@@ -18,6 +18,7 @@ class EntityShipBasePointer {
     private static final int POINTER_ENTITY_STUCK_TICK_LIMIT = 120;
 
     private final EntityShipBase ship;
+    private final ShipMovementCoordinator movement;
 
     private Vec3 pointerTarget;
     private long pointerTargetUntil;
@@ -37,6 +38,7 @@ class EntityShipBasePointer {
 
     EntityShipBasePointer(EntityShipBase ship) {
         this.ship = ship;
+        this.movement = new ShipMovementCoordinator(ship);
     }
 
     void saveToNbt(CompoundTag compound) {
@@ -107,7 +109,7 @@ class EntityShipBasePointer {
         }
         if (this.ship.isInDeadPose()) {
             clearPointerTargetEntity();
-            this.ship.getNavigation().stop();
+            this.movement.stop();
             return;
         }
         Entity target = getPointerTargetEntity();
@@ -220,6 +222,7 @@ class EntityShipBasePointer {
         this.pointerTargetEntityMoveFailCount = 0;
         this.pointerTargetEntityStuckTicks = 0;
         this.pointerTargetEntityLastPos = this.ship.position();
+        this.movement.reset();
         this.ship.getCombat().resetAircraftLaunchDelay();
         updateSynchedData();
     }
@@ -266,6 +269,7 @@ class EntityShipBasePointer {
         this.pointerTargetEntityMoveFailCount = 0;
         this.pointerTargetEntityStuckTicks = 0;
         this.pointerTargetEntityLastPos = null;
+        this.movement.reset();
         updateSynchedData();
     }
 
@@ -342,16 +346,16 @@ class EntityShipBasePointer {
             trackPointerTargetEntityStuckState();
             if (this.pointerTargetEntityStuckTicks > POINTER_ENTITY_STUCK_TICK_LIMIT) {
                 clearPointerTargetEntity();
-                this.ship.getNavigation().stop();
+                this.movement.stop();
                 return;
             }
             if (this.pointerTargetEntityPathTick-- <= 0) {
                 this.pointerTargetEntityPathTick = POINTER_ENTITY_PATH_RECALC_INTERVAL;
-                if (!this.ship.getNavigation().moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
+                if (!this.movement.moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
                     this.pointerTargetEntityMoveFailCount++;
                     if (this.pointerTargetEntityMoveFailCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {
                         clearPointerTargetEntity();
-                        this.ship.getNavigation().stop();
+                        this.movement.stop();
                         return;
                     }
                     this.pointerTargetEntityPathTick = 2;
@@ -365,7 +369,7 @@ class EntityShipBasePointer {
         this.pointerTargetEntityMoveFailCount = 0;
         this.pointerTargetEntityStuckTicks = 0;
         this.pointerTargetEntityLastPos = this.ship.position();
-        this.ship.getNavigation().stop();
+        this.movement.stop();
         this.ship.getMoveControl().setWantedPosition(
                 this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
 

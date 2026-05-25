@@ -131,6 +131,15 @@ public class LegacyShipStats {
         return false;
     }
 
+    public boolean hasBonusCapacity() {
+        for (byte value : this.bonus) {
+            if (value < MODERN_LIMIT) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void recalculate(int shipClass, int level, float[] equipBonuses, float[] formationBuffs, float[] moraleBuffs) {
         float[] base = SHIP_ATTR_MAP.getOrDefault(shipClass, DEFAULT_BASE);
         float[] type = new float[]{base[6], base[7], base[8], base[9], base[10], base[11]};

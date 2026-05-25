@@ -20,7 +20,7 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity commands should define a move failure limit");
         assertTrue(source.contains("if (this.pointerTargetEntityMoveFailCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {"),
                 "Pointer-entity commands should clear themselves after repeated move failures");
-        assertTrue(source.contains("clearPointerTargetEntity();\n                        this.ship.getNavigation().stop();\n                        return;"),
+        assertTrue(source.contains("clearPointerTargetEntity();\n                        this.movement.stop();\n                        return;"),
                 "Pointer-entity failure recovery should release the command and stop navigation");
     }
 
@@ -34,5 +34,19 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity commands should track whether the ship is making progress");
         assertTrue(source.contains("if (this.pointerTargetEntityStuckTicks > POINTER_ENTITY_STUCK_TICK_LIMIT) {"),
                 "Pointer-entity commands should clear themselves after the ship remains stuck too long");
+    }
+
+    @Test
+    void pointerEntityCommandShouldResetMovementCoordinatorWhenTargetChanges() throws IOException {
+        String source = Files.readString(POINTER_SOURCE);
+
+        assertTrue(source.contains("private final ShipMovementCoordinator movement;"),
+                "Pointer-entity commands should share the ship movement coordinator");
+        assertTrue(source.contains("this.movement.moveTo(target, POINTER_ENTITY_MOVE_SPEED)"),
+                "Pointer-entity chase movement should route through the coordinator");
+        assertTrue(source.contains("this.pointerTargetEntityLastPos = this.ship.position();\n        this.movement.reset();"),
+                "Pointer-entity commands should reset duplicate move suppression when a new target is assigned");
+        assertTrue(source.contains("this.pointerTargetEntityLastPos = null;\n        this.movement.reset();"),
+                "Pointer-entity commands should reset movement state when the command clears");
     }
 }

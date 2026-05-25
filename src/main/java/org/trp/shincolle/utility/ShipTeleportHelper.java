@@ -23,6 +23,13 @@ public final class ShipTeleportHelper {
             {-5, -5}, {-5, 5}, {-1, -5}, {-1, 5},
             {0, -6}, {0, 6}, {-8, 0}
     };
+    private static final int[][] POINT_OFFSETS = {
+            {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {0, -1},
+            {2, 0}, {-2, 0}, {0, 2}, {0, -2},
+            {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
+            {1, 2}, {-1, 2}, {1, -2}, {-1, -2},
+            {3, 0}, {-3, 0}, {0, 3}, {0, -3}
+    };
 
     private ShipTeleportHelper() {
     }
@@ -49,6 +56,20 @@ public final class ShipTeleportHelper {
         if (candidate == null) {
             candidate = findVerticalFallback(serverLevel, entity, anchor, basePos, horizontalFacing);
         }
+        if (candidate == null) {
+            return false;
+        }
+
+        entity.teleportTo(candidate.x, candidate.y, candidate.z);
+        return true;
+    }
+
+    public static boolean teleportNearPoint(Entity entity, Vec3 anchor, double verticalOffset) {
+        if (!(entity.level() instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+
+        Vec3 candidate = findPointCandidate(serverLevel, entity, anchor.add(0.0D, verticalOffset, 0.0D));
         if (candidate == null) {
             return false;
         }
@@ -107,6 +128,20 @@ public final class ShipTeleportHelper {
             Vec3 candidate = new Vec3(testPos.getX() + 0.5D, testPos.getY(), testPos.getZ() + 0.5D);
             if (validateCandidate(level, entity, anchor, candidate, facing, true) != null) {
                 return candidate;
+            }
+        }
+        return null;
+    }
+
+    private static Vec3 findPointCandidate(ServerLevel level, Entity entity, Vec3 basePos) {
+        BlockPos baseBlock = BlockPos.containing(basePos.x, basePos.y, basePos.z);
+        for (int[] offset : POINT_OFFSETS) {
+            for (int dy = 2; dy >= -3; dy--) {
+                BlockPos testPos = baseBlock.offset(offset[0], dy, offset[1]);
+                if (!canStandAt(level, entity, testPos)) {
+                    continue;
+                }
+                return new Vec3(testPos.getX() + 0.5D, testPos.getY(), testPos.getZ() + 0.5D);
             }
         }
         return null;
