@@ -8,10 +8,15 @@ import java.util.EnumSet;
 
 class EntityShipPointerMoveGoal extends Goal {
     private static final double TARGET_REACH_SQR = 1.0D;
+    private static final int POINTER_MOVE_FAIL_LIMIT = 40;
+    private static final int POINTER_MOVE_STUCK_TICK_LIMIT = 120;
 
     private final EntityShipBase ship;
     private final double speed;
     private int nextPathTick;
+    private int moveFailCount;
+    private int stuckTicks;
+    private Vec3 lastProgressPos;
 
     EntityShipPointerMoveGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
@@ -40,6 +45,9 @@ class EntityShipPointerMoveGoal extends Goal {
     @Override
     public void start() {
         this.nextPathTick = 0;
+        this.moveFailCount = 0;
+        this.stuckTicks = 0;
+        this.lastProgressPos = ship.position();
         moveToTarget();
     }
 
@@ -59,9 +67,18 @@ class EntityShipPointerMoveGoal extends Goal {
         if (lastRawTarget == null || rawTarget.distanceToSqr(lastRawTarget) > 0.01D) {
             this.nextPathTick = 0;
             this.lastRawTarget = rawTarget;
+            this.moveFailCount = 0;
+            this.stuckTicks = 0;
+            this.lastProgressPos = ship.position();
         }
 
         ship.resetInteractionEmotionState();
+        trackProgress();
+        if (this.stuckTicks > POINTER_MOVE_STUCK_TICK_LIMIT) {
+            ship.clearPointerTarget();
+            ship.getNavigation().stop();
+            return;
+        }
 
         if (this.nextPathTick-- <= 0) {
             this.nextPathTick = 10;
@@ -77,7 +94,31 @@ class EntityShipPointerMoveGoal extends Goal {
     private void moveToTarget() {
         Vec3 target = ship.getPointerTarget();
         if (target != null) {
-            ship.getNavigation().moveTo(target.x, target.y, target.z, this.speed);
+            if (!ship.getNavigation().moveTo(target.x, target.y, target.z, this.speed)) {
+                this.moveFailCount++;
+                if (this.moveFailCount > POINTER_MOVE_FAIL_LIMIT) {
+                    ship.clearPointerTarget();
+                    ship.getNavigation().stop();
+                }
+            } else {
+                this.moveFailCount = 0;
+            }
+        }
+    }
+
+    private void trackProgress() {
+        Vec3 currentPos = ship.position();
+        if (this.lastProgressPos == null) {
+            this.lastProgressPos = currentPos;
+            this.stuckTicks = 0;
+            return;
+        }
+
+        if (currentPos.distanceToSqr(this.lastProgressPos) < 0.04D) {
+            this.stuckTicks++;
+        } else {
+            this.stuckTicks = 0;
+            this.lastProgressPos = currentPos;
         }
     }
 }

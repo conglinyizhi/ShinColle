@@ -39,6 +39,8 @@ final class EntityShipBasePassiveCombat {
     private static final double PASSIVE_TARGET_LOST_DISTANCE_MULTIPLIER = 1.5D;
     private static final double PASSIVE_MOVE_SPEED_MIN = 0.8D;
     private static final double PASSIVE_MOVE_SPEED_MAX = 1.6D;
+    private static final int PASSIVE_MOVE_FAIL_LIMIT = 40;
+    private static final int PASSIVE_STUCK_TICK_LIMIT = 120;
 
     private final EntityShipBase ship;
 
@@ -52,6 +54,9 @@ final class EntityShipBasePassiveCombat {
     private int passiveLastHurtByMobTimestamp;
     private int passiveLastOwnerHurtByTimestamp;
     private int passiveLastOwnerHurtMobTimestamp;
+    private int passiveMoveFailCount;
+    private int passiveStuckTicks;
+    private net.minecraft.world.phys.Vec3 passiveLastProgressPos;
 
     EntityShipBasePassiveCombat(EntityShipBase ship) {
         this.ship = ship;
@@ -149,18 +154,33 @@ final class EntityShipBasePassiveCombat {
         boolean hasAttackMeans = hasRangedAttack || combat.canUseMeleeAttack();
 
         if (needsCloser || cannotSee) {
-            if (this.ship.shouldFollowOwner() || this.ship.hasPointerTarget() || !hasAttackMeans) {
+            if (this.ship.hasPointerTarget() || !hasAttackMeans) {
+                return;
+            }
+            trackPassiveProgress();
+            if (this.passiveStuckTicks > PASSIVE_STUCK_TICK_LIMIT) {
+                clearTarget(true);
                 return;
             }
             if (this.passiveTargetPathTick-- <= 0) {
                 this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
                 if (!this.ship.getNavigation().moveTo(target, getPassiveMoveSpeed())) {
+                    this.passiveMoveFailCount++;
+                    if (this.passiveMoveFailCount > PASSIVE_MOVE_FAIL_LIMIT) {
+                        clearTarget(true);
+                        return;
+                    }
                     this.passiveTargetPathTick = 2;
+                } else {
+                    this.passiveMoveFailCount = 0;
                 }
             }
             return;
         }
 
+        this.passiveMoveFailCount = 0;
+        this.passiveStuckTicks = 0;
+        this.passiveLastProgressPos = this.ship.position();
         if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
             this.ship.getNavigation().stop();
             this.ship.getMoveControl().setWantedPosition(
@@ -206,6 +226,9 @@ final class EntityShipBasePassiveCombat {
         this.passiveTargetSightTick = 0;
         this.passiveTargetPathTick = 0;
         this.isFirstEngagementWaiting = false;
+        this.passiveMoveFailCount = 0;
+        this.passiveStuckTicks = 0;
+        this.passiveLastProgressPos = null;
         if (stopNavigation) {
             this.ship.getNavigation().stop();
         }
@@ -616,5 +639,21 @@ final class EntityShipBasePassiveCombat {
         if (isRevenge || isCommanded) return true;
 
         return !this.ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
+    }
+
+    private void trackPassiveProgress() {
+        net.minecraft.world.phys.Vec3 currentPos = this.ship.position();
+        if (this.passiveLastProgressPos == null) {
+            this.passiveLastProgressPos = currentPos;
+            this.passiveStuckTicks = 0;
+            return;
+        }
+
+        if (currentPos.distanceToSqr(this.passiveLastProgressPos) < 0.04D) {
+            this.passiveStuckTicks++;
+        } else {
+            this.passiveStuckTicks = 0;
+            this.passiveLastProgressPos = currentPos;
+        }
     }
 }

@@ -8,9 +8,15 @@ import net.minecraft.world.phys.Vec3;
 import java.util.EnumSet;
 
 final class EntityShipGuardGoal extends Goal {
+    private static final int GUARD_MOVE_FAIL_LIMIT = 40;
+    private static final int GUARD_STUCK_TICK_LIMIT = 120;
+
     private final EntityShipBase ship;
     private final double speed;
     private int nextPathTick;
+    private int moveFailCount;
+    private int stuckTicks;
+    private Vec3 lastProgressPos;
 
     EntityShipGuardGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
@@ -45,6 +51,9 @@ final class EntityShipGuardGoal extends Goal {
     @Override
     public void start() {
         this.nextPathTick = 0;
+        this.moveFailCount = 0;
+        this.stuckTicks = 0;
+        this.lastProgressPos = ship.position();
     }
 
     @Override
@@ -74,12 +83,28 @@ final class EntityShipGuardGoal extends Goal {
 
         double stopDistanceSq = guardType == 2 ? 9.0D : 0.5D;
         if (distSq > stopDistanceSq) {
+            trackProgress();
+            if (this.stuckTicks > GUARD_STUCK_TICK_LIMIT) {
+                disableGuardState();
+                return;
+            }
             if (this.nextPathTick-- <= 0 || ship.getNavigation().isDone()) {
                 this.nextPathTick = 10;
-                ship.getNavigation().moveTo(target.x, target.y, target.z, speed);
+                if (!ship.getNavigation().moveTo(target.x, target.y, target.z, speed)) {
+                    this.moveFailCount++;
+                    if (this.moveFailCount > GUARD_MOVE_FAIL_LIMIT) {
+                        disableGuardState();
+                        return;
+                    }
+                } else {
+                    this.moveFailCount = 0;
+                }
             }
         } else {
             this.nextPathTick = 0;
+            this.moveFailCount = 0;
+            this.stuckTicks = 0;
+            this.lastProgressPos = ship.position();
             ship.getNavigation().stop();
         }
 
@@ -110,5 +135,32 @@ final class EntityShipGuardGoal extends Goal {
             double tz = ship.getZ() + Math.cos(rad) * 5.0D;
             ship.getLookControl().setLookAt(tx, ty, tz, 60.0F, 60.0F);
         }
+    }
+
+    private void trackProgress() {
+        Vec3 currentPos = ship.position();
+        if (this.lastProgressPos == null) {
+            this.lastProgressPos = currentPos;
+            this.stuckTicks = 0;
+            return;
+        }
+
+        if (currentPos.distanceToSqr(this.lastProgressPos) < 0.04D) {
+            this.stuckTicks++;
+        } else {
+            this.stuckTicks = 0;
+            this.lastProgressPos = currentPos;
+        }
+    }
+
+    private void disableGuardState() {
+        this.nextPathTick = 0;
+        this.moveFailCount = 0;
+        this.stuckTicks = 0;
+        this.lastProgressPos = null;
+        ship.getNavigation().stop();
+        ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);
+        ship.setGuardedEntity(null);
+        ship.setGuardedPos(-1, -1, -1, 0, 0);
     }
 }

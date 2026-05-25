@@ -298,7 +298,11 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
                 }
 
                 if (this.timeoutLimit > 0.0D && this.timeoutTimer > this.timeoutLimit * 2.0D) {
-                    stop();
+                    BlockPos retryTarget = this.targetPos;
+                    double retrySpeed = this.speedModifier;
+                    if (retryTarget == null || !moveTo(retryTarget.getX() + 0.5D, retryTarget.getY(), retryTarget.getZ() + 0.5D, retrySpeed)) {
+                        stop();
+                    }
                     this.timeoutCachedNode = 0L;
                     this.timeoutTimer = 0L;
                     this.timeoutLimit = 0.0D;

@@ -246,7 +246,8 @@ final class ShipLegacyPathFinder {
                     if (state.getBlock() instanceof StairBlock
                             || state.getBlock() instanceof LadderBlock
                             || state.is(BlockTags.CLIMBABLE)) {
-                        return LegacyPathType.STAIR_OR_LADDER;
+                        sawOpenable = true;
+                        continue;
                     }
 
                     if (state.getBlock() instanceof FenceBlock || state.getBlock() instanceof WallBlock) {

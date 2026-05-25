@@ -14,6 +14,8 @@ class EntityShipBasePointer {
     private static final double POINTER_ENTITY_PATH_REFRESH_DISTANCE_SQR = 1.0D;
     private static final int POINTER_ENTITY_PATH_RECALC_INTERVAL = 10;
     private static final double POINTER_ENTITY_MOVE_SPEED = 1.1D;
+    private static final int POINTER_ENTITY_MOVE_FAIL_LIMIT = 40;
+    private static final int POINTER_ENTITY_STUCK_TICK_LIMIT = 120;
 
     private final EntityShipBase ship;
 
@@ -29,6 +31,9 @@ class EntityShipBasePointer {
     private int pointerTargetEntityLightShotTick = 0;
     private int pointerTargetEntityHeavyShotTick = 0;
     private int pointerTargetEntityPathTick = 0;
+    private int pointerTargetEntityMoveFailCount = 0;
+    private int pointerTargetEntityStuckTicks = 0;
+    private Vec3 pointerTargetEntityLastPos = null;
 
     EntityShipBasePointer(EntityShipBase ship) {
         this.ship = ship;
@@ -212,6 +217,9 @@ class EntityShipBasePointer {
         this.pointerTargetEntityLightShotTick = this.ship.tickCount + aimDelay;
         this.pointerTargetEntityHeavyShotTick = this.ship.tickCount + aimDelay;
         this.pointerTargetEntityPathTick = 0;
+        this.pointerTargetEntityMoveFailCount = 0;
+        this.pointerTargetEntityStuckTicks = 0;
+        this.pointerTargetEntityLastPos = this.ship.position();
         this.ship.getCombat().resetAircraftLaunchDelay();
         updateSynchedData();
     }
@@ -255,6 +263,9 @@ class EntityShipBasePointer {
     void clearPointerTargetEntity() {
         this.pointerTargetEntityId = null;
         this.pointerTargetEntityUntil = 0L;
+        this.pointerTargetEntityMoveFailCount = 0;
+        this.pointerTargetEntityStuckTicks = 0;
+        this.pointerTargetEntityLastPos = null;
         updateSynchedData();
     }
 
@@ -328,15 +339,32 @@ class EntityShipBasePointer {
         boolean cannotSee = !onSight && distanceSqr > desiredRangeSqr * 0.5D;
 
         if (needsCloser || cannotSee) {
+            trackPointerTargetEntityStuckState();
+            if (this.pointerTargetEntityStuckTicks > POINTER_ENTITY_STUCK_TICK_LIMIT) {
+                clearPointerTargetEntity();
+                this.ship.getNavigation().stop();
+                return;
+            }
             if (this.pointerTargetEntityPathTick-- <= 0) {
                 this.pointerTargetEntityPathTick = POINTER_ENTITY_PATH_RECALC_INTERVAL;
                 if (!this.ship.getNavigation().moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
+                    this.pointerTargetEntityMoveFailCount++;
+                    if (this.pointerTargetEntityMoveFailCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {
+                        clearPointerTargetEntity();
+                        this.ship.getNavigation().stop();
+                        return;
+                    }
                     this.pointerTargetEntityPathTick = 2;
+                } else {
+                    this.pointerTargetEntityMoveFailCount = 0;
                 }
             }
             return;
         }
 
+        this.pointerTargetEntityMoveFailCount = 0;
+        this.pointerTargetEntityStuckTicks = 0;
+        this.pointerTargetEntityLastPos = this.ship.position();
         this.ship.getNavigation().stop();
         this.ship.getMoveControl().setWantedPosition(
                 this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
@@ -393,5 +421,21 @@ class EntityShipBasePointer {
         double width = this.ship.getBbWidth() * 2.0F;
         double reach = width * width + target.getBbWidth();
         return Math.max(reach, POINTER_ENTITY_ATTACK_RANGE_SQR);
+    }
+
+    private void trackPointerTargetEntityStuckState() {
+        Vec3 currentPos = this.ship.position();
+        if (this.pointerTargetEntityLastPos == null) {
+            this.pointerTargetEntityLastPos = currentPos;
+            this.pointerTargetEntityStuckTicks = 0;
+            return;
+        }
+
+        if (currentPos.distanceToSqr(this.pointerTargetEntityLastPos) < 0.04D) {
+            this.pointerTargetEntityStuckTicks++;
+        } else {
+            this.pointerTargetEntityStuckTicks = 0;
+            this.pointerTargetEntityLastPos = currentPos;
+        }
     }
 }
