@@ -29,6 +29,7 @@
   "chat.shincolle.formation.notenough": "你的队伍中至少需要五艘船。",
   "chat.shincolle.formation.teamfull": "当前队伍已满。",
   "chat.shincolle.levelfail": "等级太低！",
+  "chat.shincolle.modernkit.maxed": "这位舰娘已经无法继续进行近代化改修了。",
   "chat.shincolle.optool.add": "管理员工具：将目标添加到§e不可攻击列表§r：",
   "chat.shincolle.optool.remove": "管理员工具：将目标从§c不可攻击列表§r移除：",
   "chat.shincolle.optool.show": "管理员工具：显示不可攻击实体列表：",

@@ -29,6 +29,7 @@
   "chat.shincolle.formation.notenough": "You need at least five ships in your team.",
   "chat.shincolle.formation.teamfull": "The current team is already full.",
   "chat.shincolle.levelfail": "Level is too low!",
+  "chat.shincolle.modernkit.maxed": "This ship cannot be modernized any further.",
   "chat.shincolle.optool.add": "OP Tool: §eADD§r to unattackable entity list:",
   "chat.shincolle.optool.remove": "OP Tool: §cREMOVE§r from unattackable entity list:",
   "chat.shincolle.optool.show": "OP Tool: Show unattackable entity list:",

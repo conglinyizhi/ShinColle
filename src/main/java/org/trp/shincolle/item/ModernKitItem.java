@@ -9,6 +9,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import org.trp.shincolle.Config;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 
 import java.util.List;
@@ -23,20 +25,49 @@ public class ModernKitItem extends Item {
         if (!(interactionTarget instanceof EntityShipBase ship)) {
             return InteractionResult.PASS;
         }
+        Shincolle.debugLog("ModernKit interact target={} ship={} ownerMatch={} client={} hand={} itemCount={}",
+                interactionTarget.getType().toShortString(), ship.getUUID(), ship.isOwnedBy(player), player.level().isClientSide, usedHand, stack.getCount());
         if (!ship.isOwnedBy(player)) {
             return InteractionResult.PASS;
         }
         if (player.level().isClientSide) {
+            if (!ship.getLegacyShipStats().hasBonusCapacity()) {
+                Shincolle.debugLog("ModernKit client fail ship={} bonusesMaxed=true", ship.getUUID());
+                return InteractionResult.FAIL;
+            }
+            Shincolle.debugLog("ModernKit client success ship={}", ship.getUUID());
             return InteractionResult.sidedSuccess(true);
         }
 
-        int attrId = player.getRandom().nextInt(6);
-        ship.setAttrBonus(attrId, ship.getAttrBonus(attrId) + 1);
-        ship.setHealth(Math.min(ship.getMaxHealth(), ship.getHealth() + 1.0F));
-
-        if (!player.getAbilities().instabuild) {
-            stack.shrink(1);
+        int[] beforeBonus = new int[6];
+        for (int i = 0; i < beforeBonus.length; i++) {
+            beforeBonus[i] = ship.getAttrBonus(i);
         }
+
+        if (!ship.interactModernKit(player, stack)) {
+            Shincolle.debugLog("ModernKit noEffect ship={} bonusesMaxed=true", ship.getUUID());
+            if (Config.modernKitNotifyWhenMaxed) {
+                player.displayClientMessage(
+                        Component.translatable("chat.shincolle.modernkit.maxed"),
+                        Config.modernKitNotifyWhenMaxedActionBar);
+            }
+            return InteractionResult.FAIL;
+        }
+
+        int appliedAttrId = -1;
+        for (int i = 0; i < beforeBonus.length; i++) {
+            if (ship.getAttrBonus(i) > beforeBonus[i]) {
+                appliedAttrId = i;
+                break;
+            }
+        }
+
+        Shincolle.debugLog("ModernKit applied ship={} attrId={} newAttrBonus={} bonuses={}/{}/{}/{}/{}/{} creative={}",
+                ship.getUUID(), appliedAttrId, appliedAttrId >= 0 ? ship.getAttrBonus(appliedAttrId) : -1,
+                ship.getAttrBonus(0), ship.getAttrBonus(1), ship.getAttrBonus(2),
+                ship.getAttrBonus(3), ship.getAttrBonus(4), ship.getAttrBonus(5),
+                player.getAbilities().instabuild);
+        Shincolle.debugLog("ModernKit consumed ship={} remaining={}", ship.getUUID(), stack.getCount());
         return InteractionResult.sidedSuccess(false);
     }
 

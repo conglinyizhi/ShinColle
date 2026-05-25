@@ -31,6 +31,9 @@ public class Config {
     private static final ModConfigSpec.IntValue SHIP_MAX_LEVEL_MARRIED;
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MIN;
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MAX;
+    private static final ModConfigSpec.BooleanValue DEBUG_LOGGING;
+    private static final ModConfigSpec.BooleanValue MODERN_KIT_NOTIFY_WHEN_MAXED;
+    private static final ModConfigSpec.BooleanValue MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR;
     private static final ModConfigSpec.IntValue FUEL_DECAY_INTERVAL;
     private static final ModConfigSpec.IntValue FUEL_MOVE_DECAY_FACTOR;
     private static final ModConfigSpec.IntValue FUEL_CONSUME_DD;
@@ -121,6 +124,9 @@ public class Config {
     public static int shipMaxLevelMarried = 150;
     public static int trainingBookLevelMin = 5;
     public static int trainingBookLevelMax = 10;
+    public static boolean debugLogging = false;
+    public static boolean modernKitNotifyWhenMaxed = true;
+    public static boolean modernKitNotifyWhenMaxedActionBar = true;
     public static int fuelDecayInterval = 128;
     public static int fuelMoveDecayFactor = 3;
     public static int fuelConsumeDD = 5;
@@ -323,6 +329,24 @@ public class Config {
         TRAINING_BOOK_LEVEL_MAX = BUILDER
                 .comment("Training book maximum level gain")
                 .defineInRange("trainingBookLevelMax", trainingBookLevelMax, 1, 50);
+
+        BUILDER.pop();
+
+        BUILDER.comment("Debug and diagnostics settings").push("debug");
+        DEBUG_LOGGING = BUILDER
+                .comment("Enable verbose ShinColle debug diagnostics. Keep disabled during normal gameplay.")
+                .define("debugLogging", debugLogging);
+        BUILDER.pop();
+
+        BUILDER.comment("Ship interaction feedback settings").push("ship_interaction");
+
+        MODERN_KIT_NOTIFY_WHEN_MAXED = BUILDER
+                .comment("Show a player-facing message when a ship can no longer gain modernization bonuses")
+                .define("modernKitNotifyWhenMaxed", modernKitNotifyWhenMaxed);
+
+        MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR = BUILDER
+                .comment("Show the maxed modernization message in the action bar instead of chat")
+                .define("modernKitNotifyWhenMaxedActionBar", modernKitNotifyWhenMaxedActionBar);
 
         BUILDER.pop();
 
@@ -551,6 +575,9 @@ public class Config {
             shipMaxLevelMarried = Math.max(shipMaxLevelNormal, SHIP_MAX_LEVEL_MARRIED.get());
             trainingBookLevelMin = TRAINING_BOOK_LEVEL_MIN.get();
             trainingBookLevelMax = Math.max(trainingBookLevelMin, TRAINING_BOOK_LEVEL_MAX.get());
+            debugLogging = DEBUG_LOGGING.get();
+            modernKitNotifyWhenMaxed = MODERN_KIT_NOTIFY_WHEN_MAXED.get();
+            modernKitNotifyWhenMaxedActionBar = MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR.get();
 
             fuelDecayInterval = FUEL_DECAY_INTERVAL.get();
             fuelMoveDecayFactor = FUEL_MOVE_DECAY_FACTOR.get();

@@ -237,6 +237,7 @@
     "chat.shincolle.optool.add": "OP工具： §e新增§r 不可攻擊目標：",
     "chat.shincolle.optool.remove": "OP工具： §c移除§r 不可攻擊目標：",
     "chat.shincolle.formation.notenough": "You need at least five ships in your team. (awaiting translation)",
+    "chat.shincolle.modernkit.maxed": "這位艦娘已經無法繼續進行近代化改修了。",
     "chat.shincolle.command.command": "指令：",
     "chat.shincolle.command.notop": "指令失敗： 需要OP權限！",
     "chat.shincolle.command.notship": "指令失敗： 目標不是船艦！",

@@ -238,6 +238,7 @@
     "chat.shincolle.wrench.samepoint": "同ジウェイポイントヲ選択シタノデ、記録ヲ リセットシマシタ。",
     "chat.shincolle.wrench.unatkshow": "非攻撃対象リスト:",
     "chat.shincolle.formation.notenough": "フォーメーションヲ利用スルニハ、棲艦が5隻以上必要デス。",
+    "chat.shincolle.modernkit.maxed": "この艦娘はこれ以上近代化改修できません。",
     "chat.shincolle.command.command": "コマンド:",
     "chat.shincolle.command.notop": "コマンド失敗: OPガ必要デス！",
     "chat.shincolle.command.notship": "コマンド失敗: ターゲットハ棲艦デハアリマセン！",

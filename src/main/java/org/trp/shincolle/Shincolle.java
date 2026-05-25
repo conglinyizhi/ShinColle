@@ -1,5 +1,6 @@
 package org.trp.shincolle;
 
+import com.mojang.logging.LogUtils;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -7,10 +8,19 @@ import net.neoforged.fml.config.ModConfig;
 import org.trp.shincolle.event.ModCapabilityEvents;
 import org.trp.shincolle.init.*;
 import org.trp.shincolle.menu.ModMenus;
+import org.slf4j.Logger;
 
 @Mod(Shincolle.MODID)
 public class Shincolle {
     public static final String MODID = "shincolle";
+    public static final Logger LOGGER = LogUtils.getLogger();
+
+    public static void debugLog(String message, Object... args) {
+        if (!Config.debugLogging) {
+            return;
+        }
+        LOGGER.info("[ShinColleDebug] " + message, args);
+    }
 
     public Shincolle(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
