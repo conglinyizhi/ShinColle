@@ -2555,6 +2555,12 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        InteractionResult itemInteractionResult = stack.getItem().interactLivingEntity(stack, player, this, hand);
+        if (itemInteractionResult != InteractionResult.PASS) {
+            return itemInteractionResult;
+        }
+
         if (!this.level().isClientSide && hand == InteractionHand.MAIN_HAND) {
             if (!this.isTame()) {
                 return InteractionResult.PASS;
@@ -2563,8 +2569,6 @@ public abstract class EntityShipBase extends TamableAnimal {
             if (!this.isOwnedBy(player)) {
                 return InteractionResult.PASS;
             }
-
-            ItemStack stack = player.getItemInHand(hand);
             if (stack.is(ModItems.TRAINING_BOOK.get())) {
                 return InteractionResult.PASS;
             }
