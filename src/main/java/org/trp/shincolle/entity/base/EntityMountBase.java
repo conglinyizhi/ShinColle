@@ -341,6 +341,10 @@ public abstract class EntityMountBase extends PathfinderMob {
 
         super.tick();
 
+        if (this.isOnFire()) {
+            this.clearFire();
+        }
+
         if ((this.tickCount & 0x7F) == 0) this.setAirSupply(300);
 
         if (this.level().isClientSide) {
@@ -626,7 +630,8 @@ public abstract class EntityMountBase extends PathfinderMob {
 
         if (this.host == null) { this.discard(); return false; }
 
-        if (source.is(DamageTypeTags.IS_FALL)
+        if (source.is(DamageTypeTags.IS_FIRE)
+                || source.is(DamageTypeTags.IS_FALL)
                 || source.is(DamageTypes.IN_WALL)
                 || source.is(DamageTypes.STARVE)
                 || source.is(DamageTypes.CACTUS)
@@ -664,6 +669,16 @@ public abstract class EntityMountBase extends PathfinderMob {
         }
 
         return super.hurt(source, reduced);
+    }
+
+    @Override
+    public boolean fireImmune() {
+        return true;
+    }
+
+    @Override
+    public boolean displayFireAnimation() {
+        return false;
     }
 
     @Override
