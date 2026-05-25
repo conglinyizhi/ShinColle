@@ -1325,9 +1325,6 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     public boolean displayFireAnimation() {
-        if (super.displayFireAnimation()) {
-            return true;
-        }
         return (this.getHealth() / this.getMaxHealth()) <= 0.25F;
     }
 
