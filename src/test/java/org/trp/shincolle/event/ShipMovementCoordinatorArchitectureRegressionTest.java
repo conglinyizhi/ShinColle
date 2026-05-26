@@ -80,10 +80,20 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(follow.contains("private final ShipMovementCoordinator movement;"),
                 "Follow-owner goal should use the shared movement coordinator");
+        assertTrue(follow.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
+                "Follow-owner goal should use the shared recovery state");
         assertTrue(follow.contains("this.movement.moveTo(moveTarget, this.speed);"),
                 "Follow-owner goal should route move requests through the coordinator");
         assertTrue(follow.contains("this.movement.teleportNearLiving(owner, 0.75D)"),
                 "Follow-owner teleport should route through the coordinator");
+        assertTrue(follow.contains("this.recovery.shouldTryTeleportThrottled(force, distSq, TP_DIST_SQ, TP_COOLDOWN)"),
+                "Follow-owner teleport recovery should share throttled recovery policy");
+        assertTrue(follow.contains("FollowOwner teleportRecovery"),
+                "Follow-owner teleport recovery should emit searchable debug logs");
+        assertFalse(follow.contains("checkTP_T"),
+                "Follow-owner goal should not keep a separate blind teleport timer");
+        assertFalse(follow.contains("checkTP_D"),
+                "Follow-owner goal should not keep a separate distance teleport timer");
         assertFalse(follow.contains("ShipTeleportHelper.teleportNearLiving"),
                 "Follow-owner goal should not call teleport helper directly");
 
@@ -234,17 +244,28 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     @Test
     void movementRecoveryStateShouldCentralizeFailureAndStuckCounters() throws IOException {
         String recovery = Files.readString(MOVEMENT_RECOVERY_SOURCE);
+        String follow = Files.readString(FOLLOW_GOAL_SOURCE);
         String pointerGoal = Files.readString(POINTER_GOAL_SOURCE);
         String pointerEntity = Files.readString(POINTER_SOURCE);
         String guard = Files.readString(GUARD_GOAL_SOURCE);
         String passiveCombat = Files.readString(PASSIVE_COMBAT_SOURCE);
 
-        assertTrue(recovery.contains("final class ShipMovementRecoveryState"),
-                "Movement recovery counters should live in a small shared runtime object");
+        assertTrue(recovery.contains("public final class ShipMovementRecoveryState"),
+                "Movement recovery counters should live in a small shared runtime object reusable by special ship entities");
         assertTrue(recovery.contains("private static final double PROGRESS_DISTANCE_SQR = 0.04D;"),
                 "No-progress detection threshold should be centralized");
         assertTrue(recovery.contains("boolean shouldTryTeleport(boolean force, double distanceSqr, double teleportDistanceSqr, int cooldownTicks)"),
                 "Teleport cooldown policy should be centralized");
+        assertTrue(recovery.contains("boolean shouldTryTeleportThrottled(boolean force, double distanceSqr, double teleportDistanceSqr, int cooldownTicks)"),
+                "Forced teleport recovery should also have an opt-in shared throttle");
+        assertTrue(recovery.contains("public int stuckTicks()"),
+                "Special ship entities should be able to read shared stuck state without duplicating counters");
+        assertTrue(recovery.contains("public boolean isStuckLongerThan(int stuckTickLimit)"),
+                "Stuck timeout comparison should be centralized in the recovery state");
+        assertTrue(recovery.contains("this.forcedTeleportCooldown = 0;\n            this.lastProgressPos = currentPos;"),
+                "Actual movement progress should clear stale forced teleport throttling");
+        assertTrue(follow.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
+                "Follow-owner movement should use the shared recovery state");
         assertTrue(pointerGoal.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
                 "Pointer position movement should use the shared recovery state");
         assertTrue(guard.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
@@ -261,6 +282,24 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Pointer entity movement should not duplicate progress tracking fields");
         assertFalse(passiveCombat.contains("passiveLastProgressPos"),
                 "Passive combat movement should not duplicate progress tracking fields");
+        assertFalse(pointerGoal.contains("stuckTicks() >"),
+                "Pointer movement should not duplicate stuck-timeout comparison");
+        assertFalse(guard.contains("stuckTicks() >"),
+                "Guard movement should not duplicate stuck-timeout comparison");
+        assertFalse(pointerEntity.contains("stuckTicks() >"),
+                "Pointer entity movement should not duplicate stuck-timeout comparison");
+        assertFalse(passiveCombat.contains("stuckTicks() >"),
+                "Passive combat movement should not duplicate stuck-timeout comparison");
+    }
+
+    @Test
+    void mountFollowShouldThrottleForcedTeleportRecovery() throws IOException {
+        String mount = Files.readString(MOUNT_SOURCE);
+
+        assertTrue(mount.contains("recovery.shouldTryTeleportThrottled(force, distSq, TP_DIST_SQ, TP_COOLDOWN)"),
+                "Mount follow should not retry failed forced teleport recovery every tick");
+        assertFalse(mount.contains("if (!force && !recovery.shouldTryTeleport(false"),
+                "Mount follow should not bypass the shared throttle once stuck recovery is forced");
     }
 
     @Test
@@ -271,10 +310,36 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(aircraft.contains("private final ShipMovementCoordinator returnMovement;"),
                 "Aircraft return-home movement should use the shared movement coordinator");
+        assertTrue(aircraft.contains("private final ShipMovementRecoveryState returnRecovery;"),
+                "Aircraft return-home movement should use shared recovery state");
+        assertTrue(aircraft.contains("private int returnHomeTicks;"),
+                "Aircraft return-home should track failsafe time after recovery starts");
+        assertTrue(aircraft.contains("private void startReturnHome()"),
+                "Aircraft return-home state changes should be centralized");
+        assertTrue(aircraft.contains("private void resumeMission()"),
+                "Aircraft mission resume should clear stale return-home state");
+        assertTrue(aircraft.contains("this.returnRecovery.clear();\n            this.returnHomeTicks = 0;"),
+                "Aircraft return-home state transitions should clear stale recovery counters");
         assertTrue(aircraft.contains("this.returnMovement = new ShipMovementCoordinator(this);"),
                 "Aircraft should create a coordinator for return-home movement");
+        assertTrue(aircraft.contains("this.returnRecovery = new ShipMovementRecoveryState();"),
+                "Aircraft should create recovery state for return-home movement");
         assertTrue(aircraft.contains("this.returnMovement.moveTo(homePos, 0.5D);"),
                 "Aircraft return-home movement should route through the coordinator");
+        assertTrue(aircraft.contains("if (trackReturnHomeRecovery(carrier, distSq))"),
+                "Aircraft return-home movement should try recovery before giving up");
+        assertTrue(aircraft.contains("this.returnMovement.teleportNearLiving(carrier, carrier.getBbHeight() + 0.75D)"),
+                "Aircraft return-home recovery should safely teleport near the carrier");
+        assertTrue(aircraft.contains("AircraftReturn teleportRecovery"),
+                "Aircraft return-home recovery should emit searchable debug logs");
+        assertTrue(aircraft.contains("AircraftReturn failsafeDiscard"),
+                "Aircraft return-home should eventually release resources if recovery cannot reach the carrier");
+        assertTrue(aircraft.contains("this.returnHomeTicks > RETURN_HOME_FAILSAFE_TICKS\n                && this.returnRecovery.isStuckLongerThan(RETURN_HOME_FAILSAFE_TICKS)"),
+                "Aircraft return-home failsafe should require sustained no-progress, not only elapsed return time");
+        assertTrue(aircraft.contains("returnSummonResources(carrier);\n            this.discard();"),
+                "Aircraft return-home failsafe should return resources before discarding");
+        assertFalse(aircraft.contains("RETURN_MAX_DISTANCE_SQR"),
+                "Aircraft return-home should not discard solely because it is far from the carrier");
         assertFalse(aircraft.contains("this.getNavigation().moveTo(homePos.x, homePos.y, homePos.z"),
                 "Aircraft return-home movement should not issue raw navigation requests");
 
@@ -291,6 +356,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Summon goals should use the shared movement coordinator");
         assertTrue(summon.contains("private final ShipMovementCoordinator returnMovement;"),
                 "Summon return-to-carrier movement should use a shared movement coordinator");
+        assertTrue(summon.contains("private final ShipMovementRecoveryState returnRecovery;"),
+                "Summon return-to-carrier movement should use shared recovery state");
+        assertTrue(summon.contains("private int returnTicks;"),
+                "Summon return-to-carrier should track failsafe time after recovery starts");
+        assertTrue(summon.contains("private void resetReturnState()"),
+                "Summon return-to-carrier state resets should be centralized");
+        assertTrue(summon.contains("this.returnRecovery.clear();\n        this.returnTicks = 0;"),
+                "Summon target reacquisition should clear stale return-to-carrier state");
         assertTrue(summon.contains("this.movement.moveTo(target, 1.2D);"),
                 "Summon attack chase should route through the coordinator");
         assertTrue(summon.contains("this.movement.stop();"),
@@ -299,6 +372,20 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Summon carrier follow should route through the coordinator");
         assertTrue(summon.contains("this.returnMovement.moveTo(carrier, 1.2D);"),
                 "Summon return-to-carrier movement should route through the coordinator");
+        assertTrue(summon.contains("if (trackReturnRecovery(carrier, distSq))"),
+                "Summon return-to-carrier movement should try recovery before giving up");
+        assertTrue(summon.contains("this.returnMovement.teleportNearLiving(carrier, 0.75D)"),
+                "Summon return-to-carrier recovery should safely teleport near the carrier");
+        assertTrue(summon.contains("SummonReturn teleportRecovery"),
+                "Summon return-to-carrier recovery should emit searchable debug logs");
+        assertTrue(summon.contains("SummonReturn failsafeDiscard"),
+                "Summon return-to-carrier should eventually release resources if recovery cannot reach the carrier");
+        assertTrue(summon.contains("this.returnTicks > RETURN_FAILSAFE_TICKS\n                    && this.returnRecovery.isStuckLongerThan(RETURN_FAILSAFE_TICKS)"),
+                "Summon return-to-carrier failsafe should require sustained no-progress, not only elapsed return time");
+        assertTrue(summon.contains("returnSummonResourcesOnce(carrier);\n                this.discard();"),
+                "Summon return-to-carrier failsafe should return resources before discarding");
+        assertFalse(summon.contains("this.distanceToSqr(carrier) > 1024.0D"),
+                "Summon return-to-carrier should not discard solely because it is far from the carrier");
         assertFalse(summon.contains("mob.getNavigation().moveTo"),
                 "Summon goals should not issue raw navigation requests");
         assertFalse(summon.contains("mob.getNavigation().stop"),
@@ -334,14 +421,28 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(inazuma.contains("private final ShipMovementCoordinator raidenMovement;"),
                 "Raiden gattai follow should use the shared movement coordinator");
+        assertTrue(inazuma.contains("private final ShipMovementRecoveryState raidenRecovery;"),
+                "Raiden gattai follow should use the shared movement recovery state");
         assertTrue(inazuma.contains("this.raidenMovement = new ShipMovementCoordinator(this);"),
                 "Raiden gattai should create a coordinator for follow movement");
+        assertTrue(inazuma.contains("this.raidenRecovery = new ShipMovementRecoveryState();"),
+                "Raiden gattai should create a shared recovery state");
         assertTrue(inazuma.contains("this.raidenMovement.stop();"),
                 "Raiden gattai close-range stop should route through the coordinator");
         assertTrue(inazuma.contains("this.raidenMovement.moveTo(owner, 1.0D);"),
                 "Raiden gattai follow should route movement through the coordinator");
+        assertTrue(inazuma.contains("trackRaidenFollowRecovery(owner, distanceSqr);"),
+                "Raiden gattai should try recovery even when it is too far for ordinary navigation");
+        assertTrue(inazuma.contains("this.raidenRecovery.shouldTryTeleportThrottled(force, distanceSqr,"),
+                "Raiden gattai recovery should share throttled teleport policy");
+        assertTrue(inazuma.contains("this.raidenMovement.teleportNearLiving(owner, 0.75D)"),
+                "Raiden gattai recovery should route teleport through the coordinator");
+        assertTrue(inazuma.contains("RaidenFollow teleportRecovery"),
+                "Raiden gattai recovery should emit searchable debug logs");
         assertTrue(inazuma.contains("this.raidenMovement.reset();"),
                 "Raiden gattai should reset duplicate-move state when it ends");
+        assertTrue(inazuma.contains("this.raidenRecovery.clear();"),
+                "Raiden gattai should clear recovery state when it ends");
         assertFalse(inazuma.contains("this.getNavigation().moveTo(owner, 1.0D)"),
                 "Raiden gattai follow should not issue raw navigation requests");
 

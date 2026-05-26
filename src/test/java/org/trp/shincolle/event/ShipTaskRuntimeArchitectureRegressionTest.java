@@ -30,9 +30,21 @@ class ShipTaskRuntimeArchitectureRegressionTest {
                 "Task helper should be able to access the ship task runtime");
         assertTrue(runtime.contains("private final ShipMovementCoordinator movement;"),
                 "Task runtime should preserve a long-lived movement coordinator");
+        assertTrue(runtime.contains("private final ShipMovementRecoveryState recovery;"),
+                "Task runtime should use shared movement recovery for fixed task targets");
+        assertTrue(runtime.contains("public boolean moveToTaskPoint(Vec3 target, double speed)"),
+                "Task runtime should expose recoverable movement for fixed waypoint tasks");
+        assertTrue(runtime.contains("this.recovery.shouldTryTeleportThrottled(force, distanceSqr,"),
+                "Task runtime should use throttled teleport recovery for fixed task targets");
+        assertTrue(runtime.contains("this.movement.teleportNearPoint(target, 0.75D)"),
+                "Task runtime should route task teleport recovery through the coordinator");
+        assertTrue(runtime.contains("TaskMove teleportRecovery"),
+                "Task runtime should emit searchable recovery diagnostics");
+        assertTrue(runtime.contains("private boolean shouldLogMoveFailure(int failCount)"),
+                "Task runtime should rate-limit repeated move-failure diagnostics");
         assertTrue(runtime.contains("public void beginTaskTick(int taskId)"),
                 "Task runtime should track task transitions");
-        assertTrue(runtime.contains("this.movement.reset();\n            this.lastTaskId = taskId;"),
+        assertTrue(runtime.contains("this.movement.reset();\n            this.recovery.reset(this.ship.position());"),
                 "Task runtime should reset movement suppression when task id changes");
         assertTrue(runtime.contains("public void clearTask()"),
                 "Task runtime should reset movement state when tasks stop");
@@ -48,10 +60,10 @@ class ShipTaskRuntimeArchitectureRegressionTest {
                 "Task helper should notify runtime about task id changes");
         assertTrue(source.contains("host.getTaskRuntime().clearTask();"),
                 "Task helper should clear runtime movement state when tasks cannot run");
-        assertTrue(source.contains("runtime.moveTo(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);"),
-                "Waypoint task movement should route through the runtime coordinator");
+        assertTrue(source.contains("runtime.moveToTaskPoint(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);"),
+                "Fixed waypoint task movement should route through the recoverable runtime path");
         assertTrue(source.contains("runtime.moveTo(new Vec3(\n                    host.getX() + host.getRandom().nextInt(9) - 4.0D"),
-                "Mining random stroll should route through the runtime coordinator");
+                "Mining random stroll should route through ordinary runtime movement instead of teleport recovery");
         assertFalse(source.contains("host.getNavigation().moveTo"),
                 "Task helper should not issue raw ship navigation requests");
     }

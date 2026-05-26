@@ -30,11 +30,19 @@ class ShipNavigationRecoveryRegressionTest {
 
         assertTrue(source.contains("private static final int NAVIGATION_DEBUG_LOG_INTERVAL = 200;"),
                 "Navigation exceeded-check diagnostics should be rate-limited");
+        assertTrue(source.contains("private static final int NAVIGATION_SET_PATH_LOG_INTERVAL = 100;"),
+                "Repeated set-path diagnostics should be rate-limited separately from stuck diagnostics");
         assertTrue(source.contains("double progressDistanceSqr = hostPos.distanceToSqr(this.lastPosStuck);"),
                 "Navigation should track real movement progress separately from diagnostic logging");
         assertTrue(source.contains("if (progressDistanceSqr >= STUCK_DISTANCE_SQR) {"),
                 "Navigation should reset stuck recovery only after real movement progress");
         assertTrue(source.contains("if (stationaryTicks > STUCK_CHECK_INTERVAL && shouldLogExceededCheck()) {"),
                 "Navigation exceeded-check logs should not fire every check interval");
+        assertTrue(source.contains("if (shouldLogStuckApply()) {"),
+                "Navigation unstuck motion diagnostics should be rate-limited");
+        assertTrue(source.contains("private boolean shouldLogSetPath(int pathLength, boolean failure)"),
+                "Navigation set-path logs should use a shared throttle helper");
+        assertTrue(source.contains("return this.totalTicks - this.lastSetPathLogTick >= NAVIGATION_SET_PATH_LOG_INTERVAL;"),
+                "Repeated set-path logs for the same target should wait for the configured interval");
     }
 }

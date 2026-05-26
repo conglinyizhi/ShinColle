@@ -34,7 +34,7 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity commands should define a stuck timeout");
         assertTrue(source.contains("this.pointerTargetEntityRecovery.trackProgress(this.ship.position());"),
                 "Pointer-entity commands should track whether the ship is making progress");
-        assertTrue(source.contains("if (this.pointerTargetEntityRecovery.stuckTicks() > POINTER_ENTITY_STUCK_TICK_LIMIT) {"),
+        assertTrue(source.contains("if (this.pointerTargetEntityRecovery.isStuckLongerThan(POINTER_ENTITY_STUCK_TICK_LIMIT)) {"),
                 "Pointer-entity commands should clear themselves after the ship remains stuck too long");
     }
 
