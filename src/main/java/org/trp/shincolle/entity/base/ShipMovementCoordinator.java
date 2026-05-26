@@ -35,9 +35,7 @@ public final class ShipMovementCoordinator {
             return true;
         }
 
-        this.lastMoveTarget = target;
-        this.lastMoveTick = this.mob.tickCount;
-        return mob.getNavigation().moveTo(target.x, target.y, target.z, speed);
+        return recordMoveRequest(target, mob.getNavigation().moveTo(target.x, target.y, target.z, speed));
     }
 
     public boolean moveTo(Entity target, double speed) {
@@ -46,9 +44,7 @@ public final class ShipMovementCoordinator {
             return true;
         }
 
-        this.lastMoveTarget = targetPos;
-        this.lastMoveTick = this.mob.tickCount;
-        return mob.getNavigation().moveTo(target, speed);
+        return recordMoveRequest(targetPos, mob.getNavigation().moveTo(target, speed));
     }
 
     private boolean shouldSuppressSameTargetMove(Vec3 target) {
@@ -56,6 +52,17 @@ public final class ShipMovementCoordinator {
                 && this.lastMoveTarget != null
                 && this.lastMoveTarget.distanceToSqr(target) < SAME_MOVE_TARGET_SQR
                 && this.mob.tickCount - this.lastMoveTick < SAME_MOVE_REFRESH_INTERVAL_TICKS;
+    }
+
+    private boolean recordMoveRequest(Vec3 target, boolean moved) {
+        if (!moved) {
+            reset();
+            return false;
+        }
+
+        this.lastMoveTarget = target;
+        this.lastMoveTick = this.mob.tickCount;
+        return true;
     }
 
     public boolean teleportNearLiving(LivingEntity anchor, double verticalOffset) {

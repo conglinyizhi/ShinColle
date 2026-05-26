@@ -71,6 +71,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Repeated move suppression should be centralized for point and entity targets");
         assertTrue(source.contains("this.mob.tickCount - this.lastMoveTick < SAME_MOVE_REFRESH_INTERVAL_TICKS"),
                 "Repeated move suppression should not hide stale navigation indefinitely");
+        assertTrue(source.contains("private boolean recordMoveRequest(Vec3 target, boolean moved)"),
+                "Coordinator should centralize successful move bookkeeping");
+        assertTrue(source.contains("if (!moved) {\n            reset();\n            return false;\n        }"),
+                "Failed move requests should not poison later duplicate-move suppression");
+        assertTrue(source.contains("return recordMoveRequest(target, mob.getNavigation().moveTo(target.x, target.y, target.z, speed));"),
+                "Point movement should only record duplicate suppression state after navigation accepts the move");
+        assertTrue(source.contains("return recordMoveRequest(targetPos, mob.getNavigation().moveTo(target, speed));"),
+                "Entity movement should only record duplicate suppression state after navigation accepts the move");
         assertTrue(source.contains("boolean teleportNearLiving(LivingEntity anchor, double verticalOffset)"),
                 "Coordinator should expose living-anchor teleport recovery");
         assertTrue(source.contains("public boolean teleportNearLivingIgnoringConfig(LivingEntity anchor, double verticalOffset)"),
