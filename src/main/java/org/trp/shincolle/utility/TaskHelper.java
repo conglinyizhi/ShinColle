@@ -92,7 +92,7 @@ public class TaskHelper {
 
         BlockPos wpPos = new BlockPos(gx, gy, gz);
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 25.0D) {
-            runtime.moveTo(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
+            runtime.moveToTaskPoint(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
             return;
         }
 
@@ -240,7 +240,7 @@ public class TaskHelper {
         int gz = guardTarget.z();
 
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 10.0D) {
-            runtime.moveTo(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
+            runtime.moveToTaskPoint(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
             return;
         }
 
@@ -531,7 +531,7 @@ public class TaskHelper {
         int gz = guardTarget.z();
 
         if (host.distanceToSqr(gx + 0.5, gy, gz + 0.5) > 25.0D) {
-            runtime.moveTo(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
+            runtime.moveToTaskPoint(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);
             return;
         }
 
