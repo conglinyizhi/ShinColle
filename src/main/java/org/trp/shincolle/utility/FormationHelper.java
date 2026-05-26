@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.block.DeskBlock;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.ShipMovementCoordinator;
@@ -73,7 +74,9 @@ public final class FormationHelper {
             if (ship.distanceToSqr(spawnX, spawnY, spawnZ) > 1024.0D) {
                 ShipMovementCoordinator movement = new ShipMovementCoordinator(ship);
                 if (!movement.teleportNearLiving(serverPlayer, 0.75D)) {
-                    ship.teleportTo(spawnX, spawnY, spawnZ);
+                    Shincolle.debugLog("Formation summon teleportFailed ship={} desk={} target={},{},{}",
+                            ship.getUUID(), deskPos, spawnX, spawnY, spawnZ);
+                    continue;
                 }
             }
             

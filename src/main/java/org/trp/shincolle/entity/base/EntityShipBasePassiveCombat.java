@@ -56,9 +56,7 @@ final class EntityShipBasePassiveCombat {
     private int passiveLastHurtByMobTimestamp;
     private int passiveLastOwnerHurtByTimestamp;
     private int passiveLastOwnerHurtMobTimestamp;
-    private int passiveMoveFailCount;
-    private int passiveStuckTicks;
-    private net.minecraft.world.phys.Vec3 passiveLastProgressPos;
+    private final ShipMovementRecoveryState movementRecovery = new ShipMovementRecoveryState();
 
     EntityShipBasePassiveCombat(EntityShipBase ship) {
         this.ship = ship;
@@ -160,36 +158,34 @@ final class EntityShipBasePassiveCombat {
             if (this.ship.hasPointerTarget() || !hasAttackMeans) {
                 return;
             }
-            trackPassiveProgress();
-            if (this.passiveStuckTicks > PASSIVE_STUCK_TICK_LIMIT) {
+            this.movementRecovery.trackProgress(this.ship.position());
+            if (this.movementRecovery.stuckTicks() > PASSIVE_STUCK_TICK_LIMIT) {
                 Shincolle.debugLog("PassiveCombat stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
-                        this.ship.getUUID(), target.getUUID(), this.passiveStuckTicks, distanceSqr);
+                        this.ship.getUUID(), target.getUUID(), this.movementRecovery.stuckTicks(), distanceSqr);
                 clearTarget(true);
                 return;
             }
             if (this.passiveTargetPathTick-- <= 0) {
                 this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
                 if (!this.movement.moveTo(target, getPassiveMoveSpeed())) {
-                    this.passiveMoveFailCount++;
+                    int failCount = this.movementRecovery.recordMoveFailure();
                     Shincolle.debugLog("PassiveCombat moveFail ship={} target={} failCount={} distanceSqr={}",
-                            this.ship.getUUID(), target.getUUID(), this.passiveMoveFailCount, distanceSqr);
-                    if (this.passiveMoveFailCount > PASSIVE_MOVE_FAIL_LIMIT) {
+                            this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
+                    if (failCount > PASSIVE_MOVE_FAIL_LIMIT) {
                         Shincolle.debugLog("PassiveCombat failClear ship={} target={} failCount={}",
-                                this.ship.getUUID(), target.getUUID(), this.passiveMoveFailCount);
+                                this.ship.getUUID(), target.getUUID(), this.movementRecovery.moveFailCount());
                         clearTarget(true);
                         return;
                     }
                     this.passiveTargetPathTick = 2;
                 } else {
-                    this.passiveMoveFailCount = 0;
+                    this.movementRecovery.clearMoveFailures();
                 }
             }
             return;
         }
 
-        this.passiveMoveFailCount = 0;
-        this.passiveStuckTicks = 0;
-        this.passiveLastProgressPos = this.ship.position();
+        this.movementRecovery.reset(this.ship.position());
         if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
             this.movement.stop();
             this.ship.getMoveControl().setWantedPosition(
@@ -235,9 +231,7 @@ final class EntityShipBasePassiveCombat {
         this.passiveTargetSightTick = 0;
         this.passiveTargetPathTick = 0;
         this.isFirstEngagementWaiting = false;
-        this.passiveMoveFailCount = 0;
-        this.passiveStuckTicks = 0;
-        this.passiveLastProgressPos = null;
+        this.movementRecovery.clear();
         this.movement.reset();
         if (stopNavigation) {
             this.movement.stop();
@@ -375,6 +369,7 @@ final class EntityShipBasePassiveCombat {
         this.passiveTargetSightTick = 0;
         this.isFirstEngagementWaiting = false;
         this.movement.reset();
+        this.movementRecovery.reset(this.ship.position());
 
         if (resetCooldown) {
             resetPassiveCombatCooldowns();
@@ -652,19 +647,4 @@ final class EntityShipBasePassiveCombat {
         return !this.ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
     }
 
-    private void trackPassiveProgress() {
-        net.minecraft.world.phys.Vec3 currentPos = this.ship.position();
-        if (this.passiveLastProgressPos == null) {
-            this.passiveLastProgressPos = currentPos;
-            this.passiveStuckTicks = 0;
-            return;
-        }
-
-        if (currentPos.distanceToSqr(this.passiveLastProgressPos) < 0.04D) {
-            this.passiveStuckTicks++;
-        } else {
-            this.passiveStuckTicks = 0;
-            this.passiveLastProgressPos = currentPos;
-        }
-    }
 }

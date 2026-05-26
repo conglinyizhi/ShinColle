@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.List;
@@ -27,9 +28,11 @@ public class EntityBattleshipNagato extends EntityShipBase {
 
     private static final int EMOTION_ATTACK_PHASE = 5;
     private static final int[] LOVE_PARTICLES = {31, 1, 7, 16, 29};
+    private final ShipMovementCoordinator eventMovement;
 
     public EntityBattleshipNagato(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        this.eventMovement = new ShipMovementCoordinator(this);
         setModelPos(new float[]{0, 25, 0, 40});
         setStateMinor(STATE_MINOR_FACTION_ID, 6);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 37);
@@ -180,7 +183,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
         }
         if (!this.getIsSitting() && !this.isPassenger() && this.getRandom().nextFloat() > 0.5f) {
             LivingEntity target = nearby.get(this.getRandom().nextInt(nearby.size()));
-            this.getNavigation().moveTo(target, 1.0D);
+            this.eventMovement.moveTo(target, 1.0D);
             int particleId = LOVE_PARTICLES[this.getRandom().nextInt(LOVE_PARTICLES.length)];
             this.applyParticleEmotion(particleId);
         }

@@ -10,6 +10,7 @@ import java.util.EnumSet;
 public class GoalShipAircraftAttack extends Goal {
 
     private final EntityAircraftBase host;
+    private final ShipMovementCoordinator movement;
     private Entity target;
     private Vec3 randPos;
     private double distSq;
@@ -17,6 +18,7 @@ public class GoalShipAircraftAttack extends Goal {
 
     public GoalShipAircraftAttack(EntityAircraftBase host) {
         this.host = host;
+        this.movement = new ShipMovementCoordinator(host);
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 
@@ -38,6 +40,7 @@ public class GoalShipAircraftAttack extends Goal {
     public void start() {
         float attackRange = this.host.isMissionLightAircraft() ? 6.0F : 16.0F;
         this.rangeSq = attackRange * attackRange;
+        this.movement.reset();
         this.updateRandomPos();
     }
 
@@ -50,7 +53,7 @@ public class GoalShipAircraftAttack extends Goal {
     public void stop() {
         this.target = null;
         this.randPos = this.host.getRandomCruisePos(null);
-        this.host.getNavigation().moveTo(this.randPos.x, this.randPos.y, this.randPos.z, 1.0D);
+        this.movement.moveTo(this.randPos, 1.0D);
     }
 
     @Override
@@ -69,7 +72,7 @@ public class GoalShipAircraftAttack extends Goal {
         } else {
             speed = this.distSq > this.rangeSq ? 0.6D : 0.3D;
         }
-        this.host.getNavigation().moveTo(this.randPos.x, this.randPos.y, this.randPos.z, speed);
+        this.movement.moveTo(this.randPos, speed);
 
         if (this.host.getAttackDelay() <= 0 && this.host.hasLineOfSight(this.target) && this.distSq < this.rangeSq) {
             if (this.host.isMissionLightAircraft() && this.host.hasAmmoLight()) {

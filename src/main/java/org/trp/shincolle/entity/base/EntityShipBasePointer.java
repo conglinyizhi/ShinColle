@@ -6,6 +6,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Shincolle;
 
 import java.util.UUID;
 
@@ -16,6 +17,8 @@ class EntityShipBasePointer {
     private static final double POINTER_ENTITY_MOVE_SPEED = 1.1D;
     private static final int POINTER_ENTITY_MOVE_FAIL_LIMIT = 40;
     private static final int POINTER_ENTITY_STUCK_TICK_LIMIT = 120;
+    private static final int POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS = 100;
+    private static final double POINTER_ENTITY_TELEPORT_DISTANCE_SQ = 256.0D;
 
     private final EntityShipBase ship;
     private final ShipMovementCoordinator movement;
@@ -32,9 +35,7 @@ class EntityShipBasePointer {
     private int pointerTargetEntityLightShotTick = 0;
     private int pointerTargetEntityHeavyShotTick = 0;
     private int pointerTargetEntityPathTick = 0;
-    private int pointerTargetEntityMoveFailCount = 0;
-    private int pointerTargetEntityStuckTicks = 0;
-    private Vec3 pointerTargetEntityLastPos = null;
+    private final ShipMovementRecoveryState pointerTargetEntityRecovery = new ShipMovementRecoveryState();
 
     EntityShipBasePointer(EntityShipBase ship) {
         this.ship = ship;
@@ -219,9 +220,7 @@ class EntityShipBasePointer {
         this.pointerTargetEntityLightShotTick = this.ship.tickCount + aimDelay;
         this.pointerTargetEntityHeavyShotTick = this.ship.tickCount + aimDelay;
         this.pointerTargetEntityPathTick = 0;
-        this.pointerTargetEntityMoveFailCount = 0;
-        this.pointerTargetEntityStuckTicks = 0;
-        this.pointerTargetEntityLastPos = this.ship.position();
+        this.pointerTargetEntityRecovery.reset(this.ship.position());
         this.movement.reset();
         this.ship.getCombat().resetAircraftLaunchDelay();
         updateSynchedData();
@@ -266,9 +265,7 @@ class EntityShipBasePointer {
     void clearPointerTargetEntity() {
         this.pointerTargetEntityId = null;
         this.pointerTargetEntityUntil = 0L;
-        this.pointerTargetEntityMoveFailCount = 0;
-        this.pointerTargetEntityStuckTicks = 0;
-        this.pointerTargetEntityLastPos = null;
+        this.pointerTargetEntityRecovery.clear();
         this.movement.reset();
         updateSynchedData();
     }
@@ -343,32 +340,45 @@ class EntityShipBasePointer {
         boolean cannotSee = !onSight && distanceSqr > desiredRangeSqr * 0.5D;
 
         if (needsCloser || cannotSee) {
-            trackPointerTargetEntityStuckState();
-            if (this.pointerTargetEntityStuckTicks > POINTER_ENTITY_STUCK_TICK_LIMIT) {
+            this.pointerTargetEntityRecovery.trackProgress(this.ship.position());
+            if (this.pointerTargetEntityRecovery.stuckTicks() > POINTER_ENTITY_STUCK_TICK_LIMIT) {
+                if (tryPointerTargetEntityTeleportRecovery(target, true)) {
+                    return;
+                }
+                Shincolle.debugLog("PointerEntity stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
+                        this.ship.getUUID(), target.getUUID(), this.pointerTargetEntityRecovery.stuckTicks(), distanceSqr);
                 clearPointerTargetEntity();
                 this.movement.stop();
                 return;
             }
             if (this.pointerTargetEntityPathTick-- <= 0) {
                 this.pointerTargetEntityPathTick = POINTER_ENTITY_PATH_RECALC_INTERVAL;
+                if (tryPointerTargetEntityTeleportRecovery(target, false)) {
+                    return;
+                }
                 if (!this.movement.moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
-                    this.pointerTargetEntityMoveFailCount++;
-                    if (this.pointerTargetEntityMoveFailCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {
+                    int failCount = this.pointerTargetEntityRecovery.recordMoveFailure();
+                    Shincolle.debugLog("PointerEntity moveFail ship={} target={} failCount={} distanceSqr={}",
+                            this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
+                    if (failCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {
+                        if (tryPointerTargetEntityTeleportRecovery(target, true)) {
+                            return;
+                        }
+                        Shincolle.debugLog("PointerEntity failClear ship={} target={} failCount={}",
+                                this.ship.getUUID(), target.getUUID(), this.pointerTargetEntityRecovery.moveFailCount());
                         clearPointerTargetEntity();
                         this.movement.stop();
                         return;
                     }
                     this.pointerTargetEntityPathTick = 2;
                 } else {
-                    this.pointerTargetEntityMoveFailCount = 0;
+                    this.pointerTargetEntityRecovery.clearMoveFailures();
                 }
             }
             return;
         }
 
-        this.pointerTargetEntityMoveFailCount = 0;
-        this.pointerTargetEntityStuckTicks = 0;
-        this.pointerTargetEntityLastPos = this.ship.position();
+        this.pointerTargetEntityRecovery.reset(this.ship.position());
         this.movement.stop();
         this.ship.getMoveControl().setWantedPosition(
                 this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
@@ -427,19 +437,26 @@ class EntityShipBasePointer {
         return Math.max(reach, POINTER_ENTITY_ATTACK_RANGE_SQR);
     }
 
-    private void trackPointerTargetEntityStuckState() {
-        Vec3 currentPos = this.ship.position();
-        if (this.pointerTargetEntityLastPos == null) {
-            this.pointerTargetEntityLastPos = currentPos;
-            this.pointerTargetEntityStuckTicks = 0;
-            return;
+    private boolean tryPointerTargetEntityTeleportRecovery(Entity target, boolean force) {
+        if (target == null) {
+            return false;
+        }
+        if (!this.pointerTargetEntityRecovery.shouldTryTeleport(force, this.ship.distanceToSqr(target),
+                POINTER_ENTITY_TELEPORT_DISTANCE_SQ, POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS)) {
+            return false;
         }
 
-        if (currentPos.distanceToSqr(this.pointerTargetEntityLastPos) < 0.04D) {
-            this.pointerTargetEntityStuckTicks++;
-        } else {
-            this.pointerTargetEntityStuckTicks = 0;
-            this.pointerTargetEntityLastPos = currentPos;
+        boolean teleported = target instanceof LivingEntity livingTarget
+                ? this.movement.teleportNearLiving(livingTarget, 0.75D)
+                : this.movement.teleportNearPoint(target.position(), 0.75D);
+        if (!teleported) {
+            return false;
         }
+
+        Shincolle.debugLog("PointerEntity teleportRecovery ship={} target={} force={}",
+                this.ship.getUUID(), target.getUUID(), force);
+        this.pointerTargetEntityPathTick = 0;
+        this.pointerTargetEntityRecovery.reset(this.ship.position());
+        return true;
     }
 }

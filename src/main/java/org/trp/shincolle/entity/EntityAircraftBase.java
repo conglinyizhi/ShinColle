@@ -18,6 +18,7 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.GoalShipAircraftAttack;
+import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.init.ModSounds;
 
 import javax.annotation.Nullable;
@@ -76,6 +77,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     private double[] randPos;
     private float attackRangeSq;
+    private final ShipMovementCoordinator returnMovement;
 
     public static AttributeSupplier.Builder createAttributes() {
         return org.trp.shincolle.entity.base.EntityShincolleSimpleMob.createAttributes()
@@ -84,6 +86,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     protected EntityAircraftBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        this.returnMovement = new ShipMovementCoordinator(this);
         this.moveControl = new FlyingMoveControl(this, 36, true);
         this.setNoGravity(true);
         this.randPos = new double[3];
@@ -329,7 +332,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         }
 
         Vec3 homePos = carrier.position().add(0.0D, carrier.getBbHeight() + 1.0D, 0.0D);
-        this.getNavigation().moveTo(homePos.x, homePos.y, homePos.z, 0.5F);
+        this.returnMovement.moveTo(homePos, 0.5D);
 
         if (this.tickCount % RETURN_HOME_CHECK_INTERVAL == 0) {
             if (this.distanceToSqr(carrier) >= RETURN_MAX_DISTANCE_SQR) {

@@ -13,6 +13,7 @@ import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.List;
@@ -28,9 +29,11 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
     private boolean isRaiden;
     private long raidenGattaiExpireTick;
     private long raidenGattaiCooldownUntilTick;
+    private final ShipMovementCoordinator raidenMovement;
 
     public EntityDestroyerInazuma(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        this.raidenMovement = new ShipMovementCoordinator(this);
         setModelPos(new float[]{0, 25, 0, 50});
         setStateMinor(STATE_MINOR_FACTION_ID, -1);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 54);
@@ -212,13 +215,13 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         double maxDist = 10.0D;
         double distanceSqr = this.distanceToSqr(owner);
         if (distanceSqr <= minDist * minDist) {
-            this.getNavigation().stop();
+            this.raidenMovement.stop();
             return;
         }
 
         if (distanceSqr < (maxDist * maxDist) * 256.0D) {
             this.getLookControl().setLookAt(owner, 30.0F, 30.0F);
-            this.getNavigation().moveTo(owner, 1.0D);
+            this.raidenMovement.moveTo(owner, 1.0D);
         }
     }
 
@@ -299,6 +302,7 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
 
     private void dismountRaiden() {
         boolean hadRaiden = this.isRaiden;
+        this.raidenMovement.reset();
         for (Entity rider : this.getPassengers()) {
             if (rider instanceof EntityDestroyerIkazuchi ikazuchi) {
                 hadRaiden = true;
@@ -490,4 +494,3 @@ protected Item getShipSpawnEggItem() {
         return ModItems.DESTROYER_INAZUMA_SPAWN_EGG.get();
     }
 }
-

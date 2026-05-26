@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -28,6 +29,7 @@ import org.trp.shincolle.block.CraneBlock;
 import org.trp.shincolle.client.WaypointClientHelper;
 import org.trp.shincolle.entity.EntityTransportWa;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;
@@ -238,7 +240,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                     return true;
                 }
                 if (this.craningShip.getStateMinor(43) == 1) {
-                    this.craningShip.getNavigation().moveTo(this.worldPosition.getX() + 0.5, this.worldPosition.getY() - 2.0, this.worldPosition.getZ() + 0.5, 1.0D);
+                    moveShipToCrane(this.craningShip);
                     if (this.syncedShipId != this.craningShip.getId()) {
                         this.syncedShipId = this.craningShip.getId();
                         markForSync();
@@ -260,7 +262,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
                         markForSync();
                     }
                     if (ship.getStateMinor(43) == 1) {
-                        ship.getNavigation().moveTo(this.worldPosition.getX() + 0.5, this.worldPosition.getY() - 2.0, this.worldPosition.getZ() + 0.5, 1.0D);
+                        moveShipToCrane(ship);
                         ship.setStateMinor(43, 2);
                     }
                     return true;
@@ -273,6 +275,15 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
             markForSync();
         }
         return false;
+    }
+
+    private void moveShipToCrane(EntityShipBase ship) {
+        new ShipMovementCoordinator(ship).moveTo(
+                new Vec3(
+                        this.worldPosition.getX() + 0.5D,
+                        this.worldPosition.getY() - 2.0D,
+                        this.worldPosition.getZ() + 0.5D),
+                1.0D);
     }
 
     private void applyPreLiquidTransfer(int mode) {

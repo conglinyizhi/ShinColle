@@ -16,6 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.List;
@@ -33,9 +34,11 @@ public class EntityBattleshipRe extends EntityShipBase {
     private boolean isPushing = false;
     private int tickPush = 0;
     private LivingEntity targetPush = null;
+    private final ShipMovementCoordinator pushMovement;
 
     public EntityBattleshipRe(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        this.pushMovement = new ShipMovementCoordinator(this);
         setModelPos(new float[]{-6, 25, 0, 40});
         setStateMinor(STATE_MINOR_FACTION_ID, 6);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 15);
@@ -233,7 +236,7 @@ public class EntityBattleshipRe extends EntityShipBase {
         if (this.distanceTo(this.targetPush) <= PUSH_ENGAGE_DISTANCE) {
             executePushAttack();
         } else if (this.tickCount % 32 == 0) {
-            this.getNavigation().moveTo(this.targetPush, 1.0D);
+            this.pushMovement.moveTo(this.targetPush, 1.0D);
         }
     }
 
@@ -255,6 +258,7 @@ public class EntityBattleshipRe extends EntityShipBase {
     }
 
     private void cancelPush() {
+        this.pushMovement.reset();
         this.isPushing = false;
         this.tickPush = 0;
         this.targetPush = null;

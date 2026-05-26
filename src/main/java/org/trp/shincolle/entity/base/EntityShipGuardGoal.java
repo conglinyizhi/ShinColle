@@ -17,11 +17,8 @@ final class EntityShipGuardGoal extends Goal {
     private final EntityShipBase ship;
     private final ShipMovementCoordinator movement;
     private final double speed;
+    private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
     private int nextPathTick;
-    private int moveFailCount;
-    private int stuckTicks;
-    private int teleportCooldown;
-    private Vec3 lastProgressPos;
 
     EntityShipGuardGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
@@ -57,10 +54,7 @@ final class EntityShipGuardGoal extends Goal {
     @Override
     public void start() {
         this.nextPathTick = 0;
-        this.moveFailCount = 0;
-        this.stuckTicks = 0;
-        this.teleportCooldown = 0;
-        this.lastProgressPos = ship.position();
+        this.recovery.reset(ship.position());
         this.movement.reset();
     }
 
@@ -88,44 +82,41 @@ final class EntityShipGuardGoal extends Goal {
 
         double stopDistanceSq = guardTarget.isEntity() ? 9.0D : 0.5D;
         if (distSq > stopDistanceSq) {
-            trackProgress();
+            this.recovery.trackProgress(ship.position());
             if (tryTeleportRecovery(target, guardedEntity, distSq, false)) {
                 return;
             }
-            if (this.stuckTicks > GUARD_STUCK_TICK_LIMIT) {
+            if (this.recovery.stuckTicks() > GUARD_STUCK_TICK_LIMIT) {
                 if (tryTeleportRecovery(target, guardedEntity, distSq, true)) {
                     return;
                 }
                 Shincolle.debugLog("GuardGoal stuckDisable ship={} target={} stuckTicks={}",
-                        ship.getUUID(), target, this.stuckTicks);
+                        ship.getUUID(), target, this.recovery.stuckTicks());
                 disableGuardState();
                 return;
             }
             if (this.nextPathTick-- <= 0 || ship.getNavigation().isDone()) {
                 this.nextPathTick = 10;
                 if (!this.movement.moveTo(target, speed)) {
-                    this.moveFailCount++;
+                    int failCount = this.recovery.recordMoveFailure();
                     Shincolle.debugLog("GuardGoal moveFail ship={} target={} failCount={}",
-                            ship.getUUID(), target, this.moveFailCount);
-                    if (this.moveFailCount > GUARD_MOVE_FAIL_LIMIT) {
+                            ship.getUUID(), target, failCount);
+                    if (failCount > GUARD_MOVE_FAIL_LIMIT) {
                         if (tryTeleportRecovery(target, guardedEntity, distSq, true)) {
                             return;
                         }
                         Shincolle.debugLog("GuardGoal failDisable ship={} target={} failCount={}",
-                                ship.getUUID(), target, this.moveFailCount);
+                                ship.getUUID(), target, this.recovery.moveFailCount());
                         disableGuardState();
                         return;
                     }
                 } else {
-                    this.moveFailCount = 0;
+                    this.recovery.clearMoveFailures();
                 }
             }
         } else {
             this.nextPathTick = 0;
-            this.moveFailCount = 0;
-            this.stuckTicks = 0;
-            this.teleportCooldown = 0;
-            this.lastProgressPos = ship.position();
+            this.recovery.reset(ship.position());
             this.movement.stop();
         }
 
@@ -158,31 +149,12 @@ final class EntityShipGuardGoal extends Goal {
         }
     }
 
-    private void trackProgress() {
-        Vec3 currentPos = ship.position();
-        if (this.lastProgressPos == null) {
-            this.lastProgressPos = currentPos;
-            this.stuckTicks = 0;
-            return;
-        }
-
-        if (currentPos.distanceToSqr(this.lastProgressPos) < 0.04D) {
-            this.stuckTicks++;
-        } else {
-            this.stuckTicks = 0;
-            this.lastProgressPos = currentPos;
-        }
-    }
-
     private boolean tryTeleportRecovery(Vec3 target, Entity guardedEntity, double distSq, boolean force) {
-        if (!force && distSq <= GUARD_TELEPORT_DISTANCE_SQ) {
-            return false;
-        }
-        if (!force && this.teleportCooldown++ < GUARD_TELEPORT_COOLDOWN_TICKS) {
+        if (!this.recovery.shouldTryTeleport(force, distSq, GUARD_TELEPORT_DISTANCE_SQ,
+                GUARD_TELEPORT_COOLDOWN_TICKS)) {
             return false;
         }
 
-        this.teleportCooldown = 0;
         boolean teleported = guardedEntity instanceof LivingEntity livingGuarded
                 ? this.movement.teleportNearLiving(livingGuarded, 0.75D)
                 : this.movement.teleportNearPoint(target, 0.75D);
@@ -193,18 +165,13 @@ final class EntityShipGuardGoal extends Goal {
         Shincolle.debugLog("GuardGoal teleportRecovery ship={} target={} force={} distSq={}",
                 ship.getUUID(), target, force, distSq);
         this.nextPathTick = 0;
-        this.moveFailCount = 0;
-        this.stuckTicks = 0;
-        this.lastProgressPos = ship.position();
+        this.recovery.reset(ship.position());
         return true;
     }
 
     private void disableGuardState() {
         this.nextPathTick = 0;
-        this.moveFailCount = 0;
-        this.stuckTicks = 0;
-        this.teleportCooldown = 0;
-        this.lastProgressPos = null;
+        this.recovery.clear();
         this.movement.stop();
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);
         ship.clearGuardTarget();

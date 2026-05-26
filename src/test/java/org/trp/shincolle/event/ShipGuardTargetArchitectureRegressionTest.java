@@ -78,6 +78,10 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Formation guard should let the ship compute its current legacy dimension");
         assertTrue(formationHelper.contains("new ShipMovementCoordinator(ship).moveTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);"),
                 "Formation guard should route immediate movement through the shared coordinator");
+        assertTrue(formationHelper.contains("Shincolle.debugLog(\"Formation summon teleportFailed"),
+                "Desk summon should log failed safe teleport recovery");
+        assertFalse(formationHelper.contains("ship.teleportTo(spawnX, spawnY, spawnZ)"),
+                "Desk summon should not directly teleport ships into unchecked spawn positions");
     }
 
     @Test
@@ -86,7 +90,9 @@ class ShipGuardTargetArchitectureRegressionTest {
 
         assertFalse(mount.contains("mount.teleportTo(guardPos.x, guardPos.y + 0.75D, guardPos.z)"),
                 "Mount guard teleport should not jump directly into an unchecked block position");
-        assertTrue(mount.contains("movement.teleportNearPoint(guardPos, 0.75D);"),
+        assertTrue(mount.contains("trackAndRecoverPoint(guardPos, \"guardBlock\");"),
+                "Mount guard movement should route recovery through the shared tracker");
+        assertTrue(mount.contains("movement.teleportNearPoint(target, 0.75D)"),
                 "Mount guard teleport should share the centralized movement recovery policy");
     }
 }

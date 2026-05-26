@@ -260,6 +260,10 @@ public abstract class EntityShipBase extends TamableAnimal {
     private final LegacyShipStats legacyShipStats;
     private final EntityShipLegacyState legacyState;
     private final ShipTaskRuntime taskRuntime;
+    private final ShipMovementCoordinator lifecycleMovement;
+    private final ShipMovementCoordinator retreatMovement;
+    private final ShipMovementCoordinator pickupMovement;
+    private final ShipMovementCoordinator guardMovement;
     @Nullable
     private UUID guardedEntityId;
     private EntityShipFishingHook fishHook;
@@ -290,6 +294,10 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.legacyShipStats = new LegacyShipStats();
         this.legacyState = new EntityShipLegacyState();
         this.taskRuntime = new ShipTaskRuntime(this);
+        this.lifecycleMovement = new ShipMovementCoordinator(this);
+        this.retreatMovement = new ShipMovementCoordinator(this);
+        this.pickupMovement = new ShipMovementCoordinator(this);
+        this.guardMovement = new ShipMovementCoordinator(this);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
@@ -1700,7 +1708,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.updateMountSummon();
 
         if (this.getIsSitting() || this.isInDeadPose()) {
-            this.getNavigation().stop();
+            this.lifecycleMovement.stop();
         }
 
         if (!this.isNoFuel()) {
@@ -1976,15 +1984,15 @@ public abstract class EntityShipBase extends TamableAnimal {
     private void tickRetreatMovement() {
         LivingEntity owner = this.getOwner();
         if (owner == null) {
-            this.getNavigation().stop();
+            this.retreatMovement.stop();
             return;
         }
 
         double distanceSqr = this.distanceToSqr(owner);
         if (distanceSqr > 4.0D) {
-            this.getNavigation().moveTo(owner, 1.25D);
+            this.retreatMovement.moveTo(owner, 1.25D);
         } else {
-            this.getNavigation().stop();
+            this.retreatMovement.stop();
         }
         this.getLookControl().setLookAt(owner, 30.0F, 30.0F);
     }
@@ -2141,9 +2149,9 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         if (this.distanceToSqr(target) <= 9.0D) {
             tryPickupItemEntity(target);
-            this.getNavigation().stop();
+            this.pickupMovement.stop();
         } else {
-            this.getNavigation().moveTo(target, 1.0D);
+            this.pickupMovement.moveTo(target, 1.0D);
         }
     }
 
@@ -2787,7 +2795,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             this.setInSittingPose(isSitting);
             if (!isSitting && this.hasBlockGuardTarget()) {
                 this.clearGuardTarget();
-                this.getNavigation().stop();
+                this.guardMovement.stop();
             }
             this.resetInteractionEmotionState();
             this.focusOnPlayer(player);
@@ -3389,7 +3397,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                     this.ejectPassengers();
                 }
             } else if (this.getStateMinor(6) > 0) {
-                this.getNavigation().moveTo(pos.getX() + 0.5D, pos.getY() - 2.0D, pos.getZ() + 0.5D, 1.0D);
+                this.guardMovement.moveTo(new Vec3(pos.getX() + 0.5D, pos.getY() - 2.0D, pos.getZ() + 0.5D), 1.0D);
             }
         } else {
             this.setStateMinor(43, 0);
@@ -3430,7 +3438,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                             );
                             if (this.getStateMinor(6) > 0) {
                                 this.setStateMinor(10, 2);
-                                this.getNavigation().moveTo(targetPos.getX() + 0.5D, targetPos.getY(), targetPos.getZ() + 0.5D, 1.0D);
+                                this.guardMovement.moveTo(new Vec3(targetPos.getX() + 0.5D, targetPos.getY(), targetPos.getZ() + 0.5D), 1.0D);
                             }
                         }
                         BlockPos[] newWps = wps != null && wps.length > 0 ? wps : new BlockPos[]{BlockPos.ZERO};
@@ -3441,7 +3449,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                     e.printStackTrace();
                 }
             } else if ((this.tickCount & 0x7F) == 0 && this.getStateMinor(6) > 0) {
-                this.getNavigation().moveTo(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D, 1.0D);
+                this.guardMovement.moveTo(new Vec3(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D), 1.0D);
             }
         }
     }

@@ -91,10 +91,12 @@ public abstract class EntityMountBase extends PathfinderMob {
 
     private static final class MountFollowHostGoal extends Goal {
         private static final int TP_COOLDOWN    = 100;
+        private static final int STUCK_TICK_LIMIT = 120;
+        private static final double TP_DIST_SQ = 256.0D;
 
         private final EntityMountBase mount;
         private final ShipMovementCoordinator movement;
-        private int tpTimer = 0;
+        private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
 
         MountFollowHostGoal(EntityMountBase mount) {
             this.mount = mount;
@@ -137,7 +139,7 @@ public abstract class EntityMountBase extends PathfinderMob {
         }
 
         @Override public void start() {
-            tpTimer = 0;
+            recovery.reset(mount.position());
             movement.reset();
         }
 
@@ -152,6 +154,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (h.hasPointerTarget()) {
                 Vec3 pt = h.getPointerTarget();
                 movement.moveTo(pt, 1.0D);
+                trackAndRecoverPoint(pt, "pointer");
                 return;
             }
 
@@ -164,17 +167,7 @@ public abstract class EntityMountBase extends PathfinderMob {
 
             mount.getLookControl().setLookAt(owner, 30.0F, 30.0F);
             movement.moveTo(owner, 1.0D);
-
-            double distSq = mount.distanceToSqr(owner);
-            ++tpTimer;
-            if (distSq > 256.0) {
-                if (tpTimer > TP_COOLDOWN) {
-                    tpTimer = 0;
-                    movement.teleportNearLiving(owner, 0.75D);
-                }
-            } else {
-                tpTimer = 0;
-            }
+            trackAndRecoverLiving(owner, "owner");
         }
 
         private static boolean hasGuardTarget(EntityShipBase host) {
@@ -196,21 +189,7 @@ public abstract class EntityMountBase extends PathfinderMob {
 
                 mount.getLookControl().setLookAt(guarded, 30.0F, 30.0F);
                 movement.moveTo(guarded, 1.0D);
-
-                double distSq = mount.distanceToSqr(guarded);
-                ++tpTimer;
-                if (distSq > 256.0D) {
-                    if (tpTimer > TP_COOLDOWN) {
-                        tpTimer = 0;
-                        if (guarded instanceof LivingEntity livingGuarded) {
-                            movement.teleportNearLiving(livingGuarded, 0.75D);
-                        } else {
-                            movement.teleportNearPoint(guarded.position(), 0.75D);
-                        }
-                    }
-                } else {
-                    tpTimer = 0;
-                }
+                trackAndRecoverEntity(guarded, "guardEntity");
                 return true;
             }
 
@@ -218,21 +197,54 @@ public abstract class EntityMountBase extends PathfinderMob {
                 Vec3 guardPos = guardTarget.blockCenter();
                 mount.getLookControl().setLookAt(guardPos.x, guardPos.y, guardPos.z, 30.0F, 30.0F);
                 movement.moveTo(guardPos, 1.0D);
-
-                double distSq = mount.distanceToSqr(guardPos.x, guardPos.y, guardPos.z);
-                ++tpTimer;
-                if (distSq > 256.0D) {
-                    if (tpTimer > TP_COOLDOWN) {
-                        tpTimer = 0;
-                        movement.teleportNearPoint(guardPos, 0.75D);
-                    }
-                } else {
-                    tpTimer = 0;
-                }
+                trackAndRecoverPoint(guardPos, "guardBlock");
                 return true;
             }
 
             return false;
+        }
+
+        private void trackAndRecoverLiving(LivingEntity target, String reason) {
+            if (target == null) {
+                return;
+            }
+            trackAndRecover(target.position(), mount.distanceToSqr(target), reason,
+                    () -> movement.teleportNearLiving(target, 0.75D));
+        }
+
+        private void trackAndRecoverEntity(Entity target, String reason) {
+            if (target == null) {
+                return;
+            }
+            if (target instanceof LivingEntity livingTarget) {
+                trackAndRecoverLiving(livingTarget, reason);
+                return;
+            }
+            trackAndRecover(target.position(), mount.distanceToSqr(target), reason,
+                    () -> movement.teleportNearPoint(target.position(), 0.75D));
+        }
+
+        private void trackAndRecoverPoint(Vec3 target, String reason) {
+            if (target == null) {
+                return;
+            }
+            trackAndRecover(target, mount.distanceToSqr(target), reason,
+                    () -> movement.teleportNearPoint(target, 0.75D));
+        }
+
+        private void trackAndRecover(Vec3 target, double distSq, String reason, java.util.function.BooleanSupplier teleport) {
+            recovery.trackProgress(mount.position());
+            boolean force = recovery.stuckTicks() > STUCK_TICK_LIMIT;
+            if (!force && !recovery.shouldTryTeleport(false, distSq, TP_DIST_SQ, TP_COOLDOWN)) {
+                return;
+            }
+            if (!teleport.getAsBoolean()) {
+                return;
+            }
+
+            Shincolle.debugLog("MountFollow teleportRecovery mount={} host={} reason={} target={} force={} distSq={}",
+                    mount.getUUID(), mount.getHostUUID(), reason, target, force, distSq);
+            recovery.reset(mount.position());
         }
     }
 

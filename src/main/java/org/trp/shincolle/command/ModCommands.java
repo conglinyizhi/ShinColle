@@ -15,10 +15,10 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import org.trp.shincolle.entity.EntityShipGrudge;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.event.ModEventBusEvents;
 import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.server.ShipRegistrySavedData;
-import org.trp.shincolle.utility.ShipTeleportHelper;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -377,11 +377,11 @@ public final class ModCommands {
             return 0;
         }
 
-        if (!ShipTeleportHelper.teleportNearLiving(ship, player, 0.5D)) {
+        ShipMovementCoordinator movement = new ShipMovementCoordinator(ship);
+        if (!movement.teleportNearLivingIgnoringConfig(player, 0.5D)) {
             source.sendFailure(Component.literal("No safe recall position found near player."));
             return 0;
         }
-        ship.getNavigation().stop();
         ship.clearPointerTarget();
         ship.clearPointerTargetEntity();
         ship.setOrderedToSit(false);
@@ -463,10 +463,9 @@ public final class ModCommands {
         int successCount = 0;
         for (int i = 0; i < ships.size(); i++) {
             EntityShipBase ship = ships.get(i);
-            if (!ShipTeleportHelper.teleportNearLiving(ship, player, 0.5D)) {
+            if (!new ShipMovementCoordinator(ship).teleportNearLivingIgnoringConfig(player, 0.5D)) {
                 continue;
             }
-            ship.getNavigation().stop();
             ship.clearPointerTarget();
             ship.clearPointerTargetEntity();
             successCount++;
@@ -545,7 +544,7 @@ public final class ModCommands {
         ship.setTame(true, false);
         ship.setOrderedToSit(false);
         ship.setInSittingPose(false);
-        ship.getNavigation().stop();
+        new ShipMovementCoordinator(ship).stop();
         ship.clearPointerTarget();
         ship.clearPointerTargetEntity();
         ShipRegistrySavedData.get(player.serverLevel()).updateShip(ship);
@@ -575,7 +574,7 @@ public final class ModCommands {
         ShipRegistrySavedData registry = ShipRegistrySavedData.get(player.serverLevel());
         for (EntityShipBase ship : ships) {
             ship.setTame(true, false);
-            ship.getNavigation().stop();
+            new ShipMovementCoordinator(ship).stop();
             ship.clearPointerTarget();
             ship.clearPointerTargetEntity();
             if (ship.isOrderedToSit()) {

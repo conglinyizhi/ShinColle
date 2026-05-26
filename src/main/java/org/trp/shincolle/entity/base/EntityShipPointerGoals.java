@@ -11,14 +11,14 @@ class EntityShipPointerMoveGoal extends Goal {
     private static final double TARGET_REACH_SQR = 1.0D;
     private static final int POINTER_MOVE_FAIL_LIMIT = 40;
     private static final int POINTER_MOVE_STUCK_TICK_LIMIT = 120;
+    private static final int POINTER_MOVE_TELEPORT_COOLDOWN_TICKS = 100;
+    private static final double POINTER_MOVE_TELEPORT_DISTANCE_SQ = 256.0D;
 
     private final EntityShipBase ship;
     private final ShipMovementCoordinator movement;
     private final double speed;
+    private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
     private int nextPathTick;
-    private int moveFailCount;
-    private int stuckTicks;
-    private Vec3 lastProgressPos;
 
     EntityShipPointerMoveGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
@@ -48,9 +48,7 @@ class EntityShipPointerMoveGoal extends Goal {
     @Override
     public void start() {
         this.nextPathTick = 0;
-        this.moveFailCount = 0;
-        this.stuckTicks = 0;
-        this.lastProgressPos = ship.position();
+        this.recovery.reset(ship.position());
         this.movement.reset();
         moveToTarget();
     }
@@ -71,18 +69,22 @@ class EntityShipPointerMoveGoal extends Goal {
         if (lastRawTarget == null || rawTarget.distanceToSqr(lastRawTarget) > 0.01D) {
             this.nextPathTick = 0;
             this.lastRawTarget = rawTarget;
-            this.moveFailCount = 0;
-            this.stuckTicks = 0;
-            this.lastProgressPos = ship.position();
+            this.recovery.reset(ship.position());
         }
 
         ship.resetInteractionEmotionState();
-        trackProgress();
-        if (this.stuckTicks > POINTER_MOVE_STUCK_TICK_LIMIT) {
+        this.recovery.trackProgress(ship.position());
+        if (this.recovery.stuckTicks() > POINTER_MOVE_STUCK_TICK_LIMIT) {
+            if (tryTeleportRecovery(ship.getPointerTarget(), true)) {
+                return;
+            }
             Shincolle.debugLog("PointerGoal stuckClear ship={} target={} stuckTicks={}",
-                    ship.getUUID(), ship.getPointerTarget(), this.stuckTicks);
+                    ship.getUUID(), ship.getPointerTarget(), this.recovery.stuckTicks());
             ship.clearPointerTarget();
             this.movement.stop();
+            return;
+        }
+        if (tryTeleportRecovery(ship.getPointerTarget(), false)) {
             return;
         }
 
@@ -101,35 +103,42 @@ class EntityShipPointerMoveGoal extends Goal {
         Vec3 target = ship.getPointerTarget();
         if (target != null) {
             if (!this.movement.moveTo(target, this.speed)) {
-                this.moveFailCount++;
+                int failCount = this.recovery.recordMoveFailure();
                 Shincolle.debugLog("PointerGoal moveFail ship={} target={} failCount={}",
-                        ship.getUUID(), target, this.moveFailCount);
-                if (this.moveFailCount > POINTER_MOVE_FAIL_LIMIT) {
+                        ship.getUUID(), target, failCount);
+                if (failCount > POINTER_MOVE_FAIL_LIMIT) {
+                    if (tryTeleportRecovery(target, true)) {
+                        return;
+                    }
                     Shincolle.debugLog("PointerGoal failClear ship={} target={} failCount={}",
-                            ship.getUUID(), target, this.moveFailCount);
+                            ship.getUUID(), target, this.recovery.moveFailCount());
                     ship.clearPointerTarget();
                     this.movement.stop();
                 }
             } else {
-                this.moveFailCount = 0;
+                this.recovery.clearMoveFailures();
             }
         }
     }
 
-    private void trackProgress() {
-        Vec3 currentPos = ship.position();
-        if (this.lastProgressPos == null) {
-            this.lastProgressPos = currentPos;
-            this.stuckTicks = 0;
-            return;
+    private boolean tryTeleportRecovery(Vec3 target, boolean force) {
+        if (target == null) {
+            return false;
+        }
+        if (!this.recovery.shouldTryTeleport(force, ship.distanceToSqr(target),
+                POINTER_MOVE_TELEPORT_DISTANCE_SQ, POINTER_MOVE_TELEPORT_COOLDOWN_TICKS)) {
+            return false;
         }
 
-        if (currentPos.distanceToSqr(this.lastProgressPos) < 0.04D) {
-            this.stuckTicks++;
-        } else {
-            this.stuckTicks = 0;
-            this.lastProgressPos = currentPos;
+        if (!this.movement.teleportNearPoint(target, 0.75D)) {
+            return false;
         }
+
+        Shincolle.debugLog("PointerGoal teleportRecovery ship={} target={} force={}",
+                ship.getUUID(), target, force);
+        this.nextPathTick = 0;
+        this.recovery.reset(ship.position());
+        return true;
     }
 }
 

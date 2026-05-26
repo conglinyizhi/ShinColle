@@ -55,6 +55,14 @@ public final class ShipMovementCoordinator {
             return false;
         }
 
+        return teleportNearLivingIgnoringConfig(anchor, verticalOffset);
+    }
+
+    public boolean teleportNearLivingIgnoringConfig(LivingEntity anchor, double verticalOffset) {
+        if (!isAnchorChunkLoaded(anchor.position())) {
+            return false;
+        }
+
         stop();
         return ShipTeleportHelper.teleportNearLiving(mob, anchor, verticalOffset);
     }

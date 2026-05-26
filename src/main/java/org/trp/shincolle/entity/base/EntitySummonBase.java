@@ -25,9 +25,11 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
     protected int numAmmoHeavy;
     protected float attackRangeSq;
     protected boolean resourcesReturned;
+    private final ShipMovementCoordinator returnMovement;
 
     protected EntitySummonBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
+        this.returnMovement = new ShipMovementCoordinator(this);
         this.numAmmoLight = 6;
         this.numAmmoHeavy = 0;
         this.attackRangeSq = 16.0F;
@@ -65,11 +67,18 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
     private static class SummonAttackGoal extends net.minecraft.world.entity.ai.goal.Goal {
         private final EntitySummonBase mob;
+        private final ShipMovementCoordinator movement;
         private int attackDelay;
 
         public SummonAttackGoal(EntitySummonBase mob) {
             this.mob = mob;
+            this.movement = new ShipMovementCoordinator(mob);
             this.setFlags(java.util.EnumSet.of(net.minecraft.world.entity.ai.goal.Goal.Flag.MOVE, net.minecraft.world.entity.ai.goal.Goal.Flag.LOOK));
+        }
+
+        @Override
+        public void start() {
+            this.movement.reset();
         }
 
         @Override
@@ -87,9 +96,9 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             double distSq = mob.distanceToSqr(target);
 
             if (distSq > mob.getAttackRangeSq()) {
-                mob.getNavigation().moveTo(target, 1.2D);
+                this.movement.moveTo(target, 1.2D);
             } else {
-                mob.getNavigation().stop();
+                this.movement.stop();
                 if (this.attackDelay <= 0) {
                     mob.performAttack(target);
                     this.attackDelay = 20;
@@ -104,13 +113,21 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
     private static class SummonFollowCarrierGoal extends net.minecraft.world.entity.ai.goal.Goal {
         private final EntitySummonBase mob;
+        private final ShipMovementCoordinator movement;
         private final double speed;
         private int timeToRecalcPath;
 
         public SummonFollowCarrierGoal(EntitySummonBase mob, double speed) {
             this.mob = mob;
+            this.movement = new ShipMovementCoordinator(mob);
             this.speed = speed;
             this.setFlags(java.util.EnumSet.of(net.minecraft.world.entity.ai.goal.Goal.Flag.MOVE, net.minecraft.world.entity.ai.goal.Goal.Flag.LOOK));
+        }
+
+        @Override
+        public void start() {
+            this.movement.reset();
+            this.timeToRecalcPath = 0;
         }
 
         @Override
@@ -127,7 +144,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             mob.getLookControl().setLookAt(carrier, 30.0F, 30.0F);
             if (--this.timeToRecalcPath <= 0) {
                 this.timeToRecalcPath = 10;
-                mob.getNavigation().moveTo(carrier, this.speed);
+                this.movement.moveTo(carrier, this.speed);
             }
         }
     }
@@ -251,7 +268,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             returnSummonResourcesOnce(carrier);
             this.discard();
         } else {
-            this.getNavigation().moveTo(carrier, 1.2D);
+            this.returnMovement.moveTo(carrier, 1.2D);
             if (this.tickCount % 20 == 0 && this.distanceToSqr(carrier) > 1024.0D) {
                 returnSummonResourcesOnce(carrier);
                 this.discard();

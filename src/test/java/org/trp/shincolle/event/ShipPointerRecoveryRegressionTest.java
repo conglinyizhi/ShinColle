@@ -18,8 +18,10 @@ class ShipPointerRecoveryRegressionTest {
 
         assertTrue(source.contains("private static final int POINTER_ENTITY_MOVE_FAIL_LIMIT = 40;"),
                 "Pointer-entity commands should define a move failure limit");
-        assertTrue(source.contains("if (this.pointerTargetEntityMoveFailCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {"),
+        assertTrue(source.contains("if (failCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {"),
                 "Pointer-entity commands should clear themselves after repeated move failures");
+        assertTrue(source.contains("tryPointerTargetEntityTeleportRecovery(target, true)"),
+                "Pointer-entity commands should try teleport recovery before clearing repeated failures");
         assertTrue(source.contains("clearPointerTargetEntity();\n                        this.movement.stop();\n                        return;"),
                 "Pointer-entity failure recovery should release the command and stop navigation");
     }
@@ -30,9 +32,9 @@ class ShipPointerRecoveryRegressionTest {
 
         assertTrue(source.contains("private static final int POINTER_ENTITY_STUCK_TICK_LIMIT = 120;"),
                 "Pointer-entity commands should define a stuck timeout");
-        assertTrue(source.contains("trackPointerTargetEntityStuckState();"),
+        assertTrue(source.contains("this.pointerTargetEntityRecovery.trackProgress(this.ship.position());"),
                 "Pointer-entity commands should track whether the ship is making progress");
-        assertTrue(source.contains("if (this.pointerTargetEntityStuckTicks > POINTER_ENTITY_STUCK_TICK_LIMIT) {"),
+        assertTrue(source.contains("if (this.pointerTargetEntityRecovery.stuckTicks() > POINTER_ENTITY_STUCK_TICK_LIMIT) {"),
                 "Pointer-entity commands should clear themselves after the ship remains stuck too long");
     }
 
@@ -44,9 +46,9 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity commands should share the ship movement coordinator");
         assertTrue(source.contains("this.movement.moveTo(target, POINTER_ENTITY_MOVE_SPEED)"),
                 "Pointer-entity chase movement should route through the coordinator");
-        assertTrue(source.contains("this.pointerTargetEntityLastPos = this.ship.position();\n        this.movement.reset();"),
+        assertTrue(source.contains("this.pointerTargetEntityRecovery.reset(this.ship.position());\n        this.movement.reset();"),
                 "Pointer-entity commands should reset duplicate move suppression when a new target is assigned");
-        assertTrue(source.contains("this.pointerTargetEntityLastPos = null;\n        this.movement.reset();"),
+        assertTrue(source.contains("this.pointerTargetEntityRecovery.clear();\n        this.movement.reset();"),
                 "Pointer-entity commands should reset movement state when the command clears");
     }
 }
