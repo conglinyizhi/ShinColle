@@ -16,9 +16,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.control.FlyingMoveControl;
 import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.GoalShipAircraftAttack;
 import org.trp.shincolle.entity.base.ShipMovementCoordinator;
+import org.trp.shincolle.entity.base.ShipMovementRecoveryState;
 import org.trp.shincolle.init.ModSounds;
 
 import javax.annotation.Nullable;
@@ -35,7 +37,10 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     private static final double INITIAL_BOOST_Y = 0.1D;
     private static final int TARGETING_INTERVAL = 16;
     private static final int RETURN_HOME_CHECK_INTERVAL = 16;
-    private static final double RETURN_MAX_DISTANCE_SQR = 4096.0D;
+    private static final int RETURN_HOME_STUCK_TICK_LIMIT = 120;
+    private static final int RETURN_HOME_FAILSAFE_TICKS = 20 * 30;
+    private static final int RETURN_HOME_TELEPORT_COOLDOWN_TICKS = 100;
+    private static final double RETURN_HOME_TELEPORT_DISTANCE_SQ = 256.0D;
     private static final double TARGETING_RANGE_NORMAL = 24.0D;
     private static final double TARGETING_RANGE_AIR_ONLY = 32.0D;
 
@@ -78,6 +83,8 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     private double[] randPos;
     private float attackRangeSq;
     private final ShipMovementCoordinator returnMovement;
+    private final ShipMovementRecoveryState returnRecovery;
+    private int returnHomeTicks;
 
     public static AttributeSupplier.Builder createAttributes() {
         return org.trp.shincolle.entity.base.EntityShincolleSimpleMob.createAttributes()
@@ -87,6 +94,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     protected EntityAircraftBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         this.returnMovement = new ShipMovementCoordinator(this);
+        this.returnRecovery = new ShipMovementRecoveryState();
         this.moveControl = new FlyingMoveControl(this, 36, true);
         this.setNoGravity(true);
         this.randPos = new double[3];
@@ -112,7 +120,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         }
         this.carrierId = carrier.getUUID();
         this.targetId = target == null ? null : target.getUUID();
-        this.backHome = false;
+        resumeMission();
         this.missionTick = 0;
         this.missionLightAircraft = lightAircraft;
         this.isDying = false;
@@ -236,19 +244,16 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     private void checkMissionStatus() {
         if (this.missionTick >= LIFETIME_TICKS) {
-            this.backHome = true;
-            this.targetId = null;
+            startReturnHome();
             return;
         }
 
         if (this.missionLightAircraft && this.numAmmoLight <= 0) {
-            this.backHome = true;
-            this.targetId = null;
+            startReturnHome();
             return;
         }
         if (!this.missionLightAircraft && this.numAmmoHeavy <= 0) {
-            this.backHome = true;
-            this.targetId = null;
+            startReturnHome();
         }
     }
 
@@ -312,15 +317,30 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
         if (newTarget != null) {
             this.targetId = newTarget.getUUID();
-            this.backHome = false;
+            resumeMission();
         } else {
-            this.targetId = null;
-            this.backHome = true;
+            startReturnHome();
         }
+    }
+
+    private void startReturnHome() {
+        if (!this.backHome) {
+            this.returnRecovery.clear();
+            this.returnHomeTicks = 0;
+        }
+        this.targetId = null;
+        this.backHome = true;
+    }
+
+    private void resumeMission() {
+        this.backHome = false;
+        this.returnRecovery.clear();
+        this.returnHomeTicks = 0;
     }
 
     private void handleReturnToHome(EntityShipBase carrier) {
         if (!this.isAlive()) return;
+        this.returnHomeTicks++;
 
         double distSq = this.distanceToSqr(carrier);
         double arrivalDist = Math.pow(2.0D + carrier.getBbHeight(), 2.0D);
@@ -333,13 +353,37 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
         Vec3 homePos = carrier.position().add(0.0D, carrier.getBbHeight() + 1.0D, 0.0D);
         this.returnMovement.moveTo(homePos, 0.5D);
-
-        if (this.tickCount % RETURN_HOME_CHECK_INTERVAL == 0) {
-            if (this.distanceToSqr(carrier) >= RETURN_MAX_DISTANCE_SQR) {
-                returnSummonResources(carrier);
-                this.discard();
-            }
+        if (trackReturnHomeRecovery(carrier, distSq)) {
+            return;
         }
+        if (this.returnHomeTicks > RETURN_HOME_FAILSAFE_TICKS
+                && this.returnRecovery.isStuckLongerThan(RETURN_HOME_FAILSAFE_TICKS)) {
+            Shincolle.debugLog("AircraftReturn failsafeDiscard aircraft={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
+                    this.getUUID(), carrier.getUUID(), distSq, this.returnHomeTicks, this.returnRecovery.stuckTicks());
+            returnSummonResources(carrier);
+            this.discard();
+        }
+    }
+
+    private boolean trackReturnHomeRecovery(EntityShipBase carrier, double distanceSqr) {
+        this.returnRecovery.trackProgress(this.position());
+        boolean force = this.returnRecovery.isStuckLongerThan(RETURN_HOME_STUCK_TICK_LIMIT);
+        if (!force && (this.tickCount % RETURN_HOME_CHECK_INTERVAL) != 0) {
+            return false;
+        }
+        if (!this.returnRecovery.shouldTryTeleportThrottled(force, distanceSqr,
+                RETURN_HOME_TELEPORT_DISTANCE_SQ, RETURN_HOME_TELEPORT_COOLDOWN_TICKS)) {
+            return false;
+        }
+        if (!this.returnMovement.teleportNearLiving(carrier, carrier.getBbHeight() + 0.75D)) {
+            return false;
+        }
+
+        Shincolle.debugLog("AircraftReturn teleportRecovery aircraft={} carrier={} force={} distanceSqr={} stuckTicks={}",
+                this.getUUID(), carrier.getUUID(), force, distanceSqr, this.returnRecovery.stuckTicks());
+        this.returnRecovery.reset(this.position());
+        this.returnHomeTicks = 0;
+        return true;
     }
 
     private void returnSummonResources(EntityShipBase carrier) {

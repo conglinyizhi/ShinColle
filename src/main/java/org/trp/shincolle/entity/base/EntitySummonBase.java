@@ -9,6 +9,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.Level;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.init.ModSounds;
 
 import javax.annotation.Nullable;
@@ -17,6 +18,10 @@ import java.util.UUID;
 public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
     protected static final int LIFETIME_TICKS = 1200;
+    private static final int RETURN_STUCK_TICK_LIMIT = 120;
+    private static final int RETURN_FAILSAFE_TICKS = 20 * 30;
+    private static final int RETURN_TELEPORT_COOLDOWN_TICKS = 100;
+    private static final double RETURN_TELEPORT_DISTANCE_SQ = 256.0D;
 
     protected UUID carrierId;
     protected UUID targetId;
@@ -26,10 +31,13 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
     protected float attackRangeSq;
     protected boolean resourcesReturned;
     private final ShipMovementCoordinator returnMovement;
+    private final ShipMovementRecoveryState returnRecovery;
+    private int returnTicks;
 
     protected EntitySummonBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         this.returnMovement = new ShipMovementCoordinator(this);
+        this.returnRecovery = new ShipMovementRecoveryState();
         this.numAmmoLight = 6;
         this.numAmmoHeavy = 0;
         this.attackRangeSq = 16.0F;
@@ -157,6 +165,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         this.targetId = target == null ? null : target.getUUID();
         this.missionTick = 0;
         this.resourcesReturned = false;
+        resetReturnState();
         this.setScaleLevel(scaleLevel);
 
         double offsetX = (this.random.nextDouble() * 3.0D - 1.5D);
@@ -238,11 +247,13 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             Entity currentTarget = getMissionTarget();
             if (currentTarget instanceof LivingEntity livingTarget && livingTarget.isAlive()) {
                 this.setTarget(livingTarget);
+                resetReturnState();
             } else {
                 Entity carrierTarget = carrier.getTarget();
                 if (carrierTarget instanceof LivingEntity livingTarget && livingTarget.isAlive()) {
                     this.setTarget(livingTarget);
                     this.targetId = carrierTarget.getUUID();
+                    resetReturnState();
                 } else {
                     this.setTarget(null);
                     handleReturnToCarrier(carrier);
@@ -263,17 +274,52 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
     }
 
     protected void handleReturnToCarrier(EntityShipBase carrier) {
+        this.returnTicks++;
         double distSq = this.distanceToSqr(carrier);
         if (distSq <= 4.0D && this.missionTick > 40) {
             returnSummonResourcesOnce(carrier);
             this.discard();
+            resetReturnState();
         } else {
             this.returnMovement.moveTo(carrier, 1.2D);
-            if (this.tickCount % 20 == 0 && this.distanceToSqr(carrier) > 1024.0D) {
+            if (trackReturnRecovery(carrier, distSq)) {
+                return;
+            }
+            if (this.returnTicks > RETURN_FAILSAFE_TICKS
+                    && this.returnRecovery.isStuckLongerThan(RETURN_FAILSAFE_TICKS)) {
+                Shincolle.debugLog("SummonReturn failsafeDiscard summon={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
+                        this.getUUID(), carrier.getUUID(), distSq, this.returnTicks, this.returnRecovery.stuckTicks());
                 returnSummonResourcesOnce(carrier);
                 this.discard();
+                resetReturnState();
             }
         }
+    }
+
+    private boolean trackReturnRecovery(EntityShipBase carrier, double distanceSqr) {
+        this.returnRecovery.trackProgress(this.position());
+        boolean force = this.returnRecovery.isStuckLongerThan(RETURN_STUCK_TICK_LIMIT);
+        if (!force && (this.tickCount % 20) != 0) {
+            return false;
+        }
+        if (!this.returnRecovery.shouldTryTeleportThrottled(force, distanceSqr,
+                RETURN_TELEPORT_DISTANCE_SQ, RETURN_TELEPORT_COOLDOWN_TICKS)) {
+            return false;
+        }
+        if (!this.returnMovement.teleportNearLiving(carrier, 0.75D)) {
+            return false;
+        }
+
+        Shincolle.debugLog("SummonReturn teleportRecovery summon={} carrier={} force={} distanceSqr={} stuckTicks={}",
+                this.getUUID(), carrier.getUUID(), force, distanceSqr, this.returnRecovery.stuckTicks());
+        this.returnRecovery.reset(this.position());
+        this.returnTicks = 0;
+        return true;
+    }
+
+    private void resetReturnState() {
+        this.returnRecovery.clear();
+        this.returnTicks = 0;
     }
 
     @Override
