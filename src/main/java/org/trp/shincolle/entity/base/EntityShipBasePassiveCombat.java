@@ -159,7 +159,7 @@ final class EntityShipBasePassiveCombat {
                 return;
             }
             this.movementRecovery.trackProgress(this.ship.position());
-            if (this.movementRecovery.stuckTicks() > PASSIVE_STUCK_TICK_LIMIT) {
+            if (this.movementRecovery.isStuckLongerThan(PASSIVE_STUCK_TICK_LIMIT)) {
                 Shincolle.debugLog("PassiveCombat stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
                         this.ship.getUUID(), target.getUUID(), this.movementRecovery.stuckTicks(), distanceSqr);
                 clearTarget(true);

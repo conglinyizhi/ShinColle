@@ -74,7 +74,7 @@ class EntityShipPointerMoveGoal extends Goal {
 
         ship.resetInteractionEmotionState();
         this.recovery.trackProgress(ship.position());
-        if (this.recovery.stuckTicks() > POINTER_MOVE_STUCK_TICK_LIMIT) {
+        if (this.recovery.isStuckLongerThan(POINTER_MOVE_STUCK_TICK_LIMIT)) {
             if (tryTeleportRecovery(ship.getPointerTarget(), true)) {
                 return;
             }

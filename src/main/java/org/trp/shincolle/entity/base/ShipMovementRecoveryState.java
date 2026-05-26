@@ -2,29 +2,32 @@ package org.trp.shincolle.entity.base;
 
 import net.minecraft.world.phys.Vec3;
 
-final class ShipMovementRecoveryState {
+public final class ShipMovementRecoveryState {
     private static final double PROGRESS_DISTANCE_SQR = 0.04D;
 
     private int moveFailCount;
     private int stuckTicks;
     private int teleportCooldown;
+    private int forcedTeleportCooldown;
     private Vec3 lastProgressPos;
 
-    void reset(Vec3 currentPos) {
+    public void reset(Vec3 currentPos) {
         this.moveFailCount = 0;
         this.stuckTicks = 0;
         this.teleportCooldown = 0;
+        this.forcedTeleportCooldown = 0;
         this.lastProgressPos = currentPos;
     }
 
-    void clear() {
+    public void clear() {
         this.moveFailCount = 0;
         this.stuckTicks = 0;
         this.teleportCooldown = 0;
+        this.forcedTeleportCooldown = 0;
         this.lastProgressPos = null;
     }
 
-    void trackProgress(Vec3 currentPos) {
+    public void trackProgress(Vec3 currentPos) {
         if (this.lastProgressPos == null) {
             this.lastProgressPos = currentPos;
             this.stuckTicks = 0;
@@ -35,6 +38,7 @@ final class ShipMovementRecoveryState {
             this.stuckTicks++;
         } else {
             this.stuckTicks = 0;
+            this.forcedTeleportCooldown = 0;
             this.lastProgressPos = currentPos;
         }
     }
@@ -55,8 +59,12 @@ final class ShipMovementRecoveryState {
         return this.moveFailCount;
     }
 
-    int stuckTicks() {
+    public int stuckTicks() {
         return this.stuckTicks;
+    }
+
+    public boolean isStuckLongerThan(int stuckTickLimit) {
+        return this.stuckTicks > stuckTickLimit;
     }
 
     boolean shouldTryTeleport(boolean force, double distanceSqr, double teleportDistanceSqr, int cooldownTicks) {
@@ -67,6 +75,20 @@ final class ShipMovementRecoveryState {
             return false;
         }
 
+        this.teleportCooldown = 0;
+        return true;
+    }
+
+    public boolean shouldTryTeleportThrottled(boolean force, double distanceSqr, double teleportDistanceSqr, int cooldownTicks) {
+        if (!force) {
+            return shouldTryTeleport(false, distanceSqr, teleportDistanceSqr, cooldownTicks);
+        }
+        if (this.forcedTeleportCooldown > 0) {
+            this.forcedTeleportCooldown--;
+            return false;
+        }
+
+        this.forcedTeleportCooldown = cooldownTicks;
         this.teleportCooldown = 0;
         return true;
     }

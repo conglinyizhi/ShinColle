@@ -234,8 +234,8 @@ public abstract class EntityMountBase extends PathfinderMob {
 
         private void trackAndRecover(Vec3 target, double distSq, String reason, java.util.function.BooleanSupplier teleport) {
             recovery.trackProgress(mount.position());
-            boolean force = recovery.stuckTicks() > STUCK_TICK_LIMIT;
-            if (!force && !recovery.shouldTryTeleport(false, distSq, TP_DIST_SQ, TP_COOLDOWN)) {
+            boolean force = recovery.isStuckLongerThan(STUCK_TICK_LIMIT);
+            if (!recovery.shouldTryTeleportThrottled(force, distSq, TP_DIST_SQ, TP_COOLDOWN)) {
                 return;
             }
             if (!teleport.getAsBoolean()) {

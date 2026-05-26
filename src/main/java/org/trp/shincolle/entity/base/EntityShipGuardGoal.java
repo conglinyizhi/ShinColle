@@ -86,7 +86,7 @@ final class EntityShipGuardGoal extends Goal {
             if (tryTeleportRecovery(target, guardedEntity, distSq, false)) {
                 return;
             }
-            if (this.recovery.stuckTicks() > GUARD_STUCK_TICK_LIMIT) {
+            if (this.recovery.isStuckLongerThan(GUARD_STUCK_TICK_LIMIT)) {
                 if (tryTeleportRecovery(target, guardedEntity, distSq, true)) {
                     return;
                 }

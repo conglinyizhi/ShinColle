@@ -4,6 +4,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.EnumSet;
@@ -11,15 +12,15 @@ import java.util.EnumSet;
 final class EntityShipFollowOwnerGoal extends Goal {
 
     private static final int TP_COOLDOWN = 200;
+    private static final int STUCK_TICK_LIMIT = 120;
     private static final double TP_DIST_SQ = 256.0;
 
     private final EntityShipBase ship;
     private final ShipMovementCoordinator movement;
+    private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
     private final double speed;
     private final float defaultMaxDist;
     private final float defaultMinDist;
-    private int checkTP_T;
-    private int checkTP_D;
     private double lastOwnerX;
     private double lastOwnerY;
     private double lastOwnerZ;
@@ -72,8 +73,7 @@ final class EntityShipFollowOwnerGoal extends Goal {
 
     @Override
     public void start() {
-        this.checkTP_T = 0;
-        this.checkTP_D = 0;
+        this.recovery.reset(this.ship.position());
         this.hasOwnerPos = false;
         this.movement.reset();
     }
@@ -85,7 +85,6 @@ final class EntityShipFollowOwnerGoal extends Goal {
             return;
         }
 
-        ++this.checkTP_T;
         ship.resetInteractionEmotionState();
         if (owner instanceof Player player && this.ship.playerHasCombatRation(player)) {
             ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY);
@@ -121,22 +120,9 @@ final class EntityShipFollowOwnerGoal extends Goal {
         this.movement.moveTo(moveTarget, this.speed);
 
         double distSq = ship.distanceToSqr(owner);
-
-        if (distSq > TP_DIST_SQ) {
-            ++this.checkTP_D;
-            if (this.checkTP_D > TP_COOLDOWN) {
-                this.checkTP_D = 0;
-                applyTeleport(owner);
-                return;
-            }
-        } else {
-            this.checkTP_D = 0;
-        }
-
-        if (this.checkTP_T > TP_COOLDOWN) {
-            this.checkTP_T = 0;
-            applyTeleport(owner);
-        }
+        this.recovery.trackProgress(this.ship.position());
+        boolean force = this.recovery.isStuckLongerThan(STUCK_TICK_LIMIT);
+        tryTeleportRecovery(owner, distSq, force);
     }
 
     @Override
@@ -167,12 +153,16 @@ final class EntityShipFollowOwnerGoal extends Goal {
         return (float) clamped;
     }
 
-    private void applyTeleport(LivingEntity owner) {
+    private void tryTeleportRecovery(LivingEntity owner, double distSq, boolean force) {
+        if (!this.recovery.shouldTryTeleportThrottled(force, distSq, TP_DIST_SQ, TP_COOLDOWN)) {
+            return;
+        }
         if (!this.movement.teleportNearLiving(owner, 0.75D)) {
             return;
         }
-        this.checkTP_T = 0;
-        this.checkTP_D = 0;
+        Shincolle.debugLog("FollowOwner teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
+                ship.getUUID(), owner.getUUID(), force, distSq, this.recovery.stuckTicks());
+        this.recovery.reset(this.ship.position());
     }
 
     private void updateFormationDirection(LivingEntity owner) {

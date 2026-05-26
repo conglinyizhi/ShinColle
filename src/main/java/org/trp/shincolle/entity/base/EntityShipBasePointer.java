@@ -341,7 +341,7 @@ class EntityShipBasePointer {
 
         if (needsCloser || cannotSee) {
             this.pointerTargetEntityRecovery.trackProgress(this.ship.position());
-            if (this.pointerTargetEntityRecovery.stuckTicks() > POINTER_ENTITY_STUCK_TICK_LIMIT) {
+            if (this.pointerTargetEntityRecovery.isStuckLongerThan(POINTER_ENTITY_STUCK_TICK_LIMIT)) {
                 if (tryPointerTargetEntityTeleportRecovery(target, true)) {
                     return;
                 }
