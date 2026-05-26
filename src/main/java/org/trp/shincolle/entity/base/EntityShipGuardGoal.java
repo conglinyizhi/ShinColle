@@ -7,6 +7,8 @@ import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.Shincolle;
 
 import java.util.EnumSet;
+import java.util.Objects;
+import java.util.UUID;
 
 final class EntityShipGuardGoal extends Goal {
     private static final int GUARD_MOVE_FAIL_LIMIT = 40;
@@ -20,6 +22,7 @@ final class EntityShipGuardGoal extends Goal {
     private final double speed;
     private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
     private int nextPathTick;
+    private GuardRecoveryTargetKey lastRecoveryTargetKey;
 
     EntityShipGuardGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
@@ -55,8 +58,17 @@ final class EntityShipGuardGoal extends Goal {
     @Override
     public void start() {
         this.nextPathTick = 0;
+        this.lastRecoveryTargetKey = null;
         this.recovery.reset(ship.position());
         this.movement.reset();
+    }
+
+    @Override
+    public void stop() {
+        this.nextPathTick = 0;
+        this.lastRecoveryTargetKey = null;
+        this.recovery.clear();
+        this.movement.stop();
     }
 
     @Override
@@ -79,6 +91,7 @@ final class EntityShipGuardGoal extends Goal {
         } else {
             target = guardTarget.blockCenter();
         }
+        resetRecoveryIfTargetChanged(guardTarget, guardedEntity);
         double distSq = ship.distanceToSqr(target.x, ship.getY(), target.z);
 
         double stopDistanceSq = guardTarget.isEntity() ? 9.0D : 0.5D;
@@ -174,9 +187,33 @@ final class EntityShipGuardGoal extends Goal {
 
     private void disableGuardState() {
         this.nextPathTick = 0;
+        this.lastRecoveryTargetKey = null;
         this.recovery.clear();
         this.movement.stop();
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);
         ship.clearGuardTarget();
+    }
+
+    private void resetRecoveryIfTargetChanged(ShipGuardTarget guardTarget, Entity guardedEntity) {
+        GuardRecoveryTargetKey targetKey = GuardRecoveryTargetKey.from(guardTarget, guardedEntity);
+        if (Objects.equals(this.lastRecoveryTargetKey, targetKey)) {
+            return;
+        }
+
+        this.lastRecoveryTargetKey = targetKey;
+        this.nextPathTick = 0;
+        this.recovery.reset(ship.position());
+        this.movement.reset();
+    }
+
+    private record GuardRecoveryTargetKey(ShipGuardTarget.Type type, UUID entityId, int x, int y, int z, int dimensionId) {
+        private static GuardRecoveryTargetKey from(ShipGuardTarget guardTarget, Entity guardedEntity) {
+            if (guardTarget.isEntity() && guardedEntity != null) {
+                return new GuardRecoveryTargetKey(guardTarget.type(), guardedEntity.getUUID(), 0, 0, 0,
+                        EntityShipBase.getLegacyDimensionId(guardedEntity.level()));
+            }
+            return new GuardRecoveryTargetKey(guardTarget.type(), null, guardTarget.x(), guardTarget.y(), guardTarget.z(),
+                    guardTarget.dimensionId());
+        }
     }
 }

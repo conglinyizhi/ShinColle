@@ -95,4 +95,38 @@ class ShipGuardTargetArchitectureRegressionTest {
         assertTrue(mount.contains("movement.teleportNearPoint(target, 0.75D)"),
                 "Mount guard teleport should share the centralized movement recovery policy");
     }
+
+    @Test
+    void guardRecoveryShouldResetWhenGuardTargetIdentityChanges() throws IOException {
+        String guardGoal = Files.readString(GUARD_GOAL_SOURCE);
+        String mount = Files.readString(MOUNT_SOURCE);
+
+        assertTrue(guardGoal.contains("private GuardRecoveryTargetKey lastRecoveryTargetKey;"),
+                "Guard goal should remember which logical target owns the current recovery counters");
+        assertTrue(guardGoal.contains("resetRecoveryIfTargetChanged(guardTarget, guardedEntity);"),
+                "Guard goal should reset movement recovery when switching between guard targets");
+        assertTrue(guardGoal.contains("private record GuardRecoveryTargetKey"),
+                "Guard recovery target identity should be explicit instead of inferred from a moving position");
+        assertTrue(guardGoal.contains("guardedEntity.getUUID()"),
+                "Entity guard recovery should be keyed by stable entity identity, not by its changing position");
+        assertTrue(guardGoal.contains("this.nextPathTick = 0;\n        this.recovery.reset(ship.position());\n        this.movement.reset();"),
+                "Guard target switches should force a fresh path attempt and clear stale stuck counters");
+        assertTrue(guardGoal.contains("public void stop()"),
+                "Guard goal should clear runtime navigation state when the goal is interrupted");
+        assertTrue(guardGoal.contains("this.recovery.clear();\n        this.movement.stop();"),
+                "Guard goal stop should not leave stale recovery counters or navigation behind");
+
+        assertTrue(mount.contains("private FollowRecoveryTargetKey lastRecoveryTargetKey;"),
+                "Mount follow should remember which host-follow mode owns the current recovery counters");
+        assertTrue(mount.contains("FollowRecoveryTargetKey.point(\"pointer\", pt,\n                        EntityShipBase.getLegacyDimensionId(h.level()))"),
+                "Mount pointer follow recovery should include the host dimension in the target identity");
+        assertTrue(mount.contains("resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity(\"owner\", owner));"),
+                "Mount owner follow should reset recovery only when the owner identity changes");
+        assertTrue(mount.contains("resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity(\"guardEntity\", guarded));"),
+                "Mount entity guard follow should reset recovery when the guarded entity changes");
+        assertTrue(mount.contains("resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.guardBlock(guardTarget));"),
+                "Mount block guard follow should reset recovery when the guarded block changes");
+        assertTrue(mount.contains("private record FollowRecoveryTargetKey"),
+                "Mount follow recovery target identity should be explicit and include the follow reason");
+    }
 }

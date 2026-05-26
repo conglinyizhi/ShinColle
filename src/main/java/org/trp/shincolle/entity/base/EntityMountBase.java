@@ -28,6 +28,7 @@ import org.trp.shincolle.entity.base.path.ShipMoveControl;
 
 import javax.annotation.Nullable;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -97,6 +98,7 @@ public abstract class EntityMountBase extends PathfinderMob {
         private final EntityMountBase mount;
         private final ShipMovementCoordinator movement;
         private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
+        private FollowRecoveryTargetKey lastRecoveryTargetKey;
 
         MountFollowHostGoal(EntityMountBase mount) {
             this.mount = mount;
@@ -139,11 +141,13 @@ public abstract class EntityMountBase extends PathfinderMob {
         }
 
         @Override public void start() {
+            lastRecoveryTargetKey = null;
             recovery.reset(mount.position());
             movement.reset();
         }
 
         @Override public void stop() {
+            lastRecoveryTargetKey = null;
             movement.stop();
         }
 
@@ -153,6 +157,8 @@ public abstract class EntityMountBase extends PathfinderMob {
 
             if (h.hasPointerTarget()) {
                 Vec3 pt = h.getPointerTarget();
+                resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.point("pointer", pt,
+                        EntityShipBase.getLegacyDimensionId(h.level())));
                 movement.moveTo(pt, 1.0D);
                 trackAndRecoverPoint(pt, "pointer");
                 return;
@@ -166,6 +172,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (owner == null) return;
 
             mount.getLookControl().setLookAt(owner, 30.0F, 30.0F);
+            resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity("owner", owner));
             movement.moveTo(owner, 1.0D);
             trackAndRecoverLiving(owner, "owner");
         }
@@ -188,6 +195,7 @@ public abstract class EntityMountBase extends PathfinderMob {
                 }
 
                 mount.getLookControl().setLookAt(guarded, 30.0F, 30.0F);
+                resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity("guardEntity", guarded));
                 movement.moveTo(guarded, 1.0D);
                 trackAndRecoverEntity(guarded, "guardEntity");
                 return true;
@@ -196,6 +204,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (guardTarget.isBlock() && guardTarget.isIn(host.level())) {
                 Vec3 guardPos = guardTarget.blockCenter();
                 mount.getLookControl().setLookAt(guardPos.x, guardPos.y, guardPos.z, 30.0F, 30.0F);
+                resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.guardBlock(guardTarget));
                 movement.moveTo(guardPos, 1.0D);
                 trackAndRecoverPoint(guardPos, "guardBlock");
                 return true;
@@ -245,6 +254,32 @@ public abstract class EntityMountBase extends PathfinderMob {
             Shincolle.debugLog("MountFollow teleportRecovery mount={} host={} reason={} target={} force={} distSq={}",
                     mount.getUUID(), mount.getHostUUID(), reason, target, force, distSq);
             recovery.reset(mount.position());
+        }
+
+        private void resetRecoveryIfTargetChanged(FollowRecoveryTargetKey targetKey) {
+            if (Objects.equals(this.lastRecoveryTargetKey, targetKey)) {
+                return;
+            }
+
+            this.lastRecoveryTargetKey = targetKey;
+            this.recovery.reset(mount.position());
+            this.movement.reset();
+        }
+
+        private record FollowRecoveryTargetKey(String reason, UUID entityId, int x, int y, int z, int dimensionId) {
+            private static FollowRecoveryTargetKey entity(String reason, Entity target) {
+                return new FollowRecoveryTargetKey(reason, target.getUUID(), 0, 0, 0,
+                        EntityShipBase.getLegacyDimensionId(target.level()));
+            }
+
+            private static FollowRecoveryTargetKey guardBlock(ShipGuardTarget target) {
+                return new FollowRecoveryTargetKey("guardBlock", null, target.x(), target.y(), target.z(), target.dimensionId());
+            }
+
+            private static FollowRecoveryTargetKey point(String reason, Vec3 target, int dimensionId) {
+                return new FollowRecoveryTargetKey(reason, null, Mth.floor(target.x), Mth.floor(target.y), Mth.floor(target.z),
+                        dimensionId);
+            }
         }
     }
 
