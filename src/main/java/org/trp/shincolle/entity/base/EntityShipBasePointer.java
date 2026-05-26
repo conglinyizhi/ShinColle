@@ -111,7 +111,6 @@ class EntityShipBasePointer {
         }
         if (this.ship.isInDeadPose()) {
             clearPointerTargetEntity();
-            this.movement.stop();
             return;
         }
         Entity target = getPointerTargetEntity();
@@ -267,7 +266,7 @@ class EntityShipBasePointer {
         this.pointerTargetEntityId = null;
         this.pointerTargetEntityUntil = 0L;
         this.pointerTargetEntityRecovery.clear();
-        this.movement.reset();
+        this.movement.stop();
         updateSynchedData();
     }
 
@@ -349,7 +348,6 @@ class EntityShipBasePointer {
                 Shincolle.debugLog("PointerEntity stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
                         this.ship.getUUID(), target.getUUID(), this.pointerTargetEntityRecovery.stuckTicks(), distanceSqr);
                 clearPointerTargetEntity();
-                this.movement.stop();
                 return;
             }
             if (this.pointerTargetEntityPathTick-- <= 0) {
@@ -371,7 +369,6 @@ class EntityShipBasePointer {
                         Shincolle.debugLog("PointerEntity failClear ship={} target={} failCount={}",
                                 this.ship.getUUID(), target.getUUID(), this.pointerTargetEntityRecovery.moveFailCount());
                         clearPointerTargetEntity();
-                        this.movement.stop();
                         return;
                     }
                     this.pointerTargetEntityPathTick = 2;

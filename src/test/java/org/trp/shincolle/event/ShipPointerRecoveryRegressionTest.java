@@ -24,8 +24,8 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity commands should clear themselves after repeated move failures");
         assertTrue(source.contains("tryPointerTargetEntityTeleportRecovery(target, true)"),
                 "Pointer-entity commands should try teleport recovery before clearing repeated failures");
-        assertTrue(source.contains("clearPointerTargetEntity();\n                        this.movement.stop();\n                        return;"),
-                "Pointer-entity failure recovery should release the command and stop navigation");
+        assertTrue(source.contains("clearPointerTargetEntity();\n                        return;"),
+                "Pointer-entity failure recovery should release the command through the centralized clear path");
     }
 
     @Test
@@ -50,8 +50,8 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity chase movement should route through the coordinator");
         assertTrue(source.contains("this.pointerTargetEntityRecovery.reset(this.ship.position());\n        this.movement.reset();"),
                 "Pointer-entity commands should reset duplicate move suppression when a new target is assigned");
-        assertTrue(source.contains("this.pointerTargetEntityRecovery.clear();\n        this.movement.reset();"),
-                "Pointer-entity commands should reset movement state when the command clears");
+        assertTrue(source.contains("this.pointerTargetEntityRecovery.clear();\n        this.movement.stop();"),
+                "Pointer-entity commands should stop stale movement when the command clears");
     }
 
     @Test

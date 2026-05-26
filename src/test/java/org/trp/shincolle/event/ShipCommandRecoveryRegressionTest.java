@@ -64,7 +64,7 @@ class ShipCommandRecoveryRegressionTest {
                 "Pointer entity recovery should support non-living entity targets");
         assertTrue(source.contains("PointerEntity teleportRecovery"),
                 "Pointer entity recovery should emit searchable debug logs");
-        assertTrue(source.contains("clearPointerTargetEntity();\n                this.movement.stop();"),
+        assertTrue(source.contains("clearPointerTargetEntity();\n                return;"),
                 "Pointer entity command should still clear stale targets when recovery fails");
     }
 
