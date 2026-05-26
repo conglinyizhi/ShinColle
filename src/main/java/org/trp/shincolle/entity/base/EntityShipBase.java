@@ -482,6 +482,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.hasBlockGuardTarget()) {
             this.suspendBlockGuardTarget();
         }
+        this.pointer.clearPointerTargetEntity();
         this.pointer.setPointerTarget(target, durationTicks);
     }
 

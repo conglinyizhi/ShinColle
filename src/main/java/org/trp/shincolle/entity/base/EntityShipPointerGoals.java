@@ -49,6 +49,7 @@ class EntityShipPointerMoveGoal extends Goal {
     @Override
     public void start() {
         this.nextPathTick = 0;
+        this.lastRawTarget = null;
         this.recovery.reset(ship.position());
         this.movement.reset();
         moveToTarget();
@@ -97,6 +98,9 @@ class EntityShipPointerMoveGoal extends Goal {
 
     @Override
     public void stop() {
+        this.nextPathTick = 0;
+        this.lastRawTarget = null;
+        this.recovery.clear();
         this.movement.stop();
     }
 

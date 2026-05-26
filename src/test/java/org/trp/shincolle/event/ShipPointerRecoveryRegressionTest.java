@@ -11,6 +11,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ShipPointerRecoveryRegressionTest {
     private static final Path POINTER_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
+    private static final Path SHIP_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
 
     @Test
     void pointerEntityCommandShouldClearAfterRepeatedMoveFailures() throws IOException {
@@ -50,5 +52,25 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity commands should reset duplicate move suppression when a new target is assigned");
         assertTrue(source.contains("this.pointerTargetEntityRecovery.clear();\n        this.movement.reset();"),
                 "Pointer-entity commands should reset movement state when the command clears");
+    }
+
+    @Test
+    void pointerPositionCommandShouldClearEntityCommandAtPublicApiBoundary() throws IOException {
+        String source = Files.readString(SHIP_SOURCE);
+
+        assertTrue(source.contains("public void setPointerTarget(Vec3 target, long durationTicks)"),
+                "Pointer position commands should pass through the public ship API");
+        assertTrue(source.contains("this.pointer.clearPointerTargetEntity();\n        this.pointer.setPointerTarget(target, durationTicks);"),
+                "Pointer position commands should always clear any active entity command before assigning the point");
+    }
+
+    @Test
+    void pointerEntityCommandShouldClearPositionCommandAtPublicApiBoundary() throws IOException {
+        String source = Files.readString(POINTER_SOURCE);
+
+        assertTrue(source.contains("void setPointerTargetEntity(Entity target, long durationTicks)"),
+                "Pointer entity commands should pass through the pointer runtime API");
+        assertTrue(source.contains("this.pointerTarget = null;\n        this.pointerTargetUntil = 0L;\n        this.pointerTargetEntityId = target.getUUID();"),
+                "Pointer entity commands should always clear any active point command before assigning the entity");
     }
 }

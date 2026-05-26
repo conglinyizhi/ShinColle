@@ -38,6 +38,8 @@ class ShipCommandRecoveryRegressionTest {
                 "Pointer move recovery should use the movement coordinator's safe point teleport");
         assertTrue(source.contains("ship.clearPointerTarget();\n            this.movement.stop();"),
                 "Pointer move goal should still clear pointer position commands when recovery fails");
+        assertTrue(source.contains("this.lastRawTarget = null;\n        this.recovery.clear();\n        this.movement.stop();"),
+                "Pointer move goal should clear target memory and recovery counters when interrupted");
     }
 
     @Test

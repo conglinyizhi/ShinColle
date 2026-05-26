@@ -586,7 +586,6 @@ public class ModEventBusEvents {
                     continue;
                 }
                 ship.setPointerTargetEntity(target, POINTER_TARGET_DURATION_TICKS);
-                ship.clearPointerTarget();
             }
             return;
         }
@@ -608,7 +607,6 @@ public class ModEventBusEvents {
                 continue;
             }
             ship.setPointerTarget(target, POINTER_TARGET_DURATION_TICKS);
-            ship.clearPointerTargetEntity();
 
             
             if (guardPos != null) {
