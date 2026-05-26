@@ -108,7 +108,6 @@ public final class FormationHelper {
         if (current != null && current.getUUID().equals(guarded.getUUID())) {
             ship.setGuardedEntity(null);
             ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
-            new ShipMovementCoordinator(ship).stop();
             return;
         }
 

@@ -957,6 +957,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                 ShipGuardTarget.NONE.dimensionId(),
                 ShipGuardTarget.NONE.legacyType()
         );
+        this.guardMovement.stop();
     }
 
     public void setGuardedEntity(@Nullable Entity entity) {
@@ -2794,7 +2795,6 @@ public abstract class EntityShipBase extends TamableAnimal {
             this.setInSittingPose(isSitting);
             if (!isSitting && this.hasBlockGuardTarget()) {
                 this.clearGuardTarget();
-                this.guardMovement.stop();
             }
             this.resetInteractionEmotionState();
             this.focusOnPlayer(player);

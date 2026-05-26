@@ -173,8 +173,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Formation commands should use the shared movement coordinator");
         assertTrue(formation.contains("new ShipMovementCoordinator(ship).moveTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);"),
                 "Block guard formation commands should route immediate movement through the coordinator");
-        assertTrue(formation.contains("new ShipMovementCoordinator(ship).stop();"),
-                "Guard toggle commands should route navigation stops through the coordinator");
+        assertTrue(formation.contains("ship.setGuardedEntity(null);"),
+                "Guard toggle commands should clear entity guard through the ship API");
+        assertFalse(formation.contains("ship.setGuardedEntity(null);\n            ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);\n            new ShipMovementCoordinator(ship).stop();"),
+                "Guard toggle commands should not duplicate guard navigation cleanup outside the ship API");
         assertTrue(formation.contains("new ShipMovementCoordinator(ship).moveTo(guarded, 1.2D);"),
                 "Entity guard formation commands should route immediate movement through the coordinator");
         assertFalse(formation.contains("ship.teleportTo(spawnX, spawnY, spawnZ)"),
@@ -241,6 +243,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Waypoint approach should route movement through the coordinator");
         assertTrue(shipBase.contains("public void clearPointerTarget() {\n        this.pointer.clearPointerTarget();\n        this.pointerMovement.stop();"),
                 "Clearing pointer position commands should stop stale pointer navigation at the public API boundary");
+        assertTrue(shipBase.contains("public void clearGuardTarget()"),
+                "Ship base should centralize guard target clearing");
+        assertTrue(shipBase.contains("this.guardMovement.stop();"),
+                "Clearing guard targets should stop stale guard navigation at the public API boundary");
         assertFalse(shipBase.contains("this.getNavigation().moveTo"),
                 "Ship base should not issue raw navigation move requests");
         assertFalse(shipBase.contains("this.getNavigation().stop()"),

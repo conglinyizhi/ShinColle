@@ -26,7 +26,11 @@ class ShipFollowOwnerRegressionTest {
     void standingUpShouldClearLegacyGuardPositionSoFollowCanResume() throws IOException {
         String source = Files.readString(SHIP_SOURCE);
 
-        assertTrue(source.contains("if (!isSitting && this.hasBlockGuardTarget()) {\n                this.clearGuardTarget();\n                this.guardMovement.stop();\n            }"),
+        assertTrue(source.contains("if (!isSitting && this.hasBlockGuardTarget()) {\n                this.clearGuardTarget();\n            }"),
                 "Ship stand-up interaction should clear stale guard-block mode");
+        assertTrue(source.contains("public void clearGuardTarget()"),
+                "Guard target clearing should be routed through the public API");
+        assertTrue(source.contains("this.guardMovement.stop();"),
+                "Guard target clearing should stop stale guard navigation");
     }
 }
