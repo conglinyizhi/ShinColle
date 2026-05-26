@@ -21,7 +21,6 @@ final class ShipLegacyPathFinder {
         FLUID,
         OPENABLE,
         FENCE,
-        STAIR_OR_LADDER,
         BLOCKED
     }
 
@@ -190,11 +189,11 @@ final class ShipLegacyPathFinder {
             result = openPoint(x, y, z);
         }
 
-        if (result == null && yOffset > 0 && type != LegacyPathType.FENCE && type != LegacyPathType.STAIR_OR_LADDER) {
+        if (result == null && yOffset > 0 && type != LegacyPathType.FENCE) {
             result = getSafePoint(host, x, y + yOffset, z, 0, sizeX, sizeY, sizeZ);
         }
 
-        if (result == null && (type == LegacyPathType.STAIR_OR_LADDER || type == LegacyPathType.BLOCKED)) {
+        if (result == null && type == LegacyPathType.BLOCKED) {
             return null;
         }
 

@@ -8,6 +8,13 @@ final class ShipLegacyPathHeap {
     private int count;
 
     void clearPath() {
+        for (int i = 0; i < this.count; i++) {
+            ShipLegacyPathPoint point = this.points[i];
+            if (point != null) {
+                point.setHeapIndex(-1);
+                this.points[i] = null;
+            }
+        }
         this.count = 0;
     }
 
@@ -31,6 +38,10 @@ final class ShipLegacyPathHeap {
     }
 
     ShipLegacyPathPoint dequeue() {
+        if (this.count == 0) {
+            throw new IllegalStateException("Cannot dequeue from an empty path heap");
+        }
+
         ShipLegacyPathPoint result = this.points[0];
         this.points[0] = this.points[--this.count];
         this.points[this.count] = null;
@@ -45,13 +56,18 @@ final class ShipLegacyPathHeap {
     }
 
     void changeDistance(ShipLegacyPathPoint point, float distance) {
+        int heapIndex = point.getHeapIndex();
+        if (heapIndex < 0 || heapIndex >= this.count || this.points[heapIndex] != point) {
+            throw new IllegalStateException("Point is not assigned to this heap");
+        }
+
         float prev = point.getDistanceToTarget();
         point.setDistanceToTarget(distance);
 
         if (distance < prev) {
-            this.sortBack(point.getHeapIndex());
+            this.sortBack(heapIndex);
         } else {
-            this.sortForward(point.getHeapIndex());
+            this.sortForward(heapIndex);
         }
     }
 

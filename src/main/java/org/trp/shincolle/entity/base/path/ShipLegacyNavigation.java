@@ -100,6 +100,10 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         }
 
         Vec3 target = this.currentPath.getPosition(this.mob);
+        if (target == null) {
+            stop();
+            return;
+        }
         double wantedY = target.y;
 
         if (isInLiquid()) {
@@ -161,6 +165,15 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         return this.pathFinder.findPath(this.mob, pos.getX(), pos.getY(), pos.getZ(), range);
     }
 
+    private ShipLegacyPath recalculatePathToCurrentTarget() {
+        if (this.targetPos == null) {
+            return null;
+        }
+
+        float range = getPathSearchRange();
+        return this.pathFinder.findPath(this.mob, this.targetPos.getX(), this.targetPos.getY(), this.targetPos.getZ(), range);
+    }
+
     private boolean setPath(ShipLegacyPath path, double speed) {
         if (path == null) {
             if (shouldLogSetPath(-1, true)) {
@@ -173,6 +186,11 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
             this.currentPath = null;
             this.path = null;
             return false;
+        }
+
+        if (path == this.currentPath) {
+            this.speedModifier = speed;
+            return true;
         }
 
         this.currentPath = path;
@@ -228,13 +246,18 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         int limit = this.currentPath.getCurrentPathLength();
 
         for (int i = this.currentPath.getCurrentPathIndex(); i < this.currentPath.getCurrentPathLength(); i++) {
-            if (this.currentPath.getPathPointFromIndex(i).getY() != Mth.floor(hostPos.y)) {
+            ShipLegacyPathPoint point = this.currentPath.getPathPointFromIndex(i);
+            if (point == null || point.getY() != Mth.floor(hostPos.y)) {
                 limit = i;
                 break;
             }
         }
 
         Vec3 nextPos = this.currentPath.getCurrentPos();
+        if (nextPos == null) {
+            stop();
+            return;
+        }
         double centerX = nextPos.x + 0.5D;
         double centerZ = nextPos.z + 0.5D;
 
@@ -248,6 +271,9 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
         for (int i = limit - 1; i >= this.currentPath.getCurrentPathIndex(); i--) {
             Vec3 test = this.currentPath.getVectorFromIndex(this.mob, i);
+            if (test == null) {
+                continue;
+            }
             if (isDirectPathBetweenPoints(hostPos, test, this.hostCeilWidth, this.hostCeilHeight, this.hostCeilDepth)) {
                 this.currentPath.setCurrentPathIndex(i);
                 break;
@@ -358,9 +384,8 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
                 }
 
                 if (this.timeoutLimit > 0.0D && this.timeoutTimer > this.timeoutLimit * 2.0D) {
-                    BlockPos retryTarget = this.targetPos;
-                    double retrySpeed = this.speedModifier;
-                    if (retryTarget == null || !moveTo(retryTarget.getX() + 0.5D, retryTarget.getY(), retryTarget.getZ() + 0.5D, retrySpeed)) {
+                    ShipLegacyPath retryPath = recalculatePathToCurrentTarget();
+                    if (!setPath(retryPath, this.speedModifier)) {
                         stop();
                     }
                     this.timeoutCachedNode = 0L;
