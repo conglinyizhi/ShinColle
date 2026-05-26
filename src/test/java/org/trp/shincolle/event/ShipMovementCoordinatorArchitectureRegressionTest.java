@@ -241,6 +241,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Waypoint target switch should route movement through the coordinator");
         assertTrue(shipBase.contains("this.guardMovement.moveTo(new Vec3(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D), 1.0D);"),
                 "Waypoint approach should route movement through the coordinator");
+        assertTrue(shipBase.contains("private void clearWaypointMoveRuntimeState()"),
+                "Ship base should centralize waypoint/crane runtime cleanup");
+        assertTrue(shipBase.contains("this.setStateMinor(43, 0);\n        this.setStateTimer(4, 0);\n        this.guardMovement.stop();"),
+                "Waypoint/crane cleanup should clear stale runtime state and navigation");
+        assertTrue(shipBase.contains("if (this.getStateFlag(11) || this.isOrderedToSit() || this.isLeashed() || this.isVehicle()) {\n            this.clearWaypointMoveRuntimeState();\n            return;\n        }"),
+                "Waypoint movement should clear stale runtime state while temporarily unable to move");
+        assertTrue(shipBase.contains("if (!guardTarget.isBlock()) {\n            this.clearWaypointMoveRuntimeState();\n            return;\n        }"),
+                "Waypoint movement should clear stale runtime state when no block guard target remains");
         assertTrue(shipBase.contains("public void clearPointerTarget() {\n        this.pointer.clearPointerTarget();\n        this.pointerMovement.stop();"),
                 "Clearing pointer position commands should stop stale pointer navigation at the public API boundary");
         assertTrue(shipBase.contains("public void clearGuardTarget()"),

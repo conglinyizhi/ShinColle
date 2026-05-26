@@ -3361,6 +3361,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     protected void tickWaypointMove() {
         if (this.getStateFlag(11) || this.isOrderedToSit() || this.isLeashed() || this.isVehicle()) {
+            this.clearWaypointMoveRuntimeState();
             return;
         }
 
@@ -3379,8 +3380,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         ShipGuardTarget guardTarget = this.getGuardTarget();
         if (!guardTarget.isBlock()) {
-            this.setStateMinor(43, 0);
-            this.setStateTimer(4, 0);
+            this.clearWaypointMoveRuntimeState();
             return;
         }
 
@@ -3450,6 +3450,12 @@ public abstract class EntityShipBase extends TamableAnimal {
                 this.guardMovement.moveTo(new Vec3(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D), 1.0D);
             }
         }
+    }
+
+    private void clearWaypointMoveRuntimeState() {
+        this.setStateMinor(43, 0);
+        this.setStateTimer(4, 0);
+        this.guardMovement.stop();
     }
 
     private void tickLegacyTimers() {
