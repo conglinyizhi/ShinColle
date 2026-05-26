@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipItemInteractionPriorityRegressionTest {
@@ -26,6 +27,8 @@ class ShipItemInteractionPriorityRegressionTest {
                 "Ship interactions should still preserve the server-side default interaction gate");
         assertTrue(source.contains("if (stack.is(ModItems.TRAINING_BOOK.get()) || stack.is(ModItems.MODERN_KIT.get())) {"),
                 "Ship interactions should leave training book and modernization kit to the vanilla item->entity interaction path");
+        assertFalse(source.contains("Ship mobInteract"),
+                "Ship interactions should not emit noisy per-click diagnostics during normal right-click routing");
     }
 
     @Test
@@ -42,6 +45,8 @@ class ShipItemInteractionPriorityRegressionTest {
                 "Mount interactions should keep the client-side success path");
         assertTrue(source.contains("if (!player.isSecondaryUseActive()) {"),
                 "Mount interactions should stop before riding when the forwarded host interaction already handled the right-click");
+        assertFalse(source.contains("Mount mobInteract"),
+                "Mount interactions should not emit noisy per-click diagnostics during normal right-click routing");
     }
 
     @Test

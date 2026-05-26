@@ -2667,10 +2667,6 @@ public abstract class EntityShipBase extends TamableAnimal {
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        Shincolle.debugLog("Ship mobInteract ship={} player={} client={} hand={} item={} count={} canRide={} passenger={} tame={} ownerMatch={}",
-                this.getUUID(), player.getUUID(), this.level().isClientSide, hand,
-                BuiltInRegistries.ITEM.getKey(stack.getItem()), stack.getCount(), this.isStateCanRide(),
-                this.isPassenger(), this.isTame(), this.isOwnedBy(player));
 
         if (!this.level().isClientSide && hand == InteractionHand.MAIN_HAND) {
             if (!this.isTame()) {
@@ -2783,7 +2779,6 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
 
             if (player.isShiftKeyDown()) {
-                Shincolle.debugLog("Ship mobInteract openMenu ship={}", this.getUUID());
                 this.openShipMenu(player);
                 this.resetInteractionEmotionState();
                 this.focusOnPlayer(player);
@@ -2799,11 +2794,9 @@ public abstract class EntityShipBase extends TamableAnimal {
             }
             this.resetInteractionEmotionState();
             this.focusOnPlayer(player);
-            Shincolle.debugLog("Ship mobInteract toggleSit ship={} newSitting={}", this.getUUID(), isSitting);
 
             return InteractionResult.sidedSuccess(this.level().isClientSide);
         }
-        Shincolle.debugLog("Ship mobInteract fallbackSuper ship={}", this.getUUID());
         return super.mobInteract(player, hand);
     }
 

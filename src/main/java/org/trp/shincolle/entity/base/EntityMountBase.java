@@ -624,14 +624,9 @@ public abstract class EntityMountBase extends PathfinderMob {
 
     @Override
     public InteractionResult mobInteract(Player player, InteractionHand hand) {
-        Shincolle.debugLog("Mount mobInteract mount={} host={} player={} client={} hand={} secondary={} item={}",
-                this.getUUID(), this.host != null ? this.host.getUUID() : null, player.getUUID(), this.level().isClientSide,
-                hand, player.isSecondaryUseActive(), net.minecraft.core.registries.BuiltInRegistries.ITEM.getKey(player.getItemInHand(hand).getItem()));
         ItemStack heldStack = player.getItemInHand(hand);
         if (this.host != null && this.host.isOwnedBy(player) && ShipHostInteractionRouter.shouldForwardToHost(heldStack)) {
             InteractionResult hostInteractionResult = ShipHostInteractionRouter.forwardToHost(this.host, player, hand, heldStack);
-            Shincolle.debugLog("Mount mobInteract hostResult mount={} host={} result={}",
-                    this.getUUID(), this.host.getUUID(), hostInteractionResult);
             if (hostInteractionResult != InteractionResult.PASS) {
                 return hostInteractionResult;
             }
@@ -641,12 +636,10 @@ public abstract class EntityMountBase extends PathfinderMob {
 
         if (!player.isSecondaryUseActive()) {
             if (this.distanceToSqr(player) < 16.0) {
-                Shincolle.debugLog("Mount mobInteract startRiding mount={} player={}", this.getUUID(), player.getUUID());
                 player.startRiding(this, true);
                 return InteractionResult.SUCCESS;
             }
         }
-        Shincolle.debugLog("Mount mobInteract fallbackSuper mount={}", this.getUUID());
         return super.mobInteract(player, hand);
     }
 
