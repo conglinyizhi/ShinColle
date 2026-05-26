@@ -945,6 +945,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         ShipGuardTarget target = this.getGuardTarget();
         if (target.isBlock()) {
             this.setGuardedPos(target.x(), target.y(), target.z(), target.dimensionId(), ShipGuardTarget.Type.NONE.legacyId());
+            this.guardMovement.stop();
         }
     }
 

@@ -51,6 +51,10 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Pointer waypoint command should persist the waypoint guard target");
         assertTrue(shipSource.contains("this.suspendBlockGuardTarget();"),
                 "Temporary pointer commands should suspend block guard through the typed API");
+        assertTrue(shipSource.contains("public void suspendBlockGuardTarget()"),
+                "Suspending block guard should be centralized in the ship API");
+        assertTrue(shipSource.contains("this.setGuardedPos(target.x(), target.y(), target.z(), target.dimensionId(), ShipGuardTarget.Type.NONE.legacyId());\n            this.guardMovement.stop();"),
+                "Suspending block guard should stop stale guard navigation before temporary pointer commands take over");
     }
 
     @Test
