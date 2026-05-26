@@ -10,9 +10,11 @@ import org.trp.shincolle.utility.ShipTeleportHelper;
 
 public final class ShipMovementCoordinator {
     private static final double SAME_MOVE_TARGET_SQR = 0.25D;
+    private static final int SAME_MOVE_REFRESH_INTERVAL_TICKS = 20;
 
     private final PathfinderMob mob;
     private Vec3 lastMoveTarget;
+    private int lastMoveTick = Integer.MIN_VALUE;
 
     public ShipMovementCoordinator(PathfinderMob mob) {
         this.mob = mob;
@@ -20,6 +22,7 @@ public final class ShipMovementCoordinator {
 
     public void reset() {
         this.lastMoveTarget = null;
+        this.lastMoveTick = Integer.MIN_VALUE;
     }
 
     public void stop() {
@@ -28,26 +31,31 @@ public final class ShipMovementCoordinator {
     }
 
     public boolean moveTo(Vec3 target, double speed) {
-        if (!mob.getNavigation().isDone()
-                && this.lastMoveTarget != null
-                && this.lastMoveTarget.distanceToSqr(target) < SAME_MOVE_TARGET_SQR) {
+        if (shouldSuppressSameTargetMove(target)) {
             return true;
         }
 
         this.lastMoveTarget = target;
+        this.lastMoveTick = this.mob.tickCount;
         return mob.getNavigation().moveTo(target.x, target.y, target.z, speed);
     }
 
     public boolean moveTo(Entity target, double speed) {
         Vec3 targetPos = target.position();
-        if (!mob.getNavigation().isDone()
-                && this.lastMoveTarget != null
-                && this.lastMoveTarget.distanceToSqr(targetPos) < SAME_MOVE_TARGET_SQR) {
+        if (shouldSuppressSameTargetMove(targetPos)) {
             return true;
         }
 
         this.lastMoveTarget = targetPos;
+        this.lastMoveTick = this.mob.tickCount;
         return mob.getNavigation().moveTo(target, speed);
+    }
+
+    private boolean shouldSuppressSameTargetMove(Vec3 target) {
+        return !mob.getNavigation().isDone()
+                && this.lastMoveTarget != null
+                && this.lastMoveTarget.distanceToSqr(target) < SAME_MOVE_TARGET_SQR
+                && this.mob.tickCount - this.lastMoveTick < SAME_MOVE_REFRESH_INTERVAL_TICKS;
     }
 
     public boolean teleportNearLiving(LivingEntity anchor, double verticalOffset) {

@@ -63,6 +63,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Coordinator should be reusable by ship-attached mobs such as mounts");
         assertTrue(source.contains("private static final double SAME_MOVE_TARGET_SQR = 0.25D;"),
                 "Coordinator should suppress duplicate move requests to the same target");
+        assertTrue(source.contains("private static final int SAME_MOVE_REFRESH_INTERVAL_TICKS = 20;"),
+                "Coordinator should periodically refresh same-target move requests");
+        assertTrue(source.contains("private int lastMoveTick = Integer.MIN_VALUE;"),
+                "Coordinator should track when the current suppressed target was last submitted");
+        assertTrue(source.contains("private boolean shouldSuppressSameTargetMove(Vec3 target)"),
+                "Repeated move suppression should be centralized for point and entity targets");
+        assertTrue(source.contains("this.mob.tickCount - this.lastMoveTick < SAME_MOVE_REFRESH_INTERVAL_TICKS"),
+                "Repeated move suppression should not hide stale navigation indefinitely");
         assertTrue(source.contains("boolean teleportNearLiving(LivingEntity anchor, double verticalOffset)"),
                 "Coordinator should expose living-anchor teleport recovery");
         assertTrue(source.contains("public boolean teleportNearLivingIgnoringConfig(LivingEntity anchor, double verticalOffset)"),
