@@ -264,6 +264,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private final ShipMovementCoordinator retreatMovement;
     private final ShipMovementCoordinator pickupMovement;
     private final ShipMovementCoordinator guardMovement;
+    private final ShipMovementCoordinator pointerMovement;
     @Nullable
     private UUID guardedEntityId;
     private EntityShipFishingHook fishHook;
@@ -298,6 +299,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.retreatMovement = new ShipMovementCoordinator(this);
         this.pickupMovement = new ShipMovementCoordinator(this);
         this.guardMovement = new ShipMovementCoordinator(this);
+        this.pointerMovement = new ShipMovementCoordinator(this);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
@@ -504,6 +506,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     public void clearPointerTarget() {
         this.pointer.clearPointerTarget();
+        this.pointerMovement.stop();
     }
 
     public void setPointerTargetEntity(Entity target, long durationTicks) {

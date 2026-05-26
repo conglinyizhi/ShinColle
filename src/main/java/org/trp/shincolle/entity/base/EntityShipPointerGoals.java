@@ -83,7 +83,6 @@ class EntityShipPointerMoveGoal extends Goal {
             Shincolle.debugLog("PointerGoal stuckClear ship={} target={} stuckTicks={}",
                     ship.getUUID(), ship.getPointerTarget(), this.recovery.stuckTicks());
             ship.clearPointerTarget();
-            this.movement.stop();
             return;
         }
         if (tryTeleportRecovery(ship.getPointerTarget(), false)) {
@@ -120,7 +119,6 @@ class EntityShipPointerMoveGoal extends Goal {
                     Shincolle.debugLog("PointerGoal failClear ship={} target={} failCount={}",
                             ship.getUUID(), target, this.recovery.moveFailCount());
                     ship.clearPointerTarget();
-                    this.movement.stop();
                 }
             } else {
                 this.recovery.clearMoveFailures();

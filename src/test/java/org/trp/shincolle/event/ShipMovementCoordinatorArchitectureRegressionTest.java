@@ -217,6 +217,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Ship base should keep a coordinator for pickup movement");
         assertTrue(shipBase.contains("private final ShipMovementCoordinator guardMovement;"),
                 "Ship base should keep a coordinator for guard and waypoint movement");
+        assertTrue(shipBase.contains("private final ShipMovementCoordinator pointerMovement;"),
+                "Ship base should keep a coordinator for pointer command cleanup");
         assertTrue(shipBase.contains("this.lifecycleMovement = new ShipMovementCoordinator(this);"),
                 "Ship base should create the lifecycle coordinator once per entity");
         assertTrue(shipBase.contains("this.retreatMovement = new ShipMovementCoordinator(this);"),
@@ -225,6 +227,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Ship base should create the pickup coordinator once per entity");
         assertTrue(shipBase.contains("this.guardMovement = new ShipMovementCoordinator(this);"),
                 "Ship base should create the guard coordinator once per entity");
+        assertTrue(shipBase.contains("this.pointerMovement = new ShipMovementCoordinator(this);"),
+                "Ship base should create the pointer cleanup coordinator once per entity");
         assertTrue(shipBase.contains("this.retreatMovement.moveTo(owner, 1.25D);"),
                 "Low-health retreat should route movement through the coordinator");
         assertTrue(shipBase.contains("this.pickupMovement.moveTo(target, 1.0D);"),
@@ -235,6 +239,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Waypoint target switch should route movement through the coordinator");
         assertTrue(shipBase.contains("this.guardMovement.moveTo(new Vec3(pos.getX() + 0.5D, pos.getY(), pos.getZ() + 0.5D), 1.0D);"),
                 "Waypoint approach should route movement through the coordinator");
+        assertTrue(shipBase.contains("public void clearPointerTarget() {\n        this.pointer.clearPointerTarget();\n        this.pointerMovement.stop();"),
+                "Clearing pointer position commands should stop stale pointer navigation at the public API boundary");
         assertFalse(shipBase.contains("this.getNavigation().moveTo"),
                 "Ship base should not issue raw navigation move requests");
         assertFalse(shipBase.contains("this.getNavigation().stop()"),
