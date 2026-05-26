@@ -73,8 +73,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Repeated move suppression should not hide stale navigation indefinitely");
         assertTrue(source.contains("private boolean recordMoveRequest(Vec3 target, boolean moved)"),
                 "Coordinator should centralize successful move bookkeeping");
-        assertTrue(source.contains("if (!moved) {\n            reset();\n            return false;\n        }"),
-                "Failed move requests should not poison later duplicate-move suppression");
+        assertTrue(source.contains("if (!moved) {\n            stop();\n            return false;\n        }"),
+                "Failed move requests should stop stale navigation and not poison later duplicate-move suppression");
         assertTrue(source.contains("return recordMoveRequest(target, mob.getNavigation().moveTo(target.x, target.y, target.z, speed));"),
                 "Point movement should only record duplicate suppression state after navigation accepts the move");
         assertTrue(source.contains("return recordMoveRequest(targetPos, mob.getNavigation().moveTo(target, speed));"),

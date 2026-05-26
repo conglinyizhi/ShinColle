@@ -56,7 +56,7 @@ public final class ShipMovementCoordinator {
 
     private boolean recordMoveRequest(Vec3 target, boolean moved) {
         if (!moved) {
-            reset();
+            stop();
             return false;
         }
 
