@@ -10,6 +10,7 @@ import java.util.EnumSet;
 class EntityShipPointerMoveGoal extends Goal {
     private static final double TARGET_REACH_SQR = 1.0D;
     private static final int POINTER_MOVE_FAIL_LIMIT = 40;
+    private static final int POINTER_MOVE_FAIL_LOG_INTERVAL = 20;
     private static final int POINTER_MOVE_STUCK_TICK_LIMIT = 120;
     private static final int POINTER_MOVE_TELEPORT_COOLDOWN_TICKS = 100;
     private static final double POINTER_MOVE_TELEPORT_DISTANCE_SQ = 256.0D;
@@ -104,8 +105,10 @@ class EntityShipPointerMoveGoal extends Goal {
         if (target != null) {
             if (!this.movement.moveTo(target, this.speed)) {
                 int failCount = this.recovery.recordMoveFailure();
-                Shincolle.debugLog("PointerGoal moveFail ship={} target={} failCount={}",
-                        ship.getUUID(), target, failCount);
+                if (this.recovery.shouldLogMoveFailure(ship.tickCount, POINTER_MOVE_FAIL_LOG_INTERVAL)) {
+                    Shincolle.debugLog("PointerGoal moveFail ship={} target={} failCount={}",
+                            ship.getUUID(), target, failCount);
+                }
                 if (failCount > POINTER_MOVE_FAIL_LIMIT) {
                     if (tryTeleportRecovery(target, true)) {
                         return;
@@ -125,7 +128,7 @@ class EntityShipPointerMoveGoal extends Goal {
         if (target == null) {
             return false;
         }
-        if (!this.recovery.shouldTryTeleport(force, ship.distanceToSqr(target),
+        if (!this.recovery.shouldTryTeleportThrottled(force, ship.distanceToSqr(target),
                 POINTER_MOVE_TELEPORT_DISTANCE_SQ, POINTER_MOVE_TELEPORT_COOLDOWN_TICKS)) {
             return false;
         }

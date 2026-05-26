@@ -38,6 +38,32 @@ class ShipMovementRecoveryStateTest {
     }
 
     @Test
+    void moveFailureLoggingShouldBeRateLimitedAndResettable() {
+        ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
+
+        recovery.recordMoveFailure();
+
+        assertTrue(recovery.shouldLogMoveFailure(10, 20),
+                "First move failure should be visible immediately");
+
+        recovery.recordMoveFailure();
+
+        assertFalse(recovery.shouldLogMoveFailure(29, 20),
+                "Repeated move failures should be hidden until the interval passes");
+
+        recovery.recordMoveFailure();
+
+        assertTrue(recovery.shouldLogMoveFailure(30, 20),
+                "Repeated move failures should be visible once the interval passes");
+
+        recovery.clearMoveFailures();
+        recovery.recordMoveFailure();
+
+        assertTrue(recovery.shouldLogMoveFailure(31, 20),
+                "Clearing move failures should also clear stale log throttling");
+    }
+
+    @Test
     void nonForcedTeleportShouldKeepDistanceAndCooldownPolicy() {
         ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
 

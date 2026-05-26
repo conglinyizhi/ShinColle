@@ -16,6 +16,7 @@ class EntityShipBasePointer {
     private static final int POINTER_ENTITY_PATH_RECALC_INTERVAL = 10;
     private static final double POINTER_ENTITY_MOVE_SPEED = 1.1D;
     private static final int POINTER_ENTITY_MOVE_FAIL_LIMIT = 40;
+    private static final int POINTER_ENTITY_MOVE_FAIL_LOG_INTERVAL = 20;
     private static final int POINTER_ENTITY_STUCK_TICK_LIMIT = 120;
     private static final int POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS = 100;
     private static final double POINTER_ENTITY_TELEPORT_DISTANCE_SQ = 256.0D;
@@ -358,8 +359,11 @@ class EntityShipBasePointer {
                 }
                 if (!this.movement.moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
                     int failCount = this.pointerTargetEntityRecovery.recordMoveFailure();
-                    Shincolle.debugLog("PointerEntity moveFail ship={} target={} failCount={} distanceSqr={}",
-                            this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
+                    if (this.pointerTargetEntityRecovery.shouldLogMoveFailure(this.ship.tickCount,
+                            POINTER_ENTITY_MOVE_FAIL_LOG_INTERVAL)) {
+                        Shincolle.debugLog("PointerEntity moveFail ship={} target={} failCount={} distanceSqr={}",
+                                this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
+                    }
                     if (failCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {
                         if (tryPointerTargetEntityTeleportRecovery(target, true)) {
                             return;
@@ -441,7 +445,7 @@ class EntityShipBasePointer {
         if (target == null) {
             return false;
         }
-        if (!this.pointerTargetEntityRecovery.shouldTryTeleport(force, this.ship.distanceToSqr(target),
+        if (!this.pointerTargetEntityRecovery.shouldTryTeleportThrottled(force, this.ship.distanceToSqr(target),
                 POINTER_ENTITY_TELEPORT_DISTANCE_SQ, POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS)) {
             return false;
         }

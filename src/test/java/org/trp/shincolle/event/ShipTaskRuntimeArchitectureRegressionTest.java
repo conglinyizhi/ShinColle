@@ -40,8 +40,10 @@ class ShipTaskRuntimeArchitectureRegressionTest {
                 "Task runtime should route task teleport recovery through the coordinator");
         assertTrue(runtime.contains("TaskMove teleportRecovery"),
                 "Task runtime should emit searchable recovery diagnostics");
-        assertTrue(runtime.contains("private boolean shouldLogMoveFailure(int failCount)"),
-                "Task runtime should rate-limit repeated move-failure diagnostics");
+        assertTrue(runtime.contains("this.recovery.shouldLogMoveFailure(this.ship.tickCount, TASK_MOVE_FAIL_LOG_INTERVAL)"),
+                "Task runtime should rate-limit repeated move-failure diagnostics through shared recovery state");
+        assertFalse(runtime.contains("lastMoveFailLogTick"),
+                "Task runtime should not duplicate move-failure diagnostic throttling state");
         assertTrue(runtime.contains("public void beginTaskTick(int taskId)"),
                 "Task runtime should track task transitions");
         assertTrue(runtime.contains("this.movement.reset();\n            this.recovery.reset(this.ship.position());"),

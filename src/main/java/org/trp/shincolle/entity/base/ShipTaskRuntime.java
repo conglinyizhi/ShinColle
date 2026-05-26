@@ -17,7 +17,6 @@ public final class ShipTaskRuntime {
     private final ShipMovementRecoveryState recovery;
     private Vec3 lastTaskTarget;
     private int lastTaskId = NO_TASK;
-    private int lastMoveFailLogTick = Integer.MIN_VALUE;
 
     ShipTaskRuntime(EntityShipBase ship) {
         this.ship = ship;
@@ -30,7 +29,6 @@ public final class ShipTaskRuntime {
             this.movement.reset();
             this.recovery.reset(this.ship.position());
             this.lastTaskTarget = null;
-            this.lastMoveFailLogTick = Integer.MIN_VALUE;
             this.lastTaskId = taskId;
         }
     }
@@ -40,7 +38,6 @@ public final class ShipTaskRuntime {
             this.movement.reset();
             this.recovery.clear();
             this.lastTaskTarget = null;
-            this.lastMoveFailLogTick = Integer.MIN_VALUE;
             this.lastTaskId = NO_TASK;
         }
     }
@@ -72,10 +69,9 @@ public final class ShipTaskRuntime {
         }
 
         int failCount = this.recovery.recordMoveFailure();
-        if (shouldLogMoveFailure(failCount)) {
+        if (this.recovery.shouldLogMoveFailure(this.ship.tickCount, TASK_MOVE_FAIL_LOG_INTERVAL)) {
             Shincolle.debugLog("TaskMove moveFail ship={} task={} target={} failCount={} distanceSqr={}",
                     this.ship.getUUID(), this.lastTaskId, target, failCount, distanceSqr);
-            this.lastMoveFailLogTick = this.ship.tickCount;
         }
         if (failCount > TASK_MOVE_FAIL_LIMIT && tryTeleportRecovery(target, distanceSqr, true)) {
             return true;
@@ -85,11 +81,6 @@ public final class ShipTaskRuntime {
 
     public boolean moveTo(Entity target, double speed) {
         return this.movement.moveTo(target, speed);
-    }
-
-    private boolean shouldLogMoveFailure(int failCount) {
-        return failCount == 1
-                || this.ship.tickCount - this.lastMoveFailLogTick >= TASK_MOVE_FAIL_LOG_INTERVAL;
     }
 
     private boolean tryTeleportRecovery(Vec3 target, double distanceSqr, boolean force) {

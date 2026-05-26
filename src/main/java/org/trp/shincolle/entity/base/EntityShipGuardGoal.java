@@ -10,6 +10,7 @@ import java.util.EnumSet;
 
 final class EntityShipGuardGoal extends Goal {
     private static final int GUARD_MOVE_FAIL_LIMIT = 40;
+    private static final int GUARD_MOVE_FAIL_LOG_INTERVAL = 20;
     private static final int GUARD_STUCK_TICK_LIMIT = 120;
     private static final int GUARD_TELEPORT_COOLDOWN_TICKS = 100;
     private static final double GUARD_TELEPORT_DISTANCE_SQ = 256.0D;
@@ -99,8 +100,10 @@ final class EntityShipGuardGoal extends Goal {
                 this.nextPathTick = 10;
                 if (!this.movement.moveTo(target, speed)) {
                     int failCount = this.recovery.recordMoveFailure();
-                    Shincolle.debugLog("GuardGoal moveFail ship={} target={} failCount={}",
-                            ship.getUUID(), target, failCount);
+                    if (this.recovery.shouldLogMoveFailure(ship.tickCount, GUARD_MOVE_FAIL_LOG_INTERVAL)) {
+                        Shincolle.debugLog("GuardGoal moveFail ship={} target={} failCount={}",
+                                ship.getUUID(), target, failCount);
+                    }
                     if (failCount > GUARD_MOVE_FAIL_LIMIT) {
                         if (tryTeleportRecovery(target, guardedEntity, distSq, true)) {
                             return;
@@ -150,7 +153,7 @@ final class EntityShipGuardGoal extends Goal {
     }
 
     private boolean tryTeleportRecovery(Vec3 target, Entity guardedEntity, double distSq, boolean force) {
-        if (!this.recovery.shouldTryTeleport(force, distSq, GUARD_TELEPORT_DISTANCE_SQ,
+        if (!this.recovery.shouldTryTeleportThrottled(force, distSq, GUARD_TELEPORT_DISTANCE_SQ,
                 GUARD_TELEPORT_COOLDOWN_TICKS)) {
             return false;
         }

@@ -26,6 +26,8 @@ class ShipCommandRecoveryRegressionTest {
                 "Pointer move goal should define a stuck timeout");
         assertTrue(source.contains("private static final int POINTER_MOVE_TELEPORT_COOLDOWN_TICKS = 100;"),
                 "Pointer move goal should use a cooldown before remote teleport recovery");
+        assertTrue(source.contains("this.recovery.shouldTryTeleportThrottled(force, ship.distanceToSqr(target),"),
+                "Pointer move forced teleport recovery should be throttled after failed attempts");
         assertTrue(source.contains("if (tryTeleportRecovery(ship.getPointerTarget(), false)) {\n            return;\n        }"),
                 "Pointer move goal should check distant teleport recovery every tick while stuck on a far command");
         assertTrue(source.contains("tryTeleportRecovery(target, true)"),
@@ -48,6 +50,8 @@ class ShipCommandRecoveryRegressionTest {
                 "Pointer entity command should define a stuck timeout");
         assertTrue(source.contains("private static final int POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS = 100;"),
                 "Pointer entity command should use a cooldown before remote teleport recovery");
+        assertTrue(source.contains("this.pointerTargetEntityRecovery.shouldTryTeleportThrottled(force, this.ship.distanceToSqr(target),"),
+                "Pointer entity forced teleport recovery should be throttled after failed attempts");
         assertTrue(source.contains("tryPointerTargetEntityTeleportRecovery(target, false)"),
                 "Pointer entity command should try distant teleport recovery before ordinary path movement");
         assertTrue(source.contains("tryPointerTargetEntityTeleportRecovery(target, true)"),
@@ -72,6 +76,8 @@ class ShipCommandRecoveryRegressionTest {
                 "Guard goal should define a stuck timeout");
         assertTrue(source.contains("private static final int GUARD_TELEPORT_COOLDOWN_TICKS = 100;"),
                 "Guard goal should use a cooldown before remote teleport recovery");
+        assertTrue(source.contains("this.recovery.shouldTryTeleportThrottled(force, distSq, GUARD_TELEPORT_DISTANCE_SQ,"),
+                "Guard forced teleport recovery should be throttled after failed attempts");
         assertTrue(source.contains("tryTeleportRecovery(target, guardedEntity, distSq, false)"),
                 "Guard goal should try teleport recovery for distant guard targets before disabling guard");
         assertTrue(source.contains("tryTeleportRecovery(target, guardedEntity, distSq, true)"),

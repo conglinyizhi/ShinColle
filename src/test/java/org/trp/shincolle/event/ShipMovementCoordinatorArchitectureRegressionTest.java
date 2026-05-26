@@ -262,6 +262,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Special ship entities should be able to read shared stuck state without duplicating counters");
         assertTrue(recovery.contains("public boolean isStuckLongerThan(int stuckTickLimit)"),
                 "Stuck timeout comparison should be centralized in the recovery state");
+        assertTrue(recovery.contains("boolean shouldLogMoveFailure(int currentTick, int intervalTicks)"),
+                "Move-failure diagnostic throttling should be centralized in the recovery state");
+        assertTrue(recovery.contains("private int lastMoveFailLogTick = Integer.MIN_VALUE;"),
+                "Move-failure diagnostic throttling should not be duplicated by callers");
         assertTrue(recovery.contains("this.forcedTeleportCooldown = 0;\n            this.lastProgressPos = currentPos;"),
                 "Actual movement progress should clear stale forced teleport throttling");
         assertTrue(follow.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
@@ -290,6 +294,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Pointer entity movement should not duplicate stuck-timeout comparison");
         assertFalse(passiveCombat.contains("stuckTicks() >"),
                 "Passive combat movement should not duplicate stuck-timeout comparison");
+        assertTrue(pointerGoal.contains("this.recovery.shouldLogMoveFailure(ship.tickCount, POINTER_MOVE_FAIL_LOG_INTERVAL)"),
+                "Pointer movement should rate-limit repeated move-failure diagnostics through recovery state");
+        assertTrue(guard.contains("this.recovery.shouldLogMoveFailure(ship.tickCount, GUARD_MOVE_FAIL_LOG_INTERVAL)"),
+                "Guard movement should rate-limit repeated move-failure diagnostics through recovery state");
+        assertTrue(pointerEntity.contains("this.pointerTargetEntityRecovery.shouldLogMoveFailure(this.ship.tickCount,"),
+                "Pointer entity movement should rate-limit repeated move-failure diagnostics through recovery state");
+        assertTrue(passiveCombat.contains("this.movementRecovery.shouldLogMoveFailure(this.ship.tickCount, PASSIVE_MOVE_FAIL_LOG_INTERVAL)"),
+                "Passive combat movement should rate-limit repeated move-failure diagnostics through recovery state");
     }
 
     @Test

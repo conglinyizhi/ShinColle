@@ -6,6 +6,7 @@ public final class ShipMovementRecoveryState {
     private static final double PROGRESS_DISTANCE_SQR = 0.04D;
 
     private int moveFailCount;
+    private int lastMoveFailLogTick = Integer.MIN_VALUE;
     private int stuckTicks;
     private int teleportCooldown;
     private int forcedTeleportCooldown;
@@ -13,6 +14,7 @@ public final class ShipMovementRecoveryState {
 
     public void reset(Vec3 currentPos) {
         this.moveFailCount = 0;
+        this.lastMoveFailLogTick = Integer.MIN_VALUE;
         this.stuckTicks = 0;
         this.teleportCooldown = 0;
         this.forcedTeleportCooldown = 0;
@@ -21,6 +23,7 @@ public final class ShipMovementRecoveryState {
 
     public void clear() {
         this.moveFailCount = 0;
+        this.lastMoveFailLogTick = Integer.MIN_VALUE;
         this.stuckTicks = 0;
         this.teleportCooldown = 0;
         this.forcedTeleportCooldown = 0;
@@ -49,6 +52,7 @@ public final class ShipMovementRecoveryState {
 
     void clearMoveFailures() {
         this.moveFailCount = 0;
+        this.lastMoveFailLogTick = Integer.MIN_VALUE;
     }
 
     void clearTeleportCooldown() {
@@ -57,6 +61,14 @@ public final class ShipMovementRecoveryState {
 
     int moveFailCount() {
         return this.moveFailCount;
+    }
+
+    boolean shouldLogMoveFailure(int currentTick, int intervalTicks) {
+        if (this.moveFailCount <= 1 || currentTick - this.lastMoveFailLogTick >= intervalTicks) {
+            this.lastMoveFailLogTick = currentTick;
+            return true;
+        }
+        return false;
     }
 
     public int stuckTicks() {

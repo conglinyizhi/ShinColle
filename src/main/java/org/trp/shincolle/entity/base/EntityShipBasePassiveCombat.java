@@ -41,6 +41,7 @@ final class EntityShipBasePassiveCombat {
     private static final double PASSIVE_MOVE_SPEED_MIN = 0.8D;
     private static final double PASSIVE_MOVE_SPEED_MAX = 1.6D;
     private static final int PASSIVE_MOVE_FAIL_LIMIT = 40;
+    private static final int PASSIVE_MOVE_FAIL_LOG_INTERVAL = 20;
     private static final int PASSIVE_STUCK_TICK_LIMIT = 120;
 
     private final EntityShipBase ship;
@@ -169,8 +170,10 @@ final class EntityShipBasePassiveCombat {
                 this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
                 if (!this.movement.moveTo(target, getPassiveMoveSpeed())) {
                     int failCount = this.movementRecovery.recordMoveFailure();
-                    Shincolle.debugLog("PassiveCombat moveFail ship={} target={} failCount={} distanceSqr={}",
-                            this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
+                    if (this.movementRecovery.shouldLogMoveFailure(this.ship.tickCount, PASSIVE_MOVE_FAIL_LOG_INTERVAL)) {
+                        Shincolle.debugLog("PassiveCombat moveFail ship={} target={} failCount={} distanceSqr={}",
+                                this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
+                    }
                     if (failCount > PASSIVE_MOVE_FAIL_LIMIT) {
                         Shincolle.debugLog("PassiveCombat failClear ship={} target={} failCount={}",
                                 this.ship.getUUID(), target.getUUID(), this.movementRecovery.moveFailCount());
