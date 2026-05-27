@@ -61,14 +61,20 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Coordinator construction should be available outside the entity package");
         assertTrue(source.contains("private final PathfinderMob mob;"),
                 "Coordinator should be reusable by ship-attached mobs such as mounts");
-        assertTrue(source.contains("private static final double SAME_MOVE_TARGET_SQR = 0.25D;"),
-                "Coordinator should suppress duplicate move requests to the same target");
+        assertTrue(source.contains("private static final double SAME_POINT_MOVE_TARGET_SQR = 0.25D;"),
+                "Coordinator should suppress duplicate point move requests to the same target");
+        assertTrue(source.contains("private static final double SAME_ENTITY_MOVE_TARGET_SQR = 2.25D;"),
+                "Coordinator should tolerate small entity target drift without constantly recalculating paths");
         assertTrue(source.contains("private static final int SAME_MOVE_REFRESH_INTERVAL_TICKS = 20;"),
                 "Coordinator should periodically refresh same-target move requests");
         assertTrue(source.contains("private int lastMoveTick = Integer.MIN_VALUE;"),
                 "Coordinator should track when the current suppressed target was last submitted");
-        assertTrue(source.contains("private boolean shouldSuppressSameTargetMove(Vec3 target)"),
+        assertTrue(source.contains("private boolean shouldSuppressSameTargetMove(Vec3 target, double sameTargetSqr)"),
                 "Repeated move suppression should be centralized for point and entity targets");
+        assertTrue(source.contains("shouldSuppressSameTargetMove(targetPos, SAME_ENTITY_MOVE_TARGET_SQR)"),
+                "Entity movement should use the wider drift tolerance for moving targets");
+        assertTrue(source.contains("shouldSuppressSameTargetMove(target, SAME_POINT_MOVE_TARGET_SQR)"),
+                "Point movement should keep the tighter tolerance for fixed commands");
         assertTrue(source.contains("this.mob.tickCount - this.lastMoveTick < SAME_MOVE_REFRESH_INTERVAL_TICKS"),
                 "Repeated move suppression should not hide stale navigation indefinitely");
         assertTrue(source.contains("private boolean recordMoveRequest(Vec3 target, boolean moved)"),

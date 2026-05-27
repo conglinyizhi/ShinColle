@@ -9,7 +9,8 @@ import org.trp.shincolle.Config;
 import org.trp.shincolle.utility.ShipTeleportHelper;
 
 public final class ShipMovementCoordinator {
-    private static final double SAME_MOVE_TARGET_SQR = 0.25D;
+    private static final double SAME_POINT_MOVE_TARGET_SQR = 0.25D;
+    private static final double SAME_ENTITY_MOVE_TARGET_SQR = 2.25D;
     private static final int SAME_MOVE_REFRESH_INTERVAL_TICKS = 20;
 
     private final PathfinderMob mob;
@@ -31,7 +32,7 @@ public final class ShipMovementCoordinator {
     }
 
     public boolean moveTo(Vec3 target, double speed) {
-        if (shouldSuppressSameTargetMove(target)) {
+        if (shouldSuppressSameTargetMove(target, SAME_POINT_MOVE_TARGET_SQR)) {
             return true;
         }
 
@@ -40,17 +41,17 @@ public final class ShipMovementCoordinator {
 
     public boolean moveTo(Entity target, double speed) {
         Vec3 targetPos = target.position();
-        if (shouldSuppressSameTargetMove(targetPos)) {
+        if (shouldSuppressSameTargetMove(targetPos, SAME_ENTITY_MOVE_TARGET_SQR)) {
             return true;
         }
 
         return recordMoveRequest(targetPos, mob.getNavigation().moveTo(target, speed));
     }
 
-    private boolean shouldSuppressSameTargetMove(Vec3 target) {
+    private boolean shouldSuppressSameTargetMove(Vec3 target, double sameTargetSqr) {
         return !mob.getNavigation().isDone()
                 && this.lastMoveTarget != null
-                && this.lastMoveTarget.distanceToSqr(target) < SAME_MOVE_TARGET_SQR
+                && this.lastMoveTarget.distanceToSqr(target) < sameTargetSqr
                 && this.mob.tickCount - this.lastMoveTick < SAME_MOVE_REFRESH_INTERVAL_TICKS;
     }
 

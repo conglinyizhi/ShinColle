@@ -23,6 +23,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     private static final int NAVIGATION_SET_PATH_LOG_INTERVAL = 100;
     private static final double STUCK_DISTANCE_SQR = 1.0D;
     private static final double POSITION_TIMEOUT_MOVED_SQR = 0.25D;
+    private static final double SAME_NAVIGATION_TARGET_SQR = 9.0D;
     private static final float JUMP_SPRINT_FACTOR = 0.35F;
     private static final float UNSTUCK_DIRECTION_FACTOR = 0.5F;
     private static final double LIQUID_HOVER_OFFSET = 0.08D;
@@ -69,8 +70,9 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         }
 
         BlockPos pos = BlockPos.containing(x, y, z);
+        BlockPos previousTarget = this.targetPos;
         ShipLegacyPath path = getPathToPos(pos);
-        return setPath(path, speed);
+        return setPath(path, speed, isSameNavigationTarget(previousTarget, this.targetPos));
     }
 
     @Override
@@ -79,8 +81,9 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
             return false;
         }
 
+        BlockPos previousTarget = this.targetPos;
         ShipLegacyPath path = getPathToEntity(entity);
-        return setPath(path, speed);
+        return setPath(path, speed, isSameNavigationTarget(previousTarget, this.targetPos));
     }
 
     @Override
@@ -174,7 +177,9 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         return this.pathFinder.findPath(this.mob, this.targetPos.getX(), this.targetPos.getY(), this.targetPos.getZ(), range);
     }
 
-    private boolean setPath(ShipLegacyPath path, double speed) {
+    private boolean setPath(ShipLegacyPath path, double speed, boolean sameNavigationTarget) {
+        boolean hadActivePath = this.currentPath != null && !this.currentPath.isFinished();
+
         if (path == null) {
             if (shouldLogSetPath(-1, true)) {
                 Shincolle.debugLog("Navigation setPath failed mob={} targetPos={}", this.mob.getUUID(), this.targetPos);
@@ -198,16 +203,10 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         this.speedModifier = speed;
 
         Vec3 hostPos = getEntityPosition();
-        this.ticksAtLastPos = this.totalTicks;
-        this.lastPosCheck = hostPos;
-        this.lastPosStuck = hostPos;
-        this.timeoutCachedNode = 0L;
-        this.timeoutTimer = 0L;
-        this.timeoutLimit = 0.0D;
-        this.lastExceededLogTarget = null;
-        this.lastExceededLogTick = Integer.MIN_VALUE;
-        this.lastStuckApplyLogTarget = null;
-        this.lastStuckApplyLogTick = Integer.MIN_VALUE;
+        if (!hadActivePath || !sameNavigationTarget) {
+            resetStuckProgressState(hostPos);
+        }
+        resetPathTimeoutState();
         int pathLength = path.getCurrentPathLength();
         if (shouldLogSetPath(pathLength, false)) {
             Shincolle.debugLog("Navigation setPath success mob={} targetPos={} speed={} pathLength={}",
@@ -220,14 +219,32 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         return true;
     }
 
+    private boolean isSameNavigationTarget(BlockPos previousTarget, BlockPos nextTarget) {
+        return previousTarget != null
+                && nextTarget != null
+                && previousTarget.distSqr(nextTarget) <= SAME_NAVIGATION_TARGET_SQR;
+    }
+
     private boolean shouldLogSetPath(int pathLength, boolean failure) {
         if (this.loggedPathFailure != failure) {
             return true;
         }
-        if (!java.util.Objects.equals(this.loggedTargetPos, this.targetPos)) {
+        if (!isSameNavigationTarget(this.loggedTargetPos, this.targetPos)) {
             return true;
         }
         return this.totalTicks - this.lastSetPathLogTick >= NAVIGATION_SET_PATH_LOG_INTERVAL;
+    }
+
+    private void resetStuckProgressState(Vec3 hostPos) {
+        this.ticksAtLastPos = this.totalTicks;
+        this.lastPosCheck = hostPos;
+        this.lastPosStuck = hostPos;
+    }
+
+    private void resetPathTimeoutState() {
+        this.timeoutCachedNode = 0L;
+        this.timeoutTimer = 0L;
+        this.timeoutLimit = 0.0D;
     }
 
     private float getPathSearchRange() {
@@ -310,18 +327,19 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
             applyUnstuckMotion(hostPos);
             this.lastPosStuck = hostPos;
             this.ticksAtLastPos = this.totalTicks;
+            resetPathTimeoutState();
         }
 
         checkPathTimeout(hostPos);
     }
 
     private boolean shouldLogExceededCheck() {
-        return !java.util.Objects.equals(this.lastExceededLogTarget, this.targetPos)
+        return !isSameNavigationTarget(this.lastExceededLogTarget, this.targetPos)
                 || this.totalTicks - this.lastExceededLogTick >= NAVIGATION_DEBUG_LOG_INTERVAL;
     }
 
     private boolean shouldLogStuckApply() {
-        return !java.util.Objects.equals(this.lastStuckApplyLogTarget, this.targetPos)
+        return !isSameNavigationTarget(this.lastStuckApplyLogTarget, this.targetPos)
                 || this.lastStuckApplyLogTick == Integer.MIN_VALUE
                 || this.totalTicks - this.lastStuckApplyLogTick >= NAVIGATION_DEBUG_LOG_INTERVAL;
     }
@@ -385,12 +403,10 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
                 if (this.timeoutLimit > 0.0D && this.timeoutTimer > this.timeoutLimit * 2.0D) {
                     ShipLegacyPath retryPath = recalculatePathToCurrentTarget();
-                    if (!setPath(retryPath, this.speedModifier)) {
+                    if (!setPath(retryPath, this.speedModifier, true)) {
                         stop();
                     }
-                    this.timeoutCachedNode = 0L;
-                    this.timeoutTimer = 0L;
-                    this.timeoutLimit = 0.0D;
+                    resetPathTimeoutState();
                 }
             } else {
                 this.timeoutCachedNode = this.currentPath.getCurrentPathIndex();
