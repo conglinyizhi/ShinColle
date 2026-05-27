@@ -25,11 +25,11 @@ public class GoalShipAircraftAttack extends Goal {
     @Override
     public boolean canUse() {
         Entity targetEntity = this.host.getMissionTarget();
-        if (targetEntity == null || !targetEntity.isAlive()) {
+        if (!canAttackMissionTarget(targetEntity)) {
             return false;
         }
         
-        if (this.host.getMissionTick() > 20 && (this.host.hasAmmoLight() || this.host.hasAmmoHeavy())) {
+        if (this.host.getMissionTick() > 20) {
             this.target = targetEntity;
             return true;
         }
@@ -46,14 +46,19 @@ public class GoalShipAircraftAttack extends Goal {
 
     @Override
     public boolean canContinueToUse() {
-        return this.canUse() || (this.target != null && this.target.isAlive() && !this.host.getNavigation().isDone());
+        Entity targetEntity = this.host.getMissionTarget();
+        if (!canAttackMissionTarget(targetEntity)) {
+            return false;
+        }
+        this.target = targetEntity;
+        return true;
     }
 
     @Override
     public void stop() {
         this.target = null;
-        this.randPos = this.host.getRandomCruisePos(null);
-        this.movement.moveTo(this.randPos, 1.0D);
+        this.randPos = null;
+        this.movement.stop();
     }
 
     @Override
@@ -86,5 +91,14 @@ public class GoalShipAircraftAttack extends Goal {
     private void updateRandomPos() {
         Entity ref = this.target != null ? this.target : this.host;
         this.randPos = this.host.getRandomCruisePos(ref);
+    }
+
+    private boolean canAttackMissionTarget(Entity targetEntity) {
+        if (targetEntity == null || !targetEntity.isAlive()) {
+            return false;
+        }
+        return this.host.isMissionLightAircraft()
+                ? this.host.hasAmmoLight()
+                : this.host.hasAmmoHeavy();
     }
 }

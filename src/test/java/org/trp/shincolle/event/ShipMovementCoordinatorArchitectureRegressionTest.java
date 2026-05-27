@@ -409,6 +409,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Aircraft attack goal should create a coordinator for its host aircraft");
         assertTrue(aircraftGoal.contains("this.movement.moveTo(this.randPos, speed);"),
                 "Aircraft attack movement should route through the coordinator");
+        assertTrue(aircraftGoal.contains("private boolean canAttackMissionTarget(Entity targetEntity)"),
+                "Aircraft attack goal should centralize mission target viability checks");
+        assertTrue(aircraftGoal.contains("this.target = null;\n        this.randPos = null;\n        this.movement.stop();"),
+                "Aircraft attack stop should clear attack navigation instead of starting unmanaged cruise movement");
+        assertFalse(aircraftGoal.contains("return this.canUse() || (this.target != null && this.target.isAlive() && !this.host.getNavigation().isDone());"),
+                "Aircraft attack goal should not continue just because stale navigation is still running");
+        assertFalse(aircraftGoal.contains("this.movement.moveTo(this.randPos, 1.0D);"),
+                "Aircraft attack stop should not start a new random cruise path outside the goal lifecycle");
         assertFalse(aircraftGoal.contains("host.getNavigation().moveTo"),
                 "Aircraft attack goal should not issue raw navigation requests");
 
