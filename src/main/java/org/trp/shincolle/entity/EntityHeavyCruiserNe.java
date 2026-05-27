@@ -70,7 +70,7 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
 
         boolean canFindTarget = (this.tickCount & 0xFF) == 0 && this.getRandom().nextInt(5) == 0;
         boolean isActionBlocked = this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed() || this.isInDeadPose();
-        if (canFindTarget && !isActionBlocked) {
+        if (canFindTarget && !isActionBlocked && !this.isPushing) {
             findTargetPush();
         }
     }
@@ -83,8 +83,8 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
         }
         if (this.distanceTo(this.targetPush) <= PUSH_ENGAGE_DISTANCE) {
             executePushAttack();
-        } else if (this.tickCount % 32 == 0) {
-            this.pushMovement.moveTo(this.targetPush, 1.0D);
+        } else if (this.tickCount % 32 == 0 && !this.pushMovement.moveTo(this.targetPush, 1.0D)) {
+            cancelPush();
         }
     }
 
@@ -102,7 +102,7 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
     }
 
     private void cancelPush() {
-        this.pushMovement.reset();
+        this.pushMovement.stop();
         this.isPushing = false;
         this.tickPush = 0;
         this.targetPush = null;
@@ -113,6 +113,7 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
         List<LivingEntity> list = this.level().getEntitiesOfClass(LivingEntity.class, impactBox,
                 ent -> ent != this && ent.isAlive() && ent.canBeCollidedWith());
         if (!list.isEmpty()) {
+            this.pushMovement.reset();
             this.targetPush = list.get(this.getRandom().nextInt(list.size()));
             this.tickPush = 0;
             this.isPushing = true;

@@ -466,10 +466,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 shipName + " push attack should use the shared movement coordinator");
         assertTrue(source.contains("this.pushMovement = new ShipMovementCoordinator(this);"),
                 shipName + " should create a coordinator for push attack chase movement");
-        assertTrue(source.contains("this.pushMovement.moveTo(this.targetPush, 1.0D);"),
-                shipName + " push attack chase should route through the coordinator");
+        assertTrue(source.contains("!this.pushMovement.moveTo(this.targetPush, 1.0D)"),
+                shipName + " push attack chase should route failures through the coordinator");
         assertTrue(source.contains("this.pushMovement.reset();"),
-                shipName + " should reset duplicate-move state when push attack ends");
+                shipName + " should reset duplicate-move state when a new push target is selected");
+        assertTrue(source.contains("this.pushMovement.stop();"),
+                shipName + " should stop stale navigation when push attack ends");
+        assertTrue(source.contains("!this.isPushing)"),
+                shipName + " should not replace an active push target with another target");
         assertFalse(source.contains("this.getNavigation().moveTo(this.targetPush"),
                 shipName + " push attack chase should not issue raw navigation requests");
     }
