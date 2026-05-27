@@ -514,8 +514,22 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Nagato special event movement should use the shared movement coordinator");
         assertTrue(nagato.contains("this.eventMovement = new ShipMovementCoordinator(this);"),
                 "Nagato should create a coordinator for special event movement");
-        assertTrue(nagato.contains("this.eventMovement.moveTo(target, 1.0D);"),
+        assertTrue(nagato.contains("private LivingEntity loveEventMoveTarget;"),
+                "Nagato special event movement should have an explicit target lifecycle");
+        assertTrue(nagato.contains("private int loveEventMoveTicks;"),
+                "Nagato special event movement should have a bounded lifetime");
+        assertTrue(nagato.contains("tickLoveEventMovement();"),
+                "Nagato should tick special event movement every server tick");
+        assertTrue(nagato.contains("this.eventMovement.reset();\n        if (!this.eventMovement.moveTo(target, 1.0D))"),
+                "Nagato special event movement should reset duplicate state before starting");
+        assertTrue(nagato.contains("!this.eventMovement.moveTo(target, 1.0D)"),
                 "Nagato special event movement should route through the coordinator");
+        assertTrue(nagato.contains("private void stopLoveEventMovement()"),
+                "Nagato special event movement should centralize cleanup");
+        assertTrue(nagato.contains("this.eventMovement.stop();"),
+                "Nagato special event movement should stop stale navigation when it ends");
+        assertTrue(nagato.contains("this.loveEventMoveTicks <= LOVE_EVENT_MOVE_MAX_TICKS"),
+                "Nagato special event movement should not run indefinitely");
         assertFalse(nagato.contains("this.getNavigation().moveTo(target, 1.0D)"),
                 "Nagato special event movement should not issue raw navigation requests");
     }

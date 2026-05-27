@@ -27,8 +27,12 @@ public class EntityBattleshipNagato extends EntityShipBase {
     public static final String EQUIP_CANNON = "equip_cannon";
 
     private static final int EMOTION_ATTACK_PHASE = 5;
+    private static final int LOVE_EVENT_MOVE_MAX_TICKS = 80;
+    private static final double LOVE_EVENT_MOVE_STOP_DISTANCE_SQ = 9.0D;
     private static final int[] LOVE_PARTICLES = {31, 1, 7, 16, 29};
     private final ShipMovementCoordinator eventMovement;
+    private LivingEntity loveEventMoveTarget;
+    private int loveEventMoveTicks;
 
     public EntityBattleshipNagato(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -55,6 +59,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
     @Override
     protected void tickAliveLogic() {
         super.tickAliveLogic();
+        tickLoveEventMovement();
         if ((this.tickCount % 128) == 0) {
             addMoraleSpecialEvent();
             if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
@@ -183,10 +188,53 @@ public class EntityBattleshipNagato extends EntityShipBase {
         }
         if (!this.getIsSitting() && !this.isPassenger() && this.getRandom().nextFloat() > 0.5f) {
             LivingEntity target = nearby.get(this.getRandom().nextInt(nearby.size()));
-            this.eventMovement.moveTo(target, 1.0D);
+            startLoveEventMovement(target);
             int particleId = LOVE_PARTICLES[this.getRandom().nextInt(LOVE_PARTICLES.length)];
             this.applyParticleEmotion(particleId);
         }
+    }
+
+    private void startLoveEventMovement(LivingEntity target) {
+        if (target == null || !target.isAlive()) {
+            return;
+        }
+        this.loveEventMoveTarget = target;
+        this.loveEventMoveTicks = 0;
+        this.eventMovement.reset();
+        if (!this.eventMovement.moveTo(target, 1.0D)) {
+            stopLoveEventMovement();
+        }
+    }
+
+    private void tickLoveEventMovement() {
+        LivingEntity target = this.loveEventMoveTarget;
+        if (target == null) {
+            return;
+        }
+        this.loveEventMoveTicks++;
+        if (!canContinueLoveEventMovement(target)) {
+            stopLoveEventMovement();
+            return;
+        }
+        if ((this.tickCount & 0xF) == 0 && !this.eventMovement.moveTo(target, 1.0D)) {
+            stopLoveEventMovement();
+        }
+    }
+
+    private boolean canContinueLoveEventMovement(LivingEntity target) {
+        return target.isAlive()
+                && !this.getIsSitting()
+                && !this.isPassenger()
+                && !this.isLeashed()
+                && !this.isInDeadPose()
+                && this.loveEventMoveTicks <= LOVE_EVENT_MOVE_MAX_TICKS
+                && this.distanceToSqr(target) > LOVE_EVENT_MOVE_STOP_DISTANCE_SQ;
+    }
+
+    private void stopLoveEventMovement() {
+        this.eventMovement.stop();
+        this.loveEventMoveTarget = null;
+        this.loveEventMoveTicks = 0;
     }
 
     private void spawnAttackChargeParticles(ServerLevel serverLevel, int phase) {
