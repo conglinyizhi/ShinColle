@@ -17,8 +17,10 @@ class ShipFireImmunityVisualRegressionTest {
     void shipShouldIgnoreFireDamageAndFireVisualsFromLava() throws IOException {
         String source = Files.readString(SHIP_SOURCE);
 
-        assertTrue(source.contains("if (this.customHurtTime > 0 || source.is(DamageTypeTags.IS_FIRE)) {"),
+        assertTrue(source.contains("source.is(DamageTypeTags.IS_FIRE)"),
                 "Ship hurt logic should continue ignoring fire-tagged damage sources");
+        assertTrue(source.contains("source.is(DamageTypes.IN_WALL)"),
+                "Ship hurt logic should ignore suffocation damage when ships clip into blocks");
         assertTrue(source.contains("public boolean displayFireAnimation() {\n        return (this.getHealth() / this.getMaxHealth()) <= 0.25F;\n    }"),
                 "Ship fire visuals should now come only from the low-health effect, not vanilla burning state");
         assertFalse(source.contains("if (super.displayFireAnimation()) {"),

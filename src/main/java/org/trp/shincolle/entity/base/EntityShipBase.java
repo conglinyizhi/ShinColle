@@ -20,6 +20,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
@@ -2939,7 +2940,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     public boolean hurt(net.minecraft.world.damagesource.DamageSource source, float amount) {
-        if (this.customHurtTime > 0 || source.is(DamageTypeTags.IS_FIRE)) {
+        if (this.customHurtTime > 0 || source.is(DamageTypeTags.IS_FIRE) || source.is(DamageTypes.IN_WALL)) {
             return false;
         }
 
