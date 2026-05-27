@@ -43,6 +43,8 @@ final class EntityShipBasePassiveCombat {
     private static final int PASSIVE_MOVE_FAIL_LIMIT = 40;
     private static final int PASSIVE_MOVE_FAIL_LOG_INTERVAL = 20;
     private static final int PASSIVE_STUCK_TICK_LIMIT = 120;
+    private static final int PASSIVE_TELEPORT_COOLDOWN_TICKS = 100;
+    private static final double PASSIVE_TELEPORT_DISTANCE_SQ = 256.0D;
 
     private final EntityShipBase ship;
     private final ShipMovementCoordinator movement;
@@ -161,6 +163,9 @@ final class EntityShipBasePassiveCombat {
             }
             this.movementRecovery.trackProgress(this.ship.position());
             if (this.movementRecovery.isStuckLongerThan(PASSIVE_STUCK_TICK_LIMIT)) {
+                if (tryPassiveCombatTeleportRecovery(target, distanceSqr, true)) {
+                    return;
+                }
                 Shincolle.debugLog("PassiveCombat stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
                         this.ship.getUUID(), target.getUUID(), this.movementRecovery.stuckTicks(), distanceSqr);
                 clearTarget(true);
@@ -168,6 +173,9 @@ final class EntityShipBasePassiveCombat {
             }
             if (this.passiveTargetPathTick-- <= 0) {
                 this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
+                if (tryPassiveCombatTeleportRecovery(target, distanceSqr, false)) {
+                    return;
+                }
                 if (!this.movement.moveTo(target, getPassiveMoveSpeed())) {
                     int failCount = this.movementRecovery.recordMoveFailure();
                     if (this.movementRecovery.shouldLogMoveFailure(this.ship.tickCount, PASSIVE_MOVE_FAIL_LOG_INTERVAL)) {
@@ -175,6 +183,9 @@ final class EntityShipBasePassiveCombat {
                                 this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
                     }
                     if (failCount > PASSIVE_MOVE_FAIL_LIMIT) {
+                        if (tryPassiveCombatTeleportRecovery(target, distanceSqr, true)) {
+                            return;
+                        }
                         Shincolle.debugLog("PassiveCombat failClear ship={} target={} failCount={}",
                                 this.ship.getUUID(), target.getUUID(), this.movementRecovery.moveFailCount());
                         clearTarget(true);
@@ -225,6 +236,25 @@ final class EntityShipBasePassiveCombat {
             this.ship.doHurtTarget(target);
             this.passiveMeleeCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getMeleeDelay());
         }
+    }
+
+    private boolean tryPassiveCombatTeleportRecovery(LivingEntity target, double distanceSqr, boolean force) {
+        if (target == null) {
+            return false;
+        }
+        if (!this.movementRecovery.shouldTryTeleportThrottled(force, distanceSqr,
+                PASSIVE_TELEPORT_DISTANCE_SQ, PASSIVE_TELEPORT_COOLDOWN_TICKS)) {
+            return false;
+        }
+        if (!this.movement.teleportNearLiving(target, 0.75D)) {
+            return false;
+        }
+
+        Shincolle.debugLog("PassiveCombat teleportRecovery ship={} target={} force={} distanceSqr={}",
+                this.ship.getUUID(), target.getUUID(), force, distanceSqr);
+        this.passiveTargetPathTick = 0;
+        this.movementRecovery.reset(this.ship.position());
+        return true;
     }
 
     void clearTarget(boolean stopNavigation) {

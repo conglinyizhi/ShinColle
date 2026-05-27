@@ -149,8 +149,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Passive combat should use the shared movement coordinator");
         assertTrue(passiveCombat.contains("this.movement.moveTo(target, getPassiveMoveSpeed())"),
                 "Passive combat should route chase movement through the coordinator");
+        assertTrue(passiveCombat.contains("this.movement.teleportNearLiving(target, 0.75D)"),
+                "Passive combat recovery should route teleport through the coordinator");
+        assertTrue(passiveCombat.contains("PassiveCombat teleportRecovery"),
+                "Passive combat recovery should emit searchable debug logs");
         assertFalse(passiveCombat.contains("this.ship.getNavigation().moveTo(target, getPassiveMoveSpeed())"),
                 "Passive combat should not issue raw navigation requests");
+        assertFalse(passiveCombat.contains("ShipTeleportHelper.teleportNearLiving"),
+                "Passive combat should not bypass the coordinator for teleport recovery");
     }
 
     @Test
