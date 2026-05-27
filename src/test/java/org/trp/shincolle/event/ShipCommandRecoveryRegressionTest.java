@@ -34,11 +34,11 @@ class ShipCommandRecoveryRegressionTest {
                 "Pointer move goal should force one teleport recovery attempt before clearing repeated failures");
         assertTrue(source.contains("tryTeleportRecovery(ship.getPointerTarget(), true)"),
                 "Pointer move goal should force one teleport recovery attempt before clearing stuck commands");
-        assertTrue(source.contains("this.movement.teleportNearPoint(target, 0.75D)"),
+        assertTrue(source.contains("movement().teleportNearPoint(target, 0.75D)"),
                 "Pointer move recovery should use the movement coordinator's safe point teleport");
         assertTrue(source.contains("ship.clearPointerTarget();\n            return;"),
                 "Pointer move goal should still clear pointer position commands when recovery fails");
-        assertTrue(source.contains("this.lastRawTarget = null;\n        this.recovery.clear();\n        this.movement.stop();"),
+        assertTrue(source.contains("this.lastRawTarget = null;\n        this.recovery.clear();\n        movement().stop();"),
                 "Pointer move goal should clear target memory and recovery counters when interrupted");
     }
 
@@ -78,13 +78,15 @@ class ShipCommandRecoveryRegressionTest {
                 "Guard goal should define a stuck timeout");
         assertTrue(source.contains("private static final int GUARD_TELEPORT_COOLDOWN_TICKS = 100;"),
                 "Guard goal should use a cooldown before remote teleport recovery");
+        assertTrue(source.contains("double distSq = ship.distanceToSqr(target);"),
+                "Guard teleport recovery should include vertical distance instead of only horizontal distance");
         assertTrue(source.contains("this.recovery.shouldTryTeleportThrottled(force, distSq, GUARD_TELEPORT_DISTANCE_SQ,"),
                 "Guard forced teleport recovery should be throttled after failed attempts");
         assertTrue(source.contains("tryTeleportRecovery(target, guardedEntity, distSq, false)"),
                 "Guard goal should try teleport recovery for distant guard targets before disabling guard");
         assertTrue(source.contains("tryTeleportRecovery(target, guardedEntity, distSq, true)"),
                 "Guard goal should force one teleport recovery attempt before disabling stuck guard targets");
-        assertTrue(source.contains("this.movement.teleportNearPoint(target, 0.75D)"),
+        assertTrue(source.contains("movement().teleportNearPoint(target, 0.75D)"),
                 "Guard block recovery should use the movement coordinator's safe point teleport");
         assertTrue(source.contains("ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);"),
                 "Guard goal should disable guard mode when recovery triggers");

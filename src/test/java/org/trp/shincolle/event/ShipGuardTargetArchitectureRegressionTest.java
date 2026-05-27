@@ -113,11 +113,11 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Guard recovery target identity should be explicit instead of inferred from a moving position");
         assertTrue(guardGoal.contains("guardedEntity.getUUID()"),
                 "Entity guard recovery should be keyed by stable entity identity, not by its changing position");
-        assertTrue(guardGoal.contains("this.nextPathTick = 0;\n        this.recovery.reset(ship.position());\n        this.movement.reset();"),
+        assertTrue(guardGoal.contains("this.nextPathTick = 0;\n        this.recovery.reset(ship.position());\n        movement().reset();"),
                 "Guard target switches should force a fresh path attempt and clear stale stuck counters");
         assertTrue(guardGoal.contains("public void stop()"),
                 "Guard goal should clear runtime navigation state when the goal is interrupted");
-        assertTrue(guardGoal.contains("this.recovery.clear();\n        this.movement.stop();"),
+        assertTrue(guardGoal.contains("this.recovery.clear();\n        movement().stop();"),
                 "Guard goal stop should not leave stale recovery counters or navigation behind");
 
         assertTrue(mount.contains("private FollowRecoveryTargetKey lastRecoveryTargetKey;"),

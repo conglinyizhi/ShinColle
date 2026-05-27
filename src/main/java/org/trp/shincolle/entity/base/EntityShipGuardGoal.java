@@ -18,7 +18,6 @@ final class EntityShipGuardGoal extends Goal {
     private static final double GUARD_TELEPORT_DISTANCE_SQ = 256.0D;
 
     private final EntityShipBase ship;
-    private final ShipMovementCoordinator movement;
     private final double speed;
     private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
     private int nextPathTick;
@@ -26,7 +25,6 @@ final class EntityShipGuardGoal extends Goal {
 
     EntityShipGuardGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
-        this.movement = ship.guardMovementCoordinator();
         this.speed = speed;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
@@ -60,7 +58,7 @@ final class EntityShipGuardGoal extends Goal {
         this.nextPathTick = 0;
         this.lastRecoveryTargetKey = null;
         this.recovery.reset(ship.position());
-        this.movement.reset();
+        movement().reset();
     }
 
     @Override
@@ -68,7 +66,7 @@ final class EntityShipGuardGoal extends Goal {
         this.nextPathTick = 0;
         this.lastRecoveryTargetKey = null;
         this.recovery.clear();
-        this.movement.stop();
+        movement().stop();
     }
 
     @Override
@@ -92,7 +90,7 @@ final class EntityShipGuardGoal extends Goal {
             target = guardTarget.blockCenter();
         }
         resetRecoveryIfTargetChanged(guardTarget, guardedEntity);
-        double distSq = ship.distanceToSqr(target.x, ship.getY(), target.z);
+        double distSq = ship.distanceToSqr(target);
 
         double stopDistanceSq = guardTarget.isEntity() ? 9.0D : 0.5D;
         if (distSq > stopDistanceSq) {
@@ -111,7 +109,7 @@ final class EntityShipGuardGoal extends Goal {
             }
             if (this.nextPathTick-- <= 0 || ship.getNavigation().isDone()) {
                 this.nextPathTick = 10;
-                if (!this.movement.moveTo(target, speed)) {
+                if (!movement().moveTo(target, speed)) {
                     int failCount = this.recovery.recordMoveFailure();
                     if (this.recovery.shouldLogMoveFailure(ship.tickCount, GUARD_MOVE_FAIL_LOG_INTERVAL)) {
                         Shincolle.debugLog("GuardGoal moveFail ship={} target={} failCount={}",
@@ -133,7 +131,7 @@ final class EntityShipGuardGoal extends Goal {
         } else {
             this.nextPathTick = 0;
             this.recovery.reset(ship.position());
-            this.movement.stop();
+            movement().stop();
         }
 
         if (guardedEntity instanceof LivingEntity livingEntity) {
@@ -172,8 +170,8 @@ final class EntityShipGuardGoal extends Goal {
         }
 
         boolean teleported = guardedEntity instanceof LivingEntity livingGuarded
-                ? this.movement.teleportNearLiving(livingGuarded, 0.75D)
-                : this.movement.teleportNearPoint(target, 0.75D);
+                ? movement().teleportNearLiving(livingGuarded, 0.75D)
+                : movement().teleportNearPoint(target, 0.75D);
         if (!teleported) {
             return false;
         }
@@ -189,7 +187,7 @@ final class EntityShipGuardGoal extends Goal {
         this.nextPathTick = 0;
         this.lastRecoveryTargetKey = null;
         this.recovery.clear();
-        this.movement.stop();
+        movement().stop();
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);
         ship.clearGuardTarget();
     }
@@ -203,7 +201,11 @@ final class EntityShipGuardGoal extends Goal {
         this.lastRecoveryTargetKey = targetKey;
         this.nextPathTick = 0;
         this.recovery.reset(ship.position());
-        this.movement.reset();
+        movement().reset();
+    }
+
+    private ShipMovementCoordinator movement() {
+        return ship.guardMovementCoordinator();
     }
 
     private record GuardRecoveryTargetKey(ShipGuardTarget.Type type, UUID entityId, int x, int y, int z, int dimensionId) {

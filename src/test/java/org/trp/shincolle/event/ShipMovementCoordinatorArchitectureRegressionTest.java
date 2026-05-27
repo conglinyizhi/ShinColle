@@ -147,13 +147,15 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
         assertFalse(follow.contains("ShipTeleportHelper.teleportNearLiving"),
                 "Follow-owner goal should not call teleport helper directly");
 
-        assertTrue(guard.contains("private final ShipMovementCoordinator movement;"),
-                "Guard goal should use the shared movement coordinator");
-        assertTrue(guard.contains("this.movement = ship.guardMovementCoordinator();"),
+        assertTrue(guard.contains("private ShipMovementCoordinator movement()"),
+                "Guard goal should lazily access the shared movement coordinator after entity construction");
+        assertTrue(guard.contains("return ship.guardMovementCoordinator();"),
                 "Guard goal should reuse the ship-owned guard movement channel so public guard cleanup can stop it");
-        assertTrue(guard.contains("this.movement.moveTo(target, speed)"),
+        assertFalse(guard.contains("this.movement = ship.guardMovementCoordinator();"),
+                "Guard goal must not read ship-owned movement fields during Mob.registerGoals construction");
+        assertTrue(guard.contains("movement().moveTo(target, speed)"),
                 "Guard goal should route move requests through the coordinator");
-        assertTrue(guard.contains("this.movement.teleportNearPoint(target, 0.75D)"),
+        assertTrue(guard.contains("movement().teleportNearPoint(target, 0.75D)"),
                 "Guard fixed-point teleport should route through the coordinator");
         assertFalse(guard.contains("ShipTeleportHelper.teleportNearPoint"),
                 "Guard goal should not call teleport helper directly");
@@ -165,11 +167,13 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
         String pointerEntity = Files.readString(POINTER_SOURCE);
         String passiveCombat = Files.readString(PASSIVE_COMBAT_SOURCE);
 
-        assertTrue(pointer.contains("private final ShipMovementCoordinator movement;"),
-                "Pointer move goal should use the shared movement coordinator");
-        assertTrue(pointer.contains("this.movement = ship.pointerMovementCoordinator();"),
+        assertTrue(pointer.contains("private ShipMovementCoordinator movement()"),
+                "Pointer move goal should lazily access the shared movement coordinator after entity construction");
+        assertTrue(pointer.contains("return ship.pointerMovementCoordinator();"),
                 "Pointer move goal should reuse the ship-owned pointer movement channel so public pointer cleanup can stop it");
-        assertTrue(pointer.contains("this.movement.moveTo(target, this.speed)"),
+        assertFalse(pointer.contains("this.movement = ship.pointerMovementCoordinator();"),
+                "Pointer move goal must not read ship-owned movement fields during Mob.registerGoals construction");
+        assertTrue(pointer.contains("movement().moveTo(target, this.speed)"),
                 "Pointer move goal should route move requests through the coordinator");
         assertFalse(pointer.contains("ship.getNavigation().moveTo(target.x, target.y, target.z"),
                 "Pointer move goal should not issue raw navigation requests");

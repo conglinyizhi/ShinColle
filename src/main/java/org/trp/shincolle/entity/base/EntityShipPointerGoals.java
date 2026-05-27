@@ -16,14 +16,12 @@ class EntityShipPointerMoveGoal extends Goal {
     private static final double POINTER_MOVE_TELEPORT_DISTANCE_SQ = 256.0D;
 
     private final EntityShipBase ship;
-    private final ShipMovementCoordinator movement;
     private final double speed;
     private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
     private int nextPathTick;
 
     EntityShipPointerMoveGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
-        this.movement = ship.pointerMovementCoordinator();
         this.speed = speed;
         this.setFlags(EnumSet.of(Flag.MOVE));
     }
@@ -51,7 +49,7 @@ class EntityShipPointerMoveGoal extends Goal {
         this.nextPathTick = 0;
         this.lastRawTarget = null;
         this.recovery.reset(ship.position());
-        this.movement.reset();
+        movement().reset();
         moveToTarget();
     }
 
@@ -100,13 +98,13 @@ class EntityShipPointerMoveGoal extends Goal {
         this.nextPathTick = 0;
         this.lastRawTarget = null;
         this.recovery.clear();
-        this.movement.stop();
+        movement().stop();
     }
 
     private void moveToTarget() {
         Vec3 target = ship.getPointerTarget();
         if (target != null) {
-            if (!this.movement.moveTo(target, this.speed)) {
+            if (!movement().moveTo(target, this.speed)) {
                 int failCount = this.recovery.recordMoveFailure();
                 if (this.recovery.shouldLogMoveFailure(ship.tickCount, POINTER_MOVE_FAIL_LOG_INTERVAL)) {
                     Shincolle.debugLog("PointerGoal moveFail ship={} target={} failCount={}",
@@ -135,7 +133,7 @@ class EntityShipPointerMoveGoal extends Goal {
             return false;
         }
 
-        if (!this.movement.teleportNearPoint(target, 0.75D)) {
+        if (!movement().teleportNearPoint(target, 0.75D)) {
             return false;
         }
 
@@ -144,6 +142,10 @@ class EntityShipPointerMoveGoal extends Goal {
         this.nextPathTick = 0;
         this.recovery.reset(ship.position());
         return true;
+    }
+
+    private ShipMovementCoordinator movement() {
+        return ship.pointerMovementCoordinator();
     }
 }
 
