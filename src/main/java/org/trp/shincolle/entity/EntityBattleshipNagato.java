@@ -36,7 +36,7 @@ public class EntityBattleshipNagato extends EntityShipBase {
 
     public EntityBattleshipNagato(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
-        this.eventMovement = new ShipMovementCoordinator(this);
+        this.eventMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         setModelPos(new float[]{0, 25, 0, 40});
         setStateMinor(STATE_MINOR_FACTION_ID, 6);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 37);

@@ -31,7 +31,7 @@ public class EntityHeavyCruiserNe extends EntityShipBase {
 
     public EntityHeavyCruiserNe(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
-        this.pushMovement = new ShipMovementCoordinator(this);
+        this.pushMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT);
         setModelPos(new float[]{0, 10, 0, 40});
         setStateMinor(STATE_MINOR_FACTION_ID, 2);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 10);

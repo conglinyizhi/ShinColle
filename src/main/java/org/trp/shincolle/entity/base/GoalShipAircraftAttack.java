@@ -18,7 +18,7 @@ public class GoalShipAircraftAttack extends Goal {
 
     public GoalShipAircraftAttack(EntityAircraftBase host) {
         this.host = host;
-        this.movement = new ShipMovementCoordinator(host);
+        this.movement = new ShipMovementCoordinator(host, ShipMovementCoordinator.PRIORITY_COMBAT);
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }
 

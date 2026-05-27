@@ -93,7 +93,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     protected EntityAircraftBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
-        this.returnMovement = new ShipMovementCoordinator(this);
+        this.returnMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.returnRecovery = new ShipMovementRecoveryState();
         this.moveControl = new FlyingMoveControl(this, 36, true);
         this.setNoGravity(true);

@@ -37,7 +37,7 @@ public class EntityCAHime extends EntityShipBase {
 
     public EntityCAHime(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
-        this.pushMovement = new ShipMovementCoordinator(this);
+        this.pushMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT);
         setModelPos(new float[]{0, 10, 0, 40});
         setStateMinor(STATE_MINOR_FACTION_ID, 10);
         setStateMinor(STATE_MINOR_SHIP_CLASS, 49);

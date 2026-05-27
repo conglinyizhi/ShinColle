@@ -102,7 +102,7 @@ public abstract class EntityMountBase extends PathfinderMob {
 
         MountFollowHostGoal(EntityMountBase mount) {
             this.mount = mount;
-            this.movement = new ShipMovementCoordinator(mount);
+            this.movement = new ShipMovementCoordinator(mount, ShipMovementCoordinator.PRIORITY_COMMAND);
             this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 

@@ -36,7 +36,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
     protected EntitySummonBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
-        this.returnMovement = new ShipMovementCoordinator(this);
+        this.returnMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.returnRecovery = new ShipMovementRecoveryState();
         this.numAmmoLight = 6;
         this.numAmmoHeavy = 0;
@@ -80,7 +80,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
         public SummonAttackGoal(EntitySummonBase mob) {
             this.mob = mob;
-            this.movement = new ShipMovementCoordinator(mob);
+            this.movement = new ShipMovementCoordinator(mob, ShipMovementCoordinator.PRIORITY_COMBAT);
             this.setFlags(java.util.EnumSet.of(net.minecraft.world.entity.ai.goal.Goal.Flag.MOVE, net.minecraft.world.entity.ai.goal.Goal.Flag.LOOK));
         }
 
@@ -127,7 +127,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
         public SummonFollowCarrierGoal(EntitySummonBase mob, double speed) {
             this.mob = mob;
-            this.movement = new ShipMovementCoordinator(mob);
+            this.movement = new ShipMovementCoordinator(mob, ShipMovementCoordinator.PRIORITY_NORMAL);
             this.speed = speed;
             this.setFlags(java.util.EnumSet.of(net.minecraft.world.entity.ai.goal.Goal.Flag.MOVE, net.minecraft.world.entity.ai.goal.Goal.Flag.LOOK));
         }

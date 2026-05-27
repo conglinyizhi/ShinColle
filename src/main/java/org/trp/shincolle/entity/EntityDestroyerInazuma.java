@@ -39,7 +39,7 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
 
     public EntityDestroyerInazuma(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
-        this.raidenMovement = new ShipMovementCoordinator(this);
+        this.raidenMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.raidenRecovery = new ShipMovementRecoveryState();
         setModelPos(new float[]{0, 25, 0, 50});
         setStateMinor(STATE_MINOR_FACTION_ID, -1);
