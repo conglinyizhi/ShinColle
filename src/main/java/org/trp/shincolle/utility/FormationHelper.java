@@ -97,7 +97,7 @@ public final class FormationHelper {
         ship.setInSittingPose(false);
         ship.setGuardBlockTarget(new BlockPos(x, y, z));
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
-        new ShipMovementCoordinator(ship).moveTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);
+        ship.moveGuardTargetTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);
         ship.setStateTimer(18, 200);
     }
 
@@ -115,7 +115,7 @@ public final class FormationHelper {
         ship.setInSittingPose(false);
         ship.setGuardedEntity(guarded);
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);
-        new ShipMovementCoordinator(ship).moveTo(guarded, 1.2D);
+        ship.moveGuardTargetTo(guarded, 1.2D);
         ship.setStateTimer(18, 200);
     }
 

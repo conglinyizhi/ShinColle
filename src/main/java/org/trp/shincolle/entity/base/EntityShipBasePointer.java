@@ -40,7 +40,7 @@ class EntityShipBasePointer {
 
     EntityShipBasePointer(EntityShipBase ship) {
         this.ship = ship;
-        this.movement = new ShipMovementCoordinator(ship);
+        this.movement = new ShipMovementCoordinator(ship, ShipMovementCoordinator.PRIORITY_COMMAND);
     }
 
     void saveToNbt(CompoundTag compound) {

@@ -23,7 +23,7 @@ class EntityShipPointerMoveGoal extends Goal {
 
     EntityShipPointerMoveGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
-        this.movement = new ShipMovementCoordinator(ship);
+        this.movement = ship.pointerMovementCoordinator();
         this.speed = speed;
         this.setFlags(EnumSet.of(Flag.MOVE));
     }

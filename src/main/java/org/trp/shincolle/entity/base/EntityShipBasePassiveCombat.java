@@ -63,7 +63,7 @@ final class EntityShipBasePassiveCombat {
 
     EntityShipBasePassiveCombat(EntityShipBase ship) {
         this.ship = ship;
-        this.movement = new ShipMovementCoordinator(ship);
+        this.movement = new ShipMovementCoordinator(ship, ShipMovementCoordinator.PRIORITY_COMBAT);
     }
 
     void tickTargeting() {

@@ -20,7 +20,7 @@ public final class ShipTaskRuntime {
 
     ShipTaskRuntime(EntityShipBase ship) {
         this.ship = ship;
-        this.movement = new ShipMovementCoordinator(ship);
+        this.movement = new ShipMovementCoordinator(ship, ShipMovementCoordinator.PRIORITY_TASK);
         this.recovery = new ShipMovementRecoveryState();
     }
 

@@ -26,7 +26,7 @@ final class EntityShipGuardGoal extends Goal {
 
     EntityShipGuardGoal(EntityShipBase ship, double speed) {
         this.ship = ship;
-        this.movement = new ShipMovementCoordinator(ship);
+        this.movement = ship.guardMovementCoordinator();
         this.speed = speed;
         this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
     }

@@ -29,7 +29,6 @@ import org.trp.shincolle.block.CraneBlock;
 import org.trp.shincolle.client.WaypointClientHelper;
 import org.trp.shincolle.entity.EntityTransportWa;
 import org.trp.shincolle.entity.base.EntityShipBase;
-import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;
@@ -278,7 +277,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     }
 
     private void moveShipToCrane(EntityShipBase ship) {
-        new ShipMovementCoordinator(ship).moveTo(
+        ship.moveGuardTargetTo(
                 new Vec3(
                         this.worldPosition.getX() + 0.5D,
                         this.worldPosition.getY() - 2.0D,

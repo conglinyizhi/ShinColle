@@ -295,11 +295,11 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.legacyShipStats = new LegacyShipStats();
         this.legacyState = new EntityShipLegacyState();
         this.taskRuntime = new ShipTaskRuntime(this);
-        this.lifecycleMovement = new ShipMovementCoordinator(this);
-        this.retreatMovement = new ShipMovementCoordinator(this);
-        this.pickupMovement = new ShipMovementCoordinator(this);
-        this.guardMovement = new ShipMovementCoordinator(this);
-        this.pointerMovement = new ShipMovementCoordinator(this);
+        this.lifecycleMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_EMERGENCY);
+        this.retreatMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_EMERGENCY);
+        this.pickupMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_BACKGROUND);
+        this.guardMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
+        this.pointerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
@@ -314,6 +314,22 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     static String getSpawnEggTagName() {
         return TAG_SPAWN_EGG;
+    }
+
+    ShipMovementCoordinator pointerMovementCoordinator() {
+        return this.pointerMovement;
+    }
+
+    ShipMovementCoordinator guardMovementCoordinator() {
+        return this.guardMovement;
+    }
+
+    public boolean moveGuardTargetTo(Vec3 target, double speed) {
+        return this.guardMovement.moveTo(target, speed);
+    }
+
+    public boolean moveGuardTargetTo(Entity target, double speed) {
+        return this.guardMovement.moveTo(target, speed);
     }
 
     @Override
@@ -772,6 +788,9 @@ public abstract class EntityShipBase extends TamableAnimal {
             return false;
         }
         if (this.hasPointerTargetEntity()) {
+            return false;
+        }
+        if (this.getTarget() != null) {
             return false;
         }
 
@@ -1714,24 +1733,32 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.updateMountSummon();
 
         if (this.getIsSitting() || this.isInDeadPose()) {
-            this.lifecycleMovement.stop();
+            this.lifecycleMovement.stopAny();
         }
 
         if (!this.isNoFuel()) {
             this.pointer.tickPointerTargetEntity();
 
-            if (shouldRetreatForLowHealth()) {
+            boolean retreatingForLowHealth = shouldRetreatForLowHealth();
+            if (retreatingForLowHealth) {
                 this.passiveCombat.clearTarget(true);
                 tickRetreatMovement();
-            } else if (this.hasPointerTargetEntity()) {
-                this.passiveCombat.clearTarget(true);
             } else {
-                this.passiveCombat.tickTargeting();
-                this.passiveCombat.tickActions();
+                this.retreatMovement.stop();
+                if (this.hasPointerTargetEntity()) {
+                    this.passiveCombat.clearTarget(true);
+                } else {
+                    this.passiveCombat.tickTargeting();
+                    this.passiveCombat.tickActions();
+                }
             }
 
             this.combat.tickAircraftRecovery();
-            tickAutoPickupItems();
+            if (retreatingForLowHealth) {
+                this.pickupMovement.stop();
+            } else {
+                tickAutoPickupItems();
+            }
             tickAutoPump();
             tickAutoRation();
             this.reactions.tickEmotes();
@@ -1739,6 +1766,8 @@ public abstract class EntityShipBase extends TamableAnimal {
                 applyEmotesReaction(4);
             }
         } else {
+            this.retreatMovement.stop();
+            this.pickupMovement.stop();
             this.passiveCombat.clearTarget(true);
         }
 
@@ -2130,26 +2159,32 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     private void tickAutoPickupItems() {
         if (!supportsItemPickup()) {
+            this.pickupMovement.stop();
             return;
         }
         if (!this.getStateFlag(ShipContainerMenu.STATE_FLAG_PICK_ITEM)) {
+            this.pickupMovement.stop();
             return;
         }
         if ((this.tickCount % PICK_ITEM_SCAN_INTERVAL_TICKS) != 0) {
             return;
         }
         if (this.getIsSitting() || this.isPassenger() || this.isVehicle() || this.isInDeadPose()) {
+            this.pickupMovement.stop();
             return;
         }
-        if (this.hasPointerTargetEntity() || this.getTarget() != null) {
+        if (this.hasPointerTarget() || this.hasPointerTargetEntity() || this.getTarget() != null) {
+            this.pickupMovement.stop();
             return;
         }
         if (!hasCargoRoom()) {
+            this.pickupMovement.stop();
             return;
         }
 
         ItemEntity target = findNearestPickItem();
         if (target == null) {
+            this.pickupMovement.stop();
             return;
         }
 
