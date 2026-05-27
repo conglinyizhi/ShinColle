@@ -35,7 +35,7 @@ public final class ShipTaskRuntime {
 
     public void clearTask() {
         if (this.lastTaskId != NO_TASK) {
-            this.movement.reset();
+            this.movement.stop();
             this.recovery.clear();
             this.lastTaskTarget = null;
             this.lastTaskId = NO_TASK;

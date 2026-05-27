@@ -50,6 +50,8 @@ class ShipTaskRuntimeArchitectureRegressionTest {
                 "Task runtime should reset movement suppression when task id changes");
         assertTrue(runtime.contains("public void clearTask()"),
                 "Task runtime should reset movement state when tasks stop");
+        assertTrue(runtime.contains("public void clearTask() {\n        if (this.lastTaskId != NO_TASK) {\n            this.movement.stop();"),
+                "Task runtime should stop stale navigation when tasks stop");
     }
 
     @Test
