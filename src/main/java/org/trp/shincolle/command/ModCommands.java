@@ -544,7 +544,7 @@ public final class ModCommands {
         ship.setTame(true, false);
         ship.setOrderedToSit(false);
         ship.setInSittingPose(false);
-        new ShipMovementCoordinator(ship).stop();
+        new ShipMovementCoordinator(ship).stopAny();
         ship.clearPointerTarget();
         ship.clearPointerTargetEntity();
         ShipRegistrySavedData.get(player.serverLevel()).updateShip(ship);
@@ -574,7 +574,7 @@ public final class ModCommands {
         ShipRegistrySavedData registry = ShipRegistrySavedData.get(player.serverLevel());
         for (EntityShipBase ship : ships) {
             ship.setTame(true, false);
-            new ShipMovementCoordinator(ship).stop();
+            new ShipMovementCoordinator(ship).stopAny();
             ship.clearPointerTarget();
             ship.clearPointerTargetEntity();
             if (ship.isOrderedToSit()) {

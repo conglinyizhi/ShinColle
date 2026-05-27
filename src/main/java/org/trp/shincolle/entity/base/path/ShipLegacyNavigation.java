@@ -48,6 +48,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     private int lastSetPathLogTick = Integer.MIN_VALUE;
     private int lastExceededLogTick = Integer.MIN_VALUE;
     private int lastStuckApplyLogTick = Integer.MIN_VALUE;
+    private boolean preserveCurrentPathOnNextFailure;
     private long timeoutCachedNode;
     private long timeoutTimer;
     private double timeoutLimit;
@@ -66,24 +67,27 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     @Override
     public boolean moveTo(double x, double y, double z, double speed) {
         if (!canNavigate()) {
+            this.preserveCurrentPathOnNextFailure = false;
             return false;
         }
 
         BlockPos pos = BlockPos.containing(x, y, z);
         BlockPos previousTarget = this.targetPos;
         ShipLegacyPath path = getPathToPos(pos);
-        return setPath(path, speed, isSameNavigationTarget(previousTarget, this.targetPos));
+        return setPath(path, speed, isSameNavigationTarget(previousTarget, pos), pos);
     }
 
     @Override
     public boolean moveTo(Entity entity, double speed) {
         if (!canNavigate()) {
+            this.preserveCurrentPathOnNextFailure = false;
             return false;
         }
 
         BlockPos previousTarget = this.targetPos;
+        BlockPos nextTarget = entity.blockPosition();
         ShipLegacyPath path = getPathToEntity(entity);
-        return setPath(path, speed, isSameNavigationTarget(previousTarget, this.targetPos));
+        return setPath(path, speed, isSameNavigationTarget(previousTarget, nextTarget), nextTarget);
     }
 
     @Override
@@ -126,8 +130,13 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
     @Override
     public void stop() {
+        this.preserveCurrentPathOnNextFailure = false;
         this.currentPath = null;
         this.path = null;
+    }
+
+    public void preserveCurrentPathOnNextFailure() {
+        this.preserveCurrentPathOnNextFailure = true;
     }
 
     @Override
@@ -151,7 +160,6 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
             }
         }
 
-        this.targetPos = target.blockPosition();
         float range = getPathSearchRange();
         return this.pathFinder.findPath(this.mob, target, range);
     }
@@ -163,7 +171,6 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
             return this.currentPath;
         }
 
-        this.targetPos = pos;
         float range = getPathSearchRange();
         return this.pathFinder.findPath(this.mob, pos.getX(), pos.getY(), pos.getZ(), range);
     }
@@ -177,22 +184,28 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         return this.pathFinder.findPath(this.mob, this.targetPos.getX(), this.targetPos.getY(), this.targetPos.getZ(), range);
     }
 
-    private boolean setPath(ShipLegacyPath path, double speed, boolean sameNavigationTarget) {
+    private boolean setPath(ShipLegacyPath path, double speed, boolean sameNavigationTarget, BlockPos nextTarget) {
         boolean hadActivePath = this.currentPath != null && !this.currentPath.isFinished();
 
         if (path == null) {
-            if (shouldLogSetPath(-1, true)) {
-                Shincolle.debugLog("Navigation setPath failed mob={} targetPos={}", this.mob.getUUID(), this.targetPos);
-                this.loggedTargetPos = this.targetPos;
+            if (shouldLogSetPath(-1, true, nextTarget)) {
+                Shincolle.debugLog("Navigation setPath failed mob={} targetPos={}", this.mob.getUUID(), nextTarget);
+                this.loggedTargetPos = nextTarget;
                 this.loggedPathFailure = true;
                 this.loggedPathLength = -1;
                 this.lastSetPathLogTick = this.totalTicks;
             }
-            this.currentPath = null;
-            this.path = null;
+            if (!this.preserveCurrentPathOnNextFailure) {
+                this.currentPath = null;
+                this.path = null;
+                this.targetPos = nextTarget;
+            }
+            this.preserveCurrentPathOnNextFailure = false;
             return false;
         }
 
+        this.preserveCurrentPathOnNextFailure = false;
+        this.targetPos = nextTarget;
         if (path == this.currentPath) {
             this.speedModifier = speed;
             return true;
@@ -208,10 +221,10 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         }
         resetPathTimeoutState();
         int pathLength = path.getCurrentPathLength();
-        if (shouldLogSetPath(pathLength, false)) {
+        if (shouldLogSetPath(pathLength, false, nextTarget)) {
             Shincolle.debugLog("Navigation setPath success mob={} targetPos={} speed={} pathLength={}",
-                    this.mob.getUUID(), this.targetPos, speed, pathLength);
-            this.loggedTargetPos = this.targetPos;
+                    this.mob.getUUID(), nextTarget, speed, pathLength);
+            this.loggedTargetPos = nextTarget;
             this.loggedPathFailure = false;
             this.loggedPathLength = pathLength;
             this.lastSetPathLogTick = this.totalTicks;
@@ -225,11 +238,11 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
                 && previousTarget.distSqr(nextTarget) <= SAME_NAVIGATION_TARGET_SQR;
     }
 
-    private boolean shouldLogSetPath(int pathLength, boolean failure) {
+    private boolean shouldLogSetPath(int pathLength, boolean failure, BlockPos logTarget) {
         if (this.loggedPathFailure != failure) {
             return true;
         }
-        if (!isSameNavigationTarget(this.loggedTargetPos, this.targetPos)) {
+        if (!isSameNavigationTarget(this.loggedTargetPos, logTarget)) {
             return true;
         }
         return this.totalTicks - this.lastSetPathLogTick >= NAVIGATION_SET_PATH_LOG_INTERVAL;
@@ -403,7 +416,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
                 if (this.timeoutLimit > 0.0D && this.timeoutTimer > this.timeoutLimit * 2.0D) {
                     ShipLegacyPath retryPath = recalculatePathToCurrentTarget();
-                    if (!setPath(retryPath, this.speedModifier, true)) {
+                    if (!setPath(retryPath, this.speedModifier, true, this.targetPos)) {
                         stop();
                     }
                     resetPathTimeoutState();
