@@ -17,7 +17,7 @@ import org.trp.shincolle.entity.EntityShipGrudge;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.event.ModEventBusEvents;
-import org.trp.shincolle.init.ModDataAttachments;
+import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.ShipRegistrySavedData;
 
 import java.util.Comparator;
@@ -536,9 +536,9 @@ public final class ModCommands {
         if (ship.isStateMarried() && oldOwner != null) {
             ServerPlayer oldOwnerPlayer = source.getServer().getPlayerList().getPlayer(oldOwner);
             if (oldOwnerPlayer != null) {
-                oldOwnerPlayer.getData(ModDataAttachments.ADMIRAL_DATA).addMarriedShipCount(-1);
+                PlayerStateService.adjustOwnedMarriedShipCount(oldOwnerPlayer, -1);
             }
-            newOwner.getData(ModDataAttachments.ADMIRAL_DATA).addMarriedShipCount(1);
+            PlayerStateService.adjustOwnedMarriedShipCount(newOwner, 1);
         }
         ship.setOwnerUUID(newOwner.getUUID());
         ship.setTame(true, false);

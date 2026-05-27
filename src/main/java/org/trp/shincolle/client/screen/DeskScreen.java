@@ -15,7 +15,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import org.trp.shincolle.client.renderer.BookRenderer;
 import org.trp.shincolle.entity.base.EntityMountBase;
 import org.trp.shincolle.entity.base.EntityShipBase;
-import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.menu.DeskMenu;
 import org.trp.shincolle.network.C2SBookStatePayload;
@@ -24,6 +23,7 @@ import org.trp.shincolle.network.C2SDeskOpenShipPayload;
 import org.trp.shincolle.network.C2STeamDiplomacyPayload;
 import org.trp.shincolle.network.DeskDiplomacySync;
 import org.trp.shincolle.reference.Values;
+import org.trp.shincolle.server.PlayerStateService;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -699,7 +699,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     private boolean isCollected(int classID) {
         if (this.minecraft == null || this.minecraft.player == null) return false;
         if (this.minecraft.player.isCreative()) return true;
-        return this.minecraft.player.getData(ModDataAttachments.COLLECTED_SHIPS).contains(classID);
+        return PlayerStateService.hasCollectedShip(this.minecraft.player, classID);
     }
 
     private void renderBookEntity(GuiGraphics guiGraphics, int x, int y, float partialTick) {

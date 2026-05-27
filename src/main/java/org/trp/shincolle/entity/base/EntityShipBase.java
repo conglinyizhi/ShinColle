@@ -66,6 +66,7 @@ import org.trp.shincolle.item.CombatRationItem;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
 import org.trp.shincolle.menu.ShipContainerMenu;
+import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.ShipRegistrySavedData;
 
 import javax.annotation.Nullable;
@@ -1867,7 +1868,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             return;
         }
 
-        org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(owner);
         int actualTeam = data.findShipTeam(this.getUUID());
         if (actualTeam >= 0) {
             int actualSlot = data.findShipSlot(actualTeam, this.getUUID());
@@ -1902,7 +1903,12 @@ public abstract class EntityShipBase extends TamableAnimal {
     @Override
     public void remove(Entity.RemovalReason reason) {
         if (this.level() instanceof ServerLevel serverLevel) {
-            ShipRegistrySavedData.get(serverLevel).markRemoved(this);
+            ShipRegistrySavedData registry = ShipRegistrySavedData.get(serverLevel);
+            if (shouldMarkRemovedInRegistry(reason)) {
+                registry.markRemoved(this);
+            } else {
+                registry.updateShip(this);
+            }
         }
         if (!this.level().isClientSide && shouldReleaseMarriageCountOnRemove(reason)) {
             adjustOwnerMarriageCount(-1);
@@ -1911,6 +1917,10 @@ public abstract class EntityShipBase extends TamableAnimal {
             clearCompassForcedChunks(serverLevel);
         }
         super.remove(reason);
+    }
+
+    private boolean shouldMarkRemovedInRegistry(Entity.RemovalReason reason) {
+        return reason == Entity.RemovalReason.KILLED || reason == Entity.RemovalReason.DISCARDED;
     }
 
     private boolean shouldReleaseMarriageCountOnRemove(Entity.RemovalReason reason) {
@@ -1935,7 +1945,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         ServerPlayer owner = serverLevel.getServer().getPlayerList().getPlayer(ownerId);
         if (owner != null) {
-            owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).addMarriedShipCount(delta);
+            PlayerStateService.adjustOwnedMarriedShipCount(owner, delta);
         }
 
         if (delta < 0) {
@@ -2727,7 +2737,7 @@ public abstract class EntityShipBase extends TamableAnimal {
                     stack.shrink(1);
                 }
                 this.setStateMarried(true);
-                player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).addMarriedShipCount(1);
+                PlayerStateService.adjustOwnedMarriedShipCount(player, 1);
                 this.setMorale(16000);
                 this.setEmotionPrimary(EMOTION_HAPPY);
                 this.applyParticleEmotion(EmotionParticleType.HEART);
@@ -3127,7 +3137,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         Player owner = this.getOwnerPlayer();
         if (owner != null && teamId >= 0) {
-            org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(owner);
             int formationId = data.getFormationID(teamId);
             formationBuffs = org.trp.shincolle.utility.FormationHelper.getFormationBuffs(formationId, slotId);
         }

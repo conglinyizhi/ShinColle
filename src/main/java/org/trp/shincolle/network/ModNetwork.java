@@ -22,10 +22,10 @@ import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.attachment.AdmiralData;
 import org.trp.shincolle.block.entity.IWaypoint;
 import org.trp.shincolle.entity.base.EntityShipBase;
-import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.init.ModDataComponents;
 import org.trp.shincolle.item.DeskItemBook;
 import org.trp.shincolle.item.PointerItem;
+import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.UnattackableTargetData;
 import org.trp.shincolle.server.TeamDiplomacySavedData;
 import org.trp.shincolle.entity.base.EntityMountBase;
@@ -202,13 +202,8 @@ public class ModNetwork {
         context.enqueueWork(() -> {
             Player player = context.player();
             if (player != null) {
-                AdmiralData data = player.getData(ModDataAttachments.ADMIRAL_DATA);
-                data.deserializeNBT(payload.admiralNbt());
-                var collected = player.getData(ModDataAttachments.COLLECTED_SHIPS);
-                collected.clear();
-                for (int classId : payload.collectedShips()) {
-                    collected.add(classId);
-                }
+                PlayerStateService.applyAdmiralSync(player, payload.admiralNbt(), payload.collectedShips());
+                AdmiralData data = PlayerStateService.admiralData(player);
 
                 if (player.level().isClientSide) {
                     int mode = PointerItem.MODE_SINGLE;
@@ -419,7 +414,7 @@ public class ModNetwork {
             } else if (payload.action() == 1 || payload.action() == 2) {
                 
                 int mode = pointerItem.getMode(stack);
-                AdmiralData data = player.getData(ModDataAttachments.ADMIRAL_DATA);
+                AdmiralData data = PlayerStateService.admiralData(player);
                 int teamId = data.getCurrentTeamID();
 
                 if (mode == PointerItem.MODE_FORMATION) {
@@ -451,7 +446,7 @@ public class ModNetwork {
                 }
             } else if (payload.action() == 5 && payload.targetEntity().isPresent()) {
                 UUID targetUUID = payload.targetEntity().get();
-                AdmiralData data = player.getData(ModDataAttachments.ADMIRAL_DATA);
+                AdmiralData data = PlayerStateService.admiralData(player);
                 int teamId = data.getCurrentTeamID();
                 int slot = -1;
                 for (int i = 0; i < AdmiralData.SLOT_COUNT; i++) {
@@ -463,7 +458,7 @@ public class ModNetwork {
 
                 if (slot != -1) {
                     boolean nextState = !data.isSelected(teamId, slot);
-                    data.setSelected(teamId, slot, nextState);
+                    PlayerStateService.setCurrentTeamSlotSelected(player, slot, nextState);
                     if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                         net.minecraft.world.entity.Entity e = serverLevel.getEntity(targetUUID);
                         if (e instanceof EntityShipBase ship) {
@@ -473,10 +468,10 @@ public class ModNetwork {
                 } else {
                     int previousTeam = data.findShipTeam(targetUUID);
                     int previousSlot = previousTeam >= 0 ? data.findShipSlot(previousTeam, targetUUID) : -1;
-                    int assignedSlot = data.assignShipToTeam(teamId, targetUUID);
+                    int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, targetUUID);
                     if (assignedSlot == -1) {
                         player.displayClientMessage(Component.translatable("chat.shincolle.formation.teamfull"), false);
-                        context.reply(S2CAdmiralDataSyncPayload.of(data.serializeNBT(), player.getData(ModDataAttachments.COLLECTED_SHIPS)));
+                        context.reply(PlayerStateService.admiralSyncPayload(player));
                         return;
                     }
                     if (assignedSlot != -1 && player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
@@ -495,7 +490,7 @@ public class ModNetwork {
                         }
                     }
                 }
-                context.reply(S2CAdmiralDataSyncPayload.of(data.serializeNBT(), player.getData(ModDataAttachments.COLLECTED_SHIPS)));
+                context.reply(PlayerStateService.admiralSyncPayload(player));
             } else if (payload.action() == 4) {
                 player.openMenu(new net.minecraft.world.SimpleMenuProvider(
                         (id, inv, p) -> new org.trp.shincolle.menu.FormationMenu(id, inv),
@@ -508,16 +503,15 @@ public class ModNetwork {
     private static void handleFormationAction(final C2SFormationActionPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
-            AdmiralData data = player.getData(ModDataAttachments.ADMIRAL_DATA);
+            AdmiralData data = PlayerStateService.admiralData(player);
 
             switch (payload.action()) {
                 case 0: 
                 {
                     int nextTeam = payload.param1();
-                    if (nextTeam < 0 || nextTeam >= AdmiralData.TEAM_COUNT) {
+                    if (!PlayerStateService.setCurrentTeamId(player, nextTeam)) {
                         break;
                     }
-                    data.setCurrentTeamID(nextTeam);
                     if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                         List<EntityShipBase> ships = serverLevel.getEntitiesOfClass(EntityShipBase.class, player.getBoundingBox().inflate(100.0),
                             ship -> player.getUUID().equals(ship.getOwnerUUID()) && !ship.isInDeadPose());
@@ -535,18 +529,14 @@ public class ModNetwork {
                     break;
                 }
                 case 1: 
-                    if (payload.param1() < 0) {
-                        break;
-                    }
-                    data.setFormationID(data.getCurrentTeamID(), payload.param1());
+                    PlayerStateService.setCurrentTeamFormation(player, payload.param1());
                     break;
                 case 2: 
                 {
-                    if (payload.param1() < 0 || payload.param1() >= AdmiralData.SLOT_COUNT) {
+                    boolean nextState = payload.param2() != 0;
+                    if (!PlayerStateService.setCurrentTeamSlotSelected(player, payload.param1(), nextState)) {
                         break;
                     }
-                    boolean nextState = payload.param2() != 0;
-                    data.setSelected(data.getCurrentTeamID(), payload.param1(), nextState);
                     UUID shipUUID = data.getShipUUID(data.getCurrentTeamID(), payload.param1());
                     if (shipUUID != null && player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                         net.minecraft.world.entity.Entity e = serverLevel.getEntity(shipUUID);
@@ -580,18 +570,19 @@ public class ModNetwork {
                             clearFormationState(ship);
                         }
                     }
-                    data.removeShip(shipUUID);
+                    PlayerStateService.removeShipFromTeams(player, shipUUID);
                     break;
                 }
                 case 4:
-                    data.setTeamName(data.getCurrentTeamID(), payload.paramString());
+                    PlayerStateService.setCurrentTeamName(player, payload.paramString());
                     break;
                 case 5:
                     payload.paramUUID().ifPresent(uuid -> {
-                        if (payload.param1() < 0 || payload.param1() >= AdmiralData.SLOT_COUNT) {
+                        PlayerStateService.SlotAssignment assignment = PlayerStateService.setCurrentTeamSlot(player, payload.param1(), uuid);
+                        if (assignment == null) {
                             return;
                         }
-                        UUID replacedUuid = data.getShipUUID(data.getCurrentTeamID(), payload.param1());
+                        UUID replacedUuid = assignment.replacedUuid();
                         if (replacedUuid != null && player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                             net.minecraft.world.entity.Entity replacedEntity = serverLevel.getEntity(replacedUuid);
                             if (replacedEntity instanceof EntityShipBase replacedShip) {
@@ -599,16 +590,10 @@ public class ModNetwork {
                             }
                         }
 
-                        data.removeShip(uuid);
-                        if (replacedUuid != null && !replacedUuid.equals(uuid)) {
-                            data.removeShip(replacedUuid);
-                        }
-                        data.setShipUUID(data.getCurrentTeamID(), payload.param1(), uuid);
-                        data.setSelected(data.getCurrentTeamID(), payload.param1(), true);
                         if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                             net.minecraft.world.entity.Entity entity = serverLevel.getEntity(uuid);
                             if (entity instanceof EntityShipBase ship) {
-                                applyFormationState(ship, data.getCurrentTeamID(), payload.param1(), true);
+                                applyFormationState(ship, assignment.teamId(), assignment.slotId(), true);
                             }
                         }
                     });
@@ -616,11 +601,10 @@ public class ModNetwork {
                 case 6:
                     int slot1 = payload.param1();
                     int slot2 = payload.param2();
-                    if (slot1 < 0 || slot1 >= AdmiralData.SLOT_COUNT || slot2 < 0 || slot2 >= AdmiralData.SLOT_COUNT || slot1 == slot2) {
+                    if (!PlayerStateService.swapCurrentTeamSlots(player, slot1, slot2)) {
                         break;
                     }
                     int currentTeamId = data.getCurrentTeamID();
-                    data.swapShips(currentTeamId, slot1, slot2);
                     if (player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) {
                         UUID uuid1 = data.getShipUUID(currentTeamId, slot1);
                         if (uuid1 != null) {
@@ -651,7 +635,7 @@ public class ModNetwork {
                         
                         for (EntityShipBase ship : nearbySelected) {
                             if (!data.isShipInTeam(tid, ship.getUUID())) {
-                                if (data.assignShipToTeam(tid, ship.getUUID()) == -1) {
+                                if (PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID()) == -1) {
                                     teamFilledDuringSync = true;
                                 }
                             }
@@ -681,7 +665,7 @@ public class ModNetwork {
             }
             
             if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-                PacketDistributor.sendToPlayer(serverPlayer, S2CAdmiralDataSyncPayload.of(data.serializeNBT(), player.getData(ModDataAttachments.COLLECTED_SHIPS)));
+                PlayerStateService.sendAdmiralState(serverPlayer);
             }
         });
     }
@@ -791,7 +775,7 @@ public class ModNetwork {
     }
 
     private static void updateDiplomacyDisplayData(net.minecraft.server.level.ServerPlayer player, TeamDiplomacySavedData diplomacy) {
-        AdmiralData data = player.getData(ModDataAttachments.ADMIRAL_DATA);
+        AdmiralData data = PlayerStateService.admiralData(player);
         String teamName = data.getTeamName(data.getCurrentTeamID());
         String leaderName = player.getName().getString();
         diplomacy.setDisplayData(player.getUUID(), teamName, leaderName);

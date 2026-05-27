@@ -38,18 +38,6 @@ public final class ModDataAttachments {
                     .copyOnDeath()
                     .build());
 
-    private static HashSet<Integer> readSet(net.minecraft.nbt.Tag tag, net.neoforged.neoforge.attachment.IAttachmentHolder holder) {
-        HashSet<Integer> set = new HashSet<>();
-        if (tag instanceof net.minecraft.nbt.IntArrayTag array) {
-            for (int i : array.getAsIntArray()) set.add(i);
-        }
-        return set;
-    }
-
-    private static net.minecraft.nbt.Tag writeSet(HashSet<Integer> set, net.neoforged.neoforge.attachment.IAttachmentHolder holder) {
-        return new net.minecraft.nbt.IntArrayTag(new java.util.ArrayList<>(set));
-    }
-
     private ModDataAttachments() {
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.server.PlayerStateService;
 
 import java.util.UUID;
 
@@ -167,7 +168,7 @@ class EntityShipBasePointer {
             
             LivingEntity ownerRaw = this.ship.getOwner();
             if (ownerRaw instanceof Player owner) {
-                org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+                org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(owner);
                 int formationId = data.getFormationID(teamId);
 
                 Vec3 refPos = this.ship.position();

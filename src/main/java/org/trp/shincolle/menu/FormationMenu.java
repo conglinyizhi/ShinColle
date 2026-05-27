@@ -7,7 +7,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.trp.shincolle.attachment.AdmiralData;
-import org.trp.shincolle.init.ModDataAttachments;
+import org.trp.shincolle.server.PlayerStateService;
 
 public class FormationMenu extends AbstractContainerMenu {
     private final AdmiralData admiralData;
@@ -18,7 +18,7 @@ public class FormationMenu extends AbstractContainerMenu {
 
     public FormationMenu(int containerId, Inventory playerInventory) {
         super(ModMenus.FORMATION.get(), containerId);
-        this.admiralData = playerInventory.player.getData(ModDataAttachments.ADMIRAL_DATA);
+        this.admiralData = PlayerStateService.admiralData(playerInventory.player);
 
         
         

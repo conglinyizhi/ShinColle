@@ -17,6 +17,7 @@ import net.neoforged.neoforge.items.SlotItemHandler;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.item.ShipTankItem;
+import org.trp.shincolle.server.PlayerStateService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -496,17 +497,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
         if (!ship.level().isClientSide && playerInv.player != null) {
             int classID = ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS);
-            if (classID >= 0) {
-                var collectedShips = playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS);
-                if (collectedShips.add(classID) && playerInv.player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-                    net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
-                            serverPlayer,
-                            org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
-                                    playerInv.player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).serializeNBT(),
-                                    collectedShips
-                            )
-                    );
-                }
+            if (playerInv.player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
+                PlayerStateService.registerCollectedShip(serverPlayer, classID);
             }
         }
 

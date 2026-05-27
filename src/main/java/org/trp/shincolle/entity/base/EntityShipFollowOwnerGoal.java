@@ -6,6 +6,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.menu.ShipContainerMenu;
+import org.trp.shincolle.server.PlayerStateService;
 
 import java.util.EnumSet;
 
@@ -110,8 +111,8 @@ final class EntityShipFollowOwnerGoal extends Goal {
         int slotId = ship.getFormationSlot();
         net.minecraft.world.phys.Vec3 moveTarget = owner.position();
 
-        if (teamId >= 0 && slotId >= 0) {
-            org.trp.shincolle.attachment.AdmiralData data = owner.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        if (teamId >= 0 && slotId >= 0 && owner instanceof Player ownerPlayer) {
+            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(ownerPlayer);
             int formationId = data.getFormationID(teamId);
             updateFormationDirection(owner);
             moveTarget = org.trp.shincolle.utility.FormationHelper.getFormationPos(formationId, slotId, owner.position(), formationDir[0], formationDir[1]);

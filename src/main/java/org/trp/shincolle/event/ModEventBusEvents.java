@@ -2,8 +2,6 @@ package org.trp.shincolle.event;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.AbstractGolem;
@@ -39,17 +37,15 @@ import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.entity.base.EntityShincolleSimpleMob;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.EntityShipBaseSimple;
-import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.MarriageRingItem;
 import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.network.ModNetwork;
+import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.utility.FormationHelper;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
@@ -152,7 +148,7 @@ public class ModEventBusEvents {
             return;
         }
 
-        int marriedCount = getOwnedMarriedShipCount(player);
+        int marriedCount = PlayerStateService.getOwnedMarriedShipCount(player);
         if (marriedCount <= 0) {
             return;
         }
@@ -165,42 +161,28 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPlayerLogin(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-            org.trp.shincolle.attachment.AdmiralData data = serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
-            if (!data.hasReceivedBook()) {
-                ItemStack bookStack = new ItemStack(ModItems.DESK_ITEM_BOOK.get());
-                if (!serverPlayer.addItem(bookStack)) {
-                    serverPlayer.drop(bookStack, false);
-                }
-                data.setHasReceivedBook(true);
-            }
-            syncPlayerAdmiralState(serverPlayer);
+            PlayerStateService.giveInitialManualIfNeeded(serverPlayer);
+            PlayerStateService.syncAdmiralState(serverPlayer);
         }
     }
 
     @SubscribeEvent
     public static void onPlayerRespawn(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerRespawnEvent event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-            syncPlayerAdmiralState(serverPlayer);
+            PlayerStateService.syncAdmiralState(serverPlayer);
         }
     }
 
     @SubscribeEvent
     public static void onPlayerChangedDimension(net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getEntity() instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
-            syncPlayerAdmiralState(serverPlayer);
+            PlayerStateService.syncAdmiralState(serverPlayer);
         }
     }
 
     @SubscribeEvent
     public static void onPlayerClone(PlayerEvent.Clone event) {
-        var originalData = event.getOriginal().getData(ModDataAttachments.ADMIRAL_DATA);
-        var clonedData = event.getEntity().getData(ModDataAttachments.ADMIRAL_DATA);
-        clonedData.deserializeNBT(originalData.serializeNBT());
-
-        HashSet<Integer> originalCollected = event.getOriginal().getData(ModDataAttachments.COLLECTED_SHIPS);
-        HashSet<Integer> clonedCollected = event.getEntity().getData(ModDataAttachments.COLLECTED_SHIPS);
-        clonedCollected.clear();
-        clonedCollected.addAll(originalCollected);
+        PlayerStateService.copyPersistentPlayerState(event.getOriginal(), event.getEntity());
     }
 
     @SubscribeEvent
@@ -246,7 +228,7 @@ public class ModEventBusEvents {
 
         int mode = pointerStack.getItem() instanceof PointerItem pi ? pi.getMode(pointerStack) : PointerItem.MODE_SINGLE;
         if (mode == PointerItem.MODE_GROUP || mode == PointerItem.MODE_FORMATION) {
-            org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(player);
             int teamId = data.getCurrentTeamID();
             int existingTeam = -1;
             int existingSlot = -1;
@@ -264,19 +246,18 @@ public class ModEventBusEvents {
             if (existingTeam != -1) {
                 if (existingTeam == teamId) {
                     if (mode == PointerItem.MODE_FORMATION) {
-                        data.setShipUUID(teamId, existingSlot, null);
-                        data.setSelected(teamId, existingSlot, true);
+                        PlayerStateService.removeShipFromTeams(player, ship.getUUID());
                         ship.setFormationTeam(-1);
                         ship.setFormationSlot(-1);
                         ship.setPointerSelected(false);
                     } else {
                         boolean nextState = !data.isSelected(teamId, existingSlot);
-                        data.setSelected(teamId, existingSlot, nextState);
+                        PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState);
                         ship.setPointerSelected(nextState);
                     }
                 } else {
                     if (mode == PointerItem.MODE_FORMATION) {
-                        int assignedSlot = data.assignShipToTeam(teamId, ship.getUUID());
+                        int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID());
                         if (assignedSlot != -1) {
                             ship.setFormationTeam(teamId);
                             ship.setFormationSlot(assignedSlot);
@@ -288,20 +269,14 @@ public class ModEventBusEvents {
                         ship.togglePointerSelected();
                     }
                 }
-                net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
-                        data.serializeNBT(),
-                        player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS)
-                ));
+                PlayerStateService.sendAdmiralState((net.minecraft.server.level.ServerPlayer) player);
             } else if (mode == PointerItem.MODE_FORMATION) {
-                int assignedSlot = data.assignShipToTeam(teamId, ship.getUUID());
+                int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID());
                 if (assignedSlot != -1) {
                     ship.setFormationTeam(teamId);
                     ship.setFormationSlot(assignedSlot);
                     ship.setPointerSelected(true);
-                    net.neoforged.neoforge.network.PacketDistributor.sendToPlayer((net.minecraft.server.level.ServerPlayer) player, org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
-                            data.serializeNBT(),
-                            player.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS)
-                    ));
+                    PlayerStateService.sendAdmiralState((net.minecraft.server.level.ServerPlayer) player);
                 } else {
                     player.displayClientMessage(net.minecraft.network.chat.Component.translatable("chat.shincolle.formation.teamfull"), false);
                 }
@@ -429,7 +404,7 @@ public class ModEventBusEvents {
             return;
         }
 
-        int marriedCount = getOwnedMarriedShipCount(player);
+        int marriedCount = PlayerStateService.getOwnedMarriedShipCount(player);
 
         if (Config.ringAbilityWaterBreathing >= 0
                 && marriedCount >= Config.ringAbilityWaterBreathing
@@ -479,50 +454,6 @@ public class ModEventBusEvents {
                 && MarriageRingItem.isActive(stack);
     }
 
-    private static int getOwnedMarriedShipCount(Player player) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            return reconcileOwnedMarriedShipCount(serverPlayer);
-        }
-
-        int stored = player.getData(ModDataAttachments.ADMIRAL_DATA).getMarriedShipCount();
-        if (stored > 0) {
-            return stored;
-        }
-
-        UUID ownerId = player.getUUID();
-        AABB search = player.getBoundingBox().inflate(256.0D, 128.0D, 256.0D);
-        List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class, search,
-                ship -> ship.isAlive()
-                        && ship.isTame()
-                        && ship.isStateMarried()
-                        && Objects.equals(ship.getOwnerUUID(), ownerId));
-        int scanned = ships.size();
-        if (scanned > 0) {
-            player.getData(ModDataAttachments.ADMIRAL_DATA).setMarriedShipCount(scanned);
-        }
-        return scanned;
-    }
-
-    private static int reconcileOwnedMarriedShipCount(ServerPlayer serverPlayer) {
-        UUID ownerId = serverPlayer.getUUID();
-        int marriedCount = 0;
-        for (ServerLevel level : serverPlayer.server.getAllLevels()) {
-            marriedCount += level.getEntitiesOfClass(
-                    EntityShipBase.class,
-                    AABB.INFINITE,
-                    ship -> ship.isAlive()
-                            && ship.isTame()
-                            && ship.isStateMarried()
-                            && Objects.equals(ship.getOwnerUUID(), ownerId)
-            ).size();
-        }
-
-        serverPlayer.getData(ModDataAttachments.ADMIRAL_DATA).setMarriedShipCount(marriedCount);
-        return marriedCount;
-    }
-
-
-
     private static void handlePointerTargetCommand(Player player, ItemStack pointerStack) {
         if (player == null || player.level().isClientSide) {
             return;
@@ -550,7 +481,7 @@ public class ModEventBusEvents {
             PointerItem.updateServerSideMode(player, pointerStack, PointerItem.MODE_SINGLE);
             ships = List.of(selected);
         } else if (mode == PointerItem.MODE_FORMATION) {
-            org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(player);
             int tid = data.getCurrentTeamID();
             ships = player.level().getEntitiesOfClass(EntityShipBase.class, searchArea,
                     ship -> ship.isOwnedBy(player) && ship.getFormationTeam() == tid && !ship.isInDeadPose());
@@ -681,16 +612,5 @@ public class ModEventBusEvents {
         AABB searchBox = player.getBoundingBox().expandTowards(look.scale(reach)).inflate(1.0D);
         return ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, end, searchBox,
                 entity -> !entity.isSpectator() && entity.isPickable() && entity != player);
-    }
-
-    private static void syncPlayerAdmiralState(ServerPlayer serverPlayer) {
-        reconcileOwnedMarriedShipCount(serverPlayer);
-        net.neoforged.neoforge.network.PacketDistributor.sendToPlayer(
-                serverPlayer,
-                org.trp.shincolle.network.S2CAdmiralDataSyncPayload.of(
-                        serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA).serializeNBT(),
-                        serverPlayer.getData(org.trp.shincolle.init.ModDataAttachments.COLLECTED_SHIPS)
-                )
-        );
     }
 }

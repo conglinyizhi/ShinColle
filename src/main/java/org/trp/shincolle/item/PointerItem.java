@@ -15,6 +15,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.menu.FormationMenu;
 import org.trp.shincolle.network.C2SPointerActionPayload;
+import org.trp.shincolle.server.PlayerStateService;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -80,7 +81,7 @@ public class PointerItem extends Item {
                 keep.setPointerSelected(true);
             }
         } else if (nextMode == MODE_FORMATION) {
-            org.trp.shincolle.attachment.AdmiralData data = player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(player);
             int teamId = data.getCurrentTeamID();
             double radius = 100.0;
             net.minecraft.world.phys.AABB searchArea = player.getBoundingBox().inflate(radius);
@@ -133,7 +134,7 @@ public class PointerItem extends Item {
         net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
         if (mc.player == null) return;
         
-        org.trp.shincolle.attachment.AdmiralData data = mc.player.getData(org.trp.shincolle.init.ModDataAttachments.ADMIRAL_DATA);
+        org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(mc.player);
         int teamId = data.getCurrentTeamID();
         int fid = data.getFormationID(teamId);
         
