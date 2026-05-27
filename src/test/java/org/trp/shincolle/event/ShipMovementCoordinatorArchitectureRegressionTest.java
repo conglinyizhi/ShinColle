@@ -61,6 +61,34 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Coordinator construction should be available outside the entity package");
         assertTrue(source.contains("private final PathfinderMob mob;"),
                 "Coordinator should be reusable by ship-attached mobs such as mounts");
+        assertTrue(source.contains("private static final Map<PathfinderMob, NavigationOwner> ACTIVE_NAVIGATION_OWNERS"),
+                "Coordinator should track which movement channel currently owns the shared navigation");
+        assertTrue(source.contains("private final Object ownerToken = new Object();"),
+                "Each coordinator instance should have an ownership token for guarded stops");
+        assertTrue(source.contains("public static final int PRIORITY_BACKGROUND = 0;"),
+                "Coordinator should expose explicit movement priorities instead of relying on tick order");
+        assertTrue(source.contains("public static final int PRIORITY_EMERGENCY = 40;"),
+                "Emergency movement should have an explicit priority above command and combat movement");
+        assertTrue(source.contains("private final int priority;"),
+                "Each coordinator should carry the priority of its movement channel");
+        assertTrue(source.contains("private record NavigationOwner(Object token, int priority)"),
+                "Navigation ownership should remember both owner identity and movement priority");
+        assertTrue(source.contains("private boolean shouldYieldToHigherPriorityOwner()"),
+                "Lower-priority movement should yield before recalculating paths");
+        assertTrue(source.contains("owner != null && owner.token() != this.ownerToken && owner.priority() > this.priority"),
+                "Only foreign higher-priority owners should block a movement request");
+        assertTrue(source.contains("public void stopAny()"),
+                "Coordinator should keep an explicit force-stop escape hatch for lifecycle and admin resets");
+        assertTrue(source.contains("if (!ownsNavigation()) {\n            return;\n        }"),
+                "Ordinary stop should not clear navigation that has already been claimed by another movement channel");
+        assertTrue(source.contains("&& ownsNavigation()\n                && this.lastMoveTarget != null"),
+                "Duplicate-move suppression should only apply while this coordinator still owns navigation");
+        assertTrue(source.contains("claimNavigation();"),
+                "Successful move requests should claim the shared navigation owner");
+        assertTrue(source.contains("private void stopAfterFailedMove()"),
+                "Failed move requests should centralize owner-aware cleanup");
+        assertTrue(source.contains("preserveForeignNavigationOnMoveFailure();"),
+                "A foreign failed move should not erase another channel's active path before ownership checks run");
         assertTrue(source.contains("private static final double SAME_POINT_MOVE_TARGET_SQR = 0.25D;"),
                 "Coordinator should suppress duplicate point move requests to the same target");
         assertTrue(source.contains("private static final double SAME_ENTITY_MOVE_TARGET_SQR = 2.25D;"),
@@ -79,8 +107,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Repeated move suppression should not hide stale navigation indefinitely");
         assertTrue(source.contains("private boolean recordMoveRequest(Vec3 target, boolean moved)"),
                 "Coordinator should centralize successful move bookkeeping");
-        assertTrue(source.contains("if (!moved) {\n            stop();\n            return false;\n        }"),
-                "Failed move requests should stop stale navigation and not poison later duplicate-move suppression");
+        assertTrue(source.contains("if (!moved) {\n            stopAfterFailedMove();\n            return false;\n        }"),
+                "Failed move requests should stop only stale owned navigation and not poison later duplicate-move suppression");
         assertTrue(source.contains("return recordMoveRequest(target, mob.getNavigation().moveTo(target.x, target.y, target.z, speed));"),
                 "Point movement should only record duplicate suppression state after navigation accepts the move");
         assertTrue(source.contains("return recordMoveRequest(targetPos, mob.getNavigation().moveTo(target, speed));"),
@@ -121,6 +149,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(guard.contains("private final ShipMovementCoordinator movement;"),
                 "Guard goal should use the shared movement coordinator");
+        assertTrue(guard.contains("this.movement = ship.guardMovementCoordinator();"),
+                "Guard goal should reuse the ship-owned guard movement channel so public guard cleanup can stop it");
         assertTrue(guard.contains("this.movement.moveTo(target, speed)"),
                 "Guard goal should route move requests through the coordinator");
         assertTrue(guard.contains("this.movement.teleportNearPoint(target, 0.75D)"),
@@ -137,6 +167,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(pointer.contains("private final ShipMovementCoordinator movement;"),
                 "Pointer move goal should use the shared movement coordinator");
+        assertTrue(pointer.contains("this.movement = ship.pointerMovementCoordinator();"),
+                "Pointer move goal should reuse the ship-owned pointer movement channel so public pointer cleanup can stop it");
         assertTrue(pointer.contains("this.movement.moveTo(target, this.speed)"),
                 "Pointer move goal should route move requests through the coordinator");
         assertFalse(pointer.contains("ship.getNavigation().moveTo(target.x, target.y, target.z"),
@@ -153,6 +185,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(passiveCombat.contains("private final ShipMovementCoordinator movement;"),
                 "Passive combat should use the shared movement coordinator");
+        assertTrue(passiveCombat.contains("this.movement = new ShipMovementCoordinator(ship, ShipMovementCoordinator.PRIORITY_COMBAT);"),
+                "Passive combat movement should outrank ordinary follow and pickup movement");
         assertTrue(passiveCombat.contains("this.movement.moveTo(target, getPassiveMoveSpeed())"),
                 "Passive combat should route chase movement through the coordinator");
         assertTrue(passiveCombat.contains("this.movement.teleportNearLiving(target, 0.75D)"),
@@ -171,8 +205,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(mount.contains("private final ShipMovementCoordinator movement;"),
                 "Mount follow should share the same movement policy as ships");
-        assertTrue(mount.contains("this.movement = new ShipMovementCoordinator(mount);"),
-                "Mount follow should create a coordinator for the mount mob");
+        assertTrue(mount.contains("this.movement = new ShipMovementCoordinator(mount, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+                "Mount follow should create a command-priority coordinator for the mount mob");
         assertTrue(mount.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
                 "Mount follow should share the movement recovery state");
         assertTrue(mount.contains("movement.moveTo(owner, 1.0D);"),
@@ -198,15 +232,15 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
         String formation = Files.readString(FORMATION_HELPER_SOURCE);
 
         assertTrue(formation.contains("import org.trp.shincolle.entity.base.ShipMovementCoordinator;"),
-                "Formation commands should use the shared movement coordinator");
-        assertTrue(formation.contains("new ShipMovementCoordinator(ship).moveTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);"),
-                "Block guard formation commands should route immediate movement through the coordinator");
+                "Formation commands should use the shared movement coordinator for teleport recovery");
+        assertTrue(formation.contains("ship.moveGuardTargetTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);"),
+                "Block guard formation commands should route immediate movement through the ship-owned guard channel");
         assertTrue(formation.contains("ship.setGuardedEntity(null);"),
                 "Guard toggle commands should clear entity guard through the ship API");
         assertFalse(formation.contains("ship.setGuardedEntity(null);\n            ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false);\n            new ShipMovementCoordinator(ship).stop();"),
                 "Guard toggle commands should not duplicate guard navigation cleanup outside the ship API");
-        assertTrue(formation.contains("new ShipMovementCoordinator(ship).moveTo(guarded, 1.2D);"),
-                "Entity guard formation commands should route immediate movement through the coordinator");
+        assertTrue(formation.contains("ship.moveGuardTargetTo(guarded, 1.2D);"),
+                "Entity guard formation commands should route immediate movement through the ship-owned guard channel");
         assertFalse(formation.contains("ship.teleportTo(spawnX, spawnY, spawnZ)"),
                 "Formation commands should not directly teleport ships into unchecked positions");
         assertFalse(formation.contains("ship.getNavigation().moveTo"),
@@ -227,8 +261,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Single ship recall should route teleport recovery through the coordinator");
         assertTrue(commands.contains("new ShipMovementCoordinator(ship).teleportNearLivingIgnoringConfig(player, 0.5D)"),
                 "Selected ship teleport should route teleport recovery through the coordinator");
-        assertTrue(commands.contains("new ShipMovementCoordinator(ship).stop();"),
-                "Owner maintenance commands should route navigation stops through the coordinator");
+        assertTrue(commands.contains("new ShipMovementCoordinator(ship).stopAny();"),
+                "Owner maintenance commands should explicitly force-stop navigation through the coordinator");
         assertFalse(commands.contains("ShipTeleportHelper.teleportNearLiving"),
                 "Maintenance commands should not call teleport helper directly");
         assertFalse(commands.contains("ship.getNavigation().stop()"),
@@ -249,20 +283,36 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Ship base should keep a coordinator for guard and waypoint movement");
         assertTrue(shipBase.contains("private final ShipMovementCoordinator pointerMovement;"),
                 "Ship base should keep a coordinator for pointer command cleanup");
-        assertTrue(shipBase.contains("this.lifecycleMovement = new ShipMovementCoordinator(this);"),
+        assertTrue(shipBase.contains("ShipMovementCoordinator pointerMovementCoordinator()"),
+                "Ship goals should reuse the ship-owned pointer movement channel");
+        assertTrue(shipBase.contains("ShipMovementCoordinator guardMovementCoordinator()"),
+                "Ship goals should reuse the ship-owned guard movement channel");
+        assertTrue(shipBase.contains("public boolean moveGuardTargetTo(Vec3 target, double speed)"),
+                "External guard commands should not create long-lived temporary guard movement owners");
+        assertTrue(shipBase.contains("public boolean moveGuardTargetTo(Entity target, double speed)"),
+                "External entity-guard commands should reuse the ship-owned guard movement channel");
+        assertTrue(shipBase.contains("this.lifecycleMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_EMERGENCY);"),
                 "Ship base should create the lifecycle coordinator once per entity");
-        assertTrue(shipBase.contains("this.retreatMovement = new ShipMovementCoordinator(this);"),
-                "Ship base should create the retreat coordinator once per entity");
-        assertTrue(shipBase.contains("this.pickupMovement = new ShipMovementCoordinator(this);"),
-                "Ship base should create the pickup coordinator once per entity");
-        assertTrue(shipBase.contains("this.guardMovement = new ShipMovementCoordinator(this);"),
-                "Ship base should create the guard coordinator once per entity");
-        assertTrue(shipBase.contains("this.pointerMovement = new ShipMovementCoordinator(this);"),
-                "Ship base should create the pointer cleanup coordinator once per entity");
+        assertTrue(shipBase.contains("this.retreatMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_EMERGENCY);"),
+                "Low-health retreat should outrank command, combat, follow, and pickup movement");
+        assertTrue(shipBase.contains("this.pickupMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_BACKGROUND);"),
+                "Auto pickup should stay below player commands, combat, and follow movement");
+        assertTrue(shipBase.contains("this.guardMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+                "Guard movement should be treated as a player command channel");
+        assertTrue(shipBase.contains("this.pointerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+                "Pointer movement should be treated as a player command channel");
         assertTrue(shipBase.contains("this.retreatMovement.moveTo(owner, 1.25D);"),
                 "Low-health retreat should route movement through the coordinator");
+        assertTrue(shipBase.contains("if (this.getIsSitting() || this.isInDeadPose()) {\n            this.lifecycleMovement.stopAny();"),
+                "Sitting or death-pose transitions should force-stop any active navigation");
+        assertTrue(shipBase.contains("} else {\n                this.retreatMovement.stop();\n                if (this.hasPointerTargetEntity())"),
+                "Leaving low-health retreat should stop stale retreat navigation before other movement channels take over");
+        assertTrue(shipBase.contains("if (retreatingForLowHealth) {\n                this.pickupMovement.stop();\n            } else {\n                tickAutoPickupItems();\n            }"),
+                "Low-health retreat should not be overwritten by auto-pickup movement in the same tick");
         assertTrue(shipBase.contains("this.pickupMovement.moveTo(target, 1.0D);"),
                 "Auto pickup should route movement through the coordinator");
+        assertTrue(shipBase.contains("if (this.hasPointerTarget() || this.hasPointerTargetEntity() || this.getTarget() != null) {\n            this.pickupMovement.stop();"),
+                "Auto pickup should clear stale pickup paths when player commands or combat take priority");
         assertTrue(shipBase.contains("this.guardMovement.moveTo(new Vec3(pos.getX() + 0.5D, pos.getY() - 2.0D, pos.getZ() + 0.5D), 1.0D);"),
                 "Crane guard approach should route movement through the coordinator");
         assertTrue(shipBase.contains("this.guardMovement.moveTo(new Vec3(targetPos.getX() + 0.5D, targetPos.getY(), targetPos.getZ() + 0.5D), 1.0D);"),
@@ -380,8 +430,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Aircraft mission resume should clear stale return-home state");
         assertTrue(aircraft.contains("this.returnRecovery.clear();\n            this.returnHomeTicks = 0;"),
                 "Aircraft return-home state transitions should clear stale recovery counters");
-        assertTrue(aircraft.contains("this.returnMovement = new ShipMovementCoordinator(this);"),
-                "Aircraft should create a coordinator for return-home movement");
+        assertTrue(aircraft.contains("this.returnMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+                "Aircraft should create a high-priority coordinator for return-home movement");
         assertTrue(aircraft.contains("this.returnRecovery = new ShipMovementRecoveryState();"),
                 "Aircraft should create recovery state for return-home movement");
         assertTrue(aircraft.contains("this.returnMovement.moveTo(homePos, 0.5D);"),
@@ -405,7 +455,7 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(aircraftGoal.contains("private final ShipMovementCoordinator movement;"),
                 "Aircraft attack goal should use the shared movement coordinator");
-        assertTrue(aircraftGoal.contains("this.movement = new ShipMovementCoordinator(host);"),
+        assertTrue(aircraftGoal.contains("this.movement = new ShipMovementCoordinator(host, ShipMovementCoordinator.PRIORITY_COMBAT);"),
                 "Aircraft attack goal should create a coordinator for its host aircraft");
         assertTrue(aircraftGoal.contains("this.movement.moveTo(this.randPos, speed);"),
                 "Aircraft attack movement should route through the coordinator");
@@ -438,6 +488,12 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Summon attack stop should route through the coordinator");
         assertTrue(summon.contains("this.movement.moveTo(carrier, this.speed);"),
                 "Summon carrier follow should route through the coordinator");
+        assertTrue(summon.contains("this.returnMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+                "Summon return-to-carrier should outrank ordinary summon follow movement");
+        assertTrue(summon.contains("this.movement = new ShipMovementCoordinator(mob, ShipMovementCoordinator.PRIORITY_COMBAT);"),
+                "Summon attack chase should outrank ordinary summon follow movement");
+        assertTrue(summon.contains("this.movement = new ShipMovementCoordinator(mob, ShipMovementCoordinator.PRIORITY_NORMAL);"),
+                "Summon carrier follow should stay at normal movement priority");
         assertTrue(summon.contains("this.returnMovement.moveTo(carrier, 1.2D);"),
                 "Summon return-to-carrier movement should route through the coordinator");
         assertTrue(summon.contains("if (trackReturnRecovery(carrier, distSq))"),
@@ -472,8 +528,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     private void assertPushAttackUsesMovementCoordinator(String source, String shipName) {
         assertTrue(source.contains("private final ShipMovementCoordinator pushMovement;"),
                 shipName + " push attack should use the shared movement coordinator");
-        assertTrue(source.contains("this.pushMovement = new ShipMovementCoordinator(this);"),
-                shipName + " should create a coordinator for push attack chase movement");
+        assertTrue(source.contains("this.pushMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT);"),
+                shipName + " should create a combat-priority coordinator for push attack chase movement");
         assertTrue(source.contains("!this.pushMovement.moveTo(this.targetPush, 1.0D)"),
                 shipName + " push attack chase should route failures through the coordinator");
         assertTrue(source.contains("this.pushMovement.reset();"),
@@ -495,8 +551,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Raiden gattai follow should use the shared movement coordinator");
         assertTrue(inazuma.contains("private final ShipMovementRecoveryState raidenRecovery;"),
                 "Raiden gattai follow should use the shared movement recovery state");
-        assertTrue(inazuma.contains("this.raidenMovement = new ShipMovementCoordinator(this);"),
-                "Raiden gattai should create a coordinator for follow movement");
+        assertTrue(inazuma.contains("this.raidenMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+                "Raiden gattai should create a command-priority coordinator for follow movement");
         assertTrue(inazuma.contains("this.raidenRecovery = new ShipMovementRecoveryState();"),
                 "Raiden gattai should create a shared recovery state");
         assertTrue(inazuma.contains("this.raidenMovement.stop();"),
@@ -520,8 +576,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(nagato.contains("private final ShipMovementCoordinator eventMovement;"),
                 "Nagato special event movement should use the shared movement coordinator");
-        assertTrue(nagato.contains("this.eventMovement = new ShipMovementCoordinator(this);"),
-                "Nagato should create a coordinator for special event movement");
+        assertTrue(nagato.contains("this.eventMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+                "Nagato should create a command-priority coordinator for special event movement");
         assertTrue(nagato.contains("private LivingEntity loveEventMoveTarget;"),
                 "Nagato special event movement should have an explicit target lifecycle");
         assertTrue(nagato.contains("private int loveEventMoveTicks;"),

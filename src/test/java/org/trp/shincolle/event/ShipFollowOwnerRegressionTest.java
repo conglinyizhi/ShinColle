@@ -20,6 +20,8 @@ class ShipFollowOwnerRegressionTest {
                 "Ship follow-owner logic should refuse to follow without grudge/fuel");
         assertTrue(source.contains("if (this.hasBlockGuardTarget() || this.hasPointerTarget()) {"),
                 "Ship follow-owner logic should still avoid active guard-block mode");
+        assertTrue(source.contains("if (this.getTarget() != null) {\n            return false;\n        }"),
+                "Ship follow-owner logic should not pull ships away while combat movement owns the navigation");
     }
 
     @Test

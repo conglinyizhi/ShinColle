@@ -22,7 +22,7 @@ class ShipNavigationRecoveryRegressionTest {
                 "Legacy ship navigation should have an explicit forced path recalculation path");
         assertTrue(source.contains("ShipLegacyPath retryPath = recalculatePathToCurrentTarget();"),
                 "Legacy ship navigation should keep the last target position for timeout recovery");
-        assertTrue(source.contains("if (!setPath(retryPath, this.speedModifier, true)) {"),
+        assertTrue(source.contains("if (!setPath(retryPath, this.speedModifier, true, this.targetPos)) {"),
                 "Legacy ship navigation should retry pathfinding to the last target before stopping");
         assertTrue(source.contains("stop();"),
                 "Legacy ship navigation should still fall back to stop when retry pathfinding fails");
@@ -46,7 +46,7 @@ class ShipNavigationRecoveryRegressionTest {
                 "Reapplying the same unfinished path should not reset stuck recovery progress");
         assertTrue(source.contains("boolean hadActivePath = this.currentPath != null && !this.currentPath.isFinished();"),
                 "Navigation should distinguish fresh path starts from active path recalculations");
-        assertTrue(source.contains("private boolean setPath(ShipLegacyPath path, double speed, boolean sameNavigationTarget)"),
+        assertTrue(source.contains("private boolean setPath(ShipLegacyPath path, double speed, boolean sameNavigationTarget, BlockPos nextTarget)"),
                 "Navigation setPath should know whether a recalculation still targets the same destination");
         assertTrue(source.contains("if (!hadActivePath || !sameNavigationTarget) {\n            resetStuckProgressState(hostPos);\n        }"),
                 "Fresh paths and real target changes should initialize stuck progress state");
@@ -54,13 +54,13 @@ class ShipNavigationRecoveryRegressionTest {
                 "Navigation should centralize target-change tolerance");
         assertTrue(source.contains("previousTarget.distSqr(nextTarget) <= SAME_NAVIGATION_TARGET_SQR"),
                 "Navigation should treat nearby entity drift as the same target for stuck recovery");
-        assertTrue(source.contains("if (!isSameNavigationTarget(this.loggedTargetPos, this.targetPos))"),
-                "Set-path diagnostics should not log-spam when a moving target drifts within the same target window");
+        assertTrue(source.contains("if (!isSameNavigationTarget(this.loggedTargetPos, logTarget))"),
+                "Set-path diagnostics should throttle against the attempted target without mutating active navigation first");
         assertTrue(source.contains("return !isSameNavigationTarget(this.lastExceededLogTarget, this.targetPos)"),
                 "Exceeded-check diagnostics should share the same target drift tolerance");
         assertTrue(source.contains("return !isSameNavigationTarget(this.lastStuckApplyLogTarget, this.targetPos)"),
                 "Unstuck diagnostics should share the same target drift tolerance");
-        assertTrue(source.contains("setPath(retryPath, this.speedModifier, true)"),
+        assertTrue(source.contains("setPath(retryPath, this.speedModifier, true, this.targetPos)"),
                 "Internal timeout retries should preserve stuck progress for the same target");
         assertTrue(source.contains("private void resetStuckProgressState(Vec3 hostPos)"),
                 "Stuck progress initialization should be centralized");
@@ -84,10 +84,24 @@ class ShipNavigationRecoveryRegressionTest {
                 "Navigation exceeded-check logs should not fire every check interval");
         assertTrue(source.contains("if (shouldLogStuckApply()) {"),
                 "Navigation unstuck motion diagnostics should be rate-limited");
-        assertTrue(source.contains("private boolean shouldLogSetPath(int pathLength, boolean failure)"),
+        assertTrue(source.contains("private boolean shouldLogSetPath(int pathLength, boolean failure, BlockPos logTarget)"),
                 "Navigation set-path logs should use a shared throttle helper");
         assertTrue(source.contains("return this.totalTicks - this.lastSetPathLogTick >= NAVIGATION_SET_PATH_LOG_INTERVAL;"),
                 "Repeated set-path logs for the same target should wait for the configured interval");
+        assertTrue(source.contains("private boolean preserveCurrentPathOnNextFailure;"),
+                "Navigation should expose a one-shot guard for foreign failed move requests");
+        assertTrue(source.contains("public void preserveCurrentPathOnNextFailure()"),
+                "Movement coordinator should be able to protect an active path before a competing path request");
+        assertTrue(source.contains("if (!this.preserveCurrentPathOnNextFailure) {\n                this.currentPath = null;\n                this.path = null;\n                this.targetPos = nextTarget;\n            }"),
+                "A protected pathfinding failure should not erase the active path owned by another movement channel");
+        assertTrue(source.contains("this.targetPos = nextTarget;"),
+                "Navigation should switch its current target only after an accepted path or an unprotected failure");
+        assertTrue(source.contains("Shincolle.debugLog(\"Navigation setPath failed mob={} targetPos={}\", this.mob.getUUID(), nextTarget);"),
+                "Failed path logs should report the attempted target without mutating the active navigation target first");
+        assertTrue(source.contains("this.preserveCurrentPathOnNextFailure = false;"),
+                "The path-preservation guard must be one-shot and clear after success, failure, or stop");
+        assertTrue(source.contains("if (!canNavigate()) {\n            this.preserveCurrentPathOnNextFailure = false;\n            return false;\n        }"),
+                "Path-preservation should not leak when navigation rejects a move before pathfinding starts");
     }
 
     @Test

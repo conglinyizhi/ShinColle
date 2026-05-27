@@ -80,8 +80,8 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Formation guard should not hard-code overworld dimension");
         assertTrue(formationHelper.contains("ship.setGuardBlockTarget(new BlockPos(x, y, z));"),
                 "Formation guard should let the ship compute its current legacy dimension");
-        assertTrue(formationHelper.contains("new ShipMovementCoordinator(ship).moveTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);"),
-                "Formation guard should route immediate movement through the shared coordinator");
+        assertTrue(formationHelper.contains("ship.moveGuardTargetTo(new Vec3(x + 0.5D, y, z + 0.5D), 1.2D);"),
+                "Formation guard should route immediate movement through the ship-owned guard channel");
         assertTrue(formationHelper.contains("Shincolle.debugLog(\"Formation summon teleportFailed"),
                 "Desk summon should log failed safe teleport recovery");
         assertFalse(formationHelper.contains("ship.teleportTo(spawnX, spawnY, spawnZ)"),

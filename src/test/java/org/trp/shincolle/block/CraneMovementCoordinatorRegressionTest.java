@@ -17,12 +17,10 @@ class CraneMovementCoordinatorRegressionTest {
     void craneShouldRouteShipMovementThroughCoordinator() throws IOException {
         String source = Files.readString(CRANE_BE);
 
-        assertTrue(source.contains("import org.trp.shincolle.entity.base.ShipMovementCoordinator;"),
-                "Crane should use the shared movement coordinator");
         assertTrue(source.contains("private void moveShipToCrane(EntityShipBase ship)"),
                 "Crane ship movement should be centralized in a helper");
-        assertTrue(source.contains("new ShipMovementCoordinator(ship).moveTo("),
-                "Crane movement helper should route movement through the coordinator");
+        assertTrue(source.contains("ship.moveGuardTargetTo("),
+                "Crane movement helper should route movement through the ship-owned guard channel");
         assertTrue(source.contains("moveShipToCrane(this.craningShip);"),
                 "Existing craning ship should use the movement helper");
         assertTrue(source.contains("moveShipToCrane(ship);"),
