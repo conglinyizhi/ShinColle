@@ -3,7 +3,6 @@ package org.trp.shincolle.network;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -11,7 +10,6 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.trp.shincolle.Shincolle;
-import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.server.DeskInteractionService;
 import org.trp.shincolle.server.FormationService;
 import org.trp.shincolle.server.PlayerStateService;
@@ -128,10 +126,7 @@ public class ModNetwork {
     private static void handlePointerAction(final C2SPointerActionPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
-            ItemStack stack = player.getMainHandItem();
-            if (!(stack.getItem() instanceof PointerItem)) {
-                stack = player.getOffhandItem();
-            }
+            var stack = PointerInteractionService.getPointerStack(player);
             PointerInteractionService.handlePayloadAction(player, stack, payload.action(), payload.targetEntity(), payload.targetPos());
         });
     }

@@ -141,8 +141,14 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 "S2C admiral sync should apply through the service");
         assertTrue(network.contains("FormationService.handleFormationAction(player, payload.action(), payload.param1(), payload.param2(),"),
                 "Network formation handler should only dispatch to the formation service");
+        assertTrue(network.contains("var stack = PointerInteractionService.getPointerStack(player);"),
+                "Network pointer handler should delegate pointer stack resolution to the pointer interaction service");
         assertTrue(network.contains("PointerInteractionService.handlePayloadAction(player, stack, payload.action(), payload.targetEntity(), payload.targetPos());"),
                 "Network pointer handler should only dispatch to the pointer interaction service");
+        assertFalse(network.contains("player.getMainHandItem()"),
+                "Network pointer handler should not reimplement mainhand pointer lookup logic");
+        assertFalse(network.contains("player.getOffhandItem()"),
+                "Network pointer handler should not reimplement offhand pointer lookup logic");
         assertTrue(network.contains("DeskInteractionService.updateBookState(player, payload.chapter(), payload.page());"),
                 "Book state writes should dispatch through the desk interaction service");
         assertTrue(network.contains("DeskInteractionService.updateDeskGui(player, payload.guiFunc(), payload.radarZoom());"),
@@ -167,6 +173,8 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 "Formation service should reply with service-built admiral state");
 
         String pointerService = sources.get(POINTER_SERVICE_SOURCE);
+        assertTrue(pointerService.contains("public static ItemStack getPointerStack(Player player)"),
+                "Pointer stack resolution should be centralized in the pointer interaction service");
         assertTrue(pointerService.contains("PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID())"),
                 "Pointer roster assignment should go through the player state service");
         assertTrue(pointerService.contains("PlayerStateService.removeShipFromTeams(player, ship.getUUID())"),

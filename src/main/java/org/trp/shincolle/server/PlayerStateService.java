@@ -159,6 +159,14 @@ public final class PlayerStateService {
         return scanned;
     }
 
+    public static boolean isRingFlightActive(Player player) {
+        return admiralData(player).isRingFlightActive();
+    }
+
+    public static void setRingFlightActive(Player player, boolean active) {
+        admiralData(player).setRingFlightActive(active);
+    }
+
     public static int reconcileOwnedMarriedShipCount(ServerPlayer player) {
         UUID ownerId = player.getUUID();
         int marriedCount = 0;

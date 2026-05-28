@@ -2,18 +2,12 @@ package org.trp.shincolle.event;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.animal.AbstractGolem;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameRules;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
+import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent;
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
@@ -33,8 +27,8 @@ import org.trp.shincolle.entity.base.EntityShincolleSimpleMob;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.EntityShipBaseSimple;
 import org.trp.shincolle.init.ModEntities;
-import org.trp.shincolle.init.ModItems;
-import org.trp.shincolle.item.MarriageRingItem;
+import org.trp.shincolle.server.HostileDropService;
+import org.trp.shincolle.server.MarriageRingService;
 import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.PointerInteractionService;
 import org.trp.shincolle.utility.PerformanceTrace;
@@ -131,28 +125,26 @@ public class ModEventBusEvents {
             return;
         }
 
-        applyMarriageRingAbilities(player);
+        MarriageRingService.applyTickAbilities(player);
     }
 
     @SubscribeEvent
     public static void onPlayerBreakSpeed(PlayerEvent.BreakSpeed event) {
-        Player player = event.getEntity();
-        if (player == null || Config.ringAbilityUnderwaterDigCap <= 0) {
-            return;
+        float multiplier = MarriageRingService.getUnderwaterBreakSpeedMultiplier(event.getEntity());
+        if (multiplier > 1.0F) {
+            event.setNewSpeed(event.getOriginalSpeed() * multiplier);
         }
+    }
 
-        if (!hasActiveMarriageRing(player) || !player.isInWaterOrBubble()) {
-            return;
+    @SubscribeEvent
+    public static void onPlayerIncomingDamage(LivingIncomingDamageEvent event) {
+        if (event.getEntity() instanceof net.minecraft.world.entity.player.Player player
+                && MarriageRingService.shouldCancelFireDamage(player, event.getSource())) {
+            if (player.isOnFire()) {
+                player.clearFire();
+            }
+            event.setCanceled(true);
         }
-
-        int marriedCount = PlayerStateService.getOwnedMarriedShipCount(player);
-        if (marriedCount <= 0) {
-            return;
-        }
-
-        int effectiveCount = Math.min(marriedCount, Config.ringAbilityUnderwaterDigCap);
-        float digBoost = effectiveCount * 0.2F + 1.0F;
-        event.setNewSpeed(event.getOriginalSpeed() * 5.0F * digBoost);
     }
 
     @SubscribeEvent
@@ -189,7 +181,7 @@ public class ModEventBusEvents {
             return;
         }
 
-        ItemStack pointerStack = getPointerStack(player);
+        ItemStack pointerStack = PointerInteractionService.getPointerStack(player);
         if (pointerStack.isEmpty()) {
             return;
         }
@@ -206,7 +198,7 @@ public class ModEventBusEvents {
     public static void onPointerItemLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         Player player = event.getEntity();
         if (player == null) return;
-        ItemStack pointerStack = getPointerStack(player);
+        ItemStack pointerStack = PointerInteractionService.getPointerStack(player);
         if (pointerStack.isEmpty()) return;
 
         if (player.level().isClientSide) {
@@ -221,7 +213,7 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPointerItemRightClickItem(PlayerInteractEvent.RightClickItem event) {
         Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
+        ItemStack pointerStack = player == null ? ItemStack.EMPTY : PointerInteractionService.getPointerStack(player);
         if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
             return;
         }
@@ -234,7 +226,7 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : getPointerStack(player);
+        ItemStack pointerStack = player == null ? ItemStack.EMPTY : PointerInteractionService.getPointerStack(player);
         if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
             return;
         }
@@ -247,117 +239,7 @@ public class ModEventBusEvents {
 
     @SubscribeEvent
     public static void onHostileEntityDropsGrudge(LivingDropsEvent event) {
-        Entity target = event.getEntity();
-        if (target.level().isClientSide) {
-            return;
-        }
-
-        if (!isHostileDropTarget(target)) {
-            return;
-        }
-
-        if (!target.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
-            return;
-        }
-
-        Entity sourceEntity = event.getSource().getEntity();
-        if (sourceEntity instanceof EntityShipBase ship) {
-            ship.addShipExp(Config.shipExpGainKill);
-        }
-
-        float dropRate = Math.max(0.0F, Config.hostileDropGrudgeRate);
-        if (dropRate <= 0.0F) {
-            return;
-        }
-
-        int fixedDrop = (int) dropRate;
-        if (fixedDrop > 0) {
-            event.getDrops().add(new ItemEntity(target.level(),
-                    target.getX(), target.getY(), target.getZ(), new ItemStack(ModItems.GRUDGE.get(), fixedDrop)));
-        }
-
-        if (target.getRandom().nextFloat() < (dropRate - fixedDrop)) {
-            event.getDrops().add(new ItemEntity(target.level(),
-                    target.getX(), target.getY(), target.getZ(), new ItemStack(ModItems.GRUDGE.get())));
-        }
-    }
-
-    private static boolean isHostileDropTarget(Entity entity) {
-        if (entity instanceof EntityShipBase ship) {
-            return ship.isHostileShipMob();
-        }
-        return entity instanceof Enemy || entity instanceof Slime || entity instanceof AbstractGolem;
-    }
-
-    private static ItemStack getPointerStack(Player player) {
-        ItemStack main = player.getMainHandItem();
-        if (isPointerItem(main)) {
-            return main;
-        }
-        ItemStack off = player.getOffhandItem();
-        if (isPointerItem(off)) {
-            return off;
-        }
-        return ItemStack.EMPTY;
-    }
-
-    private static boolean isPointerItem(ItemStack stack) {
-        return !stack.isEmpty() && stack.is(ModItems.POINTER_ITEM.get());
-    }
-
-    private static void applyMarriageRingAbilities(Player player) {
-        if (!hasActiveMarriageRing(player)) {
-            return;
-        }
-
-        int marriedCount = PlayerStateService.getOwnedMarriedShipCount(player);
-
-        if (Config.ringAbilityWaterBreathing >= 0
-                && marriedCount >= Config.ringAbilityWaterBreathing
-                && player.isInWaterOrBubble()
-                && player.getAirSupply() < player.getMaxAirSupply()) {
-            player.setAirSupply(player.getMaxAirSupply());
-        }
-
-        if (Config.ringAbilityFireImmunity >= 0
-                && marriedCount >= Config.ringAbilityFireImmunity
-                && (player.isOnFire() || player.getRemainingFireTicks() > 0)) {
-            player.clearFire();
-        }
-    }
-
-    private static boolean hasActiveMarriageRing(Player player) {
-        return findActiveMarriageRing(player) != ItemStack.EMPTY;
-    }
-
-    private static ItemStack findActiveMarriageRing(Player player) {
-        for (ItemStack stack : player.getInventory().items) {
-            if (isActiveMarriageRingStack(stack)) {
-                return stack;
-            }
-        }
-
-        for (ItemStack stack : player.getInventory().offhand) {
-            if (isActiveMarriageRingStack(stack)) {
-                return stack;
-            }
-        }
-
-        for (ItemStack stack : player.getInventory().armor) {
-            if (isActiveMarriageRingStack(stack)) {
-                return stack;
-            }
-        }
-
-        return ItemStack.EMPTY;
-    }
-
-    private static boolean isActiveMarriageRingStack(ItemStack stack) {
-        Item item = stack.getItem();
-        return !stack.isEmpty()
-                && item == ModItems.MARRIAGE_RING.get()
-                && item instanceof MarriageRingItem
-                && MarriageRingItem.isActive(stack);
+        HostileDropService.handleLivingDrops(event);
     }
 
 }

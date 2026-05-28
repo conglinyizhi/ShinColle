@@ -19,6 +19,7 @@ public class AdmiralData {
     private int currentTeamID = 0;
     private boolean hasReceivedBook = false;
     private int marriedShipCount = 0;
+    private boolean ringFlightActive = false;
 
     public AdmiralData() {
         for (int i = 0; i < TEAM_COUNT; i++) {
@@ -47,6 +48,14 @@ public class AdmiralData {
 
     public void addMarriedShipCount(int delta) {
         this.marriedShipCount = Math.max(0, this.marriedShipCount + delta);
+    }
+
+    public boolean isRingFlightActive() {
+        return this.ringFlightActive;
+    }
+
+    public void setRingFlightActive(boolean ringFlightActive) {
+        this.ringFlightActive = ringFlightActive;
     }
 
     public UUID getShipUUID(int teamId, int slotId) {
@@ -214,6 +223,7 @@ public class AdmiralData {
         nbt.putInt("CurrentTeam", currentTeamID);
         nbt.putBoolean("HasReceivedBook", hasReceivedBook);
         nbt.putInt("MarriedShipCount", marriedShipCount);
+        nbt.putBoolean("RingFlightActive", ringFlightActive);
         return nbt;
     }
 
@@ -241,6 +251,7 @@ public class AdmiralData {
         currentTeamID = nbt.getInt("CurrentTeam");
         hasReceivedBook = nbt.getBoolean("HasReceivedBook");
         marriedShipCount = Math.max(0, nbt.getInt("MarriedShipCount"));
+        ringFlightActive = nbt.getBoolean("RingFlightActive");
         sanitize();
     }
 

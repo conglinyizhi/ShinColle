@@ -66,6 +66,24 @@ public final class PointerInteractionService {
         return !TargetProtectionService.isUnattackableTargetClass(ship, livingTarget);
     }
 
+    public static ItemStack getPointerStack(Player player) {
+        if (player == null) {
+            return ItemStack.EMPTY;
+        }
+
+        ItemStack main = player.getMainHandItem();
+        if (main.getItem() instanceof PointerItem) {
+            return main;
+        }
+
+        ItemStack off = player.getOffhandItem();
+        if (off.getItem() instanceof PointerItem) {
+            return off;
+        }
+
+        return ItemStack.EMPTY;
+    }
+
     public static void handlePayloadAction(Player player, ItemStack pointerStack, int action,
                                            Optional<UUID> targetEntityUuid, Optional<Vec3> targetPos) {
         if (!(pointerStack.getItem() instanceof PointerItem pointerItem)) {
