@@ -64,11 +64,35 @@ class ShipTaskRuntimeArchitectureRegressionTest {
                 "Task helper should notify runtime about task id changes");
         assertTrue(source.contains("host.getTaskRuntime().clearTask();"),
                 "Task helper should clear runtime movement state when tasks cannot run");
+        assertTrue(source.contains("} else {\n                        runtime.clearTask();\n                    }"),
+                "Task helper should clear stale runtime state when a task is disabled by config");
         assertTrue(source.contains("runtime.moveToTaskPoint(new Vec3(gx + 0.5D, gy, gz + 0.5D), 1.0D);"),
                 "Fixed waypoint task movement should route through the recoverable runtime path");
         assertTrue(source.contains("runtime.moveTo(new Vec3(\n                    host.getX() + host.getRandom().nextInt(9) - 4.0D"),
                 "Mining random stroll should route through ordinary runtime movement instead of teleport recovery");
         assertFalse(source.contains("host.getNavigation().moveTo"),
                 "Task helper should not issue raw ship navigation requests");
+    }
+
+    @Test
+    void taskHelperShouldClearRuntimeWhenTaskPrerequisitesBecomeInvalid() throws IOException {
+        String source = Files.readString(TASK_HELPER_SOURCE);
+
+        assertTrue(source.contains("private static void invalidateTask(ShipTaskRuntime runtime)"),
+                "Task helper should centralize task invalidation for long-lived runtime state");
+        assertTrue(source.contains("if (mainStack.isEmpty()) {\n            invalidateTask(runtime);"),
+                "Cooking should clear stale runtime state when the held input stack is no longer present");
+        assertTrue(source.contains("if (resultStack.isEmpty()) {\n            invalidateTask(runtime);"),
+                "Cooking should clear stale runtime state when the held item no longer has a smelting recipe");
+        assertTrue(source.contains("if (!isWaypointGuardContext(guardTarget, level)) {\n            invalidateTask(runtime);"),
+                "Waypoint-bound tasks should clear stale runtime state when the guard context becomes invalid");
+        assertTrue(source.contains("if (waterPos == null) {\n            invalidateTask(runtime);"),
+                "Fishing should clear stale runtime state when no valid fishing water remains");
+        assertTrue(source.contains("if (pickaxe.isEmpty() || !pickaxe.is(net.minecraft.tags.ItemTags.PICKAXES)) {\n            invalidateTask(runtime);"),
+                "Mining should clear stale runtime state when the held tool is no longer a pickaxe");
+        assertTrue(source.contains("if (recipePaper.isEmpty() || !recipePaper.is(ModItems.RECIPE_PAPER.get())) {\n            invalidateTask(runtime);"),
+                "Crafting should clear stale runtime state when the held recipe paper is removed");
+        assertTrue(source.contains("if (!RecipePaperData.hasAnyRecipeIngredient(recipeGrid)) {\n            invalidateTask(runtime);"),
+                "Crafting should clear stale runtime state when the stored recipe becomes empty");
     }
 }
