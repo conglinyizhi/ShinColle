@@ -20,6 +20,7 @@ import org.trp.shincolle.crafting.ShipyardRecipes;
 import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.menu.SmallShipyardMenu;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvider {
     public static final int SLOT_GRUDGE = 0;
@@ -53,47 +54,65 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
             return;
         }
 
+        boolean tracing = PerformanceTrace.enabled();
+        long start = tracing ? PerformanceTrace.now() : 0L;
+        try {
+            blockEntity.serverTickInternal();
+        } finally {
+            if (tracing) {
+                long elapsed = PerformanceTrace.elapsed(start);
+                PerformanceTrace.addBlockEntityTime(elapsed);
+                PerformanceTrace.logSlowBlockEntityTick(blockEntity, "small_shipyard", elapsed,
+                        "active=" + blockEntity.active
+                                + " buildType=" + blockEntity.buildType
+                                + " power=" + blockEntity.powerConsumed + "/" + blockEntity.powerGoal
+                                + " remained=" + blockEntity.powerRemained);
+            }
+        }
+    }
+
+    private void serverTickInternal() {
         boolean stateChanged = false;
 
-        if (blockEntity.consumeFuel()) {
+        if (consumeFuel()) {
             stateChanged = true;
         }
 
-        int oldGoal = blockEntity.powerGoal;
-        blockEntity.updatePowerGoal();
-        if (oldGoal != blockEntity.powerGoal) {
+        int oldGoal = this.powerGoal;
+        updatePowerGoal();
+        if (oldGoal != this.powerGoal) {
             stateChanged = true;
         }
 
-        if (blockEntity.isBuilding()) {
-            if (blockEntity.consumeInstantConstructionMaterial()) {
+        if (isBuilding()) {
+            if (consumeInstantConstructionMaterial()) {
                 stateChanged = true;
             }
 
-            blockEntity.powerRemained -= Config.smallShipyardBuildSpeed;
-            blockEntity.powerConsumed += Config.smallShipyardBuildSpeed;
+            this.powerRemained -= Config.smallShipyardBuildSpeed;
+            this.powerConsumed += Config.smallShipyardBuildSpeed;
             stateChanged = true;
 
-            if (blockEntity.powerConsumed >= blockEntity.powerGoal) {
-                blockEntity.finishBuild();
+            if (this.powerConsumed >= this.powerGoal) {
+                finishBuild();
                 stateChanged = true;
             }
         }
 
-        if (!blockEntity.canBuild() && blockEntity.powerConsumed != 0) {
-            blockEntity.powerConsumed = 0;
+        if (!canBuild() && this.powerConsumed != 0) {
+            this.powerConsumed = 0;
             stateChanged = true;
         }
 
-        boolean nowActive = blockEntity.isBuilding();
-        if (nowActive != blockEntity.active) {
-            blockEntity.active = nowActive;
-            blockEntity.updateActiveBlockState(nowActive);
+        boolean nowActive = isBuilding();
+        if (nowActive != this.active) {
+            this.active = nowActive;
+            updateActiveBlockState(nowActive);
             stateChanged = true;
         }
 
         if (stateChanged) {
-            blockEntity.markForSync();
+            markForSync();
         }
     }
 

@@ -22,6 +22,7 @@ import org.trp.shincolle.entity.base.GoalShipAircraftAttack;
 import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.entity.base.ShipMovementRecoveryState;
 import org.trp.shincolle.init.ModSounds;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -220,25 +221,42 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     private void updateServerLogic() {
-        this.missionTick++;
-        if (this.attackDelay > 0) {
-            this.attackDelay--;
-        }
+        boolean tracing = PerformanceTrace.enabled();
+        long start = tracing ? PerformanceTrace.now() : 0L;
+        try {
+            this.missionTick++;
+            if (this.attackDelay > 0) {
+                this.attackDelay--;
+            }
 
-        EntityShipBase carrier = getCarrier();
-        if (carrier == null || !carrier.isAlive()) {
-            this.discard();
-            return;
-        }
+            EntityShipBase carrier = getCarrier();
+            if (carrier == null || !carrier.isAlive()) {
+                this.discard();
+                return;
+            }
 
-        if (this.backHome) {
-            handleReturnToHome(carrier);
-            return;
-        }
+            if (this.backHome) {
+                handleReturnToHome(carrier);
+                return;
+            }
 
-        handleInitialBoost();
-        handleTargeting(carrier);
-        checkMissionStatus();
+            handleInitialBoost();
+            handleTargeting(carrier);
+            checkMissionStatus();
+        } finally {
+            if (tracing) {
+                long elapsed = PerformanceTrace.elapsed(start);
+                PerformanceTrace.addProjectileTime(elapsed);
+                PerformanceTrace.logSlowProjectileTick(this, "aircraft", elapsed,
+                        "missionTick=" + this.missionTick
+                                + " backHome=" + this.backHome
+                                + " light=" + this.missionLightAircraft
+                                + " ammoLight=" + this.numAmmoLight
+                                + " ammoHeavy=" + this.numAmmoHeavy
+                                + " target=" + this.targetId
+                                + " carrier=" + this.carrierId);
+            }
+        }
 
     }
 

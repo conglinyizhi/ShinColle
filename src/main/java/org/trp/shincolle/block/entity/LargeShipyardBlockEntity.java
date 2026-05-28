@@ -22,6 +22,7 @@ import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModBlocks;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.menu.LargeShipyardMenu;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvider {
     public static final int SLOT_OUTPUT = 0;
@@ -60,54 +61,73 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
             return;
         }
 
+        boolean tracing = PerformanceTrace.enabled();
+        long start = tracing ? PerformanceTrace.now() : 0L;
+        try {
+            blockEntity.serverTickInternal(level, pos);
+        } finally {
+            if (tracing) {
+                long elapsed = PerformanceTrace.elapsed(start);
+                PerformanceTrace.addBlockEntityTime(elapsed);
+                PerformanceTrace.logSlowBlockEntityTick(blockEntity, "large_shipyard", elapsed,
+                        "active=" + blockEntity.active
+                                + " buildType=" + blockEntity.buildType
+                                + " invMode=" + blockEntity.invMode
+                                + " power=" + blockEntity.powerConsumed + "/" + blockEntity.powerGoal
+                                + " remained=" + blockEntity.powerRemained);
+            }
+        }
+    }
+
+    private void serverTickInternal(Level level, BlockPos pos) {
         if (!GrudgeHeavyBlock.hasLargeShipyardSupport(level, pos)) {
-            blockEntity.collapseStructure();
+            collapseStructure();
             return;
         }
 
         boolean stateChanged = false;
 
-        int oldGoal = blockEntity.powerGoal;
-        blockEntity.powerGoal = blockEntity.buildType == 0 ? 0 : ShipyardRecipes.calcLargeGoalPower(blockEntity.matsBuild);
-        if (oldGoal != blockEntity.powerGoal) {
+        int oldGoal = this.powerGoal;
+        this.powerGoal = this.buildType == 0 ? 0 : ShipyardRecipes.calcLargeGoalPower(this.matsBuild);
+        if (oldGoal != this.powerGoal) {
             stateChanged = true;
         }
 
-        if (blockEntity.consumeFuel()) {
+        if (consumeFuel()) {
             stateChanged = true;
         }
 
-        if (blockEntity.handleMaterials()) {
+        if (handleMaterials()) {
             stateChanged = true;
         }
 
-        if (blockEntity.isBuilding()) {
-            blockEntity.powerRemained -= Config.largeShipyardBuildSpeed;
-            blockEntity.powerConsumed += Config.largeShipyardBuildSpeed;
+        if (isBuilding()) {
+            this.powerRemained -= Config.largeShipyardBuildSpeed;
+            this.powerConsumed += Config.largeShipyardBuildSpeed;
             stateChanged = true;
 
-            if (blockEntity.consumeInstantConstructionMaterial()) {
+            if (consumeInstantConstructionMaterial()) {
                 stateChanged = true;
             }
 
-            if (blockEntity.powerConsumed >= blockEntity.powerGoal) {
-                blockEntity.finishBuild();
+            if (this.powerConsumed >= this.powerGoal) {
+                finishBuild();
                 stateChanged = true;
             }
-        } else if (blockEntity.powerConsumed != 0) {
-            blockEntity.powerConsumed = 0;
+        } else if (this.powerConsumed != 0) {
+            this.powerConsumed = 0;
             stateChanged = true;
         }
 
-        boolean nowActive = blockEntity.isBuilding();
-        if (blockEntity.active != nowActive) {
-            blockEntity.active = nowActive;
-            blockEntity.updateActiveBlockState(nowActive);
+        boolean nowActive = isBuilding();
+        if (this.active != nowActive) {
+            this.active = nowActive;
+            updateActiveBlockState(nowActive);
             stateChanged = true;
         }
 
         if (stateChanged) {
-            blockEntity.markForSync();
+            markForSync();
         }
     }
 

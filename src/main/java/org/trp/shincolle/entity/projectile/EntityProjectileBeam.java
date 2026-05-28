@@ -14,6 +14,7 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.init.ModEntities;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 import java.util.HashSet;
 import java.util.Optional;
@@ -149,25 +150,39 @@ public class EntityProjectileBeam extends Entity {
             return;
         }
 
-        this.age++;
-        if (this.age > getLife()) {
-            this.discard();
-            return;
-        }
-        Entity owner = getOwnerEntity();
-        if (owner == null || !owner.isAlive()) {
-            this.discard();
-            return;
-        }
+        boolean tracing = PerformanceTrace.enabled();
+        long start = tracing ? PerformanceTrace.now() : 0L;
+        try {
+            this.age++;
+            if (this.age > getLife()) {
+                this.discard();
+                return;
+            }
+            Entity owner = getOwnerEntity();
+            if (owner == null || !owner.isAlive()) {
+                this.discard();
+                return;
+            }
 
-        Vec3 delta = new Vec3(this.accX, this.accY, this.accZ);
-        this.setDeltaMovement(delta);
-        move(MoverType.SELF, delta);
-        updateRotationFromMovement(delta);
+            Vec3 delta = new Vec3(this.accX, this.accY, this.accZ);
+            this.setDeltaMovement(delta);
+            move(MoverType.SELF, delta);
+            updateRotationFromMovement(delta);
 
-        for (Entity target : this.level().getEntities(this, this.getBoundingBox().inflate(1.5D), this::canHitEntity)) {
-            if (this.damagedTargets.add(target.getUUID())) {
-                onImpact(target, owner);
+            for (Entity target : this.level().getEntities(this, this.getBoundingBox().inflate(1.5D), this::canHitEntity)) {
+                if (this.damagedTargets.add(target.getUUID())) {
+                    onImpact(target, owner);
+                }
+            }
+        } finally {
+            if (tracing) {
+                long elapsed = PerformanceTrace.elapsed(start);
+                PerformanceTrace.addProjectileTime(elapsed);
+                PerformanceTrace.logSlowProjectileTick(this, "beam", elapsed,
+                        "age=" + this.age
+                                + " life=" + getLife()
+                                + " type=" + getBeamType()
+                                + " damagedTargets=" + this.damagedTargets.size());
             }
         }
     }

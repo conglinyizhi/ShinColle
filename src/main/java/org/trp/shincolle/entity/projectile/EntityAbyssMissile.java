@@ -31,6 +31,7 @@ import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModSounds;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 import java.util.List;
 import java.util.Optional;
@@ -247,40 +248,57 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
     @Override
     public void tick() {
         super.tick();
-        if (!this.level().isClientSide) {
-            this.age++;
-            if (this.age > getLife()) {
+        boolean tracing = PerformanceTrace.enabled() && !this.level().isClientSide;
+        long startNanos = tracing ? PerformanceTrace.now() : 0L;
+        try {
+            if (!this.level().isClientSide) {
+                this.age++;
+                if (this.age > getLife()) {
+                    onImpact(null);
+                    return;
+                }
+                tickClusterSplit();
+            }
+
+            updateVelocityByMoveType();
+            Vec3 delta = new Vec3(this.velX, this.velY, this.velZ);
+            this.setDeltaMovement(delta);
+            Vec3 start = this.position();
+            Vec3 end = start.add(delta);
+
+            BlockHitResult blockHit = this.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
+            if (blockHit.getType() != HitResult.Type.MISS) {
+                end = blockHit.getLocation();
+            }
+
+            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(this.level(), this, start, end,
+                    this.getBoundingBox().expandTowards(delta).inflate(1.0D), this::canHitEntity);
+            if (entityHit != null) {
+                onImpact(entityHit.getEntity());
+                return;
+            }
+
+            if (blockHit.getType() == HitResult.Type.BLOCK) {
                 onImpact(null);
                 return;
             }
-            tickClusterSplit();
+
+            move(MoverType.SELF, delta);
+            updateRotationFromMovement(delta);
+        } finally {
+            if (tracing) {
+                long elapsed = PerformanceTrace.elapsed(startNanos);
+                PerformanceTrace.addProjectileTime(elapsed);
+                PerformanceTrace.logSlowProjectileTick(this, "abyss_missile", elapsed,
+                        "age=" + this.age
+                                + " life=" + getLife()
+                                + " moveType=" + this.moveType
+                                + " clusterMain=" + this.clusterMain
+                                + " clusterSub=" + this.clusterSub
+                                + " blackHole=" + this.blackHole
+                                + " effects=" + this.impactEffects.size());
+            }
         }
-
-        updateVelocityByMoveType();
-        Vec3 delta = new Vec3(this.velX, this.velY, this.velZ);
-        this.setDeltaMovement(delta);
-        Vec3 start = this.position();
-        Vec3 end = start.add(delta);
-
-        BlockHitResult blockHit = this.level().clip(new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this));
-        if (blockHit.getType() != HitResult.Type.MISS) {
-            end = blockHit.getLocation();
-        }
-
-        EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(this.level(), this, start, end,
-                this.getBoundingBox().expandTowards(delta).inflate(1.0D), this::canHitEntity);
-        if (entityHit != null) {
-            onImpact(entityHit.getEntity());
-            return;
-        }
-
-        if (blockHit.getType() == HitResult.Type.BLOCK) {
-            onImpact(null);
-            return;
-        }
-
-        move(MoverType.SELF, delta);
-        updateRotationFromMovement(delta);
     }
 
     @Override

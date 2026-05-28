@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.trp.shincolle.client.WaypointClientHelper;
 import org.trp.shincolle.init.ModBlockEntities;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 import javax.annotation.Nullable;
 import java.util.UUID;
@@ -128,7 +129,18 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
         if (level.isClientSide) {
             tickClient(level, pos, be);
         } else {
-            be.serverTick();
+            boolean tracing = PerformanceTrace.enabled();
+            long start = tracing ? PerformanceTrace.now() : 0L;
+            try {
+                be.serverTick();
+            } finally {
+                if (tracing) {
+                    long elapsed = PerformanceTrace.elapsed(start);
+                    PerformanceTrace.addBlockEntityTime(elapsed);
+                    PerformanceTrace.logSlowBlockEntityTick(be, "waypoint", elapsed,
+                            "chest=" + be.chestPos + " next=" + be.nextPos + " stay=" + be.wpStayTime);
+                }
+            }
         }
     }
 

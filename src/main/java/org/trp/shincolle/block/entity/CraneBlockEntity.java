@@ -35,6 +35,7 @@ import org.trp.shincolle.init.ModSounds;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.menu.CraneMenu;
 import org.trp.shincolle.utility.InventoryHelper;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -98,7 +99,23 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     public static void tick(Level level, BlockPos pos, BlockState state, CraneBlockEntity be) {
         be.tickCount++;
         if (!level.isClientSide) {
-            be.serverTick();
+            boolean tracing = PerformanceTrace.enabled();
+            long start = tracing ? PerformanceTrace.now() : 0L;
+            try {
+                be.serverTick();
+            } finally {
+                if (tracing) {
+                    long elapsed = PerformanceTrace.elapsed(start);
+                    PerformanceTrace.addBlockEntityTime(elapsed);
+                    PerformanceTrace.logSlowBlockEntityTick(be, "crane", elapsed,
+                            "active=" + be.isActive
+                                    + " paired=" + be.isPaired
+                                    + " shipId=" + be.syncedShipId
+                                    + " modeItem=" + be.modeItem
+                                    + " modeLiquid=" + be.modeLiquid
+                                    + " modeEnergy=" + be.modeEnergy);
+                }
+            }
         } else {
             be.clientTick();
         }

@@ -26,6 +26,7 @@ import org.trp.shincolle.init.ModBlockEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.menu.VolCoreMenu;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 import java.util.List;
 
@@ -53,15 +54,33 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, VolCoreBlockEntity blockEntity) {
         if (level.isClientSide) return;
-        blockEntity.syncTime++;
-
-        if (blockEntity.syncTime % 16 == 0) {
-            boolean canWork = blockEntity.remainedPower >= Config.volCoreConsumeSpeed;
-            if (canWork && blockEntity.btnActive) {
-                blockEntity.remainedPower -= Config.volCoreConsumeSpeed;
-                blockEntity.markForSync();
+        boolean tracing = PerformanceTrace.enabled();
+        long start = tracing ? PerformanceTrace.now() : 0L;
+        try {
+            blockEntity.serverTickInternal(level, pos);
+        } finally {
+            if (tracing) {
+                long elapsed = PerformanceTrace.elapsed(start);
+                PerformanceTrace.addBlockEntityTime(elapsed);
+                PerformanceTrace.logSlowBlockEntityTick(blockEntity, "vol_core", elapsed,
+                        "active=" + blockEntity.btnActive
+                                + " working=" + blockEntity.isWorking()
+                                + " power=" + blockEntity.remainedPower
+                                + " syncTime=" + blockEntity.syncTime);
             }
-            if (blockEntity.isWorking() && level instanceof ServerLevel serverLevel) {
+        }
+    }
+
+    private void serverTickInternal(Level level, BlockPos pos) {
+        this.syncTime++;
+
+        if (this.syncTime % 16 == 0) {
+            boolean canWork = this.remainedPower >= Config.volCoreConsumeSpeed;
+            if (canWork && this.btnActive) {
+                this.remainedPower -= Config.volCoreConsumeSpeed;
+                markForSync();
+            }
+            if (isWorking() && level instanceof ServerLevel serverLevel) {
                 double bx = pos.getX() + 0.5;
                 double by = pos.getY() + 1.5;
                 double bz = pos.getZ() + 0.5;
@@ -80,14 +99,14 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
             }
         }
 
-        if (blockEntity.syncTime % 32 == 0) {
-            blockEntity.decrItemFuel();
-            if (blockEntity.isWorking()) {
-                blockEntity.volcoreFunction();
+        if (this.syncTime % 32 == 0) {
+            decrItemFuel();
+            if (isWorking()) {
+                volcoreFunction();
             }
         }
 
-        if (blockEntity.syncTime % 256 == 0 && blockEntity.isWorking()) {
+        if (this.syncTime % 256 == 0 && isWorking()) {
             double dx = pos.getX() + 0.5;
             double dy = pos.getY() + 2.5;
             double dz = pos.getZ() + 0.5;
