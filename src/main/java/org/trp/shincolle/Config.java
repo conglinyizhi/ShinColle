@@ -33,6 +33,13 @@ public class Config {
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MIN;
     private static final ModConfigSpec.IntValue TRAINING_BOOK_LEVEL_MAX;
     private static final ModConfigSpec.BooleanValue DEBUG_LOGGING;
+    private static final ModConfigSpec.BooleanValue DEBUG_PERFORMANCE_LOGGING;
+    private static final ModConfigSpec.IntValue DEBUG_PERF_SLOW_SHIP_TICK_MS;
+    private static final ModConfigSpec.IntValue DEBUG_PERF_SLOW_TASK_TICK_MS;
+    private static final ModConfigSpec.IntValue DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS;
+    private static final ModConfigSpec.IntValue DEBUG_PERF_SLOW_PROJECTILE_TICK_MS;
+    private static final ModConfigSpec.IntValue DEBUG_PERF_SLOW_SERVER_TICK_MS;
+    private static final ModConfigSpec.IntValue DEBUG_PERF_MIN_LOG_INTERVAL_TICKS;
     private static final ModConfigSpec.BooleanValue MODERN_KIT_NOTIFY_WHEN_MAXED;
     private static final ModConfigSpec.BooleanValue MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR;
     private static final ModConfigSpec.IntValue FUEL_DECAY_INTERVAL;
@@ -130,6 +137,13 @@ public class Config {
     public static int trainingBookLevelMin = 5;
     public static int trainingBookLevelMax = 10;
     public static boolean debugLogging = false;
+    public static boolean debugPerformanceLogging = false;
+    public static int debugPerfSlowShipTickMs = 10;
+    public static int debugPerfSlowTaskTickMs = 5;
+    public static int debugPerfSlowBlockEntityTickMs = 5;
+    public static int debugPerfSlowProjectileTickMs = 5;
+    public static int debugPerfSlowServerTickMs = 40;
+    public static int debugPerfMinLogIntervalTicks = 20;
     public static boolean modernKitNotifyWhenMaxed = true;
     public static boolean modernKitNotifyWhenMaxedActionBar = true;
     public static int fuelDecayInterval = 128;
@@ -342,6 +356,27 @@ public class Config {
         DEBUG_LOGGING = BUILDER
                 .comment("Enable verbose ShinColle debug diagnostics. Keep disabled during normal gameplay.")
                 .define("debugLogging", debugLogging);
+        DEBUG_PERFORMANCE_LOGGING = BUILDER
+                .comment("Enable ShinColle performance diagnostics for slow server ticks and timed module/function traces.")
+                .define("debugPerformanceLogging", debugPerformanceLogging);
+        DEBUG_PERF_SLOW_SHIP_TICK_MS = BUILDER
+                .comment("Log a ship server tick when ShinColle ship logic takes at least this many milliseconds.")
+                .defineInRange("debugPerfSlowShipTickMs", debugPerfSlowShipTickMs, 1, 1000);
+        DEBUG_PERF_SLOW_TASK_TICK_MS = BUILDER
+                .comment("Log a ship task update when task automation takes at least this many milliseconds.")
+                .defineInRange("debugPerfSlowTaskTickMs", debugPerfSlowTaskTickMs, 1, 1000);
+        DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS = BUILDER
+                .comment("Log a ShinColle block entity tick when it takes at least this many milliseconds.")
+                .defineInRange("debugPerfSlowBlockEntityTickMs", debugPerfSlowBlockEntityTickMs, 1, 1000);
+        DEBUG_PERF_SLOW_PROJECTILE_TICK_MS = BUILDER
+                .comment("Log aircraft/projectile server logic when it takes at least this many milliseconds.")
+                .defineInRange("debugPerfSlowProjectileTickMs", debugPerfSlowProjectileTickMs, 1, 1000);
+        DEBUG_PERF_SLOW_SERVER_TICK_MS = BUILDER
+                .comment("Log per-server-tick ShinColle aggregate time when it reaches this many milliseconds.")
+                .defineInRange("debugPerfSlowServerTickMs", debugPerfSlowServerTickMs, 1, 1000);
+        DEBUG_PERF_MIN_LOG_INTERVAL_TICKS = BUILDER
+                .comment("Minimum ticks between repeated performance logs for the same object and trace key.")
+                .defineInRange("debugPerfMinLogIntervalTicks", debugPerfMinLogIntervalTicks, 1, 1200);
         BUILDER.pop();
 
         BUILDER.comment("Ship interaction feedback settings").push("ship_interaction");
@@ -586,6 +621,13 @@ public class Config {
             trainingBookLevelMin = TRAINING_BOOK_LEVEL_MIN.get();
             trainingBookLevelMax = Math.max(trainingBookLevelMin, TRAINING_BOOK_LEVEL_MAX.get());
             debugLogging = DEBUG_LOGGING.get();
+            debugPerformanceLogging = DEBUG_PERFORMANCE_LOGGING.get();
+            debugPerfSlowShipTickMs = DEBUG_PERF_SLOW_SHIP_TICK_MS.get();
+            debugPerfSlowTaskTickMs = DEBUG_PERF_SLOW_TASK_TICK_MS.get();
+            debugPerfSlowBlockEntityTickMs = DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS.get();
+            debugPerfSlowProjectileTickMs = DEBUG_PERF_SLOW_PROJECTILE_TICK_MS.get();
+            debugPerfSlowServerTickMs = DEBUG_PERF_SLOW_SERVER_TICK_MS.get();
+            debugPerfMinLogIntervalTicks = DEBUG_PERF_MIN_LOG_INTERVAL_TICKS.get();
             modernKitNotifyWhenMaxed = MODERN_KIT_NOTIFY_WHEN_MAXED.get();
             modernKitNotifyWhenMaxedActionBar = MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR.get();
 

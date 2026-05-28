@@ -20,6 +20,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.command.ModCommands;
@@ -36,6 +37,7 @@ import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.MarriageRingItem;
 import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.PointerInteractionService;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class ModEventBusEvents {
@@ -43,6 +45,16 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
         ModCommands.register(event.getDispatcher());
+    }
+
+    @SubscribeEvent
+    public static void onServerTickPre(ServerTickEvent.Pre event) {
+        PerformanceTrace.beginServerTick(event.getServer().getTickCount());
+    }
+
+    @SubscribeEvent
+    public static void onServerTickPost(ServerTickEvent.Post event) {
+        PerformanceTrace.endServerTick();
     }
 
     @SubscribeEvent

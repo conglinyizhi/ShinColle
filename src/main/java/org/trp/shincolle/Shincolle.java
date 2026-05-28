@@ -22,6 +22,13 @@ public class Shincolle {
         LOGGER.info("[ShinColleDebug] " + message, args);
     }
 
+    public static void perfLog(String message, Object... args) {
+        if (!Config.debugPerformanceLogging) {
+            return;
+        }
+        LOGGER.info("[ShinCollePerf] " + message, args);
+    }
+
     public Shincolle(IEventBus modEventBus, ModContainer modContainer) {
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
         modContainer.registerConfig(ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
