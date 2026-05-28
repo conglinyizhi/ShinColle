@@ -31,6 +31,10 @@ public class ShipInventoryHandler extends ItemStackHandler {
         return EQUIP_SLOT_COUNT;
     }
 
+    public static TagKey<Item> getEquipItemsTag() {
+        return EQUIP_ITEMS_TAG;
+    }
+
     public int getUnlockedExtraPages() {
         return Mth.clamp(this.ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, STORAGE_EXTRA_PAGES_MAX);
     }

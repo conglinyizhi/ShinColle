@@ -47,14 +47,15 @@ public class RecipePaperItem extends Item {
             return;
         }
 
-        if (context.level() != null) {
-            ItemStack result = RecipePaperData.getRecipePreviewResult(context.level(), inputList);
-            if (!result.isEmpty()) {
-                tooltipComponents.add(Component.translatable("gui.shincolle.recipepaper.result")
-                        .withStyle(ChatFormatting.YELLOW)
-                        .append(" ")
-                        .append(result.getHoverName().copy().withStyle(ChatFormatting.WHITE)));
-            }
+        ItemStack result = RecipePaperData.loadStoredRecipeResult(stack, context.registries());
+        if (result.isEmpty() && context.level() != null) {
+            result = RecipePaperData.getRecipePreviewResult(context.level(), inputList);
+        }
+        if (!result.isEmpty()) {
+            tooltipComponents.add(Component.translatable("gui.shincolle.recipepaper.result")
+                    .withStyle(ChatFormatting.YELLOW)
+                    .append(" ")
+                    .append(result.getHoverName().copy().withStyle(ChatFormatting.WHITE)));
         }
 
         tooltipComponents.add(Component.translatable("gui.shincolle.recipepaper.material").withStyle(ChatFormatting.AQUA));

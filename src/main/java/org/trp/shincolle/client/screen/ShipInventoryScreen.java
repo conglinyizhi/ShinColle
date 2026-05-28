@@ -43,6 +43,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int SETTINGS_TAB_6 = 6;
     private static final int SETTINGS_TAB_7 = 7;
     private static final int SETTINGS_TAB_8 = 8;
+    private static final int SETTINGS_TAB_12 = 12;
     private static final int APPEARANCE_MAX_ITEMS = 16;
     private static final int APPEARANCE_COLS = 4;
     private static final int TOGGLE_SIZE = 11;
@@ -71,6 +72,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int HELD_MAIN_ROW = 5;
     private static final int HELD_OFF_COL = 2;
     private static final int HELD_OFF_ROW = 5;
+    private static final int CRAFTING_WORK_START_SLOT = 12;
     private static final int LEGACY_LABEL_COLOR = 0xF6E7D0;
     private static final int LEGACY_LABEL_SHADOW_COLOR = 0x301010;
 
@@ -332,7 +334,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             return true;
         }
 
-        for (int tab = SETTINGS_TAB_1; tab <= SETTINGS_TAB_8; tab++) {
+        for (int tab = SETTINGS_TAB_1; tab <= SETTINGS_TAB_12; tab++) {
             int curTab = (tab - 1) % 6;
             int y1 = 131 + curTab * 13;
             int y2 = y1 + 11;
@@ -582,7 +584,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawSettingsTabIndicator(GuiGraphics guiGraphics) {
-        int tab = Math.max(SETTINGS_TAB_1, Math.min(SETTINGS_TAB_8, this.activeSettingsTab));
+        int tab = Math.max(SETTINGS_TAB_1, Math.min(SETTINGS_TAB_12, this.activeSettingsTab));
         int curTab = (tab - 1) % 6;
         int y = 131 + curTab * 13;
         int x = tab <= 6 ? 239 : 246;
@@ -1344,7 +1346,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         for (int i = 0; i < 9; i++) {
             int col = i % 3;
             int row = i / 3 + 2;
-            drawSlotOverlay(guiGraphics, col, row, 33, 225);
+            boolean occupied = !this.menu.getShip().getInventory().getStackInSlot(CRAFTING_WORK_START_SLOT + i).isEmpty();
+            drawSlotOverlay(guiGraphics, col, row, occupied ? 51 : 33, 225);
         }
     }
 }

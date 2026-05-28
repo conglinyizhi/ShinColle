@@ -18,6 +18,7 @@ public final class RecipePaperData {
     private static final String RECIPE_TAG = "Recipe";
     private static final String SLOT_TAG = "Slot";
     private static final int GRID_SIZE = 9;
+    private static final int RESULT_SLOT = 9;
 
     private RecipePaperData() {
     }
@@ -50,7 +51,7 @@ public final class RecipePaperData {
         return grid;
     }
 
-    public static void saveRecipeGrid(ItemStack hostStack, HolderLookup.Provider registries, List<ItemStack> grid) {
+    public static void saveRecipeGrid(ItemStack hostStack, HolderLookup.Provider registries, List<ItemStack> grid, ItemStack result) {
         ListTag list = new ListTag();
         for (int slot = 0; slot < Math.min(grid.size(), GRID_SIZE); slot++) {
             ItemStack stack = grid.get(slot);
@@ -64,8 +65,37 @@ public final class RecipePaperData {
             list.add(itemTag);
         }
 
+        if (!result.isEmpty()) {
+            CompoundTag resultTag = new CompoundTag();
+            result.save(registries, resultTag);
+            resultTag.putInt(SLOT_TAG, RESULT_SLOT);
+            list.add(resultTag);
+        }
+
         hostStack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY,
                 data -> data.update(tag -> tag.put(RECIPE_TAG, list)));
+    }
+
+    public static ItemStack loadStoredRecipeResult(ItemStack hostStack, HolderLookup.Provider registries) {
+        CustomData customData = hostStack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return ItemStack.EMPTY;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        if (!tag.contains(RECIPE_TAG, 9)) {
+            return ItemStack.EMPTY;
+        }
+
+        ListTag list = tag.getList(RECIPE_TAG, 10);
+        for (int i = 0; i < list.size(); i++) {
+            CompoundTag itemTag = list.getCompound(i);
+            if (itemTag.getInt(SLOT_TAG) == RESULT_SLOT) {
+                return ItemStack.parseOptional(registries, itemTag);
+            }
+        }
+
+        return ItemStack.EMPTY;
     }
 
     public static ItemStack getRecipePreviewResult(Level level, List<ItemStack> grid) {

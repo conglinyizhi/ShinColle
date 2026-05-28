@@ -795,9 +795,16 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         if (slot != null && slot.hasItem()) {
             ItemStack stack = slot.getItem();
             copied = stack.copy();
+            boolean shipEquipCandidate = stack.getItem() instanceof org.trp.shincolle.item.LegacyEquipItem
+                    || stack.is(org.trp.shincolle.inventory.ShipInventoryHandler.getEquipItemsTag());
 
             if (index < VISIBLE_SHIP_SLOTS) {
-                if (!this.moveItemStackTo(stack, FIRST_PLAYER_SLOT, END_PLAYER_SLOT, true)) {
+                if (index >= EQUIP_SLOTS && shipEquipCandidate) {
+                    if (!this.moveItemStackTo(stack, 0, EQUIP_SLOTS, false)
+                            && !this.moveItemStackTo(stack, FIRST_PLAYER_SLOT, END_PLAYER_SLOT, true)) {
+                        return ItemStack.EMPTY;
+                    }
+                } else if (!this.moveItemStackTo(stack, FIRST_PLAYER_SLOT, END_PLAYER_SLOT, true)) {
                     return ItemStack.EMPTY;
                 }
             } else {
@@ -1047,7 +1054,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             return true;
         }
 
-        if (id >= ACTION_SIDE_TOGGLE_BASE && id <= ACTION_SIDE_TOGGLE_BASE + 18) {
+        if (id >= ACTION_SIDE_TOGGLE_BASE && id < ACTION_SIDE_TOGGLE_BASE + 18) {
             int bit = id - ACTION_SIDE_TOGGLE_BASE;
             ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) ^ (1 << bit));
             this.taskSideSynced = ship.getStateMinor(STATE_MINOR_TASK_SIDE);
