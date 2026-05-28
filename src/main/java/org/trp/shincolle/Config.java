@@ -226,6 +226,7 @@ public class Config {
     public record MiningEntry(
             int dimensionId,
             String dimensionPath,
+            int biomeId,
             String biomePath,
             Item item,
             int itemMeta,
@@ -457,13 +458,13 @@ public class Config {
                 .comment("Married ship count needed for passive water breathing, negative disables")
                 .defineInRange("ringAbilityWaterBreathing", ringAbilityWaterBreathing, -1, 1000);
         RING_ABILITY_SWIM_FLIGHT = BUILDER
-                .comment("Legacy swim flight threshold. Kept for config parity, no direct NeoForge flight mode yet")
+                .comment("Legacy swim flight threshold. Grants temporary flight while the active ring owner is in water, negative disables")
                 .defineInRange("ringAbilitySwimFlight", ringAbilitySwimFlight, -1, 1000);
         RING_ABILITY_UNDERWATER_DIG_CAP = BUILDER
                 .comment("Maximum married ship count contributing to underwater dig speed, 0 disables")
                 .defineInRange("ringAbilityUnderwaterDigCap", ringAbilityUnderwaterDigCap, 0, 1000);
         RING_ABILITY_UNDERWATER_FOG_CAP = BUILDER
-                .comment("Legacy underwater fog reduction threshold. Stored for config parity; client fog hook not migrated yet")
+                .comment("Legacy underwater fog reduction threshold. 0 removes water fog, positive values scale fog reduction by married ship count, negative disables")
                 .defineInRange("ringAbilityUnderwaterFogCap", ringAbilityUnderwaterFogCap, -1, 1000);
         RING_ABILITY_FIRE_IMMUNITY = BUILDER
                 .comment("Married ship count needed for active ring fire immunity, negative disables")
@@ -953,20 +954,23 @@ public class Config {
             if (parts.length != 11) continue;
             int dimensionId = parseDimensionId(parts[0]);
             String dimensionPath = parts[0];
+            int biomeId = parseBiomeId(parts[1]);
             String biomePath = parts[1];
             try {
                 int itemMeta = Integer.parseInt(parts[3]);
-                Item item = resolveConfigItem(parts[2], itemMeta, Items.COBBLESTONE);
+                Item item = resolveConfigItem(parts[2], itemMeta, Items.AIR);
+                if (item == Items.AIR) continue;
                 parsed.add(new MiningEntry(
                         dimensionId,
                         dimensionPath,
+                        biomeId,
                         biomePath,
                         item,
                         itemMeta,
                         Math.max(1, Integer.parseInt(parts[4])),
                         Math.max(1, Integer.parseInt(parts[5])),
                         Math.max(1, Integer.parseInt(parts[6])),
-                        Math.max(1, Integer.parseInt(parts[7])),
+                        Integer.parseInt(parts[7]),
                         Integer.parseInt(parts[8]),
                         Math.max(0, Integer.parseInt(parts[9])),
                         Integer.parseInt(parts[10]) * 0.01F
@@ -1008,6 +1012,19 @@ public class Config {
             case "-1", "minecraft:the_nether" -> -1;
             case "1", "minecraft:the_end" -> 1;
             default -> Integer.MIN_VALUE;
+        };
+    }
+
+    private static int parseBiomeId(String value) {
+        return switch (value) {
+            case "-999999", "*" -> -999999;
+            default -> {
+                try {
+                    yield Integer.parseInt(value);
+                } catch (NumberFormatException ex) {
+                    yield Integer.MIN_VALUE;
+                }
+            }
         };
     }
 
