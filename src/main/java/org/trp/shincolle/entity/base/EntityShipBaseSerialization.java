@@ -4,6 +4,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
 
 final class EntityShipBaseSerialization {
+    private static final String LEGACY_EXT_PROPS = "ShipExtProps";
+    private static final String LEGACY_EXT_PROPS_BACKUP = "LegacyShipExtPropsBackup";
+    private static final String LEGACY_INV_TAG = "ShipInv";
+    private static final int LEGACY_TIMER_CRANE = 4;
 
     private final EntityShipBase ship;
 
@@ -85,12 +89,18 @@ final class EntityShipBaseSerialization {
         if (this.ship.getGuardedEntityIdInternal() != null) {
             compound.putUUID("GuardedEntityId", this.ship.getGuardedEntityIdInternal());
         }
+        CompoundTag legacyShipExtPropsBackup = this.ship.getLegacyShipExtPropsBackupInternal();
+        if (!legacyShipExtPropsBackup.isEmpty()) {
+            compound.put(LEGACY_EXT_PROPS_BACKUP, legacyShipExtPropsBackup);
+        }
         this.ship.savePointerToNbt(compound);
     }
 
     void readAdditionalSaveData(CompoundTag compound) {
         if (compound.contains("ShipInventory")) {
             this.ship.getInventory().deserializeNBT(this.ship.registryAccess(), compound.getCompound("ShipInventory"));
+        } else if (compound.contains(LEGACY_INV_TAG)) {
+            this.ship.getInventory().deserializeNBT(this.ship.registryAccess(), compound.getCompound(LEGACY_INV_TAG));
         }
 
         this.ship.setLevel(compound.getInt("ShipLevel"));
@@ -117,6 +127,11 @@ final class EntityShipBaseSerialization {
             this.ship.setEquipFlagsTag(compound.getCompound("EquipFlags"));
         } else if (compound.contains("StateFlags")) {
             this.ship.migrateLegacyStateFlags(compound.getInt("StateFlags"));
+        } else if (compound.contains(LEGACY_EXT_PROPS)) {
+            loadLegacyShipExtProps(compound.getCompound(LEGACY_EXT_PROPS));
+        }
+        if (compound.contains(LEGACY_EXT_PROPS_BACKUP)) {
+            this.ship.setLegacyShipExtPropsBackupInternal(compound.getCompound(LEGACY_EXT_PROPS_BACKUP));
         }
 
         if (compound.contains("StateEmotion")) {
@@ -199,5 +214,176 @@ final class EntityShipBaseSerialization {
         // stale legacy NBT values do not leave ships with visible ammo items but
         // zero usable light/heavy ammo after load.
         this.ship.onInventoryChanged();
+    }
+
+    private void loadLegacyShipExtProps(CompoundTag legacyExt) {
+        this.ship.setLegacyShipExtPropsBackupInternal(legacyExt.copy());
+
+        CompoundTag minor = legacyExt.getCompound("Minor");
+        if (!minor.isEmpty()) {
+            if (minor.contains("Level")) {
+                this.ship.setLevel(minor.getInt("Level"));
+            }
+            if (minor.contains("Exp")) {
+                this.ship.setExp(minor.getInt("Exp"));
+            }
+            if (minor.contains("NumAmmoL")) {
+                this.ship.setAmmoLight(minor.getInt("NumAmmoL"));
+            }
+            if (minor.contains("NumAmmoH")) {
+                this.ship.setAmmoHeavy(minor.getInt("NumAmmoH"));
+            }
+            if (minor.contains("NumGrudge")) {
+                this.ship.setFuel(minor.getInt("NumGrudge"));
+            }
+            if (minor.contains("NumAirL")) {
+                this.ship.setNumAircraftLight(minor.getInt("NumAirL"));
+            }
+            if (minor.contains("NumAirH")) {
+                this.ship.setNumAircraftHeavy(minor.getInt("NumAirH"));
+            }
+            if (minor.contains("GuardX")) {
+                this.ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_X, minor.getInt("GuardX"));
+            }
+            if (minor.contains("GuardY")) {
+                this.ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_Y, minor.getInt("GuardY"));
+            }
+            if (minor.contains("GuardZ")) {
+                this.ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_Z, minor.getInt("GuardZ"));
+            }
+            if (minor.contains("GuardDim")) {
+                this.ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_DIM, minor.getInt("GuardDim"));
+            }
+            if (minor.contains("GuardType")) {
+                this.ship.setStateMinor(EntityShipBase.STATE_MINOR_GUARD_TYPE, minor.getInt("GuardType"));
+            }
+            if (minor.contains("FType")) {
+                this.ship.setFormationTeam(minor.getInt("FType"));
+            }
+            if (minor.contains("FPos")) {
+                this.ship.setFormationSlot(minor.getInt("FPos"));
+            }
+            if (minor.contains("Morale")) {
+                this.ship.setMorale(minor.getInt("Morale"));
+            }
+            if (minor.contains("Crane")) {
+                this.ship.setStateMinor(EntityShipBase.STATE_MINOR_CRANING, minor.getInt("Crane"));
+            }
+            if (minor.contains("FMin")) {
+                this.ship.setStateMinor(org.trp.shincolle.menu.ShipContainerMenu.STATE_MINOR_FOLLOW_MIN, minor.getInt("FMin"));
+            }
+            if (minor.contains("FMax")) {
+                this.ship.setStateMinor(org.trp.shincolle.menu.ShipContainerMenu.STATE_MINOR_FOLLOW_MAX, minor.getInt("FMax"));
+            }
+            if (minor.contains("FHP")) {
+                this.ship.setStateMinor(org.trp.shincolle.menu.ShipContainerMenu.STATE_MINOR_FLEE_HP, minor.getInt("FHP"));
+            }
+            if (minor.contains("AutoCR")) {
+                this.ship.setStateMinor(org.trp.shincolle.menu.ShipContainerMenu.STATE_MINOR_RATION_MORALE, minor.getInt("AutoCR"));
+            }
+            if (minor.contains("WpStay")) {
+                this.ship.setStateMinor(org.trp.shincolle.menu.ShipContainerMenu.STATE_MINOR_WP_STAY, minor.getInt("WpStay"));
+            }
+            if (minor.contains("Task")) {
+                this.ship.setStateMinor(org.trp.shincolle.menu.ShipContainerMenu.STATE_MINOR_TASK_ID, minor.getInt("Task"));
+            }
+            if (minor.contains("Side")) {
+                this.ship.setStateMinor(org.trp.shincolle.menu.ShipContainerMenu.STATE_MINOR_TASK_SIDE, minor.getInt("Side"));
+            }
+            if (minor.contains("tagName")) {
+                String customName = minor.getString("tagName");
+                if (!customName.isEmpty()) {
+                    this.ship.setCustomName(net.minecraft.network.chat.Component.literal(customName));
+                }
+            }
+        }
+
+        CompoundTag display = legacyExt.getCompound("Display");
+        if (!display.isEmpty()) {
+            if (display.contains("State")) {
+                this.ship.setStateEmotion(0, display.getInt("State"), false);
+            }
+            if (display.contains("Emotion")) {
+                this.ship.setStateEmotion(1, display.getInt("Emotion"), false);
+            }
+            if (display.contains("Emotion2")) {
+                this.ship.setStateEmotion(2, display.getInt("Emotion2"), false);
+            }
+            if (display.contains("Phase")) {
+                this.ship.setStateEmotion(3, display.getInt("Phase"), false);
+            }
+            this.ship.setLegacyStateInitializedInternal(true);
+        }
+
+        CompoundTag legacyBonus = legacyExt.getCompound("Point");
+        if (!legacyBonus.isEmpty()) {
+            this.ship.applyLegacyBonusTag(legacyBonus);
+        }
+
+        CompoundTag flags = legacyExt.getCompound("ShipFlags");
+        if (!flags.isEmpty()) {
+            if (flags.contains("IsMarried")) {
+                this.ship.setStateMarried(flags.getBoolean("IsMarried"));
+            }
+            if (flags.contains("NoFuel")) {
+                this.ship.setNoFuel(flags.getBoolean("NoFuel"));
+            }
+            if (flags.contains("Melee")) {
+                this.ship.setStateCanMelee(flags.getBoolean("Melee"));
+            }
+            if (flags.contains("AmmoL")) {
+                this.ship.setStateLightAttack(flags.getBoolean("AmmoL"));
+            }
+            if (flags.contains("AmmoH")) {
+                this.ship.setStateHeavyAttack(flags.getBoolean("AmmoH"));
+            }
+            if (flags.contains("AirL")) {
+                this.ship.setStateLightAircraftAttack(flags.getBoolean("AirL"));
+            }
+            if (flags.contains("AirH")) {
+                this.ship.setStateHeavyAircraftAttack(flags.getBoolean("AirH"));
+            }
+            if (flags.contains("WedEffect")) {
+                this.ship.setStateRingEffect(flags.getBoolean("WedEffect"));
+            }
+            if (flags.contains("CanFollow")) {
+                this.ship.setOrderedToSit(!flags.getBoolean("CanFollow"));
+            }
+            if (flags.contains("CanDrop")) {
+                this.ship.setLegacyDeathDropInternal(flags.getBoolean("CanDrop"));
+            }
+            if (flags.contains("OnSight")) {
+                this.ship.setStateFlag(org.trp.shincolle.menu.ShipContainerMenu.STATE_FLAG_ON_SIGHT, flags.getBoolean("OnSight"));
+            }
+            if (flags.contains("PVPFirst")) {
+                this.ship.setStateFlag(org.trp.shincolle.menu.ShipContainerMenu.STATE_FLAG_PVP, flags.getBoolean("PVPFirst"));
+            }
+            if (flags.contains("AA")) {
+                this.ship.setStateAntiAir(flags.getBoolean("AA"));
+            }
+            if (flags.contains("ASM")) {
+                this.ship.setStateFlag(org.trp.shincolle.menu.ShipContainerMenu.STATE_FLAG_ANTI_SUB, flags.getBoolean("ASM"));
+            }
+            if (flags.contains("PassiveAI")) {
+                this.ship.setStateFlag(org.trp.shincolle.menu.ShipContainerMenu.STATE_FLAG_PASSIVE_ATTACK, flags.getBoolean("PassiveAI"));
+            }
+            if (flags.contains("TimeKeeper")) {
+                this.ship.setStateFlag(org.trp.shincolle.menu.ShipContainerMenu.STATE_FLAG_TIMEKEEP, flags.getBoolean("TimeKeeper"));
+            }
+            if (flags.contains("PickItem")) {
+                this.ship.setStateFlag(org.trp.shincolle.menu.ShipContainerMenu.STATE_FLAG_PICK_ITEM, flags.getBoolean("PickItem"));
+            }
+            if (flags.contains("AutoPump")) {
+                this.ship.setStateFlag(org.trp.shincolle.menu.ShipContainerMenu.STATE_FLAG_AUTO_PUMP, flags.getBoolean("AutoPump"));
+            }
+            if (flags.contains("HeldItem")) {
+                this.ship.setStateAppearance(flags.getBoolean("HeldItem"));
+            }
+        }
+
+        CompoundTag timer = legacyExt.getCompound("Timer");
+        if (!timer.isEmpty() && timer.contains("Crane")) {
+            this.ship.setStateTimer(LEGACY_TIMER_CRANE, timer.getInt("Crane"));
+        }
     }
 }

@@ -272,6 +272,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private UUID guardedEntityId;
     private EntityShipFishingHook fishHook;
     private boolean legacyStateInitialized = false;
+    private CompoundTag legacyShipExtPropsBackup = new CompoundTag();
     private int shipDeathTicks = 0;
     private boolean hostileCanDrop = true;
     private int stateUpdateTimer;
@@ -1034,6 +1035,22 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     void loadGuardedEntityIdInternal(@Nullable UUID guardedEntityId) {
         this.guardedEntityId = guardedEntityId;
+    }
+
+    boolean canLegacyDeathDropInternal() {
+        return this.hostileCanDrop;
+    }
+
+    void setLegacyDeathDropInternal(boolean value) {
+        this.hostileCanDrop = value;
+    }
+
+    CompoundTag getLegacyShipExtPropsBackupInternal() {
+        return this.legacyShipExtPropsBackup.copy();
+    }
+
+    void setLegacyShipExtPropsBackupInternal(CompoundTag backup) {
+        this.legacyShipExtPropsBackup = backup == null ? new CompoundTag() : backup.copy();
     }
 
     public int getStateTimer(int index) {
@@ -1859,7 +1876,8 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.isInWaterOrBubble() || this.isInLava()) {
             this.applyDeadFloatStabilization();
         }
-        if (!this.level().isClientSide && this.shipDeathTicks == SHIP_DEATH_MAX_TICKS) {
+        if (!this.level().isClientSide && this.shipDeathTicks == SHIP_DEATH_MAX_TICKS && this.hostileCanDrop) {
+            this.hostileCanDrop = false;
             spawnShipGrudge();
         }
         if (this.shipDeathTicks >= SHIP_DEATH_MAX_TICKS) {
