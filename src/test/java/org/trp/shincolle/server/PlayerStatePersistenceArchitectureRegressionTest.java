@@ -19,8 +19,20 @@ class PlayerStatePersistenceArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.java");
     private static final Path NETWORK_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.java");
+    private static final Path DESK_SERVICE_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/server/DeskInteractionService.java");
+    private static final Path FORMATION_SERVICE_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/server/FormationService.java");
+    private static final Path POINTER_SERVICE_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
+    private static final Path TARGET_PROTECTION_SERVICE_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/server/TargetProtectionService.java");
+    private static final Path TEAM_DIPLOMACY_SERVICE_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/server/TeamDiplomacyService.java");
     private static final Path SHIP_MENU_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.java");
+    private static final Path DESK_MENU_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/menu/DeskMenu.java");
     private static final Path FORMATION_MENU_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/menu/FormationMenu.java");
     private static final Path POINTER_ITEM_SOURCE =
@@ -88,15 +100,20 @@ class PlayerStatePersistenceArchitectureRegressionTest {
 
     @Test
     void eventNetworkAndMenuEntrypointsShouldUsePlayerStateService() throws IOException {
-        Map<Path, String> sources = Map.of(
-                EVENT_SOURCE, Files.readString(EVENT_SOURCE),
-                NETWORK_SOURCE, Files.readString(NETWORK_SOURCE),
-                SHIP_MENU_SOURCE, Files.readString(SHIP_MENU_SOURCE),
-                FORMATION_MENU_SOURCE, Files.readString(FORMATION_MENU_SOURCE),
-                POINTER_ITEM_SOURCE, Files.readString(POINTER_ITEM_SOURCE),
-                SHIP_SOURCE, Files.readString(SHIP_SOURCE),
-                SHIP_POINTER_SOURCE, Files.readString(SHIP_POINTER_SOURCE),
-                FOLLOW_GOAL_SOURCE, Files.readString(FOLLOW_GOAL_SOURCE)
+        Map<Path, String> sources = Map.ofEntries(
+                Map.entry(EVENT_SOURCE, Files.readString(EVENT_SOURCE)),
+                Map.entry(NETWORK_SOURCE, Files.readString(NETWORK_SOURCE)),
+                Map.entry(DESK_SERVICE_SOURCE, Files.readString(DESK_SERVICE_SOURCE)),
+                Map.entry(FORMATION_SERVICE_SOURCE, Files.readString(FORMATION_SERVICE_SOURCE)),
+                Map.entry(POINTER_SERVICE_SOURCE, Files.readString(POINTER_SERVICE_SOURCE)),
+                Map.entry(TEAM_DIPLOMACY_SERVICE_SOURCE, Files.readString(TEAM_DIPLOMACY_SERVICE_SOURCE)),
+                Map.entry(TARGET_PROTECTION_SERVICE_SOURCE, Files.readString(TARGET_PROTECTION_SERVICE_SOURCE)),
+                Map.entry(SHIP_MENU_SOURCE, Files.readString(SHIP_MENU_SOURCE)),
+                Map.entry(FORMATION_MENU_SOURCE, Files.readString(FORMATION_MENU_SOURCE)),
+                Map.entry(POINTER_ITEM_SOURCE, Files.readString(POINTER_ITEM_SOURCE)),
+                Map.entry(SHIP_SOURCE, Files.readString(SHIP_SOURCE)),
+                Map.entry(SHIP_POINTER_SOURCE, Files.readString(SHIP_POINTER_SOURCE)),
+                Map.entry(FOLLOW_GOAL_SOURCE, Files.readString(FOLLOW_GOAL_SOURCE))
         );
 
         for (Map.Entry<Path, String> entry : sources.entrySet()) {
@@ -122,22 +139,56 @@ class PlayerStatePersistenceArchitectureRegressionTest {
         String network = sources.get(NETWORK_SOURCE);
         assertTrue(network.contains("PlayerStateService.applyAdmiralSync(player, payload.admiralNbt(), payload.collectedShips());"),
                 "S2C admiral sync should apply through the service");
-        assertTrue(network.contains("PlayerStateService.sendAdmiralState(serverPlayer);"),
-                "Network handlers should reply with service-built admiral state");
-        assertTrue(network.contains("PlayerStateService.setCurrentTeamId(player, nextTeam)"),
-                "Current team changes should go through the service");
-        assertTrue(network.contains("PlayerStateService.setCurrentTeamFormation(player, payload.param1())"),
-                "Formation changes should go through the service");
-        assertTrue(network.contains("PlayerStateService.setCurrentTeamSlot(player, payload.param1(), uuid)"),
-                "Slot replacement should go through the service");
+        assertTrue(network.contains("FormationService.handleFormationAction(player, payload.action(), payload.param1(), payload.param2(),"),
+                "Network formation handler should only dispatch to the formation service");
+        assertTrue(network.contains("PointerInteractionService.handlePayloadAction(player, stack, payload.action(), payload.targetEntity(), payload.targetPos());"),
+                "Network pointer handler should only dispatch to the pointer interaction service");
+        assertTrue(network.contains("DeskInteractionService.updateBookState(player, payload.chapter(), payload.page());"),
+                "Book state writes should dispatch through the desk interaction service");
+        assertTrue(network.contains("DeskInteractionService.updateDeskGui(player, payload.guiFunc(), payload.radarZoom());"),
+                "Desk GUI state writes should dispatch through the desk interaction service");
+        assertTrue(network.contains("DeskInteractionService.openOwnedShipFromDesk(player, payload.shipUuid());"),
+                "Desk ship-open payload should dispatch through the desk interaction service");
+        assertTrue(network.contains("DeskInteractionService.summonOwnedShipsToDesk(player, payload.shipUuids());"),
+                "Desk summon payload should dispatch through the desk interaction service");
+        assertTrue(network.contains("TeamDiplomacyService.handleAction(player, payload.action(), payload.targetUuid());"),
+                "Diplomacy payload should dispatch through the diplomacy service");
         assertFalse(network.contains("S2CAdmiralDataSyncPayload.of(data.serializeNBT()"),
                 "Network handlers should not hand-roll admiral sync payloads");
+
+        String formationService = sources.get(FORMATION_SERVICE_SOURCE);
+        assertTrue(formationService.contains("PlayerStateService.setCurrentTeamId(player, param1)"),
+                "Current team changes should go through the player state service");
+        assertTrue(formationService.contains("PlayerStateService.setCurrentTeamFormation(player, param1)"),
+                "Formation changes should go through the player state service");
+        assertTrue(formationService.contains("PlayerStateService.setCurrentTeamSlot(player, slotId, shipUuid)"),
+                "Slot replacement should go through the player state service");
+        assertTrue(formationService.contains("PlayerStateService.sendAdmiralState(serverPlayer);"),
+                "Formation service should reply with service-built admiral state");
+
+        String pointerService = sources.get(POINTER_SERVICE_SOURCE);
+        assertTrue(pointerService.contains("PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID())"),
+                "Pointer roster assignment should go through the player state service");
+        assertTrue(pointerService.contains("PlayerStateService.removeShipFromTeams(player, ship.getUUID())"),
+                "Pointer roster removal should go through the player state service");
+        assertTrue(pointerService.contains("PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState)"),
+                "Pointer selection changes should go through the player state service");
+        assertTrue(pointerService.contains("PlayerStateService.sendAdmiralState(serverPlayer);"),
+                "Pointer service should sync admiral state after roster changes");
+        assertTrue(pointerService.contains("private static void applyPointerModeSelectionState(Player player, int nextMode)"),
+                "Pointer mode selection reconciliation should live in the pointer interaction service");
+        assertTrue(pointerService.contains("private static void clearOwnedPointerSelection(Player player, EntityShipBase keepSelected, double radius)"),
+                "Pointer selection clearing should live in the pointer interaction service");
+        assertFalse(sources.get(POINTER_ITEM_SOURCE).contains("updateServerSideMode("),
+                "Pointer item should not own server-side pointer mode reconciliation rules");
+        assertFalse(sources.get(POINTER_ITEM_SOURCE).contains("clearOwnedPointerSelection("),
+                "Pointer item should not own server-side selection clearing rules");
 
         assertTrue(sources.get(SHIP_MENU_SOURCE).contains("PlayerStateService.registerCollectedShip(serverPlayer, classID);"),
                 "Opening ship inventory should register collection through the service");
         assertTrue(sources.get(FORMATION_MENU_SOURCE).contains("PlayerStateService.admiralData(playerInventory.player)"),
                 "Formation menu should get player state through the service");
-        assertTrue(sources.get(POINTER_ITEM_SOURCE).contains("PlayerStateService.admiralData(player)"),
+        assertTrue(sources.get(POINTER_ITEM_SOURCE).contains("PlayerStateService.admiralData(mc.player)"),
                 "Pointer item should read current team through the service");
         assertTrue(sources.get(SHIP_SOURCE).contains("PlayerStateService.adjustOwnedMarriedShipCount(player, 1);"),
                 "Marriage item flow should update persistent player counters through the service");
@@ -262,37 +313,73 @@ class PlayerStatePersistenceArchitectureRegressionTest {
     @Test
     void gameplayEntrypointsShouldUseSavedDataForTargetAndDiplomacyState() throws IOException {
         String network = Files.readString(NETWORK_SOURCE);
-        String deskMenu = Files.readString(Path.of("src/main/java/org/trp/shincolle/menu/DeskMenu.java"));
+        String pointerService = Files.readString(POINTER_SERVICE_SOURCE);
+        String diplomacyService = Files.readString(TEAM_DIPLOMACY_SERVICE_SOURCE);
+        String targetProtectionService = Files.readString(TARGET_PROTECTION_SERVICE_SOURCE);
+        String deskMenu = Files.readString(DESK_MENU_SOURCE);
         String targetWrench = Files.readString(TARGET_WRENCH);
         String passiveCombat = Files.readString(PASSIVE_COMBAT);
 
-        assertTrue(network.contains("TeamDiplomacySavedData.get(serverLevel).areAllies(owner, targetOwner)"),
-                "Pointer target validation should read diplomacy from SavedData");
-        assertTrue(network.contains("UnattackableTargetData.get(serverLevel).contains(target.getClass().getName())"),
-                "Pointer target validation should read global protected targets from SavedData");
-        assertTrue(network.contains("TeamDiplomacySavedData diplomacy = TeamDiplomacySavedData.get(serverLevel);"),
-                "Desk diplomacy mutations should use SavedData");
-        assertTrue(network.contains("diplomacy.addAlly(owner, target)"),
-                "Adding allies should mutate SavedData");
-        assertTrue(network.contains("diplomacy.addBanned(owner, target)"),
-                "Adding banned players should mutate SavedData");
-        assertTrue(network.contains("diplomacy.setDisplayData(player.getUUID(), teamName, leaderName);"),
-                "Diplomacy display metadata should be stored in SavedData");
+        assertTrue(pointerService.contains("TeamDiplomacyService.isDiplomaticAlly(ship, target)"),
+                "Pointer target validation should route diplomacy checks through the diplomacy service");
+        assertTrue(pointerService.contains("TargetProtectionService.isUnattackableTargetClass(ship, livingTarget)"),
+                "Pointer target validation should route protected-target checks through the target service");
 
-        assertTrue(deskMenu.contains("TeamDiplomacySavedData diplomacy = TeamDiplomacySavedData.get(serverPlayer.serverLevel());"),
-                "Opening desk diplomacy should read server SavedData");
-        assertTrue(targetWrench.contains("UnattackableTargetData.get(serverLevel).toggle(className)"),
-                "Target wrench should persist global protected target edits through SavedData");
-        assertTrue(targetWrench.contains("PlayerTargetListSavedData.get(serverLevel).toggle(player.getUUID(), className)"),
-                "Target wrench should persist per-player target-list edits through SavedData");
-        assertTrue(passiveCombat.contains("UnattackableTargetData.get(serverLevel).contains(target.getClass().getName())"),
-                "Passive combat should consult global protected target SavedData");
-        assertTrue(passiveCombat.contains("PlayerTargetListSavedData.get(serverLevel).contains(owner, target.getClass().getName())"),
-                "Passive combat should consult per-player target-list SavedData");
-        assertTrue(passiveCombat.contains("TeamDiplomacySavedData.get(serverLevel).areAllies(owner, targetOwner)"),
-                "Passive combat should consult diplomacy allies from SavedData");
-        assertTrue(passiveCombat.contains("TeamDiplomacySavedData.get(serverLevel).isBanned(owner, targetOwner)"),
-                "Passive combat should consult diplomacy bans from SavedData");
+        assertTrue(diplomacyService.contains("TeamDiplomacySavedData diplomacy = TeamDiplomacySavedData.get(serverLevel);"),
+                "Diplomacy mutations should use SavedData inside the diplomacy service");
+        assertTrue(diplomacyService.contains("diplomacy.addAlly(owner, target)"),
+                "Adding allies should mutate SavedData");
+        assertTrue(diplomacyService.contains("diplomacy.addBanned(owner, target)"),
+                "Adding banned players should mutate SavedData");
+        assertTrue(diplomacyService.contains("diplomacy.setDisplayData(player.getUUID(), teamName, leaderName);"),
+                "Diplomacy display metadata should be stored in SavedData");
+        assertTrue(diplomacyService.contains("TeamDiplomacySavedData.get(serverLevel).areAllies(owner, targetOwner)"),
+                "Diplomacy ally checks should read SavedData inside the diplomacy service");
+        assertTrue(diplomacyService.contains("TeamDiplomacySavedData.get(serverLevel).isBanned(owner, targetOwner)"),
+                "Diplomacy ban checks should read SavedData inside the diplomacy service");
+
+        assertTrue(targetProtectionService.contains("UnattackableTargetData.get(serverLevel).contains(target.getClass().getName())"),
+                "Global protected-target checks should read SavedData inside the target service");
+        assertTrue(targetProtectionService.contains("UnattackableTargetData.get(serverLevel).toggle(className)"),
+                "Global protected-target edits should persist through SavedData inside the target service");
+        assertTrue(targetProtectionService.contains("PlayerTargetListSavedData.get(serverLevel).contains(ship.getOwnerUUID(), target.getClass().getName())"),
+                "Per-player target-list checks should read SavedData inside the target service");
+        assertTrue(targetProtectionService.contains("PlayerTargetListSavedData.get(serverLevel).toggle(player.getUUID(), className)"),
+                "Per-player target-list edits should persist through SavedData inside the target service");
+
+        assertTrue(deskMenu.contains("TeamDiplomacyService.sendDeskDiplomacySync(serverPlayer);"),
+                "Opening desk diplomacy should delegate sync to the diplomacy service");
+        assertTrue(targetWrench.contains("TargetProtectionService.toggleUnattackableTarget(player, entity);"),
+                "Target wrench should delegate global protected-target edits to the target service");
+        assertTrue(targetWrench.contains("TargetProtectionService.togglePlayerTarget(player, entity);"),
+                "Target wrench should delegate per-player target-list edits to the target service");
+        assertTrue(passiveCombat.contains("TargetProtectionService.isUnattackableTargetClass(this.ship, target)"),
+                "Passive combat should consult global protected targets through the target service");
+        assertTrue(passiveCombat.contains("TargetProtectionService.isPlayerConfiguredTargetClass(this.ship, target)"),
+                "Passive combat should consult per-player target lists through the target service");
+        assertTrue(passiveCombat.contains("TeamDiplomacyService.isDiplomaticAlly(this.ship, target)"),
+                "Passive combat should consult diplomacy allies through the diplomacy service");
+        assertTrue(passiveCombat.contains("TeamDiplomacyService.isDiplomaticBanned(this.ship, target)"),
+                "Passive combat should consult diplomacy bans through the diplomacy service");
+
+        assertFalse(network.contains("TeamDiplomacySavedData"),
+                "Network handlers should not access diplomacy SavedData directly");
+        assertFalse(network.contains("UnattackableTargetData"),
+                "Network handlers should not access target SavedData directly");
+        assertFalse(network.contains("PlayerTargetListSavedData"),
+                "Network handlers should not access player target-list SavedData directly");
+        assertFalse(deskMenu.contains("TeamDiplomacySavedData"),
+                "Desk menu should not access diplomacy SavedData directly");
+        assertFalse(targetWrench.contains("UnattackableTargetData"),
+                "Target wrench should not access target SavedData directly");
+        assertFalse(targetWrench.contains("PlayerTargetListSavedData"),
+                "Target wrench should not access player target-list SavedData directly");
+        assertFalse(passiveCombat.contains("TeamDiplomacySavedData"),
+                "Passive combat should not access diplomacy SavedData directly");
+        assertFalse(passiveCombat.contains("UnattackableTargetData"),
+                "Passive combat should not access target SavedData directly");
+        assertFalse(passiveCombat.contains("PlayerTargetListSavedData"),
+                "Passive combat should not access player target-list SavedData directly");
     }
 
     private static void assertSavedDataUsesServerWideStorage(String source, String dataId) {

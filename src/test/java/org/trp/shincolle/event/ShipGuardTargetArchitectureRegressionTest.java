@@ -22,6 +22,8 @@ class ShipGuardTargetArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/utility/FormationHelper.java");
     private static final Path EVENT_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.java");
+    private static final Path POINTER_SERVICE_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
 
     @Test
     void guardStateShouldHaveTypedFacadeOverLegacySlots() throws IOException {
@@ -41,13 +43,16 @@ class ShipGuardTargetArchitectureRegressionTest {
     @Test
     void pointerAndWaypointCommandsShouldNotWriteGuardSlotsDirectly() throws IOException {
         String eventSource = Files.readString(EVENT_SOURCE);
+        String pointerService = Files.readString(POINTER_SERVICE_SOURCE);
         String shipSource = Files.readString(SHIP_SOURCE);
 
         assertFalse(eventSource.contains("setStateMinor(24, 1)"),
                 "Pointer waypoint command must not write the wrong legacy state slot");
         assertFalse(eventSource.contains("STATE_MINOR_GUARD_X"),
                 "Pointer waypoint command should use the typed guard write API");
-        assertTrue(eventSource.contains("ship.setGuardBlockTarget(guardPos);"),
+        assertTrue(eventSource.contains("PointerInteractionService.handleTargetCommand(player, pointerStack);"),
+                "Pointer waypoint command should be delegated out of the event layer");
+        assertTrue(pointerService.contains("ship.setGuardBlockTarget(guardPos);"),
                 "Pointer waypoint command should persist the waypoint guard target");
         assertTrue(shipSource.contains("this.suspendBlockGuardTarget();"),
                 "Temporary pointer commands should suspend block guard through the typed API");
