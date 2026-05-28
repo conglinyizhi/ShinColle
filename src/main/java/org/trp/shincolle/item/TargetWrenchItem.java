@@ -15,8 +15,7 @@ import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.trp.shincolle.block.entity.IWaypoint;
 import org.trp.shincolle.network.C2SWaypointActionPayload;
-import org.trp.shincolle.server.PlayerTargetListSavedData;
-import org.trp.shincolle.server.UnattackableTargetData;
+import org.trp.shincolle.server.TargetProtectionService;
 
 import java.util.List;
 
@@ -83,8 +82,8 @@ public class TargetWrenchItem extends Item {
                 markedPos.getX(), markedPos.getY(), markedPos.getZ(),
                 clickedPos.getX(), clickedPos.getY(), clickedPos.getZ()
             ));
-            clearMarked(stack);
         }
+        clearMarked(stack);
 
         return InteractionResult.SUCCESS;
     }
@@ -186,46 +185,18 @@ public class TargetWrenchItem extends Item {
     }
 
     private void toggleUnattackableTarget(Player player, Entity entity) {
-        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel) || !player.hasPermissions(2)) {
-            return;
-        }
-
-        String className = entity.getClass().getName();
-        boolean added = UnattackableTargetData.get(serverLevel).toggle(className);
-        Component prefix = Component.translatable(added ? "chat.shincolle.optool.add" : "chat.shincolle.optool.remove");
-        player.displayClientMessage(prefix.copy().append(" " + className), false);
+        TargetProtectionService.toggleUnattackableTarget(player, entity);
     }
 
     private void showUnattackableTargets(Player player) {
-        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
-            return;
-        }
-
-        player.displayClientMessage(Component.translatable("chat.shincolle.optool.show").withStyle(ChatFormatting.GOLD), false);
-        for (String className : UnattackableTargetData.get(serverLevel).entries()) {
-            player.displayClientMessage(Component.literal(className).withStyle(ChatFormatting.AQUA), false);
-        }
+        TargetProtectionService.showUnattackableTargets(player);
     }
 
     private void togglePlayerTarget(Player player, Entity entity) {
-        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
-            return;
-        }
-
-        String className = entity.getClass().getName();
-        boolean added = PlayerTargetListSavedData.get(serverLevel).toggle(player.getUUID(), className);
-        Component prefix = Component.translatable(added ? "chat.shincolle.target.add" : "chat.shincolle.target.remove");
-        player.displayClientMessage(prefix.copy().append(" " + className), false);
+        TargetProtectionService.togglePlayerTarget(player, entity);
     }
 
     private void showPlayerTargets(Player player) {
-        if (!(player.level() instanceof net.minecraft.server.level.ServerLevel serverLevel)) {
-            return;
-        }
-
-        player.displayClientMessage(Component.translatable("gui.shincolle.targetAI").withStyle(ChatFormatting.GOLD), false);
-        for (String className : PlayerTargetListSavedData.get(serverLevel).entries(player.getUUID())) {
-            player.displayClientMessage(Component.literal(className).withStyle(ChatFormatting.AQUA), false);
-        }
+        TargetProtectionService.showPlayerTargets(player);
     }
 }

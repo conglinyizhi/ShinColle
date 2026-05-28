@@ -1,6 +1,5 @@
 package org.trp.shincolle.event;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -10,12 +9,8 @@ import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.monster.Slime;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.entity.projectile.ProjectileUtil;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.GameRules;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.*;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent;
@@ -27,7 +22,6 @@ import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
-import org.trp.shincolle.block.entity.CraneBlockEntity;
 import org.trp.shincolle.command.ModCommands;
 import org.trp.shincolle.entity.EntityAirfieldHime;
 import org.trp.shincolle.entity.EntityBattleshipRu;
@@ -40,20 +34,11 @@ import org.trp.shincolle.entity.base.EntityShipBaseSimple;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.MarriageRingItem;
-import org.trp.shincolle.item.PointerItem;
-import org.trp.shincolle.network.ModNetwork;
 import org.trp.shincolle.server.PlayerStateService;
-import org.trp.shincolle.utility.FormationHelper;
-
-import java.util.List;
-import java.util.UUID;
+import org.trp.shincolle.server.PointerInteractionService;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class ModEventBusEvents {
-
-    private static final double POINTER_SEARCH_RADIUS = 100.0;
-    private static final long POINTER_TARGET_DURATION_TICKS = 20L * 60L * 5L;
-    private static final double POINTER_TARGET_SAME_DISTANCE_SQR = 0.25D;
 
     @SubscribeEvent
     public static void onRegisterCommands(RegisterCommandsEvent event) {
@@ -201,99 +186,8 @@ public class ModEventBusEvents {
             return;
         }
 
-        if (player.isShiftKeyDown()) {
-            if (pointerStack.getItem() instanceof PointerItem pointerItem) {
-                int next = pointerItem.cycleMode(pointerStack);
-                PointerItem.updateServerSideMode(player, pointerStack, next);
-            }
-            event.setCanceled(true);
-            return;
-        }
-
         event.setCanceled(true);
-
-        Entity targetEntity = event.getTarget();
-        EntityShipBase ship;
-        if (targetEntity instanceof EntityShipBase targetShip) {
-            ship = targetShip;
-        } else if (targetEntity instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getHost() instanceof EntityShipBase hostShip) {
-            ship = hostShip;
-        } else {
-            return;
-        }
-
-        if (!ship.isAlive() || ship.isInDeadPose() || !ship.isOwnedBy(player)) {
-            return;
-        }
-
-        int mode = pointerStack.getItem() instanceof PointerItem pi ? pi.getMode(pointerStack) : PointerItem.MODE_SINGLE;
-        if (mode == PointerItem.MODE_GROUP || mode == PointerItem.MODE_FORMATION) {
-            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(player);
-            int teamId = data.getCurrentTeamID();
-            int existingTeam = -1;
-            int existingSlot = -1;
-            for (int t = 0; t < org.trp.shincolle.attachment.AdmiralData.TEAM_COUNT; t++) {
-                for (int s = 0; s < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT; s++) {
-                    if (ship.getUUID().equals(data.getShipUUID(t, s))) {
-                        existingTeam = t;
-                        existingSlot = s;
-                        break;
-                    }
-                }
-                if (existingTeam != -1) break;
-            }
-
-            if (existingTeam != -1) {
-                if (existingTeam == teamId) {
-                    if (mode == PointerItem.MODE_FORMATION) {
-                        PlayerStateService.removeShipFromTeams(player, ship.getUUID());
-                        ship.setFormationTeam(-1);
-                        ship.setFormationSlot(-1);
-                        ship.setPointerSelected(false);
-                    } else {
-                        boolean nextState = !data.isSelected(teamId, existingSlot);
-                        PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState);
-                        ship.setPointerSelected(nextState);
-                    }
-                } else {
-                    if (mode == PointerItem.MODE_FORMATION) {
-                        int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID());
-                        if (assignedSlot != -1) {
-                            ship.setFormationTeam(teamId);
-                            ship.setFormationSlot(assignedSlot);
-                            ship.setPointerSelected(true);
-                        } else {
-                            player.displayClientMessage(net.minecraft.network.chat.Component.translatable("chat.shincolle.formation.teamfull"), false);
-                        }
-                    } else {
-                        ship.togglePointerSelected();
-                    }
-                }
-                PlayerStateService.sendAdmiralState((net.minecraft.server.level.ServerPlayer) player);
-            } else if (mode == PointerItem.MODE_FORMATION) {
-                int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID());
-                if (assignedSlot != -1) {
-                    ship.setFormationTeam(teamId);
-                    ship.setFormationSlot(assignedSlot);
-                    ship.setPointerSelected(true);
-                    PlayerStateService.sendAdmiralState((net.minecraft.server.level.ServerPlayer) player);
-                } else {
-                    player.displayClientMessage(net.minecraft.network.chat.Component.translatable("chat.shincolle.formation.teamfull"), false);
-                }
-            } else {
-                ship.togglePointerSelected();
-            }
-
-            if (!ship.isPointerSelected()) {
-                ship.clearPointerTarget();
-                ship.clearPointerTargetEntity();
-            }
-            return;
-        }
-
-        PointerItem.clearOwnedPointerSelection(player, ship, POINTER_SEARCH_RADIUS);
-        PointerItem.updateServerSideMode(player, pointerStack, PointerItem.MODE_SINGLE);
-        ship.setPointerSelected(true);
+        PointerInteractionService.handleAttackSelection(player, pointerStack, event.getTarget());
     }
 
     @SubscribeEvent
@@ -320,7 +214,7 @@ public class ModEventBusEvents {
             return;
         }
 
-        handlePointerTargetCommand(player, pointerStack);
+        PointerInteractionService.handleTargetCommand(player, pointerStack);
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
     }
@@ -333,7 +227,7 @@ public class ModEventBusEvents {
             return;
         }
 
-        handlePointerTargetCommand(player, pointerStack);
+        PointerInteractionService.handleTargetCommand(player, pointerStack);
         event.setCanceled(true);
         event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
     }
@@ -454,163 +348,4 @@ public class ModEventBusEvents {
                 && MarriageRingItem.isActive(stack);
     }
 
-    private static void handlePointerTargetCommand(Player player, ItemStack pointerStack) {
-        if (player == null || player.level().isClientSide) {
-            return;
-        }
-
-        if (pointerStack.isEmpty()) {
-            return;
-        }
-
-        AABB searchArea = player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS);
-        List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class, searchArea,
-                ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
-        if (ships.isEmpty()) {
-            return;
-        }
-
-        if (!(pointerStack.getItem() instanceof PointerItem pointerItem)) {
-            return;
-        }
-
-        int mode = pointerItem.getMode(pointerStack);
-        if (mode == PointerItem.MODE_SINGLE && ships.size() > 1) {
-            ships.sort((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player)));
-            EntityShipBase selected = ships.get(0);
-            PointerItem.updateServerSideMode(player, pointerStack, PointerItem.MODE_SINGLE);
-            ships = List.of(selected);
-        } else if (mode == PointerItem.MODE_FORMATION) {
-            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(player);
-            int tid = data.getCurrentTeamID();
-            ships = player.level().getEntitiesOfClass(EntityShipBase.class, searchArea,
-                    ship -> ship.isOwnedBy(player) && ship.getFormationTeam() == tid && !ship.isInDeadPose());
-        }
-
-        EntityHitResult hitRes = getLookTargetResult(player);
-        if (hitRes != null) {
-            Entity target = hitRes.getEntity();
-            if (player.isShiftKeyDown()) {
-                Entity guardTarget = target;
-                if (guardTarget instanceof org.trp.shincolle.entity.base.EntityMountBase mount && mount.getHost() != null) {
-                    guardTarget = mount.getHost();
-                }
-                if (guardTarget instanceof EntityShipBase ownShip && ownShip.isOwnedBy(player)) {
-                    for (EntityShipBase ship : ships) {
-                        FormationHelper.applyShipGuardEntity(ship, ownShip);
-                        ship.clearPointerTarget();
-                        ship.clearPointerTargetEntity();
-                    }
-                }
-                return;
-            }
-            if (target == player || target instanceof EntityShipBase ship && ship.isOwnedBy(player)) {
-                return;
-            }
-            for (EntityShipBase ship : ships) {
-                if (!ModNetwork.canAssignPointerEntityTarget(player, ship, target)) {
-                    continue;
-                }
-                if (ship.hasPointerTargetEntity() && ship.getPointerTargetEntity() == target) {
-                    ship.clearPointerTargetEntity();
-                    ship.clearPointerTarget();
-                    continue;
-                }
-                ship.setPointerTargetEntity(target, POINTER_TARGET_DURATION_TICKS);
-            }
-            return;
-        }
-
-        Vec3 target = getLookTarget(player);
-        if (target == null) {
-            return;
-        }
-        BlockHitResult blockHit = getLookBlockResult(player);
-        BlockPos guardPos = null;
-        if (blockHit != null && player.level().getBlockEntity(blockHit.getBlockPos()) instanceof org.trp.shincolle.block.entity.IWaypoint wp) {
-            BlockPos resolved = resolveWaypointTarget(player.level(), blockHit.getBlockPos(), wp);
-            guardPos = resolved;
-            target = Vec3.atBottomCenterOf(resolved);
-        }
-        for (EntityShipBase ship : ships) {
-            if (ship.hasPointerTarget() && isSamePointerTarget(ship.getPointerTarget(), target)) {
-                ship.clearPointerTarget();
-                continue;
-            }
-            ship.setPointerTarget(target, POINTER_TARGET_DURATION_TICKS);
-
-            
-            if (guardPos != null) {
-                ship.setGuardBlockTarget(guardPos);
-                ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false); 
-            }
-        }
-    }
-
-    private static boolean isSamePointerTarget(Vec3 current, Vec3 next) {
-        if (current == null || next == null) {
-            return false;
-        }
-        return current.distanceToSqr(next) <= POINTER_TARGET_SAME_DISTANCE_SQR;
-    }
-
-    private static EntityHitResult getLookTargetEntity(Player player) {
-        double reach = POINTER_SEARCH_RADIUS;
-        Vec3 eyePos = player.getEyePosition();
-        Vec3 look = player.getViewVector(1.0F);
-        Vec3 end = eyePos.add(look.x * reach, look.y * reach, look.z * reach);
-        AABB searchBox = player.getBoundingBox().expandTowards(look.scale(reach)).inflate(1.0D);
-        return ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, end, searchBox,
-                entity -> !entity.isSpectator() && entity.isPickable() && entity != player);
-    }
-
-    private static Vec3 getLookTarget(Player player) {
-        BlockHitResult hit = getLookBlockResult(player);
-        if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
-            return null;
-        }
-        
-        BlockPos pos = hit.getBlockPos();
-        if (player.level().getBlockEntity(pos) instanceof org.trp.shincolle.block.entity.IWaypoint) {
-            return Vec3.atBottomCenterOf(pos).add(0.0, 1.0, 0.0);
-        }
-        return Vec3.atBottomCenterOf(pos).add(0.0, 1.0, 0.0);
-    }
-
-    private static BlockHitResult getLookBlockResult(Player player) {
-        double reach = POINTER_SEARCH_RADIUS;
-        Vec3 eyePos = player.getEyePosition();
-        Vec3 look = player.getViewVector(1.0F);
-        Vec3 end = eyePos.add(look.x * reach, look.y * reach, look.z * reach);
-        return player.level().clip(new ClipContext(eyePos, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, player));
-    }
-
-    private static BlockPos resolveWaypointTarget(Level level, BlockPos waypointPos, org.trp.shincolle.block.entity.IWaypoint waypoint) {
-        BlockPos next = waypoint.getNextPos();
-        if (isCraneTarget(level, next)) {
-            return next;
-        }
-        BlockPos chest = waypoint.getChestPos();
-        if (isCraneTarget(level, chest)) {
-            return chest;
-        }
-        return waypointPos;
-    }
-
-    private static boolean isCraneTarget(Level level, BlockPos pos) {
-        if (pos == null || pos.equals(BlockPos.ZERO)) {
-            return false;
-        }
-        return level.getBlockEntity(pos) instanceof CraneBlockEntity;
-    }
-
-    public static EntityHitResult getLookTargetResult(Player player) {
-        double reach = POINTER_SEARCH_RADIUS;
-        Vec3 eyePos = player.getEyePosition();
-        Vec3 look = player.getViewVector(1.0F);
-        Vec3 end = eyePos.add(look.x * reach, look.y * reach, look.z * reach);
-        AABB searchBox = player.getBoundingBox().expandTowards(look.scale(reach)).inflate(1.0D);
-        return ProjectileUtil.getEntityHitResult(player.level(), player, eyePos, end, searchBox,
-                entity -> !entity.isSpectator() && entity.isPickable() && entity != player);
-    }
 }

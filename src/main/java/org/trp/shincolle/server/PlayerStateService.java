@@ -11,9 +11,11 @@ import org.trp.shincolle.attachment.AdmiralData;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModDataAttachments;
 import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.network.S2CAdmiralDataSyncPayload;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -46,6 +48,43 @@ public final class PlayerStateService {
         collected.clear();
         for (int classId : collectedShipIds) {
             collected.add(classId);
+        }
+    }
+
+    public static void refreshClientPointerSelection(Player player) {
+        if (player == null || !player.level().isClientSide) {
+            return;
+        }
+
+        int mode = PointerItem.MODE_SINGLE;
+        ItemStack pointerStack = ItemStack.EMPTY;
+        ItemStack main = player.getMainHandItem();
+        if (main.is(ModItems.POINTER_ITEM.get())) {
+            pointerStack = main;
+        } else {
+            ItemStack off = player.getOffhandItem();
+            if (off.is(ModItems.POINTER_ITEM.get())) {
+                pointerStack = off;
+            }
+        }
+        if (!pointerStack.isEmpty() && pointerStack.getItem() instanceof PointerItem pointerItem) {
+            mode = pointerItem.getMode(pointerStack);
+        }
+
+        if (mode == PointerItem.MODE_FORMATION) {
+            AdmiralData data = admiralData(player);
+            int teamId = data.getCurrentTeamID();
+            List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class,
+                    player.getBoundingBox().inflate(100.0),
+                    ship -> ship.isOwnedBy(player) && !ship.isInDeadPose());
+            for (EntityShipBase ship : ships) {
+                if (ship.getFormationTeam() == teamId) {
+                    int slot = ship.getFormationSlot();
+                    ship.setPointerSelected(data.isSelected(teamId, slot));
+                } else {
+                    ship.setPointerSelected(false);
+                }
+            }
         }
     }
 

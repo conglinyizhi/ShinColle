@@ -8,10 +8,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.trp.shincolle.block.entity.DeskBlockEntity;
-import org.trp.shincolle.network.S2CDeskDiplomacySyncPayload;
-import org.trp.shincolle.server.TeamDiplomacySavedData;
+import org.trp.shincolle.server.TeamDiplomacyService;
 
 public class DeskMenu extends AbstractContainerMenu {
     private final int deskType;
@@ -119,16 +117,7 @@ public class DeskMenu extends AbstractContainerMenu {
             });
 
             if (!this.clientSide && this.guiFunc >= 3 && this.guiFunc <= 4 && playerInventory.player instanceof ServerPlayer serverPlayer) {
-                TeamDiplomacySavedData diplomacy = TeamDiplomacySavedData.get(serverPlayer.serverLevel());
-                TeamDiplomacySavedData.TeamDiplomacyEntry entry = diplomacy.getOrCreate(serverPlayer.getUUID());
-                PacketDistributor.sendToPlayer(serverPlayer, S2CDeskDiplomacySyncPayload.of(
-                        serverPlayer.getUUID(),
-                        entry.allies(),
-                        entry.banned(),
-                        java.util.List.of(),
-                        java.util.List.of(),
-                        java.util.List.of()
-                ));
+                TeamDiplomacyService.sendDeskDiplomacySync(serverPlayer);
             }
         }
     }

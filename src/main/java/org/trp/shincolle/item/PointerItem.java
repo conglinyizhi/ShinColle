@@ -66,46 +66,6 @@ public class PointerItem extends Item {
                 data -> data.update(tag -> tag.putInt(TAG_VARIANT, clamped)));
     }
 
-    public static void updateServerSideMode(Player player, ItemStack stack, int nextMode) {
-        if (player.level().isClientSide) return;
-
-        if (nextMode == MODE_SINGLE) {
-            double radius = 100.0;
-            net.minecraft.world.phys.AABB searchArea = player.getBoundingBox().inflate(radius);
-            List<org.trp.shincolle.entity.base.EntityShipBase> ships = player.level().getEntitiesOfClass(org.trp.shincolle.entity.base.EntityShipBase.class, searchArea,
-                    ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
-            if (ships.size() > 1) {
-                ships.sort((a, b) -> Double.compare(a.distanceToSqr(player), b.distanceToSqr(player)));
-                org.trp.shincolle.entity.base.EntityShipBase keep = ships.get(0);
-                clearOwnedPointerSelection(player, keep, radius);
-                keep.setPointerSelected(true);
-            }
-        } else if (nextMode == MODE_FORMATION) {
-            org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(player);
-            int teamId = data.getCurrentTeamID();
-            double radius = 100.0;
-            net.minecraft.world.phys.AABB searchArea = player.getBoundingBox().inflate(radius);
-            List<org.trp.shincolle.entity.base.EntityShipBase> ships = player.level().getEntitiesOfClass(org.trp.shincolle.entity.base.EntityShipBase.class, searchArea,
-                    ship -> ship.isOwnedBy(player) && !ship.isInDeadPose());
-            for (org.trp.shincolle.entity.base.EntityShipBase ship : ships) {
-                ship.setPointerSelected(ship.getFormationTeam() == teamId);
-            }
-        }
-        player.displayClientMessage(Component.translatable(getModeTranslationKey(nextMode)), true);
-    }
-
-    public static void clearOwnedPointerSelection(Player player, org.trp.shincolle.entity.base.EntityShipBase keepSelected, double radius) {
-        net.minecraft.world.phys.AABB searchArea = player.getBoundingBox().inflate(radius);
-        List<org.trp.shincolle.entity.base.EntityShipBase> ships = player.level().getEntitiesOfClass(org.trp.shincolle.entity.base.EntityShipBase.class, searchArea,
-                ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
-        for (org.trp.shincolle.entity.base.EntityShipBase ship : ships) {
-            if (ship == keepSelected) continue;
-            ship.setPointerSelected(false);
-            ship.clearPointerTarget();
-            ship.clearPointerTargetEntity();
-        }
-    }
-
     public ItemStack createVariantStack(int mode) {
         ItemStack stack = new ItemStack(this);
         setMode(stack, mode);

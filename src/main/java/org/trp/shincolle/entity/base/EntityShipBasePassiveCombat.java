@@ -1,7 +1,6 @@
 package org.trp.shincolle.entity.base;
 
 import net.minecraft.util.Mth;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.FlyingMob;
 import net.minecraft.world.entity.LivingEntity;
@@ -11,16 +10,14 @@ import net.minecraft.world.entity.player.Player;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.menu.ShipContainerMenu;
-import org.trp.shincolle.server.PlayerTargetListSavedData;
-import org.trp.shincolle.server.TeamDiplomacySavedData;
-import org.trp.shincolle.server.UnattackableTargetData;
+import org.trp.shincolle.server.TargetProtectionService;
+import org.trp.shincolle.server.TeamDiplomacyService;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
-import java.util.UUID;
 
 final class EntityShipBasePassiveCombat {
 
@@ -570,54 +567,19 @@ final class EntityShipBasePassiveCombat {
     }
 
     private boolean isUnattackableTargetClass(LivingEntity target) {
-        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
-            return false;
-        }
-        return UnattackableTargetData.get(serverLevel).contains(target.getClass().getName());
+        return TargetProtectionService.isUnattackableTargetClass(this.ship, target);
     }
 
     private boolean isPlayerConfiguredTargetClass(Entity target) {
-        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
-            return false;
-        }
-        UUID owner = this.ship.getOwnerUUID();
-        return owner != null && PlayerTargetListSavedData.get(serverLevel).contains(owner, target.getClass().getName());
+        return TargetProtectionService.isPlayerConfiguredTargetClass(this.ship, target);
     }
 
     private boolean isDiplomaticAlly(Entity target) {
-        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
-            return false;
-        }
-        UUID owner = this.ship.getOwnerUUID();
-        UUID targetOwner = getTargetOwnerUUID(target);
-        return TeamDiplomacySavedData.get(serverLevel).areAllies(owner, targetOwner);
+        return TeamDiplomacyService.isDiplomaticAlly(this.ship, target);
     }
 
     private boolean isDiplomaticBanned(Entity target) {
-        if (!(this.ship.level() instanceof ServerLevel serverLevel)) {
-            return false;
-        }
-        UUID owner = this.ship.getOwnerUUID();
-        UUID targetOwner = getTargetOwnerUUID(target);
-        return TeamDiplomacySavedData.get(serverLevel).isBanned(owner, targetOwner);
-    }
-
-    @Nullable
-    private UUID getTargetOwnerUUID(Entity target) {
-        if (target instanceof Player player) {
-            return player.getUUID();
-        }
-        if (target instanceof TamableAnimal tamable) {
-            return tamable.getOwnerUUID();
-        }
-        if (target instanceof EntityMountBase mount) {
-            EntityShipBase host = mount.getHost();
-            if (host != null) {
-                return host.getOwnerUUID();
-            }
-            return mount.getHostUUID();
-        }
-        return null;
+        return TeamDiplomacyService.isDiplomaticBanned(this.ship, target);
     }
 
     private int getPassiveAimTime() {

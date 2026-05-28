@@ -16,7 +16,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.trp.shincolle.entity.EntityShipGrudge;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.ShipMovementCoordinator;
-import org.trp.shincolle.event.ModEventBusEvents;
+import org.trp.shincolle.server.PointerInteractionService;
 import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.ShipRegistrySavedData;
 
@@ -498,7 +498,7 @@ public final class ModCommands {
     }
 
     private static EntityShipBase getTargetShip(ServerPlayer player, double radius, boolean ownedOnly) {
-        EntityHitResult hitResult = ModEventBusEvents.getLookTargetResult(player);
+        EntityHitResult hitResult = PointerInteractionService.getLookTargetResult(player);
         if (hitResult != null && hitResult.getEntity() instanceof EntityShipBase ship && !ship.isInDeadPose()) {
             if (!ownedOnly || ship.isOwnedBy(player)) {
                 return ship;

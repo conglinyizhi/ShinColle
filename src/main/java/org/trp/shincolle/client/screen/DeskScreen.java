@@ -20,6 +20,7 @@ import org.trp.shincolle.menu.DeskMenu;
 import org.trp.shincolle.network.C2SBookStatePayload;
 import org.trp.shincolle.network.C2SDeskGuiPayload;
 import org.trp.shincolle.network.C2SDeskOpenShipPayload;
+import org.trp.shincolle.network.C2SDeskSummonPayload;
 import org.trp.shincolle.network.C2STeamDiplomacyPayload;
 import org.trp.shincolle.network.DeskDiplomacySync;
 import org.trp.shincolle.reference.Values;
@@ -882,6 +883,12 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
                                 return true;
                             }
                             boolean sameSelection = this.selectedShips.size() == 1 && this.selectedShips.contains(shipUuid);
+                            if (hasShiftDown() && menu.getDeskType() == 0) {
+                                if (!this.selectedShips.remove(shipUuid)) {
+                                    this.selectedShips.add(shipUuid);
+                                }
+                                return true;
+                            }
                             if (sameSelection) {
                                 openRadarSelectedShip(shipUuid);
                                 return true;
@@ -999,9 +1006,18 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     }
 
     private void handleRadarActionButton() {
-        if (this.selectedShips.size() == 1) {
+        if (menu.getDeskType() == 0) {
+            summonSelectedShipsToDesk();
+        } else if (this.selectedShips.size() == 1) {
             openRadarSelectedShip(this.selectedShips.iterator().next());
         }
+    }
+
+    private void summonSelectedShipsToDesk() {
+        if (this.selectedShips.isEmpty() || this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
+        PacketDistributor.sendToServer(new C2SDeskSummonPayload(List.copyOf(this.selectedShips)));
     }
 
     private boolean isSelectedShip(RadarEntity radarEntity) {
