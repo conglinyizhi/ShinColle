@@ -24,7 +24,9 @@ class TaskHelperCraftingWorkspaceRegressionTest {
                 "Crafting should read ingredients from the dedicated working slots");
         assertTrue(source.contains("inv.setStackInSlot(CRAFTING_WORK_START_SLOT + slot, workStack);"),
                 "Crafting should stage pulled materials into the dedicated working slots");
-        assertTrue(source.contains("shipInv, template, 1, checkMeta, checkNbt, checkOre, craftWorkingSlots()"),
-                "Crafting should exclude the working slots when pulling fallback ingredients from ship inventory");
+        assertTrue(source.contains("private static ItemStack pullCraftingIngredient(List<IItemHandler> inHandlers, ItemStack template,"),
+                "Crafting ingredient pulls should only depend on the paired container handlers");
+        assertTrue(!source.contains("InventoryHelper.getAndRemoveItem(\n                shipInv, template, 1, checkMeta, checkNbt, checkOre, craftWorkingSlots())"),
+                "Crafting should not pull fallback ingredients from the ship inventory outside the dedicated working slots");
     }
 }
