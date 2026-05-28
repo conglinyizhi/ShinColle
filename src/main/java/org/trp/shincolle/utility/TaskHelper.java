@@ -1,8 +1,13 @@
 package org.trp.shincolle.utility;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -18,8 +23,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemHandlerHelper;
 import org.trp.shincolle.Config;
@@ -39,11 +42,16 @@ import java.util.Optional;
 public class TaskHelper {
     private static final int CRAFTING_WORK_START_SLOT = 12;
     private static final int CRAFTING_WORK_SLOT_COUNT = 9;
+    private static final int HELD_MAINHAND_SLOT = 22;
+    private static final int HELD_OFFHAND_SLOT = 23;
+    private static final int[] HELD_ITEM_SLOTS = {HELD_MAINHAND_SLOT, HELD_OFFHAND_SLOT};
+    private static final int LEGACY_GENERAL_WORLD_ID = 999999;
+    private static final String LEGACY_GENERAL_BIOME_ID = "-999999";
     
     private TaskHelper() {}
 
     public static void onUpdateTask(EntityShipBase host) {
-        if (host.getIsSitting() || !host.isAlive()) {
+        if (host.getIsSitting() || !host.isAlive() || host.isNoFuel()) {
             host.getTaskRuntime().clearTask();
             return;
         }
@@ -52,21 +60,25 @@ public class TaskHelper {
         runtime.beginTaskTick(taskId);
         switch (taskId) {
             case 1: 
-                onUpdateCooking(host, runtime);
+                if (isTaskEnabled(0)) onUpdateCooking(host, runtime);
                 break;
             case 2: 
-                onUpdateFishing(host, runtime);
+                if (isTaskEnabled(1)) onUpdateFishing(host, runtime);
                 break;
             case 3: 
-                onUpdateMining(host, runtime);
+                if (isTaskEnabled(2)) onUpdateMining(host, runtime);
                 break;
             case 4: 
-                onUpdateCrafting(host, runtime);
+                if (isTaskEnabled(3)) onUpdateCrafting(host, runtime);
                 break;
             default:
                 runtime.clearTask();
                 break;
         }
+    }
+
+    private static boolean isTaskEnabled(int index) {
+        return index >= 0 && index < Config.taskEnable.length && Config.taskEnable[index];
     }
 
     public static void onUpdateCooking(EntityShipBase host) {
@@ -80,10 +92,13 @@ public class TaskHelper {
         ItemStack offhandStack = host.getHeldItemOffhandSlot();
         if (mainStack.isEmpty()) return;
 
-        final net.minecraft.world.item.Item originalMainItem = mainStack.getItem();
-        final net.minecraft.world.item.Item originalOffhandItem = offhandStack.getItem();
-
         Level level = host.level();
+        ItemStack resultStack = level.getRecipeManager()
+                .getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(mainStack), level)
+                .map(recipe -> recipe.value().assemble(new SingleRecipeInput(mainStack), level.registryAccess()))
+                .orElse(ItemStack.EMPTY);
+        if (resultStack.isEmpty()) return;
+
         ShipGuardTarget guardTarget = host.getGuardTarget();
         if (!isWaypointGuardContext(guardTarget, level)) return;
         int gx = guardTarget.x();
@@ -126,28 +141,25 @@ public class TaskHelper {
             boolean swing = false;
             
             if (!mainStack.isEmpty()) {
-                var smeltingRecipe = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(mainStack), level);
-                if (smeltingRecipe.isPresent()) {
-                    int canFit = 0;
-                    for (IItemHandler handler : inHandlers) {
+                int canFit = 0;
+                for (IItemHandler handler : inHandlers) {
                     ItemStack remainderSim = handler.insertItem(0, mainStack, true);
-                        canFit += mainStack.getCount() - remainderSim.getCount();
-                    }
+                    canFit += mainStack.getCount() - remainderSim.getCount();
+                }
 
-                    if (canFit > 0) {
-                        ItemStack material = InventoryHelper.getAndRemoveItem(host.getInventory(), mainStack, canFit, checkMeta, checkNbt, checkOre, null);
-                        if (!material.isEmpty()) {
-                            ItemStack remaining = material;
-                            for (IItemHandler handler : inHandlers) {
-                                if (remaining.isEmpty()) break;
-                                remaining = handler.insertItem(0, remaining, false);
-                            }
-                            if (remaining.getCount() < material.getCount()) {
-                                swing = true;
-                            }
-                            if (!remaining.isEmpty()) {
-                                InventoryHelper.moveItemstackToInv(host.getInventory(), remaining, null);
-                            }
+                if (canFit > 0) {
+                    ItemStack material = InventoryHelper.getAndRemoveItem(host.getInventory(), mainStack, canFit, checkMeta, checkNbt, checkOre, HELD_ITEM_SLOTS);
+                    if (!material.isEmpty()) {
+                        ItemStack remaining = material;
+                        for (IItemHandler handler : inHandlers) {
+                            if (remaining.isEmpty()) break;
+                            remaining = handler.insertItem(0, remaining, false);
+                        }
+                        if (remaining.getCount() < material.getCount()) {
+                            swing = true;
+                        }
+                        if (!remaining.isEmpty()) {
+                            InventoryHelper.moveItemstackToInv(host.getInventory(), remaining, null);
                         }
                     }
                 }
@@ -162,7 +174,7 @@ public class TaskHelper {
                 }
 
                 if (canFit > 0) {
-                    ItemStack fuel = InventoryHelper.getAndRemoveItem(host.getInventory(), offhandStack, canFit, checkMeta, checkNbt, checkOre, null);
+                    ItemStack fuel = InventoryHelper.getAndRemoveItem(host.getInventory(), offhandStack, canFit, checkMeta, checkNbt, checkOre, HELD_ITEM_SLOTS);
                     if (!fuel.isEmpty()) {
                         ItemStack remaining = fuel;
                         for (IItemHandler handler : fuelHandlers) {
@@ -184,27 +196,24 @@ public class TaskHelper {
                     if (inOutputSlot.isEmpty()) {
                         continue;
                     }
-                    if (!inOutputSlot.is(originalMainItem) && !inOutputSlot.is(originalOffhandItem)) {
-                        boolean isPotentialMaterial = level.getRecipeManager().getRecipeFor(RecipeType.SMELTING, new SingleRecipeInput(inOutputSlot), level).isPresent();
-                        if (!isPotentialMaterial) {
-                            ItemStack taken = handler.extractItem(slot, 64, false);
-                            if (!taken.isEmpty()) {
-                                swing = true;
-                                tookOutput = true;
-                                InventoryHelper.moveItemstackToInv(host.getInventory(), taken, null);
+                    if (InventoryHelper.matchTargetItem(inOutputSlot, resultStack, checkMeta, checkNbt, checkOre)) {
+                        ItemStack taken = handler.extractItem(slot, 64, false);
+                        if (!taken.isEmpty()) {
+                            swing = true;
+                            tookOutput = true;
+                            InventoryHelper.moveItemstackToInv(host.getInventory(), taken, null);
 
-                                host.addShipExp(Config.expGainTask[0]);
-                                host.setFuel(host.getFuel() - Config.consumeGrudgeTask[0]);
-                                host.addMorale(100);
+                            host.addShipExp(Config.expGainTask[0]);
+                            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[0]);
+                            host.addMorale(100);
 
-                                float failChance = (Config.shipMaxLevelNormal - host.getLevel()) / (float) Config.shipMaxLevelNormal * 0.2F + 0.05F;
-                                if (host.getRandom().nextFloat() < failChance) {
-                                    ItemEntity entity = new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, new ItemStack(Items.CHARCOAL));
-                                    level.addFreshEntity(entity);
-                                    host.applyParticleEmotion(6);
-                                }
-                                break;
+                            float failChance = (Config.shipMaxLevelNormal - host.getLevel()) / (float) Config.shipMaxLevelNormal * 0.2F + 0.05F;
+                            if (host.getRandom().nextFloat() < failChance) {
+                                ItemEntity entity = new ItemEntity(level, chestPos.getX() + 0.5, chestPos.getY() + 1.0, chestPos.getZ() + 0.5, new ItemStack(Items.CHARCOAL));
+                                level.addFreshEntity(entity);
+                                host.applyParticleEmotion(6);
                             }
+                            break;
                         }
                     }
                 }
@@ -247,26 +256,8 @@ public class TaskHelper {
         if (Math.abs(host.getDeltaMovement().x) > 0.1D || Math.abs(host.getDeltaMovement().z) > 0.1D || host.getDeltaMovement().y > 0.1D) return;
 
 
-        BlockPos waterPos = null;
-        boolean hasWater = false;
-        BlockPos.MutableBlockPos mutPos = new BlockPos.MutableBlockPos();
-        for (int dy = 0; dy >= -3; dy--) {
-            for (int dx = -5; dx <= 5; dx++) {
-                for (int dz = -5; dz <= 5; dz++) {
-                    mutPos.set(host.getX() + dx, host.getY() + dy, host.getZ() + dz);
-                    
-                    if (level.getFluidState(mutPos).is(net.minecraft.tags.FluidTags.WATER) &&
-                            level.getBlockState(mutPos.above()).isAir()) {
-                        hasWater = true;
-                        waterPos = mutPos.immutable();
-                        break;
-                    }
-                }
-                if (hasWater) break;
-            }
-            if (hasWater) break;
-        }
-        if (!hasWater) return;
+        BlockPos waterPos = findNearbyFishingWater(host, 5, 3);
+        if (waterPos == null) return;
 
         if (host.getFishHook() == null || host.getFishHook().isRemoved()) {
             host.startCustomSwing();
@@ -289,6 +280,7 @@ public class TaskHelper {
                         .withParameter(LootContextParams.ORIGIN, host.position())
                         .withParameter(LootContextParams.TOOL, rod)
                         .withParameter(LootContextParams.THIS_ENTITY, host)
+                        .withLuck(getFishingLuck(host, serverLevel))
                         .create(LootContextParamSets.FISHING);
                 
                 List<ItemStack> items = lootTable.getRandomItems(params);
@@ -303,7 +295,7 @@ public class TaskHelper {
                 host.getFishHook().discard();
                 host.addShipExp(Config.expGainTask[1]);
                 host.setFuel(host.getFuel() - Config.consumeGrudgeTask[1]);
-                host.addMorale(50);
+                host.addMorale(300);
                 host.applyParticleEmotion(host.getRandom().nextInt(5));
             } else if (host.getFishHook().tickCount > Config.tickFishingMin + Config.tickFishingMax + 20) {
                 host.getFishHook().discard();
@@ -366,7 +358,7 @@ public class TaskHelper {
                 
                 host.addShipExp(Config.expGainTask[2]);
                 host.setFuel(host.getFuel() - Config.consumeGrudgeTask[2]);
-                host.addMorale(100);
+                host.addMorale(-200);
                 host.applyParticleEmotion(host.getRandom().nextInt(5));
                 host.startCustomSwing();
                 host.setStateTimer(15, host.tickCount);
@@ -421,13 +413,14 @@ public class TaskHelper {
         }
 
         int fortuneLevel = getFortuneLevel(host.getHeldItemMainhandSlot(), level);
-        float scaledAmount = amount * (1.0F + chosen.enchantFactor() * fortuneLevel);
+        int luckLevel = getLuckLevel(host);
+        float scaledAmount = amount * (1.0F + chosen.enchantFactor() * (fortuneLevel + luckLevel));
         int finalAmount = Math.max(1, Math.round(scaledAmount));
         return Optional.of(new ItemStack(chosen.item(), finalAmount));
     }
 
     private static boolean matchesDimension(Config.MiningEntry entry, int dimensionId, Level level) {
-        if ("*".equals(entry.dimensionPath())) return true;
+        if ("*".equals(entry.dimensionPath()) || entry.dimensionId() == LEGACY_GENERAL_WORLD_ID) return true;
         if (entry.dimensionId() != Integer.MIN_VALUE) {
             return entry.dimensionId() == dimensionId;
         }
@@ -435,7 +428,9 @@ public class TaskHelper {
     }
 
     private static boolean matchesBiome(Config.MiningEntry entry, String biomePath) {
-        return "*".equals(entry.biomePath()) || biomePath.equals(entry.biomePath());
+        return "*".equals(entry.biomePath())
+                || LEGACY_GENERAL_BIOME_ID.equals(entry.biomePath())
+                || biomePath.equals(entry.biomePath());
     }
 
     private static int getLegacyDimensionId(Level level) {
@@ -465,6 +460,61 @@ public class TaskHelper {
                 .lookupOrThrow(Registries.ENCHANTMENT)
                 .getOrThrow(Enchantments.FORTUNE);
         return pickaxe.getEnchantmentLevel(fortune);
+    }
+
+    private static int getLuckLevel(EntityShipBase host) {
+        MobEffectInstance effect = host.getEffect(MobEffects.LUCK);
+        return effect == null ? 0 : effect.getAmplifier() + 1;
+    }
+
+    private static float getFishingLuck(EntityShipBase host, Level level) {
+        return Math.max(
+                getLuckOfTheSeaLevel(host.getHeldItemMainhandSlot(), level),
+                getLuckOfTheSeaLevel(host.getHeldItemOffhandSlot(), level))
+                + getLuckLevel(host)
+                + host.getLevel() / (float) Config.shipMaxLevelNormal * 1.5F;
+    }
+
+    private static int getLuckOfTheSeaLevel(ItemStack stack, Level level) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+
+        Holder<Enchantment> luckOfTheSea = level.registryAccess()
+                .lookupOrThrow(Registries.ENCHANTMENT)
+                .getOrThrow(Enchantments.LUCK_OF_THE_SEA);
+        return stack.getEnchantmentLevel(luckOfTheSea);
+    }
+
+    private static BlockPos findNearbyFishingWater(EntityShipBase host, int radius, int depth) {
+        Level level = host.level();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+        for (int dy = 1; dy > -3; dy--) {
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dz = -radius; dz <= radius; dz++) {
+                    if (dx == 0 && dz == 0) {
+                        continue;
+                    }
+                    pos.set(host.getX() + dx, host.getY() + dy, host.getZ() + dz);
+                    if (isWaterWithDepth(level, pos, depth) && level.getBlockState(pos.above()).isAir()) {
+                        return pos.immutable();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    private static boolean isWaterWithDepth(Level level, BlockPos pos, int depth) {
+        if (!level.getFluidState(pos).is(FluidTags.WATER)) {
+            return false;
+        }
+        for (int dy = 1; dy < depth; dy++) {
+            if (!level.getFluidState(pos.below(dy)).is(FluidTags.WATER)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public static void onUpdateCrafting(EntityShipBase host) {
@@ -660,9 +710,9 @@ public class TaskHelper {
 
         if (craftedCount > 0) {
             host.startCustomSwing();
-            host.addShipExp(Config.expGainTask[3] * craftedCount);
-            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[3] * craftedCount);
-            host.addMorale(-10 * craftedCount);
+            host.addShipExp(Config.expGainTask[3]);
+            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[3]);
+            host.addMorale(-10);
             if (host.getRandom().nextInt(5) == 0) {
                 host.applyParticleEmotion(host.getRandom().nextInt(5));
             }

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
@@ -56,6 +57,10 @@ public class Config {
     private static final ModConfigSpec.IntValue TICK_FISHING_MAX;
     private static final ModConfigSpec.IntValue TICK_MINING_MIN;
     private static final ModConfigSpec.IntValue TICK_MINING_MAX;
+    private static final ModConfigSpec.BooleanValue TASK_ENABLE_COOKING;
+    private static final ModConfigSpec.BooleanValue TASK_ENABLE_FISHING;
+    private static final ModConfigSpec.BooleanValue TASK_ENABLE_MINING;
+    private static final ModConfigSpec.BooleanValue TASK_ENABLE_CRAFTING;
     private static final ModConfigSpec.IntValue SMALL_SHIPYARD_POWER_MAX;
     private static final ModConfigSpec.IntValue SMALL_SHIPYARD_BUILD_SPEED;
     private static final ModConfigSpec.IntValue SMALL_SHIPYARD_INSTANT_TICKS;
@@ -149,6 +154,7 @@ public class Config {
     public static int tickFishingMax = 300;
     public static int tickMiningMin = 100;
     public static int tickMiningMax = 200;
+    public static boolean[] taskEnable = {true, true, true, true};
     public static int smallShipyardPowerMax = 460800;
     public static int smallShipyardBuildSpeed = 48;
     public static int smallShipyardInstantTicks = 2400;
@@ -384,6 +390,10 @@ public class Config {
         TICK_FISHING_MAX = BUILDER.defineInRange("tickFishingMax", tickFishingMax, 1, 10000);
         TICK_MINING_MIN = BUILDER.defineInRange("tickMiningMin", tickMiningMin, 1, 10000);
         TICK_MINING_MAX = BUILDER.defineInRange("tickMiningMax", tickMiningMax, 1, 10000);
+        TASK_ENABLE_COOKING = BUILDER.define("enableCooking", taskEnable[0]);
+        TASK_ENABLE_FISHING = BUILDER.define("enableFishing", taskEnable[1]);
+        TASK_ENABLE_MINING = BUILDER.define("enableMining", taskEnable[2]);
+        TASK_ENABLE_CRAFTING = BUILDER.define("enableCrafting", taskEnable[3]);
         SMALL_SHIPYARD_POWER_MAX = BUILDER
                 .comment("Small shipyard max fuel storage")
                 .defineInRange("smallShipyardPowerMax", smallShipyardPowerMax, 1, 100000000);
@@ -601,6 +611,10 @@ public class Config {
             tickFishingMax = TICK_FISHING_MAX.get();
             tickMiningMin = TICK_MINING_MIN.get();
             tickMiningMax = TICK_MINING_MAX.get();
+            taskEnable[0] = TASK_ENABLE_COOKING.get();
+            taskEnable[1] = TASK_ENABLE_FISHING.get();
+            taskEnable[2] = TASK_ENABLE_MINING.get();
+            taskEnable[3] = TASK_ENABLE_CRAFTING.get();
             smallShipyardPowerMax = SMALL_SHIPYARD_POWER_MAX.get();
             smallShipyardBuildSpeed = SMALL_SHIPYARD_BUILD_SPEED.get();
             smallShipyardInstantTicks = SMALL_SHIPYARD_INSTANT_TICKS.get();
@@ -681,7 +695,7 @@ public class Config {
         entries.add("minecraft:overworld,*,minecraft:coal,0,500,1,3,1,100,1,150");
         entries.add("minecraft:overworld,*,minecraft:redstone,0,500,1,3,20,15,2,150");
         entries.add("minecraft:overworld,*,minecraft:iron_ore,0,350,1,2,1,64,2,100");
-        entries.add("minecraft:overworld,*,shincolle:abyssium,0,350,1,3,1,64,2,100");
+        entries.add("minecraft:overworld,*,shincolle:abyss_polymetal,0,350,1,3,1,64,2,100");
         entries.add("minecraft:overworld,*,minecraft:gold_ore,0,100,1,1,30,32,2,100");
         entries.add("minecraft:overworld,*,minecraft:lapis_lazuli,0,200,1,3,30,30,2,150");
         entries.add("minecraft:overworld,*,minecraft:diamond,0,50,1,1,60,16,3,100");
@@ -690,11 +704,11 @@ public class Config {
 
         entries.add("minecraft:overworld,minecraft:warm_ocean,minecraft:prismarine_shard,0,500,1,4,30,128,0,0");
         entries.add("minecraft:overworld,minecraft:warm_ocean,minecraft:prismarine_crystals,0,200,1,3,60,128,2,100");
-        entries.add("minecraft:overworld,minecraft:warm_ocean,shincolle:abyssium,0,500,1,3,1,64,2,100");
+        entries.add("minecraft:overworld,minecraft:warm_ocean,shincolle:abyss_polymetal,0,500,1,3,1,64,2,100");
         entries.add("minecraft:overworld,minecraft:warm_ocean,minecraft:sponge,0,200,1,1,80,128,0,100");
         entries.add("minecraft:overworld,minecraft:deep_ocean,minecraft:prismarine_shard,0,500,1,4,30,128,0,0");
         entries.add("minecraft:overworld,minecraft:deep_ocean,minecraft:prismarine_crystals,0,200,1,3,60,128,2,100");
-        entries.add("minecraft:overworld,minecraft:deep_ocean,shincolle:abyssium,0,500,1,3,1,64,2,100");
+        entries.add("minecraft:overworld,minecraft:deep_ocean,shincolle:abyss_polymetal,0,500,1,3,1,64,2,100");
         entries.add("minecraft:overworld,minecraft:deep_ocean,minecraft:sponge,0,200,1,1,80,128,0,100");
         entries.add("minecraft:overworld,minecraft:mushroom_fields,minecraft:clay_ball,0,500,1,4,30,128,0,0");
         entries.add("minecraft:overworld,minecraft:mushroom_fields,minecraft:mycelium,0,500,1,1,50,128,0,0");
@@ -895,17 +909,18 @@ public class Config {
         for (String raw : rawEntries) {
             String[] parts = raw.replace(" ", "").split(",");
             if (parts.length != 11) continue;
-            Item item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(parts[2])).orElse(Items.COBBLESTONE);
             int dimensionId = parseDimensionId(parts[0]);
             String dimensionPath = parts[0];
             String biomePath = parts[1];
             try {
+                int itemMeta = Integer.parseInt(parts[3]);
+                Item item = resolveConfigItem(parts[2], itemMeta, Items.COBBLESTONE);
                 parsed.add(new MiningEntry(
                         dimensionId,
                         dimensionPath,
                         biomePath,
                         item,
-                        Integer.parseInt(parts[3]),
+                        itemMeta,
                         Math.max(1, Integer.parseInt(parts[4])),
                         Math.max(1, Integer.parseInt(parts[5])),
                         Math.max(1, Integer.parseInt(parts[6])),
@@ -925,13 +940,14 @@ public class Config {
         for (String raw : rawEntries) {
             String[] parts = raw.replace(" ", "").split(",");
             if (parts.length != 7) continue;
-            Item item = BuiltInRegistries.ITEM.getOptional(ResourceLocation.parse(parts[1])).orElse(Items.AIR);
-            if (item == Items.AIR) continue;
             try {
+                int itemMeta = Integer.parseInt(parts[2]);
+                Item item = resolveConfigItem(parts[1], itemMeta, Items.AIR);
+                if (item == Items.AIR) continue;
                 parsed.add(new LootEntry(
                         Integer.parseInt(parts[0]),
                         item,
-                        Integer.parseInt(parts[2]),
+                        itemMeta,
                         Math.max(1, Integer.parseInt(parts[3])),
                         Integer.parseInt(parts[4]) * 0.01F,
                         Math.max(1, Integer.parseInt(parts[5])),
@@ -945,10 +961,41 @@ public class Config {
 
     private static int parseDimensionId(String value) {
         return switch (value) {
+            case "999999", "*" -> 999999;
             case "0", "minecraft:overworld" -> 0;
             case "-1", "minecraft:the_nether" -> -1;
             case "1", "minecraft:the_end" -> 1;
             default -> Integer.MIN_VALUE;
+        };
+    }
+
+    private static Item resolveConfigItem(String rawId, int itemMeta, Item fallback) {
+        String mappedId = mapLegacyConfigItemId(rawId, itemMeta);
+        ResourceLocation id = ResourceLocation.tryParse(mappedId);
+        if (id == null) {
+            return fallback;
+        }
+        return BuiltInRegistries.ITEM.getOptional(id).orElse(fallback);
+    }
+
+    private static String mapLegacyConfigItemId(String rawId, int itemMeta) {
+        String id = rawId.trim().toLowerCase(Locale.ROOT);
+        return switch (id) {
+            case "shincolle:abyssmetal" -> itemMeta == 1 ? "shincolle:abyss_polymetal" : "shincolle:abyss_metal";
+            case "shincolle:blockabyssium" -> "shincolle:abyssium";
+            case "shincolle:blockpolymetal" -> "shincolle:polymetal";
+            case "shincolle:blockpolymetalgravel" -> "shincolle:polymetal_gravel";
+            case "shincolle:blockpolymetalore" -> "shincolle:polymetal_ore";
+            case "minecraft:stone" -> switch (itemMeta) {
+                case 1 -> "minecraft:granite";
+                case 3 -> "minecraft:diorite";
+                case 5 -> "minecraft:andesite";
+                default -> id;
+            };
+            case "minecraft:dye" -> itemMeta == 4 ? "minecraft:lapis_lazuli" : id;
+            case "minecraft:magma" -> "minecraft:magma_block";
+            case "minecraft:nether_brick" -> "minecraft:nether_bricks";
+            default -> id;
         };
     }
 }

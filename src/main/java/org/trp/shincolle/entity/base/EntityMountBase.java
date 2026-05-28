@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.command.ModCommands;
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
 import org.trp.shincolle.entity.base.path.ShipMoveControl;
 
@@ -377,6 +378,14 @@ public abstract class EntityMountBase extends PathfinderMob {
 
     @Override
     public void tick() {
+        if (!this.level().isClientSide && ModCommands.isStopShipAi()) {
+            if (!checkHostExistence()) return;
+            this.setDeltaMovement(Vec3.ZERO);
+            this.setSpeed(0.0F);
+            this.getNavigation().stop();
+            return;
+        }
+
         double fluidH = this.getFluidHeight(net.minecraft.tags.FluidTags.WATER);
         this.shipDepth = fluidH;
 

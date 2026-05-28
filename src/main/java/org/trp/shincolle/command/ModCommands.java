@@ -4,11 +4,14 @@ import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
+import com.mojang.brigadier.builder.ArgumentBuilder;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.AABB;
@@ -16,6 +19,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.trp.shincolle.entity.EntityShipGrudge;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.entity.base.ShipMovementCoordinator;
+import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.server.PointerInteractionService;
 import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.ShipRegistrySavedData;
@@ -26,6 +30,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+
 public final class ModCommands {
     private static boolean stopShipAi;
     private static final Map<String, Integer> EMOTE_NAME_TO_ID = createEmoteMap();
@@ -35,11 +40,6 @@ public final class ModCommands {
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         dispatcher.register(Commands.literal("ship")
-                .requires(source -> source.hasPermission(2))
-                .then(Commands.literal("stopai")
-                        .executes(context -> setStopAi(context.getSource(), !stopShipAi))
-                        .then(Commands.argument("enabled", BoolArgumentType.bool())
-                                .executes(context -> setStopAi(context.getSource(), BoolArgumentType.getBool(context, "enabled")))))
                 .then(Commands.literal("info")
                         .executes(context -> showLookingShipInfo(context.getSource())))
                 .then(Commands.literal("list")
@@ -48,94 +48,58 @@ public final class ModCommands {
                                 .executes(context -> listRegisteredShips(
                                         context.getSource(),
                                         IntegerArgumentType.getInteger(context, "page")))))
-                .then(Commands.literal("get")
-                        .then(Commands.argument("uuid", StringArgumentType.word())
-                                .executes(context -> recallRegisteredShip(
-                                        context.getSource(),
-                                        parseUuidArgument(context.getSource(), StringArgumentType.getString(context, "uuid"))))))
-                .then(Commands.literal("del")
-                        .then(Commands.argument("uuid", StringArgumentType.word())
-                                .executes(context -> deleteRegisteredShip(
-                                        context.getSource(),
-                                        parseUuidArgument(context.getSource(), StringArgumentType.getString(context, "uuid"))))))
                 .then(Commands.literal("emote")
                         .executes(context -> triggerShipEmote(context.getSource(), -1))
                         .then(Commands.argument("emote", StringArgumentType.word())
                                 .executes(context -> triggerShipEmote(context.getSource(),
                                         parseEmoteArgument(StringArgumentType.getString(context, "emote"))))))
-                .then(Commands.literal("attrs")
-                        .then(Commands.argument("level", IntegerArgumentType.integer(1, 150))
-                                .executes(context -> setTargetShipAttrs(
+                .then(Commands.literal("stopai")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
+                        .executes(context -> setStopAi(context.getSource(), !stopShipAi))
+                        .then(Commands.argument("enabled", BoolArgumentType.bool())
+                                .executes(context -> setStopAi(context.getSource(), BoolArgumentType.getBool(context, "enabled")))))
+                .then(Commands.literal("get")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
+                        .then(Commands.argument("ship_id", IntegerArgumentType.integer(0))
+                                .executes(context -> recallRegisteredShipByListIndex(
                                         context.getSource(),
-                                        IntegerArgumentType.getInteger(context, "level"),
-                                        null, null, null, null,
-                                        null, null, null, null, null, null))
-                                .then(Commands.argument("fuel", IntegerArgumentType.integer(0, 30000))
-                                        .executes(context -> setTargetShipAttrs(
-                                                context.getSource(),
-                                                IntegerArgumentType.getInteger(context, "level"),
-                                                IntegerArgumentType.getInteger(context, "fuel"),
-                                                null, null, null,
-                                                null, null, null, null, null, null))
-                                        .then(Commands.argument("ammo_light", IntegerArgumentType.integer(0, 30000))
-                                                .executes(context -> setTargetShipAttrs(
-                                                        context.getSource(),
-                                                        IntegerArgumentType.getInteger(context, "level"),
-                                                        IntegerArgumentType.getInteger(context, "fuel"),
-                                                        IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                        null, null,
-                                                        null, null, null, null, null, null))
-                                                .then(Commands.argument("ammo_heavy", IntegerArgumentType.integer(0, 30000))
-                                                        .executes(context -> setTargetShipAttrs(
-                                                                context.getSource(),
-                                                                IntegerArgumentType.getInteger(context, "level"),
-                                                                IntegerArgumentType.getInteger(context, "fuel"),
-                                                                IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                                IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                null,
-                                                                null, null, null, null, null, null))
-                                                        .then(Commands.argument("morale", IntegerArgumentType.integer(0, 16000))
-                                                                .executes(context -> setTargetShipAttrs(
-                                                                        context.getSource(),
-                                                                        IntegerArgumentType.getInteger(context, "level"),
-                                                                        IntegerArgumentType.getInteger(context, "fuel"),
-                                                                        IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                                        IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                        IntegerArgumentType.getInteger(context, "morale"),
-                                                                        null, null, null, null, null, null))
-                                                                .then(Commands.argument("bonus_hp", IntegerArgumentType.integer(0, 100))
-                                                                        .then(Commands.argument("bonus_atk", IntegerArgumentType.integer(0, 100))
-                                                                                .then(Commands.argument("bonus_def", IntegerArgumentType.integer(0, 100))
-                                                                                        .then(Commands.argument("bonus_spd", IntegerArgumentType.integer(0, 100))
-                                                                                                .then(Commands.argument("bonus_mov", IntegerArgumentType.integer(0, 100))
-                                                                                                        .then(Commands.argument("bonus_hit", IntegerArgumentType.integer(0, 100))
-                                                                                                                .executes(context -> setTargetShipAttrs(
-                                                                                                                        context.getSource(),
-                                                                                                                        IntegerArgumentType.getInteger(context, "level"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "fuel"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "morale"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_hp"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_atk"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_def"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_spd"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_mov"),
-                                                                                                                        IntegerArgumentType.getInteger(context, "bonus_hit")))))))))))))))
+                                        IntegerArgumentType.getInteger(context, "ship_id"))))
+                        .then(Commands.argument("uuid", StringArgumentType.word())
+                                .executes(context -> recallRegisteredShip(
+                                        context.getSource(),
+                                        parseUuidArgument(context.getSource(), StringArgumentType.getString(context, "uuid"))))))
+                .then(Commands.literal("del")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
+                        .then(Commands.argument("ship_id", IntegerArgumentType.integer(0))
+                                .executes(context -> deleteRegisteredShipByListIndex(
+                                        context.getSource(),
+                                        IntegerArgumentType.getInteger(context, "ship_id"))))
+                        .then(Commands.argument("uuid", StringArgumentType.word())
+                                .executes(context -> deleteRegisteredShip(
+                                        context.getSource(),
+                                        parseUuidArgument(context.getSource(), StringArgumentType.getString(context, "uuid"))))))
+                .then(Commands.literal("attrs")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
+                        .then(shipAttrsArguments()))
                 .then(Commands.literal("tp_selected")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
                         .executes(context -> teleportSelectedShips(context.getSource())))
                 .then(Commands.literal("change_owner")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
                         .then(Commands.argument("player", EntityArgument.player())
                                 .executes(context -> changeTargetShipOwner(context.getSource(), EntityArgument.getPlayer(context, "player")))))
                 .then(Commands.literal("refresh_owner_state")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
                         .executes(context -> refreshNearbyOwnerState(context.getSource(), 128))
                         .then(Commands.argument("range", IntegerArgumentType.integer(1, 1024))
                                 .executes(context -> refreshNearbyOwnerState(context.getSource(), IntegerArgumentType.getInteger(context, "range")))))
                 .then(Commands.literal("clear_drops")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
                         .executes(context -> clearNearbyGrudgeDrops(context.getSource(), 128))
                         .then(Commands.argument("range", IntegerArgumentType.integer(1, 1024))
                                 .executes(context -> clearNearbyGrudgeDrops(context.getSource(), IntegerArgumentType.getInteger(context, "range")))))
                 .then(Commands.literal("kill")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
                         .then(Commands.argument("type", StringArgumentType.word())
                                 .executes(context -> killShips(context.getSource(),
                                         StringArgumentType.getString(context, "type"), 64))
@@ -145,108 +109,66 @@ public final class ModCommands {
                                                 IntegerArgumentType.getInteger(context, "range")))))));
 
         dispatcher.register(Commands.literal("shipstopai")
-                .requires(source -> source.hasPermission(2))
+                .requires(ModCommands::canUseLegacyAdminCommand)
                 .executes(context -> setStopAi(context.getSource(), !stopShipAi))
                 .then(Commands.argument("enabled", BoolArgumentType.bool())
                         .executes(context -> setStopAi(context.getSource(), BoolArgumentType.getBool(context, "enabled")))));
 
         dispatcher.register(Commands.literal("shipstop")
-                .requires(source -> source.hasPermission(2))
+                .requires(ModCommands::canUseLegacyAdminCommand)
                 .executes(context -> setStopAi(context.getSource(), !stopShipAi))
                 .then(Commands.argument("enabled", BoolArgumentType.bool())
                         .executes(context -> setStopAi(context.getSource(), BoolArgumentType.getBool(context, "enabled")))));
 
         dispatcher.register(Commands.literal("shipinfo")
-                .requires(source -> source.hasPermission(2))
                 .executes(context -> showLookingShipInfo(context.getSource())));
 
-        dispatcher.register(Commands.literal("shipemotes")
-                .requires(source -> source.hasPermission(2))
-                .executes(context -> triggerShipEmote(context.getSource(), -1))
-                .then(Commands.argument("emote", StringArgumentType.word())
-                        .executes(context -> triggerShipEmote(context.getSource(),
-                                parseEmoteArgument(StringArgumentType.getString(context, "emote"))))));
+        registerEmoteAlias(dispatcher, "shipemotes");
+        registerEmoteAlias(dispatcher, "em");
+        registerEmoteAlias(dispatcher, "emo");
+        registerEmoteAlias(dispatcher, "emote");
+        registerEmoteAlias(dispatcher, "emotes");
 
         dispatcher.register(Commands.literal("shipattrs")
-                .requires(source -> source.hasPermission(2))
-                .then(Commands.argument("level", IntegerArgumentType.integer(1, 150))
-                        .executes(context -> setTargetShipAttrs(
-                                context.getSource(),
-                                IntegerArgumentType.getInteger(context, "level"),
-                                null, null, null, null,
-                                null, null, null, null, null, null))
-                        .then(Commands.argument("fuel", IntegerArgumentType.integer(0, 30000))
-                                .executes(context -> setTargetShipAttrs(
-                                        context.getSource(),
-                                        IntegerArgumentType.getInteger(context, "level"),
-                                        IntegerArgumentType.getInteger(context, "fuel"),
-                                        null, null, null,
-                                        null, null, null, null, null, null))
-                                .then(Commands.argument("ammo_light", IntegerArgumentType.integer(0, 30000))
-                                        .executes(context -> setTargetShipAttrs(
-                                                context.getSource(),
-                                                IntegerArgumentType.getInteger(context, "level"),
-                                                IntegerArgumentType.getInteger(context, "fuel"),
-                                                IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                null, null,
-                                                null, null, null, null, null, null))
-                                        .then(Commands.argument("ammo_heavy", IntegerArgumentType.integer(0, 30000))
-                                                .executes(context -> setTargetShipAttrs(
-                                                        context.getSource(),
-                                                        IntegerArgumentType.getInteger(context, "level"),
-                                                        IntegerArgumentType.getInteger(context, "fuel"),
-                                                        IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                        IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                        null,
-                                                        null, null, null, null, null, null))
-                                                .then(Commands.argument("morale", IntegerArgumentType.integer(0, 16000))
-                                                        .executes(context -> setTargetShipAttrs(
-                                                                context.getSource(),
-                                                                IntegerArgumentType.getInteger(context, "level"),
-                                                                IntegerArgumentType.getInteger(context, "fuel"),
-                                                                IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                                IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                IntegerArgumentType.getInteger(context, "morale"),
-                                                                null, null, null, null, null, null))
-                                                        .then(Commands.argument("bonus_hp", IntegerArgumentType.integer(0, 100))
-                                                                .then(Commands.argument("bonus_atk", IntegerArgumentType.integer(0, 100))
-                                                                        .then(Commands.argument("bonus_def", IntegerArgumentType.integer(0, 100))
-                                                                                .then(Commands.argument("bonus_spd", IntegerArgumentType.integer(0, 100))
-                                                                                        .then(Commands.argument("bonus_mov", IntegerArgumentType.integer(0, 100))
-                                                                                                .then(Commands.argument("bonus_hit", IntegerArgumentType.integer(0, 100))
-                                                                                                        .executes(context -> setTargetShipAttrs(
-                                                                                                                context.getSource(),
-                                                                                                                IntegerArgumentType.getInteger(context, "level"),
-                                                                                                                IntegerArgumentType.getInteger(context, "fuel"),
-                                                                                                                IntegerArgumentType.getInteger(context, "ammo_light"),
-                                                                                                                IntegerArgumentType.getInteger(context, "ammo_heavy"),
-                                                                                                                IntegerArgumentType.getInteger(context, "morale"),
-                                                                                                                IntegerArgumentType.getInteger(context, "bonus_hp"),
-                                                                                                                IntegerArgumentType.getInteger(context, "bonus_atk"),
-                                                                                                                IntegerArgumentType.getInteger(context, "bonus_def"),
-                                                                                                                IntegerArgumentType.getInteger(context, "bonus_spd"),
-                                                                                                                IntegerArgumentType.getInteger(context, "bonus_mov"),
-                                                                                                                IntegerArgumentType.getInteger(context, "bonus_hit")))))))))))))));
+                .requires(ModCommands::canUseLegacyAdminCommand)
+                .then(shipAttrsArguments()));
 
         dispatcher.register(Commands.literal("shipcleardrop")
-                .requires(source -> source.hasPermission(2))
+                .requires(ModCommands::canUseLegacyAdminCommand)
                 .executes(context -> clearNearbyGrudgeDrops(context.getSource(), 128))
                 .then(Commands.argument("range", IntegerArgumentType.integer(1, 1024))
                         .executes(context -> clearNearbyGrudgeDrops(context.getSource(), IntegerArgumentType.getInteger(context, "range")))));
 
         dispatcher.register(Commands.literal("shipupdateowneruid")
-                .requires(source -> source.hasPermission(2))
-                .executes(context -> refreshNearbyOwnerState(context.getSource(), 128))
-                .then(Commands.argument("range", IntegerArgumentType.integer(1, 1024))
-                        .executes(context -> refreshNearbyOwnerState(context.getSource(), IntegerArgumentType.getInteger(context, "range")))));
+                .executes(context -> updateOwnerUid(context.getSource(), null))
+                .then(Commands.argument("player", EntityArgument.player())
+                        .requires(ModCommands::canUseLegacyAdminCommand)
+                        .executes(context -> updateOwnerUid(context.getSource(), EntityArgument.getPlayer(context, "player"))))
+                .then(Commands.literal("range")
+                        .requires(ModCommands::canUseLegacyAdminCommand)
+                        .executes(context -> refreshNearbyOwnerState(context.getSource(), 128))
+                        .then(Commands.argument("range", IntegerArgumentType.integer(1, 1024))
+                                .executes(context -> refreshNearbyOwnerState(context.getSource(), IntegerArgumentType.getInteger(context, "range"))))));
 
         dispatcher.register(Commands.literal("shipchangeowner")
-                .requires(source -> source.hasPermission(2))
+                .requires(ModCommands::canUseLegacyAdminCommand)
+                .then(Commands.argument("player", EntityArgument.player())
+                        .executes(context -> changeTargetShipOwner(context.getSource(), EntityArgument.getPlayer(context, "player")))));
+
+        dispatcher.register(Commands.literal("shipch")
+                .requires(ModCommands::canUseLegacyAdminCommand)
                 .then(Commands.argument("player", EntityArgument.player())
                         .executes(context -> changeTargetShipOwner(context.getSource(), EntityArgument.getPlayer(context, "player")))));
 
         dispatcher.register(Commands.literal("shipkill")
-                .requires(source -> source.hasPermission(2))
+                .requires(ModCommands::canUseLegacyAdminCommand)
+                .then(Commands.argument("class_id", IntegerArgumentType.integer(2))
+                        .executes(context -> killShipsByLegacyClassId(context.getSource(), IntegerArgumentType.getInteger(context, "class_id"), 64))
+                        .then(Commands.argument("range", IntegerArgumentType.integer(1, 1024))
+                                .executes(context -> killShipsByLegacyClassId(
+                                        context.getSource(),
+                                        IntegerArgumentType.getInteger(context, "class_id"),
+                                        IntegerArgumentType.getInteger(context, "range")))))
                 .then(Commands.argument("type", StringArgumentType.word())
                         .executes(context -> killShips(context.getSource(), StringArgumentType.getString(context, "type"), 64))
                         .then(Commands.argument("range", IntegerArgumentType.integer(1, 1024))
@@ -255,8 +177,130 @@ public final class ModCommands {
                                         IntegerArgumentType.getInteger(context, "range"))))));
     }
 
+    private static ArgumentBuilder<CommandSourceStack, ?> shipAttrsArguments() {
+        var levelArg = Commands.argument("level", IntegerArgumentType.integer(1, 150))
+                .executes(context -> setTargetShipAttrs(
+                        context.getSource(),
+                        IntegerArgumentType.getInteger(context, "level"),
+                        null, null, null, null,
+                        null, null, null, null, null, null));
+        var fuelArg = Commands.argument("fuel", IntegerArgumentType.integer(0, 30000))
+                .executes(context -> setTargetShipAttrs(
+                        context.getSource(),
+                        IntegerArgumentType.getInteger(context, "level"),
+                        IntegerArgumentType.getInteger(context, "fuel"),
+                        null, null, null,
+                        null, null, null, null, null, null));
+        var ammoLightArg = Commands.argument("ammo_light", IntegerArgumentType.integer(0, 30000))
+                .executes(context -> setTargetShipAttrs(
+                        context.getSource(),
+                        IntegerArgumentType.getInteger(context, "level"),
+                        IntegerArgumentType.getInteger(context, "fuel"),
+                        IntegerArgumentType.getInteger(context, "ammo_light"),
+                        null, null,
+                        null, null, null, null, null, null));
+        var ammoHeavyArg = Commands.argument("ammo_heavy", IntegerArgumentType.integer(0, 30000))
+                .executes(context -> setTargetShipAttrs(
+                        context.getSource(),
+                        IntegerArgumentType.getInteger(context, "level"),
+                        IntegerArgumentType.getInteger(context, "fuel"),
+                        IntegerArgumentType.getInteger(context, "ammo_light"),
+                        IntegerArgumentType.getInteger(context, "ammo_heavy"),
+                        null,
+                        null, null, null, null, null, null));
+        var moraleArg = Commands.argument("morale", IntegerArgumentType.integer(0, 16000))
+                .executes(context -> setTargetShipAttrs(
+                        context.getSource(),
+                        IntegerArgumentType.getInteger(context, "level"),
+                        IntegerArgumentType.getInteger(context, "fuel"),
+                        IntegerArgumentType.getInteger(context, "ammo_light"),
+                        IntegerArgumentType.getInteger(context, "ammo_heavy"),
+                        IntegerArgumentType.getInteger(context, "morale"),
+                        null, null, null, null, null, null));
+
+        moraleArg.then(legacyShipAttrsBonusArgumentsWithSupplies());
+        ammoHeavyArg.then(moraleArg);
+        ammoLightArg.then(ammoHeavyArg);
+        fuelArg.then(ammoLightArg);
+        levelArg.then(legacyShipAttrsBonusArguments());
+        levelArg.then(fuelArg);
+        return levelArg;
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> legacyShipAttrsBonusArguments() {
+        var hpArg = Commands.argument("bonus_hp", IntegerArgumentType.integer(0, 100));
+        var atkArg = Commands.argument("bonus_atk", IntegerArgumentType.integer(0, 100));
+        var defArg = Commands.argument("bonus_def", IntegerArgumentType.integer(0, 100));
+        var spdArg = Commands.argument("bonus_spd", IntegerArgumentType.integer(0, 100));
+        var movArg = Commands.argument("bonus_mov", IntegerArgumentType.integer(0, 100));
+        var hitArg = Commands.argument("bonus_hit", IntegerArgumentType.integer(0, 100))
+                .executes(context -> setTargetShipAttrs(
+                        context.getSource(),
+                        IntegerArgumentType.getInteger(context, "level"),
+                        null, null, null, null,
+                        IntegerArgumentType.getInteger(context, "bonus_hp"),
+                        IntegerArgumentType.getInteger(context, "bonus_atk"),
+                        IntegerArgumentType.getInteger(context, "bonus_def"),
+                        IntegerArgumentType.getInteger(context, "bonus_spd"),
+                        IntegerArgumentType.getInteger(context, "bonus_mov"),
+                        IntegerArgumentType.getInteger(context, "bonus_hit")));
+
+        movArg.then(hitArg);
+        spdArg.then(movArg);
+        defArg.then(spdArg);
+        atkArg.then(defArg);
+        hpArg.then(atkArg);
+        return hpArg;
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> legacyShipAttrsBonusArgumentsWithSupplies() {
+        var hpArg = Commands.argument("bonus_hp", IntegerArgumentType.integer(0, 100));
+        var atkArg = Commands.argument("bonus_atk", IntegerArgumentType.integer(0, 100));
+        var defArg = Commands.argument("bonus_def", IntegerArgumentType.integer(0, 100));
+        var spdArg = Commands.argument("bonus_spd", IntegerArgumentType.integer(0, 100));
+        var movArg = Commands.argument("bonus_mov", IntegerArgumentType.integer(0, 100));
+        var hitArg = Commands.argument("bonus_hit", IntegerArgumentType.integer(0, 100))
+                .executes(context -> setTargetShipAttrs(
+                        context.getSource(),
+                        IntegerArgumentType.getInteger(context, "level"),
+                        IntegerArgumentType.getInteger(context, "fuel"),
+                        IntegerArgumentType.getInteger(context, "ammo_light"),
+                        IntegerArgumentType.getInteger(context, "ammo_heavy"),
+                        IntegerArgumentType.getInteger(context, "morale"),
+                        IntegerArgumentType.getInteger(context, "bonus_hp"),
+                        IntegerArgumentType.getInteger(context, "bonus_atk"),
+                        IntegerArgumentType.getInteger(context, "bonus_def"),
+                        IntegerArgumentType.getInteger(context, "bonus_spd"),
+                        IntegerArgumentType.getInteger(context, "bonus_mov"),
+                        IntegerArgumentType.getInteger(context, "bonus_hit")));
+
+        movArg.then(hitArg);
+        spdArg.then(movArg);
+        defArg.then(spdArg);
+        atkArg.then(defArg);
+        hpArg.then(atkArg);
+        return hpArg;
+    }
+
+    private static void registerEmoteAlias(CommandDispatcher<CommandSourceStack> dispatcher, String name) {
+        dispatcher.register(Commands.literal(name)
+                .executes(context -> triggerSourceEmote(context.getSource(), -1))
+                .then(Commands.argument("emote", StringArgumentType.word())
+                        .executes(context -> triggerSourceEmote(context.getSource(),
+                                parseEmoteArgument(StringArgumentType.getString(context, "emote"))))));
+    }
+
     public static boolean isStopShipAi() {
         return stopShipAi;
+    }
+
+    private static boolean canUseLegacyAdminCommand(CommandSourceStack source) {
+        if (source.hasPermission(2)) {
+            return true;
+        }
+        ServerPlayer player = source.getPlayer();
+        return player != null
+                && (player.isCreative() || source.getServer().isSingleplayerOwner(player.getGameProfile()));
     }
 
     private static int setStopAi(CommandSourceStack source, boolean enabled) {
@@ -393,6 +437,14 @@ public final class ModCommands {
         return 1;
     }
 
+    private static int recallRegisteredShipByListIndex(CommandSourceStack source, int shipId) {
+        UUID shipUuid = getShipUuidByListIndex(source, shipId);
+        if (shipUuid == null) {
+            return 0;
+        }
+        return recallRegisteredShip(source, shipUuid);
+    }
+
     private static int deleteRegisteredShip(CommandSourceStack source, UUID shipUuid) {
         if (shipUuid == null) {
             return 0;
@@ -432,6 +484,29 @@ public final class ModCommands {
                 "Deleted ship registry entry " + shipUuid + (discarded ? " and discarded its loaded entity." : ".")
         ), true);
         return 1;
+    }
+
+    private static int deleteRegisteredShipByListIndex(CommandSourceStack source, int shipId) {
+        UUID shipUuid = getShipUuidByListIndex(source, shipId);
+        if (shipUuid == null) {
+            return 0;
+        }
+        return deleteRegisteredShip(source, shipUuid);
+    }
+
+    private static UUID getShipUuidByListIndex(CommandSourceStack source, int shipId) {
+        Entity entity = source.getEntity();
+        if (!(entity instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("Player only command."));
+            return null;
+        }
+
+        List<ShipRegistrySavedData.ShipEntry> entries = ShipRegistrySavedData.get(player.serverLevel()).listSorted();
+        if (shipId < 0 || shipId >= entries.size()) {
+            source.sendFailure(Component.literal("Ship list index not found: " + shipId + ". Use /ship list to see available ids."));
+            return null;
+        }
+        return entries.get(shipId).shipUuid();
     }
 
     private static UUID parseUuidArgument(CommandSourceStack source, String raw) {
@@ -588,6 +663,50 @@ public final class ModCommands {
         return count;
     }
 
+    private static int updateOwnerUid(CommandSourceStack source, ServerPlayer targetPlayer) {
+        ServerPlayer player = targetPlayer;
+        if (player == null) {
+            Entity entity = source.getEntity();
+            if (!(entity instanceof ServerPlayer sourcePlayer)) {
+                source.sendFailure(Component.literal("Player only command."));
+                return 0;
+            }
+            player = sourcePlayer;
+        }
+
+        UUID ownerUuid = player.getUUID();
+        int count = 0;
+        for (ServerLevel level : source.getServer().getAllLevels()) {
+            ShipRegistrySavedData registry = ShipRegistrySavedData.get(level);
+            for (Entity entity : level.getAllEntities()) {
+                if (!(entity instanceof EntityShipBase ship) || ship.isInDeadPose()) {
+                    continue;
+                }
+                if (!ownerUuid.equals(ship.getOwnerUUID())) {
+                    continue;
+                }
+
+                ship.setTame(true, false);
+                new ShipMovementCoordinator(ship).stopAny();
+                ship.clearPointerTarget();
+                ship.clearPointerTargetEntity();
+                if (ship.isOrderedToSit()) {
+                    ship.setInSittingPose(true);
+                }
+                registry.updateShip(ship);
+                count++;
+            }
+        }
+
+        ServerPlayer refreshedPlayer = player;
+        int refreshedCount = count;
+        source.sendSuccess(() -> Component.literal("shipupdateowneruid: owner "
+                + refreshedPlayer.getGameProfile().getName()
+                + " " + ownerUuid
+                + ", refreshed " + refreshedCount + " loaded ships."), true);
+        return count;
+    }
+
     private static int clearNearbyGrudgeDrops(CommandSourceStack source, int range) {
         Entity entity = source.getEntity();
         if (!(entity instanceof ServerPlayer player)) {
@@ -627,6 +746,36 @@ public final class ModCommands {
         return count;
     }
 
+    private static int killShipsByLegacyClassId(CommandSourceStack source, int classId, int range) {
+        Entity entity = source.getEntity();
+        if (!(entity instanceof ServerPlayer player)) {
+            source.sendFailure(Component.literal("Player only command."));
+            return 0;
+        }
+
+        int legacyClass = classId - 2;
+        boolean targetHostile = legacyClass >= 2000;
+        if (targetHostile) {
+            legacyClass -= 2000;
+        }
+        int targetClass = legacyClass;
+
+        AABB box = player.getBoundingBox().inflate(range, 256.0D, range);
+        List<EntityShipBase> ships = player.serverLevel().getEntitiesOfClass(EntityShipBase.class, box, ship ->
+                !ship.isInDeadPose()
+                        && ship.isHostileShipMob() == targetHostile
+                        && ship.getStateMinor(EntityShipBase.STATE_MINOR_SHIP_CLASS) == targetClass);
+
+        for (EntityShipBase ship : ships) {
+            ship.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE);
+        }
+
+        int count = ships.size();
+        source.sendSuccess(() -> Component.literal("Removed " + count + " ships with legacy class id "
+                + classId + " within range " + range + "."), true);
+        return count;
+    }
+
     private static boolean matchesShipFilter(EntityShipBase ship, String filter) {
         if ("all".equals(filter)) {
             return true;
@@ -662,6 +811,42 @@ public final class ModCommands {
         ship.applyParticleEmotion(resolved);
         source.sendSuccess(() -> Component.literal("Triggered emote " + resolved + " on " + ship.getName().getString() + "."), true);
         return 1;
+    }
+
+    private static int triggerSourceEmote(CommandSourceStack source, int emoteId) {
+        if (!(source.getLevel() instanceof ServerLevel serverLevel)) {
+            source.sendFailure(Component.literal("Server level only command."));
+            return 0;
+        }
+
+        int resolved = emoteId >= 0 ? emoteId : serverLevel.random.nextInt(30);
+        Entity entity = source.getEntity();
+        if (entity instanceof EntityShipBase ship) {
+            ship.applyParticleEmotion(resolved);
+        } else {
+            double x = source.getPosition().x();
+            double y = source.getPosition().y();
+            double z = source.getPosition().z();
+            double height = 0.5D;
+            int hostId = -1;
+            if (entity != null) {
+                height = entity instanceof ServerPlayer ? entity.getBbHeight() * 0.65D : entity.getBbHeight() * 0.25D;
+                hostId = entity.getId();
+                x = entity.getX();
+                y = entity.getY();
+                z = entity.getZ();
+            }
+            spawnEmotionParticle(serverLevel, ModParticles.PARTICLE_EMOTION.get(), x, y, z, height, hostId, resolved);
+        }
+
+        source.sendSuccess(() -> Component.literal("Triggered emote " + resolved + "."), false);
+        return 1;
+    }
+
+    private static <T extends ParticleOptions> void spawnEmotionParticle(ServerLevel level, T particle,
+                                                                        double x, double y, double z,
+                                                                        double height, int hostId, int emotionId) {
+        level.sendParticles(particle, x, y, z, 0, height, hostId, emotionId, 1.0D);
     }
 
     private static int setTargetShipAttrs(
