@@ -68,6 +68,7 @@ import org.trp.shincolle.item.LegacyEquipStats;
 import org.trp.shincolle.menu.ShipContainerMenu;
 import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.ShipRegistrySavedData;
+import org.trp.shincolle.utility.PerformanceTrace;
 
 import javax.annotation.Nullable;
 import java.util.HashSet;
@@ -283,6 +284,10 @@ public abstract class EntityShipBase extends TamableAnimal {
     public int customSwingTicks = 0;
     public boolean isCustomSwinging = false;
     public static final int MAX_SWING_TICKS = 6;
+    private long perfShipCoreNanos;
+    private long perfShipTaskNanos;
+    private long perfShipSupportNanos;
+    private long perfShipPeriodicNanos;
 
     protected EntityShipBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -1672,7 +1677,28 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
 
         if (this.isAlive() && !this.level().isClientSide) {
-            this.tickAliveLogic();
+            if (PerformanceTrace.enabled()) {
+                long start = PerformanceTrace.now();
+                try {
+                    this.tickAliveLogic();
+                } finally {
+                    long elapsed = PerformanceTrace.elapsed(start);
+                    PerformanceTrace.addShipTime(elapsed);
+                    long known = this.perfShipCoreNanos + this.perfShipTaskNanos
+                            + this.perfShipSupportNanos + this.perfShipPeriodicNanos;
+                    String detail = "extraMs=" + PerformanceTrace.formatMs(Math.max(0L, elapsed - known))
+                            + " taskId=" + this.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID)
+                            + " sitting=" + this.getIsSitting()
+                            + " noFuel=" + this.isNoFuel()
+                            + " health=" + this.getHealth() + "/" + this.getMaxHealth()
+                            + " fuel=" + this.getFuel()
+                            + " morale=" + this.getMorale();
+                    PerformanceTrace.logSlowShipTick(this, elapsed, this.perfShipCoreNanos,
+                            this.perfShipTaskNanos, this.perfShipSupportNanos, this.perfShipPeriodicNanos, detail);
+                }
+            } else {
+                this.tickAliveLogic();
+            }
         }
     }
 
@@ -1726,9 +1752,19 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     protected void tickAliveLogic() {
+        boolean tracing = PerformanceTrace.enabled();
+        if (tracing) {
+            this.perfShipCoreNanos = 0L;
+            this.perfShipTaskNanos = 0L;
+            this.perfShipSupportNanos = 0L;
+            this.perfShipPeriodicNanos = 0L;
+        }
+
+        long segmentStart = startPerfSegment(tracing);
         this.emotions.tickEmotions();
 
         if (!this.level().isClientSide && tickHostileDespawn()) {
+            this.perfShipCoreNanos += finishPerfSegment(tracing, segmentStart);
             return;
         }
 
@@ -1737,7 +1773,9 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.getIsSitting() || this.isInDeadPose()) {
             this.lifecycleMovement.stopAny();
         }
+        this.perfShipCoreNanos += finishPerfSegment(tracing, segmentStart);
 
+        segmentStart = startPerfSegment(tracing);
         if (!this.isNoFuel()) {
             this.pointer.tickPointerTargetEntity();
 
@@ -1772,11 +1810,15 @@ public abstract class EntityShipBase extends TamableAnimal {
             this.pickupMovement.stop();
             this.passiveCombat.clearTarget(true);
         }
+        this.perfShipSupportNanos += finishPerfSegment(tracing, segmentStart);
 
         if (this.isAlive() && (this.tickCount & 7) == 0) {
+            segmentStart = startPerfSegment(tracing);
             org.trp.shincolle.utility.TaskHelper.onUpdateTask(this);
+            this.perfShipTaskNanos += finishPerfSegment(tracing, segmentStart);
         }
 
+        segmentStart = startPerfSegment(tracing);
         tickSearchlightAssist();
         tickCompassChunkLoading();
         tickTimeKeepingSound();
@@ -1797,6 +1839,15 @@ public abstract class EntityShipBase extends TamableAnimal {
         if ((this.tickCount % 40) == 0 && this.level() instanceof ServerLevel serverLevel) {
             ShipRegistrySavedData.get(serverLevel).updateShip(this);
         }
+        this.perfShipPeriodicNanos += finishPerfSegment(tracing, segmentStart);
+    }
+
+    private static long startPerfSegment(boolean tracing) {
+        return tracing ? PerformanceTrace.now() : 0L;
+    }
+
+    private static long finishPerfSegment(boolean tracing, long startNanos) {
+        return tracing ? PerformanceTrace.elapsed(startNanos) : 0L;
     }
 
     @Override

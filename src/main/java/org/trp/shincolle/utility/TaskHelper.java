@@ -37,7 +37,6 @@ import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class TaskHelper {
     private static final int CRAFTING_WORK_START_SLOT = 12;
@@ -47,6 +46,7 @@ public class TaskHelper {
     private static final int[] HELD_ITEM_SLOTS = {HELD_MAINHAND_SLOT, HELD_OFFHAND_SLOT};
     private static final int LEGACY_GENERAL_WORLD_ID = 999999;
     private static final String LEGACY_GENERAL_BIOME_ID = "-999999";
+    private static final String[] TASK_NAMES = {"none", "cooking", "fishing", "mining", "crafting"};
     
     private TaskHelper() {}
 
@@ -57,28 +57,42 @@ public class TaskHelper {
         }
         int taskId = host.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID);
         ShipTaskRuntime runtime = host.getTaskRuntime();
-        runtime.beginTaskTick(taskId);
-        switch (taskId) {
-            case 1: 
-                if (isTaskEnabled(0)) onUpdateCooking(host, runtime);
-                break;
-            case 2: 
-                if (isTaskEnabled(1)) onUpdateFishing(host, runtime);
-                break;
-            case 3: 
-                if (isTaskEnabled(2)) onUpdateMining(host, runtime);
-                break;
-            case 4: 
-                if (isTaskEnabled(3)) onUpdateCrafting(host, runtime);
-                break;
-            default:
-                runtime.clearTask();
-                break;
+        boolean tracing = PerformanceTrace.enabled();
+        long start = tracing ? PerformanceTrace.now() : 0L;
+        try {
+            runtime.beginTaskTick(taskId);
+            switch (taskId) {
+                case 1:
+                    if (isTaskEnabled(0)) onUpdateCooking(host, runtime);
+                    break;
+                case 2:
+                    if (isTaskEnabled(1)) onUpdateFishing(host, runtime);
+                    break;
+                case 3:
+                    if (isTaskEnabled(2)) onUpdateMining(host, runtime);
+                    break;
+                case 4:
+                    if (isTaskEnabled(3)) onUpdateCrafting(host, runtime);
+                    break;
+                default:
+                    runtime.clearTask();
+                    break;
+            }
+        } finally {
+            if (tracing) {
+                long elapsed = PerformanceTrace.elapsed(start);
+                PerformanceTrace.addTaskTime(elapsed);
+                PerformanceTrace.logSlowTaskTick(host, taskName(taskId), taskId, elapsed);
+            }
         }
     }
 
     private static boolean isTaskEnabled(int index) {
         return index >= 0 && index < Config.taskEnable.length && Config.taskEnable[index];
+    }
+
+    private static String taskName(int taskId) {
+        return taskId >= 0 && taskId < TASK_NAMES.length ? TASK_NAMES[taskId] : "unknown";
     }
 
     public static void onUpdateCooking(EntityShipBase host) {
@@ -256,7 +270,12 @@ public class TaskHelper {
         if (Math.abs(host.getDeltaMovement().x) > 0.1D || Math.abs(host.getDeltaMovement().z) > 0.1D || host.getDeltaMovement().y > 0.1D) return;
 
 
+        long stageStart = PerformanceTrace.enabled() ? PerformanceTrace.now() : 0L;
         BlockPos waterPos = findNearbyFishingWater(host, 5, 3);
+        if (PerformanceTrace.enabled()) {
+            PerformanceTrace.logTaskStage(host, "fishing", "findWater", PerformanceTrace.elapsed(stageStart),
+                    "found=" + (waterPos != null) + " radius=5 depth=3");
+        }
         if (waterPos == null) return;
 
         if (host.getFishHook() == null || host.getFishHook().isRemoved()) {
@@ -275,6 +294,7 @@ public class TaskHelper {
         if (level instanceof ServerLevel serverLevel) {
             if (host.getFishHook().tickCount > Config.tickFishingMin + host.getRandom().nextInt(Config.tickFishingMax)) {
                 host.startCustomSwing();
+                stageStart = PerformanceTrace.enabled() ? PerformanceTrace.now() : 0L;
                 LootTable lootTable = serverLevel.getServer().reloadableRegistries().getLootTable(net.minecraft.world.level.storage.loot.BuiltInLootTables.FISHING);
                 LootParams params = (new LootParams.Builder(serverLevel))
                         .withParameter(LootContextParams.ORIGIN, host.position())
@@ -284,6 +304,10 @@ public class TaskHelper {
                         .create(LootContextParamSets.FISHING);
                 
                 List<ItemStack> items = lootTable.getRandomItems(params);
+                if (PerformanceTrace.enabled()) {
+                    PerformanceTrace.logTaskStage(host, "fishing", "lootRoll", PerformanceTrace.elapsed(stageStart),
+                            "items=" + items.size() + " hookTicks=" + host.getFishHook().tickCount);
+                }
                 for (ItemStack stack : items) {
                     ItemStack remainder = ItemHandlerHelper.insertItemStacked(host.getInventory(), stack, false);
                     if (!remainder.isEmpty()) {
@@ -339,6 +363,7 @@ public class TaskHelper {
             int stoneCount = 0;
             boolean canMine = false;
             BlockPos.MutableBlockPos mutPos = new BlockPos.MutableBlockPos();
+            long scanStart = PerformanceTrace.enabled() ? PerformanceTrace.now() : 0L;
             for (int dy = -3; dy < 5 && !canMine; ++dy) {
                 for (int dx = -3; dx < 4 && !canMine; ++dx) {
                     for (int dz = -3; dz < 4; ++dz) {
@@ -352,8 +377,19 @@ public class TaskHelper {
                     }
                 }
             }
+            if (PerformanceTrace.enabled()) {
+                PerformanceTrace.logTaskStage(host, "mining", "scanStone", PerformanceTrace.elapsed(scanStart),
+                        "stoneCount=" + stoneCount + " canMine=" + canMine + " center=" + xl + "," + yl + "," + zl);
+            }
             if (canMine) {
-                ItemStack result = rollMiningDrop(host).orElseGet(() -> new ItemStack(Items.COBBLESTONE));
+                long rollStart = PerformanceTrace.enabled() ? PerformanceTrace.now() : 0L;
+                MiningDropResult drop = rollMiningDrop(host);
+                if (PerformanceTrace.enabled()) {
+                    PerformanceTrace.logTaskStage(host, "mining", "rollDrop", PerformanceTrace.elapsed(rollStart),
+                            "candidates=" + drop.candidates + " totalWeight=" + drop.totalWeight
+                                    + " fallback=" + drop.fallback + " result=" + drop.stack);
+                }
+                ItemStack result = drop.stack;
                 ItemHandlerHelper.insertItemStacked(host.getInventory(), result, false);
                 
                 host.addShipExp(Config.expGainTask[2]);
@@ -366,9 +402,9 @@ public class TaskHelper {
         }
     }
 
-    private static Optional<ItemStack> rollMiningDrop(EntityShipBase host) {
+    private static MiningDropResult rollMiningDrop(EntityShipBase host) {
         if (Config.miningEntries.isEmpty()) {
-            return Optional.empty();
+            return MiningDropResult.createFallback();
         }
 
         Level level = host.level();
@@ -394,7 +430,7 @@ public class TaskHelper {
         }
 
         if (candidates.isEmpty() || totalWeight <= 0) {
-            return Optional.empty();
+            return MiningDropResult.createFallback(candidates.size(), totalWeight);
         }
 
         int roll = host.getRandom().nextInt(totalWeight);
@@ -416,7 +452,17 @@ public class TaskHelper {
         int luckLevel = getLuckLevel(host);
         float scaledAmount = amount * (1.0F + chosen.enchantFactor() * (fortuneLevel + luckLevel));
         int finalAmount = Math.max(1, Math.round(scaledAmount));
-        return Optional.of(new ItemStack(chosen.item(), finalAmount));
+        return new MiningDropResult(new ItemStack(chosen.item(), finalAmount), candidates.size(), totalWeight, false);
+    }
+
+    private record MiningDropResult(ItemStack stack, int candidates, int totalWeight, boolean fallback) {
+        private static MiningDropResult createFallback() {
+            return createFallback(0, 0);
+        }
+
+        private static MiningDropResult createFallback(int candidates, int totalWeight) {
+            return new MiningDropResult(new ItemStack(Items.COBBLESTONE), candidates, totalWeight, true);
+        }
     }
 
     private static boolean matchesDimension(Config.MiningEntry entry, int dimensionId, Level level) {
@@ -609,6 +655,7 @@ public class TaskHelper {
         }
         int maxCraft = host.getLevel() / 20 + 1;
         int craftedCount = 0;
+        long craftLoopStart = PerformanceTrace.enabled() ? PerformanceTrace.now() : 0L;
 
         for (int craftIndex = 0; craftIndex < maxCraft; craftIndex++) {
             List<ItemStack> workingRecipeSlots = new ArrayList<>(CRAFTING_WORK_SLOT_COUNT);
@@ -706,6 +753,10 @@ public class TaskHelper {
             }
 
             craftedCount++;
+        }
+        if (PerformanceTrace.enabled()) {
+            PerformanceTrace.logTaskStage(host, "crafting", "craftLoop", PerformanceTrace.elapsed(craftLoopStart),
+                    "crafted=" + craftedCount + " maxCraft=" + maxCraft + " recipeResult=" + resultTemplate);
         }
 
         if (craftedCount > 0) {
