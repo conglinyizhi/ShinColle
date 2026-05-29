@@ -2060,7 +2060,6 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.isHostileShipMob()) {
             shipTag.putBoolean(TAG_SPAWN_EGG_NO_EXP, true);
         }
-        shipTag.putInt("Fuel", 0);
         shipTag.putFloat("Health", this.getMaxHealth());
         shipTag.putShort("DeathTime", (short) 0);
         shipTag.putShort("HurtTime", (short) 0);
@@ -3424,7 +3423,6 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.setHealth(this.getMaxHealth());
         this.deathTime = 0;
         this.shipDeathTicks = 0;
-        this.setFuel(0);
     }
 
     public int getWpStayTimeMax() {
