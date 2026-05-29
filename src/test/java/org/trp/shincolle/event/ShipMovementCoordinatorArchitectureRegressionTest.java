@@ -12,18 +12,20 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ShipMovementCoordinatorArchitectureRegressionTest {
     private static final Path COORDINATOR_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipMovementCoordinator.java");
-    private static final Path FOLLOW_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipFollowOwnerGoal.java");
-    private static final Path GUARD_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipGuardGoal.java");
-    private static final Path POINTER_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipPointerGoals.java");
+    private static final Path BRAIN_AI_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+    private static final Path AI_NUMBERS_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
     private static final Path POINTER_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
     private static final Path PASSIVE_COMBAT_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePassiveCombat.java");
     private static final Path MOUNT_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.java");
+    private static final Path MOUNT_BRAIN_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.java");
+    private static final Path MOUNT_NUMBERS_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/MountAiNumbers.java");
     private static final Path FORMATION_HELPER_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/utility/FormationHelper.java");
     private static final Path COMMANDS_SOURCE =
@@ -32,12 +34,18 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
     private static final Path MOVEMENT_RECOVERY_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipMovementRecoveryState.java");
-    private static final Path AIRCRAFT_ATTACK_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/GoalShipAircraftAttack.java");
+    private static final Path AIRCRAFT_BRAIN_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/AircraftBrainAi.java");
+    private static final Path AIRCRAFT_NUMBERS_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/AircraftAiNumbers.java");
     private static final Path AIRCRAFT_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/EntityAircraftBase.java");
     private static final Path SUMMON_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBase.java");
+    private static final Path SUMMON_BRAIN_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBrainAi.java");
+    private static final Path SUMMON_NUMBERS_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/SummonAiNumbers.java");
     private static final Path CA_HIME_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/EntityCAHime.java");
     private static final Path HEAVY_CRUISER_NE_SOURCE =
@@ -124,59 +132,49 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     }
 
     @Test
-    void followAndGuardGoalsShouldUseMovementCoordinator() throws IOException {
-        String follow = Files.readString(FOLLOW_GOAL_SOURCE);
-        String guard = Files.readString(GUARD_GOAL_SOURCE);
+    void shipBrainAiShouldUseMovementCoordinator() throws IOException {
+        String brain = Files.readString(BRAIN_AI_SOURCE);
+        String numbers = Files.readString(AI_NUMBERS_SOURCE);
+        String ship = Files.readString(SHIP_BASE_SOURCE);
 
-        assertTrue(follow.contains("private final ShipMovementCoordinator movement;"),
-                "Follow-owner goal should use the shared movement coordinator");
-        assertTrue(follow.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
-                "Follow-owner goal should use the shared recovery state");
-        assertTrue(follow.contains("this.movement.moveTo(moveTarget, this.speed);"),
-                "Follow-owner goal should route move requests through the coordinator");
-        assertTrue(follow.contains("this.movement.teleportNearLiving(owner, 0.75D)"),
-                "Follow-owner teleport should route through the coordinator");
-        assertTrue(follow.contains("this.recovery.shouldTryTeleportThrottled(force, distSq, TP_DIST_SQ, TP_COOLDOWN)"),
-                "Follow-owner teleport recovery should share throttled recovery policy");
-        assertTrue(follow.contains("FollowOwner teleportRecovery"),
-                "Follow-owner teleport recovery should emit searchable debug logs");
-        assertFalse(follow.contains("checkTP_T"),
-                "Follow-owner goal should not keep a separate blind teleport timer");
-        assertFalse(follow.contains("checkTP_D"),
-                "Follow-owner goal should not keep a separate distance teleport timer");
-        assertFalse(follow.contains("ShipTeleportHelper.teleportNearLiving"),
-                "Follow-owner goal should not call teleport helper directly");
+        assertTrue(ship.contains("private final ShipMovementCoordinator followOwnerMovement;"),
+                "Ship should own a dedicated follow-owner movement channel for Brain behaviors");
+        assertTrue(ship.contains("this.followOwnerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_NORMAL);"),
+                "Follow-owner Brain movement should use an explicit shared coordinator");
+        assertTrue(ship.contains("ShipMovementCoordinator followOwnerMovementCoordinator()"),
+                "Ship should expose the follow-owner movement channel to Brain behaviors");
 
-        assertTrue(guard.contains("private ShipMovementCoordinator movement()"),
-                "Guard goal should lazily access the shared movement coordinator after entity construction");
-        assertTrue(guard.contains("return ship.guardMovementCoordinator();"),
-                "Guard goal should reuse the ship-owned guard movement channel so public guard cleanup can stop it");
-        assertFalse(guard.contains("this.movement = ship.guardMovementCoordinator();"),
-                "Guard goal must not read ship-owned movement fields during Mob.registerGoals construction");
-        assertTrue(guard.contains("movement().moveTo(target, speed)"),
-                "Guard goal should route move requests through the coordinator");
-        assertTrue(guard.contains("movement().teleportNearPoint(target, 0.75D)"),
-                "Guard fixed-point teleport should route through the coordinator");
-        assertFalse(guard.contains("ShipTeleportHelper.teleportNearPoint"),
-                "Guard goal should not call teleport helper directly");
+        assertTrue(brain.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
+                "Pointer Brain behavior should route move requests through the pointer coordinator");
+        assertTrue(brain.contains("ship.guardMovementCoordinator()"),
+                "Guard Brain behavior should reuse the ship-owned guard movement channel");
+        assertTrue(brain.contains("movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);"),
+                "Follow-owner Brain behavior should route movement through the shared coordinator");
+        assertTrue(brain.contains("ship.followOwnerMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED);"),
+                "Idle Brain stroll should reuse the shared follow/idle coordinator");
+        assertFalse(brain.contains("getNavigation().moveTo"),
+                "Ship Brain behaviors should not issue raw navigation requests");
+        assertFalse(brain.contains("ShipTeleportHelper"),
+                "Ship Brain behaviors should not bypass movement coordination via teleport helper");
+
+        assertTrue(numbers.contains("static final double POINTER_MOVE_SPEED = 1.2D;"),
+                "Brain AI movement speeds should be centralized in ShipAiNumbers");
+        assertTrue(numbers.contains("static final double GUARD_MOVE_SPEED = 1.1D;"),
+                "Guard Brain movement speed should be centralized in ShipAiNumbers");
+        assertTrue(numbers.contains("static final double FOLLOW_OWNER_SPEED = 1.2D;"),
+                "Follow-owner Brain movement speed should be centralized in ShipAiNumbers");
     }
 
     @Test
     void pointerAndPassiveCombatShouldUseMovementCoordinator() throws IOException {
-        String pointer = Files.readString(POINTER_GOAL_SOURCE);
+        String pointer = Files.readString(BRAIN_AI_SOURCE);
         String pointerEntity = Files.readString(POINTER_SOURCE);
         String passiveCombat = Files.readString(PASSIVE_COMBAT_SOURCE);
 
-        assertTrue(pointer.contains("private ShipMovementCoordinator movement()"),
-                "Pointer move goal should lazily access the shared movement coordinator after entity construction");
-        assertTrue(pointer.contains("return ship.pointerMovementCoordinator();"),
-                "Pointer move goal should reuse the ship-owned pointer movement channel so public pointer cleanup can stop it");
-        assertFalse(pointer.contains("this.movement = ship.pointerMovementCoordinator();"),
-                "Pointer move goal must not read ship-owned movement fields during Mob.registerGoals construction");
-        assertTrue(pointer.contains("movement().moveTo(target, this.speed)"),
-                "Pointer move goal should route move requests through the coordinator");
+        assertTrue(pointer.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
+                "Pointer Brain behavior should route move requests through the coordinator");
         assertFalse(pointer.contains("ship.getNavigation().moveTo(target.x, target.y, target.z"),
-                "Pointer move goal should not issue raw navigation requests");
+                "Pointer Brain behavior should not issue raw navigation requests");
 
         assertTrue(pointerEntity.contains("private final ShipMovementCoordinator movement;"),
                 "Pointer entity chase should use the shared movement coordinator");
@@ -206,29 +204,40 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     @Test
     void mountFollowShouldUseMovementCoordinatorInsteadOfDuplicatingPolicy() throws IOException {
         String mount = Files.readString(MOUNT_SOURCE);
+        String mountBrain = Files.readString(MOUNT_BRAIN_SOURCE);
+        String mountNumbers = Files.readString(MOUNT_NUMBERS_SOURCE);
 
-        assertTrue(mount.contains("private final ShipMovementCoordinator movement;"),
-                "Mount follow should share the same movement policy as ships");
-        assertTrue(mount.contains("this.movement = new ShipMovementCoordinator(mount, ShipMovementCoordinator.PRIORITY_COMMAND);"),
+        assertTrue(mount.contains("private final ShipMovementCoordinator followMovement;"),
+                "Mount should own a shared follow movement coordinator after Brain migration");
+        assertTrue(mount.contains("this.followMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
                 "Mount follow should create a command-priority coordinator for the mount mob");
-        assertTrue(mount.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
-                "Mount follow should share the movement recovery state");
-        assertTrue(mount.contains("movement.moveTo(owner, 1.0D);"),
+        assertTrue(mount.contains("protected Brain.Provider<EntityMountBase> brainProvider()"),
+                "Mount should expose Brain provider after migration");
+        assertTrue(mount.contains("return Brain.provider(EntityMountBrainAi.MEMORY_TYPES, EntityMountBrainAi.SENSOR_TYPES);"),
+                "Mount Brain provider should route through mount Brain AI helper");
+        assertTrue(mount.contains("return EntityMountBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));"),
+                "Mount Brain construction should route through mount Brain AI helper");
+        assertFalse(mount.contains("this.goalSelector.addGoal"),
+                "Mount should no longer register ship-specific GoalSelector behaviors");
+
+        assertTrue(mountBrain.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
+                "Mount Brain follow should keep explicit recovery state");
+        assertTrue(mountBrain.contains("mount.followMovementCoordinator().moveTo(owner, MountAiNumbers.FOLLOW_MOVE_SPEED);"),
                 "Mount owner follow should route movement through the coordinator");
-        assertTrue(mount.contains("trackAndRecoverLiving(owner, \"owner\");"),
-                "Mount owner follow should route teleport recovery through the shared tracker");
-        assertTrue(mount.contains("movement.teleportNearLiving(target, 0.75D)"),
-                "Mount owner teleport recovery should route through the coordinator");
-        assertTrue(mount.contains("trackAndRecoverPoint(guardPos, \"guardBlock\");"),
+        assertTrue(mountBrain.contains("trackAndRecoverPoint(mount, guardPos, \"guardBlock\");"),
                 "Mount guard follow should route teleport recovery through the shared tracker");
-        assertTrue(mount.contains("movement.teleportNearPoint(target, 0.75D)"),
+        assertTrue(mountBrain.contains("mount.followMovementCoordinator().teleportNearLiving(target, MountAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
+                "Mount owner teleport recovery should route through the coordinator");
+        assertTrue(mountBrain.contains("mount.followMovementCoordinator().teleportNearPoint(target, MountAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Mount guard teleport recovery should route through the coordinator");
-        assertTrue(mount.contains("MountFollow teleportRecovery"),
+        assertTrue(mountBrain.contains("MountFollow teleportRecovery"),
                 "Mount follow recovery should emit searchable debug logs");
-        assertFalse(mount.contains("lastMoveTarget"),
-                "Mount follow should not duplicate repeated move suppression state");
-        assertFalse(mount.contains("ShipTeleportHelper.teleportNear"),
+        assertFalse(mountBrain.contains("ShipTeleportHelper.teleportNear"),
                 "Mount follow should not bypass the coordinator for teleport recovery");
+        assertTrue(mountNumbers.contains("static final double FOLLOW_MOVE_SPEED = 1.0D;"),
+                "Mount follow speed should be centralized");
+        assertTrue(mountNumbers.contains("static final int FOLLOW_TELEPORT_COOLDOWN_TICKS = 100;"),
+                "Mount follow teleport cooldown should be centralized");
     }
 
     @Test
@@ -346,10 +355,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     @Test
     void movementRecoveryStateShouldCentralizeFailureAndStuckCounters() throws IOException {
         String recovery = Files.readString(MOVEMENT_RECOVERY_SOURCE);
-        String follow = Files.readString(FOLLOW_GOAL_SOURCE);
-        String pointerGoal = Files.readString(POINTER_GOAL_SOURCE);
+        String brain = Files.readString(BRAIN_AI_SOURCE);
         String pointerEntity = Files.readString(POINTER_SOURCE);
-        String guard = Files.readString(GUARD_GOAL_SOURCE);
         String passiveCombat = Files.readString(PASSIVE_COMBAT_SOURCE);
 
         assertTrue(recovery.contains("public final class ShipMovementRecoveryState"),
@@ -370,36 +377,28 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Move-failure diagnostic throttling should not be duplicated by callers");
         assertTrue(recovery.contains("this.forcedTeleportCooldown = 0;\n            this.lastProgressPos = currentPos;"),
                 "Actual movement progress should clear stale forced teleport throttling");
-        assertTrue(follow.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
-                "Follow-owner movement should use the shared recovery state");
-        assertTrue(pointerGoal.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
-                "Pointer position movement should use the shared recovery state");
-        assertTrue(guard.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
-                "Guard movement should use the shared recovery state");
+        assertTrue(brain.contains("private final ShipMovementRecoveryState pointerRecovery = new ShipMovementRecoveryState();"),
+                "Pointer Brain movement should keep explicit recovery state after migration");
+        assertTrue(brain.contains("private final ShipMovementRecoveryState guardRecovery = new ShipMovementRecoveryState();"),
+                "Guard Brain movement should keep explicit recovery state after migration");
+        assertTrue(brain.contains("private final ShipMovementRecoveryState followRecovery = new ShipMovementRecoveryState();"),
+                "Follow-owner Brain movement should keep explicit recovery state after migration");
         assertTrue(pointerEntity.contains("private final ShipMovementRecoveryState pointerTargetEntityRecovery = new ShipMovementRecoveryState();"),
                 "Pointer entity movement should use the shared recovery state");
         assertTrue(passiveCombat.contains("private final ShipMovementRecoveryState movementRecovery = new ShipMovementRecoveryState();"),
                 "Passive combat movement should use the shared recovery state");
-        assertFalse(pointerGoal.contains("private Vec3 lastProgressPos;"),
-                "Pointer position movement should not duplicate progress tracking fields");
-        assertFalse(guard.contains("private Vec3 lastProgressPos;"),
-                "Guard movement should not duplicate progress tracking fields");
         assertFalse(pointerEntity.contains("pointerTargetEntityLastPos"),
                 "Pointer entity movement should not duplicate progress tracking fields");
         assertFalse(passiveCombat.contains("passiveLastProgressPos"),
                 "Passive combat movement should not duplicate progress tracking fields");
-        assertFalse(pointerGoal.contains("stuckTicks() >"),
-                "Pointer movement should not duplicate stuck-timeout comparison");
-        assertFalse(guard.contains("stuckTicks() >"),
-                "Guard movement should not duplicate stuck-timeout comparison");
+        assertTrue(brain.contains("this.pointerRecovery.shouldLogMoveFailure(ship.tickCount, ShipAiNumbers.MOVE_FAIL_LOG_INTERVAL)"),
+                "Pointer Brain movement should rate-limit repeated move-failure diagnostics through recovery state");
+        assertTrue(brain.contains("this.guardRecovery.shouldLogMoveFailure(ship.tickCount, ShipAiNumbers.MOVE_FAIL_LOG_INTERVAL)"),
+                "Guard Brain movement should rate-limit repeated move-failure diagnostics through recovery state");
         assertFalse(pointerEntity.contains("stuckTicks() >"),
                 "Pointer entity movement should not duplicate stuck-timeout comparison");
         assertFalse(passiveCombat.contains("stuckTicks() >"),
                 "Passive combat movement should not duplicate stuck-timeout comparison");
-        assertTrue(pointerGoal.contains("this.recovery.shouldLogMoveFailure(ship.tickCount, POINTER_MOVE_FAIL_LOG_INTERVAL)"),
-                "Pointer movement should rate-limit repeated move-failure diagnostics through recovery state");
-        assertTrue(guard.contains("this.recovery.shouldLogMoveFailure(ship.tickCount, GUARD_MOVE_FAIL_LOG_INTERVAL)"),
-                "Guard movement should rate-limit repeated move-failure diagnostics through recovery state");
         assertTrue(pointerEntity.contains("this.pointerTargetEntityRecovery.shouldLogMoveFailure(this.ship.tickCount,"),
                 "Pointer entity movement should rate-limit repeated move-failure diagnostics through recovery state");
         assertTrue(passiveCombat.contains("this.movementRecovery.shouldLogMoveFailure(this.ship.tickCount, PASSIVE_MOVE_FAIL_LOG_INTERVAL)"),
@@ -408,9 +407,9 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
     @Test
     void mountFollowShouldThrottleForcedTeleportRecovery() throws IOException {
-        String mount = Files.readString(MOUNT_SOURCE);
+        String mount = Files.readString(MOUNT_BRAIN_SOURCE);
 
-        assertTrue(mount.contains("recovery.shouldTryTeleportThrottled(force, distSq, TP_DIST_SQ, TP_COOLDOWN)"),
+        assertTrue(mount.contains("this.recovery.shouldTryTeleportThrottled(force, distSq,"),
                 "Mount follow should not retry failed forced teleport recovery every tick");
         assertFalse(mount.contains("if (!force && !recovery.shouldTryTeleport(false"),
                 "Mount follow should not bypass the shared throttle once stuck recovery is forced");
@@ -418,9 +417,12 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
     @Test
     void temporaryCombatEntitiesShouldUseMovementCoordinator() throws IOException {
-        String aircraftGoal = Files.readString(AIRCRAFT_ATTACK_GOAL_SOURCE);
         String aircraft = Files.readString(AIRCRAFT_SOURCE);
+        String aircraftBrain = Files.readString(AIRCRAFT_BRAIN_SOURCE);
+        String aircraftNumbers = Files.readString(AIRCRAFT_NUMBERS_SOURCE);
         String summon = Files.readString(SUMMON_SOURCE);
+        String summonBrain = Files.readString(SUMMON_BRAIN_SOURCE);
+        String summonNumbers = Files.readString(SUMMON_NUMBERS_SOURCE);
 
         assertTrue(aircraft.contains("private final ShipMovementCoordinator returnMovement;"),
                 "Aircraft return-home movement should use the shared movement coordinator");
@@ -436,48 +438,68 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Aircraft return-home state transitions should clear stale recovery counters");
         assertTrue(aircraft.contains("this.returnMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
                 "Aircraft should create a high-priority coordinator for return-home movement");
+        assertTrue(aircraft.contains("private final ShipMovementCoordinator attackMovement;"),
+                "Aircraft attack movement should use a ship-owned coordinator after Brain migration");
         assertTrue(aircraft.contains("this.returnRecovery = new ShipMovementRecoveryState();"),
                 "Aircraft should create recovery state for return-home movement");
-        assertTrue(aircraft.contains("this.returnMovement.moveTo(homePos, 0.5D);"),
+        assertTrue(aircraft.contains("this.returnMovement.moveTo(homePos, AircraftAiNumbers.RETURN_HOME_SPEED);"),
                 "Aircraft return-home movement should route through the coordinator");
         assertTrue(aircraft.contains("if (trackReturnHomeRecovery(carrier, distSq))"),
                 "Aircraft return-home movement should try recovery before giving up");
-        assertTrue(aircraft.contains("this.returnMovement.teleportNearLiving(carrier, carrier.getBbHeight() + 0.75D)"),
+        assertTrue(aircraft.contains("this.returnMovement.teleportNearLiving(carrier, carrier.getBbHeight() + AircraftAiNumbers.RETURN_HOME_TELEPORT_EXTRA)"),
                 "Aircraft return-home recovery should safely teleport near the carrier");
         assertTrue(aircraft.contains("AircraftReturn teleportRecovery"),
                 "Aircraft return-home recovery should emit searchable debug logs");
         assertTrue(aircraft.contains("AircraftReturn failsafeDiscard"),
                 "Aircraft return-home should eventually release resources if recovery cannot reach the carrier");
-        assertTrue(aircraft.contains("this.returnHomeTicks > RETURN_HOME_FAILSAFE_TICKS\n                && this.returnRecovery.isStuckLongerThan(RETURN_HOME_FAILSAFE_TICKS)"),
+        assertTrue(aircraft.contains("this.returnHomeTicks > AircraftAiNumbers.RETURN_HOME_FAILSAFE_TICKS\n                && this.returnRecovery.isStuckLongerThan(AircraftAiNumbers.RETURN_HOME_FAILSAFE_TICKS)"),
                 "Aircraft return-home failsafe should require sustained no-progress, not only elapsed return time");
         assertTrue(aircraft.contains("returnSummonResources(carrier);\n            this.discard();"),
                 "Aircraft return-home failsafe should return resources before discarding");
+        assertTrue(aircraft.contains("protected Brain.Provider<EntityAircraftBase> brainProvider()"),
+                "Aircraft should expose Brain provider after migration");
+        assertTrue(aircraft.contains("return Brain.provider(AircraftBrainAi.MEMORY_TYPES, AircraftBrainAi.SENSOR_TYPES);"),
+                "Aircraft Brain provider should route through aircraft Brain AI helper");
+        assertTrue(aircraft.contains("return AircraftBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));"),
+                "Aircraft Brain construction should route through aircraft Brain AI helper");
+        assertTrue(aircraft.contains("AircraftBrainAi.tick(serverLevel, this);"),
+                "Aircraft server AI step should tick aircraft Brain AI helper");
+        assertTrue(aircraft.contains("public ShipMovementCoordinator attackMovementCoordinator()"),
+                "Aircraft should expose the attack movement coordinator to Brain behaviors");
         assertFalse(aircraft.contains("RETURN_MAX_DISTANCE_SQR"),
                 "Aircraft return-home should not discard solely because it is far from the carrier");
         assertFalse(aircraft.contains("this.getNavigation().moveTo(homePos.x, homePos.y, homePos.z"),
                 "Aircraft return-home movement should not issue raw navigation requests");
+        assertFalse(aircraft.contains("this.goalSelector.addGoal"),
+                "Aircraft should no longer register combat behaviors through GoalSelector");
 
-        assertTrue(aircraftGoal.contains("private final ShipMovementCoordinator movement;"),
-                "Aircraft attack goal should use the shared movement coordinator");
-        assertTrue(aircraftGoal.contains("this.movement = new ShipMovementCoordinator(host, ShipMovementCoordinator.PRIORITY_COMBAT);"),
-                "Aircraft attack goal should create a coordinator for its host aircraft");
-        assertTrue(aircraftGoal.contains("this.movement.moveTo(this.randPos, speed);"),
+        assertTrue(aircraftBrain.contains("brain.addActivity(Activity.CORE, ImmutableList.of("),
+                "Aircraft should build its combat loop through Brain activities");
+        assertTrue(aircraftBrain.contains("new AircraftAttackBehavior()"),
+                "Aircraft Brain should own the dedicated attack behavior");
+        assertTrue(aircraftBrain.contains("host.attackMovementCoordinator().reset();"),
+                "Aircraft attack behavior should reset the shared movement coordinator at start");
+        assertTrue(aircraftBrain.contains("host.attackMovementCoordinator().moveTo(this.randPos, speed);"),
                 "Aircraft attack movement should route through the coordinator");
-        assertTrue(aircraftGoal.contains("private boolean canAttackMissionTarget(Entity targetEntity)"),
-                "Aircraft attack goal should centralize mission target viability checks");
-        assertTrue(aircraftGoal.contains("this.target = null;\n        this.randPos = null;\n        this.movement.stop();"),
-                "Aircraft attack stop should clear attack navigation instead of starting unmanaged cruise movement");
-        assertFalse(aircraftGoal.contains("return this.canUse() || (this.target != null && this.target.isAlive() && !this.host.getNavigation().isDone());"),
-                "Aircraft attack goal should not continue just because stale navigation is still running");
-        assertFalse(aircraftGoal.contains("this.movement.moveTo(this.randPos, 1.0D);"),
-                "Aircraft attack stop should not start a new random cruise path outside the goal lifecycle");
-        assertFalse(aircraftGoal.contains("host.getNavigation().moveTo"),
-                "Aircraft attack goal should not issue raw navigation requests");
+        assertTrue(aircraftBrain.contains("private boolean canAttackMissionTarget(EntityAircraftBase host, Entity targetEntity)"),
+                "Aircraft attack behavior should centralize mission target viability checks");
+        assertTrue(aircraftBrain.contains("this.target = null;\n            this.randPos = null;\n            host.attackMovementCoordinator().stop();"),
+                "Aircraft attack stop should clear managed navigation instead of starting unmanaged cruise movement");
+        assertFalse(aircraftBrain.contains("host.getNavigation().moveTo"),
+                "Aircraft attack behavior should not issue raw navigation requests");
+        assertTrue(aircraftNumbers.contains("static final int ATTACK_ACTIVATION_TICKS = 20;"),
+                "Aircraft attack activation timing should be centralized");
+        assertTrue(aircraftNumbers.contains("static final double ATTACK_SPEED_FAST = 0.6D;"),
+                "Aircraft attack movement speed should be centralized");
+        assertTrue(aircraftNumbers.contains("static final double RETURN_HOME_SPEED = 0.5D;"),
+                "Aircraft return-home movement speed should be centralized");
 
-        assertTrue(summon.contains("private final ShipMovementCoordinator movement;"),
-                "Summon goals should use the shared movement coordinator");
         assertTrue(summon.contains("private final ShipMovementCoordinator returnMovement;"),
                 "Summon return-to-carrier movement should use a shared movement coordinator");
+        assertTrue(summon.contains("private final ShipMovementCoordinator attackMovement;"),
+                "Summon attack movement should use a ship-owned coordinator after Brain migration");
+        assertTrue(summon.contains("private final ShipMovementCoordinator followMovement;"),
+                "Summon follow movement should use a ship-owned coordinator after Brain migration");
         assertTrue(summon.contains("private final ShipMovementRecoveryState returnRecovery;"),
                 "Summon return-to-carrier movement should use shared recovery state");
         assertTrue(summon.contains("private int returnTicks;"),
@@ -486,32 +508,34 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Summon return-to-carrier state resets should be centralized");
         assertTrue(summon.contains("this.returnRecovery.clear();\n        this.returnTicks = 0;"),
                 "Summon target reacquisition should clear stale return-to-carrier state");
-        assertTrue(summon.contains("this.movement.moveTo(target, 1.2D);"),
-                "Summon attack chase should route through the coordinator");
-        assertTrue(summon.contains("this.movement.stop();"),
-                "Summon attack stop should route through the coordinator");
-        assertTrue(summon.contains("this.movement.moveTo(carrier, this.speed);"),
-                "Summon carrier follow should route through the coordinator");
         assertTrue(summon.contains("this.returnMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);"),
                 "Summon return-to-carrier should outrank ordinary summon follow movement");
-        assertTrue(summon.contains("this.movement = new ShipMovementCoordinator(mob, ShipMovementCoordinator.PRIORITY_COMBAT);"),
+        assertTrue(summon.contains("this.attackMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT);"),
                 "Summon attack chase should outrank ordinary summon follow movement");
-        assertTrue(summon.contains("this.movement = new ShipMovementCoordinator(mob, ShipMovementCoordinator.PRIORITY_NORMAL);"),
+        assertTrue(summon.contains("this.followMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_NORMAL);"),
                 "Summon carrier follow should stay at normal movement priority");
-        assertTrue(summon.contains("this.returnMovement.moveTo(carrier, 1.2D);"),
+        assertTrue(summon.contains("this.returnMovement.moveTo(carrier, SummonAiNumbers.RETURN_MOVE_SPEED);"),
                 "Summon return-to-carrier movement should route through the coordinator");
         assertTrue(summon.contains("if (trackReturnRecovery(carrier, distSq))"),
                 "Summon return-to-carrier movement should try recovery before giving up");
-        assertTrue(summon.contains("this.returnMovement.teleportNearLiving(carrier, 0.75D)"),
+        assertTrue(summon.contains("this.returnMovement.teleportNearLiving(carrier, SummonAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Summon return-to-carrier recovery should safely teleport near the carrier");
         assertTrue(summon.contains("SummonReturn teleportRecovery"),
                 "Summon return-to-carrier recovery should emit searchable debug logs");
         assertTrue(summon.contains("SummonReturn failsafeDiscard"),
                 "Summon return-to-carrier should eventually release resources if recovery cannot reach the carrier");
-        assertTrue(summon.contains("this.returnTicks > RETURN_FAILSAFE_TICKS\n                    && this.returnRecovery.isStuckLongerThan(RETURN_FAILSAFE_TICKS)"),
+        assertTrue(summon.contains("this.returnTicks > SummonAiNumbers.RETURN_FAILSAFE_TICKS\n                    && this.returnRecovery.isStuckLongerThan(SummonAiNumbers.RETURN_FAILSAFE_TICKS)"),
                 "Summon return-to-carrier failsafe should require sustained no-progress, not only elapsed return time");
         assertTrue(summon.contains("returnSummonResourcesOnce(carrier);\n                this.discard();"),
                 "Summon return-to-carrier failsafe should return resources before discarding");
+        assertTrue(summon.contains("protected Brain.Provider<EntitySummonBase> brainProvider()"),
+                "Summon entities should expose Brain providers after migration");
+        assertTrue(summon.contains("return Brain.provider(EntitySummonBrainAi.MEMORY_TYPES, EntitySummonBrainAi.SENSOR_TYPES);"),
+                "Summon Brain provider should route through the summon Brain AI helper");
+        assertTrue(summon.contains("return EntitySummonBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));"),
+                "Summon Brain construction should route through the summon Brain AI helper");
+        assertFalse(summon.contains("this.goalSelector.addGoal"),
+                "Summon entity should no longer register summon behaviors through GoalSelector");
         assertFalse(summon.contains("this.distanceToSqr(carrier) > 1024.0D"),
                 "Summon return-to-carrier should not discard solely because it is far from the carrier");
         assertFalse(summon.contains("mob.getNavigation().moveTo"),
@@ -520,6 +544,22 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Summon goals should not stop navigation directly");
         assertFalse(summon.contains("this.getNavigation().moveTo(carrier, 1.2D)"),
                 "Summon return-to-carrier movement should not issue raw navigation requests");
+
+        assertTrue(summonBrain.contains("summon.attackMovementCoordinator().moveTo(target, SummonAiNumbers.ATTACK_MOVE_SPEED);"),
+                "Summon attack Brain behavior should route chase movement through the coordinator");
+        assertTrue(summonBrain.contains("summon.followMovementCoordinator().moveTo(carrier, SummonAiNumbers.FOLLOW_CARRIER_SPEED);"),
+                "Summon follow Brain behavior should route carrier follow through the coordinator");
+        assertTrue(summonBrain.contains("summon.followMovementCoordinator().moveTo(target, SummonAiNumbers.RANDOM_STROLL_SPEED);"),
+                "Summon idle Brain behavior should route stroll movement through the coordinator");
+        assertFalse(summonBrain.contains("new net.minecraft.world.entity.ai.goal"),
+                "Summon Brain helper should not embed goal-based AI implementations");
+
+        assertTrue(summonNumbers.contains("static final double ATTACK_MOVE_SPEED = 1.2D;"),
+                "Summon attack move speed should be centralized");
+        assertTrue(summonNumbers.contains("static final double FOLLOW_CARRIER_SPEED = 1.2D;"),
+                "Summon follow move speed should be centralized");
+        assertTrue(summonNumbers.contains("static final int ATTACK_DELAY_TICKS = 20;"),
+                "Summon attack cooldown should be centralized");
     }
 
     @Test

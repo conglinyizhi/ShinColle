@@ -10,36 +10,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipCommandRecoveryRegressionTest {
     private static final Path POINTER_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipPointerGoals.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
     private static final Path POINTER_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
-    private static final Path GUARD_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipGuardGoal.java");
+    private static final Path AI_NUMBERS_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
 
     @Test
-    void pointerMoveGoalShouldTryTeleportRecoveryBeforeClearingPositionCommand() throws IOException {
+    void pointerMoveBehaviorShouldUseCentralizedAiNumbersAndCoordinator() throws IOException {
         String source = Files.readString(POINTER_GOAL_SOURCE);
+        String numbers = Files.readString(AI_NUMBERS_SOURCE);
 
-        assertTrue(source.contains("private static final int POINTER_MOVE_FAIL_LIMIT = 40;"),
-                "Pointer move goal should define a move failure limit");
-        assertTrue(source.contains("private static final int POINTER_MOVE_STUCK_TICK_LIMIT = 120;"),
-                "Pointer move goal should define a stuck timeout");
-        assertTrue(source.contains("private static final int POINTER_MOVE_TELEPORT_COOLDOWN_TICKS = 100;"),
-                "Pointer move goal should use a cooldown before remote teleport recovery");
-        assertTrue(source.contains("this.recovery.shouldTryTeleportThrottled(force, ship.distanceToSqr(target),"),
-                "Pointer move forced teleport recovery should be throttled after failed attempts");
-        assertTrue(source.contains("if (tryTeleportRecovery(ship.getPointerTarget(), false)) {\n            return;\n        }"),
-                "Pointer move goal should check distant teleport recovery every tick while stuck on a far command");
-        assertTrue(source.contains("tryTeleportRecovery(target, true)"),
-                "Pointer move goal should force one teleport recovery attempt before clearing repeated failures");
-        assertTrue(source.contains("tryTeleportRecovery(ship.getPointerTarget(), true)"),
-                "Pointer move goal should force one teleport recovery attempt before clearing stuck commands");
-        assertTrue(source.contains("movement().teleportNearPoint(target, 0.75D)"),
-                "Pointer move recovery should use the movement coordinator's safe point teleport");
-        assertTrue(source.contains("ship.clearPointerTarget();\n            return;"),
-                "Pointer move goal should still clear pointer position commands when recovery fails");
-        assertTrue(source.contains("this.lastRawTarget = null;\n        this.recovery.clear();\n        movement().stop();"),
-                "Pointer move goal should clear target memory and recovery counters when interrupted");
+        assertTrue(numbers.contains("static final double POINTER_MOVE_REACH_SQR = 1.0D;"),
+                "Pointer move reach distance should be centralized");
+        assertTrue(numbers.contains("static final double POINTER_MOVE_SPEED = 1.2D;"),
+                "Pointer move speed should be centralized");
+        assertTrue(numbers.contains("static final double TARGET_SWITCH_DISTANCE_SQ = 0.01D;"),
+                "Pointer target-change threshold should be centralized");
+        assertTrue(source.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
+                "Pointer move Brain behavior should route movement through the shared coordinator");
+        assertTrue(source.contains("ship.distanceToSqr(target) <= ShipAiNumbers.POINTER_MOVE_REACH_SQR"),
+                "Pointer move Brain behavior should use centralized reach distance");
+        assertTrue(source.contains("if (this.pointerRecovery.isStuckLongerThan(ShipAiNumbers.MOVE_STUCK_TICK_LIMIT)) {"),
+                "Pointer move Brain behavior should retain stuck recovery after migration");
+        assertTrue(source.contains("this.pointerRecovery.shouldTryTeleportThrottled(force, ship.distanceToSqr(target),"),
+                "Pointer move Brain behavior should throttle forced teleport recovery");
+        assertTrue(source.contains("ship.pointerMovementCoordinator().teleportNearPoint(target, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
+                "Pointer move Brain behavior should use coordinator teleport recovery");
     }
 
     @Test
@@ -69,28 +66,25 @@ class ShipCommandRecoveryRegressionTest {
     }
 
     @Test
-    void guardGoalShouldDisableGuardStateAfterRepeatedFailuresOrNoProgress() throws IOException {
-        String source = Files.readString(GUARD_GOAL_SOURCE);
+    void guardBehaviorShouldUseCentralizedAiNumbersAndCoordinator() throws IOException {
+        String source = Files.readString(POINTER_GOAL_SOURCE);
+        String numbers = Files.readString(AI_NUMBERS_SOURCE);
 
-        assertTrue(source.contains("private static final int GUARD_MOVE_FAIL_LIMIT = 40;"),
-                "Guard goal should define a move failure limit");
-        assertTrue(source.contains("private static final int GUARD_STUCK_TICK_LIMIT = 120;"),
-                "Guard goal should define a stuck timeout");
-        assertTrue(source.contains("private static final int GUARD_TELEPORT_COOLDOWN_TICKS = 100;"),
-                "Guard goal should use a cooldown before remote teleport recovery");
-        assertTrue(source.contains("double distSq = ship.distanceToSqr(target);"),
-                "Guard teleport recovery should include vertical distance instead of only horizontal distance");
-        assertTrue(source.contains("this.recovery.shouldTryTeleportThrottled(force, distSq, GUARD_TELEPORT_DISTANCE_SQ,"),
-                "Guard forced teleport recovery should be throttled after failed attempts");
-        assertTrue(source.contains("tryTeleportRecovery(target, guardedEntity, distSq, false)"),
-                "Guard goal should try teleport recovery for distant guard targets before disabling guard");
-        assertTrue(source.contains("tryTeleportRecovery(target, guardedEntity, distSq, true)"),
-                "Guard goal should force one teleport recovery attempt before disabling stuck guard targets");
-        assertTrue(source.contains("movement().teleportNearPoint(target, 0.75D)"),
-                "Guard block recovery should use the movement coordinator's safe point teleport");
-        assertTrue(source.contains("ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);"),
-                "Guard goal should disable guard mode when recovery triggers");
-        assertTrue(source.contains("ship.clearGuardTarget();"),
-                "Guard goal recovery should clear the stale guarded position");
+        assertTrue(numbers.contains("static final double GUARD_MOVE_SPEED = 1.1D;"),
+                "Guard movement speed should be centralized");
+        assertTrue(numbers.contains("static final double GUARD_ENTITY_STOP_DISTANCE_SQ = 9.0D;"),
+                "Guard entity stop distance should be centralized");
+        assertTrue(numbers.contains("static final double GUARD_BLOCK_STOP_DISTANCE_SQ = 0.5D;"),
+                "Guard block stop distance should be centralized");
+        assertTrue(source.contains("ship.guardMovementCoordinator()"),
+                "Guard Brain behavior should route movement through the shared guard coordinator");
+        assertTrue(source.contains("guardTarget.isEntity()\n                    ? ShipAiNumbers.GUARD_ENTITY_STOP_DISTANCE_SQ\n                    : ShipAiNumbers.GUARD_BLOCK_STOP_DISTANCE_SQ;"),
+                "Guard Brain behavior should use centralized stop distances");
+        assertTrue(source.contains("if (this.guardRecovery.isStuckLongerThan(ShipAiNumbers.MOVE_STUCK_TICK_LIMIT)) {"),
+                "Guard Brain behavior should retain stuck recovery after migration");
+        assertTrue(source.contains("this.guardRecovery.shouldTryTeleportThrottled(force, distSq,"),
+                "Guard Brain behavior should throttle forced teleport recovery");
+        assertTrue(source.contains("ship.guardMovementCoordinator().teleportNearPoint(target, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
+                "Guard block recovery should use coordinator teleport recovery");
     }
 }

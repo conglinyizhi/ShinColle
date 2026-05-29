@@ -41,8 +41,8 @@ class PlayerStatePersistenceArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
     private static final Path SHIP_POINTER_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
-    private static final Path FOLLOW_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipFollowOwnerGoal.java");
+    private static final Path BRAIN_AI_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
     private static final Path COMMANDS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/command/ModCommands.java");
     private static final Path SHIP_REGISTRY =
@@ -113,7 +113,7 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 Map.entry(POINTER_ITEM_SOURCE, Files.readString(POINTER_ITEM_SOURCE)),
                 Map.entry(SHIP_SOURCE, Files.readString(SHIP_SOURCE)),
                 Map.entry(SHIP_POINTER_SOURCE, Files.readString(SHIP_POINTER_SOURCE)),
-                Map.entry(FOLLOW_GOAL_SOURCE, Files.readString(FOLLOW_GOAL_SOURCE))
+                Map.entry(BRAIN_AI_SOURCE, Files.readString(BRAIN_AI_SOURCE))
         );
 
         for (Map.Entry<Path, String> entry : sources.entrySet()) {
@@ -212,7 +212,7 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 POINTER_ITEM_SOURCE, Files.readString(POINTER_ITEM_SOURCE),
                 SHIP_SOURCE, Files.readString(SHIP_SOURCE),
                 SHIP_POINTER_SOURCE, Files.readString(SHIP_POINTER_SOURCE),
-                FOLLOW_GOAL_SOURCE, Files.readString(FOLLOW_GOAL_SOURCE),
+                BRAIN_AI_SOURCE, Files.readString(BRAIN_AI_SOURCE),
                 COMMANDS_SOURCE, Files.readString(COMMANDS_SOURCE)
         );
 

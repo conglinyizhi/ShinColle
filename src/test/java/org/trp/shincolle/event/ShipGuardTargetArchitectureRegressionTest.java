@@ -14,10 +14,12 @@ class ShipGuardTargetArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
     private static final Path GUARD_TARGET_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipGuardTarget.java");
-    private static final Path GUARD_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipGuardGoal.java");
+    private static final Path BRAIN_AI_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
     private static final Path MOUNT_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.java");
+    private static final Path MOUNT_BRAIN_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.java");
     private static final Path FORMATION_HELPER_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/utility/FormationHelper.java");
     private static final Path EVENT_SOURCE =
@@ -64,8 +66,8 @@ class ShipGuardTargetArchitectureRegressionTest {
 
     @Test
     void guardMovementShouldNotUsePositiveYAsValiditySentinel() throws IOException {
-        String guardGoal = Files.readString(GUARD_GOAL_SOURCE);
-        String mount = Files.readString(MOUNT_SOURCE);
+        String guardGoal = Files.readString(BRAIN_AI_SOURCE);
+        String mount = Files.readString(MOUNT_BRAIN_SOURCE);
 
         assertFalse(guardGoal.contains("getGuardedPos(1) > 0"),
                 "Guard AI should not reject valid modern-world guard targets by Y coordinate");
@@ -73,7 +75,7 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Mount guard-follow AI should not reject valid modern-world guard targets by Y coordinate");
         assertTrue(guardGoal.contains("guardTarget.isBlock()"),
                 "Guard AI should branch on typed guard target kind");
-        assertTrue(mount.contains("guardTarget.isBlock()"),
+        assertTrue(mount.contains("guardTarget.isBlock() && guardTarget.isIn(host.level())"),
                 "Mount AI should branch on typed guard target kind");
     }
 
@@ -95,45 +97,43 @@ class ShipGuardTargetArchitectureRegressionTest {
 
     @Test
     void mountGuardTeleportShouldUseSharedSafePointHelper() throws IOException {
-        String mount = Files.readString(MOUNT_SOURCE);
+        String mount = Files.readString(MOUNT_BRAIN_SOURCE);
 
         assertFalse(mount.contains("mount.teleportTo(guardPos.x, guardPos.y + 0.75D, guardPos.z)"),
                 "Mount guard teleport should not jump directly into an unchecked block position");
-        assertTrue(mount.contains("trackAndRecoverPoint(guardPos, \"guardBlock\");"),
+        assertTrue(mount.contains("trackAndRecoverPoint(mount, guardPos, \"guardBlock\");"),
                 "Mount guard movement should route recovery through the shared tracker");
-        assertTrue(mount.contains("movement.teleportNearPoint(target, 0.75D)"),
+        assertTrue(mount.contains("mount.followMovementCoordinator().teleportNearPoint(target, MountAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Mount guard teleport should share the centralized movement recovery policy");
     }
 
     @Test
     void guardRecoveryShouldResetWhenGuardTargetIdentityChanges() throws IOException {
-        String guardGoal = Files.readString(GUARD_GOAL_SOURCE);
-        String mount = Files.readString(MOUNT_SOURCE);
+        String guardGoal = Files.readString(BRAIN_AI_SOURCE);
+        String mount = Files.readString(MOUNT_BRAIN_SOURCE);
 
-        assertTrue(guardGoal.contains("private GuardRecoveryTargetKey lastRecoveryTargetKey;"),
-                "Guard goal should remember which logical target owns the current recovery counters");
-        assertTrue(guardGoal.contains("resetRecoveryIfTargetChanged(guardTarget, guardedEntity);"),
-                "Guard goal should reset movement recovery when switching between guard targets");
+        assertTrue(guardGoal.contains("ShipGuardTarget guardTarget = ship.getGuardTarget();"),
+                "Brain guard behavior should read the typed guard target facade");
+        assertTrue(guardGoal.contains("target = guardedEntity.position();"),
+                "Brain guard behavior should branch on typed guard target kind");
+        assertTrue(guardGoal.contains("ship.guardMovementCoordinator()"),
+                "Brain guard behavior should reuse the ship-owned guard movement coordinator");
+        assertTrue(guardGoal.contains("private GuardRecoveryTargetKey lastGuardRecoveryTargetKey;"),
+                "Brain guard behavior should keep explicit guard-target identity for recovery resets");
+        assertTrue(guardGoal.contains("resetGuardRecoveryIfTargetChanged(ship, guardTarget, guardedEntity);"),
+                "Brain guard behavior should reset recovery when switching guard targets");
         assertTrue(guardGoal.contains("private record GuardRecoveryTargetKey"),
-                "Guard recovery target identity should be explicit instead of inferred from a moving position");
-        assertTrue(guardGoal.contains("guardedEntity.getUUID()"),
-                "Entity guard recovery should be keyed by stable entity identity, not by its changing position");
-        assertTrue(guardGoal.contains("this.nextPathTick = 0;\n        this.recovery.reset(ship.position());\n        movement().reset();"),
-                "Guard target switches should force a fresh path attempt and clear stale stuck counters");
-        assertTrue(guardGoal.contains("public void stop()"),
-                "Guard goal should clear runtime navigation state when the goal is interrupted");
-        assertTrue(guardGoal.contains("this.recovery.clear();\n        movement().stop();"),
-                "Guard goal stop should not leave stale recovery counters or navigation behind");
+                "Brain guard recovery target identity should remain explicit after migration");
 
         assertTrue(mount.contains("private FollowRecoveryTargetKey lastRecoveryTargetKey;"),
                 "Mount follow should remember which host-follow mode owns the current recovery counters");
         assertTrue(mount.contains("FollowRecoveryTargetKey.point(\"pointer\", pt,\n                        EntityShipBase.getLegacyDimensionId(h.level()))"),
                 "Mount pointer follow recovery should include the host dimension in the target identity");
-        assertTrue(mount.contains("resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity(\"owner\", owner));"),
+        assertTrue(mount.contains("resetRecoveryIfTargetChanged(mount, FollowRecoveryTargetKey.entity(\"owner\", owner));"),
                 "Mount owner follow should reset recovery only when the owner identity changes");
-        assertTrue(mount.contains("resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity(\"guardEntity\", guarded));"),
+        assertTrue(mount.contains("resetRecoveryIfTargetChanged(mount, FollowRecoveryTargetKey.entity(\"guardEntity\", guarded));"),
                 "Mount entity guard follow should reset recovery when the guarded entity changes");
-        assertTrue(mount.contains("resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.guardBlock(guardTarget));"),
+        assertTrue(mount.contains("resetRecoveryIfTargetChanged(mount, FollowRecoveryTargetKey.guardBlock(guardTarget));"),
                 "Mount block guard follow should reset recovery when the guarded block changes");
         assertTrue(mount.contains("private record FollowRecoveryTargetKey"),
                 "Mount follow recovery target identity should be explicit and include the follow reason");
