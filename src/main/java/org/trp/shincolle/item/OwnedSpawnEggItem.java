@@ -18,6 +18,7 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.DeferredSpawnEggItem;
+import org.trp.shincolle.Shincolle;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -59,17 +60,7 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
                 }
             }
 
-            stack.update(DataComponents.ENTITY_DATA, CustomData.EMPTY, existingData -> existingData.update(tag -> {
-                if (!tag.hasUUID("Owner")) {
-                    tag.putUUID("Owner", player.getUUID());
-                }
-                if (!tag.contains("Tame")) {
-                    tag.putBoolean("Tame", true);
-                }
-                if (!tag.contains("id")) {
-                    tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(this.typeSupplier.get()).toString());
-                }
-            }));
+            ensureOwnedEntityData(stack, player, "useOn");
 
             InteractionResult result = super.useOn(context);
             if (result.consumesAction() && isResurrection && costLevel > 0 && !player.isCreative()) {
@@ -109,7 +100,8 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
                     return InteractionResultHolder.fail(stack);
                 }
             }
-            
+
+            ensureOwnedEntityData(stack, player, "use");
             InteractionResultHolder<ItemStack> result = super.use(level, player, hand);
             if (result.getResult().consumesAction() && isResurrection && costLevel > 0 && !player.isCreative()) {
                 player.giveExperienceLevels(-costLevel);
@@ -129,5 +121,28 @@ public class OwnedSpawnEggItem extends DeferredSpawnEggItem {
                 tooltipComponents.add(Component.translatable("gui.shincolle.eggText").append(" " + costLevel).withStyle(net.minecraft.ChatFormatting.AQUA));
             }
         }
+    }
+
+    private void ensureOwnedEntityData(ItemStack stack, Player player, String source) {
+        stack.update(DataComponents.ENTITY_DATA, CustomData.EMPTY, existingData -> existingData.update(tag -> {
+            if (!tag.hasUUID("Owner")) {
+                tag.putUUID("Owner", player.getUUID());
+            }
+            if (!tag.contains("Tame")) {
+                tag.putBoolean("Tame", true);
+            }
+            if (!tag.contains("id")) {
+                tag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(this.typeSupplier.get()).toString());
+            }
+        }));
+
+        CustomData customData = stack.get(DataComponents.ENTITY_DATA);
+        if (customData == null) {
+            Shincolle.diagnosticLog("[SCSpawnDiag] ownedEggDataMissing source={} player={}", source, player.getUUID());
+            return;
+        }
+        net.minecraft.nbt.CompoundTag tag = customData.copyTag();
+        Shincolle.diagnosticLog("[SCSpawnDiag] ownedEggPrepared source={} player={} ownerPresent={} tame={} entityId={}",
+                source, player.getUUID(), tag.hasUUID("Owner"), tag.getBoolean("Tame"), tag.getString("id"));
     }
 }
