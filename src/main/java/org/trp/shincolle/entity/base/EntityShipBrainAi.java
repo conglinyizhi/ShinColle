@@ -51,9 +51,36 @@ final class EntityShipBrainAi {
 
     @SuppressWarnings("unchecked")
     static void tick(ServerLevel level, EntityShipBase ship) {
+        logServerBrainTickIfNeeded(ship);
         Brain<EntityShipBase> brain = (Brain<EntityShipBase>) ship.getBrain();
         brain.tick(level, ship);
         brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
+    }
+
+    private static void logServerBrainTickIfNeeded(EntityShipBase ship) {
+        if (ship.tickCount % 40 != 0) {
+            return;
+        }
+        if (ship.getOwnerUUID() == null && ship.getTarget() == null && !ship.hasPointerTarget()
+                && !ship.getGuardTarget().isActive()) {
+            return;
+        }
+        LivingEntity owner = ship.getOwner();
+        double distSq = owner == null ? -1.0D : ship.distanceToSqr(owner);
+        Shincolle.diagnosticLog(
+                "[SCBrainDiag] serverTick ship={} ownerUuid={} ownerPresent={} tame={} deadPose={} noFuel={} shouldFollow={} reason={} distSq={} target={} pointer={} guard={}",
+                ship.getUUID(),
+                ship.getOwnerUUID(),
+                owner != null,
+                ship.isTame(),
+                ship.isInDeadPose(),
+                ship.isNoFuel(),
+                ship.shouldFollowOwner(),
+                ship.explainFollowBlockReason(),
+                distSq,
+                ship.getTarget() != null,
+                ship.hasPointerTarget() || ship.hasPointerTargetEntity(),
+                ship.getGuardTarget().isActive());
     }
 
     private static void initCoreActivity(Brain<EntityShipBase> brain) {
@@ -74,6 +101,7 @@ final class EntityShipBrainAi {
         private final ShipMovementRecoveryState pointerRecovery = new ShipMovementRecoveryState();
         private final ShipMovementRecoveryState guardRecovery = new ShipMovementRecoveryState();
         private final ShipMovementRecoveryState followRecovery = new ShipMovementRecoveryState();
+        private static final String FOLLOW_DEBUG_PREFIX = "[SCFollowDebug]";
         private int nextPointerPathTick;
         private int nextGuardPathTick;
         private Vec3 lastRawPointerTarget;
@@ -82,6 +110,10 @@ final class EntityShipBrainAi {
         private double lastOwnerY;
         private double lastOwnerZ;
         private boolean hasOwnerPos;
+        private boolean followOwnerActive;
+        private int nextBrainLogTick;
+        private int nextFollowSkipLogTick;
+        private int nextCanStillUseLogTick;
         private boolean[] formationDir = new boolean[]{false, true};
 
         ShipMovementBehavior() {
@@ -94,8 +126,48 @@ final class EntityShipBrainAi {
         }
 
         @Override
+        protected void start(ServerLevel level, EntityShipBase ship, long gameTime) {
+            Shincolle.diagnosticLog(
+                    "[SCBrainDiag] movementStart ship={} gameTime={} tick={} ownerUuid={} tame={} deadPose={} shouldFollow={} reason={}",
+                    ship.getUUID(),
+                    gameTime,
+                    ship.tickCount,
+                    ship.getOwnerUUID(),
+                    ship.isTame(),
+                    ship.isInDeadPose(),
+                    ship.shouldFollowOwner(),
+                    ship.explainFollowBlockReason());
+        }
+
+        @Override
+        protected boolean canStillUse(ServerLevel level, EntityShipBase ship, long gameTime) {
+            boolean canStillUse = !ship.isInDeadPose();
+            if (!canStillUse || ship.tickCount >= this.nextCanStillUseLogTick) {
+                this.nextCanStillUseLogTick = ship.tickCount + 40;
+                Shincolle.diagnosticLog(
+                        "[SCBrainDiag] movementCanStillUse ship={} canStillUse={} gameTime={} tick={} deadPose={} ownerUuid={} shouldFollow={} reason={}",
+                        ship.getUUID(),
+                        canStillUse,
+                        gameTime,
+                        ship.tickCount,
+                        ship.isInDeadPose(),
+                        ship.getOwnerUUID(),
+                        ship.shouldFollowOwner(),
+                        ship.explainFollowBlockReason());
+            }
+            return canStillUse;
+        }
+
+        @Override
+        protected boolean timedOut(long gameTime) {
+            return false;
+        }
+
+        @Override
         protected void tick(ServerLevel level, EntityShipBase ship, long gameTime) {
+            logBrainTickIfNeeded(ship);
             if (ship.hasPointerTarget() && canMove(ship)) {
+                logMovementBranch(ship, "pointer");
                 tickPointerMove(ship);
                 return;
             }
@@ -103,6 +175,7 @@ final class EntityShipBrainAi {
             clearPointerMoveState(ship);
 
             if (canGuard(ship)) {
+                logMovementBranch(ship, "guard");
                 tickGuardMove(ship);
                 return;
             }
@@ -110,10 +183,30 @@ final class EntityShipBrainAi {
             clearGuardMoveState(ship);
 
             if (shouldFollowOwner(ship)) {
+                logMovementBranch(ship, "follow");
                 tickFollowOwner(ship);
                 return;
             }
 
+            logFollowSkipIfNeeded(ship);
+            clearFollowMoveState(ship);
+        }
+
+        @Override
+        protected void stop(ServerLevel level, EntityShipBase ship, long gameTime) {
+            Shincolle.diagnosticLog(
+                    "[SCBrainDiag] movementStop ship={} gameTime={} tick={} ownerUuid={} tame={} deadPose={} shouldFollow={} reason={} followActive={}",
+                    ship.getUUID(),
+                    gameTime,
+                    ship.tickCount,
+                    ship.getOwnerUUID(),
+                    ship.isTame(),
+                    ship.isInDeadPose(),
+                    ship.shouldFollowOwner(),
+                    ship.explainFollowBlockReason(),
+                    this.followOwnerActive);
+            clearPointerMoveState(ship);
+            clearGuardMoveState(ship);
             clearFollowMoveState(ship);
         }
 
@@ -123,6 +216,29 @@ final class EntityShipBrainAi {
                     && !ship.isPassenger()
                     && !ship.isVehicle()
                     && !ship.isInDeadPose();
+        }
+
+        private void logBrainTickIfNeeded(EntityShipBase ship) {
+            if (ship.tickCount < this.nextBrainLogTick) {
+                return;
+            }
+            this.nextBrainLogTick = ship.tickCount + 40;
+            LivingEntity owner = ship.getOwner();
+            double distSq = owner == null ? -1.0D : ship.distanceToSqr(owner);
+            Shincolle.diagnosticLog(
+                    "[SCBrainDiag] movementTick ship={} ownerUuid={} ownerPresent={} tame={} canMove={} shouldFollow={} reason={} distSq={} pointer={} guard={} target={} followActive={}",
+                    ship.getUUID(),
+                    ship.getOwnerUUID(),
+                    owner != null,
+                    ship.isTame(),
+                    canMove(ship),
+                    ship.shouldFollowOwner(),
+                    ship.explainFollowBlockReason(),
+                    distSq,
+                    ship.hasPointerTarget() || ship.hasPointerTargetEntity(),
+                    ship.getGuardTarget().isActive(),
+                    ship.getTarget() != null,
+                    this.followOwnerActive);
         }
 
         private void tickPointerMove(EntityShipBase ship) {
@@ -138,6 +254,7 @@ final class EntityShipBrainAi {
                 this.lastRawPointerTarget = rawTarget;
                 this.pointerRecovery.reset(ship.position());
                 ship.pointerMovementCoordinator().reset();
+                Shincolle.debugLog("ShipBrain pointerTargetChanged ship={} target={}", ship.getUUID(), target);
             }
 
             if (ship.distanceToSqr(target) <= ShipAiNumbers.POINTER_MOVE_REACH_SQR) {
@@ -181,6 +298,7 @@ final class EntityShipBrainAi {
                     }
                 } else {
                     this.pointerRecovery.clearMoveFailures();
+                    Shincolle.debugLog("ShipBrain pointerMoveOk ship={} target={}", ship.getUUID(), target);
                 }
             }
         }
@@ -282,6 +400,7 @@ final class EntityShipBrainAi {
                         }
                     } else {
                         this.guardRecovery.clearMoveFailures();
+                        Shincolle.debugLog("ShipBrain guardMoveOk ship={} target={} distSq={}", ship.getUUID(), target, distSq);
                     }
                 }
             } else {
@@ -386,6 +505,9 @@ final class EntityShipBrainAi {
             }
             float minDist = resolveFollowMinDistance(ship);
             float maxDist = resolveFollowMaxDistance(ship, minDist);
+            if (this.followOwnerActive) {
+                return distSq > minDist * minDist;
+            }
             return distSq > maxDist * maxDist;
         }
 
@@ -429,8 +551,17 @@ final class EntityShipBrainAi {
                         formationId, slotId, owner.position(), this.formationDir[0], this.formationDir[1]);
             }
 
+            if (!this.followOwnerActive) {
+                float minDist = resolveFollowMinDistance(ship);
+                float maxDist = resolveFollowMaxDistance(ship, minDist);
+                Shincolle.diagnosticLog("{} start ship={} owner={} distSq={} minDist={} maxDist={}",
+                        FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), ship.distanceToSqr(owner), minDist, maxDist);
+            }
+            this.followOwnerActive = true;
             ShipMovementCoordinator movement = ship.followOwnerMovementCoordinator();
-            movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);
+            boolean moved = movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);
+            Shincolle.diagnosticLog("{} move ship={} owner={} target={} moved={}",
+                    FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), moveTarget, moved);
             double distSq = ship.distanceToSqr(owner);
             this.followRecovery.trackProgress(ship.position());
             boolean force = this.followRecovery.isStuckLongerThan(ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
@@ -441,15 +572,79 @@ final class EntityShipBrainAi {
             if (!movement.teleportNearLiving(owner, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)) {
                 return;
             }
-            Shincolle.debugLog("FollowOwner teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
+            Shincolle.diagnosticLog("{} teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
+                    FOLLOW_DEBUG_PREFIX,
                     ship.getUUID(), owner.getUUID(), force, distSq, this.followRecovery.stuckTicks());
             this.followRecovery.reset(ship.position());
         }
 
         private void clearFollowMoveState(EntityShipBase ship) {
+            LivingEntity owner = ship.getOwner();
+            if (this.followOwnerActive && owner != null) {
+                float minDist = resolveFollowMinDistance(ship);
+                float maxDist = resolveFollowMaxDistance(ship, minDist);
+                Shincolle.diagnosticLog("{} stop ship={} owner={} distSq={} minDist={} maxDist={}",
+                        FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), ship.distanceToSqr(owner), minDist, maxDist);
+            }
             this.followRecovery.clear();
             this.hasOwnerPos = false;
+            this.followOwnerActive = false;
             ship.followOwnerMovementCoordinator().stop();
+        }
+
+        private void logFollowSkipIfNeeded(EntityShipBase ship) {
+            if (ship.tickCount < this.nextFollowSkipLogTick) {
+                return;
+            }
+
+            this.nextFollowSkipLogTick = ship.tickCount + 40;
+            LivingEntity owner = ship.getOwner();
+            double distSq = owner == null ? -1.0D : ship.distanceToSqr(owner);
+            float minDist = resolveFollowMinDistance(ship);
+            float maxDist = resolveFollowMaxDistance(ship, minDist);
+            Shincolle.diagnosticLog(
+                    "{} skip ship={} owner={} ownerUuid={} ownerPresent={} tame={} hostile={} distSq={} minDist={} maxDist={} canMove={} shouldFollow={} reason={} pointer={} guard={} target={} noFuel={} sitting={}",
+                    FOLLOW_DEBUG_PREFIX,
+                    ship.getUUID(),
+                    owner == null ? null : owner.getUUID(),
+                    ship.getOwnerUUID(),
+                    owner != null,
+                    ship.isTame(),
+                    ship.isHostileShipMob(),
+                    distSq,
+                    minDist,
+                    maxDist,
+                    canMove(ship),
+                    ship.shouldFollowOwner(),
+                    ship.explainFollowBlockReason(),
+                    ship.hasPointerTarget() || ship.hasPointerTargetEntity(),
+                    ship.getGuardTarget().isActive(),
+                    ship.getTarget() != null,
+                    ship.isNoFuel(),
+                    ship.getIsSitting());
+        }
+
+        private void logMovementBranch(EntityShipBase ship, String branch) {
+            if (ship.tickCount < this.nextFollowSkipLogTick) {
+                return;
+            }
+
+            this.nextFollowSkipLogTick = ship.tickCount + 40;
+            LivingEntity owner = ship.getOwner();
+            double distSq = owner == null ? -1.0D : ship.distanceToSqr(owner);
+            Shincolle.diagnosticLog(
+                    "{} branch ship={} branch={} ownerPresent={} distSq={} canMove={} pointer={} guard={} target={} shouldFollow={} reason={}",
+                    FOLLOW_DEBUG_PREFIX,
+                    ship.getUUID(),
+                    branch,
+                    owner != null,
+                    distSq,
+                    canMove(ship),
+                    ship.hasPointerTarget() || ship.hasPointerTargetEntity(),
+                    ship.getGuardTarget().isActive(),
+                    ship.getTarget() != null,
+                    ship.shouldFollowOwner(),
+                    ship.explainFollowBlockReason());
         }
 
         private void updateFormationDirection(LivingEntity owner) {
@@ -503,6 +698,11 @@ final class EntityShipBrainAi {
 
         @Override
         protected boolean checkExtraStartConditions(ServerLevel level, EntityShipBase ship) {
+            return !ship.isInDeadPose();
+        }
+
+        @Override
+        protected boolean canStillUse(ServerLevel level, EntityShipBase ship, long gameTime) {
             return !ship.isInDeadPose();
         }
 
@@ -561,7 +761,7 @@ final class EntityShipBrainAi {
         }
 
         @Override
-        protected void tick(ServerLevel level, EntityShipBase ship, long gameTime) {
+        protected void start(ServerLevel level, EntityShipBase ship, long gameTime) {
             float yaw = ship.getYRot();
             double rad = -yaw * ShipAiNumbers.DEGREES_TO_RADIANS;
             double tx = ship.getX() + Math.sin(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE;
@@ -584,6 +784,7 @@ final class EntityShipBrainAi {
                     && !ship.isPassenger()
                     && !ship.isVehicle()
                     && !ship.hasPointerTarget()
+                    && ship.getTarget() == null
                     && !ship.shouldFollowOwner()
                     && !ship.getGuardTarget().isActive()
                     && ship.getRandom().nextInt(ShipAiNumbers.RANDOM_STROLL_CHANCE) == 0;
@@ -594,7 +795,8 @@ final class EntityShipBrainAi {
             Vec3 target = net.minecraft.world.entity.ai.util.DefaultRandomPos.getPos(
                     ship, ShipAiNumbers.RANDOM_STROLL_HORIZONTAL_RANGE, ShipAiNumbers.RANDOM_STROLL_VERTICAL_RANGE);
             if (target != null) {
-                ship.followOwnerMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED);
+                Shincolle.diagnosticLog("[SCIdleDiag] randomStroll ship={} target={}", ship.getUUID(), target);
+                ship.idleMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED);
             }
         }
     }

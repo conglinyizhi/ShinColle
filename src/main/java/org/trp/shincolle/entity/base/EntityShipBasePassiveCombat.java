@@ -52,6 +52,7 @@ final class EntityShipBasePassiveCombat {
     private int passiveMeleeCooldownTick;
     private int passiveLightCooldownTick;
     private int passiveHeavyCooldownTick;
+    private int nextCombatDiagTick;
     private boolean isFirstEngagementWaiting;
     private int passiveLastHurtByMobTimestamp;
     private int passiveLastOwnerHurtByTimestamp;
@@ -153,6 +154,7 @@ final class EntityShipBasePassiveCombat {
         boolean needsCloser = distanceSqr > stopRangeSqr;
         boolean cannotSee = !onSight && distanceSqr > preferredRangeSqr * 0.5D;
         boolean hasAttackMeans = hasRangedAttack || combat.canUseMeleeAttack();
+        logCombatStateIfNeeded(target, distanceSqr, preferredRangeSqr, stopRangeSqr, needsCloser, cannotSee, hasAttackMeans);
 
         if (needsCloser || cannotSee) {
             if (this.ship.hasPointerTarget() || !hasAttackMeans) {
@@ -197,8 +199,8 @@ final class EntityShipBasePassiveCombat {
         }
 
         this.movementRecovery.reset(this.ship.position());
+        this.movement.stop();
         if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
-            this.movement.stop();
             this.ship.getMoveControl().setWantedPosition(
                     this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
         }
@@ -233,6 +235,32 @@ final class EntityShipBasePassiveCombat {
             this.ship.doHurtTarget(target);
             this.passiveMeleeCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getMeleeDelay());
         }
+    }
+
+    private void logCombatStateIfNeeded(LivingEntity target, double distanceSqr, double preferredRangeSqr,
+                                        double stopRangeSqr, boolean needsCloser, boolean cannotSee,
+                                        boolean hasAttackMeans) {
+        if (this.ship.tickCount < this.nextCombatDiagTick) {
+            return;
+        }
+        this.nextCombatDiagTick = this.ship.tickCount + 40;
+        LivingEntity owner = this.ship.getOwner();
+        double ownerDistSq = owner == null ? -1.0D : this.ship.distanceToSqr(owner);
+        Shincolle.diagnosticLog(
+                "[SCCombatDiag] tickActions ship={} target={} distanceSqr={} preferredRangeSqr={} stopRangeSqr={} needsCloser={} cannotSee={} hasAttackMeans={} ownerPresent={} ownerDistSq={} shouldFollow={} followReason={} pointer={}",
+                this.ship.getUUID(),
+                target.getUUID(),
+                distanceSqr,
+                preferredRangeSqr,
+                stopRangeSqr,
+                needsCloser,
+                cannotSee,
+                hasAttackMeans,
+                owner != null,
+                ownerDistSq,
+                this.ship.shouldFollowOwner(),
+                this.ship.explainFollowBlockReason(),
+                this.ship.hasPointerTarget() || this.ship.hasPointerTargetEntity());
     }
 
     private boolean tryPassiveCombatTeleportRecovery(LivingEntity target, double distanceSqr, boolean force) {

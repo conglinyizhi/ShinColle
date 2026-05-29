@@ -267,6 +267,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private final ShipMovementCoordinator guardMovement;
     private final ShipMovementCoordinator pointerMovement;
     private final ShipMovementCoordinator followOwnerMovement;
+    private final ShipMovementCoordinator idleMovement;
     @Nullable
     private UUID guardedEntityId;
     private EntityShipFishingHook fishHook;
@@ -284,10 +285,17 @@ public abstract class EntityShipBase extends TamableAnimal {
     public int customSwingTicks = 0;
     public boolean isCustomSwinging = false;
     public static final int MAX_SWING_TICKS = 6;
+    private static final double SHIP_BUOY_MIN_DEPTH = 0.15D;
+    private static final double SHIP_BUOY_COEFF = 0.035D;
+    private static final double SHIP_BUOY_EXPONENT = 0.6D;
+    private static final double SHIP_BUOY_OFFSET = 0.005D;
+    private static final double SHIP_BUOY_DAMP = 0.80D;
+    private static final double SHIP_BUOY_MAX_MOTION = 0.1D;
     private long perfShipCoreNanos;
     private long perfShipTaskNanos;
     private long perfShipSupportNanos;
     private long perfShipPeriodicNanos;
+    private boolean loggedBrainAiEntry;
 
     protected EntityShipBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
@@ -307,7 +315,8 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.pickupMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_BACKGROUND);
         this.guardMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.pointerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
-        this.followOwnerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_NORMAL);
+        this.followOwnerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_FOLLOW);
+        this.idleMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_BACKGROUND);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
@@ -336,6 +345,10 @@ public abstract class EntityShipBase extends TamableAnimal {
         return this.followOwnerMovement;
     }
 
+    ShipMovementCoordinator idleMovementCoordinator() {
+        return this.idleMovement;
+    }
+
     @Override
     protected Brain.Provider<EntityShipBase> brainProvider() {
         return Brain.provider(EntityShipBrainAi.MEMORY_TYPES, EntityShipBrainAi.SENSOR_TYPES);
@@ -349,6 +362,19 @@ public abstract class EntityShipBase extends TamableAnimal {
     @Override
     protected void customServerAiStep() {
         if (this.level() instanceof ServerLevel serverLevel) {
+            if (!this.loggedBrainAiEntry && this.tickCount > 0) {
+                this.loggedBrainAiEntry = true;
+                Shincolle.diagnosticLog(
+                        "[SCBrainDiag] customServerAiStep ship={} type={} ownerUuid={} tame={} noFuel={} deadPose={} navigation={} brain={}",
+                        this.getUUID(),
+                        BuiltInRegistries.ENTITY_TYPE.getKey(this.getType()),
+                        this.getOwnerUUID(),
+                        this.isTame(),
+                        this.isNoFuel(),
+                        this.isInDeadPose(),
+                        this.getNavigation().getClass().getSimpleName(),
+                        this.getBrain().getClass().getSimpleName());
+            }
             EntityShipBrainAi.tick(serverLevel, this);
         }
         super.customServerAiStep();
@@ -380,6 +406,18 @@ public abstract class EntityShipBase extends TamableAnimal {
     public void readAdditionalSaveData(CompoundTag compound) {
         super.readAdditionalSaveData(compound);
         this.serialization.readAdditionalSaveData(compound);
+        if (!this.level().isClientSide && (compound.hasUUID("Owner") || compound.getBoolean(TAG_SPAWN_EGG))) {
+            Shincolle.diagnosticLog(
+                    "[SCLoadDiag] readShip ship={} ownerUuid={} tame={} spawnEgg={} noFuel={} fuel={} orderedToSit={} sittingPose={}",
+                    this.getUUID(),
+                    this.getOwnerUUID(),
+                    this.isTame(),
+                    compound.getBoolean(TAG_SPAWN_EGG),
+                    this.isNoFuel(),
+                    this.getFuel(),
+                    this.isOrderedToSit(),
+                    this.isInSittingPose());
+        }
     }
 
     public int getLevel() {
@@ -820,15 +858,8 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.hasPointerTargetEntity()) {
             return false;
         }
-        if (this.getTarget() != null) {
-            return false;
-        }
-
         int configuredMin = this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN);
         float minDist = configuredMin <= 0 ? 5.0F : (float) Mth.clamp(configuredMin, 1, 31);
-
-        int configuredMax = this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MAX);
-        float maxDist = configuredMax <= 0 ? Math.max(16.0F, minDist + 1.0F) : (float) Mth.clamp(configuredMax, Math.max(2, Mth.floor(minDist) + 1), 32);
 
         double checkMinDist = minDist;
         if (owner instanceof Player player && playerHasCombatRation(player)) {
@@ -836,8 +867,35 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
 
         double distanceSqr = this.distanceToSqr(owner);
-        return distanceSqr > (checkMinDist * checkMinDist)
-                && distanceSqr < (maxDist * maxDist) * 256.0D;
+        return distanceSqr > (checkMinDist * checkMinDist);
+    }
+
+    public String explainFollowBlockReason() {
+        if (this.isOrderedToSit()) return "orderedToSit";
+        if (this.isInSittingPose()) return "sittingPose";
+        if (this.isInDeadPose()) return "deadPose";
+        if (this.isPassenger()) return "passenger";
+        if (this.isNoFuel()) return "noFuel";
+        LivingEntity owner = this.getOwner();
+        if (owner == null) {
+            UUID ownerUuid = this.getOwnerUUID();
+            return ownerUuid == null ? "noOwnerUuid" : "ownerEntityMissing";
+        }
+        if (this.hasBlockGuardTarget()) return "blockGuardTarget";
+        if (this.hasPointerTarget()) return "pointerTarget";
+        if (this.hasPointerTargetEntity()) return "pointerTargetEntity";
+
+        int configuredMin = this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN);
+        float minDist = configuredMin <= 0 ? 5.0F : (float) Mth.clamp(configuredMin, 1, 31);
+
+        double checkMinDist = minDist;
+        if (owner instanceof Player player && playerHasCombatRation(player)) {
+            checkMinDist = 1.5D;
+        }
+
+        double distanceSqr = this.distanceToSqr(owner);
+        if (distanceSqr <= (checkMinDist * checkMinDist)) return "withinMinDistance";
+        return "eligible";
     }
 
 
@@ -1808,6 +1866,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         }
 
         this.updateMountSummon();
+        applyWaterBuoyancyIfNeeded();
 
         if (this.getIsSitting() || this.isInDeadPose()) {
             this.lifecycleMovement.stopAny();
@@ -1887,6 +1946,27 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     private static long finishPerfSegment(boolean tracing, long startNanos) {
         return tracing ? PerformanceTrace.elapsed(startNanos) : 0L;
+    }
+
+    private void applyWaterBuoyancyIfNeeded() {
+        if (!this.isInWater() || this.isPassenger() || this.isSubmarine()) {
+            return;
+        }
+
+        if (!this.getNavigation().isDone() && !this.isVehicle()) {
+            return;
+        }
+
+        double depth = this.getFluidHeight(net.minecraft.tags.FluidTags.WATER);
+        if (depth <= SHIP_BUOY_MIN_DEPTH) {
+            return;
+        }
+
+        double upward = SHIP_BUOY_COEFF * Math.pow(depth, SHIP_BUOY_EXPONENT) - SHIP_BUOY_OFFSET;
+        Vec3 motion = this.getDeltaMovement();
+        double newY = (motion.y + upward) * SHIP_BUOY_DAMP;
+        newY = Mth.clamp(newY, -SHIP_BUOY_MAX_MOTION, SHIP_BUOY_MAX_MOTION);
+        this.setDeltaMovement(motion.x, newY, motion.z);
     }
 
     @Override

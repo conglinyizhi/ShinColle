@@ -189,7 +189,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
         if (path == null) {
             if (shouldLogSetPath(-1, true, nextTarget)) {
-                Shincolle.debugLog("Navigation setPath failed mob={} targetPos={}", this.mob.getUUID(), nextTarget);
+                Shincolle.diagnosticLog("[SCNavDiag] setPath failed mob={} targetPos={}", this.mob.getUUID(), nextTarget);
                 this.loggedTargetPos = nextTarget;
                 this.loggedPathFailure = true;
                 this.loggedPathLength = -1;
@@ -222,7 +222,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         resetPathTimeoutState();
         int pathLength = path.getCurrentPathLength();
         if (shouldLogSetPath(pathLength, false, nextTarget)) {
-            Shincolle.debugLog("Navigation setPath success mob={} targetPos={} speed={} pathLength={}",
+            Shincolle.diagnosticLog("[SCNavDiag] setPath success mob={} targetPos={} speed={} pathLength={}",
                     this.mob.getUUID(), nextTarget, speed, pathLength);
             this.loggedTargetPos = nextTarget;
             this.loggedPathFailure = false;
@@ -324,7 +324,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
         int stationaryTicks = this.totalTicks - this.ticksAtLastPos;
         if (stationaryTicks > STUCK_CHECK_INTERVAL && shouldLogExceededCheck()) {
-            Shincolle.debugLog("Navigation exceededCheck mob={} pos={} targetPos={}",
+            Shincolle.diagnosticLog("[SCNavDiag] exceededCheck mob={} pos={} targetPos={}",
                     this.mob.getUUID(), hostPos, this.targetPos);
             this.lastExceededLogTarget = this.targetPos;
             this.lastExceededLogTick = this.totalTicks;
@@ -332,7 +332,7 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
         if (stationaryTicks > STUCK_MAX_TICKS && this.currentPath != null) {
             if (shouldLogStuckApply()) {
-                Shincolle.debugLog("Navigation stuckApply mob={} pos={} targetPos={}",
+                Shincolle.diagnosticLog("[SCNavDiag] stuckApply mob={} pos={} targetPos={}",
                         this.mob.getUUID(), hostPos, this.targetPos);
                 this.lastStuckApplyLogTarget = this.targetPos;
                 this.lastStuckApplyLogTick = this.totalTicks;

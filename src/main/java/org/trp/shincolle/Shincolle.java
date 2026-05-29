@@ -22,6 +22,10 @@ public class Shincolle {
         LOGGER.info("[ShinColleDebug] " + message, args);
     }
 
+    public static void diagnosticLog(String message, Object... args) {
+        LOGGER.info("[ShinColleDiag] " + message, args);
+    }
+
     public static void perfLog(String message, Object... args) {
         if (!Config.debugPerformanceLogging) {
             return;

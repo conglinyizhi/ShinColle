@@ -5,6 +5,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.Config;
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
 import org.trp.shincolle.utility.ShipTeleportHelper;
@@ -18,6 +19,7 @@ public final class ShipMovementCoordinator {
     public static final int PRIORITY_NORMAL = 10;
     public static final int PRIORITY_TASK = 15;
     public static final int PRIORITY_COMBAT = 20;
+    public static final int PRIORITY_FOLLOW = 25;
     public static final int PRIORITY_COMMAND = 30;
     public static final int PRIORITY_EMERGENCY = 40;
 
@@ -52,21 +54,29 @@ public final class ShipMovementCoordinator {
         if (!ownsNavigation()) {
             return;
         }
+        Shincolle.debugLog("MovementCoordinator stop mob={} priority={} owner={}",
+                this.mob.getUUID(), this.priority, this.ownerToken.hashCode());
         clearAnyNavigationOwner();
         mob.getNavigation().stop();
     }
 
     public void stopAny() {
         reset();
+        Shincolle.debugLog("MovementCoordinator stopAny mob={} priority={} owner={}",
+                this.mob.getUUID(), this.priority, this.ownerToken.hashCode());
         clearAnyNavigationOwner();
         mob.getNavigation().stop();
     }
 
     public boolean moveTo(Vec3 target, double speed) {
         if (shouldSuppressSameTargetMove(target, SAME_POINT_MOVE_TARGET_SQR)) {
+            Shincolle.debugLog("MovementCoordinator suppressPoint mob={} priority={} target={} speed={}",
+                    this.mob.getUUID(), this.priority, target, speed);
             return true;
         }
         if (shouldYieldToHigherPriorityOwner()) {
+            Shincolle.debugLog("MovementCoordinator yieldPoint mob={} priority={} target={} speed={}",
+                    this.mob.getUUID(), this.priority, target, speed);
             return true;
         }
 
@@ -77,9 +87,13 @@ public final class ShipMovementCoordinator {
     public boolean moveTo(Entity target, double speed) {
         Vec3 targetPos = target.position();
         if (shouldSuppressSameTargetMove(targetPos, SAME_ENTITY_MOVE_TARGET_SQR)) {
+            Shincolle.debugLog("MovementCoordinator suppressEntity mob={} priority={} target={} speed={}",
+                    this.mob.getUUID(), this.priority, target.getUUID(), speed);
             return true;
         }
         if (shouldYieldToHigherPriorityOwner()) {
+            Shincolle.debugLog("MovementCoordinator yieldEntity mob={} priority={} target={} speed={}",
+                    this.mob.getUUID(), this.priority, target.getUUID(), speed);
             return true;
         }
 
@@ -97,6 +111,8 @@ public final class ShipMovementCoordinator {
 
     private boolean recordMoveRequest(Vec3 target, boolean moved) {
         if (!moved) {
+            Shincolle.diagnosticLog("[SCMoveDiag] moveFailed mob={} priority={} target={}",
+                    this.mob.getUUID(), this.priority, target);
             stopAfterFailedMove();
             return false;
         }
@@ -104,6 +120,8 @@ public final class ShipMovementCoordinator {
         claimNavigation();
         this.lastMoveTarget = target;
         this.lastMoveTick = this.mob.tickCount;
+        Shincolle.diagnosticLog("[SCMoveDiag] moveOk mob={} priority={} target={} tick={}",
+                this.mob.getUUID(), this.priority, target, this.lastMoveTick);
         return true;
     }
 
