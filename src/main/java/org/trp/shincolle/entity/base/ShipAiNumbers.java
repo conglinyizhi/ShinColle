@@ -1,0 +1,52 @@
+package org.trp.shincolle.entity.base;
+
+final class ShipAiNumbers {
+    static final double TARGET_SWITCH_DISTANCE_SQ = 0.01D;
+    static final double POINTER_MOVE_REACH_SQR = 1.0D;
+    static final int MOVE_FAIL_LIMIT = 40;
+    static final int MOVE_FAIL_LOG_INTERVAL = 20;
+    static final int MOVE_STUCK_TICK_LIMIT = 120;
+    static final int TELEPORT_COOLDOWN_TICKS = 100;
+    static final double TELEPORT_DISTANCE_SQ = 256.0D;
+    static final int FOLLOW_TELEPORT_COOLDOWN_TICKS = 200;
+    static final int PATH_RECALC_INTERVAL_TICKS = 10;
+    static final double POINTER_MOVE_SPEED = 1.2D;
+    static final double GUARD_MOVE_SPEED = 1.1D;
+    static final double FOLLOW_OWNER_SPEED = 1.2D;
+    static final float FOLLOW_OWNER_MAX_DIST = 16.0F;
+    static final float FOLLOW_OWNER_MIN_DIST = 5.0F;
+    static final double GUARD_BLOCK_STOP_DISTANCE_SQ = 0.5D;
+    static final double GUARD_ENTITY_STOP_DISTANCE_SQ = 9.0D;
+    static final double GUARD_NEAR_LOOK_DISTANCE_SQ = 16.0D;
+    static final double GUARD_OWNER_LOOK_MAX_DISTANCE_SQ = 1024.0D;
+    static final double GUARD_NEAREST_PLAYER_LOOK_DISTANCE = 32.0D;
+    static final double GUARD_FALLBACK_LOOK_DISTANCE = 5.0D;
+    static final float LOOK_YAW = 30.0F;
+    static final float LOOK_PITCH = 30.0F;
+    static final float FOCUS_LOOK_YAW = 60.0F;
+    static final float FOCUS_LOOK_PITCH = 60.0F;
+    static final double TELEPORT_VERTICAL_OFFSET = 0.75D;
+    static final double FOLLOW_RATION_DISTANCE_SQ = 1.5D * 1.5D;
+    static final int FOLLOW_FORMATION_UPDATE_DISTANCE_SQ = 7;
+    static final int FOLLOW_POSITIVE_EMOTE_INTERVAL = 32;
+    static final int FOLLOW_MIN_DIST_CONFIG_MIN = 1;
+    static final int FOLLOW_MIN_DIST_CONFIG_MAX = 31;
+    static final int FOLLOW_MAX_DIST_CONFIG_MIN = 2;
+    static final int FOLLOW_MAX_DIST_CONFIG_MAX = 32;
+    static final float FOLLOW_MAX_DIST_PADDING = 1.0F;
+    static final int LOOK_AT_PLAYER_PRIORITY = 4;
+    static final int RANDOM_LOOK_PRIORITY = 5;
+    static final int RANDOM_STROLL_PRIORITY = 6;
+    static final int CORE_MOVEMENT_PRIORITY = 0;
+    static final float LOOK_AT_PLAYER_DISTANCE = 8.0F;
+    static final double RANDOM_STROLL_SPEED = 1.0D;
+    static final int RANDOM_LOOK_CHANCE = 50;
+    static final int RANDOM_STROLL_CHANCE = 120;
+    static final int RANDOM_STROLL_HORIZONTAL_RANGE = 10;
+    static final int RANDOM_STROLL_VERTICAL_RANGE = 7;
+    static final int GUARD_SUMMON_TIMER_ID = 18;
+    static final double DEGREES_TO_RADIANS = 0.017453292F;
+
+    private ShipAiNumbers() {
+    }
+}

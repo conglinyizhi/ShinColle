@@ -1,11 +1,13 @@
 package org.trp.shincolle.entity;
 
+import com.mojang.serialization.Dynamic;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.monster.Enemy;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -18,7 +20,6 @@ import net.minecraft.world.entity.ai.navigation.FlyingPathNavigation;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
-import org.trp.shincolle.entity.base.GoalShipAircraftAttack;
 import org.trp.shincolle.entity.base.ShipMovementCoordinator;
 import org.trp.shincolle.entity.base.ShipMovementRecoveryState;
 import org.trp.shincolle.init.ModSounds;
@@ -30,41 +31,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.EntityShincolleSimpleMob {
-
-    private static final int LIFETIME_TICKS = 1200;
-    private static final int HOST_CHECK_TIMEOUT = 20;
-    private static final int INITIAL_BOOST_DURATION = 34;
-    private static final double INITIAL_BOOST_SPEED = 0.375D;
-    private static final double INITIAL_BOOST_Y = 0.1D;
-    private static final int TARGETING_INTERVAL = 16;
-    private static final int RETURN_HOME_CHECK_INTERVAL = 16;
-    private static final int RETURN_HOME_STUCK_TICK_LIMIT = 120;
-    private static final int RETURN_HOME_FAILSAFE_TICKS = 20 * 30;
-    private static final int RETURN_HOME_TELEPORT_COOLDOWN_TICKS = 100;
-    private static final double RETURN_HOME_TELEPORT_DISTANCE_SQ = 256.0D;
-    private static final double TARGETING_RANGE_NORMAL = 24.0D;
-    private static final double TARGETING_RANGE_AIR_ONLY = 32.0D;
-
-    private static final float ATTACK_RANGE_LIGHT = 6.0F;
-    private static final float ATTACK_RANGE_HEAVY = 16.0F;
-
-    private static final double RAND_POS_MIN_LIGHT = 4.5D;
-    private static final double RAND_POS_RAND_LIGHT = 1.5D;
-    private static final double RAND_POS_MIN_HEAVY = 12.0D;
-    private static final double RAND_POS_RAND_HEAVY = 4.0D;
-
-    private static final double DEATH_GRAVITY = 0.08D;
-    private static final int DEATH_TIME_BURNING = 30;
-    private static final int DEATH_TIME_EXPLOSION = 90;
-
-    private static final int AMMO_RETURN_PENALTY_LIGHT = 3;
-    private static final int AMMO_RETURN_PENALTY_HEAVY = 1;
-
-    private static final int INITIAL_AMMO_LIGHT = 9;
-    private static final int INITIAL_AMMO_HEAVY = 3;
-
-    private static final int BASE_ATTACK_SPEED_AIRCRAFT = 100;
-    private static final int FIXED_ATTACK_DELAY_AIRCRAFT = 35;
 
     private UUID carrierId;
     private UUID targetId;
@@ -84,6 +50,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     private double[] randPos;
     private float attackRangeSq;
     private final ShipMovementCoordinator returnMovement;
+    private final ShipMovementCoordinator attackMovement;
     private final ShipMovementRecoveryState returnRecovery;
     private int returnHomeTicks;
 
@@ -95,6 +62,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     protected EntityAircraftBase(EntityType<? extends TamableAnimal> type, Level level) {
         super(type, level);
         this.returnMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
+        this.attackMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT);
         this.returnRecovery = new ShipMovementRecoveryState();
         this.moveControl = new FlyingMoveControl(this, 36, true);
         this.setNoGravity(true);
@@ -110,11 +78,6 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         return navigation;
     }
 
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(1, new GoalShipAircraftAttack(this));
-    }
-
     public void initCarrierMission(EntityShipBase carrier, Entity target, boolean lightAircraft) {
         if (carrier == null) {
             return;
@@ -128,18 +91,18 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         this.deathAnimTick = 0;
 
         if (lightAircraft) {
-            this.numAmmoLight = INITIAL_AMMO_LIGHT;
+            this.numAmmoLight = AircraftAiNumbers.INITIAL_AMMO_LIGHT;
             this.numAmmoHeavy = 0;
         } else {
             this.numAmmoLight = 0;
-            this.numAmmoHeavy = INITIAL_AMMO_HEAVY;
+            this.numAmmoHeavy = AircraftAiNumbers.INITIAL_AMMO_HEAVY;
         }
 
         float attackSpeed = carrier.getLegacyShipStats().getReloadSpeed();
-        this.maxAttackDelay = (int) (BASE_ATTACK_SPEED_AIRCRAFT / attackSpeed) + FIXED_ATTACK_DELAY_AIRCRAFT;
+        this.maxAttackDelay = (int) (AircraftAiNumbers.BASE_ATTACK_SPEED_AIRCRAFT / attackSpeed) + AircraftAiNumbers.FIXED_ATTACK_DELAY_AIRCRAFT;
         this.attackDelay = 0;
 
-        float range = lightAircraft ? ATTACK_RANGE_LIGHT : ATTACK_RANGE_HEAVY;
+        float range = lightAircraft ? AircraftAiNumbers.ATTACK_RANGE_LIGHT : AircraftAiNumbers.ATTACK_RANGE_HEAVY;
         this.attackRangeSq = range * range;
 
         this.setNoGravity(true);
@@ -187,14 +150,14 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         this.attackRangeSq = compound.getFloat("AttackRangeSq");
 
         if (this.attackRangeSq <= 0.0F) {
-            this.attackRangeSq = (this.missionLightAircraft ? ATTACK_RANGE_LIGHT : ATTACK_RANGE_HEAVY);
+            this.attackRangeSq = (this.missionLightAircraft ? AircraftAiNumbers.ATTACK_RANGE_LIGHT : AircraftAiNumbers.ATTACK_RANGE_HEAVY);
             this.attackRangeSq *= this.attackRangeSq;
         }
         if (this.maxAttackDelay <= 0) {
-            this.maxAttackDelay = FIXED_ATTACK_DELAY_AIRCRAFT + BASE_ATTACK_SPEED_AIRCRAFT;
+            this.maxAttackDelay = AircraftAiNumbers.FIXED_ATTACK_DELAY_AIRCRAFT + AircraftAiNumbers.BASE_ATTACK_SPEED_AIRCRAFT;
         }
         if (this.attackDelay <= 0) {
-            this.attackDelay = this.maxAttackDelay + HOST_CHECK_TIMEOUT;
+            this.attackDelay = this.maxAttackDelay + AircraftAiNumbers.HOST_CHECK_TIMEOUT;
         }
     }
 
@@ -261,7 +224,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     private void checkMissionStatus() {
-        if (this.missionTick >= LIFETIME_TICKS) {
+        if (this.missionTick >= AircraftAiNumbers.LIFETIME_TICKS) {
             startReturnHome();
             return;
         }
@@ -288,7 +251,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     private void handleInitialBoost() {
-        if (this.missionTick >= INITIAL_BOOST_DURATION) {
+        if (this.missionTick >= AircraftAiNumbers.INITIAL_BOOST_DURATION) {
             return;
         }
         Entity target = getMissionTarget();
@@ -300,19 +263,19 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         double distSqrt = Mth.sqrt((float) (dx * dx + dz * dz));
         if (distSqrt > 1.0E-4D) {
             this.setDeltaMovement(
-                    dx / distSqrt * INITIAL_BOOST_SPEED,
-                    INITIAL_BOOST_Y,
-                    dz / distSqrt * INITIAL_BOOST_SPEED
+                    dx / distSqrt * AircraftAiNumbers.INITIAL_BOOST_SPEED,
+                    AircraftAiNumbers.INITIAL_BOOST_Y,
+                    dz / distSqrt * AircraftAiNumbers.INITIAL_BOOST_SPEED
             );
             this.hasImpulse = true;
         }
     }
 
     private void handleTargeting(EntityShipBase carrier) {
-        if (this.missionTick % TARGETING_INTERVAL != 0) {
+        if (this.missionTick % AircraftAiNumbers.TARGETING_INTERVAL != 0) {
             return;
         }
-        if (this.missionTick < HOST_CHECK_TIMEOUT) {
+        if (this.missionTick < AircraftAiNumbers.HOST_CHECK_TIMEOUT) {
             return;
         }
 
@@ -369,13 +332,13 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
             return;
         }
 
-        Vec3 homePos = carrier.position().add(0.0D, carrier.getBbHeight() + 1.0D, 0.0D);
-        this.returnMovement.moveTo(homePos, 0.5D);
+        Vec3 homePos = carrier.position().add(0.0D, carrier.getBbHeight() + AircraftAiNumbers.RETURN_HOME_EXTRA_HEIGHT, 0.0D);
+        this.returnMovement.moveTo(homePos, AircraftAiNumbers.RETURN_HOME_SPEED);
         if (trackReturnHomeRecovery(carrier, distSq)) {
             return;
         }
-        if (this.returnHomeTicks > RETURN_HOME_FAILSAFE_TICKS
-                && this.returnRecovery.isStuckLongerThan(RETURN_HOME_FAILSAFE_TICKS)) {
+        if (this.returnHomeTicks > AircraftAiNumbers.RETURN_HOME_FAILSAFE_TICKS
+                && this.returnRecovery.isStuckLongerThan(AircraftAiNumbers.RETURN_HOME_FAILSAFE_TICKS)) {
             Shincolle.debugLog("AircraftReturn failsafeDiscard aircraft={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
                     this.getUUID(), carrier.getUUID(), distSq, this.returnHomeTicks, this.returnRecovery.stuckTicks());
             returnSummonResources(carrier);
@@ -385,15 +348,15 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     private boolean trackReturnHomeRecovery(EntityShipBase carrier, double distanceSqr) {
         this.returnRecovery.trackProgress(this.position());
-        boolean force = this.returnRecovery.isStuckLongerThan(RETURN_HOME_STUCK_TICK_LIMIT);
-        if (!force && (this.tickCount % RETURN_HOME_CHECK_INTERVAL) != 0) {
+        boolean force = this.returnRecovery.isStuckLongerThan(AircraftAiNumbers.RETURN_HOME_STUCK_TICK_LIMIT);
+        if (!force && (this.tickCount % AircraftAiNumbers.RETURN_HOME_CHECK_INTERVAL) != 0) {
             return false;
         }
         if (!this.returnRecovery.shouldTryTeleportThrottled(force, distanceSqr,
-                RETURN_HOME_TELEPORT_DISTANCE_SQ, RETURN_HOME_TELEPORT_COOLDOWN_TICKS)) {
+                AircraftAiNumbers.RETURN_HOME_TELEPORT_DISTANCE_SQ, AircraftAiNumbers.RETURN_HOME_TELEPORT_COOLDOWN_TICKS)) {
             return false;
         }
-        if (!this.returnMovement.teleportNearLiving(carrier, carrier.getBbHeight() + 0.75D)) {
+        if (!this.returnMovement.teleportNearLiving(carrier, carrier.getBbHeight() + AircraftAiNumbers.RETURN_HOME_TELEPORT_EXTRA)) {
             return false;
         }
 
@@ -405,8 +368,8 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     private void returnSummonResources(EntityShipBase carrier) {
-        int returnLight = Math.max(0, this.numAmmoLight - AMMO_RETURN_PENALTY_LIGHT);
-        int returnHeavy = Math.max(0, this.numAmmoHeavy - AMMO_RETURN_PENALTY_HEAVY);
+        int returnLight = Math.max(0, this.numAmmoLight - AircraftAiNumbers.AMMO_RETURN_PENALTY_LIGHT);
+        int returnHeavy = Math.max(0, this.numAmmoHeavy - AircraftAiNumbers.AMMO_RETURN_PENALTY_HEAVY);
 
         carrier.setAmmoLight(carrier.getAmmoLight() + returnLight);
         carrier.setAmmoHeavy(carrier.getAmmoHeavy() + returnHeavy);
@@ -461,28 +424,29 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
     }
 
     public float calcMissRate(EntityShipBase carrier, float distance) {
-        float range = 16.0F;
+        float range = AircraftAiNumbers.ATTACK_RANGE_HEAVY;
         float levelMod = 0.001F * carrier.getLevel();
         float miss = 0.25F + 0.25F * (distance / range) - levelMod;
         return Math.max(0.0F, Math.min(miss, 0.5F));
     }
 
     public Vec3 getRandomCruisePos(@Nullable Entity reference) {
-        double minDist = this.missionLightAircraft ? RAND_POS_MIN_LIGHT : RAND_POS_MIN_HEAVY;
-        double randDist = this.missionLightAircraft ? RAND_POS_RAND_LIGHT : RAND_POS_RAND_HEAVY;
+        double minDist = this.missionLightAircraft ? AircraftAiNumbers.RAND_POS_MIN_LIGHT : AircraftAiNumbers.RAND_POS_MIN_HEAVY;
+        double randDist = this.missionLightAircraft ? AircraftAiNumbers.RAND_POS_RAND_LIGHT : AircraftAiNumbers.RAND_POS_RAND_HEAVY;
 
         Entity ref = reference != null ? reference : this;
         Level level = this.level();
         float currentYaw = this.getYRot();
 
-        for (int i = 0; i < 25; i++) {
-            float angle = currentYaw + (i * 15.0F);
+        for (int i = 0; i < AircraftAiNumbers.RANDOM_CRUISE_ATTEMPTS; i++) {
+            float angle = currentYaw + (i * AircraftAiNumbers.RANDOM_CRUISE_ANGLE_STEP);
             double rad = Math.toRadians(angle);
 
             double dist = minDist + this.getRandom().nextDouble() * randDist;
             double newX = ref.getX() + Math.cos(rad) * dist;
             double newZ = ref.getZ() + Math.sin(rad) * dist;
-            double newY = ref.getY() + ref.getBbHeight() + 2.0D + this.getRandom().nextDouble() * 2.0D;
+            double newY = ref.getY() + ref.getBbHeight() + AircraftAiNumbers.RANDOM_CRUISE_Y_OFFSET
+                    + this.getRandom().nextDouble() * AircraftAiNumbers.RANDOM_CRUISE_Y_RANDOM;
 
             net.minecraft.core.BlockPos targetPos = net.minecraft.core.BlockPos.containing(newX, newY, newZ);
             if (level.getBlockState(targetPos).getCollisionShape(level, targetPos).isEmpty()) {
@@ -490,7 +454,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
             }
         }
 
-        return new Vec3(ref.getX(), ref.getY() + 5.0D, ref.getZ());
+        return new Vec3(ref.getX(), ref.getY() + AircraftAiNumbers.RANDOM_CRUISE_FALLBACK_Y, ref.getZ());
     }
 
     @Override
@@ -513,7 +477,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         this.setNoGravity(false);
 
         Vec3 motion = this.getDeltaMovement();
-        this.setDeltaMovement(this.deadMotionX, motion.y - DEATH_GRAVITY, this.deadMotionZ);
+        this.setDeltaMovement(this.deadMotionX, motion.y - AircraftAiNumbers.DEATH_GRAVITY, this.deadMotionZ);
         this.hasImpulse = true;
 
         if (this.level() instanceof ServerLevel serverLevel) {
@@ -528,7 +492,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
                 }
             }
 
-            if (this.deathAnimTick >= DEATH_TIME_EXPLOSION - 1) {
+            if (this.deathAnimTick >= AircraftAiNumbers.DEATH_TIME_EXPLOSION - 1) {
                 for (int i = 0; i < 12; i++) {
                     double ran1 = this.getBbWidth() * (this.random.nextFloat() - 0.5F);
                     double ran2 = this.getBbWidth() * (this.random.nextFloat() - 0.5F);
@@ -543,7 +507,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
                 }
             }
 
-            if (this.deathAnimTick >= DEATH_TIME_EXPLOSION) {
+            if (this.deathAnimTick >= AircraftAiNumbers.DEATH_TIME_EXPLOSION) {
                 for (int k = 0; k < 20; k++) {
                     double d2 = this.random.nextGaussian() * 0.02D;
                     double d0 = this.random.nextGaussian() * 0.02D;
@@ -561,10 +525,32 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     @Override
     public boolean isOnFire() {
-        if (this.isDying && this.deathAnimTick > DEATH_TIME_BURNING) {
+        if (this.isDying && this.deathAnimTick > AircraftAiNumbers.DEATH_TIME_BURNING) {
             return true;
         }
         return super.isOnFire();
+    }
+
+    @Override
+    protected Brain.Provider<EntityAircraftBase> brainProvider() {
+        return Brain.provider(AircraftBrainAi.MEMORY_TYPES, AircraftBrainAi.SENSOR_TYPES);
+    }
+
+    @Override
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+        return AircraftBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            AircraftBrainAi.tick(serverLevel, this);
+        }
+        super.customServerAiStep();
+    }
+
+    public ShipMovementCoordinator attackMovementCoordinator() {
+        return this.attackMovement;
     }
 
 
@@ -637,7 +623,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
 
     @Nullable
     private Entity findNewTarget(EntityShipBase carrier) {
-        double range = carrier.isStateAntiAir() ? TARGETING_RANGE_AIR_ONLY : TARGETING_RANGE_NORMAL;
+        double range = carrier.isStateAntiAir() ? AircraftAiNumbers.TARGETING_RANGE_AIR_ONLY : AircraftAiNumbers.TARGETING_RANGE_NORMAL;
         AABB box = this.getBoundingBox().inflate(range, range, range);
         List<Entity> entities = this.level().getEntities(this, box, entity -> {
             if (entity == null || !entity.isAlive() || entity == this) return false;

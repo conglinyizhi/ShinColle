@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity.base;
 
+import com.mojang.serialization.Dynamic;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -13,11 +14,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -28,8 +27,6 @@ import org.trp.shincolle.entity.base.path.ShipLegacyNavigation;
 import org.trp.shincolle.entity.base.path.ShipMoveControl;
 
 import javax.annotation.Nullable;
-import java.util.EnumSet;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -39,14 +36,6 @@ public abstract class EntityMountBase extends PathfinderMob {
             SynchedEntityData.defineId(EntityMountBase.class, EntityDataSerializers.OPTIONAL_UUID);
     private static final EntityDataAccessor<Integer> STATE_EMOTION =
             SynchedEntityData.defineId(EntityMountBase.class, EntityDataSerializers.INT);
-
-    private static final double SHIP_FLOATING_DEPTH = 0.3;
-    private static final double BUOY_MIN_DEPTH   = 0.15;
-    private static final double BUOY_COEFF       = 0.035;
-    private static final double BUOY_EXPONENT    = 0.6;
-    private static final double BUOY_OFFSET      = 0.005;
-    private static final double BUOY_DAMP        = 0.80;
-    private static final double BUOY_MAX_MOTION  = 0.1;
 
     protected float[] seatPos  = {0.0f, 0.0f, 0.0f};
     protected float[] seatPos2 = {0.0f, 0.0f, 0.0f};
@@ -61,288 +50,37 @@ public abstract class EntityMountBase extends PathfinderMob {
 
     private int lightAttackCooldown = 0;
     private int heavyAttackCooldown = 0;
+    private final ShipMovementCoordinator followMovement;
 
     protected EntityMountBase(EntityType<? extends PathfinderMob> type, Level level) {
         super(type, level);
         this.setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.WATER, 0.0F);
         this.setPathfindingMalus(net.minecraft.world.level.pathfinder.PathType.WATER_BORDER, 0.0F);
+        this.followMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.navigation = new ShipLegacyNavigation(this, level);
-    }
-
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(2, new MountFollowHostGoal(this));
-        this.goalSelector.addGoal(11, new MountRangeAttackGoal(this));
-        this.goalSelector.addGoal(12, new MeleeAttackGoal(this, 1.0, true));
-        this.goalSelector.addGoal(25, new RandomStrollGoal(this, 0.8));
     }
 
     private void applyWaterBuoyancy() {
         double depth = this.shipDepth;
         double upward = 0.0;
-        if (depth > BUOY_MIN_DEPTH) {
-            upward = BUOY_COEFF * Math.pow(depth, BUOY_EXPONENT) - BUOY_OFFSET;
+        if (depth > MountAiNumbers.BUOY_MIN_DEPTH) {
+            upward = MountAiNumbers.BUOY_COEFF * Math.pow(depth, MountAiNumbers.BUOY_EXPONENT) - MountAiNumbers.BUOY_OFFSET;
         }
         Vec3 dm = this.getDeltaMovement();
-        double newY = (dm.y + upward) * BUOY_DAMP;
-        newY = Mth.clamp(newY, -BUOY_MAX_MOTION, BUOY_MAX_MOTION);
+        double newY = (dm.y + upward) * MountAiNumbers.BUOY_DAMP;
+        newY = Mth.clamp(newY, -MountAiNumbers.BUOY_MAX_MOTION, MountAiNumbers.BUOY_MAX_MOTION);
         this.setDeltaMovement(dm.x, newY, dm.z);
-    }
-
-
-    private static final class MountFollowHostGoal extends Goal {
-        private static final int TP_COOLDOWN    = 100;
-        private static final int STUCK_TICK_LIMIT = 120;
-        private static final double TP_DIST_SQ = 256.0D;
-
-        private final EntityMountBase mount;
-        private final ShipMovementCoordinator movement;
-        private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();
-        private FollowRecoveryTargetKey lastRecoveryTargetKey;
-
-        MountFollowHostGoal(EntityMountBase mount) {
-            this.mount = mount;
-            this.movement = new ShipMovementCoordinator(mount, ShipMovementCoordinator.PRIORITY_COMMAND);
-            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
-        }
-
-        @Override
-        public boolean canUse() {
-            EntityShipBase h = mount.getHost();
-            if (h == null || !h.isAlive() || h.isOrderedToSit() || mount.isPassenger()) return false;
-
-            if (h.hasPointerTarget()) return true;
-            if (hasGuardTarget(h)) return true;
-
-            LivingEntity owner = h.getOwner();
-            if (owner == null) return false;
-
-            double distSq = mount.distanceToSqr(owner);
-            float fMax = h.getStateMinor(11);
-            double maxDistSq = fMax * fMax + mount.getBbWidth() * 0.75f;
-            return distSq > maxDistSq;
-        }
-
-        @Override
-        public boolean canContinueToUse() {
-            EntityShipBase h = mount.getHost();
-            if (h == null || !h.isAlive() || h.isOrderedToSit() || mount.isPassenger()) return false;
-
-            if (h.hasPointerTarget()) return true;
-            if (hasGuardTarget(h)) return true;
-
-            LivingEntity owner = h.getOwner();
-            if (owner == null) return false;
-
-            double distSq = mount.distanceToSqr(owner);
-            float fMin = h.getStateMinor(10);
-            double minDistSq = fMin * fMin + mount.getBbWidth() * 0.75f;
-            return distSq > minDistSq;
-        }
-
-        @Override public void start() {
-            lastRecoveryTargetKey = null;
-            recovery.reset(mount.position());
-            movement.reset();
-        }
-
-        @Override public void stop() {
-            lastRecoveryTargetKey = null;
-            movement.stop();
-        }
-
-        @Override public void tick() {
-            EntityShipBase h = mount.getHost();
-            if (h == null) return;
-
-            if (h.hasPointerTarget()) {
-                Vec3 pt = h.getPointerTarget();
-                resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.point("pointer", pt,
-                        EntityShipBase.getLegacyDimensionId(h.level())));
-                movement.moveTo(pt, 1.0D);
-                trackAndRecoverPoint(pt, "pointer");
-                return;
-            }
-
-            if (tickGuardTarget(h)) {
-                return;
-            }
-
-            LivingEntity owner = h.getOwner();
-            if (owner == null) return;
-
-            mount.getLookControl().setLookAt(owner, 30.0F, 30.0F);
-            resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity("owner", owner));
-            movement.moveTo(owner, 1.0D);
-            trackAndRecoverLiving(owner, "owner");
-        }
-
-        private static boolean hasGuardTarget(EntityShipBase host) {
-            ShipGuardTarget guardTarget = host.getGuardTarget();
-            if (guardTarget.isEntity()) {
-                Entity guarded = host.getGuardedEntity();
-                return guarded != null && guarded.isAlive();
-            }
-            return guardTarget.isBlock() && guardTarget.isIn(host.level());
-        }
-
-        private boolean tickGuardTarget(EntityShipBase host) {
-            ShipGuardTarget guardTarget = host.getGuardTarget();
-            if (guardTarget.isEntity()) {
-                Entity guarded = host.getGuardedEntity();
-                if (guarded == null || !guarded.isAlive()) {
-                    return false;
-                }
-
-                mount.getLookControl().setLookAt(guarded, 30.0F, 30.0F);
-                resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.entity("guardEntity", guarded));
-                movement.moveTo(guarded, 1.0D);
-                trackAndRecoverEntity(guarded, "guardEntity");
-                return true;
-            }
-
-            if (guardTarget.isBlock() && guardTarget.isIn(host.level())) {
-                Vec3 guardPos = guardTarget.blockCenter();
-                mount.getLookControl().setLookAt(guardPos.x, guardPos.y, guardPos.z, 30.0F, 30.0F);
-                resetRecoveryIfTargetChanged(FollowRecoveryTargetKey.guardBlock(guardTarget));
-                movement.moveTo(guardPos, 1.0D);
-                trackAndRecoverPoint(guardPos, "guardBlock");
-                return true;
-            }
-
-            return false;
-        }
-
-        private void trackAndRecoverLiving(LivingEntity target, String reason) {
-            if (target == null) {
-                return;
-            }
-            trackAndRecover(target.position(), mount.distanceToSqr(target), reason,
-                    () -> movement.teleportNearLiving(target, 0.75D));
-        }
-
-        private void trackAndRecoverEntity(Entity target, String reason) {
-            if (target == null) {
-                return;
-            }
-            if (target instanceof LivingEntity livingTarget) {
-                trackAndRecoverLiving(livingTarget, reason);
-                return;
-            }
-            trackAndRecover(target.position(), mount.distanceToSqr(target), reason,
-                    () -> movement.teleportNearPoint(target.position(), 0.75D));
-        }
-
-        private void trackAndRecoverPoint(Vec3 target, String reason) {
-            if (target == null) {
-                return;
-            }
-            trackAndRecover(target, mount.distanceToSqr(target), reason,
-                    () -> movement.teleportNearPoint(target, 0.75D));
-        }
-
-        private void trackAndRecover(Vec3 target, double distSq, String reason, java.util.function.BooleanSupplier teleport) {
-            recovery.trackProgress(mount.position());
-            boolean force = recovery.isStuckLongerThan(STUCK_TICK_LIMIT);
-            if (!recovery.shouldTryTeleportThrottled(force, distSq, TP_DIST_SQ, TP_COOLDOWN)) {
-                return;
-            }
-            if (!teleport.getAsBoolean()) {
-                return;
-            }
-
-            Shincolle.debugLog("MountFollow teleportRecovery mount={} host={} reason={} target={} force={} distSq={}",
-                    mount.getUUID(), mount.getHostUUID(), reason, target, force, distSq);
-            recovery.reset(mount.position());
-        }
-
-        private void resetRecoveryIfTargetChanged(FollowRecoveryTargetKey targetKey) {
-            if (Objects.equals(this.lastRecoveryTargetKey, targetKey)) {
-                return;
-            }
-
-            this.lastRecoveryTargetKey = targetKey;
-            this.recovery.reset(mount.position());
-            this.movement.reset();
-        }
-
-        private record FollowRecoveryTargetKey(String reason, UUID entityId, int x, int y, int z, int dimensionId) {
-            private static FollowRecoveryTargetKey entity(String reason, Entity target) {
-                return new FollowRecoveryTargetKey(reason, target.getUUID(), 0, 0, 0,
-                        EntityShipBase.getLegacyDimensionId(target.level()));
-            }
-
-            private static FollowRecoveryTargetKey guardBlock(ShipGuardTarget target) {
-                return new FollowRecoveryTargetKey("guardBlock", null, target.x(), target.y(), target.z(), target.dimensionId());
-            }
-
-            private static FollowRecoveryTargetKey point(String reason, Vec3 target, int dimensionId) {
-                return new FollowRecoveryTargetKey(reason, null, Mth.floor(target.x), Mth.floor(target.y), Mth.floor(target.z),
-                        dimensionId);
-            }
-        }
-    }
-
-    private static final class MountRangeAttackGoal extends Goal {
-        private final EntityMountBase mount;
-        private LivingEntity target;
-        private int aimTick    = 0;
-        private int lightDelay = 0;
-        private int heavyDelay = 0;
-
-        MountRangeAttackGoal(EntityMountBase mount) {
-            this.mount = mount;
-            this.setFlags(EnumSet.of(Flag.LOOK));
-        }
-
-        @Override public boolean canUse() {
-            EntityShipBase h = mount.getHost();
-            if (h == null || h.isOrderedToSit() || mount.isPassenger()) return false;
-            target = mount.getTarget();
-            return target != null && target.isAlive();
-        }
-        @Override public boolean canContinueToUse() {
-            return canUse();
-        }
-        @Override public void start() { aimTick = 0; lightDelay = 0; heavyDelay = 0; }
-        @Override public void stop()  { target = null; }
-
-        @Override public void tick() {
-            if (target == null || !target.isAlive()) return;
-            EntityShipBase h = mount.getHost();
-            if (h == null) return;
-
-            mount.getLookControl().setLookAt(target, 30.0F, 30.0F);
-            ++aimTick;
-            if (lightDelay > 0) --lightDelay;
-            if (heavyDelay > 0) --heavyDelay;
-
-            int aimRequired = (int)(20.0f * (150 - h.getLevel()) / 150.0f) + 10;
-            if (aimTick < aimRequired) return;
-
-            double rangeSq = Math.pow(Math.max(1.0, h.getLegacyShipStats().getAttackRange()), 2);
-            if (mount.distanceToSqr(target) > rangeSq) return;
-
-            if (h.isStateLightAttack() && h.getAmmoLight() > 0 && lightDelay <= 0) {
-                h.performLightAttack(target);
-                lightDelay = h.getLegacyShipStats().getLightDelay();
-            }
-            if (h.isStateHeavyAttack() && h.getAmmoHeavy() > 0 && heavyDelay <= 0) {
-                h.performHeavyAttack(target);
-                heavyDelay = h.getLegacyShipStats().getHeavyDelay();
-            }
-        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {
         return PathfinderMob.createMobAttributes()
-                .add(Attributes.MAX_HEALTH,          4.0)
-                .add(Attributes.MOVEMENT_SPEED,      0.3)
-                .add(Attributes.FOLLOW_RANGE,        64.0)
-                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
-                .add(Attributes.STEP_HEIGHT,         3.0)
-                .add(Attributes.ATTACK_DAMAGE,       2.0);
+                .add(Attributes.MAX_HEALTH, MountAiNumbers.BASE_MAX_HEALTH)
+                .add(Attributes.MOVEMENT_SPEED, MountAiNumbers.BASE_MOVEMENT_SPEED)
+                .add(Attributes.FOLLOW_RANGE, MountAiNumbers.FOLLOW_RANGE_ATTR)
+                .add(Attributes.KNOCKBACK_RESISTANCE, MountAiNumbers.BASE_KNOCKBACK_RESISTANCE)
+                .add(Attributes.STEP_HEIGHT, MountAiNumbers.BASE_STEP_HEIGHT)
+                .add(Attributes.ATTACK_DAMAGE, MountAiNumbers.BASE_ATTACK_DAMAGE);
     }
 
     @Override
@@ -392,6 +130,9 @@ public abstract class EntityMountBase extends PathfinderMob {
         if (this.isSubmarineMode && fluidH <= 0.4) {
             this.isSubmarineMode = false;
         }
+        if (this.isSubmarineMode && fluidH <= MountAiNumbers.SUBMARINE_DISABLE_DEPTH) {
+            this.isSubmarineMode = false;
+        }
 
         if (this.isInWater() && !this.isPassenger() && !this.isSubmarineMode) {
             if (this.isVehicle() || this.getNavigation().isDone()) {
@@ -405,7 +146,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             this.clearFire();
         }
 
-        if ((this.tickCount & 0x7F) == 0) this.setAirSupply(300);
+        if ((this.tickCount & MountAiNumbers.AIR_SUPPLY_INTERVAL_MASK) == 0) this.setAirSupply(MountAiNumbers.STOP_SHIP_AI_AIR_SUPPLY);
 
         if (this.level().isClientSide) {
             updateClientLogic();
@@ -457,7 +198,7 @@ public abstract class EntityMountBase extends PathfinderMob {
         if (lightAttackCooldown > 0) --lightAttackCooldown;
         if (heavyAttackCooldown > 0) --heavyAttackCooldown;
 
-        if ((this.tickCount & 0x1F) == 0) {
+        if ((this.tickCount & MountAiNumbers.SERVER_SYNC_INTERVAL_MASK) == 0) {
             syncWithHost();
         }
     }
@@ -488,7 +229,7 @@ public abstract class EntityMountBase extends PathfinderMob {
 
         float hostMaxHP = this.host.getMaxHealth();
         this.getAttribute(Attributes.MAX_HEALTH)
-                .setBaseValue(hostMaxHP * 0.5);
+                .setBaseValue(hostMaxHP * MountAiNumbers.HOST_MAX_HEALTH_SCALE);
 
         double hostSpeed = this.host.getAttributeValue(Attributes.MOVEMENT_SPEED);
         this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(hostSpeed);
@@ -496,7 +237,7 @@ public abstract class EntityMountBase extends PathfinderMob {
         float kr = this.host.getLegacyShipStats().getBuffedAttr(20);
         this.getAttribute(Attributes.KNOCKBACK_RESISTANCE).setBaseValue(Mth.clamp(kr, 0.0f, 1.0f));
 
-        this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(64.0);
+        this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(MountAiNumbers.FOLLOW_RANGE_ATTR);
     }
 
     protected void handleMovement() {
@@ -513,7 +254,8 @@ public abstract class EntityMountBase extends PathfinderMob {
                 this.yHeadRot = rider.getYHeadRot();
                 this.yHeadRotO = rider.yHeadRotO;
             }
-        } else if (Math.abs(this.getX() - this.xo) > 0.001 || Math.abs(this.getZ() - this.zo) > 0.001) {
+        } else if (Math.abs(this.getX() - this.xo) > MountAiNumbers.ROTATION_EPSILON
+                || Math.abs(this.getZ() - this.zo) > MountAiNumbers.ROTATION_EPSILON) {
             handleAIMovementRotation();
         } else {
             syncRotationWithHost();
@@ -679,7 +421,7 @@ public abstract class EntityMountBase extends PathfinderMob {
         if (this.level().isClientSide) return InteractionResult.SUCCESS;
 
         if (!player.isSecondaryUseActive()) {
-            if (this.distanceToSqr(player) < 16.0) {
+            if (this.distanceToSqr(player) < MountAiNumbers.RIDER_INTERACT_DISTANCE_SQ) {
                 player.startRiding(this, true);
                 return InteractionResult.SUCCESS;
             }
@@ -757,6 +499,28 @@ public abstract class EntityMountBase extends PathfinderMob {
         super.readAdditionalSaveData(compound);
         if (compound.hasUUID("HostUUID")) setHostUUID(compound.getUUID("HostUUID"));
         setStateEmotion(compound.getInt("StateEmotion"));
+    }
+
+    @Override
+    protected Brain.Provider<EntityMountBase> brainProvider() {
+        return Brain.provider(EntityMountBrainAi.MEMORY_TYPES, EntityMountBrainAi.SENSOR_TYPES);
+    }
+
+    @Override
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+        return EntityMountBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            EntityMountBrainAi.tick(serverLevel, this);
+        }
+        super.customServerAiStep();
+    }
+
+    ShipMovementCoordinator followMovementCoordinator() {
+        return this.followMovement;
     }
 
     public float[] getSeatPos() { return this.seatPos; }

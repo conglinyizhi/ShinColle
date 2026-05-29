@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity.base;
 
+import com.mojang.serialization.Dynamic;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.ParticleTypes;
@@ -24,11 +25,8 @@ import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
-import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
-import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
-import net.minecraft.world.entity.ai.goal.SitWhenOrderedToGoal;
 import net.minecraft.world.entity.ai.navigation.PathNavigation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -268,6 +266,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private final ShipMovementCoordinator pickupMovement;
     private final ShipMovementCoordinator guardMovement;
     private final ShipMovementCoordinator pointerMovement;
+    private final ShipMovementCoordinator followOwnerMovement;
     @Nullable
     private UUID guardedEntityId;
     private EntityShipFishingHook fishHook;
@@ -308,6 +307,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.pickupMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_BACKGROUND);
         this.guardMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.pointerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
+        this.followOwnerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_NORMAL);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
         this.setPathfindingMalus(PathType.LAVA, 0.0F);
@@ -330,6 +330,28 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     ShipMovementCoordinator guardMovementCoordinator() {
         return this.guardMovement;
+    }
+
+    ShipMovementCoordinator followOwnerMovementCoordinator() {
+        return this.followOwnerMovement;
+    }
+
+    @Override
+    protected Brain.Provider<EntityShipBase> brainProvider() {
+        return Brain.provider(EntityShipBrainAi.MEMORY_TYPES, EntityShipBrainAi.SENSOR_TYPES);
+    }
+
+    @Override
+    protected Brain<?> makeBrain(Dynamic<?> dynamic) {
+        return EntityShipBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));
+    }
+
+    @Override
+    protected void customServerAiStep() {
+        if (this.level() instanceof ServerLevel serverLevel) {
+            EntityShipBrainAi.tick(serverLevel, this);
+        }
+        super.customServerAiStep();
     }
 
     public boolean moveGuardTargetTo(Vec3 target, double speed) {
@@ -3129,57 +3151,6 @@ public abstract class EntityShipBase extends TamableAnimal {
                 beamHeight,
                 1.0D
         );
-    }
-
-    @Override
-    protected void registerGoals() {
-        this.goalSelector.addGoal(0, new SitWhenOrderedToGoal(this));
-        this.goalSelector.addGoal(1, new EntityShipPointerMoveGoal(this, 1.2D));
-        this.goalSelector.addGoal(2, new EntityShipGuardGoal(this, 1.1D));
-        this.goalSelector.addGoal(3, new EntityShipFollowOwnerGoal(this, 1.2D, 16.0F, 5.0F));
-        this.goalSelector.addGoal(4, new LookAtPlayerGoal(this, Player.class, 8.0F) {
-            @Override
-            public boolean canUse() {
-                return !EntityShipBase.this.isInDeadPose() && super.canUse();
-            }
-
-            @Override
-            public boolean canContinueToUse() {
-                return !EntityShipBase.this.isInDeadPose() && super.canContinueToUse();
-            }
-        });
-        this.goalSelector.addGoal(5, new RandomLookAroundGoal(this) {
-            @Override
-            public boolean canUse() {
-                return !EntityShipBase.this.isInDeadPose() && super.canUse();
-            }
-
-            @Override
-            public boolean canContinueToUse() {
-                return !EntityShipBase.this.isInDeadPose() && super.canContinueToUse();
-            }
-        });
-        this.goalSelector.addGoal(6, new RandomStrollGoal(this, 1.0D) {
-            @Override
-            public boolean canUse() {
-                return !EntityShipBase.this.isOrderedToSit()
-                        && !EntityShipBase.this.isInSittingPose()
-                        && !EntityShipBase.this.isInDeadPose()
-                        && !EntityShipBase.this.isPassenger()
-                        && !EntityShipBase.this.isVehicle()
-                        && super.canUse();
-            }
-
-            @Override
-            public boolean canContinueToUse() {
-                return !EntityShipBase.this.isOrderedToSit()
-                        && !EntityShipBase.this.isInSittingPose()
-                        && !EntityShipBase.this.isInDeadPose()
-                        && !EntityShipBase.this.isPassenger()
-                        && !EntityShipBase.this.isVehicle()
-                        && super.canContinueToUse();
-            }
-        });
     }
 
     public void onInventoryChanged() {
