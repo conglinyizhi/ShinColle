@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "shincolle:item/shipspawnegg4",
+    "layer1": "shincolle:item/boss_dot"
+  }
+}
