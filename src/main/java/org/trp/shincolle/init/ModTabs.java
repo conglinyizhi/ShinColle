@@ -64,6 +64,10 @@ public class ModTabs {
                 output.accept(ModItems.SUBM_U511_SPAWN_EGG.get());
                 output.accept(ModItems.SUBM_RO500_SPAWN_EGG.get());
 
+                // ===== HOSTILE SPAWN EGGS (1.12.2: classId + 2002) =====
+                output.accept(ModItems.HOSTILE_EGG.get());
+                output.accept(ModItems.HOSTILE_EGG_L.get());
+
                 // ===== MATERIALS (1.12.2 order: AbyssMetal, AbyssNugget, Ammo, Grudge) =====
                 output.accept(ModItems.ABYSS_METAL.get());
                 ModItems.addAbyssNuggetVariants(output);

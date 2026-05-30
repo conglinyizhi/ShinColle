@@ -918,6 +918,8 @@
   "item.shincolle.ShipTank2.name": "深海液体槽 （大）",
   "item.shincolle.ShipTank3.name": "深海液体槽 （更大）",
   "item.shincolle.TargetWrench.name": "目标设定扳手",
+  "item.shincolle.hostile_egg": "敌对舰娘（小型）",
+  "item.shincolle.hostile_egg_l": "敌对舰娘（大型）",
   "item.shincolle.targetwrench": "目标设定扳手",
   "item.shincolle.abyss_metal": "深海金属",
   "item.shincolle.abyss_polymetal": "多金属结核",
@@ -1346,47 +1348,19 @@
   "patchouli.shincolle.entry.utility_blocks.page4.text": "$(item)多金属矿石$()和$(item)多金属砾石$()是获取多金属的自然生成来源。挖掘后获得$(item)多金属结核$()。矿石生成在较深地层，砾石变体常见于水域附近。",
   "patchouli.shincolle.entry.hadal_vortex.name": "超深海热漩",
   "patchouli.shincolle.entry.hadal_vortex.page0.title": "概述",
-  "patchouli.shincolle.entry.hadal_vortex.page0.text": "$(c)超深海热漩$()是$(9)深海热泉$()的升级版本——一个3×3×3的多方块结构，用于$(c)高阶深海栖舰建造$()与$(c)装备开发$()。
-
-相比深海热泉，热漩支持更高级的舰种（姬级、水鬼级等），并能容纳更大批量的资源投入。",
+  "patchouli.shincolle.entry.hadal_vortex.page0.text": "$(c)超深海热漩$()是$(9)深海热泉$()的升级版本——一个3×3×3的多方块结构，用于$(c)高阶深海栖舰建造$()与$(c)装备开发$()。\n\n相比深海热泉，热漩支持更高级的舰种（姬级、水鬼级等），并能容纳更大批量的资源投入。",
   "patchouli.shincolle.entry.hadal_vortex.page1.title": "多方块结构搭建",
-  "patchouli.shincolle.entry.hadal_vortex.page1.text": "超深海热漩的搭建方式如下：
-
-$(l)底层：$()3×3 的$(item)多金属块$()
-
-$(l)中层：$()四个角各放一个$(item)多金属块$()
-
-$(l)顶层：$()中央放置一个$(item)沉重怨念块$()
-
-最后对$(item)沉重怨念块$()$(9)右键$()即可激活热漩。",
+  "patchouli.shincolle.entry.hadal_vortex.page1.text": "超深海热漩的搭建方式如下：\n\n$(l)底层：$()3×3 的$(item)多金属块$()\n\n$(l)中层：$()四个角各放一个$(item)多金属块$()\n\n$(l)顶层：$()中央放置一个$(item)沉重怨念块$()\n\n最后对$(item)沉重怨念块$()$(9)右键$()即可激活热漩。",
   "patchouli.shincolle.entry.hadal_vortex.page2.title": "建造舰娘",
-  "patchouli.shincolle.entry.hadal_vortex.page2.text": "投入足够数量的四种建造资材（至少每种 $(c)100$() 个），并确保有充足的$(6)岩浆$()作为能源。
-
-点击界面右侧的$(4)栖舰刷怪蛋图标$()开始建造。
-
-$(9)双击$()该图标可进入$(c)连续建造模式$()，会记录本次资源配比并持续消耗相同配比进行建造。
-
-若投入资源过多，可使用界面上的$(4)红色箭头$()取出多余资材。",
+  "patchouli.shincolle.entry.hadal_vortex.page2.text": "投入足够数量的四种建造资材（至少每种 $(c)100$() 个），并确保有充足的$(6)岩浆$()作为能源。\n\n点击界面右侧的$(4)栖舰刷怪蛋图标$()开始建造。\n\n$(9)双击$()该图标可进入$(c)连续建造模式$()，会记录本次资源配比并持续消耗相同配比进行建造。\n\n若投入资源过多，可使用界面上的$(4)红色箭头$()取出多余资材。",
   "patchouli.shincolle.entry.hadal_vortex.page3.title": "合成深海热泉",
-  "patchouli.shincolle.entry.hadal_vortex.page3.text": "在搭建超深海热漩之前，你需要先建造$(9)深海热泉$()作为基础。
-
-深海热泉是超深海热漩的简化版本，用于建造$(c)常规深海栖舰$()和$(c)装备开发$()。",
+  "patchouli.shincolle.entry.hadal_vortex.page3.text": "在搭建超深海热漩之前，你需要先建造$(9)深海热泉$()作为基础。\n\n深海热泉是超深海热漩的简化版本，用于建造$(c)常规深海栖舰$()和$(c)装备开发$()。",
   "patchouli.shincolle.entry.hadal_vortex.page4.title": "装备开发",
-  "patchouli.shincolle.entry.hadal_vortex.page4.text": "在热漩界面中投入材料后，点击$(c)装备图标$()即可进行装备开发。
-
-装备开发与舰娘建造消耗相同的资源类型（资材 + 岩浆），但配比有所不同。
-
-超深海热漩和深海热泉均可用于装备开发。",
+  "patchouli.shincolle.entry.hadal_vortex.page4.text": "在热漩界面中投入材料后，点击$(c)装备图标$()即可进行装备开发。\n\n装备开发与舰娘建造消耗相同的资源类型（资材 + 岩浆），但配比有所不同。\n\n超深海热漩和深海热泉均可用于装备开发。",
   "patchouli.shincolle.entry.hadal_vortex.page5.title": "高速建造",
-  "patchouli.shincolle.entry.hadal_vortex.page5.text": "将$(d)$(n)高速建造材料$()$()放入热漩的燃料槽位，可以$(c)瞬时增加建造进度$()。
-
-高速建造材料只能通过尚未使用的深海栖舰建造道具来合成。
-
-此外，$(c)附魔弹$()也需要在超深海热漩中制造。先在热漩中制作基础附魔弹，再在工作台中与药水合成以获得对应药水效果。",
+  "patchouli.shincolle.entry.hadal_vortex.page5.text": "将$(d)$(n)高速建造材料$()$()放入热漩的燃料槽位，可以$(c)瞬时增加建造进度$()。\n\n高速建造材料只能通过尚未使用的深海栖舰建造道具来合成。\n\n此外，$(c)附魔弹$()也需要在超深海热漩中制造。先在热漩中制作基础附魔弹，再在工作台中与药水合成以获得对应药水效果。",
   "patchouli.shincolle.entry.hadal_vortex.page6.title": "合成深海火山核心",
-  "patchouli.shincolle.entry.hadal_vortex.page6.text": "$(item)深海火山核心$()是能量型的多方块组件，可与热漩配合使用。
-
-核心会自动吸收周围怨念并转化为能量释放，深海栖舰可以站在附近吸收这种能量来迅速恢复疲劳。"
+  "patchouli.shincolle.entry.hadal_vortex.page6.text": "$(item)深海火山核心$()是能量型的多方块组件，可与热漩配合使用。\n\n核心会自动吸收周围怨念并转化为能量释放，深海栖舰可以站在附近吸收这种能量来迅速恢复疲劳。",
   "patchouli.shincolle.entry.shipyard_tools.page4b.title": "大型船坞",
   "patchouli.shincolle.entry.shipyard_tools.page4b.text": "$(item)深海热液漩涡$()是大型船坞，用于高阶舰船建造和批量资源处理。",
   "patchouli.shincolle.entry.shipyard_tools.page7.title": "拆解锤",

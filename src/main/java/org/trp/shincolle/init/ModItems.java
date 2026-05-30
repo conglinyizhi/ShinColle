@@ -52,6 +52,14 @@ public class ModItems {
             () -> new RandomShipSpawnEggItem(ModEntities.DESTROYER_HIME, ShipClass.PRINCESS, true,
                     0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
+
+    public static final DeferredItem<Item> HOSTILE_EGG = ITEMS.register("hostile_egg",
+            () -> new HostileSpawnEggItem(ModEntities.DESTROYER_I, false,
+                    0x444444, 0x888888, new Item.Properties()));
+
+    public static final DeferredItem<Item> HOSTILE_EGG_L = ITEMS.register("hostile_egg_l",
+            () -> new HostileSpawnEggItem(ModEntities.DESTROYER_HIME, true,
+                    0x444444, 0x888888, new Item.Properties()));
     public static final DeferredItem<Item> DESTROYER_I_SPAWN_EGG = ITEMS.register("destroyer_i_spawn_egg",
             () -> new ShipSpawnEggItem(ModEntities.DESTROYER_I, ShipClass.DESTROYER, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
@@ -376,7 +384,7 @@ public class ModItems {
                 }
 
                 variants.sort(Comparator
-                        .comparingDouble((ItemStack stack) -> getLegacyEquipSortScore(legacyEquipItem, stack))
+                        .comparingInt(legacyEquipItem::getVariant)
                         .thenComparingInt(legacyEquipItem::getEquipId)
                         .thenComparingInt(legacyEquipItem::getVariant));
 
