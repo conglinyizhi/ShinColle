@@ -161,6 +161,8 @@ public class ShincolleConfigScreen {
                     .setSaveConsumer(Config.MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR::set).build());
             interactCat.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.shincolle.canTeleport"), Config.SHIP_CAN_TELEPORT.get())
                     .setSaveConsumer(Config.SHIP_CAN_TELEPORT::set).build());
+            interactCat.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.shincolle.freezeWhenGuiOpen"), Config.SHIP_FREEZE_WHEN_GUI_OPEN.get())
+                    .setSaveConsumer(Config.SHIP_FREEZE_WHEN_GUI_OPEN::set).build());
 
             // === Debug ===
             var debugCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.debug"));

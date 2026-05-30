@@ -1421,4 +1421,6 @@
   "config.shincolle.offsetHeldItemX": "Held Item Offset X",
   "config.shincolle.offsetHeldItemY": "Held Item Offset Y",
   "config.shincolle.offsetHeldItemZ": "Held Item Offset Z"
+,
+  "config.shincolle.freezeWhenGuiOpen": "Freeze Ship Movement When GUI Open"
 }

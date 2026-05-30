@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.Vec3;
 import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.Config;
 
 public class ShipLegacyNavigation extends GroundPathNavigation {
 
@@ -67,6 +68,9 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
             this.preserveCurrentPathOnNextFailure = false;
             return false;
         }
+        if (frozenByGui()) {
+            return false;
+        }
         if (!canNavigate()) {
             this.preserveCurrentPathOnNextFailure = false;
             return false;
@@ -82,6 +86,9 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
     public boolean moveTo(Entity entity, double speed) {
         if (this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED) <= 1.0E-4D) {
             this.preserveCurrentPathOnNextFailure = false;
+            return false;
+        }
+        if (frozenByGui()) {
             return false;
         }
         if (!canNavigate()) {
@@ -286,6 +293,11 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         return !this.mob.isPassenger()
                 && (this.mob.onGround() || isInLiquid() || this.mob.isNoGravity()
                     || this.mob.fallDistance < 2.0F);
+    }
+
+    private boolean frozenByGui() {
+        if (!Config.SHIP_FREEZE_WHEN_GUI_OPEN.get()) return false;
+        return this.mob instanceof org.trp.shincolle.entity.base.EntityShipBase ship && ship.isGuiOpen();
     }
 
     private void pathFollow() {

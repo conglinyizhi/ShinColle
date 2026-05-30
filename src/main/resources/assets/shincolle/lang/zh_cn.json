@@ -1440,4 +1440,6 @@
   "config.shincolle.offsetHeldItemX": "手持物偏移 X",
   "config.shincolle.offsetHeldItemY": "手持物偏移 Y",
   "config.shincolle.offsetHeldItemZ": "手持物偏移 Z"
+,
+  "config.shincolle.freezeWhenGuiOpen": "打开 GUI 时冻结舰娘移动"
 }

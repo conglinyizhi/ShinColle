@@ -492,6 +492,9 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.ship = ship;
 
         if (!ship.level().isClientSide) {
+            ship.incrementGuiOpen();
+        }
+        if (!ship.level().isClientSide) {
             ship.onInventoryChanged();
         }
 
@@ -647,6 +650,14 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public EntityShipBase getShip() {
         return ship;
+    }
+
+    @Override
+    public void removed(net.minecraft.world.entity.player.Player player) {
+        super.removed(player);
+        if (!ship.level().isClientSide) {
+            ship.decrementGuiOpen();
+        }
     }
 
     public int getInventoryPage() {

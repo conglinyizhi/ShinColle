@@ -281,6 +281,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private int customHurtTime;
     private int hurtSoundCooldown;
     private int feedSoundCooldown;
+    private int guiOpenCount;
     private final Set<Long> forcedCompassChunks = new HashSet<>();
     private int forcedCompassChunkCenterX = Integer.MIN_VALUE;
     private int forcedCompassChunkCenterZ = Integer.MIN_VALUE;
@@ -454,6 +455,18 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     public void addShipKill() {
         setShipKills(getShipKills() + 1);
+    }
+
+    public boolean isGuiOpen() {
+        return this.guiOpenCount > 0;
+    }
+
+    public void incrementGuiOpen() {
+        this.guiOpenCount++;
+    }
+
+    public void decrementGuiOpen() {
+        this.guiOpenCount = Math.max(0, this.guiOpenCount - 1);
     }
 
     public int getMaxShipLevel() {

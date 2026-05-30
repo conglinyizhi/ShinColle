@@ -88,6 +88,7 @@ public class Config {
     public static final ModConfigSpec.IntValue PAIR_DIST_CHEST;
     public static final ModConfigSpec.IntValue PAIR_DIST_WAYPOINT;
     public static final ModConfigSpec.BooleanValue SHIP_CAN_TELEPORT;
+    public static final ModConfigSpec.BooleanValue SHIP_FREEZE_WHEN_GUI_OPEN;
     public static final ModConfigSpec.IntValue CRANE_TANK_CAPACITY;
     public static final ModConfigSpec.IntValue VOLCORE_POWER_MAX;
     public static final ModConfigSpec.IntValue VOLCORE_CONSUME_SPEED;
@@ -389,6 +390,10 @@ public class Config {
         MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR = BUILDER
                 .comment("Show the maxed modernization message in the action bar instead of chat")
                 .define("modernKitNotifyWhenMaxedActionBar", modernKitNotifyWhenMaxedActionBar);
+
+        SHIP_FREEZE_WHEN_GUI_OPEN = BUILDER
+                .comment("Freeze ship movement when its GUI is open. Ship can still attack in place.")
+                .define("freezeWhenGuiOpen", true);
 
         BUILDER.pop();
 
