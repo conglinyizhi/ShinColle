@@ -142,7 +142,14 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         this.missionTick++;
 
         EntityShipBase carrier = getCarrier();
-        if (carrier == null || !carrier.isAlive()) {
+        if (carrier == null) {
+            // Carrier no longer exists in the world; cannot return resources
+            this.discard();
+            return;
+        }
+        if (!carrier.isAlive()) {
+            // Carrier is dead but still exists; return resources before discarding
+            returnSummonResourcesOnce(carrier);
             this.discard();
             return;
         }
@@ -259,10 +266,10 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
 
     @Override
     public void die(DamageSource damageSource) {
+        super.die(damageSource);
         if (!this.level().isClientSide) {
             returnSummonResourcesOnce(getCarrier());
         }
-        super.die(damageSource);
     }
 
     protected final void returnSummonResourcesOnce(@Nullable EntityShipBase carrier) {
@@ -273,8 +280,9 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         returnSummonResources(carrier);
     }
 
-    protected void returnSummonResources(EntityShipBase carrier) {
+    /** Override in subclasses to return ammo/servants/resources to the carrier. */
 
+    protected void returnSummonResources(EntityShipBase carrier) {
     }
 
     @Nullable

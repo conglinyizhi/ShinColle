@@ -468,6 +468,11 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
             this.deadMotionX = motion.x;
             this.deadMotionZ = motion.z;
             this.setHealth(1.0F);
+            // Return remaining ammo to carrier before death animation
+            EntityShipBase carrier = getCarrier();
+            if (carrier != null) {
+                returnSummonResources(carrier);
+            }
         }
         return result;
     }

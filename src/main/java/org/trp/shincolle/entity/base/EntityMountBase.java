@@ -473,7 +473,14 @@ public abstract class EntityMountBase extends PathfinderMob {
             this.host.applyEmotesReaction(2);
         }
 
-        return super.hurt(source, reduced);
+        boolean hurtResult = super.hurt(source, reduced);
+        // Retaliate: if an external entity attacked us, notify the host
+        if (hurtResult && reduced > 0.0F && attacker instanceof LivingEntity livingAttacker
+                && livingAttacker != this.host && !livingAttacker.isAlliedTo(this.host)
+                && this.host.getTarget() == null) {
+            this.host.setTarget(livingAttacker);
+        }
+        return hurtResult;
     }
 
     @Override
