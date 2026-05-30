@@ -337,6 +337,26 @@ final class EntityShipBrainAi {
         brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
     }
 
+    private static void clearMovementRuntime(EntityShipBase ship,
+                                             ShipMovementRecoveryState recovery,
+                                             MemoryModuleType<ShipBrainMemory.RecoveryStateMemory> recoveryMemoryType,
+                                             ShipMovementCoordinator movement) {
+        recovery.clear();
+        clearRecoveryMemory(ship, recoveryMemoryType);
+        clearWalkAndLookMemory(ship);
+        movement.stop();
+    }
+
+    private static void resetMovementRuntime(EntityShipBase ship,
+                                             ShipMovementRecoveryState recovery,
+                                             MemoryModuleType<ShipBrainMemory.RecoveryStateMemory> recoveryMemoryType,
+                                             ShipMovementCoordinator movement,
+                                             int stuckLimit) {
+        recovery.reset(ship.position());
+        syncRecoveryMemory(ship, recoveryMemoryType, recovery, stuckLimit);
+        movement.stop();
+    }
+
     private static int closeEnoughDistance(double distanceSq) {
         return Math.max(1, Mth.ceil(Math.sqrt(distanceSq)));
     }
@@ -586,10 +606,8 @@ final class EntityShipBrainAi {
         private void clearCombatMoveState(EntityShipBase ship) {
             this.nextCombatPathTick = 0;
             this.lastCombatTargetId = null;
-            this.combatRecovery.clear();
-            clearRecoveryMemory(ship, ModMemoryModules.SHIP_COMBAT_RECOVERY.get());
-            clearWalkAndLookMemory(ship);
-            ship.combatMovementCoordinator().stop();
+            clearMovementRuntime(ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),
+                    ship.combatMovementCoordinator());
         }
 
         private void syncCombatRecoveryMemory(EntityShipBase ship) {
@@ -759,9 +777,8 @@ final class EntityShipBrainAi {
 
             if (!pointerMemory.entityShouldChase()) {
                 this.nextPointerPathTick = 0;
-                this.pointerRecovery.reset(ship.position());
-                syncPointerEntityRecoveryMemory(ship);
-                ship.pointerMovementCoordinator().stop();
+                resetMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+                        ship.pointerMovementCoordinator(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT);
                 clearWalkAndLookMemory(ship);
                 if (target instanceof LivingEntity livingTarget) {
                     setEntityLookMemory(ship, livingTarget);
@@ -872,10 +889,8 @@ final class EntityShipBrainAi {
             this.pointerEntityMeleeAttackTick = 0;
             this.pointerEntityLightShotTick = 0;
             this.pointerEntityHeavyShotTick = 0;
-            this.pointerRecovery.clear();
-            clearRecoveryMemory(ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get());
-            clearWalkAndLookMemory(ship);
-            ship.pointerMovementCoordinator().stop();
+            clearMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+                    ship.pointerMovementCoordinator());
         }
 
         private void resetPointerEntityAttackCadence(EntityShipBase ship) {
@@ -1045,9 +1060,8 @@ final class EntityShipBrainAi {
                 }
             } else {
                 this.nextGuardPathTick = 0;
-                this.guardRecovery.reset(ship.position());
-                syncGuardRecoveryMemory(ship);
-                ship.guardMovementCoordinator().stop();
+                resetMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                        ship.guardMovementCoordinator(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
             }
 
             updateGuardLook(ship, guardedEntity, target, distSq, isSummoning);
@@ -1100,10 +1114,8 @@ final class EntityShipBrainAi {
         private void disableGuardState(EntityShipBase ship) {
             this.nextGuardPathTick = 0;
             this.lastGuardRecoveryTargetKey = null;
-            this.guardRecovery.clear();
-            clearRecoveryMemory(ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get());
-            clearWalkAndLookMemory(ship);
-            ship.guardMovementCoordinator().stop();
+            clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                    ship.guardMovementCoordinator());
             ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);
             ship.clearGuardTarget();
         }
@@ -1111,10 +1123,8 @@ final class EntityShipBrainAi {
         private void clearGuardMoveState(EntityShipBase ship) {
             this.nextGuardPathTick = 0;
             this.lastGuardRecoveryTargetKey = null;
-            this.guardRecovery.clear();
-            clearRecoveryMemory(ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get());
-            clearWalkAndLookMemory(ship);
-            ship.guardMovementCoordinator().stop();
+            clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                    ship.guardMovementCoordinator());
         }
 
         private void syncGuardRecoveryMemory(EntityShipBase ship) {
@@ -1285,12 +1295,10 @@ final class EntityShipBrainAi {
                 Shincolle.diagnosticLog("{} stop ship={} owner={} distSq={} minDist={} maxDist={}",
                         FOLLOW_DEBUG_PREFIX, ship.getUUID(), followMemory.ownerId(), followMemory.ownerDistanceSq(), minDist, maxDist);
             }
-            this.followRecovery.clear();
-            clearRecoveryMemory(ship, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get());
             this.hasOwnerPos = false;
             this.followOwnerActive = false;
-            clearWalkAndLookMemory(ship);
-            ship.followOwnerMovementCoordinator().stop();
+            clearMovementRuntime(ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
+                    ship.followOwnerMovementCoordinator());
         }
 
         private void syncFollowRecoveryMemory(EntityShipBase ship) {

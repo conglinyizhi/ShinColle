@@ -224,9 +224,15 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Ship Brain should clear look memory when movement behaviors stop");
         assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);"),
                 "Ship Brain should clear walk failure memory with stale movement targets");
+        assertTrue(brain.contains("private static void clearMovementRuntime(EntityShipBase ship,"),
+                "Ship Brain should centralize repeated movement teardown shared by command, guard, follow, and combat behaviors");
+        assertTrue(brain.contains("private static void resetMovementRuntime(EntityShipBase ship,"),
+                "Ship Brain should centralize repeated recovery reset-and-stop flow for behavior transitions");
 
         assertTrue(brain.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
                 "Pointer Brain behavior should route move requests through the pointer coordinator");
+        assertTrue(brain.contains("clearMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),"),
+                "Pointer Brain behavior should reuse the shared movement teardown helper");
         assertTrue(brain.contains("ship.guardMovementCoordinator()"),
                 "Guard Brain behavior should reuse the ship-owned guard movement channel");
         assertTrue(brain.contains("ShipGuardDecisionResolver.stopDistanceSqr(guardState)"),
@@ -235,6 +241,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Guard Brain movement continuation should use the behavior-tested resolver");
         assertTrue(brain.contains("ShipGuardDecisionResolver.shouldLookAtOwnerOrPlayer("),
                 "Guard Brain owner/player look fallback should use the behavior-tested resolver");
+        assertTrue(brain.contains("clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),"),
+                "Guard Brain behavior should reuse the shared movement teardown helper");
+        assertTrue(brain.contains("resetMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),"),
+                "Guard Brain behavior should reuse the shared reset-and-stop helper when guard movement idles");
         assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterStuck("),
                 "Guard Brain stuck disable threshold should use the shared recovery resolver");
         assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures("),
@@ -243,12 +253,16 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Brain recovery trigger should use the shared behavior-tested resolver");
         assertTrue(brain.contains("movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);"),
                 "Follow-owner Brain behavior should route movement through the shared coordinator");
+        assertTrue(brain.contains("clearMovementRuntime(ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),"),
+                "Follow-owner Brain behavior should reuse the shared movement teardown helper");
         assertTrue(brain.contains("ship.idleMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED);"),
                 "Idle Brain stroll should reuse the ship-owned idle movement coordinator");
         assertTrue(brain.contains("ShipMovementCoordinator movement = ship.combatMovementCoordinator();"),
                 "Passive combat Brain behavior should reuse the ship-owned combat movement channel");
         assertTrue(brain.contains("movement.moveTo(target, state.moveSpeed())"),
                 "Passive combat Brain behavior should route chase movement through the combat coordinator");
+        assertTrue(brain.contains("clearMovementRuntime(ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),"),
+                "Passive combat Brain behavior should reuse the shared movement teardown helper");
         assertFalse(brain.contains("getNavigation().moveTo"),
                 "Ship Brain behaviors should not issue raw navigation requests");
         assertFalse(brain.contains("ShipTeleportHelper"),
