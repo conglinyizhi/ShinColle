@@ -125,10 +125,10 @@ public final class ShipTeleportHelper {
         BlockPos baseBlock = BlockPos.containing(basePos.x, basePos.y, basePos.z);
         for (int dy = 4; dy >= -4; dy--) {
             BlockPos testPos = baseBlock.offset(0, dy, 0);
-            Vec3 candidate = new Vec3(testPos.getX() + 0.5D, testPos.getY(), testPos.getZ() + 0.5D);
-            if (validateCandidate(level, entity, anchor, candidate, facing, true) != null) {
-                return candidate;
+            if (!canStandAt(level, entity, testPos)) {
+                continue;
             }
+            return new Vec3(testPos.getX() + 0.5D, testPos.getY(), testPos.getZ() + 0.5D);
         }
         return null;
     }

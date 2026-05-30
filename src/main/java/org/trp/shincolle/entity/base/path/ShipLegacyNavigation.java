@@ -292,14 +292,6 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         Vec3 hostPos = getEntityPosition();
         int limit = this.currentPath.getCurrentPathLength();
 
-        for (int i = this.currentPath.getCurrentPathIndex(); i < this.currentPath.getCurrentPathLength(); i++) {
-            ShipLegacyPathPoint point = this.currentPath.getPathPointFromIndex(i);
-            if (point == null || point.getY() != Mth.floor(hostPos.y)) {
-                limit = i;
-                break;
-            }
-        }
-
         Vec3 nextPos = this.currentPath.getCurrentPos();
         if (nextPos == null) {
             stop();
