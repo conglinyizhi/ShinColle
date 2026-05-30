@@ -106,6 +106,12 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         this.totalTicks++;
 
         if (noPath()) {
+            // Keep inertia: feed last known target to MoveControl so ship doesn't stop abruptly
+            if (this.targetPos != null) {
+                Vec3 lastTarget = Vec3.atCenterOf(this.targetPos);
+                this.mob.getMoveControl().setWantedPosition(
+                    lastTarget.x, lastTarget.y, lastTarget.z, this.speedModifier);
+            }
             return;
         }
 
@@ -302,7 +308,6 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
     private void pathFollow() {
         Vec3 hostPos = getEntityPosition();
-        int limit = this.currentPath.getCurrentPathLength();
 
         Vec3 nextPos = this.currentPath.getCurrentPos();
         if (nextPos == null) {
@@ -318,17 +323,6 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
         if (dx * dx + dz * dz <= reach * reach) {
             this.currentPath.incrementPathIndex();
-        }
-
-        for (int i = limit - 1; i >= this.currentPath.getCurrentPathIndex(); i--) {
-            Vec3 test = this.currentPath.getVectorFromIndex(this.mob, i);
-            if (test == null) {
-                continue;
-            }
-            if (isDirectPathBetweenPoints(hostPos, test, this.hostCeilWidth, this.hostCeilHeight, this.hostCeilDepth)) {
-                this.currentPath.setCurrentPathIndex(i);
-                break;
-            }
         }
 
         checkForStuck(hostPos);

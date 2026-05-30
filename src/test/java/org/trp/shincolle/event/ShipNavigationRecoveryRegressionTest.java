@@ -85,8 +85,10 @@ class ShipNavigationRecoveryRegressionTest {
                 "Navigation should stop safely if a path no longer exposes a valid current target");
         assertTrue(source.contains("if (nextPos == null) {\n            stop();\n            return;\n        }"),
                 "Path following should stop safely if the current path index is already finished");
-        assertTrue(source.contains("for (int i = limit - 1; i >= this.currentPath.getCurrentPathIndex(); i--)"),
-                "Path following should scan backward from the full path length");
+        assertTrue(source.contains("if (this.targetPos != null) {"),
+                "Path following should keep last known direction when no active path");
+        assertTrue(source.contains("this.mob.getMoveControl().setWantedPosition("),
+                "Path following should feed last target to MoveControl for inertia");
         assertTrue(source.contains("if (stationaryTicks > STUCK_CHECK_INTERVAL && shouldLogExceededCheck()) {"),
                 "Navigation exceeded-check logs should not fire every check interval");
         assertTrue(source.contains("if (shouldLogStuckApply()) {"),

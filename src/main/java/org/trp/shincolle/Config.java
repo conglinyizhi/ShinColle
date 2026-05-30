@@ -90,6 +90,7 @@ public class Config {
     public static final ModConfigSpec.BooleanValue SHIP_CAN_TELEPORT;
     public static final ModConfigSpec.BooleanValue SHIP_FREEZE_WHEN_GUI_OPEN;
 public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
+    public static final ModConfigSpec.DoubleValue CRUISE_SPEED_FACTOR;
     public static final ModConfigSpec.IntValue SHIP_BUFF_DURATION;
     public static final ModConfigSpec.IntValue CRANE_TANK_CAPACITY;
     public static final ModConfigSpec.IntValue VOLCORE_POWER_MAX;
@@ -193,6 +194,7 @@ public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
     public static int pairDistWaypoint = 48;
     public static boolean canTeleport = true;
     public static boolean enableFiringLineCheck = false;
+    public static double cruiseSpeedFactor = 0.3D;
     public static int craneTankCapacity = 2048000;
     public static int volCorePowerMax = 9600;
     public static int volCoreConsumeSpeed = 16;
@@ -401,6 +403,9 @@ public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
         ENABLE_FIRING_LINE_CHECK = BUILDER
                 .comment("Check for nearby blocks before firing heavy attacks. Prevents self-damage from missiles exploding on walls.")
                 .define("enableFiringLineCheck", enableFiringLineCheck);
+        CRUISE_SPEED_FACTOR = BUILDER
+                .comment("Movement speed multiplier for all ships. Higher = faster. (default: 0.3)")
+                .defineInRange("cruiseSpeedFactor", 0.3D, 0.05D, 5.0D);
 
         SHIP_BUFF_DURATION = BUILDER
                 .comment("Duration (ticks) for ship-granted owner buffs like night vision. 600 = 30 seconds.")
@@ -695,6 +700,7 @@ public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
             pairDistWaypoint = PAIR_DIST_WAYPOINT.get();
             canTeleport = SHIP_CAN_TELEPORT.get();
             enableFiringLineCheck = ENABLE_FIRING_LINE_CHECK.get();
+            cruiseSpeedFactor = CRUISE_SPEED_FACTOR.get();
             craneTankCapacity = CRANE_TANK_CAPACITY.get();
             volCorePowerMax = VOLCORE_POWER_MAX.get();
             volCoreConsumeSpeed = VOLCORE_CONSUME_SPEED.get();

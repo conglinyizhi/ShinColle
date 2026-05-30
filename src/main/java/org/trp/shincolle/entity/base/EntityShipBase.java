@@ -118,7 +118,6 @@ public abstract class EntityShipBase extends TamableAnimal {
     private static final int MAX_FUEL = 10000;
     private static final int MORALE_MAX = 16000;
     private static final int MORALE_DEFAULT = 4000;
-    private static final float CRUISE_SPEED_FACTOR = 0.3F;
     private static final float AUTO_HEAL_THRESHOLD_RATIO = 0.9F;
     private static final float AUTO_HEAL_FAST_RATIO = 0.08F;
     private static final float AUTO_HEAL_FAST_FLAT = 15.0F;
@@ -3328,7 +3327,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.level() != null && !this.level().isClientSide) {
             this.getAttribute(Attributes.MAX_HEALTH).setBaseValue(this.legacyShipStats.getMaxHealth());
             this.getAttribute(Attributes.ATTACK_DAMAGE).setBaseValue(this.legacyShipStats.getFirepower() * LEGACY_MELEE_DAMAGE_FACTOR);
-            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.legacyShipStats.getMoveSpeed() * CRUISE_SPEED_FACTOR);
+            this.getAttribute(Attributes.MOVEMENT_SPEED).setBaseValue(this.legacyShipStats.getMoveSpeed() * (float) Config.cruiseSpeedFactor);
             this.getAttribute(Attributes.FOLLOW_RANGE).setBaseValue(Math.max(24.0D, this.legacyShipStats.getAttackRange()));
             if (this.getHealth() > this.getMaxHealth()) {
                 this.setHealth(this.getMaxHealth());
