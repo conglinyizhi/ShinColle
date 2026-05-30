@@ -350,6 +350,8 @@ public class ModItems {
 
     public static final DeferredItem<Item> CRANE = ITEMS.register("blockcrane",
             () -> new BlockItem(ModBlocks.CRANE.get(), new Item.Properties()));
+    public static final DeferredItem<DebugInspectorItem> DEBUG_INSPECTOR = ITEMS.register("debug_inspector",
+            () -> new DebugInspectorItem(new Item.Properties().stacksTo(1)));
 
         public static void addLegacyEquipVariants(CreativeModeTab.Output output, DeferredItem<Item> item) {
                 Item resolved = item.get();

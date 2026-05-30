@@ -32,6 +32,7 @@ import org.trp.shincolle.server.MarriageRingService;
 import org.trp.shincolle.server.PlayerStateService;
 import org.trp.shincolle.server.PointerInteractionService;
 import org.trp.shincolle.utility.PerformanceTrace;
+import org.trp.shincolle.item.DebugInspectorItem;
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 public class ModEventBusEvents {
@@ -136,6 +137,7 @@ public class ModEventBusEvents {
         }
     }
 
+    @SubscribeEvent
     public static void onPlayerIncomingDamage(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof net.minecraft.world.entity.player.Player player
                 && MarriageRingService.handleFireDamageEvent(player, event.getSource())) {
@@ -170,22 +172,26 @@ public class ModEventBusEvents {
         PlayerStateService.copyPersistentPlayerState(event.getOriginal(), event.getEntity());
     }
 
+    @SubscribeEvent
     public static void onPointerItemAttack(AttackEntityEvent event) {
         if (PointerInteractionService.handlePointerAttack(event.getEntity(), event.getTarget())) {
             event.setCanceled(true);
         }
     }
 
+    @SubscribeEvent
     public static void onPointerItemLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
         PointerInteractionService.handleLeftClickBlock(event.getEntity(), event);
     }
 
+    @SubscribeEvent
     public static void onPointerItemRightClickItem(PlayerInteractEvent.RightClickItem event) {
         if (PointerInteractionService.handleRightClickItem(event.getEntity(), event)) {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getEntity().level().isClientSide));
         }
     }
 
+    @SubscribeEvent
     public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
         if (PointerInteractionService.handleRightClickBlock(event.getEntity(), event)) {
             event.setCancellationResult(InteractionResult.sidedSuccess(event.getEntity().level().isClientSide));
@@ -196,6 +202,11 @@ public class ModEventBusEvents {
     @SubscribeEvent
     public static void onHostileEntityDropsGrudge(LivingDropsEvent event) {
         HostileDropService.handleLivingDrops(event);
+    }
+
+    @SubscribeEvent
+    public static void onEntityInteract(PlayerInteractEvent.EntityInteract event) {
+        DebugInspectorItem.handleItemFrameInteract(event);
     }
 
 }

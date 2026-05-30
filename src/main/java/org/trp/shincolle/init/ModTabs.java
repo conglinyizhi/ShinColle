@@ -114,5 +114,6 @@ public class ModTabs {
                 output.accept(ModItems.VOL_CORE.get());
                 output.accept(ModItems.WAYPOINT.get());
                 output.accept(ModItems.CRANE.get());
+                output.accept(ModItems.DEBUG_INSPECTOR.get());
             }).build());
 }

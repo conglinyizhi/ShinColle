@@ -1007,6 +1007,7 @@
   "item.shincolle.toyairplane": "Model 21 Zero Fighter (1/48)",
   "item.shincolle.trainingbook": "Maintenance Personnel Training Book",
   "item.shincolle.transport_wa_spawn_egg": "Transport Wa-Class Spawn Egg",
+  "item.shincolle.debug_inspector": "Debug Inspector",
   "itemGroup.shincolle": "ShinColle",
   "patchouli.shincolle.book.landing_text": "Welcome back, admiral. This manual organizes ShinColle resources, equipment, systems, and common workflows. Start with the beginner and item entries first, then check the systems section. Migration-facing technical notes now live in their own category.",
   "patchouli.shincolle.book.name": "ShinColle Manual",
