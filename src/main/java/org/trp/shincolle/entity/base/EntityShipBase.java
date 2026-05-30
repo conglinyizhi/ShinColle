@@ -279,6 +279,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private int stateUpdateTimer;
     private int customHurtTime;
     private int hurtSoundCooldown;
+    private int shipKills;
     private int feedSoundCooldown;
     private final Set<Long> forcedCompassChunks = new HashSet<>();
     private int forcedCompassChunkCenterX = Integer.MIN_VALUE;
@@ -441,6 +442,18 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     public void setExp(int exp) {
         this.entityData.set(SHIP_EXP, Math.max(0, exp));
+    }
+
+    public int getShipKills() {
+        return this.shipKills;
+    }
+
+    public void setShipKills(int kills) {
+        this.shipKills = Math.max(0, kills);
+    }
+
+    public void addShipKill() {
+        this.shipKills++;
     }
 
     public int getMaxShipLevel() {

@@ -158,7 +158,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
         if (this.activeDetailTab == DETAIL_TAB_BASIC) {
             drawLabel(guiGraphics, tr("gui.shincolle.kills"), 75, 20);
-            drawValueRight(guiGraphics, "0", 135, 30, 0xFFFFFF);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getShipKills()), 135, 30, 0xFFFFFF);
 
             drawLabel(guiGraphics, tr("gui.shincolle.exp"), 75, 41);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipExp()), 135, 51, 0xFFFFFF);

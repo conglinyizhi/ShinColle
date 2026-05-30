@@ -29,6 +29,7 @@ public final class HostileDropService {
         Entity sourceEntity = event.getSource().getEntity();
         if (sourceEntity instanceof EntityShipBase ship) {
             ship.addShipExp(Config.shipExpGainKill);
+            ship.addShipKill();
         }
 
         float dropRate = Math.max(0.0F, Config.hostileDropGrudgeRate);

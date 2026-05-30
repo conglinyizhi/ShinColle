@@ -73,6 +73,7 @@ final class EntityShipBaseSerialization {
         compound.putInt("AttackTick2", this.ship.getAttackTick2());
         compound.putInt("RidingState", this.ship.getRidingState());
         compound.putInt("ScaleLevel", this.ship.getScaleLevel());
+        compound.putInt("ShipKills", this.ship.getShipKills());
 
         compound.put("LegacyPoint", this.ship.createLegacyBonusTag());
 
@@ -149,6 +150,10 @@ final class EntityShipBaseSerialization {
         }
         if (compound.contains("ScaleLevel")) {
             this.ship.setScaleLevel(compound.getInt("ScaleLevel"));
+        }
+
+        if (compound.contains("ShipKills")) {
+            this.ship.setShipKills(compound.getInt("ShipKills"));
         }
 
         if (compound.contains("LegacyPoint")) {

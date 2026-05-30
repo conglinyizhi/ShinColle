@@ -601,6 +601,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return ship.getExp();
     }
 
+    public int getShipKills() {
+        return ship.getShipKills();
+    }
+
     public int getShipFuel() {
         return ship.getFuel();
     }
