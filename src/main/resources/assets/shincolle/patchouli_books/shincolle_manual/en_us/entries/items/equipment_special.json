@@ -26,9 +26,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.equipment_special.page2.title",
+      "title": "patchouli.shincolle.entry.equipment_special.page2b.title",
       "recipe": "shincolle:shiptank3",
-      "text": ""
+      "text": "patchouli.shincolle.entry.equipment_special.page2b.text"
     },
     {
       "type": "patchouli:crafting",
@@ -38,9 +38,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.equipment_special.page3.title",
+      "title": "patchouli.shincolle.entry.equipment_special.page3b.title",
       "recipe": "shincolle:combatration5",
-      "text": ""
+      "text": "patchouli.shincolle.entry.equipment_special.page3b.text"
     }
   ]
 }

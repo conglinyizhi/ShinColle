@@ -17,9 +17,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.fleet_control.page1.title",
+      "title": "patchouli.shincolle.entry.fleet_control.page1b.title",
       "recipe": "shincolle:blockdesk",
-      "text": ""
+      "text": "patchouli.shincolle.entry.fleet_control.page1b.text"
     },
     {
       "type": "patchouli:text",
@@ -30,6 +30,11 @@
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.fleet_control.page3.title",
       "text": "patchouli.shincolle.entry.fleet_control.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.fleet_control.page4.title",
+      "text": "patchouli.shincolle.entry.fleet_control.page4.text"
     }
   ]
 }

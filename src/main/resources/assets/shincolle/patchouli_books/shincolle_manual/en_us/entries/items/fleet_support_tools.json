@@ -1,7 +1,7 @@
 {
   "name": "patchouli.shincolle.entry.fleet_support_tools.name",
   "category": "shincolle:items",
-  "icon": "shincolle:pointer_item",
+  "icon": "shincolle:repairgoddess",
   "sortnum": 6,
   "pages": [
     {
@@ -43,6 +43,11 @@
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.fleet_support_tools.page4.title",
       "text": "patchouli.shincolle.entry.fleet_support_tools.page4.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.fleet_support_tools.page5.title",
+      "text": "patchouli.shincolle.entry.fleet_support_tools.page5.text"
     }
   ]
 }

@@ -17,9 +17,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.ship_care.page1.title",
+      "title": "patchouli.shincolle.entry.ship_care.page1b.title",
       "recipe": "shincolle:toyairplane",
-      "text": ""
+      "text": "patchouli.shincolle.entry.ship_care.page1b.text"
     },
     {
       "type": "patchouli:crafting",
@@ -29,9 +29,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.ship_care.page2.title",
+      "title": "patchouli.shincolle.entry.ship_care.page2b.title",
       "recipe": "shincolle:repairgoddess_2",
-      "text": ""
+      "text": "patchouli.shincolle.entry.ship_care.page2b.text"
     },
     {
       "type": "patchouli:spotlight",

@@ -37,6 +37,12 @@
       "text": "patchouli.shincolle.entry.shipyard_tools.page4.text"
     },
     {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page4b.title",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page4b.text",
+      "item": "shincolle:large_shipyard"
+    },
+    {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.shipyard_tools.page5.title",
       "recipe": "shincolle:blockvolcore_2",
@@ -47,6 +53,12 @@
       "title": "patchouli.shincolle.entry.shipyard_tools.page6.title",
       "item": "shincolle:instantconmat",
       "text": "patchouli.shincolle.entry.shipyard_tools.page6.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page7.title",
+      "item": "shincolle:kaitaihammer",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page7.text"
     }
   ]
 }

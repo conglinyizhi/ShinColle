@@ -1,7 +1,7 @@
 {
   "name": "patchouli.shincolle.entry.manual_tools.name",
   "category": "shincolle:items",
-  "icon": "shincolle:deskitembook",
+  "icon": "shincolle:kaitaihammer",
   "sortnum": 1,
   "pages": [
     {

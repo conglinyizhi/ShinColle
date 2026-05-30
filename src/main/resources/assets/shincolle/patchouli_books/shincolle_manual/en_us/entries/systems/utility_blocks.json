@@ -1,0 +1,36 @@
+{
+  "name": "patchouli.shincolle.entry.utility_blocks.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:blockframe",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.utility_blocks.page0.title",
+      "text": "patchouli.shincolle.entry.utility_blocks.page0.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.utility_blocks.page1.title",
+      "recipe": "shincolle:blockframe",
+      "text": "patchouli.shincolle.entry.utility_blocks.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.utility_blocks.page2.title",
+      "recipe": "shincolle:blockvolblock",
+      "text": "patchouli.shincolle.entry.utility_blocks.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.utility_blocks.page3.title",
+      "recipe": "shincolle:grudge_xp_block",
+      "text": "patchouli.shincolle.entry.utility_blocks.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.utility_blocks.page4.title",
+      "text": "patchouli.shincolle.entry.utility_blocks.page4.text"
+    }
+  ]
+}

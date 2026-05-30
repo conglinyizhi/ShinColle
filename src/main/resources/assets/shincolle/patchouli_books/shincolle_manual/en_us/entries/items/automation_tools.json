@@ -17,9 +17,9 @@
     },
     {
       "type": "patchouli:crafting",
-      "title": "patchouli.shincolle.entry.automation_tools.page1.title",
+      "title": "patchouli.shincolle.entry.automation_tools.page1b.title",
       "recipe": "shincolle:blockwaypoint",
-      "text": ""
+      "text": "patchouli.shincolle.entry.automation_tools.page1b.text"
     },
     {
       "type": "patchouli:crafting",

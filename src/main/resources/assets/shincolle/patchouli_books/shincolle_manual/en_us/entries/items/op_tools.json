@@ -1,0 +1,35 @@
+{
+  "name": "patchouli.shincolle.entry.op_tools.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:optool",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.op_tools.page0.title",
+      "text": "patchouli.shincolle.entry.op_tools.page0.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.op_tools.page1.title",
+      "item": "shincolle:modernkit",
+      "text": "patchouli.shincolle.entry.op_tools.page1.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.op_tools.page2.title",
+      "item": "shincolle:ownerpaper",
+      "text": "patchouli.shincolle.entry.op_tools.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.op_tools.page3.title",
+      "text": "patchouli.shincolle.entry.op_tools.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.op_tools.page4.title",
+      "text": "patchouli.shincolle.entry.op_tools.page4.text"
+    }
+  ]
+}

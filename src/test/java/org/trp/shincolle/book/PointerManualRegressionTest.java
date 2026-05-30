@@ -21,11 +21,11 @@ class PointerManualRegressionTest {
 
         assertTrue(en.contains("Sprint+sneak-left-click in the air"),
                 "English manual should describe the legacy clear-team pointer shortcut");
-        assertTrue(en.contains("Left click$() on a non-ship entity records that entity class"),
+        assertTrue(en.contains("Left-click$() on a non-ship entity records that entity class"),
                 "English manual should describe the legacy target-class capture behavior");
         assertTrue(zh.contains("冲刺+潜行左键空挥"),
                 "Chinese manual should describe the legacy clear-team pointer shortcut");
-        assertTrue(zh.contains("命中非舰娘实体时，会把该实体类型加入攻击目标类别"),
+        assertTrue(zh.contains("左键$()命中非舰娘实体时：将该实体类加入攻击目标类别"),
                 "Chinese manual should describe the legacy target-class capture behavior");
     }
 
