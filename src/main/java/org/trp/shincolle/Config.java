@@ -89,6 +89,7 @@ public class Config {
     public static final ModConfigSpec.IntValue PAIR_DIST_WAYPOINT;
     public static final ModConfigSpec.BooleanValue SHIP_CAN_TELEPORT;
     public static final ModConfigSpec.BooleanValue SHIP_FREEZE_WHEN_GUI_OPEN;
+public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
     public static final ModConfigSpec.IntValue SHIP_BUFF_DURATION;
     public static final ModConfigSpec.IntValue CRANE_TANK_CAPACITY;
     public static final ModConfigSpec.IntValue VOLCORE_POWER_MAX;
@@ -191,6 +192,7 @@ public class Config {
     public static int pairDistChest = 16;
     public static int pairDistWaypoint = 48;
     public static boolean canTeleport = true;
+    public static boolean enableFiringLineCheck = false;
     public static int craneTankCapacity = 2048000;
     public static int volCorePowerMax = 9600;
     public static int volCoreConsumeSpeed = 16;
@@ -395,6 +397,10 @@ public class Config {
         SHIP_FREEZE_WHEN_GUI_OPEN = BUILDER
                 .comment("Freeze ship movement when its GUI is open. Ship can still attack in place.")
                 .define("freezeWhenGuiOpen", true);
+
+        ENABLE_FIRING_LINE_CHECK = BUILDER
+                .comment("Check for nearby blocks before firing heavy attacks. Prevents self-damage from missiles exploding on walls.")
+                .define("enableFiringLineCheck", enableFiringLineCheck);
 
         SHIP_BUFF_DURATION = BUILDER
                 .comment("Duration (ticks) for ship-granted owner buffs like night vision. 600 = 30 seconds.")
@@ -688,6 +694,7 @@ public class Config {
             pairDistChest = PAIR_DIST_CHEST.get();
             pairDistWaypoint = PAIR_DIST_WAYPOINT.get();
             canTeleport = SHIP_CAN_TELEPORT.get();
+            enableFiringLineCheck = ENABLE_FIRING_LINE_CHECK.get();
             craneTankCapacity = CRANE_TANK_CAPACITY.get();
             volCorePowerMax = VOLCORE_POWER_MAX.get();
             volCoreConsumeSpeed = VOLCORE_CONSUME_SPEED.get();

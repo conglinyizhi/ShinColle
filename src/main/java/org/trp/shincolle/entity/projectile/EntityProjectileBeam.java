@@ -10,6 +10,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
@@ -18,6 +19,7 @@ import org.trp.shincolle.utility.PerformanceTrace;
 
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.Set;
 import java.util.UUID;
 
@@ -195,7 +197,24 @@ public class EntityProjectileBeam extends Entity {
         if (owner == null || target == owner) {
             return false;
         }
+        if (isSameOwner(target)) {
+            return false;
+        }
         return !owner.isAlliedTo(target);
+    }
+
+    private boolean isSameOwner(Entity target) {
+        Entity owner = getOwnerEntity();
+        UUID ownerId = null;
+        if (owner instanceof TamableAnimal t1) {
+            ownerId = t1.getOwnerUUID();
+        }
+        if (ownerId == null) return false;
+
+        if (target instanceof TamableAnimal t2) {
+            return ownerId.equals(t2.getOwnerUUID());
+        }
+        return false;
     }
 
     private void onImpact(Entity target, Entity owner) {

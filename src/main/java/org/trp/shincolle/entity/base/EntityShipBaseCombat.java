@@ -19,6 +19,9 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.entity.TamableAnimal;
+import org.trp.shincolle.Config;
+import java.util.UUID;
 import org.trp.shincolle.entity.EntityAircraftBase;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 import org.trp.shincolle.init.ModItems;
@@ -217,6 +220,9 @@ class EntityShipBaseCombat {
         if (damage <= 0.0F) {
             damage = 2.0F;
         }
+        if (isSameOwner(target)) {
+            return;
+        }
         target.hurt(this.ship.damageSources().mobAttack(this.ship), damage);
         this.ship.spawnLightAttackTargetParticles(serverLevel, target);
         this.ship.spawnLightAttackMuzzleParticles(serverLevel, target);
@@ -237,7 +243,7 @@ class EntityShipBaseCombat {
         if (target == null || !target.isAlive()) {
             return false;
         }
-        if (!hasClearFiringLine(target)) {
+        if (Config.enableFiringLineCheck && !hasClearFiringLine(target)) {
             return false;
         }
         if (!consumeHeavyAmmo(1)) {
@@ -563,5 +569,18 @@ class EntityShipBaseCombat {
             }
         }
         return true;
+    }
+
+    /**
+     * Check if the target is a ship (TamableAnimal) owned by the same player.
+     */
+    private boolean isSameOwner(Entity target) {
+        UUID shipOwnerId = this.ship.getOwnerUUID();
+        if (shipOwnerId == null) return false;
+
+        if (target instanceof TamableAnimal t) {
+            return shipOwnerId.equals(t.getOwnerUUID());
+        }
+        return false;
     }
 }
