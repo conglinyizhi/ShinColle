@@ -89,6 +89,7 @@ public class Config {
     public static final ModConfigSpec.IntValue PAIR_DIST_WAYPOINT;
     public static final ModConfigSpec.BooleanValue SHIP_CAN_TELEPORT;
     public static final ModConfigSpec.BooleanValue SHIP_FREEZE_WHEN_GUI_OPEN;
+    public static final ModConfigSpec.IntValue SHIP_BUFF_DURATION;
     public static final ModConfigSpec.IntValue CRANE_TANK_CAPACITY;
     public static final ModConfigSpec.IntValue VOLCORE_POWER_MAX;
     public static final ModConfigSpec.IntValue VOLCORE_CONSUME_SPEED;
@@ -394,6 +395,10 @@ public class Config {
         SHIP_FREEZE_WHEN_GUI_OPEN = BUILDER
                 .comment("Freeze ship movement when its GUI is open. Ship can still attack in place.")
                 .define("freezeWhenGuiOpen", true);
+
+        SHIP_BUFF_DURATION = BUILDER
+                .comment("Duration (ticks) for ship-granted owner buffs like night vision. 600 = 30 seconds.")
+                .defineInRange("buffDuration", 600, 20, 72000);
 
         BUILDER.pop();
 

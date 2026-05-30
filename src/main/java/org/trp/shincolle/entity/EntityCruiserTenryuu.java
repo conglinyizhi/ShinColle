@@ -43,7 +43,7 @@ public class EntityCruiserTenryuu extends EntityShipBase {
     private void updateServerLogic() {
         if (!this.level().isDay() && this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
             if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0D) {
-                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, 150, 0, false, false));
+                this.getOwnerPlayer().addEffect(new MobEffectInstance(MobEffects.NIGHT_VISION, org.trp.shincolle.Config.SHIP_BUFF_DURATION.get(), 0, false, false));
             }
         }
     }

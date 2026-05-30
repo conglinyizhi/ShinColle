@@ -1423,4 +1423,6 @@
   "config.shincolle.offsetHeldItemZ": "Held Item Offset Z"
 ,
   "config.shincolle.freezeWhenGuiOpen": "Freeze Ship Movement When GUI Open"
+,
+  "config.shincolle.buffDuration": "Ship Buff Duration (ticks)"
 }

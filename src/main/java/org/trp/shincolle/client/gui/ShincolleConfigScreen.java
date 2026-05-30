@@ -163,6 +163,8 @@ public class ShincolleConfigScreen {
                     .setSaveConsumer(Config.SHIP_CAN_TELEPORT::set).build());
             interactCat.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.shincolle.freezeWhenGuiOpen"), Config.SHIP_FREEZE_WHEN_GUI_OPEN.get())
                     .setSaveConsumer(Config.SHIP_FREEZE_WHEN_GUI_OPEN::set).build());
+            interactCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.buffDuration"), Config.SHIP_BUFF_DURATION.get())
+                    .setDefaultValue(600).setSaveConsumer(Config.SHIP_BUFF_DURATION::set).build());
 
             // === Debug ===
             var debugCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.debug"));

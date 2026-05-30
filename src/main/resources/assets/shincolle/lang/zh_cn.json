@@ -1442,4 +1442,6 @@
   "config.shincolle.offsetHeldItemZ": "手持物偏移 Z"
 ,
   "config.shincolle.freezeWhenGuiOpen": "打开 GUI 时冻结舰娘移动"
+,
+  "config.shincolle.buffDuration": "舰娘增益效果时长（tick）"
 }
