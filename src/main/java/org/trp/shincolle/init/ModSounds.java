@@ -8,7 +8,10 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 import org.trp.shincolle.Config;
 import org.trp.shincolle.Shincolle;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -16,7 +19,7 @@ public class ModSounds {
     public static final DeferredRegister<SoundEvent> SOUND_EVENTS =
             DeferredRegister.create(Registries.SOUND_EVENT, Shincolle.MODID);
 
-    private static final Supplier<SoundEvent>[] SHIP_TIME_SOUNDS = createShipTimeSounds();
+    private static final List<Supplier<SoundEvent>> SHIP_TIME_SOUNDS = createShipTimeSounds();
 
     public static final Supplier<SoundEvent> SHIP_IDLE = register("ship-idle");
     public static final Supplier<SoundEvent> SHIP_HURT = register("ship-hurt");
@@ -38,18 +41,17 @@ public class ModSounds {
     public static final Supplier<SoundEvent> SHIP_YAMATO_READY = register("ship-yamato_ready");
     public static final Supplier<SoundEvent> SHIP_YAMATO_SHOT = register("ship-yamato_shot");
 
-    private static Supplier<SoundEvent>[] createShipTimeSounds() {
-        @SuppressWarnings("unchecked")
-        Supplier<SoundEvent>[] sounds = (Supplier<SoundEvent>[]) new Supplier[24];
-        for (int i = 0; i < sounds.length; i++) {
-            sounds[i] = register("ship-time" + i);
+    private static List<Supplier<SoundEvent>> createShipTimeSounds() {
+        List<Supplier<SoundEvent>> sounds = new ArrayList<>(24);
+        for (int i = 0; i < 24; i++) {
+            sounds.add(register("ship-time" + i));
         }
-        return sounds;
+        return Collections.unmodifiableList(sounds);
     }
 
     public static SoundEvent getShipTimeSound(int hour) {
-        int idx = Math.floorMod(hour, SHIP_TIME_SOUNDS.length);
-        return SHIP_TIME_SOUNDS[idx].get();
+        int idx = Math.floorMod(hour, SHIP_TIME_SOUNDS.size());
+        return SHIP_TIME_SOUNDS.get(idx).get();
     }
 
     public static SoundEvent getShipSound(Config.ShipCustomSoundType type, int shipClass, RandomSource random) {
@@ -88,30 +90,30 @@ public class ModSounds {
             case KNOCKBACK -> SHIP_KNOCKBACK.get();
             case ITEM -> SHIP_ITEM.get();
             case FEED -> SHIP_FEED.get();
-            case TIMEKEEP00 -> SHIP_TIME_SOUNDS[0].get();
-            case TIMEKEEP01 -> SHIP_TIME_SOUNDS[1].get();
-            case TIMEKEEP02 -> SHIP_TIME_SOUNDS[2].get();
-            case TIMEKEEP03 -> SHIP_TIME_SOUNDS[3].get();
-            case TIMEKEEP04 -> SHIP_TIME_SOUNDS[4].get();
-            case TIMEKEEP05 -> SHIP_TIME_SOUNDS[5].get();
-            case TIMEKEEP06 -> SHIP_TIME_SOUNDS[6].get();
-            case TIMEKEEP07 -> SHIP_TIME_SOUNDS[7].get();
-            case TIMEKEEP08 -> SHIP_TIME_SOUNDS[8].get();
-            case TIMEKEEP09 -> SHIP_TIME_SOUNDS[9].get();
-            case TIMEKEEP10 -> SHIP_TIME_SOUNDS[10].get();
-            case TIMEKEEP11 -> SHIP_TIME_SOUNDS[11].get();
-            case TIMEKEEP12 -> SHIP_TIME_SOUNDS[12].get();
-            case TIMEKEEP13 -> SHIP_TIME_SOUNDS[13].get();
-            case TIMEKEEP14 -> SHIP_TIME_SOUNDS[14].get();
-            case TIMEKEEP15 -> SHIP_TIME_SOUNDS[15].get();
-            case TIMEKEEP16 -> SHIP_TIME_SOUNDS[16].get();
-            case TIMEKEEP17 -> SHIP_TIME_SOUNDS[17].get();
-            case TIMEKEEP18 -> SHIP_TIME_SOUNDS[18].get();
-            case TIMEKEEP19 -> SHIP_TIME_SOUNDS[19].get();
-            case TIMEKEEP20 -> SHIP_TIME_SOUNDS[20].get();
-            case TIMEKEEP21 -> SHIP_TIME_SOUNDS[21].get();
-            case TIMEKEEP22 -> SHIP_TIME_SOUNDS[22].get();
-            case TIMEKEEP23 -> SHIP_TIME_SOUNDS[23].get();
+            case TIMEKEEP00 -> SHIP_TIME_SOUNDS.get(0).get();
+            case TIMEKEEP01 -> SHIP_TIME_SOUNDS.get(1).get();
+            case TIMEKEEP02 -> SHIP_TIME_SOUNDS.get(2).get();
+            case TIMEKEEP03 -> SHIP_TIME_SOUNDS.get(3).get();
+            case TIMEKEEP04 -> SHIP_TIME_SOUNDS.get(4).get();
+            case TIMEKEEP05 -> SHIP_TIME_SOUNDS.get(5).get();
+            case TIMEKEEP06 -> SHIP_TIME_SOUNDS.get(6).get();
+            case TIMEKEEP07 -> SHIP_TIME_SOUNDS.get(7).get();
+            case TIMEKEEP08 -> SHIP_TIME_SOUNDS.get(8).get();
+            case TIMEKEEP09 -> SHIP_TIME_SOUNDS.get(9).get();
+            case TIMEKEEP10 -> SHIP_TIME_SOUNDS.get(10).get();
+            case TIMEKEEP11 -> SHIP_TIME_SOUNDS.get(11).get();
+            case TIMEKEEP12 -> SHIP_TIME_SOUNDS.get(12).get();
+            case TIMEKEEP13 -> SHIP_TIME_SOUNDS.get(13).get();
+            case TIMEKEEP14 -> SHIP_TIME_SOUNDS.get(14).get();
+            case TIMEKEEP15 -> SHIP_TIME_SOUNDS.get(15).get();
+            case TIMEKEEP16 -> SHIP_TIME_SOUNDS.get(16).get();
+            case TIMEKEEP17 -> SHIP_TIME_SOUNDS.get(17).get();
+            case TIMEKEEP18 -> SHIP_TIME_SOUNDS.get(18).get();
+            case TIMEKEEP19 -> SHIP_TIME_SOUNDS.get(19).get();
+            case TIMEKEEP20 -> SHIP_TIME_SOUNDS.get(20).get();
+            case TIMEKEEP21 -> SHIP_TIME_SOUNDS.get(21).get();
+            case TIMEKEEP22 -> SHIP_TIME_SOUNDS.get(22).get();
+            case TIMEKEEP23 -> SHIP_TIME_SOUNDS.get(23).get();
         };
     }
 

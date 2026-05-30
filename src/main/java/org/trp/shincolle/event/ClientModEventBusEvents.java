@@ -8,7 +8,6 @@ import net.minecraft.world.entity.EntityType;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.common.EventBusSubscriber.Bus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientTooltipComponentFactoriesEvent;
@@ -39,7 +38,7 @@ import org.trp.shincolle.item.ScaledTextTooltipData;
 import org.trp.shincolle.item.ShipTankItem;
 import org.trp.shincolle.menu.ModMenus;
 
-@EventBusSubscriber(modid = Shincolle.MODID, bus = Bus.MOD, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Shincolle.MODID, value = Dist.CLIENT)
 public class ClientModEventBusEvents {
 
     private static final float DEFAULT_MODEL_SCALE = 0.34f;
@@ -193,8 +192,8 @@ public class ClientModEventBusEvents {
                 }
         }
 
-        @SuppressWarnings({"rawtypes", "unchecked"})
-        private static void addHeldItemLayerUnchecked(LivingEntityRenderer renderer) {
+        @SuppressWarnings("unchecked")
+        private static void addHeldItemLayerUnchecked(LivingEntityRenderer<?, ?> renderer) {
                 renderer.addLayer(new ShipHeldItemLayer(renderer));
         }
 

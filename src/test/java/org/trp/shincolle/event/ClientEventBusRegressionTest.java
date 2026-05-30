@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ClientEventBusRegressionTest {
@@ -18,7 +19,7 @@ class ClientEventBusRegressionTest {
         String source = Files.readString(CLIENT_EVENT_BUS_SOURCE);
 
         assertTrue(source.contains("@EventBusSubscriber("), "ClientModEventBusEvents must remain an event bus subscriber");
-        assertTrue(source.contains("bus = Bus.MOD"), "ClientModEventBusEvents must stay on the MOD bus");
+        assertFalse(source.contains("bus ="), "ClientModEventBusEvents should not specify bus (defaults to MOD bus)");
         assertTrue(source.contains("value = Dist.CLIENT"), "ClientModEventBusEvents must remain client-only");
         assertTrue(source.contains("RegisterClientTooltipComponentFactoriesEvent"),
                 "Tooltip component registration event should stay in ClientModEventBusEvents");
