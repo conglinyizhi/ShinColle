@@ -244,7 +244,7 @@ public class EntityDestroyerInazuma extends EntityShipBase implements IShipRider
         if (!this.raidenMovement.teleportNearLiving(owner, 0.75D)) {
             return;
         }
-        Shincolle.debugLog("RaidenFollow teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
+        Shincolle.debugLog("[SCMoveDiag] RaidenFollow teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
                 this.getUUID(), owner.getUUID(), force, distanceSqr, this.raidenRecovery.stuckTicks());
         this.raidenRecovery.reset(this.position());
     }

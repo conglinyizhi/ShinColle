@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -14,6 +15,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipMovementCoordinator.java");
     private static final Path BRAIN_AI_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+    private static final Path SHIP_BRAIN_ACTIVITY_RESOLVER_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainActivityResolver.java");
     private static final Path AI_NUMBERS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
     private static final Path POINTER_SOURCE =
@@ -56,6 +59,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerInazuma.java");
     private static final Path BATTLESHIP_NAGATO_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipNagato.java");
+    private static final Path SHINCOLLE_MAIN_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle");
 
     @Test
     void movementCoordinatorShouldOwnRepeatedMoveSuppressionAndTeleportSafety() throws IOException {
@@ -115,7 +120,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Repeated move suppression should not hide stale navigation indefinitely");
         assertTrue(source.contains("private boolean recordMoveRequest(Vec3 target, boolean moved)"),
                 "Coordinator should centralize successful move bookkeeping");
-        assertTrue(source.contains("if (!moved) {\n            stopAfterFailedMove();\n            return false;\n        }"),
+        assertTrue(source.contains("public boolean isNavigationDone()"),
+                "Coordinator should expose read-only navigation state so Brain behaviors do not query navigation directly");
+        assertTrue(source.contains("if (!moved) {\n            Shincolle.diagnosticLog(\"[SCMoveDiag] moveFailed mob={} priority={} target={}\",")
+                        && source.contains("stopAfterFailedMove();\n            return false;\n        }"),
                 "Failed move requests should stop only stale owned navigation and not poison later duplicate-move suppression");
         assertTrue(source.contains("return recordMoveRequest(target, mob.getNavigation().moveTo(target.x, target.y, target.z, speed));"),
                 "Point movement should only record duplicate suppression state after navigation accepts the move");
@@ -132,26 +140,115 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     }
 
     @Test
+    void movementCoordinatorShouldBeOnlyDirectNavigationEntryPoint() throws IOException {
+        assertNoRawNavigationOutsideCoordinator("getNavigation().moveTo");
+        assertNoRawNavigationOutsideCoordinator("getNavigation().stop");
+        assertNoRawNavigationOutsideCoordinator("getNavigation().createPath");
+        assertNoRawNavigationOutsideCoordinator("getNavigation().isDone");
+        assertNoRawNavigationOutsideCoordinator("navigation.moveTo");
+        assertNoRawNavigationOutsideCoordinator("navigation.stop");
+        assertNoRawNavigationOutsideCoordinator("navigation.createPath");
+    }
+
+    @Test
     void shipBrainAiShouldUseMovementCoordinator() throws IOException {
         String brain = Files.readString(BRAIN_AI_SOURCE);
+        String activityResolver = Files.readString(SHIP_BRAIN_ACTIVITY_RESOLVER_SOURCE);
         String numbers = Files.readString(AI_NUMBERS_SOURCE);
         String ship = Files.readString(SHIP_BASE_SOURCE);
 
         assertTrue(ship.contains("private final ShipMovementCoordinator followOwnerMovement;"),
                 "Ship should own a dedicated follow-owner movement channel for Brain behaviors");
-        assertTrue(ship.contains("this.followOwnerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_NORMAL);"),
+        assertTrue(ship.contains("this.followOwnerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_FOLLOW);"),
                 "Follow-owner Brain movement should use an explicit shared coordinator");
         assertTrue(ship.contains("ShipMovementCoordinator followOwnerMovementCoordinator()"),
                 "Ship should expose the follow-owner movement channel to Brain behaviors");
+        assertTrue(ship.contains("private final ShipMovementCoordinator combatMovement;"),
+                "Ship should own a dedicated passive-combat movement channel for Brain behaviors");
+        assertTrue(ship.contains("this.combatMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT);"),
+                "Passive-combat Brain movement should use an explicit combat-priority coordinator");
+        assertTrue(ship.contains("ShipMovementCoordinator combatMovementCoordinator()"),
+                "Ship should expose the combat movement channel to Brain behaviors");
+
+        assertTrue(brain.contains("ShipBrainActivityResolver.Mode.COMMAND, Activity.WORK"),
+                "Ship Brain should expose a command activity for pointer commands instead of hiding command movement in CORE");
+        assertTrue(brain.contains("ShipBrainActivityResolver.Mode.GUARD, Activity.MEET"),
+                "Ship Brain should expose a guard activity for guard movement");
+        assertTrue(brain.contains("ShipBrainActivityResolver.Mode.FOLLOW, Activity.PLAY"),
+                "Ship Brain should expose a follow activity for owner following");
+        assertTrue(brain.contains("ShipBrainActivityResolver.Mode.COMBAT, Activity.FIGHT"),
+                "Ship Brain should expose a combat activity for target state");
+        assertTrue(activityResolver.contains("static List<Mode> resolveActiveModes(State state, boolean following)"),
+                "Ship Brain should choose explicit activities through a behavior-testable resolver");
+        assertTrue(brain.contains("ShipBrainActivityResolver.resolveActiveModes(state, following)"),
+                "Ship Brain tick should delegate activity choice to the tested resolver");
+        assertTrue(brain.contains("brain.isActive(activityFor(ShipBrainActivityResolver.Mode.FOLLOW))"),
+                "Ship Brain tick should switch activities through the explicit resolver");
+        assertTrue(brain.contains("new ShipPointerMoveBehavior()"),
+                "Pointer movement should be split into a dedicated Brain behavior");
+        assertTrue(brain.contains("ShipPointerEntityDecisionResolver.aimDelayTicks(ship.getLevel())"),
+                "Pointer-entity attack cadence should use the behavior-tested resolver");
+        assertTrue(brain.contains("ShipPointerEntityDecisionResolver.shouldFireLightAttack(attackState)"),
+                "Pointer-entity light attack cadence should use the behavior-tested resolver");
+        assertTrue(brain.contains("ShipPointerEntityDecisionResolver.shouldFireHeavyAttack(attackState)"),
+                "Pointer-entity heavy attack cadence should use the behavior-tested resolver");
+        assertTrue(brain.contains("ShipPointerEntityDecisionResolver.shouldFireMeleeAttack(attackState)"),
+                "Pointer-entity melee cadence should use the behavior-tested resolver");
+        assertTrue(brain.contains("new ShipGuardMoveBehavior()"),
+                "Guard movement should be split into a dedicated Brain behavior");
+        assertTrue(brain.contains("new ShipFollowOwnerBehavior()"),
+                "Follow-owner movement should be split into a dedicated Brain behavior");
+        assertTrue(brain.contains("new ShipCombatMemoryBehavior()"),
+                "Combat activity should have a Brain behavior that keeps target memory current");
+        assertTrue(brain.contains("new ShipPassiveCombatTargetingBehavior()"),
+                "Passive combat target acquisition should be split into a core Brain behavior");
+        assertTrue(brain.contains("ship.tickPassiveCombatTargetingBrain();"),
+                "Passive combat target acquisition should be driven by Brain rather than entity tick support logic");
+        assertTrue(brain.contains("ship.tickPassiveCombatActionsBrain(state);"),
+                "Passive combat chase and attacks should be driven by the combat Brain behavior");
+        assertFalse(brain.contains("class ShipMovementBehavior"),
+                "Ship Brain should not regress to a single large movement behavior");
+        assertTrue(brain.contains("brain.setMemory(MemoryModuleType.ATTACK_TARGET, target);"),
+                "Ship Brain should populate attack target memory when combat target exists");
+        assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.ATTACK_TARGET);"),
+                "Ship Brain should clear attack target memory when combat target is gone");
+        assertTrue(brain.contains("BehaviorUtils.setWalkAndLookTargetMemories(ship, BlockPos.containing(target), (float) speed, closeEnoughDist);"),
+                "Ship Brain movement behaviors should mirror point movement into WALK_TARGET and LOOK_TARGET memory");
+        assertTrue(brain.contains("BehaviorUtils.setWalkAndLookTargetMemories(ship, livingEntity, (float) speed, closeEnoughDist);"),
+                "Ship Brain movement behaviors should mirror entity movement into WALK_TARGET and LOOK_TARGET memory");
+        assertTrue(brain.contains("BehaviorUtils.lookAtEntity(ship, target);"),
+                "Ship Brain should use LOOK_TARGET memory for entity look state");
+        assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.WALK_TARGET);"),
+                "Ship Brain should clear walk memory when movement behaviors stop");
+        assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.LOOK_TARGET);"),
+                "Ship Brain should clear look memory when movement behaviors stop");
+        assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);"),
+                "Ship Brain should clear walk failure memory with stale movement targets");
 
         assertTrue(brain.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
                 "Pointer Brain behavior should route move requests through the pointer coordinator");
         assertTrue(brain.contains("ship.guardMovementCoordinator()"),
                 "Guard Brain behavior should reuse the ship-owned guard movement channel");
+        assertTrue(brain.contains("ShipGuardDecisionResolver.stopDistanceSqr(guardState)"),
+                "Guard Brain stop distance should use the behavior-tested resolver");
+        assertTrue(brain.contains("ShipGuardDecisionResolver.shouldMove(guardState)"),
+                "Guard Brain movement continuation should use the behavior-tested resolver");
+        assertTrue(brain.contains("ShipGuardDecisionResolver.shouldLookAtOwnerOrPlayer("),
+                "Guard Brain owner/player look fallback should use the behavior-tested resolver");
+        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterStuck("),
+                "Guard Brain stuck disable threshold should use the shared recovery resolver");
+        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures("),
+                "Guard Brain move-failure disable threshold should use the shared recovery resolver");
+        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)"),
+                "Brain recovery trigger should use the shared behavior-tested resolver");
         assertTrue(brain.contains("movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);"),
                 "Follow-owner Brain behavior should route movement through the shared coordinator");
-        assertTrue(brain.contains("ship.followOwnerMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED);"),
-                "Idle Brain stroll should reuse the shared follow/idle coordinator");
+        assertTrue(brain.contains("ship.idleMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED);"),
+                "Idle Brain stroll should reuse the ship-owned idle movement coordinator");
+        assertTrue(brain.contains("ShipMovementCoordinator movement = ship.combatMovementCoordinator();"),
+                "Passive combat Brain behavior should reuse the ship-owned combat movement channel");
+        assertTrue(brain.contains("movement.moveTo(target, state.moveSpeed())"),
+                "Passive combat Brain behavior should route chase movement through the combat coordinator");
         assertFalse(brain.contains("getNavigation().moveTo"),
                 "Ship Brain behaviors should not issue raw navigation requests");
         assertFalse(brain.contains("ShipTeleportHelper"),
@@ -159,6 +256,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(numbers.contains("static final double POINTER_MOVE_SPEED = 1.2D;"),
                 "Brain AI movement speeds should be centralized in ShipAiNumbers");
+        assertTrue(numbers.contains("static final double POINTER_ENTITY_MOVE_SPEED = 1.1D;"),
+                "Pointer-entity Brain movement speed should be centralized in ShipAiNumbers");
         assertTrue(numbers.contains("static final double GUARD_MOVE_SPEED = 1.1D;"),
                 "Guard Brain movement speed should be centralized in ShipAiNumbers");
         assertTrue(numbers.contains("static final double FOLLOW_OWNER_SPEED = 1.2D;"),
@@ -173,28 +272,34 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
 
         assertTrue(pointer.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
                 "Pointer Brain behavior should route move requests through the coordinator");
+        assertTrue(pointer.contains("movement.moveTo(target, ShipAiNumbers.POINTER_ENTITY_MOVE_SPEED)"),
+                "Pointer-entity Brain behavior should route move requests through the coordinator");
+        assertTrue(pointer.contains("movement.moveTo(target, state.moveSpeed())"),
+                "Passive combat Brain behavior should route chase movement through the coordinator");
+        assertTrue(pointer.contains("ship.combatMovementCoordinator().teleportNearLiving(target, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
+                "Passive combat Brain recovery should route teleport through the coordinator");
+        assertTrue(pointer.contains("PassiveCombat teleportRecovery"),
+                "Passive combat Brain recovery should emit searchable debug logs");
         assertFalse(pointer.contains("ship.getNavigation().moveTo(target.x, target.y, target.z"),
                 "Pointer Brain behavior should not issue raw navigation requests");
 
-        assertTrue(pointerEntity.contains("private final ShipMovementCoordinator movement;"),
-                "Pointer entity chase should use the shared movement coordinator");
-        assertTrue(pointerEntity.contains("this.movement.moveTo(target, POINTER_ENTITY_MOVE_SPEED)"),
-                "Pointer entity chase should route move requests through the coordinator");
+        assertFalse(pointerEntity.contains("private final ShipMovementCoordinator movement;"),
+                "Pointer runtime should not own movement coordination once entity chase is Brain-owned");
+        assertFalse(pointerEntity.contains("this.movement.moveTo(target"),
+                "Pointer runtime should not route chase movement outside the Brain behavior");
         assertFalse(pointerEntity.contains("this.ship.getNavigation().moveTo(target, POINTER_ENTITY_MOVE_SPEED)"),
                 "Pointer entity chase should not issue raw navigation requests");
         assertFalse(pointerEntity.contains("this.ship.getNavigation().stop();"),
                 "Pointer entity chase should not stop navigation outside the coordinator");
 
-        assertTrue(passiveCombat.contains("private final ShipMovementCoordinator movement;"),
-                "Passive combat should use the shared movement coordinator");
-        assertTrue(passiveCombat.contains("this.movement = new ShipMovementCoordinator(ship, ShipMovementCoordinator.PRIORITY_COMBAT);"),
-                "Passive combat movement should outrank ordinary follow and pickup movement");
-        assertTrue(passiveCombat.contains("this.movement.moveTo(target, getPassiveMoveSpeed())"),
-                "Passive combat should route chase movement through the coordinator");
-        assertTrue(passiveCombat.contains("this.movement.teleportNearLiving(target, 0.75D)"),
-                "Passive combat recovery should route teleport through the coordinator");
-        assertTrue(passiveCombat.contains("PassiveCombat teleportRecovery"),
-                "Passive combat recovery should emit searchable debug logs");
+        assertFalse(passiveCombat.contains("private final ShipMovementCoordinator movement;"),
+                "Passive combat support should not own movement coordination once chase is Brain-owned");
+        assertFalse(passiveCombat.contains("this.movement.moveTo(target"),
+                "Passive combat support should not route chase movement outside the Brain behavior");
+        assertFalse(passiveCombat.contains("this.movement.teleportNearLiving(target"),
+                "Passive combat support should not route teleport recovery outside the Brain behavior");
+        assertFalse(passiveCombat.contains("PassiveCombat teleportRecovery"),
+                "Passive combat support should not own movement recovery diagnostics once chase is Brain-owned");
         assertFalse(passiveCombat.contains("this.ship.getNavigation().moveTo(target, getPassiveMoveSpeed())"),
                 "Passive combat should not issue raw navigation requests");
         assertFalse(passiveCombat.contains("ShipTeleportHelper.teleportNearLiving"),
@@ -217,8 +322,12 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Mount Brain provider should route through mount Brain AI helper");
         assertTrue(mount.contains("return EntityMountBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));"),
                 "Mount Brain construction should route through mount Brain AI helper");
+        assertTrue(mount.contains("this.followMovement.stopAny();"),
+                "Mount global AI stop should route navigation cleanup through the movement coordinator");
         assertFalse(mount.contains("this.goalSelector.addGoal"),
                 "Mount should no longer register ship-specific GoalSelector behaviors");
+        assertFalse(mount.contains("this.getNavigation().stop();"),
+                "Mount should not stop navigation outside the movement coordinator");
 
         assertTrue(mountBrain.contains("private final ShipMovementRecoveryState recovery = new ShipMovementRecoveryState();"),
                 "Mount Brain follow should keep explicit recovery state");
@@ -226,10 +335,32 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Mount owner follow should route movement through the coordinator");
         assertTrue(mountBrain.contains("trackAndRecoverPoint(mount, guardPos, \"guardBlock\");"),
                 "Mount guard follow should route teleport recovery through the shared tracker");
+        assertTrue(mountBrain.contains("MountBrainDecisionResolver.shouldFollowHost(decisionState(mount, host))"),
+                "Mount Brain should delegate follow eligibility to a behavior-tested resolver");
+        assertTrue(mountBrain.contains("MountBrainDecisionResolver.shouldFireLight(state)"),
+                "Mount Brain should delegate light-attack fire eligibility to a behavior-tested resolver");
+        assertTrue(mountBrain.contains("MountBrainDecisionResolver.shouldFireHeavy(state)"),
+                "Mount Brain should delegate heavy-attack fire eligibility to a behavior-tested resolver");
+        assertTrue(mountBrain.contains("MountBrainDecisionResolver.shouldRandomStroll(decisionState(mount, h))"),
+                "Mount random stroll should use the resolver that prevents racing follow/guard/pointer movement");
         assertTrue(mountBrain.contains("mount.followMovementCoordinator().teleportNearLiving(target, MountAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Mount owner teleport recovery should route through the coordinator");
         assertTrue(mountBrain.contains("mount.followMovementCoordinator().teleportNearPoint(target, MountAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Mount guard teleport recovery should route through the coordinator");
+        assertTrue(mountBrain.contains("syncAttackTargetMemory(mount, brain);"),
+                "Mount Brain should mirror its combat target into ATTACK_TARGET memory each tick");
+        assertTrue(mountBrain.contains("BehaviorUtils.setWalkAndLookTargetMemories(mount, BlockPos.containing(target), (float) speed, closeEnoughDist);"),
+                "Mount point movement should mirror coordinator targets into WALK_TARGET and LOOK_TARGET memory");
+        assertTrue(mountBrain.contains("BehaviorUtils.setWalkAndLookTargetMemories(mount, livingTarget, (float) speed, closeEnoughDist);"),
+                "Mount entity movement should mirror coordinator targets into WALK_TARGET and LOOK_TARGET memory");
+        assertTrue(mountBrain.contains("BehaviorUtils.lookAtEntity(mount, target);"),
+                "Mount look behavior should publish LOOK_TARGET memory");
+        assertTrue(mountBrain.contains("brain.eraseMemory(MemoryModuleType.WALK_TARGET);"),
+                "Mount Brain should clear stale walk memory when movement behavior stops");
+        assertTrue(mountBrain.contains("brain.eraseMemory(MemoryModuleType.LOOK_TARGET);"),
+                "Mount Brain should clear stale look memory when movement behavior stops");
+        assertTrue(mountBrain.contains("brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);"),
+                "Mount Brain should clear stale path-failure memory when movement behavior stops");
         assertTrue(mountBrain.contains("MountFollow teleportRecovery"),
                 "Mount follow recovery should emit searchable debug logs");
         assertFalse(mountBrain.contains("ShipTeleportHelper.teleportNear"),
@@ -383,10 +514,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Guard Brain movement should keep explicit recovery state after migration");
         assertTrue(brain.contains("private final ShipMovementRecoveryState followRecovery = new ShipMovementRecoveryState();"),
                 "Follow-owner Brain movement should keep explicit recovery state after migration");
-        assertTrue(pointerEntity.contains("private final ShipMovementRecoveryState pointerTargetEntityRecovery = new ShipMovementRecoveryState();"),
-                "Pointer entity movement should use the shared recovery state");
-        assertTrue(passiveCombat.contains("private final ShipMovementRecoveryState movementRecovery = new ShipMovementRecoveryState();"),
-                "Passive combat movement should use the shared recovery state");
+        assertTrue(brain.contains("private final ShipMovementRecoveryState pointerRecovery = new ShipMovementRecoveryState();"),
+                "Pointer entity Brain movement should reuse the shared pointer recovery state");
+        assertTrue(brain.contains("private final ShipMovementRecoveryState combatRecovery = new ShipMovementRecoveryState();"),
+                "Passive combat Brain movement should use the shared recovery state");
         assertFalse(pointerEntity.contains("pointerTargetEntityLastPos"),
                 "Pointer entity movement should not duplicate progress tracking fields");
         assertFalse(passiveCombat.contains("passiveLastProgressPos"),
@@ -399,10 +530,12 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Pointer entity movement should not duplicate stuck-timeout comparison");
         assertFalse(passiveCombat.contains("stuckTicks() >"),
                 "Passive combat movement should not duplicate stuck-timeout comparison");
-        assertTrue(pointerEntity.contains("this.pointerTargetEntityRecovery.shouldLogMoveFailure(this.ship.tickCount,"),
-                "Pointer entity movement should rate-limit repeated move-failure diagnostics through recovery state");
-        assertTrue(passiveCombat.contains("this.movementRecovery.shouldLogMoveFailure(this.ship.tickCount, PASSIVE_MOVE_FAIL_LOG_INTERVAL)"),
+        assertTrue(brain.contains("this.pointerRecovery.shouldLogMoveFailure(ship.tickCount,\n                            ShipAiNumbers.POINTER_ENTITY_MOVE_FAIL_LOG_INTERVAL)"),
+                "Pointer entity Brain movement should rate-limit repeated move-failure diagnostics through recovery state");
+        assertTrue(brain.contains("this.combatRecovery.shouldLogMoveFailure(ship.tickCount,\n                            ShipAiNumbers.PASSIVE_COMBAT_MOVE_FAIL_LOG_INTERVAL)"),
                 "Passive combat movement should rate-limit repeated move-failure diagnostics through recovery state");
+        assertFalse(passiveCombat.contains("ShipMovementRecoveryState"),
+                "Passive combat support should not own movement recovery state once chase is Brain-owned");
     }
 
     @Test
@@ -481,10 +614,30 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Aircraft attack behavior should reset the shared movement coordinator at start");
         assertTrue(aircraftBrain.contains("host.attackMovementCoordinator().moveTo(this.randPos, speed);"),
                 "Aircraft attack movement should route through the coordinator");
-        assertTrue(aircraftBrain.contains("private boolean canAttackMissionTarget(EntityAircraftBase host, Entity targetEntity)"),
-                "Aircraft attack behavior should centralize mission target viability checks");
-        assertTrue(aircraftBrain.contains("this.target = null;\n            this.randPos = null;\n            host.attackMovementCoordinator().stop();"),
+        assertTrue(aircraftBrain.contains("AircraftBrainDecisionResolver.shouldStartAttack(decisionState(host, targetEntity))"),
+                "Aircraft attack behavior should delegate start eligibility to a behavior-tested resolver");
+        assertTrue(aircraftBrain.contains("AircraftBrainDecisionResolver.canAttackMissionTarget(decisionState(host, targetEntity))"),
+                "Aircraft attack behavior should centralize mission target viability checks in the resolver");
+        assertTrue(aircraftBrain.contains("AircraftBrainDecisionResolver.attackMoveSpeed(state)"),
+                "Aircraft attack behavior should delegate chase speed selection to a behavior-tested resolver");
+        assertTrue(aircraftBrain.contains("AircraftBrainDecisionResolver.shouldFire(state)"),
+                "Aircraft attack behavior should delegate fire eligibility to a behavior-tested resolver");
+        assertTrue(aircraftBrain.contains("this.target = null;\n            this.randPos = null;"),
+                "Aircraft attack stop should clear cached target state");
+        assertTrue(aircraftBrain.contains("host.attackMovementCoordinator().stop();"),
                 "Aircraft attack stop should clear managed navigation instead of starting unmanaged cruise movement");
+        assertTrue(aircraftBrain.contains("syncAttackTargetMemory(aircraft);"),
+                "Aircraft Brain should mirror mission targets into ATTACK_TARGET memory each tick");
+        assertTrue(aircraftBrain.contains("BehaviorUtils.setWalkAndLookTargetMemories(aircraft, BlockPos.containing(target), (float) speed, closeEnoughDist);"),
+                "Aircraft attack cruise movement should mirror coordinator targets into WALK_TARGET and LOOK_TARGET memory");
+        assertTrue(aircraftBrain.contains("BehaviorUtils.lookAtEntity(aircraft, livingTarget);"),
+                "Aircraft attack behavior should publish LOOK_TARGET memory for living mission targets");
+        assertTrue(aircraftBrain.contains("brain.eraseMemory(MemoryModuleType.WALK_TARGET);"),
+                "Aircraft Brain should clear stale walk memory when attack behavior stops");
+        assertTrue(aircraftBrain.contains("brain.eraseMemory(MemoryModuleType.LOOK_TARGET);"),
+                "Aircraft Brain should clear stale look memory when attack behavior stops");
+        assertTrue(aircraftBrain.contains("brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);"),
+                "Aircraft Brain should clear stale path-failure memory when attack behavior stops");
         assertFalse(aircraftBrain.contains("host.getNavigation().moveTo"),
                 "Aircraft attack behavior should not issue raw navigation requests");
         assertTrue(aircraftNumbers.contains("static final int ATTACK_ACTIVATION_TICKS = 20;"),
@@ -551,6 +704,30 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Summon follow Brain behavior should route carrier follow through the coordinator");
         assertTrue(summonBrain.contains("summon.followMovementCoordinator().moveTo(target, SummonAiNumbers.RANDOM_STROLL_SPEED);"),
                 "Summon idle Brain behavior should route stroll movement through the coordinator");
+        assertTrue(summonBrain.contains("SummonBrainDecisionResolver.shouldFollowCarrier(decisionState(summon, carrier))"),
+                "Summon Brain should delegate carrier-follow eligibility to a behavior-tested resolver");
+        assertTrue(summonBrain.contains("SummonBrainDecisionResolver.shouldChaseAttackTarget(state)"),
+                "Summon attack chase should delegate range boundary decisions to a behavior-tested resolver");
+        assertTrue(summonBrain.contains("SummonBrainDecisionResolver.shouldPerformAttack(state)"),
+                "Summon attack execution should delegate cooldown and range checks to a behavior-tested resolver");
+        assertTrue(summonBrain.contains("SummonBrainDecisionResolver.shouldRandomStroll(decisionState(summon, summon.getCarrier()))"),
+                "Summon random stroll should use the resolver that prevents racing carrier-follow movement");
+        assertTrue(summonBrain.contains("syncAttackTargetMemory(summon, brain);"),
+                "Summon Brain should mirror its combat target into ATTACK_TARGET memory each tick");
+        assertTrue(summonBrain.contains("BehaviorUtils.setWalkAndLookTargetMemories(summon, BlockPos.containing(target), (float) speed, closeEnoughDist);"),
+                "Summon point movement should mirror coordinator targets into WALK_TARGET and LOOK_TARGET memory");
+        assertTrue(summonBrain.contains("BehaviorUtils.setWalkAndLookTargetMemories(summon, target, (float) speed, closeEnoughDist);"),
+                "Summon entity movement should mirror coordinator targets into WALK_TARGET and LOOK_TARGET memory");
+        assertTrue(summonBrain.contains("BehaviorUtils.lookAtEntity(summon, target);"),
+                "Summon look behavior should publish LOOK_TARGET memory");
+        assertTrue(summonBrain.contains("brain.eraseMemory(MemoryModuleType.WALK_TARGET);"),
+                "Summon Brain should clear stale walk memory when movement behavior stops");
+        assertTrue(summonBrain.contains("brain.eraseMemory(MemoryModuleType.LOOK_TARGET);"),
+                "Summon Brain should clear stale look memory when movement behavior stops");
+        assertTrue(summonBrain.contains("brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);"),
+                "Summon Brain should clear stale path-failure memory when movement behavior stops");
+        assertFalse(summonBrain.contains("private final ShipMovementCoordinator movement;"),
+                "Summon Brain attack behavior should not keep dead coordinator fields outside the entity-owned channels");
         assertFalse(summonBrain.contains("new net.minecraft.world.entity.ai.goal"),
                 "Summon Brain helper should not embed goal-based AI implementations");
 
@@ -640,5 +817,28 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Nagato special event movement should not run indefinitely");
         assertFalse(nagato.contains("this.getNavigation().moveTo(target, 1.0D)"),
                 "Nagato special event movement should not issue raw navigation requests");
+    }
+
+    private static void assertNoRawNavigationOutsideCoordinator(String forbidden) throws IOException {
+        try (Stream<Path> files = Files.walk(SHINCOLLE_MAIN_SOURCE)) {
+            String offenders = files
+                    .filter(path -> path.toString().endsWith(".java"))
+                    .filter(path -> !path.equals(COORDINATOR_SOURCE))
+                    .filter(path -> contains(path, forbidden))
+                    .map(Path::toString)
+                    .sorted()
+                    .reduce("", (left, right) -> left + "\n" + right);
+
+            assertTrue(offenders.isEmpty(),
+                    "Only ShipMovementCoordinator should directly use " + forbidden + "; offenders:" + offenders);
+        }
+    }
+
+    private static boolean contains(Path path, String text) {
+        try {
+            return Files.readString(path).contains(text);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to inspect " + path, e);
+        }
     }
 }

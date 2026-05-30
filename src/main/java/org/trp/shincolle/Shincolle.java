@@ -43,6 +43,7 @@ public class Shincolle {
         ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModTabs.CREATIVE_MODE_TABS.register(modEventBus);
         ModEntities.ENTITY_TYPES.register(modEventBus);
+        ModMemoryModules.MEMORY_MODULE_TYPES.register(modEventBus);
         ModMenus.MENUS.register(modEventBus);
         ModParticles.PARTICLES.register(modEventBus);
         ModSounds.SOUND_EVENTS.register(modEventBus);

@@ -70,7 +70,7 @@ public final class ShipTaskRuntime {
 
         int failCount = this.recovery.recordMoveFailure();
         if (this.recovery.shouldLogMoveFailure(this.ship.tickCount, TASK_MOVE_FAIL_LOG_INTERVAL)) {
-            Shincolle.debugLog("TaskMove moveFail ship={} task={} target={} failCount={} distanceSqr={}",
+            Shincolle.debugLog("[SCMoveDiag] TaskMove moveFail ship={} task={} target={} failCount={} distanceSqr={}",
                     this.ship.getUUID(), this.lastTaskId, target, failCount, distanceSqr);
         }
         if (failCount > TASK_MOVE_FAIL_LIMIT && tryTeleportRecovery(target, distanceSqr, true)) {
@@ -92,7 +92,7 @@ public final class ShipTaskRuntime {
             return false;
         }
 
-        Shincolle.debugLog("TaskMove teleportRecovery ship={} task={} target={} force={} distanceSqr={} stuckTicks={}",
+        Shincolle.debugLog("[SCMoveDiag] TaskMove teleportRecovery ship={} task={} target={} force={} distanceSqr={} stuckTicks={}",
                 this.ship.getUUID(), this.lastTaskId, target, force, distanceSqr, this.recovery.stuckTicks());
         this.recovery.reset(this.ship.position());
         return true;

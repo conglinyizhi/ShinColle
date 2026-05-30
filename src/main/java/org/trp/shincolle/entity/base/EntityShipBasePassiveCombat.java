@@ -30,24 +30,14 @@ final class EntityShipBasePassiveCombat {
     private static final int STATE_MINOR_FLEE_HP = ShipContainerMenu.STATE_MINOR_FLEE_HP;
 
     private static final int PASSIVE_TARGET_SCAN_INTERVAL = 8;
-    private static final int PASSIVE_PATH_RECALC_INTERVAL = 10;
     private static final int PASSIVE_TARGET_CHOICE_RANDOM_TOP = 3;
     private static final int PASSIVE_OWNER_REVENGE_DISTANCE_SQR = 32 * 32;
     private static final double PASSIVE_TARGET_VERTICAL_RANGE_FACTOR = 0.75D;
     private static final double PASSIVE_TARGET_LOST_DISTANCE_MULTIPLIER = 1.5D;
-    private static final double PASSIVE_MOVE_SPEED_MIN = 0.8D;
-    private static final double PASSIVE_MOVE_SPEED_MAX = 1.6D;
-    private static final int PASSIVE_MOVE_FAIL_LIMIT = 40;
-    private static final int PASSIVE_MOVE_FAIL_LOG_INTERVAL = 20;
-    private static final int PASSIVE_STUCK_TICK_LIMIT = 120;
-    private static final int PASSIVE_TELEPORT_COOLDOWN_TICKS = 100;
-    private static final double PASSIVE_TELEPORT_DISTANCE_SQ = 256.0D;
 
     private final EntityShipBase ship;
-    private final ShipMovementCoordinator movement;
 
     private int passiveTargetScanTick;
-    private int passiveTargetPathTick;
     private int passiveTargetSightTick;
     private int passiveMeleeCooldownTick;
     private int passiveLightCooldownTick;
@@ -57,16 +47,14 @@ final class EntityShipBasePassiveCombat {
     private int passiveLastHurtByMobTimestamp;
     private int passiveLastOwnerHurtByTimestamp;
     private int passiveLastOwnerHurtMobTimestamp;
-    private final ShipMovementRecoveryState movementRecovery = new ShipMovementRecoveryState();
 
     EntityShipBasePassiveCombat(EntityShipBase ship) {
         this.ship = ship;
-        this.movement = new ShipMovementCoordinator(ship, ShipMovementCoordinator.PRIORITY_COMBAT);
     }
 
     void tickTargeting() {
         if (!canFight()) {
-            clearTarget(true);
+            clearTarget();
             return;
         }
 
@@ -84,7 +72,7 @@ final class EntityShipBasePassiveCombat {
         if (currentTarget != null) {
             double maxLostDistance = getPassiveAcquireRangeSqr() * PASSIVE_TARGET_LOST_DISTANCE_MULTIPLIER;
             if (!isValidPassiveTarget(currentTarget) || this.ship.distanceToSqr(currentTarget) > maxLostDistance) {
-                clearTarget(true);
+                clearTarget();
             }
         }
 
@@ -106,9 +94,11 @@ final class EntityShipBasePassiveCombat {
         tryAcquireNearbyCombatTarget();
     }
 
-    void tickActions() {
+    ShipBrainMemory.PassiveCombatStateMemory updateActionState() {
         LivingEntity target = this.ship.getTarget();
-        if (target == null) return;
+        if (target == null) {
+            return ShipBrainMemory.noPassiveCombatState();
+        }
 
         boolean isRevenge = (target == this.ship.getLastHurtByMob());
         if (!isRevenge && this.ship.getOwner() != null) {
@@ -118,8 +108,8 @@ final class EntityShipBasePassiveCombat {
         boolean isCommanded = (target == this.ship.getPointerTargetEntity());
 
         if (!isAttackAllowed(target, isRevenge, isCommanded)) {
-            clearTarget(true);
-            return;
+            clearTarget();
+            return ShipBrainMemory.noPassiveCombatState();
         }
 
         if (this.passiveMeleeCooldownTick > 0) {
@@ -139,8 +129,8 @@ final class EntityShipBasePassiveCombat {
         } else {
             this.passiveTargetSightTick = 0;
             if (this.ship.getStateFlag(STATE_FLAG_ON_SIGHT)) {
-                clearTarget(true);
-                return;
+                clearTarget();
+                return ShipBrainMemory.noPassiveCombatState();
             }
         }
 
@@ -156,50 +146,31 @@ final class EntityShipBasePassiveCombat {
         boolean hasAttackMeans = hasRangedAttack || combat.canUseMeleeAttack();
         logCombatStateIfNeeded(target, distanceSqr, preferredRangeSqr, stopRangeSqr, needsCloser, cannotSee, hasAttackMeans);
 
-        if (needsCloser || cannotSee) {
-            if (this.ship.hasPointerTarget() || !hasAttackMeans) {
-                return;
-            }
-            this.movementRecovery.trackProgress(this.ship.position());
-            if (this.movementRecovery.isStuckLongerThan(PASSIVE_STUCK_TICK_LIMIT)) {
-                if (tryPassiveCombatTeleportRecovery(target, distanceSqr, true)) {
-                    return;
-                }
-                Shincolle.debugLog("PassiveCombat stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
-                        this.ship.getUUID(), target.getUUID(), this.movementRecovery.stuckTicks(), distanceSqr);
-                clearTarget(true);
-                return;
-            }
-            if (this.passiveTargetPathTick-- <= 0) {
-                this.passiveTargetPathTick = PASSIVE_PATH_RECALC_INTERVAL;
-                if (tryPassiveCombatTeleportRecovery(target, distanceSqr, false)) {
-                    return;
-                }
-                if (!this.movement.moveTo(target, getPassiveMoveSpeed())) {
-                    int failCount = this.movementRecovery.recordMoveFailure();
-                    if (this.movementRecovery.shouldLogMoveFailure(this.ship.tickCount, PASSIVE_MOVE_FAIL_LOG_INTERVAL)) {
-                        Shincolle.debugLog("PassiveCombat moveFail ship={} target={} failCount={} distanceSqr={}",
-                                this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
-                    }
-                    if (failCount > PASSIVE_MOVE_FAIL_LIMIT) {
-                        if (tryPassiveCombatTeleportRecovery(target, distanceSqr, true)) {
-                            return;
-                        }
-                        Shincolle.debugLog("PassiveCombat failClear ship={} target={} failCount={}",
-                                this.ship.getUUID(), target.getUUID(), this.movementRecovery.moveFailCount());
-                        clearTarget(true);
-                        return;
-                    }
-                    this.passiveTargetPathTick = 2;
-                } else {
-                    this.movementRecovery.clearMoveFailures();
-                }
-            }
+        boolean needsMovement = needsCloser || cannotSee;
+        return new ShipBrainMemory.PassiveCombatStateMemory(
+                target.getUUID(),
+                target.isAlive(),
+                target.position(),
+                distanceSqr,
+                preferredRangeSqr,
+                stopRangeSqr,
+                needsCloser,
+                cannotSee,
+                hasAttackMeans,
+                this.ship.hasPointerTarget(),
+                needsMovement,
+                needsMovement && !this.ship.hasPointerTarget() && hasAttackMeans,
+                getPassiveMoveSpeed(),
+                this.passiveTargetSightTick
+        );
+    }
+
+    void tickAttacks(ShipBrainMemory.PassiveCombatStateMemory state) {
+        LivingEntity target = this.ship.getTarget();
+        if (target == null || !state.hasTarget() || state.needsMovement()) {
             return;
         }
 
-        this.movementRecovery.reset(this.ship.position());
-        this.movement.stop();
         if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
             this.ship.getMoveControl().setWantedPosition(
                     this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
@@ -211,10 +182,11 @@ final class EntityShipBasePassiveCombat {
             return;
         }
 
-        if (this.passiveTargetSightTick < getPassiveAimTime()) {
+        if (state.sightTicks() < getPassiveAimTime()) {
             return;
         }
 
+        EntityShipBaseCombat combat = this.ship.getCombat();
         if (combat.hasAircraftAttackEnabled()) {
             combat.tryPerformAircraftCycle(target);
         }
@@ -231,7 +203,7 @@ final class EntityShipBasePassiveCombat {
 
         if (combat.canUseMeleeAttack()
                 && this.passiveMeleeCooldownTick <= 0
-                && distanceSqr <= getPassiveAttackRangeSqr(target)) {
+                && state.distanceSqr() <= getPassiveAttackRangeSqr(target)) {
             this.ship.doHurtTarget(target);
             this.passiveMeleeCooldownTick = Math.max(1, this.ship.getLegacyShipStats().getMeleeDelay());
         }
@@ -263,37 +235,12 @@ final class EntityShipBasePassiveCombat {
                 this.ship.hasPointerTarget() || this.ship.hasPointerTargetEntity());
     }
 
-    private boolean tryPassiveCombatTeleportRecovery(LivingEntity target, double distanceSqr, boolean force) {
-        if (target == null) {
-            return false;
-        }
-        if (!this.movementRecovery.shouldTryTeleportThrottled(force, distanceSqr,
-                PASSIVE_TELEPORT_DISTANCE_SQ, PASSIVE_TELEPORT_COOLDOWN_TICKS)) {
-            return false;
-        }
-        if (!this.movement.teleportNearLiving(target, 0.75D)) {
-            return false;
-        }
-
-        Shincolle.debugLog("PassiveCombat teleportRecovery ship={} target={} force={} distanceSqr={}",
-                this.ship.getUUID(), target.getUUID(), force, distanceSqr);
-        this.passiveTargetPathTick = 0;
-        this.movementRecovery.reset(this.ship.position());
-        return true;
-    }
-
-    void clearTarget(boolean stopNavigation) {
+    void clearTarget() {
         if (this.ship.getTarget() != null) {
             this.ship.setTarget(null);
         }
         this.passiveTargetSightTick = 0;
-        this.passiveTargetPathTick = 0;
         this.isFirstEngagementWaiting = false;
-        this.movementRecovery.clear();
-        this.movement.reset();
-        if (stopNavigation) {
-            this.movement.stop();
-        }
     }
 
     private void tryAcquireRevengeTargets() {
@@ -418,16 +365,13 @@ final class EntityShipBasePassiveCombat {
 
     private void setPassiveCombatTarget(@Nullable LivingEntity target, boolean resetCooldown) {
         if (target == null) {
-            clearTarget(false);
+            clearTarget();
             return;
         }
 
         this.ship.setTarget(target);
-        this.passiveTargetPathTick = 0;
         this.passiveTargetSightTick = 0;
         this.isFirstEngagementWaiting = false;
-        this.movement.reset();
-        this.movementRecovery.reset(this.ship.position());
 
         if (resetCooldown) {
             resetPassiveCombatCooldowns();
@@ -651,7 +595,7 @@ final class EntityShipBasePassiveCombat {
 
     private double getPassiveMoveSpeed() {
         double speed = this.ship.getLegacyShipStats().getMoveSpeed() * 3.0D;
-        return Mth.clamp(speed, PASSIVE_MOVE_SPEED_MIN, PASSIVE_MOVE_SPEED_MAX);
+        return Mth.clamp(speed, ShipAiNumbers.PASSIVE_COMBAT_MOVE_SPEED_MIN, ShipAiNumbers.PASSIVE_COMBAT_MOVE_SPEED_MAX);
     }
 
     private boolean canFight() {

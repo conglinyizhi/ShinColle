@@ -73,8 +73,8 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Guard AI should not reject valid modern-world guard targets by Y coordinate");
         assertFalse(mount.contains("getGuardedPos(1) > 0"),
                 "Mount guard-follow AI should not reject valid modern-world guard targets by Y coordinate");
-        assertTrue(guardGoal.contains("guardTarget.isBlock()"),
-                "Guard AI should branch on typed guard target kind");
+        assertTrue(guardGoal.contains("guardMemory.hasBlockTarget()"),
+                "Guard AI should branch on memory-backed typed guard target kind");
         assertTrue(mount.contains("guardTarget.isBlock() && guardTarget.isIn(host.level())"),
                 "Mount AI should branch on typed guard target kind");
     }
@@ -112,10 +112,14 @@ class ShipGuardTargetArchitectureRegressionTest {
         String guardGoal = Files.readString(BRAIN_AI_SOURCE);
         String mount = Files.readString(MOUNT_BRAIN_SOURCE);
 
-        assertTrue(guardGoal.contains("ShipGuardTarget guardTarget = ship.getGuardTarget();"),
-                "Brain guard behavior should read the typed guard target facade");
-        assertTrue(guardGoal.contains("target = guardedEntity.position();"),
-                "Brain guard behavior should branch on typed guard target kind");
+        assertTrue(guardGoal.contains("ShipGuardTarget guardTarget = guardMemory.target();"),
+                "Brain guard behavior should read the typed guard target through Brain memory");
+        assertTrue(guardGoal.contains("ShipGuardDecisionResolver.shouldSyncEntityDimension(unresolvedGuardState)"),
+                "Brain guard behavior should delegate entity-guard dimension drift checks to a behavior-tested resolver");
+        assertTrue(guardGoal.contains("target = guardMemory.guardedEntityPos();"),
+                "Brain guard behavior should branch on memory-backed typed guard target kind");
+        assertTrue(guardGoal.contains("target = guardMemory.blockCenter();"),
+                "Brain guard behavior should use memory-backed block guard coordinates");
         assertTrue(guardGoal.contains("ship.guardMovementCoordinator()"),
                 "Brain guard behavior should reuse the ship-owned guard movement coordinator");
         assertTrue(guardGoal.contains("private GuardRecoveryTargetKey lastGuardRecoveryTargetKey;"),

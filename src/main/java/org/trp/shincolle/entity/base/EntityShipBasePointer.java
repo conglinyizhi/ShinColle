@@ -6,24 +6,12 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.server.PlayerStateService;
 
 import java.util.UUID;
 
 class EntityShipBasePointer {
-    private static final double POINTER_ENTITY_ATTACK_RANGE_SQR = 4.0D;
-    private static final double POINTER_ENTITY_PATH_REFRESH_DISTANCE_SQR = 1.0D;
-    private static final int POINTER_ENTITY_PATH_RECALC_INTERVAL = 10;
-    private static final double POINTER_ENTITY_MOVE_SPEED = 1.1D;
-    private static final int POINTER_ENTITY_MOVE_FAIL_LIMIT = 40;
-    private static final int POINTER_ENTITY_MOVE_FAIL_LOG_INTERVAL = 20;
-    private static final int POINTER_ENTITY_STUCK_TICK_LIMIT = 120;
-    private static final int POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS = 100;
-    private static final double POINTER_ENTITY_TELEPORT_DISTANCE_SQ = 256.0D;
-
     private final EntityShipBase ship;
-    private final ShipMovementCoordinator movement;
 
     private Vec3 pointerTarget;
     private long pointerTargetUntil;
@@ -33,15 +21,8 @@ class EntityShipBasePointer {
     private UUID pointerTargetEntityId;
     private long pointerTargetEntityUntil;
 
-    private int pointerTargetEntityAttackTick = 0;
-    private int pointerTargetEntityLightShotTick = 0;
-    private int pointerTargetEntityHeavyShotTick = 0;
-    private int pointerTargetEntityPathTick = 0;
-    private final ShipMovementRecoveryState pointerTargetEntityRecovery = new ShipMovementRecoveryState();
-
     EntityShipBasePointer(EntityShipBase ship) {
         this.ship = ship;
-        this.movement = new ShipMovementCoordinator(ship, ShipMovementCoordinator.PRIORITY_COMMAND);
     }
 
     void saveToNbt(CompoundTag compound) {
@@ -104,22 +85,6 @@ class EntityShipBasePointer {
             this.pointerTargetEntityId = null;
             this.pointerTargetEntityUntil = 0L;
         }
-    }
-
-    void tickPointerTargetEntity() {
-        if (this.pointerTargetEntityId == null) {
-            return;
-        }
-        if (this.ship.isInDeadPose()) {
-            clearPointerTargetEntity();
-            return;
-        }
-        Entity target = getPointerTargetEntity();
-        if (target == null || !target.isAlive()) {
-            clearPointerTargetEntity();
-            return;
-        }
-        handlePointerTargetEntityCombat(target);
     }
 
     void setPointerTarget(Vec3 target, long durationTicks) {
@@ -216,13 +181,6 @@ class EntityShipBasePointer {
         this.pointerTargetEntityId = target.getUUID();
         this.pointerTargetEntityUntil = this.ship.level().getGameTime() + Math.max(0L, durationTicks);
 
-        int aimDelay = Math.max(5, (int) (20.0F * (150 - this.ship.getLevel()) / 150.0F) + 10);
-        this.pointerTargetEntityAttackTick = this.ship.tickCount + aimDelay;
-        this.pointerTargetEntityLightShotTick = this.ship.tickCount + aimDelay;
-        this.pointerTargetEntityHeavyShotTick = this.ship.tickCount + aimDelay;
-        this.pointerTargetEntityPathTick = 0;
-        this.pointerTargetEntityRecovery.reset(this.ship.position());
-        this.movement.reset();
         this.ship.getCombat().resetAircraftLaunchDelay();
         updateSynchedData();
     }
@@ -266,8 +224,6 @@ class EntityShipBasePointer {
     void clearPointerTargetEntity() {
         this.pointerTargetEntityId = null;
         this.pointerTargetEntityUntil = 0L;
-        this.pointerTargetEntityRecovery.clear();
-        this.movement.stop();
         updateSynchedData();
     }
 
@@ -321,144 +277,4 @@ class EntityShipBasePointer {
         }
     }
 
-    private void handlePointerTargetEntityCombat(Entity target) {
-        if (this.ship.isInDeadPose() || target == null || !target.isAlive()) {
-            return;
-        }
-
-        double desiredRangeSqr = getPointerTargetEntityPreferredRangeSqr(target);
-        double distanceSqr = this.ship.distanceToSqr(target);
-        boolean hasRangedAmmo = this.ship.getCombat().canUseLightAmmo()
-                || this.ship.getCombat().canUseHeavyAmmo()
-                || this.ship.getCombat().hasAircraftAttackEnabled();
-        double stopRangeSqr = hasRangedAmmo
-                ? desiredRangeSqr + POINTER_ENTITY_PATH_REFRESH_DISTANCE_SQR
-                : desiredRangeSqr;
-
-        boolean onSight = this.ship.hasLineOfSight(target);
-
-        boolean needsCloser = distanceSqr > stopRangeSqr;
-        boolean cannotSee = !onSight && distanceSqr > desiredRangeSqr * 0.5D;
-
-        if (needsCloser || cannotSee) {
-            this.pointerTargetEntityRecovery.trackProgress(this.ship.position());
-            if (this.pointerTargetEntityRecovery.isStuckLongerThan(POINTER_ENTITY_STUCK_TICK_LIMIT)) {
-                if (tryPointerTargetEntityTeleportRecovery(target, true)) {
-                    return;
-                }
-                Shincolle.debugLog("PointerEntity stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
-                        this.ship.getUUID(), target.getUUID(), this.pointerTargetEntityRecovery.stuckTicks(), distanceSqr);
-                clearPointerTargetEntity();
-                return;
-            }
-            if (this.pointerTargetEntityPathTick-- <= 0) {
-                this.pointerTargetEntityPathTick = POINTER_ENTITY_PATH_RECALC_INTERVAL;
-                if (tryPointerTargetEntityTeleportRecovery(target, false)) {
-                    return;
-                }
-                if (!this.movement.moveTo(target, POINTER_ENTITY_MOVE_SPEED)) {
-                    int failCount = this.pointerTargetEntityRecovery.recordMoveFailure();
-                    if (this.pointerTargetEntityRecovery.shouldLogMoveFailure(this.ship.tickCount,
-                            POINTER_ENTITY_MOVE_FAIL_LOG_INTERVAL)) {
-                        Shincolle.debugLog("PointerEntity moveFail ship={} target={} failCount={} distanceSqr={}",
-                                this.ship.getUUID(), target.getUUID(), failCount, distanceSqr);
-                    }
-                    if (failCount > POINTER_ENTITY_MOVE_FAIL_LIMIT) {
-                        if (tryPointerTargetEntityTeleportRecovery(target, true)) {
-                            return;
-                        }
-                        Shincolle.debugLog("PointerEntity failClear ship={} target={} failCount={}",
-                                this.ship.getUUID(), target.getUUID(), this.pointerTargetEntityRecovery.moveFailCount());
-                        clearPointerTargetEntity();
-                        return;
-                    }
-                    this.pointerTargetEntityPathTick = 2;
-                } else {
-                    this.pointerTargetEntityRecovery.clearMoveFailures();
-                }
-            }
-            return;
-        }
-
-        this.pointerTargetEntityRecovery.reset(this.ship.position());
-        this.movement.stop();
-        this.ship.getMoveControl().setWantedPosition(
-                this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0D);
-
-        if (this.ship.getCombat().hasAircraftAttackEnabled()) {
-            this.ship.getCombat().tryPerformAircraftCycle(target);
-        }
-
-        if (this.ship.getCombat().canUseLightAmmo()) {
-            int lightInterval = Math.max(1, this.ship.getLegacyShipStats().getLightDelay());
-            if ((this.ship.tickCount - this.pointerTargetEntityLightShotTick) >= lightInterval) {
-                this.pointerTargetEntityLightShotTick = this.ship.tickCount;
-                this.ship.performLightAttack(target);
-            }
-        }
-
-        if (this.ship.getCombat().canUseHeavyAmmo()) {
-            int heavyInterval = Math.max(1, this.ship.getLegacyShipStats().getHeavyDelay());
-            if ((this.ship.tickCount - this.pointerTargetEntityHeavyShotTick) >= heavyInterval) {
-                this.ship.performHeavyAttack(target);
-                this.pointerTargetEntityHeavyShotTick = this.ship.tickCount;
-            }
-        }
-
-        if (this.ship.getCombat().canUseMeleeAttack()
-                && distanceSqr <= getPointerTargetEntityAttackRangeSqr(target)) {
-            int meleeInterval = Math.max(1, this.ship.getLegacyShipStats().getMeleeDelay());
-            if ((this.ship.tickCount - this.pointerTargetEntityAttackTick) >= meleeInterval) {
-                this.pointerTargetEntityAttackTick = this.ship.tickCount;
-                this.ship.doHurtTarget(target);
-            }
-        }
-    }
-
-    private double getPointerTargetEntityPreferredRangeSqr(Entity target) {
-        boolean canMelee = this.ship.getCombat().canUseMeleeAttack();
-        boolean canAmmo = this.ship.getCombat().canUseLightAmmo() || this.ship.getCombat().canUseHeavyAmmo();
-        boolean canAir = this.ship.getCombat().hasAircraftAttackEnabled();
-
-        if (canAmmo) {
-            double range = Math.max(2.0D, this.ship.getLegacyShipStats().getAttackRange());
-            return range * range;
-        } else if (canAir) {
-            double range = Math.max(24.0D, this.ship.getLegacyShipStats().getAttackRange() * 1.5D);
-            return range * range;
-        } else if (canMelee) {
-            return getPointerTargetEntityAttackRangeSqr(target);
-        }
-
-        return getPointerTargetEntityAttackRangeSqr(target);
-    }
-
-    private double getPointerTargetEntityAttackRangeSqr(Entity target) {
-        double width = this.ship.getBbWidth() * 2.0F;
-        double reach = width * width + target.getBbWidth();
-        return Math.max(reach, POINTER_ENTITY_ATTACK_RANGE_SQR);
-    }
-
-    private boolean tryPointerTargetEntityTeleportRecovery(Entity target, boolean force) {
-        if (target == null) {
-            return false;
-        }
-        if (!this.pointerTargetEntityRecovery.shouldTryTeleportThrottled(force, this.ship.distanceToSqr(target),
-                POINTER_ENTITY_TELEPORT_DISTANCE_SQ, POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS)) {
-            return false;
-        }
-
-        boolean teleported = target instanceof LivingEntity livingTarget
-                ? this.movement.teleportNearLiving(livingTarget, 0.75D)
-                : this.movement.teleportNearPoint(target.position(), 0.75D);
-        if (!teleported) {
-            return false;
-        }
-
-        Shincolle.debugLog("PointerEntity teleportRecovery ship={} target={} force={}",
-                this.ship.getUUID(), target.getUUID(), force);
-        this.pointerTargetEntityPathTick = 0;
-        this.pointerTargetEntityRecovery.reset(this.ship.position());
-        return true;
-    }
 }

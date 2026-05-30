@@ -267,6 +267,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     private final ShipMovementCoordinator guardMovement;
     private final ShipMovementCoordinator pointerMovement;
     private final ShipMovementCoordinator followOwnerMovement;
+    private final ShipMovementCoordinator combatMovement;
     private final ShipMovementCoordinator idleMovement;
     @Nullable
     private UUID guardedEntityId;
@@ -316,6 +317,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.guardMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.pointerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND);
         this.followOwnerMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_FOLLOW);
+        this.combatMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT);
         this.idleMovement = new ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_BACKGROUND);
         this.moveControl = new ShipMoveControl(this, 30.0F);
         this.setPathfindingMalus(PathType.WATER, 0.0F);
@@ -343,6 +345,10 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     ShipMovementCoordinator followOwnerMovementCoordinator() {
         return this.followOwnerMovement;
+    }
+
+    ShipMovementCoordinator combatMovementCoordinator() {
+        return this.combatMovement;
     }
 
     ShipMovementCoordinator idleMovementCoordinator() {
@@ -569,6 +575,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             this.suspendBlockGuardTarget();
         }
         this.pointer.clearPointerTargetEntity();
+        this.pointerMovement.stop();
         this.pointer.setPointerTarget(target, durationTicks);
     }
 
@@ -594,10 +601,15 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void setPointerTargetEntity(Entity target, long durationTicks) {
+        if (target == null) {
+            this.clearPointerTargetEntity();
+            return;
+        }
         if (this.hasBlockGuardTarget()) {
             this.suspendBlockGuardTarget();
         }
         this.pointer.setPointerTargetEntity(target, durationTicks);
+        this.pointerMovement.stop();
     }
 
     public boolean hasPointerTargetEntity() {
@@ -614,6 +626,26 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     public void clearPointerTargetEntity() {
         this.pointer.clearPointerTargetEntity();
+        this.pointerMovement.stop();
+    }
+
+    void tickPassiveCombatTargetingBrain() {
+        this.passiveCombat.tickTargeting();
+    }
+
+    ShipBrainMemory.PassiveCombatStateMemory updatePassiveCombatStateBrain() {
+        return this.passiveCombat.updateActionState();
+    }
+
+    void tickPassiveCombatActionsBrain(ShipBrainMemory.PassiveCombatStateMemory state) {
+        this.passiveCombat.tickAttacks(state);
+    }
+
+    void clearPassiveCombatTargetBrain(boolean stopNavigation) {
+        this.passiveCombat.clearTarget();
+        if (stopNavigation) {
+            this.combatMovement.stop();
+        }
     }
 
     public int getFaceId() {
@@ -858,6 +890,9 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.hasPointerTargetEntity()) {
             return false;
         }
+        if (this.getTarget() != null) {
+            return false;
+        }
         int configuredMin = this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN);
         float minDist = configuredMin <= 0 ? 5.0F : (float) Mth.clamp(configuredMin, 1, 31);
 
@@ -884,6 +919,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         if (this.hasBlockGuardTarget()) return "blockGuardTarget";
         if (this.hasPointerTarget()) return "pointerTarget";
         if (this.hasPointerTargetEntity()) return "pointerTargetEntity";
+        if (this.getTarget() != null) return "attackTarget";
 
         int configuredMin = this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN);
         float minDist = configuredMin <= 0 ? 5.0F : (float) Mth.clamp(configuredMin, 1, 31);
@@ -1875,19 +1911,14 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         segmentStart = startPerfSegment(tracing);
         if (!this.isNoFuel()) {
-            this.pointer.tickPointerTargetEntity();
-
             boolean retreatingForLowHealth = shouldRetreatForLowHealth();
             if (retreatingForLowHealth) {
-                this.passiveCombat.clearTarget(true);
+                clearPassiveCombatTargetBrain(true);
                 tickRetreatMovement();
             } else {
                 this.retreatMovement.stop();
                 if (this.hasPointerTargetEntity()) {
-                    this.passiveCombat.clearTarget(true);
-                } else {
-                    this.passiveCombat.tickTargeting();
-                    this.passiveCombat.tickActions();
+                    clearPassiveCombatTargetBrain(true);
                 }
             }
 
@@ -1906,7 +1937,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         } else {
             this.retreatMovement.stop();
             this.pickupMovement.stop();
-            this.passiveCombat.clearTarget(true);
+            clearPassiveCombatTargetBrain(true);
         }
         this.perfShipSupportNanos += finishPerfSegment(tracing, segmentStart);
 
@@ -1953,7 +1984,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             return;
         }
 
-        if (!this.getNavigation().isDone() && !this.isVehicle()) {
+        if (!this.lifecycleMovement.isNavigationDone() && !this.isVehicle()) {
             return;
         }
 

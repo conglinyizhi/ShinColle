@@ -54,7 +54,7 @@ public final class ShipMovementCoordinator {
         if (!ownsNavigation()) {
             return;
         }
-        Shincolle.debugLog("MovementCoordinator stop mob={} priority={} owner={}",
+        Shincolle.debugLog("[SCMoveDiag] MovementCoordinator stop mob={} priority={} owner={}",
                 this.mob.getUUID(), this.priority, this.ownerToken.hashCode());
         clearAnyNavigationOwner();
         mob.getNavigation().stop();
@@ -62,7 +62,7 @@ public final class ShipMovementCoordinator {
 
     public void stopAny() {
         reset();
-        Shincolle.debugLog("MovementCoordinator stopAny mob={} priority={} owner={}",
+        Shincolle.debugLog("[SCMoveDiag] MovementCoordinator stopAny mob={} priority={} owner={}",
                 this.mob.getUUID(), this.priority, this.ownerToken.hashCode());
         clearAnyNavigationOwner();
         mob.getNavigation().stop();
@@ -70,12 +70,12 @@ public final class ShipMovementCoordinator {
 
     public boolean moveTo(Vec3 target, double speed) {
         if (shouldSuppressSameTargetMove(target, SAME_POINT_MOVE_TARGET_SQR)) {
-            Shincolle.debugLog("MovementCoordinator suppressPoint mob={} priority={} target={} speed={}",
+            Shincolle.debugLog("[SCMoveDiag] MovementCoordinator suppressPoint mob={} priority={} target={} speed={}",
                     this.mob.getUUID(), this.priority, target, speed);
             return true;
         }
         if (shouldYieldToHigherPriorityOwner()) {
-            Shincolle.debugLog("MovementCoordinator yieldPoint mob={} priority={} target={} speed={}",
+            Shincolle.debugLog("[SCMoveDiag] MovementCoordinator yieldPoint mob={} priority={} target={} speed={}",
                     this.mob.getUUID(), this.priority, target, speed);
             return true;
         }
@@ -87,18 +87,22 @@ public final class ShipMovementCoordinator {
     public boolean moveTo(Entity target, double speed) {
         Vec3 targetPos = target.position();
         if (shouldSuppressSameTargetMove(targetPos, SAME_ENTITY_MOVE_TARGET_SQR)) {
-            Shincolle.debugLog("MovementCoordinator suppressEntity mob={} priority={} target={} speed={}",
+            Shincolle.debugLog("[SCMoveDiag] MovementCoordinator suppressEntity mob={} priority={} target={} speed={}",
                     this.mob.getUUID(), this.priority, target.getUUID(), speed);
             return true;
         }
         if (shouldYieldToHigherPriorityOwner()) {
-            Shincolle.debugLog("MovementCoordinator yieldEntity mob={} priority={} target={} speed={}",
+            Shincolle.debugLog("[SCMoveDiag] MovementCoordinator yieldEntity mob={} priority={} target={} speed={}",
                     this.mob.getUUID(), this.priority, target.getUUID(), speed);
             return true;
         }
 
         preserveForeignNavigationOnMoveFailure();
         return recordMoveRequest(targetPos, mob.getNavigation().moveTo(target, speed));
+    }
+
+    public boolean isNavigationDone() {
+        return mob.getNavigation().isDone();
     }
 
     private boolean shouldSuppressSameTargetMove(Vec3 target, double sameTargetSqr) {
