@@ -123,6 +123,16 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         }
 
         this.mob.getMoveControl().setWantedPosition(target.x, wantedY, target.z, this.speedModifier);
+
+            if (this.totalTicks % 20 == 0) {
+                Vec3 pos = this.mob.position();
+                double distToTarget = pos.distanceTo(new Vec3(target.x, wantedY, target.z));
+                Vec3 motion = this.mob.getDeltaMovement();
+                double speed = this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED);
+                Shincolle.diagnosticLog("[SCNaviTick] mob={} speedMod={} movSpeedAttr={} distToNode={} pathIdx={}/{}",
+                        this.mob.getUUID(), this.speedModifier, speed, distToTarget,
+                        this.currentPath.getCurrentPathIndex(), this.currentPath.getCurrentPathLength());
+            }
     }
 
     @Override
