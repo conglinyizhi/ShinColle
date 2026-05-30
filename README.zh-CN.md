@@ -1,3 +1,4 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conglinyizhi/ShinColle)
 # ShinColle NeoForge 1.21.1
 
 [English](./README.md)
