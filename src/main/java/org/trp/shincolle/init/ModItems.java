@@ -1,5 +1,7 @@
 package org.trp.shincolle.init;
 
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.EquipmentSlotGroup;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -17,6 +19,7 @@ import org.trp.shincolle.item.*;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Supplier;
 
 public class ModItems {
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(Shincolle.MODID);
@@ -52,14 +55,6 @@ public class ModItems {
             () -> new RandomShipSpawnEggItem(ModEntities.DESTROYER_HIME, ShipClass.PRINCESS, true,
                     0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
-
-    public static final DeferredItem<Item> HOSTILE_EGG = ITEMS.register("hostile_egg",
-            () -> new HostileSpawnEggItem(ModEntities.DESTROYER_I, false,
-                    0x444444, 0x888888, new Item.Properties()));
-
-    public static final DeferredItem<Item> HOSTILE_EGG_L = ITEMS.register("hostile_egg_l",
-            () -> new HostileSpawnEggItem(ModEntities.DESTROYER_HIME, true,
-                    0x444444, 0x888888, new Item.Properties()));
     public static final DeferredItem<Item> DESTROYER_I_SPAWN_EGG = ITEMS.register("destroyer_i_spawn_egg",
             () -> new ShipSpawnEggItem(ModEntities.DESTROYER_I, ShipClass.DESTROYER, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
 
@@ -194,6 +189,62 @@ public class ModItems {
 
     public static final DeferredItem<Item> SUBM_RO500_SPAWN_EGG = ITEMS.register("subm_ro500_spawn_egg",
             () -> new ShipSpawnEggItem(ModEntities.SUBM_RO500, ShipClass.SUBMARINE, 0xFFFFFF, 0xFFFFFF, new Item.Properties()));
+
+    // ===== BOSS SPAWN EGGS (hostile, with ammo) =====
+    public static final List<DeferredItem<BossSpawnEggItem>> BOSS_EGGS = new ArrayList<>();
+
+    private static DeferredItem<BossSpawnEggItem> registerBossEgg(String name, Supplier<? extends EntityType<? extends Mob>> type) {
+        DeferredItem<BossSpawnEggItem> egg = ITEMS.register(name + "_boss_egg",
+                () -> new BossSpawnEggItem(type, 0x444444, 0x888888, new Item.Properties()));
+        BOSS_EGGS.add(egg);
+        return egg;
+    }
+
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_I_BOSS_EGG = registerBossEgg("destroyer_i", ModEntities.DESTROYER_I);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_RO_BOSS_EGG = registerBossEgg("destroyer_ro", ModEntities.DESTROYER_RO);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_HA_BOSS_EGG = registerBossEgg("destroyer_ha", ModEntities.DESTROYER_HA);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_NI_BOSS_EGG = registerBossEgg("destroyer_ni", ModEntities.DESTROYER_NI);
+    public static final DeferredItem<BossSpawnEggItem> HEAVY_CRUISER_RI_BOSS_EGG = registerBossEgg("heavy_cruiser_ri", ModEntities.HEAVY_CRUISER_RI);
+    public static final DeferredItem<BossSpawnEggItem> HEAVY_CRUISER_NE_BOSS_EGG = registerBossEgg("heavy_cruiser_ne", ModEntities.HEAVY_CRUISER_NE);
+    public static final DeferredItem<BossSpawnEggItem> CARRIER_WO_BOSS_EGG = registerBossEgg("carrier_wo", ModEntities.CARRIER_WO);
+    public static final DeferredItem<BossSpawnEggItem> BATTLESHIP_RU_BOSS_EGG = registerBossEgg("battleship_ru", ModEntities.BATTLESHIP_RU);
+    public static final DeferredItem<BossSpawnEggItem> BATTLESHIP_TA_BOSS_EGG = registerBossEgg("battleship_ta", ModEntities.BATTLESHIP_TA);
+    public static final DeferredItem<BossSpawnEggItem> BATTLESHIP_RE_BOSS_EGG = registerBossEgg("battleship_re", ModEntities.BATTLESHIP_RE);
+    public static final DeferredItem<BossSpawnEggItem> TRANSPORT_WA_BOSS_EGG = registerBossEgg("transport_wa", ModEntities.TRANSPORT_WA);
+    public static final DeferredItem<BossSpawnEggItem> SUBM_KA_BOSS_EGG = registerBossEgg("subm_ka", ModEntities.SUBM_KA);
+    public static final DeferredItem<BossSpawnEggItem> SUBM_YO_BOSS_EGG = registerBossEgg("subm_yo", ModEntities.SUBM_YO);
+    public static final DeferredItem<BossSpawnEggItem> SUBM_SO_BOSS_EGG = registerBossEgg("subm_so", ModEntities.SUBM_SO);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_HIME_BOSS_EGG = registerBossEgg("destroyer_hime", ModEntities.DESTROYER_HIME);
+    public static final DeferredItem<BossSpawnEggItem> CA_HIME_BOSS_EGG = registerBossEgg("ca_hime", ModEntities.CA_HIME);
+    public static final DeferredItem<BossSpawnEggItem> CARRIER_HIME_BOSS_EGG = registerBossEgg("carrier_hime", ModEntities.CARRIER_HIME);
+    public static final DeferredItem<BossSpawnEggItem> BATTLESHIP_HIME_BOSS_EGG = registerBossEgg("battleship_hime", ModEntities.BATTLESHIP_HIME);
+    public static final DeferredItem<BossSpawnEggItem> AIRFIELD_HIME_BOSS_EGG = registerBossEgg("airfield_hime", ModEntities.AIRFIELD_HIME);
+    public static final DeferredItem<BossSpawnEggItem> HARBOUR_HIME_BOSS_EGG = registerBossEgg("harbour_hime", ModEntities.HARBOUR_HIME);
+    public static final DeferredItem<BossSpawnEggItem> ISOLATED_HIME_BOSS_EGG = registerBossEgg("isolated_hime", ModEntities.ISOLATED_HIME);
+    public static final DeferredItem<BossSpawnEggItem> MIDWAY_HIME_BOSS_EGG = registerBossEgg("midway_hime", ModEntities.MIDWAY_HIME);
+    public static final DeferredItem<BossSpawnEggItem> NORTHERN_HIME_BOSS_EGG = registerBossEgg("northern_hime", ModEntities.NORTHERN_HIME);
+    public static final DeferredItem<BossSpawnEggItem> SUBM_HIME_BOSS_EGG = registerBossEgg("subm_hime", ModEntities.SUBM_HIME);
+    public static final DeferredItem<BossSpawnEggItem> SSNH_BOSS_EGG = registerBossEgg("ssnh", ModEntities.SSNH);
+    public static final DeferredItem<BossSpawnEggItem> CARRIER_W_DEMON_BOSS_EGG = registerBossEgg("carrier_w_demon", ModEntities.CARRIER_W_DEMON);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_AKATSUKI_BOSS_EGG = registerBossEgg("destroyer_akatsuki", ModEntities.DESTROYER_AKATSUKI);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_HIBIKI_BOSS_EGG = registerBossEgg("destroyer_hibiki", ModEntities.DESTROYER_HIBIKI);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_IKAZUCHI_BOSS_EGG = registerBossEgg("destroyer_ikazuchi", ModEntities.DESTROYER_IKAZUCHI);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_INAZUMA_BOSS_EGG = registerBossEgg("destroyer_inazuma", ModEntities.DESTROYER_INAZUMA);
+    public static final DeferredItem<BossSpawnEggItem> DESTROYER_SHIMAKAZE_BOSS_EGG = registerBossEgg("destroyer_shimakaze", ModEntities.DESTROYER_SHIMAKAZE);
+    public static final DeferredItem<BossSpawnEggItem> CRUISER_TENRYUU_BOSS_EGG = registerBossEgg("cruiser_tenryuu", ModEntities.CRUISER_TENRYUU);
+    public static final DeferredItem<BossSpawnEggItem> CRUISER_TATSUTA_BOSS_EGG = registerBossEgg("cruiser_tatsuta", ModEntities.CRUISER_TATSUTA);
+    public static final DeferredItem<BossSpawnEggItem> CRUISER_TAKAO_BOSS_EGG = registerBossEgg("cruiser_takao", ModEntities.CRUISER_TAKAO);
+    public static final DeferredItem<BossSpawnEggItem> CRUISER_ATAGO_BOSS_EGG = registerBossEgg("cruiser_atago", ModEntities.CRUISER_ATAGO);
+    public static final DeferredItem<BossSpawnEggItem> CARRIER_KAGA_BOSS_EGG = registerBossEgg("carrier_kaga", ModEntities.CARRIER_KAGA);
+    public static final DeferredItem<BossSpawnEggItem> CARRIER_AKAGI_BOSS_EGG = registerBossEgg("carrier_akagi", ModEntities.CARRIER_AKAGI);
+    public static final DeferredItem<BossSpawnEggItem> BB_KONGOU_BOSS_EGG = registerBossEgg("bb_kongou", ModEntities.BB_KONGOU);
+    public static final DeferredItem<BossSpawnEggItem> BB_HIEI_BOSS_EGG = registerBossEgg("bb_hiei", ModEntities.BB_HIEI);
+    public static final DeferredItem<BossSpawnEggItem> BB_HARUNA_BOSS_EGG = registerBossEgg("bb_haruna", ModEntities.BB_HARUNA);
+    public static final DeferredItem<BossSpawnEggItem> BB_KIRISHIMA_BOSS_EGG = registerBossEgg("bb_kirishima", ModEntities.BB_KIRISHIMA);
+    public static final DeferredItem<BossSpawnEggItem> BATTLESHIP_NAGATO_BOSS_EGG = registerBossEgg("battleship_nagato", ModEntities.BATTLESHIP_NAGATO);
+    public static final DeferredItem<BossSpawnEggItem> BATTLESHIP_YAMATO_BOSS_EGG = registerBossEgg("battleship_yamato", ModEntities.BATTLESHIP_YAMATO);
+    public static final DeferredItem<BossSpawnEggItem> SUBM_U511_BOSS_EGG = registerBossEgg("subm_u511", ModEntities.SUBM_U511);
+    public static final DeferredItem<BossSpawnEggItem> SUBM_RO500_BOSS_EGG = registerBossEgg("subm_ro500", ModEntities.SUBM_RO500);
 
     public static final DeferredItem<Item> POINTER_ITEM = ITEMS.register("pointer_item",
             () -> new PointerItem(new Item.Properties().attributes(
