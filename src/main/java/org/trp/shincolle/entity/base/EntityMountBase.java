@@ -120,7 +120,7 @@ public abstract class EntityMountBase extends PathfinderMob {
             if (!checkHostExistence()) return;
             this.setDeltaMovement(Vec3.ZERO);
             this.setSpeed(0.0F);
-            this.getNavigation().stop();
+            this.followMovement.stopAny();
             return;
         }
 
@@ -135,7 +135,7 @@ public abstract class EntityMountBase extends PathfinderMob {
         }
 
         if (this.isInWater() && !this.isPassenger() && !this.isSubmarineMode) {
-            if (this.isVehicle() || this.getNavigation().isDone()) {
+            if (this.isVehicle() || this.followMovement.isNavigationDone()) {
                 applyWaterBuoyancy();
             }
         }

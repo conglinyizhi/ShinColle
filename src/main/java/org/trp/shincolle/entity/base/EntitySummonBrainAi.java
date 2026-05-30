@@ -3,10 +3,12 @@ package org.trp.shincolle.entity.base;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.behavior.Behavior;
+import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.sensing.SensorType;
 import net.minecraft.world.entity.player.Player;
@@ -20,15 +22,11 @@ final class EntitySummonBrainAi {
     static final List<MemoryModuleType<?>> MEMORY_TYPES = ImmutableList.of(
             MemoryModuleType.WALK_TARGET,
             MemoryModuleType.LOOK_TARGET,
-            MemoryModuleType.PATH,
             MemoryModuleType.ATTACK_TARGET,
             MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE
     );
     static final List<SensorType<? extends net.minecraft.world.entity.ai.sensing.Sensor<? super EntitySummonBase>>> SENSOR_TYPES =
-            ImmutableList.of(
-                    SensorType.NEAREST_LIVING_ENTITIES,
-                    SensorType.NEAREST_PLAYERS
-            );
+            ImmutableList.of();
 
     private EntitySummonBrainAi() {
     }
@@ -52,44 +50,129 @@ final class EntitySummonBrainAi {
     @SuppressWarnings("unchecked")
     static void tick(ServerLevel level, EntitySummonBase summon) {
         Brain<EntitySummonBase> brain = (Brain<EntitySummonBase>) summon.getBrain();
+        syncAttackTargetMemory(summon, brain);
         brain.tick(level, summon);
         brain.setActiveActivityToFirstValid(ImmutableList.of(Activity.IDLE));
     }
 
+    private static void syncAttackTargetMemory(EntitySummonBase summon, Brain<EntitySummonBase> brain) {
+        LivingEntity target = summon.getTarget();
+        if (target != null && target.isAlive()) {
+            brain.setMemory(MemoryModuleType.ATTACK_TARGET, target);
+        } else {
+            brain.eraseMemory(MemoryModuleType.ATTACK_TARGET);
+        }
+    }
+
+    private static void setPointWalkAndLookMemory(EntitySummonBase summon, Vec3 target, double speed, int closeEnoughDist) {
+        BehaviorUtils.setWalkAndLookTargetMemories(summon, BlockPos.containing(target), (float) speed, closeEnoughDist);
+    }
+
+    private static void setEntityWalkAndLookMemory(EntitySummonBase summon, LivingEntity target, double speed, int closeEnoughDist) {
+        BehaviorUtils.setWalkAndLookTargetMemories(summon, target, (float) speed, closeEnoughDist);
+    }
+
+    private static void setEntityLookMemory(EntitySummonBase summon, LivingEntity target) {
+        BehaviorUtils.lookAtEntity(summon, target);
+    }
+
+    private static void clearWalkAndLookMemory(EntitySummonBase summon) {
+        Brain<?> brain = summon.getBrain();
+        brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+        brain.eraseMemory(MemoryModuleType.LOOK_TARGET);
+        brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+    }
+
+    private static void clearWalkMemory(EntitySummonBase summon) {
+        Brain<?> brain = summon.getBrain();
+        brain.eraseMemory(MemoryModuleType.WALK_TARGET);
+        brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
+    }
+
+    private static boolean shouldFollowCarrier(EntitySummonBase summon) {
+        EntityShipBase carrier = summon.getCarrier();
+        return SummonBrainDecisionResolver.shouldFollowCarrier(decisionState(summon, carrier));
+    }
+
+    private static SummonBrainDecisionResolver.State decisionState(EntitySummonBase summon, EntityShipBase carrier) {
+        LivingEntity attackTarget = summon.getTarget();
+        return new SummonBrainDecisionResolver.State(
+                carrier != null,
+                carrier != null && carrier.isAlive(),
+                carrier == null ? -1.0D : summon.distanceToSqr(carrier),
+                attackTarget != null,
+                attackTarget != null && attackTarget.isAlive(),
+                summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
+                attackTarget == null ? -1.0D : summon.distanceToSqr(attackTarget),
+                summon.getAttackRangeSq(),
+                0
+        );
+    }
+
+    private static SummonBrainDecisionResolver.State decisionState(EntitySummonBase summon, EntityShipBase carrier, int attackDelay) {
+        LivingEntity attackTarget = summon.getTarget();
+        return new SummonBrainDecisionResolver.State(
+                carrier != null,
+                carrier != null && carrier.isAlive(),
+                carrier == null ? -1.0D : summon.distanceToSqr(carrier),
+                attackTarget != null,
+                attackTarget != null && attackTarget.isAlive(),
+                summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
+                attackTarget == null ? -1.0D : summon.distanceToSqr(attackTarget),
+                summon.getAttackRangeSq(),
+                attackDelay
+        );
+    }
+
     private static final class SummonAttackBehavior extends Behavior<EntitySummonBase> {
-        private final ShipMovementCoordinator movement;
         private int attackDelay;
 
         SummonAttackBehavior() {
             super(ImmutableMap.of());
-            this.movement = null;
         }
 
         @Override
         protected boolean checkExtraStartConditions(ServerLevel level, EntitySummonBase summon) {
-            LivingEntity target = summon.getTarget();
-            return target != null && target.isAlive();
+            return SummonBrainDecisionResolver.shouldAttack(decisionState(summon, summon.getCarrier()));
         }
 
         @Override
         protected void start(ServerLevel level, EntitySummonBase summon, long gameTime) {
             summon.attackMovementCoordinator().reset();
+            LivingEntity target = summon.getTarget();
+            if (target != null && target.isAlive()) {
+                summon.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
+            }
+        }
+
+        @Override
+        protected void stop(ServerLevel level, EntitySummonBase summon, long gameTime) {
+            clearWalkAndLookMemory(summon);
+            summon.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+            summon.attackMovementCoordinator().stop();
         }
 
         @Override
         protected void tick(ServerLevel level, EntitySummonBase summon, long gameTime) {
             LivingEntity target = summon.getTarget();
             if (target == null) {
+                clearWalkAndLookMemory(summon);
+                summon.getBrain().eraseMemory(MemoryModuleType.ATTACK_TARGET);
+                summon.attackMovementCoordinator().stop();
                 return;
             }
 
             summon.getLookControl().setLookAt(target, SummonAiNumbers.ATTACK_LOOK_YAW, SummonAiNumbers.ATTACK_LOOK_PITCH);
-            double distSq = summon.distanceToSqr(target);
-            if (distSq > summon.getAttackRangeSq()) {
+            summon.getBrain().setMemory(MemoryModuleType.ATTACK_TARGET, target);
+            setEntityLookMemory(summon, target);
+            SummonBrainDecisionResolver.State state = decisionState(summon, summon.getCarrier(), this.attackDelay);
+            if (SummonBrainDecisionResolver.shouldChaseAttackTarget(state)) {
+                setEntityWalkAndLookMemory(summon, target, SummonAiNumbers.ATTACK_MOVE_SPEED, 1);
                 summon.attackMovementCoordinator().moveTo(target, SummonAiNumbers.ATTACK_MOVE_SPEED);
             } else {
+                clearWalkMemory(summon);
                 summon.attackMovementCoordinator().stop();
-                if (this.attackDelay <= 0) {
+                if (SummonBrainDecisionResolver.shouldPerformAttack(state)) {
                     summon.performAttack(target);
                     this.attackDelay = SummonAiNumbers.ATTACK_DELAY_TICKS;
                 }
@@ -110,11 +193,7 @@ final class EntitySummonBrainAi {
 
         @Override
         protected boolean checkExtraStartConditions(ServerLevel level, EntitySummonBase summon) {
-            EntityShipBase carrier = summon.getCarrier();
-            return carrier != null
-                    && carrier.isAlive()
-                    && summon.distanceToSqr(carrier) > SummonAiNumbers.FOLLOW_CARRIER_DISTANCE_SQ
-                    && summon.getTarget() == null;
+            return shouldFollowCarrier(summon);
         }
 
         @Override
@@ -127,13 +206,23 @@ final class EntitySummonBrainAi {
         protected void tick(ServerLevel level, EntitySummonBase summon, long gameTime) {
             EntityShipBase carrier = summon.getCarrier();
             if (carrier == null) {
+                clearWalkAndLookMemory(summon);
+                summon.followMovementCoordinator().stop();
                 return;
             }
             summon.getLookControl().setLookAt(carrier, SummonAiNumbers.ATTACK_LOOK_YAW, SummonAiNumbers.ATTACK_LOOK_PITCH);
+            setEntityWalkAndLookMemory(summon, carrier, SummonAiNumbers.FOLLOW_CARRIER_SPEED, 1);
+            setEntityLookMemory(summon, carrier);
             if (--this.timeToRecalcPath <= 0) {
                 this.timeToRecalcPath = SummonAiNumbers.FOLLOW_RECALC_TICKS;
                 summon.followMovementCoordinator().moveTo(carrier, SummonAiNumbers.FOLLOW_CARRIER_SPEED);
             }
+        }
+
+        @Override
+        protected void stop(ServerLevel level, EntitySummonBase summon, long gameTime) {
+            clearWalkAndLookMemory(summon);
+            summon.followMovementCoordinator().stop();
         }
     }
 
@@ -152,6 +241,7 @@ final class EntitySummonBrainAi {
             Player player = level.getNearestPlayer(summon, SummonAiNumbers.LOOK_AT_PLAYER_DISTANCE);
             if (player != null) {
                 summon.getLookControl().setLookAt(player, SummonAiNumbers.ATTACK_LOOK_YAW, SummonAiNumbers.ATTACK_LOOK_PITCH);
+                setEntityLookMemory(summon, player);
             }
         }
     }
@@ -174,7 +264,7 @@ final class EntitySummonBrainAi {
 
         @Override
         protected boolean checkExtraStartConditions(ServerLevel level, EntitySummonBase summon) {
-            return summon.getTarget() == null && summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0;
+            return SummonBrainDecisionResolver.shouldRandomStroll(decisionState(summon, summon.getCarrier()));
         }
 
         @Override
@@ -182,6 +272,7 @@ final class EntitySummonBrainAi {
             Vec3 target = net.minecraft.world.entity.ai.util.DefaultRandomPos.getPos(
                     summon, SummonAiNumbers.RANDOM_STROLL_HORIZONTAL_RANGE, SummonAiNumbers.RANDOM_STROLL_VERTICAL_RANGE);
             if (target != null) {
+                setPointWalkAndLookMemory(summon, target, SummonAiNumbers.RANDOM_STROLL_SPEED, 1);
                 summon.followMovementCoordinator().moveTo(target, SummonAiNumbers.RANDOM_STROLL_SPEED);
             }
         }

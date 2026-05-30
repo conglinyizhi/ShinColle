@@ -339,7 +339,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         }
         if (this.returnHomeTicks > AircraftAiNumbers.RETURN_HOME_FAILSAFE_TICKS
                 && this.returnRecovery.isStuckLongerThan(AircraftAiNumbers.RETURN_HOME_FAILSAFE_TICKS)) {
-            Shincolle.debugLog("AircraftReturn failsafeDiscard aircraft={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
+            Shincolle.debugLog("[SCMoveDiag] AircraftReturn failsafeDiscard aircraft={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
                     this.getUUID(), carrier.getUUID(), distSq, this.returnHomeTicks, this.returnRecovery.stuckTicks());
             returnSummonResources(carrier);
             this.discard();
@@ -360,7 +360,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
             return false;
         }
 
-        Shincolle.debugLog("AircraftReturn teleportRecovery aircraft={} carrier={} force={} distanceSqr={} stuckTicks={}",
+        Shincolle.debugLog("[SCMoveDiag] AircraftReturn teleportRecovery aircraft={} carrier={} force={} distanceSqr={} stuckTicks={}",
                 this.getUUID(), carrier.getUUID(), force, distanceSqr, this.returnRecovery.stuckTicks());
         this.returnRecovery.reset(this.position());
         this.returnHomeTicks = 0;

@@ -196,7 +196,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             }
             if (this.returnTicks > SummonAiNumbers.RETURN_FAILSAFE_TICKS
                     && this.returnRecovery.isStuckLongerThan(SummonAiNumbers.RETURN_FAILSAFE_TICKS)) {
-                Shincolle.debugLog("SummonReturn failsafeDiscard summon={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
+                Shincolle.debugLog("[SCMoveDiag] SummonReturn failsafeDiscard summon={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
                         this.getUUID(), carrier.getUUID(), distSq, this.returnTicks, this.returnRecovery.stuckTicks());
                 returnSummonResourcesOnce(carrier);
                 this.discard();
@@ -219,7 +219,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             return false;
         }
 
-        Shincolle.debugLog("SummonReturn teleportRecovery summon={} carrier={} force={} distanceSqr={} stuckTicks={}",
+        Shincolle.debugLog("[SCMoveDiag] SummonReturn teleportRecovery summon={} carrier={} force={} distanceSqr={} stuckTicks={}",
                 this.getUUID(), carrier.getUUID(), force, distanceSqr, this.returnRecovery.stuckTicks());
         this.returnRecovery.reset(this.position());
         this.returnTicks = 0;
