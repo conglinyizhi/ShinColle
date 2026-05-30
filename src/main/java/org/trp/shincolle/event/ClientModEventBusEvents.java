@@ -61,6 +61,7 @@ public class ClientModEventBusEvents {
                         registerLegacyVariantProperty(ModItems.POINTER_ITEM.get());
                         registerLegacyVariantProperty(ModItems.GRUDGE.get());
                         registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get());
+                        registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get());
                 });
         }
 

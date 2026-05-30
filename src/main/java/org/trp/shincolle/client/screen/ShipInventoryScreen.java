@@ -1,5 +1,9 @@
 package org.trp.shincolle.client.screen;
 
+import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
+import org.trp.shincolle.client.gui.ShincolleConfigScreen;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
@@ -126,6 +130,13 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     protected void init() {
         super.init();
         syncStateFromMenu();
+        // Add settings button in top-right corner
+        this.addRenderableWidget(Button.builder(Component.literal("\u2699"), btn -> {
+            Screen configScreen = ShincolleConfigScreen.tryCreate(this);
+            if (configScreen != null) {
+                Minecraft.getInstance().setScreen(configScreen);
+            }
+        }).bounds(this.leftPos + this.imageWidth - 18, this.topPos + 4, 14, 14).build());
     }
 
     @Override
