@@ -751,6 +751,10 @@ public abstract class EntityShipBase extends TamableAnimal {
         this.entityData.set(FORMATION_SLOT, slot);
     }
 
+    public boolean isNonCombatShip() {
+        return false;
+    }
+
     public boolean isNoFuel() {
         return this.getFuel() <= 0;
     }

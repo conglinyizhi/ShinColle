@@ -603,7 +603,7 @@ final class EntityShipBasePassiveCombat {
                 this.ship.isInDeadPose() || this.ship.isPassenger() || this.ship.isVehicle()) {
             return false;
         }
-        return !this.ship.isNoFuel();
+        return !this.ship.isNoFuel() && !this.ship.isNonCombatShip();
     }
 
     private boolean isAttackAllowed(@Nullable LivingEntity target, boolean isRevenge, boolean isCommanded) {

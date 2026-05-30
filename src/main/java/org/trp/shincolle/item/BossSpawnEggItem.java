@@ -50,17 +50,19 @@ public class BossSpawnEggItem extends DeferredSpawnEggItem {
 
         InteractionResult result = super.useOn(context);
 
-        // Find the spawned ship and give it boss ammo
+        // Find the spawned ship: set boss scale, ammo, fuel
         if (result.consumesAction() && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             EntityType<?> spawnedType = this.typeSupplier.get();
+            int bossScale = 2 + level.random.nextInt(2); // 2 or 3 -> 2.0x or 2.5x
             for (Entity entity : serverLevel.getEntities((Entity) null, 
                     new net.minecraft.world.phys.AABB(clickPos).inflate(4.0D),
-                    e -> e.getType() == spawnedType && e instanceof EntityShipBase && !e.isAlliedTo(player))) {
+                    e -> e.getType() == spawnedType && e instanceof EntityShipBase)) {
                 EntityShipBase ship = (EntityShipBase) entity;
+                ship.initializeHostileSpawnState(bossScale);
                 ship.setAmmoLight(ship.getAmmoLight() + 128);
                 ship.setAmmoHeavy(ship.getAmmoHeavy() + 64);
                 ship.setFuel(Math.max(ship.getFuel(), 5000));
-                break; // Only affect the first match
+                break;
             }
         }
 
@@ -83,14 +85,15 @@ public class BossSpawnEggItem extends DeferredSpawnEggItem {
         }));
 
         InteractionResultHolder<ItemStack> result = super.use(level, player, hand);
-
         if (result.getResult().consumesAction() && level instanceof net.minecraft.server.level.ServerLevel serverLevel) {
             EntityType<?> spawnedType = this.typeSupplier.get();
             BlockPos spawnPos = player.blockPosition();
+            int bossScale = 2 + level.random.nextInt(2);
             for (Entity entity : serverLevel.getEntities((Entity) null,
                     new net.minecraft.world.phys.AABB(spawnPos).inflate(4.0D),
-                    e -> e.getType() == spawnedType && e instanceof EntityShipBase && !e.isAlliedTo(player))) {
+                    e -> e.getType() == spawnedType && e instanceof EntityShipBase)) {
                 EntityShipBase ship = (EntityShipBase) entity;
+                ship.initializeHostileSpawnState(bossScale);
                 ship.setAmmoLight(ship.getAmmoLight() + 128);
                 ship.setAmmoHeavy(ship.getAmmoHeavy() + 64);
                 ship.setFuel(Math.max(ship.getFuel(), 5000));

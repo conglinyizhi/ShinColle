@@ -35,6 +35,10 @@ public class EntityTransportWa extends EntityShipBase {
     }
 
     @Override
+    public boolean isNonCombatShip() {
+        return true;
+    }
+    @Override
     public void aiStep() {
         super.aiStep();
 
