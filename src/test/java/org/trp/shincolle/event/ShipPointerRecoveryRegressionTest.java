@@ -26,7 +26,7 @@ class ShipPointerRecoveryRegressionTest {
 
         assertTrue(numbers.contains("static final int POINTER_ENTITY_MOVE_FAIL_LIMIT = 40;"),
                 "Pointer-entity movement should define a move failure limit");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures("),
+        assertTrue(brain.contains("ShipPointerEntityDecisionResolver.shouldClearAfterMoveFailures("),
                 "Pointer-entity Brain movement should use the shared recovery resolver for move-failure clear thresholds");
         assertTrue(brain.contains("tryPointerEntityTeleportRecovery(ship, target, distanceSqr, true)"),
                 "Pointer-entity Brain movement should try teleport recovery before clearing repeated failures");
@@ -43,7 +43,7 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer-entity movement should define a stuck timeout");
         assertTrue(brain.contains("this.pointerRecovery.trackProgress(ship.position());"),
                 "Pointer-entity Brain movement should track whether the ship is making progress");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterStuck("),
+        assertTrue(brain.contains("ShipPointerEntityDecisionResolver.shouldClearAfterStuck("),
                 "Pointer-entity Brain movement should use the shared recovery resolver for stuck clear thresholds");
     }
 

@@ -1,5 +1,4 @@
 package org.trp.shincolle.entity.base;
-
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -73,6 +72,13 @@ class ShipGuardDecisionResolverTest {
                 .guardDimensionId(0)
                 .guardedEntityDimensionId(1)
                 .build()));
+    }
+    @Test
+    void guardMoveFailThresholdShouldDelegateToSharedRecoveryPolicy() {
+        assertFalse(ShipGuardDecisionResolver.shouldClearAfterMoveFailures(ShipAiNumbers.MOVE_FAIL_LIMIT),
+                "Guard should not clear at exactly MOVE_FAIL_LIMIT failures");
+        assertTrue(ShipGuardDecisionResolver.shouldClearAfterMoveFailures(ShipAiNumbers.MOVE_FAIL_LIMIT + 1),
+                "Guard should clear after exceeding MOVE_FAIL_LIMIT failures");
     }
 
     private static StateBuilder stateBuilder() {

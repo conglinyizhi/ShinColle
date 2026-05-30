@@ -53,6 +53,16 @@ final class ShipPointerEntityDecisionResolver {
                 && elapsed(state.tickCount(), state.lastMeleeAttackTick()) >= Math.max(1, state.meleeAttackInterval());
     }
 
+    static boolean shouldClearAfterStuck(ShipMovementRecoveryState recovery) {
+        return ShipRecoveryDecisionResolver.shouldClearAfterStuck(
+                recovery.stuckTicks(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT);
+    }
+
+    static boolean shouldClearAfterMoveFailures(int failCount) {
+        return ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures(
+                failCount, ShipAiNumbers.POINTER_ENTITY_MOVE_FAIL_LIMIT);
+    }
+
     private static int elapsed(int tickCount, int lastActionTick) {
         return tickCount - lastActionTick;
     }

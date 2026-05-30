@@ -28,6 +28,16 @@ final class ShipGuardDecisionResolver {
         return !state.hasGuardedEntity() && (state.summoning() || state.distanceSqr() < ShipAiNumbers.GUARD_NEAR_LOOK_DISTANCE_SQ);
     }
 
+    static boolean shouldClearAfterStuck(ShipMovementRecoveryState recovery) {
+        return ShipRecoveryDecisionResolver.shouldClearAfterStuck(
+                recovery.stuckTicks(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
+    }
+
+    static boolean shouldClearAfterMoveFailures(int failCount) {
+        return ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures(
+                failCount, ShipAiNumbers.MOVE_FAIL_LIMIT);
+    }
+
     record State(
             boolean entityGuard,
             boolean liveEntityTarget,
