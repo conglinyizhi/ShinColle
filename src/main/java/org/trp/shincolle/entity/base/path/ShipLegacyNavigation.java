@@ -101,19 +101,21 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         ShipLegacyPath path = getPathToEntity(entity);
         return setPath(path, speed, isSameNavigationTarget(previousTarget, nextTarget), nextTarget);
     }
+    private int inertiaTicks;
 
     public void tick() {
         this.totalTicks++;
 
         if (noPath()) {
-            // Keep inertia: feed last known target to MoveControl so ship doesn't stop abruptly
-            if (this.targetPos != null) {
+            if (this.targetPos != null && this.inertiaTicks < 10) {
+                this.inertiaTicks++;
                 Vec3 lastTarget = Vec3.atCenterOf(this.targetPos);
                 this.mob.getMoveControl().setWantedPosition(
                     lastTarget.x, lastTarget.y, lastTarget.z, this.speedModifier);
             }
             return;
         }
+        this.inertiaTicks = 0;
 
         if (this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED) <= 1.0E-4D) {
             stop();

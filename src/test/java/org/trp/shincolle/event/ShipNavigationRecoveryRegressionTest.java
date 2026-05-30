@@ -85,7 +85,7 @@ class ShipNavigationRecoveryRegressionTest {
                 "Navigation should stop safely if a path no longer exposes a valid current target");
         assertTrue(source.contains("if (nextPos == null) {\n            stop();\n            return;\n        }"),
                 "Path following should stop safely if the current path index is already finished");
-        assertTrue(source.contains("if (this.targetPos != null) {"),
+        assertTrue(source.contains("if (this.targetPos != null && this.inertiaTicks < 10) {"),
                 "Path following should keep last known direction when no active path");
         assertTrue(source.contains("this.mob.getMoveControl().setWantedPosition("),
                 "Path following should feed last target to MoveControl for inertia");
