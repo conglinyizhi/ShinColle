@@ -31,18 +31,16 @@ class ShipPassiveCombatRecoveryRegressionTest {
                 "Passive combat should use a cooldown before remote teleport recovery");
         assertTrue(numbers.contains("static final double PASSIVE_COMBAT_TELEPORT_DISTANCE_SQ = 256.0D;"),
                 "Passive combat should avoid teleport recovery for ordinary short chases");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures("),
+        assertTrue(brain.contains("ShipCombatDecisionResolver.shouldClearAfterMoveFailures("),
                 "Passive combat should use the shared recovery resolver for move-failure clear thresholds");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterStuck("),
+        assertTrue(brain.contains("ShipCombatDecisionResolver.shouldClearAfterStuck("),
                 "Passive combat should use the shared recovery resolver for stuck clear thresholds");
         assertTrue(brain.contains("tryPassiveCombatTeleportRecovery(ship, target, state.distanceSqr(), false)"),
                 "Passive combat should try remote teleport recovery before ordinary path movement");
         assertTrue(brain.contains("tryPassiveCombatTeleportRecovery(ship, target, state.distanceSqr(), true)"),
                 "Passive combat should force one teleport recovery attempt before clearing unreachable targets");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)"),
-                "Passive combat recovery should route teleport-attempt gating through the shared recovery resolver");
-        assertTrue(brain.contains("this.combatRecovery.shouldTryTeleportThrottled(force, distanceSqr,"),
-                "Passive combat forced teleport recovery should be throttled after failed attempts");
+        assertTrue(brain.contains("ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.combatRecovery, recoveryState,"),
+                "Passive combat recovery should route teleport-attempt gating through the shared Brain helper");
         assertTrue(brain.contains("ship.combatMovementCoordinator().teleportNearLiving(target, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Passive combat recovery should use the movement coordinator's safe living teleport");
         assertTrue(brain.contains("PassiveCombat teleportRecovery"),

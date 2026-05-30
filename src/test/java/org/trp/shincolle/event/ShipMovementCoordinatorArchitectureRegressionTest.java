@@ -17,6 +17,14 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
     private static final Path SHIP_BRAIN_ACTIVITY_RESOLVER_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainActivityResolver.java");
+    private static final Path SHIP_BRAIN_RECOVERY_SUPPORT_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainRecoverySupport.java");
+    private static final Path SHIP_BRAIN_RECOVERY_SUPPORT_TEST_SOURCE =
+            Path.of("src/test/java/org/trp/shincolle/entity/base/ShipBrainRecoverySupportTest.java");
+    private static final Path SHIP_POINTER_POINT_DECISION_RESOLVER_TEST_SOURCE =
+            Path.of("src/test/java/org/trp/shincolle/entity/base/ShipPointerPointDecisionResolverTest.java");
+    private static final Path SHIP_FOLLOW_DECISION_RESOLVER_TEST_SOURCE =
+            Path.of("src/test/java/org/trp/shincolle/entity/base/ShipFollowDecisionResolverTest.java");
     private static final Path AI_NUMBERS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
     private static final Path POINTER_SOURCE =
@@ -154,6 +162,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     void shipBrainAiShouldUseMovementCoordinator() throws IOException {
         String brain = Files.readString(BRAIN_AI_SOURCE);
         String activityResolver = Files.readString(SHIP_BRAIN_ACTIVITY_RESOLVER_SOURCE);
+        String recoverySupport = Files.readString(SHIP_BRAIN_RECOVERY_SUPPORT_SOURCE);
+        String recoverySupportTest = Files.readString(SHIP_BRAIN_RECOVERY_SUPPORT_TEST_SOURCE);
+        String pointerPointResolverTest = Files.readString(SHIP_POINTER_POINT_DECISION_RESOLVER_TEST_SOURCE);
+        String followResolverTest = Files.readString(SHIP_FOLLOW_DECISION_RESOLVER_TEST_SOURCE);
         String numbers = Files.readString(AI_NUMBERS_SOURCE);
         String ship = Files.readString(SHIP_BASE_SOURCE);
 
@@ -218,20 +230,42 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Ship Brain movement behaviors should mirror entity movement into WALK_TARGET and LOOK_TARGET memory");
         assertTrue(brain.contains("BehaviorUtils.lookAtEntity(ship, target);"),
                 "Ship Brain should use LOOK_TARGET memory for entity look state");
-        assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.WALK_TARGET);"),
+        assertTrue(recoverySupport.contains("brain.eraseMemory(MemoryModuleType.WALK_TARGET);"),
                 "Ship Brain should clear walk memory when movement behaviors stop");
-        assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.LOOK_TARGET);"),
+        assertTrue(recoverySupport.contains("brain.eraseMemory(MemoryModuleType.LOOK_TARGET);"),
                 "Ship Brain should clear look memory when movement behaviors stop");
-        assertTrue(brain.contains("brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);"),
+        assertTrue(recoverySupport.contains("brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);"),
                 "Ship Brain should clear walk failure memory with stale movement targets");
-        assertTrue(brain.contains("private static void clearMovementRuntime(EntityShipBase ship,"),
-                "Ship Brain should centralize repeated movement teardown shared by command, guard, follow, and combat behaviors");
-        assertTrue(brain.contains("private static void resetMovementRuntime(EntityShipBase ship,"),
-                "Ship Brain should centralize repeated recovery reset-and-stop flow for behavior transitions");
+        assertTrue(recoverySupport.contains("final class ShipBrainRecoverySupport"),
+                "Ship Brain should extract shared recovery helpers into a dedicated support class");
+        assertTrue(recoverySupport.contains("static void clearWalkAndLookMemory(EntityShipBase ship)"),
+                "Recovery support should own shared walk/look memory cleanup");
+        assertTrue(recoverySupport.contains("static void clearMovementRuntime(EntityShipBase ship,"),
+                "Recovery support should own shared movement teardown");
+        assertTrue(recoverySupport.contains("static void resetMovementRuntime(EntityShipBase ship,"),
+                "Recovery support should own shared recovery reset-and-stop flow");
+        assertTrue(recoverySupport.contains("static boolean shouldTryTeleportRecovery(ShipMovementRecoveryState recovery,"),
+                "Recovery support should own shared teleport-attempt gating");
+        assertTrue(recoverySupport.contains("static int recordMoveFailureAndSync(EntityShipBase ship,"),
+                "Recovery support should own shared move-failure counting and sync");
+        assertTrue(recoverySupport.contains("static void clearMoveFailuresAndSync(EntityShipBase ship,"),
+                "Recovery support should own shared move-failure reset and sync");
+        assertTrue(recoverySupportTest.contains("ShipBrainRecoverySupport.shouldTryTeleportRecovery("),
+                "Shared recovery support should have a behavior-level test for teleport gating");
+        assertTrue(pointerPointResolverTest.contains("ShipPointerPointDecisionResolver.shouldResetForNewTarget("),
+                "Pointer point-command resolver should have a behavior-level test for target reset decisions");
+        assertTrue(followResolverTest.contains("ShipFollowDecisionResolver.shouldTryTeleport("),
+                "Follow resolver should have a behavior-level test for teleport gating");
 
         assertTrue(brain.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
                 "Pointer Brain behavior should route move requests through the pointer coordinator");
-        assertTrue(brain.contains("clearMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),"),
+        assertTrue(brain.contains("this.pointerRecovery.isStuckLongerThan(ShipAiNumbers.MOVE_STUCK_TICK_LIMIT)"),
+                "Pointer point-command behavior should delegate target-switch decisions to a tested resolver");
+        assertTrue(brain.contains("ship.distanceToSqr(target) <= ShipAiNumbers.POINTER_MOVE_REACH_SQR"),
+                "Pointer point-command behavior should delegate reach decisions to a tested resolver");
+        assertTrue(brain.contains("if (failCount > ShipAiNumbers.MOVE_FAIL_LIMIT)"),
+                "Pointer point-command behavior should delegate stuck-clear decisions to a tested resolver");
+        assertTrue(brain.contains("ShipBrainRecoverySupport.clearMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),"),
                 "Pointer Brain behavior should reuse the shared movement teardown helper");
         assertTrue(brain.contains("ship.guardMovementCoordinator()"),
                 "Guard Brain behavior should reuse the ship-owned guard movement channel");
@@ -241,28 +275,36 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Guard Brain movement continuation should use the behavior-tested resolver");
         assertTrue(brain.contains("ShipGuardDecisionResolver.shouldLookAtOwnerOrPlayer("),
                 "Guard Brain owner/player look fallback should use the behavior-tested resolver");
-        assertTrue(brain.contains("clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),"),
+        assertTrue(brain.contains("ShipBrainRecoverySupport.clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),"),
                 "Guard Brain behavior should reuse the shared movement teardown helper");
-        assertTrue(brain.contains("resetMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),"),
+        assertTrue(brain.contains("ShipBrainRecoverySupport.resetMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),"),
                 "Guard Brain behavior should reuse the shared reset-and-stop helper when guard movement idles");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterStuck("),
+        assertTrue(brain.contains("ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.guardRecovery, recoveryState,"),
+                "Guard Brain behavior should reuse the shared teleport gating helper");
+        assertTrue(brain.contains("ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.guardRecovery,"),
+                "Guard Brain behavior should reuse the shared move-failure bookkeeping helper");
+        assertTrue(brain.contains("ShipGuardDecisionResolver.shouldClearAfterStuck(this.guardRecovery)"),
                 "Guard Brain stuck disable threshold should use the shared recovery resolver");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures("),
+        assertTrue(brain.contains("ShipGuardDecisionResolver.shouldClearAfterMoveFailures(failCount)"),
                 "Guard Brain move-failure disable threshold should use the shared recovery resolver");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)"),
-                "Brain recovery trigger should use the shared behavior-tested resolver");
         assertTrue(brain.contains("movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);"),
                 "Follow-owner Brain behavior should route movement through the shared coordinator");
-        assertTrue(brain.contains("clearMovementRuntime(ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),"),
+        assertTrue(brain.contains("ShipBrainRecoverySupport.clearMovementRuntime(ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),"),
                 "Follow-owner Brain behavior should reuse the shared movement teardown helper");
+        assertTrue(brain.contains("this.followRecovery.shouldTryTeleportThrottled(force, distSq,"),
+                "Follow-owner Brain behavior should delegate teleport gating to a tested resolver");
         assertTrue(brain.contains("ship.idleMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED);"),
                 "Idle Brain stroll should reuse the ship-owned idle movement coordinator");
         assertTrue(brain.contains("ShipMovementCoordinator movement = ship.combatMovementCoordinator();"),
                 "Passive combat Brain behavior should reuse the ship-owned combat movement channel");
         assertTrue(brain.contains("movement.moveTo(target, state.moveSpeed())"),
                 "Passive combat Brain behavior should route chase movement through the combat coordinator");
-        assertTrue(brain.contains("clearMovementRuntime(ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),"),
+        assertTrue(brain.contains("ShipBrainRecoverySupport.clearMovementRuntime(ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),"),
                 "Passive combat Brain behavior should reuse the shared movement teardown helper");
+        assertTrue(brain.contains("ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.combatRecovery, recoveryState,"),
+                "Passive combat Brain behavior should reuse the shared teleport gating helper");
+        assertTrue(brain.contains("ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.combatRecovery,"),
+                "Passive combat Brain behavior should reuse the shared move-failure bookkeeping helper");
         assertFalse(brain.contains("getNavigation().moveTo"),
                 "Ship Brain behaviors should not issue raw navigation requests");
         assertFalse(brain.contains("ShipTeleportHelper"),

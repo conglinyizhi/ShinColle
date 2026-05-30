@@ -93,10 +93,10 @@ class BrainMemorySensorArchitectureRegressionTest {
         assertTrue(brain.contains("pointerTargetMemory(brain)"));
         assertTrue(brain.contains("guardTargetMemory(brain)"));
         assertTrue(brain.contains("followStateMemory(brain)"));
-        assertTrue(brain.contains("syncRecoveryMemory(ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get()"));
-        assertTrue(brain.contains("syncRecoveryMemory(ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get()"));
-        assertTrue(brain.contains("syncRecoveryMemory(ship, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get()"));
-        assertTrue(brain.contains("syncRecoveryMemory(ship, ModMemoryModules.SHIP_COMBAT_RECOVERY.get()"));
+        assertTrue(brain.contains("ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get()"));
+        assertTrue(brain.contains("ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get()"));
+        assertTrue(brain.contains("ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get()"));
+        assertTrue(brain.contains("ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_COMBAT_RECOVERY.get()"));
         assertTrue(brain.contains("pointerTargetMemory(ship).hasAnyTarget()"),
                 "Pointer movement should start from memory-backed point or entity target state");
         assertTrue(brain.contains("pointerMemory.hasAnyTarget()"),

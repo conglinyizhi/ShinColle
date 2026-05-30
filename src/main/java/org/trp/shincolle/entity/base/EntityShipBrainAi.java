@@ -171,15 +171,6 @@ final class EntityShipBrainAi {
         }
     }
 
-    private static void syncRecoveryMemory(EntityShipBase ship, MemoryModuleType<ShipBrainMemory.RecoveryStateMemory> memoryType,
-                                           ShipMovementRecoveryState recovery, int stuckLimit) {
-        typedBrain(ship).setMemory(memoryType,
-                ShipBrainMemory.recoveryState(recovery, recovery.isStuckLongerThan(stuckLimit)));
-    }
-
-    private static void clearRecoveryMemory(EntityShipBase ship, MemoryModuleType<ShipBrainMemory.RecoveryStateMemory> memoryType) {
-        typedBrain(ship).eraseMemory(memoryType);
-    }
 
     private static void logServerBrainTickIfNeeded(EntityShipBase ship, Brain<EntityShipBase> brain) {
         if (ship.tickCount % 40 != 0) {
@@ -330,32 +321,6 @@ final class EntityShipBrainAi {
         BehaviorUtils.lookAtEntity(ship, target);
     }
 
-    private static void clearWalkAndLookMemory(EntityShipBase ship) {
-        Brain<?> brain = ship.getBrain();
-        brain.eraseMemory(MemoryModuleType.WALK_TARGET);
-        brain.eraseMemory(MemoryModuleType.LOOK_TARGET);
-        brain.eraseMemory(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE);
-    }
-
-    private static void clearMovementRuntime(EntityShipBase ship,
-                                             ShipMovementRecoveryState recovery,
-                                             MemoryModuleType<ShipBrainMemory.RecoveryStateMemory> recoveryMemoryType,
-                                             ShipMovementCoordinator movement) {
-        recovery.clear();
-        clearRecoveryMemory(ship, recoveryMemoryType);
-        clearWalkAndLookMemory(ship);
-        movement.stop();
-    }
-
-    private static void resetMovementRuntime(EntityShipBase ship,
-                                             ShipMovementRecoveryState recovery,
-                                             MemoryModuleType<ShipBrainMemory.RecoveryStateMemory> recoveryMemoryType,
-                                             ShipMovementCoordinator movement,
-                                             int stuckLimit) {
-        recovery.reset(ship.position());
-        syncRecoveryMemory(ship, recoveryMemoryType, recovery, stuckLimit);
-        movement.stop();
-    }
 
     private static int closeEnoughDistance(double distanceSq) {
         return Math.max(1, Mth.ceil(Math.sqrt(distanceSq)));
@@ -532,8 +497,7 @@ final class EntityShipBrainAi {
             setEntityWalkAndLookMemory(ship, target, state.moveSpeed(), 1);
             this.combatRecovery.trackProgress(ship.position());
             syncCombatRecoveryMemory(ship);
-            if (ShipRecoveryDecisionResolver.shouldClearAfterStuck(
-                    this.combatRecovery.stuckTicks(), ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT)) {
+            if (ShipCombatDecisionResolver.shouldClearAfterStuck(this.combatRecovery)) {
                 if (tryPassiveCombatTeleportRecovery(ship, target, state.distanceSqr(), true)) {
                     return;
                 }
@@ -551,15 +515,14 @@ final class EntityShipBrainAi {
                 }
                 ShipMovementCoordinator movement = ship.combatMovementCoordinator();
                 if (!movement.moveTo(target, state.moveSpeed())) {
-                    int failCount = this.combatRecovery.recordMoveFailure();
-                    syncCombatRecoveryMemory(ship);
+                    int failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.combatRecovery,
+                            ModMemoryModules.SHIP_COMBAT_RECOVERY.get(), ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT);
                     if (this.combatRecovery.shouldLogMoveFailure(ship.tickCount,
                             ShipAiNumbers.PASSIVE_COMBAT_MOVE_FAIL_LOG_INTERVAL)) {
                         Shincolle.debugLog("[SCMoveDiag] PassiveCombat moveFail ship={} target={} failCount={} distanceSqr={}",
                                 ship.getUUID(), target.getUUID(), failCount, state.distanceSqr());
                     }
-                    if (ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures(
-                            failCount, ShipAiNumbers.PASSIVE_COMBAT_MOVE_FAIL_LIMIT)) {
+                    if (ShipCombatDecisionResolver.shouldClearAfterMoveFailures(failCount)) {
                         if (tryPassiveCombatTeleportRecovery(ship, target, state.distanceSqr(), true)) {
                             return;
                         }
@@ -570,8 +533,8 @@ final class EntityShipBrainAi {
                     }
                     this.nextCombatPathTick = 2;
                 } else {
-                    this.combatRecovery.clearMoveFailures();
-                    syncCombatRecoveryMemory(ship);
+                    ShipBrainRecoverySupport.clearMoveFailuresAndSync(ship, this.combatRecovery,
+                            ModMemoryModules.SHIP_COMBAT_RECOVERY.get(), ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT);
                 }
             }
         }
@@ -583,11 +546,7 @@ final class EntityShipBrainAi {
                             force,
                             distanceSqr,
                             ShipAiNumbers.PASSIVE_COMBAT_TELEPORT_DISTANCE_SQ);
-            if (!ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)) {
-                return false;
-            }
-            if (!this.combatRecovery.shouldTryTeleportThrottled(force, distanceSqr,
-                    ShipAiNumbers.PASSIVE_COMBAT_TELEPORT_DISTANCE_SQ,
+            if (!ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.combatRecovery, recoveryState,
                     ShipAiNumbers.PASSIVE_COMBAT_TELEPORT_COOLDOWN_TICKS)) {
                 return false;
             }
@@ -606,12 +565,12 @@ final class EntityShipBrainAi {
         private void clearCombatMoveState(EntityShipBase ship) {
             this.nextCombatPathTick = 0;
             this.lastCombatTargetId = null;
-            clearMovementRuntime(ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),
+            ShipBrainRecoverySupport.clearMovementRuntime(ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),
                     ship.combatMovementCoordinator());
         }
 
         private void syncCombatRecoveryMemory(EntityShipBase ship) {
-            syncRecoveryMemory(ship, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),
+            ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),
                     this.combatRecovery, ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT);
         }
     }
@@ -729,8 +688,8 @@ final class EntityShipBrainAi {
                 this.nextPointerPathTick = ShipAiNumbers.PATH_RECALC_INTERVAL_TICKS;
                 ShipMovementCoordinator movement = ship.pointerMovementCoordinator();
                 if (!movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)) {
-                    int failCount = this.pointerRecovery.recordMoveFailure();
-                    syncPointerRecoveryMemory(ship);
+                    int failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.pointerRecovery,
+                            ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
                     if (this.pointerRecovery.shouldLogMoveFailure(ship.tickCount, ShipAiNumbers.MOVE_FAIL_LOG_INTERVAL)) {
                         Shincolle.debugLog("[SCMoveDiag] PointerGoal moveFail ship={} target={} failCount={}",
                                 ship.getUUID(), target, failCount);
@@ -745,8 +704,8 @@ final class EntityShipBrainAi {
                         clearPointerMoveState(ship);
                     }
                 } else {
-                    this.pointerRecovery.clearMoveFailures();
-                    syncPointerRecoveryMemory(ship);
+                    ShipBrainRecoverySupport.clearMoveFailuresAndSync(ship, this.pointerRecovery,
+                            ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
                     Shincolle.debugLog("ShipBrain pointerMoveOk ship={} target={}", ship.getUUID(), target);
                 }
             }
@@ -777,9 +736,9 @@ final class EntityShipBrainAi {
 
             if (!pointerMemory.entityShouldChase()) {
                 this.nextPointerPathTick = 0;
-                resetMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+                ShipBrainRecoverySupport.resetMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
                         ship.pointerMovementCoordinator(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT);
-                clearWalkAndLookMemory(ship);
+                ShipBrainRecoverySupport.clearWalkAndLookMemory(ship);
                 if (target instanceof LivingEntity livingTarget) {
                     setEntityLookMemory(ship, livingTarget);
                 } else {
@@ -794,8 +753,7 @@ final class EntityShipBrainAi {
             double distanceSqr = pointerMemory.entityDistanceSqr();
             this.pointerRecovery.trackProgress(ship.position());
             syncPointerEntityRecoveryMemory(ship);
-            if (ShipRecoveryDecisionResolver.shouldClearAfterStuck(
-                    this.pointerRecovery.stuckTicks(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT)) {
+            if (ShipPointerEntityDecisionResolver.shouldClearAfterStuck(this.pointerRecovery)) {
                 if (tryPointerEntityTeleportRecovery(ship, target, distanceSqr, true)) {
                     return;
                 }
@@ -812,15 +770,14 @@ final class EntityShipBrainAi {
                 }
                 ShipMovementCoordinator movement = ship.pointerMovementCoordinator();
                 if (!movement.moveTo(target, ShipAiNumbers.POINTER_ENTITY_MOVE_SPEED)) {
-                    int failCount = this.pointerRecovery.recordMoveFailure();
-                    syncPointerEntityRecoveryMemory(ship);
+                    int failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.pointerRecovery,
+                            ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT);
                     if (this.pointerRecovery.shouldLogMoveFailure(ship.tickCount,
                             ShipAiNumbers.POINTER_ENTITY_MOVE_FAIL_LOG_INTERVAL)) {
                         Shincolle.debugLog("[SCMoveDiag] PointerEntity moveFail ship={} target={} failCount={} distanceSqr={}",
                                 ship.getUUID(), target.getUUID(), failCount, distanceSqr);
                     }
-                    if (ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures(
-                            failCount, ShipAiNumbers.POINTER_ENTITY_MOVE_FAIL_LIMIT)) {
+                    if (ShipPointerEntityDecisionResolver.shouldClearAfterMoveFailures(failCount)) {
                         if (tryPointerEntityTeleportRecovery(ship, target, distanceSqr, true)) {
                             return;
                         }
@@ -831,15 +788,20 @@ final class EntityShipBrainAi {
                     }
                     this.nextPointerPathTick = 2;
                 } else {
-                    this.pointerRecovery.clearMoveFailures();
-                    syncPointerEntityRecoveryMemory(ship);
+                    ShipBrainRecoverySupport.clearMoveFailuresAndSync(ship, this.pointerRecovery,
+                            ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT);
                 }
             }
         }
 
         private boolean tryPointerTeleportRecovery(EntityShipBase ship, Vec3 target, boolean force) {
-            if (!this.pointerRecovery.shouldTryTeleportThrottled(force, ship.distanceToSqr(target),
-                    ShipAiNumbers.TELEPORT_DISTANCE_SQ, ShipAiNumbers.TELEPORT_COOLDOWN_TICKS)) {
+            ShipRecoveryDecisionResolver.State recoveryState =
+                    new ShipRecoveryDecisionResolver.State(
+                            force,
+                            ship.distanceToSqr(target),
+                            ShipAiNumbers.TELEPORT_DISTANCE_SQ);
+            if (!ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.pointerRecovery, recoveryState,
+                    ShipAiNumbers.TELEPORT_COOLDOWN_TICKS)) {
                 return false;
             }
             if (!ship.pointerMovementCoordinator().teleportNearPoint(target, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)) {
@@ -859,11 +821,7 @@ final class EntityShipBrainAi {
                             force,
                             distanceSqr,
                             ShipAiNumbers.POINTER_ENTITY_TELEPORT_DISTANCE_SQ);
-            if (!ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)) {
-                return false;
-            }
-            if (!this.pointerRecovery.shouldTryTeleportThrottled(force, distanceSqr,
-                    ShipAiNumbers.POINTER_ENTITY_TELEPORT_DISTANCE_SQ,
+            if (!ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.pointerRecovery, recoveryState,
                     ShipAiNumbers.POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS)) {
                 return false;
             }
@@ -889,7 +847,7 @@ final class EntityShipBrainAi {
             this.pointerEntityMeleeAttackTick = 0;
             this.pointerEntityLightShotTick = 0;
             this.pointerEntityHeavyShotTick = 0;
-            clearMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+            ShipBrainRecoverySupport.clearMovementRuntime(ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
                     ship.pointerMovementCoordinator());
         }
 
@@ -942,12 +900,12 @@ final class EntityShipBrainAi {
         }
 
         private void syncPointerRecoveryMemory(EntityShipBase ship) {
-            syncRecoveryMemory(ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+            ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
                     this.pointerRecovery, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
         }
 
         private void syncPointerEntityRecoveryMemory(EntityShipBase ship) {
-            syncRecoveryMemory(ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+            ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
                     this.pointerRecovery, ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT);
         }
     }
@@ -1023,8 +981,7 @@ final class EntityShipBrainAi {
                 if (tryGuardTeleportRecovery(ship, target, guardedEntity, distSq, false)) {
                     return;
                 }
-                if (ShipRecoveryDecisionResolver.shouldClearAfterStuck(
-                        this.guardRecovery.stuckTicks(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT)) {
+                if (ShipGuardDecisionResolver.shouldClearAfterStuck(this.guardRecovery)) {
                     if (tryGuardTeleportRecovery(ship, target, guardedEntity, distSq, true)) {
                         return;
                     }
@@ -1036,14 +993,13 @@ final class EntityShipBrainAi {
                 if (this.nextGuardPathTick-- <= 0 || ship.guardMovementCoordinator().isNavigationDone()) {
                     this.nextGuardPathTick = ShipAiNumbers.PATH_RECALC_INTERVAL_TICKS;
                     if (!ship.guardMovementCoordinator().moveTo(target, ShipAiNumbers.GUARD_MOVE_SPEED)) {
-                        int failCount = this.guardRecovery.recordMoveFailure();
-                        syncGuardRecoveryMemory(ship);
+                        int failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.guardRecovery,
+                                ModMemoryModules.SHIP_GUARD_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
                         if (this.guardRecovery.shouldLogMoveFailure(ship.tickCount, ShipAiNumbers.MOVE_FAIL_LOG_INTERVAL)) {
                             Shincolle.debugLog("[SCMoveDiag] GuardGoal moveFail ship={} target={} failCount={}",
                                     ship.getUUID(), target, failCount);
                         }
-                        if (ShipRecoveryDecisionResolver.shouldClearAfterMoveFailures(
-                                failCount, ShipAiNumbers.MOVE_FAIL_LIMIT)) {
+                        if (ShipGuardDecisionResolver.shouldClearAfterMoveFailures(failCount)) {
                             if (tryGuardTeleportRecovery(ship, target, guardedEntity, distSq, true)) {
                                 return;
                             }
@@ -1053,14 +1009,14 @@ final class EntityShipBrainAi {
                             return;
                         }
                     } else {
-                        this.guardRecovery.clearMoveFailures();
-                        syncGuardRecoveryMemory(ship);
+                            ShipBrainRecoverySupport.clearMoveFailuresAndSync(ship, this.guardRecovery,
+                            ModMemoryModules.SHIP_GUARD_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
                         Shincolle.debugLog("ShipBrain guardMoveOk ship={} target={} distSq={}", ship.getUUID(), target, distSq);
                     }
                 }
             } else {
                 this.nextGuardPathTick = 0;
-                resetMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                ShipBrainRecoverySupport.resetMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
                         ship.guardMovementCoordinator(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
             }
 
@@ -1090,11 +1046,8 @@ final class EntityShipBrainAi {
                             force,
                             distSq,
                             ShipAiNumbers.TELEPORT_DISTANCE_SQ);
-            if (!ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)) {
-                return false;
-            }
-            if (!this.guardRecovery.shouldTryTeleportThrottled(force, distSq,
-                    ShipAiNumbers.TELEPORT_DISTANCE_SQ, ShipAiNumbers.TELEPORT_COOLDOWN_TICKS)) {
+            if (!ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.guardRecovery, recoveryState,
+                    ShipAiNumbers.TELEPORT_COOLDOWN_TICKS)) {
                 return false;
             }
             boolean teleported = guardedEntity instanceof LivingEntity livingGuarded
@@ -1114,7 +1067,7 @@ final class EntityShipBrainAi {
         private void disableGuardState(EntityShipBase ship) {
             this.nextGuardPathTick = 0;
             this.lastGuardRecoveryTargetKey = null;
-            clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+            ShipBrainRecoverySupport.clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
                     ship.guardMovementCoordinator());
             ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true);
             ship.clearGuardTarget();
@@ -1123,12 +1076,12 @@ final class EntityShipBrainAi {
         private void clearGuardMoveState(EntityShipBase ship) {
             this.nextGuardPathTick = 0;
             this.lastGuardRecoveryTargetKey = null;
-            clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+            ShipBrainRecoverySupport.clearMovementRuntime(ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
                     ship.guardMovementCoordinator());
         }
 
         private void syncGuardRecoveryMemory(EntityShipBase ship) {
-            syncRecoveryMemory(ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+            ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
                     this.guardRecovery, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
         }
 
@@ -1297,12 +1250,12 @@ final class EntityShipBrainAi {
             }
             this.hasOwnerPos = false;
             this.followOwnerActive = false;
-            clearMovementRuntime(ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
+            ShipBrainRecoverySupport.clearMovementRuntime(ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
                     ship.followOwnerMovementCoordinator());
         }
 
         private void syncFollowRecoveryMemory(EntityShipBase ship) {
-            syncRecoveryMemory(ship, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
+            ShipBrainRecoverySupport.syncRecoveryMemory(ship, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
                     this.followRecovery, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
         }
 

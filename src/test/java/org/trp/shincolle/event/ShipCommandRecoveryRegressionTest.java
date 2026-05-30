@@ -31,11 +31,11 @@ class ShipCommandRecoveryRegressionTest {
         assertTrue(source.contains("movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)"),
                 "Pointer move Brain behavior should route movement through the shared coordinator");
         assertTrue(source.contains("ship.distanceToSqr(target) <= ShipAiNumbers.POINTER_MOVE_REACH_SQR"),
-                "Pointer move Brain behavior should use centralized reach distance");
-        assertTrue(source.contains("if (this.pointerRecovery.isStuckLongerThan(ShipAiNumbers.MOVE_STUCK_TICK_LIMIT)) {"),
-                "Pointer move Brain behavior should retain stuck recovery after migration");
-        assertTrue(source.contains("this.pointerRecovery.shouldTryTeleportThrottled(force, ship.distanceToSqr(target),"),
-                "Pointer move Brain behavior should throttle forced teleport recovery");
+                "Pointer move Brain behavior should use the tested resolver for centralized reach distance");
+        assertTrue(source.contains("this.pointerRecovery.isStuckLongerThan(ShipAiNumbers.MOVE_STUCK_TICK_LIMIT)"),
+                "Pointer move Brain behavior should retain stuck recovery through the tested point-command resolver");
+        assertTrue(source.contains("ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.pointerRecovery, recoveryState,"),
+                "Pointer move Brain behavior should route point-command teleport gating through the shared Brain helper");
         assertTrue(source.contains("ship.pointerMovementCoordinator().teleportNearPoint(target, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Pointer move Brain behavior should use coordinator teleport recovery");
     }
@@ -52,10 +52,10 @@ class ShipCommandRecoveryRegressionTest {
                 "Pointer entity command should define a stuck timeout");
         assertTrue(numbers.contains("static final int POINTER_ENTITY_TELEPORT_COOLDOWN_TICKS = 100;"),
                 "Pointer entity command should use a cooldown before remote teleport recovery");
-        assertTrue(brain.contains("ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)"),
-                "Pointer entity recovery should route teleport-attempt gating through the shared recovery resolver");
-        assertTrue(brain.contains("this.pointerRecovery.shouldTryTeleportThrottled(force, distanceSqr,"),
-                "Pointer entity forced teleport recovery should be throttled after failed attempts");
+        assertTrue(brain.contains("ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.pointerRecovery, recoveryState,"),
+                "Pointer entity recovery should route teleport-attempt gating through the shared Brain helper");
+        assertTrue(brain.contains("ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.pointerRecovery,"),
+                "Pointer entity recovery should reuse the shared move-failure bookkeeping helper");
         assertTrue(brain.contains("tryPointerEntityTeleportRecovery(ship, target, distanceSqr, false)"),
                 "Pointer entity command should try distant teleport recovery before ordinary path movement");
         assertTrue(brain.contains("tryPointerEntityTeleportRecovery(ship, target, distanceSqr, true)"),
@@ -93,12 +93,12 @@ class ShipCommandRecoveryRegressionTest {
                 "Guard Brain behavior should route movement through the shared guard coordinator");
         assertTrue(source.contains("ShipGuardDecisionResolver.stopDistanceSqr(guardState)"),
                 "Guard Brain behavior should use resolver-owned stop distances");
-        assertTrue(source.contains("ShipRecoveryDecisionResolver.shouldClearAfterStuck("),
+        assertTrue(source.contains("ShipGuardDecisionResolver.shouldClearAfterStuck(this.guardRecovery)"),
                 "Guard Brain behavior should retain shared recovery resolver stuck thresholds after migration");
-        assertTrue(source.contains("ShipRecoveryDecisionResolver.shouldAttemptTeleport(recoveryState)"),
-                "Guard Brain behavior should route teleport-attempt gating through the shared recovery resolver");
-        assertTrue(source.contains("this.guardRecovery.shouldTryTeleportThrottled(force, distSq,"),
-                "Guard Brain behavior should throttle forced teleport recovery");
+        assertTrue(source.contains("ShipBrainRecoverySupport.shouldTryTeleportRecovery(this.guardRecovery, recoveryState,"),
+                "Guard Brain behavior should route teleport-attempt gating through the shared Brain helper");
+        assertTrue(source.contains("ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.guardRecovery,"),
+                "Guard Brain behavior should reuse the shared move-failure bookkeeping helper");
         assertTrue(source.contains("ship.guardMovementCoordinator().teleportNearPoint(target, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)"),
                 "Guard block recovery should use coordinator teleport recovery");
     }
