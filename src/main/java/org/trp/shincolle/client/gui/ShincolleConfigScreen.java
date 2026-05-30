@@ -132,12 +132,11 @@ public class ShincolleConfigScreen {
             // === Hostile Ships ===
             var hostileCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.hostile"));
 
-            hostileCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.hostileDropGrudgeRate"), Config.HOSTILE_DROP_GRUDGE_RATE.get())
-                    .setDefaultValue(0.0D).setSaveConsumer(Config.HOSTILE_DROP_GRUDGE_RATE::set).build());
+            hostileCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.hostileDropGrudgeRate"), Config.HOSTILE_DROP_GRUDGE_RATE.get(), 0.0D, Config.HOSTILE_DROP_GRUDGE_RATE::set));
             hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileDeathMaxTicks"), Config.HOSTILE_DEATH_MAX_TICKS.get())
                     .setDefaultValue(300).setSaveConsumer(Config.HOSTILE_DEATH_MAX_TICKS::set).build());
             hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileDespawnBossTicks"), Config.HOSTILE_DESPAWN_BOSS_TICKS.get())
-                    .setDefaultValue(24000).setSaveConsumer(Config.HOSTILE_DESPAWN_BOSS_TICKS::set).build());
+.setDefaultValue(24000).setSaveConsumer(Config.HOSTILE_DESPAWN_BOSS_TICKS::set).build());
             hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileDespawnMinionTicks"), Config.HOSTILE_DESPAWN_MINION_TICKS.get())
                     .setDefaultValue(72000).setSaveConsumer(Config.HOSTILE_DESPAWN_MINION_TICKS::set).build());
             hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileBossCooldownTicks"), Config.HOSTILE_BOSS_COOLDOWN_TICKS.get())
@@ -180,31 +179,31 @@ public class ShincolleConfigScreen {
 
             soundCat.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.shincolle.canTimeKeeping"), Config.SHIP_CAN_TIMEKEEPING.get())
                     .setSaveConsumer(Config.SHIP_CAN_TIMEKEEPING::set).build());
-            soundCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.volumeTimeKeeping"), Config.SHIP_VOLUME_TIMEKEEPING.get())
-                    .setDefaultValue(1.0D).setSaveConsumer(Config.SHIP_VOLUME_TIMEKEEPING::set).build());
-            soundCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.volumeShip"), Config.SHIP_VOLUME_GENERAL.get())
-                    .setDefaultValue(1.0D).setSaveConsumer(Config.SHIP_VOLUME_GENERAL::set).build());
-            soundCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.volumeAttack"), Config.SHIP_VOLUME_ATTACK.get())
-                    .setDefaultValue(1.0D).setSaveConsumer(Config.SHIP_VOLUME_ATTACK::set).build());
-
+            soundCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.volumeTimeKeeping"), Config.SHIP_VOLUME_TIMEKEEPING.get(), 1.0D, Config.SHIP_VOLUME_TIMEKEEPING::set));
             // === Client Visual ===
             var visualCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.visual"));
 
-            visualCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.scaleHeldItem"), Config.CLIENT_SCALE_HELD_ITEM.get())
-                    .setDefaultValue(1.0D).setSaveConsumer(Config.CLIENT_SCALE_HELD_ITEM::set).build());
-            visualCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.offsetHeldItemX"), Config.CLIENT_OFFSET_HELD_ITEM_X.get())
-                    .setDefaultValue(0.0D).setSaveConsumer(Config.CLIENT_OFFSET_HELD_ITEM_X::set).build());
-            visualCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.offsetHeldItemY"), Config.CLIENT_OFFSET_HELD_ITEM_Y.get())
-                    .setDefaultValue(0.0D).setSaveConsumer(Config.CLIENT_OFFSET_HELD_ITEM_Y::set).build());
-            visualCat.addEntry(entryBuilder.startDoubleField(Component.translatable("config.shincolle.offsetHeldItemZ"), Config.CLIENT_OFFSET_HELD_ITEM_Z.get())
-                    .setDefaultValue(0.0D).setSaveConsumer(Config.CLIENT_OFFSET_HELD_ITEM_Z::set).build());
-
+            visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.scaleHeldItem"), Config.CLIENT_SCALE_HELD_ITEM.get(), 1.0D, Config.CLIENT_SCALE_HELD_ITEM::set));
             builder.setSavingRunnable(() -> {
                 Config.SPEC.save();
                 Config.CLIENT_SPEC.save();
             });
 
             return builder.build();
+        }
+
+        private static me.shedaniel.clothconfig2.gui.entries.DoubleListEntry formattedDouble(
+                me.shedaniel.clothconfig2.api.ConfigEntryBuilder eb,
+                net.minecraft.network.chat.Component name, double value, double defaultValue,
+                java.util.function.Consumer<Double> saver) {
+            var entry = eb.startDoubleField(name, value)
+                    .setDefaultValue(defaultValue)
+                    .setSaveConsumer(saver)
+                    .build();
+            // Format to avoid floating-point display artifacts (0.699999... instead of 0.7)
+            String formatted = String.format("%.4f", value).replaceAll("\\.?0*$", "");
+            entry.setValue(formatted);
+            return entry;
         }
     }
 }
