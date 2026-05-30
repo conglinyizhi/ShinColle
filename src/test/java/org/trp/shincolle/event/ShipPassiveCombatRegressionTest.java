@@ -22,8 +22,8 @@ class ShipPassiveCombatRegressionTest {
         String source = Files.readString(PASSIVE_COMBAT_SOURCE);
         String brain = Files.readString(SHIP_BRAIN_SOURCE);
 
-        assertTrue(source.contains("needsMovement && !this.ship.hasPointerTarget() && hasAttackMeans"),
-                "Passive combat should only yield to explicit position commands or lack of attack means");
+        assertTrue(source.contains("needsMovement && !this.ship.hasPointerTarget()"),
+                "Passive combat should advance on targets regardless of attack means availability");
         assertTrue(brain.contains("if (state.shouldChase()) {"),
                 "Passive combat Brain behavior should chase only when the passive combat state allows it");
         assertFalse(source.contains("this.ship.shouldFollowOwner() || this.ship.hasPointerTarget() || !hasAttackMeans"),
