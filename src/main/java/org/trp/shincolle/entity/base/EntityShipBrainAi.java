@@ -250,9 +250,14 @@ final class EntityShipBrainAi {
     private static boolean canMove(EntityShipBase ship) {
         return !ship.isOrderedToSit()
                 && !ship.isInSittingPose()
-                && !ship.isPassenger()
-                && !ship.isVehicle()
-                && !ship.isInDeadPose();
+                && !ship.isInDeadPose()
+                && !isPassengerOfLivingVehicle(ship);
+    }
+
+    private static boolean isPassengerOfLivingVehicle(EntityShipBase ship) {
+        if (!ship.isPassenger()) return false;
+        Entity vehicle = ship.getVehicle();
+        return vehicle != null && vehicle.isAlive();
     }
 
     private static boolean shouldFollowOwner(EntityShipBase ship, boolean following) {
@@ -1409,7 +1414,7 @@ final class EntityShipBrainAi {
             return !ship.isOrderedToSit()
                     && !ship.isInSittingPose()
                     && !ship.isInDeadPose()
-                    && !ship.isPassenger()
+                    && !isPassengerOfLivingVehicle(ship)
                     && !ship.isVehicle()
                     && !pointerTargetMemory(ship).hasAnyTarget()
                     && ship.getTarget() == null
