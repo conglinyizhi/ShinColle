@@ -933,8 +933,10 @@ public abstract class EntityShipBase extends TamableAnimal {
     public String explainFollowBlockReason() {
         if (this.isOrderedToSit()) return "orderedToSit";
         if (this.isInSittingPose()) return "sittingPose";
-        if (this.isInDeadPose()) return "deadPose";
-        if (this.isPassenger()) return "passenger";
+        if (this.isPassenger()) {
+            Entity vehicle = this.getVehicle();
+            if (vehicle != null && vehicle.isAlive()) return "passenger";
+        }
         if (this.isNoFuel()) return "noFuel";
         LivingEntity owner = this.getOwner();
         if (owner == null) {
