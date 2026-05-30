@@ -18,6 +18,7 @@ final class EntityShipBaseSerialization {
     static void defineSynchedData(SynchedEntityData.Builder builder) {
         builder.define(EntityShipBase.SHIP_LEVEL, 1);
         builder.define(EntityShipBase.SHIP_EXP, 0);
+        builder.define(EntityShipBase.SHIP_KILLS, 0);
         builder.define(EntityShipBase.FACE_ID, 0);
         builder.define(EntityShipBase.MOUTH_ID, 0);
         builder.define(EntityShipBase.EMOTION_PRIMARY, EntityShipBase.EMOTION_NORMAL);

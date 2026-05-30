@@ -210,6 +210,7 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     protected static final EntityDataAccessor<Integer> SHIP_LEVEL = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> SHIP_EXP = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Integer> SHIP_KILLS = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
 
     protected static final EntityDataAccessor<Integer> FACE_ID = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Boolean> POINTER_SELECTED = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.BOOLEAN);
@@ -279,7 +280,6 @@ public abstract class EntityShipBase extends TamableAnimal {
     private int stateUpdateTimer;
     private int customHurtTime;
     private int hurtSoundCooldown;
-    private int shipKills;
     private int feedSoundCooldown;
     private final Set<Long> forcedCompassChunks = new HashSet<>();
     private int forcedCompassChunkCenterX = Integer.MIN_VALUE;
@@ -445,15 +445,15 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public int getShipKills() {
-        return this.shipKills;
+        return this.entityData.get(SHIP_KILLS);
     }
 
     public void setShipKills(int kills) {
-        this.shipKills = Math.max(0, kills);
+        this.entityData.set(SHIP_KILLS, Math.max(0, kills));
     }
 
     public void addShipKill() {
-        this.shipKills++;
+        setShipKills(getShipKills() + 1);
     }
 
     public int getMaxShipLevel() {
