@@ -152,6 +152,10 @@ final class EntityShipBaseSerialization {
         if (compound.contains("ScaleLevel")) {
             this.ship.setScaleLevel(compound.getInt("ScaleLevel"));
         }
+        // Tamed ships should always use default scale (hostile boss scale persists in egg NBT)
+        if (this.ship.isTame() && this.ship.getScaleLevel() > 0) {
+            this.ship.setScaleLevel(0);
+        }
 
         if (compound.contains("ShipKills")) {
             this.ship.setShipKills(compound.getInt("ShipKills"));
