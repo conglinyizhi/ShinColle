@@ -261,7 +261,6 @@ public class ClientModEventBusEvents {
         event.registerLayerDefinition(ModelRensouhouS.LAYER_LOCATION, ModelRensouhouS::createBodyLayer);
         event.registerLayerDefinition(ModelTakoyaki.LAYER_LOCATION, ModelTakoyaki::createBodyLayer);
         event.registerLayerDefinition(ModelAbyssMissile.LAYER_LOCATION, ModelAbyssMissile::createBodyLayer);
-        event.registerLayerDefinition(ModelProjectileBeam.LAYER_LOCATION, ModelProjectileBeam::createBodyLayer);
         event.registerLayerDefinition(ModelShipGrudge.LAYER_LOCATION, ModelShipGrudge::createBodyLayer);
                 event.registerLayerDefinition(ModelSmallShipyard.LAYER_LOCATION, ModelSmallShipyard::createBodyLayer);
                 event.registerLayerDefinition(ModelLargeShipyard.LAYER_LOCATION, ModelLargeShipyard::createBodyLayer);
