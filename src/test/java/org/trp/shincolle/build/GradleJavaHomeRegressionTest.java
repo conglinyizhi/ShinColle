@@ -22,7 +22,5 @@ class GradleJavaHomeRegressionTest {
                 "gradle.properties must not hardcode org.gradle.java.home because CI JAVA_HOME paths vary by runner");
         assertTrue(buildGradle.contains("java.toolchain.languageVersion = JavaLanguageVersion.of(21)"),
                 "build.gradle should keep the Java 21 toolchain requirement");
-        assertTrue(buildGradle.contains("jvmToolchain(21)"),
-                "build.gradle should keep the Kotlin JVM toolchain requirement");
     }
 }

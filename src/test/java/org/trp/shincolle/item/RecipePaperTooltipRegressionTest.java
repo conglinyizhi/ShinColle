@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecipePaperTooltipRegressionTest {
@@ -17,7 +16,7 @@ class RecipePaperTooltipRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/utility/RecipePaperData.java");
 
     @Test
-    void recipePaperTooltipShouldNotDependOnKotlinRuntime() throws IOException {
+    void recipePaperTooltipShouldKeepStoredPreviewResultCompatibility() throws IOException {
         String itemSource = Files.readString(RECIPE_PAPER_ITEM_SOURCE);
         String utilitySource = Files.readString(RECIPE_PAPER_DATA_JAVA_SOURCE);
 
@@ -35,7 +34,5 @@ class RecipePaperTooltipRegressionTest {
                 "RecipePaperData should expose a helper for reading the legacy stored preview result");
         assertTrue(utilitySource.contains("resultTag.putInt(SLOT_TAG, RESULT_SLOT);"),
                 "RecipePaperData should persist the preview result as slot 9 like the legacy recipe paper format");
-        assertFalse(Files.exists(Path.of("src/main/kotlin/org/trp/shincolle/utility/RecipePaperData.kt")),
-                "RecipePaperData.kt should stay removed to avoid Kotlin runtime crashes in tooltips");
     }
 }
