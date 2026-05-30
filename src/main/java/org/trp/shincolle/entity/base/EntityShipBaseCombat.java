@@ -1,5 +1,9 @@
 package org.trp.shincolle.entity.base;
 
+import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
+
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
@@ -25,6 +29,7 @@ class EntityShipBaseCombat {
     private static final float HEAVY_MISSILE_SPEED = 0.7F;
     private static final int HEAVY_MISSILE_LIFE = 200;
     private static final float HEAVY_MISSILE_EXPLOSION_RADIUS = 3.5F;
+    private static final float MIN_FIRE_CLEAR_DISTANCE = 4.5F;
     private static final float TORPEDO_SPEED_STEP = 0.025F;
     private static final float TORPEDO_ACCEL_STEP = 0.004F;
     private static final String TAG_POTION_LIST = "PList";
@@ -230,6 +235,9 @@ class EntityShipBaseCombat {
             return false;
         }
         if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (!hasClearFiringLine(target)) {
             return false;
         }
         if (!consumeHeavyAmmo(1)) {
@@ -529,5 +537,31 @@ class EntityShipBaseCombat {
         int lightDelay = this.ship.getLegacyShipStats().getLightDelay();
         int heavyDelay = this.ship.getLegacyShipStats().getHeavyDelay();
         this.aircraftLaunchDelay = Math.max(20, Math.max(lightDelay, heavyDelay));
+    }
+
+    /**
+     * Quick check: is there at least MIN_FIRE_CLEAR_DISTANCE of open space
+     * between the ship and the target? Prevents missiles from exploding
+     * on blocks right in front of the ship (self-damage / 炸膛).
+     */
+    private boolean hasClearFiringLine(Entity target) {
+        var level = this.ship.level();
+        Vec3 start = this.ship.getEyePosition();
+        Vec3 end = target.getEyePosition();
+        Vec3 dir = end.subtract(start);
+        double dist = dir.length();
+        if (dist <= MIN_FIRE_CLEAR_DISTANCE) {
+            return false; // Target too close, don't risk self-damage
+        }
+        // Raycast from ship toward target, check for blocks
+        var ctx = new ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this.ship);
+        var hit = (BlockHitResult) level.clip(ctx);
+        if (hit.getType() == HitResult.Type.BLOCK) {
+            double blockDist = start.distanceTo(hit.getLocation());
+            if (blockDist < MIN_FIRE_CLEAR_DISTANCE) {
+                return false; // Block too close, skip firing
+            }
+        }
+        return true;
     }
 }
