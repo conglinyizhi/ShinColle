@@ -3770,8 +3770,11 @@ public abstract class EntityShipBase extends TamableAnimal {
 
             if (this instanceof TamableAnimal tamed && tamed.getOwner() instanceof ServerPlayer owner) {
                 owner.sendSystemMessage(customMessage);
-            } else if (this.hasCustomName()) {
-                this.level().getServer().getPlayerList().broadcastSystemMessage(customMessage, false);
+            } else if (this.isTame() || this.hasCustomName()) {
+                var server = this.level().getServer();
+                if (server != null) {
+                    server.getPlayerList().broadcastSystemMessage(customMessage, false);
+                }
             }
         }
 
