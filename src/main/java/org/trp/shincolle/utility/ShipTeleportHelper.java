@@ -61,6 +61,7 @@ public final class ShipTeleportHelper {
         }
 
         entity.teleportTo(candidate.x, candidate.y, candidate.z);
+        notifyOwnerIfDebugging(entity);
         return true;
     }
 
@@ -75,6 +76,7 @@ public final class ShipTeleportHelper {
         }
 
         entity.teleportTo(candidate.x, candidate.y, candidate.z);
+        notifyOwnerIfDebugging(entity);
         return true;
     }
 
@@ -166,5 +168,26 @@ public final class ShipTeleportHelper {
                 y - entity.getY(),
                 z - entity.getZ()
         ));
+    }
+
+    private static void notifyOwnerIfDebugging(Entity entity) {
+        if (!(entity instanceof net.minecraft.world.entity.TamableAnimal tamable)) return;
+        java.util.UUID ownerId = tamable.getOwnerUUID();
+        if (ownerId == null) return;
+        if (!(entity.level() instanceof ServerLevel sl)) return;
+        var player = sl.getServer().getPlayerList().getPlayer(ownerId);
+        if (player == null) return;
+        if (!hasDebugInspectorEquipped(player)) return;
+        String pos = String.format("(%.2f, %.2f, %.2f)", entity.getX(), entity.getY(), entity.getZ());
+        player.sendSystemMessage(net.minecraft.network.chat.Component.literal(
+                "[DebugInspector] Ship " + entity.getUUID().toString().substring(0, 8) + "... teleported to " + pos), false);
+    }
+
+    private static boolean hasDebugInspectorEquipped(net.minecraft.world.entity.player.Player player) {
+        if (player.getOffhandItem().getItem() instanceof org.trp.shincolle.item.DebugInspectorItem) return true;
+        for (var stack : player.getArmorSlots()) {
+            if (stack.getItem() instanceof org.trp.shincolle.item.DebugInspectorItem) return true;
+        }
+        return false;
     }
 }
