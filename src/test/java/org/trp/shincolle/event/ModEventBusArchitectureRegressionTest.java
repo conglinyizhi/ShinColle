@@ -26,7 +26,7 @@ class ModEventBusArchitectureRegressionTest {
                 "Player tick handling should delegate marriage ring abilities to the service layer");
         assertTrue(eventSource.contains("MarriageRingService.getUnderwaterBreakSpeedMultiplier(event.getEntity())"),
                 "Break-speed event should delegate marriage ring dig rules to the service layer");
-        assertTrue(eventSource.contains("MarriageRingService.shouldCancelFireDamage(player, event.getSource())"),
+        assertTrue(eventSource.contains("MarriageRingService.handleFireDamageEvent(player, event.getSource())"),
                 "Fire-immunity damage cancellation should delegate to the marriage ring service");
         assertFalse(eventSource.contains("applyMarriageRingAbilities("),
                 "Event layer should not keep the old inlined marriage ring rules");
@@ -52,8 +52,14 @@ class ModEventBusArchitectureRegressionTest {
 
         assertTrue(eventSource.contains("HostileDropService.handleLivingDrops(event);"),
                 "LivingDropsEvent should delegate hostile grudge drops to the service layer");
-        assertTrue(eventSource.contains("PointerInteractionService.getPointerStack(player)"),
-                "Pointer event entrypoints should delegate pointer stack resolution to the service layer");
+        assertTrue(eventSource.contains("PointerInteractionService.handlePointerAttack(event.getEntity(), event.getTarget())"),
+                "Pointer attack event should delegate pointer interaction to the service layer");
+        assertTrue(eventSource.contains("PointerInteractionService.handleLeftClickBlock(event.getEntity(), event)"),
+                "Pointer left-click block should delegate to the service layer");
+        assertTrue(eventSource.contains("PointerInteractionService.handleRightClickItem(event.getEntity(), event)"),
+                "Pointer right-click item should delegate to the service layer");
+        assertTrue(eventSource.contains("PointerInteractionService.handleRightClickBlock(event.getEntity(), event)"),
+                "Pointer right-click block should delegate to the service layer");
         assertFalse(eventSource.contains("isHostileDropTarget("),
                 "Event layer should not keep hostile target classification logic");
         assertFalse(eventSource.contains("hostileDropGrudgeRate"),

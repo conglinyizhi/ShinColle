@@ -74,6 +74,18 @@ public final class MarriageRingService {
         return PlayerStateService.getOwnedMarriedShipCount(player) >= Config.ringAbilityFireImmunity;
     }
 
+    /**
+     * Handle fire damage event: cancels if the player has fire immunity from marriage ring.
+     * Returns true if the damage was cancelled.
+     */
+    public static boolean handleFireDamageEvent(Player player, net.minecraft.world.damagesource.DamageSource source) {
+        if (!shouldCancelFireDamage(player, source)) return false;
+        if (player.isOnFire()) {
+            player.clearFire();
+        }
+        return true;
+    }
+
     public static float getUnderwaterFogDistanceMultiplier(Player player) {
         if (player == null
                 || Config.ringAbilityUnderwaterFogCap < 0

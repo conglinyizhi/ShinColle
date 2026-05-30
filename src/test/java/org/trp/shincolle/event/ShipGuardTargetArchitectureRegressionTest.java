@@ -52,7 +52,9 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Pointer waypoint command must not write the wrong legacy state slot");
         assertFalse(eventSource.contains("STATE_MINOR_GUARD_X"),
                 "Pointer waypoint command should use the typed guard write API");
-        assertTrue(eventSource.contains("PointerInteractionService.handleTargetCommand(player, pointerStack);"),
+        boolean hasRightClickDelegation = eventSource.contains("PointerInteractionService.handleRightClickBlock(event.getEntity(), event)")
+                || eventSource.contains("PointerInteractionService.handleRightClickItem(event.getEntity(), event)");
+        assertTrue(hasRightClickDelegation,
                 "Pointer waypoint command should be delegated out of the event layer");
         assertTrue(pointerService.contains("ship.setGuardBlockTarget(guardPos);"),
                 "Pointer waypoint command should persist the waypoint guard target");

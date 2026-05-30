@@ -106,6 +106,19 @@ public final class PointerInteractionService {
         }
     }
 
+
+    /**
+     * Handle pointer attack event. Returns true if the attack was consumed.
+     */
+    public static boolean handlePointerAttack(Player player, Entity target) {
+        ItemStack pointerStack = getPointerStack(player);
+        if (pointerStack.isEmpty()) return false;
+        if (player == null || player.level().isClientSide) return false;
+        handleAttackSelection(player, pointerStack, target);
+        return true;
+    }
+
+
     public static void handleAttackSelection(Player player, ItemStack pointerStack, Entity targetEntity) {
         if (player == null || pointerStack.isEmpty() || player.level().isClientSide) {
             return;
@@ -480,5 +493,42 @@ public final class PointerInteractionService {
         if (player instanceof net.minecraft.server.level.ServerPlayer serverPlayer) {
             PlayerStateService.sendAdmiralState(serverPlayer);
         }
+    }
+
+    /**
+     * Handle pointer left-click on a block: cancels the event if shift is held.
+     */
+    public static void handleLeftClickBlock(Player player, net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock event) {
+        if (player == null) return;
+        ItemStack pointerStack = getPointerStack(player);
+        if (pointerStack.isEmpty()) return;
+        if (player.level().isClientSide) return;
+        if (player.isShiftKeyDown()) {
+            event.setCanceled(true);
+        }
+    }
+
+    /**
+     * Handle pointer right-click on a block. Returns true if the interaction was consumed.
+     */
+    public static boolean handleRightClickBlock(Player player, net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock event) {
+        if (player == null) return false;
+        ItemStack pointerStack = getPointerStack(player);
+        if (pointerStack.isEmpty() || player.isShiftKeyDown()) return false;
+        handleTargetCommand(player, pointerStack);
+        event.setCanceled(true);
+        return true;
+    }
+
+    /**
+     * Handle pointer right-click on an item. Returns true if the interaction was consumed.
+     */
+    public static boolean handleRightClickItem(Player player, net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem event) {
+        if (player == null) return false;
+        ItemStack pointerStack = getPointerStack(player);
+        if (pointerStack.isEmpty() || player.isShiftKeyDown()) return false;
+        handleTargetCommand(player, pointerStack);
+        event.setCanceled(true);
+        return true;
     }
 }

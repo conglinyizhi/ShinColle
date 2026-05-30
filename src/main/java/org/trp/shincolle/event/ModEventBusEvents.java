@@ -136,13 +136,9 @@ public class ModEventBusEvents {
         }
     }
 
-    @SubscribeEvent
     public static void onPlayerIncomingDamage(LivingIncomingDamageEvent event) {
         if (event.getEntity() instanceof net.minecraft.world.entity.player.Player player
-                && MarriageRingService.shouldCancelFireDamage(player, event.getSource())) {
-            if (player.isOnFire()) {
-                player.clearFire();
-            }
+                && MarriageRingService.handleFireDamageEvent(player, event.getSource())) {
             event.setCanceled(true);
         }
     }
@@ -174,66 +170,26 @@ public class ModEventBusEvents {
         PlayerStateService.copyPersistentPlayerState(event.getOriginal(), event.getEntity());
     }
 
-    @SubscribeEvent
     public static void onPointerItemAttack(AttackEntityEvent event) {
-        Player player = event.getEntity();
-        if (player == null) {
-            return;
-        }
-
-        ItemStack pointerStack = PointerInteractionService.getPointerStack(player);
-        if (pointerStack.isEmpty()) {
-            return;
-        }
-
-        if (player.level().isClientSide) {
-            return;
-        }
-
-        event.setCanceled(true);
-        PointerInteractionService.handleAttackSelection(player, pointerStack, event.getTarget());
-    }
-
-    @SubscribeEvent
-    public static void onPointerItemLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
-        Player player = event.getEntity();
-        if (player == null) return;
-        ItemStack pointerStack = PointerInteractionService.getPointerStack(player);
-        if (pointerStack.isEmpty()) return;
-
-        if (player.level().isClientSide) {
-            return;
-        }
-
-        if (player.isShiftKeyDown()) {
+        if (PointerInteractionService.handlePointerAttack(event.getEntity(), event.getTarget())) {
             event.setCanceled(true);
         }
     }
 
-    @SubscribeEvent
-    public static void onPointerItemRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : PointerInteractionService.getPointerStack(player);
-        if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
-            return;
-        }
-
-        PointerInteractionService.handleTargetCommand(player, pointerStack);
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
+    public static void onPointerItemLeftClickBlock(PlayerInteractEvent.LeftClickBlock event) {
+        PointerInteractionService.handleLeftClickBlock(event.getEntity(), event);
     }
 
-    @SubscribeEvent
-    public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
-        Player player = event.getEntity();
-        ItemStack pointerStack = player == null ? ItemStack.EMPTY : PointerInteractionService.getPointerStack(player);
-        if (player == null || pointerStack.isEmpty() || player.isShiftKeyDown()) {
-            return;
+    public static void onPointerItemRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        if (PointerInteractionService.handleRightClickItem(event.getEntity(), event)) {
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getEntity().level().isClientSide));
         }
+    }
 
-        PointerInteractionService.handleTargetCommand(player, pointerStack);
-        event.setCanceled(true);
-        event.setCancellationResult(InteractionResult.sidedSuccess(player.level().isClientSide));
+    public static void onPointerItemRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (PointerInteractionService.handleRightClickBlock(event.getEntity(), event)) {
+            event.setCancellationResult(InteractionResult.sidedSuccess(event.getEntity().level().isClientSide));
+        }
     }
 
 
