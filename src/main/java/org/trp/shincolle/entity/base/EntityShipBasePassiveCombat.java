@@ -159,7 +159,7 @@ final class EntityShipBasePassiveCombat {
                 hasAttackMeans,
                 this.ship.hasPointerTarget(),
                 needsMovement,
-                needsMovement && !this.ship.hasPointerTarget(),
+                needsMovement && !this.ship.hasPointerTarget() && hasAttackMeans,
                 getPassiveMoveSpeed(),
                 this.passiveTargetSightTick
         );
