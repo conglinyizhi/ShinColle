@@ -1325,6 +1325,49 @@
   "patchouli.shincolle.entry.utility_blocks.page3.text": "The $(item)Sublimated Grudge Lump$() is a compressed grudge variant with special storage properties. Its exact behavior depends on the mod configuration.",
   "patchouli.shincolle.entry.utility_blocks.page4.title": "Resource Ore Sources",
   "patchouli.shincolle.entry.utility_blocks.page4.text": "$(item)Polymetal Ore$() and $(item)Polymetal Gravel$() are the natural world generation sources of Polymetal. Mine them to obtain raw $(item)Abyss Polymetal$(). Polymetal Ore generates at higher depths; the gravel variant is found near water bodies.",
+  "patchouli.shincolle.entry.hadal_vortex.name": "Hadal Hydrothermal Vortex",
+  "patchouli.shincolle.entry.hadal_vortex.page0.title": "Overview",
+  "patchouli.shincolle.entry.hadal_vortex.page0.text": "The $(c)Hadal Hydrothermal Vortex$() is the upgraded version of the $(9)Abyssal Hydrothermal Vent$() — a 3×3×3 multiblock structure used for $(c)high-tier ship construction$() and $(c)equipment development$().
+
+Compared to the basic Vent, the Vortex supports more advanced ship classes (Princess-class, Demon-class, etc.) and can handle much larger resource batches.",
+  "patchouli.shincolle.entry.hadal_vortex.page1.title": "Multiblock Assembly",
+  "patchouli.shincolle.entry.hadal_vortex.page1.text": "Build the Hadal Hydrothermal Vortex as follows:
+
+$(l)Bottom Layer:$() 3×3 $(item)Polymetal Blocks$()
+
+$(l)Middle Layer:$() one $(item)Polymetal Block$() at each corner
+
+$(l)Top Layer:$() one $(item)Heavy Grudge Lump$() at center
+
+$(9)Right-click$() the $(item)Heavy Grudge Lump$() to activate the Vortex.",
+  "patchouli.shincolle.entry.hadal_vortex.page2.title": "Ship Construction",
+  "patchouli.shincolle.entry.hadal_vortex.page2.text": "Deposit at least $(c)100$() of each of the four construction resources, and ensure sufficient $(6)lava$() as energy.
+
+Click the $(4)spawn egg icon$() on the right side to start building.
+
+$(9)Double-click$() the same icon to enter $(c)Continuous Build Mode$(). The Vortex will remember the current resource allocation and repeat the same construction.
+
+Use the $(4)red arrows$() to withdraw excess resources.",
+  "patchouli.shincolle.entry.hadal_vortex.page3.title": "Crafting the Abyssal Vent",
+  "patchouli.shincolle.entry.hadal_vortex.page3.text": "Before building the Vortex, you first need the $(9)Abyssal Hydrothermal Vent$() as a foundation.
+
+The Vent is the simplified version of the Vortex, used for $(c)standard ship construction$() and $(c)equipment development$().",
+  "patchouli.shincolle.entry.hadal_vortex.page4.title": "Equipment Development",
+  "patchouli.shincolle.entry.hadal_vortex.page4.text": "Deposit materials in the Vortex GUI, then click the $(c)equipment icon$() to start equipment development.
+
+Equipment development consumes the same resource types (construction materials + lava) as ship construction, though the ratios differ.
+
+Both the Hadal Hydrothermal Vortex and the Abyssal Hydrothermal Vent can be used for equipment development.",
+  "patchouli.shincolle.entry.hadal_vortex.page5.title": "Instant Construction",
+  "patchouli.shincolle.entry.hadal_vortex.page5.text": "Placing $(d)$(n)Instant Construction Materials$()$() into the Vortex's fuel slot will $(c)instantly increase construction progress$().
+
+Instant Construction Materials can only be crafted from unused ship spawn eggs.
+
+$(c)Enchant Shells$() are also crafted here — make a base shell in the Vortex, then combine it with potions at a crafting table to apply potion effects.",
+  "patchouli.shincolle.entry.hadal_vortex.page6.title": "Crafting the Volcano Core",
+  "patchouli.shincolle.entry.hadal_vortex.page6.text": "The $(item)Abyssal Volcano Core$() is an energy-type multiblock component that pairs well with the Vortex.
+
+The Core passively absorbs ambient Grudge energy and releases it as restorative energy. Ships standing nearby can absorb this energy to quickly recover morale."
   "patchouli.shincolle.entry.shipyard_tools.page4b.title": "Large Shipyard",
   "patchouli.shincolle.entry.shipyard_tools.page4b.text": "The $(item)Hadal Hydrothermal Vortex$() is the large-scale shipyard. Use it for high-tier ship construction and bulk resource handling.",
   "patchouli.shincolle.entry.shipyard_tools.page7.title": "Kaitai Hammer",

@@ -1,0 +1,45 @@
+{
+  "name": "patchouli.shincolle.entry.hadal_vortex.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:large_shipyard",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page0.title",
+      "text": "patchouli.shincolle.entry.hadal_vortex.page0.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page1.title",
+      "text": "patchouli.shincolle.entry.hadal_vortex.page1.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page2.title",
+      "text": "patchouli.shincolle.entry.hadal_vortex.page2.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page3.title",
+      "recipe": "shincolle:small_shipyard",
+      "text": "patchouli.shincolle.entry.hadal_vortex.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page4.title",
+      "text": "patchouli.shincolle.entry.hadal_vortex.page4.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page5.title",
+      "text": "patchouli.shincolle.entry.hadal_vortex.page5.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page6.title",
+      "recipe": "shincolle:blockvolcore_2",
+      "text": "patchouli.shincolle.entry.hadal_vortex.page6.text"
+    }
+  ]
+}
