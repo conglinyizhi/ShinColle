@@ -251,6 +251,7 @@ final class EntityShipBrainAi {
         return !ship.isOrderedToSit()
                 && !ship.isInSittingPose()
                 && !ship.isInDeadPose()
+                && !ship.isVehicle()
                 && !isPassengerOfLivingVehicle(ship);
     }
 
