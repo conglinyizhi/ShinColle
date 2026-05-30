@@ -1,7 +1,5 @@
 # ShinColle for NeoForge 1.21.1
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conglinyizhi/ShinColle)
-
 [中文说明](./README.zh-CN.md)
 
 This repository is a NeoForge 1.21.1 continuation and migration of ShinColle.

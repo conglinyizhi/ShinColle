@@ -1,7 +1,5 @@
 # ShinColle NeoForge 1.21.1
 
-[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/conglinyizhi/ShinColle)
-
 [English](./README.md)
 
 这个仓库是 ShinColle 在 NeoForge 1.21.1 平台上的延续与迁移工程。

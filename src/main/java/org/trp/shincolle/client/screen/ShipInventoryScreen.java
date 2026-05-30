@@ -136,7 +136,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             if (configScreen != null) {
                 Minecraft.getInstance().setScreen(configScreen);
             }
-        }).bounds(this.leftPos + this.imageWidth - 18, this.topPos + 4, 14, 14).build());
+        }).bounds(this.leftPos + this.imageWidth - 18, this.topPos + 20, 14, 14).build());
     }
 
     @Override
