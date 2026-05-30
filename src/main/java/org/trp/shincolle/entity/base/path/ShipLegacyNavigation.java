@@ -63,6 +63,10 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
     @Override
     public boolean moveTo(double x, double y, double z, double speed) {
+        if (this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED) <= 1.0E-4D) {
+            this.preserveCurrentPathOnNextFailure = false;
+            return false;
+        }
         if (!canNavigate()) {
             this.preserveCurrentPathOnNextFailure = false;
             return false;
@@ -76,6 +80,10 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
 
     @Override
     public boolean moveTo(Entity entity, double speed) {
+        if (this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED) <= 1.0E-4D) {
+            this.preserveCurrentPathOnNextFailure = false;
+            return false;
+        }
         if (!canNavigate()) {
             this.preserveCurrentPathOnNextFailure = false;
             return false;
@@ -87,11 +95,15 @@ public class ShipLegacyNavigation extends GroundPathNavigation {
         return setPath(path, speed, isSameNavigationTarget(previousTarget, nextTarget), nextTarget);
     }
 
-    @Override
     public void tick() {
         this.totalTicks++;
 
         if (noPath()) {
+            return;
+        }
+
+        if (this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED) <= 1.0E-4D) {
+            stop();
             return;
         }
 
