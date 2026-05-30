@@ -34,6 +34,9 @@ final class ShipAiNumbers {
     static final double POINTER_MOVE_SPEED = 1.2D;
     static final double GUARD_MOVE_SPEED = 1.1D;
     static final double FOLLOW_OWNER_SPEED = 1.2D;
+    static final int FOLLOW_PATH_RECALC_INTERVAL = 10;
+    static final int FOLLOW_MOVE_FAIL_LIMIT = 40;
+    static final int FOLLOW_MOVE_FAIL_LOG_INTERVAL = 20;
     static final float FOLLOW_OWNER_MAX_DIST = 16.0F;
     static final float FOLLOW_OWNER_MIN_DIST = 5.0F;
     static final double GUARD_BLOCK_STOP_DISTANCE_SQ = 0.5D;

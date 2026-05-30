@@ -1138,6 +1138,7 @@ final class EntityShipBrainAi {
         private boolean hasOwnerPos;
         private boolean followOwnerActive;
         private boolean[] formationDir = new boolean[]{false, true};
+        private int nextFollowPathTick;
 
         ShipFollowOwnerBehavior() {
             super(ImmutableMap.of());
@@ -1213,10 +1214,33 @@ final class EntityShipBrainAi {
             }
             this.followOwnerActive = true;
             ShipMovementCoordinator movement = ship.followOwnerMovementCoordinator();
-            boolean moved = movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);
-            Shincolle.diagnosticLog("{} move ship={} owner={} target={} moved={}",
-                    FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), moveTarget, moved);
             double distSq = followMemory.ownerDistanceSq();
+
+            if (this.nextFollowPathTick-- <= 0) {
+                this.nextFollowPathTick = ShipAiNumbers.FOLLOW_PATH_RECALC_INTERVAL;
+                boolean moved = movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED);
+                Shincolle.diagnosticLog("{} move ship={} owner={} target={} moved={}",
+                        FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), moveTarget, moved);
+                if (!moved) {
+                    int failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(ship, this.followRecovery,
+                            ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
+                    if (this.followRecovery.shouldLogMoveFailure(ship.tickCount, ShipAiNumbers.FOLLOW_MOVE_FAIL_LOG_INTERVAL)) {
+                        Shincolle.diagnosticLog("{} moveFail ship={} owner={} target={} failCount={}",
+                                FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), moveTarget, failCount);
+                    }
+                    if (failCount > ShipAiNumbers.FOLLOW_MOVE_FAIL_LIMIT) {
+                        Shincolle.diagnosticLog("{} failClear ship={} owner={} failCount={}",
+                                FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), this.followRecovery.moveFailCount());
+                        clearFollowMoveState(ship);
+                        return;
+                    }
+                    this.nextFollowPathTick = 2;
+                } else {
+                    ShipBrainRecoverySupport.clearMoveFailuresAndSync(ship, this.followRecovery,
+                            ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
+                }
+            }
+
             this.followRecovery.trackProgress(ship.position());
             boolean force = this.followRecovery.isStuckLongerThan(ShipAiNumbers.MOVE_STUCK_TICK_LIMIT);
             if (!this.followRecovery.shouldTryTeleportThrottled(force, distSq,
@@ -1224,10 +1248,12 @@ final class EntityShipBrainAi {
                 syncFollowRecoveryMemory(ship);
                 return;
             }
+
             if (!movement.teleportNearLiving(owner, ShipAiNumbers.TELEPORT_VERTICAL_OFFSET)) {
                 syncFollowRecoveryMemory(ship);
                 return;
             }
+
             Shincolle.diagnosticLog("{} teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
                     FOLLOW_DEBUG_PREFIX,
                     ship.getUUID(), owner.getUUID(), force, distSq, this.followRecovery.stuckTicks());
