@@ -15,6 +15,7 @@ public class ModTabs {
             .title(Component.translatable("itemGroup.shincolle"))
             .icon(() -> new ItemStack(ModItems.NORTHERN_HIME_SPAWN_EGG.get()))
             .displayItems((parameters, output) -> {
+                // ===== SPAWN EGGS =====
                 output.accept(ModItems.SHIPSPAWNEGGS.get());
                 output.accept(ModItems.SHIPSPAWNEGGL.get());
                 output.accept(ModItems.DESTROYER_I_SPAWN_EGG.get());
@@ -62,16 +63,18 @@ public class ModTabs {
                 output.accept(ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get());
                 output.accept(ModItems.SUBM_U511_SPAWN_EGG.get());
                 output.accept(ModItems.SUBM_RO500_SPAWN_EGG.get());
-                output.accept(ModItems.POINTER_ITEM.get());
-                output.accept(ModItems.TARGET_WRENCH.get());
-                output.accept(ModItems.RECIPE_PAPER.get());
-                output.accept(ModItems.INSTANT_CON_MAT.get());
-                output.accept(ModItems.KAITAI_HAMMER.get());
-                output.accept(ModItems.MARRIAGE_RING.get());
-                output.accept(ModItems.MODERN_KIT.get());
-                output.accept(ModItems.OWNER_PAPER.get());
-                output.accept(ModItems.OP_TOOL.get());
-                output.accept(ModItems.SHIN_COMB.get());
+
+                // ===== MATERIALS (1.12.2 order: AbyssMetal, AbyssNugget, Ammo, Grudge) =====
+                output.accept(ModItems.ABYSS_METAL.get());
+                ModItems.addAbyssNuggetVariants(output);
+                output.accept(ModItems.AMMO_LIGHT.get());
+                output.accept(ModItems.AMMO_LIGHT_CONTAINER.get());
+                output.accept(ModItems.AMMO_HEAVY.get());
+                output.accept(ModItems.AMMO_HEAVY_CONTAINER.get());
+                ModItems.addGrudgeVariants(output);
+                output.accept(ModItems.ABYSS_POLYMETAL.get());
+
+                // ===== EQUIPMENT (1.12.2 order) =====
                 ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE);
                 ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AMMO);
                 ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_ARMOR);
@@ -86,34 +89,44 @@ public class ModTabs {
                 ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_SEARCHLIGHT);
                 ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TORPEDO);
                 ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TURBINE);
-                ModItems.addCombatRationVariants(output);
+
+                // ===== MISC / TOOLS (1.12.2 order) =====
                 output.accept(ModItems.BUCKET_REPAIR.get());
-                output.accept(ModItems.TOY_AIRPLANE.get());
-                output.accept(ModItems.TRAINING_BOOK.get());
-                output.accept(ModItems.REPAIR_GODDESS.get());
+                ModItems.addCombatRationVariants(output);
                 output.accept(ModItems.DESK_ITEM_BOOK.get());
                 output.accept(ModItems.DESK_ITEM_RADAR.get());
-                output.accept(ModItems.AMMO_LIGHT.get());
-                output.accept(ModItems.AMMO_LIGHT_CONTAINER.get());
-                output.accept(ModItems.AMMO_HEAVY.get());
-                output.accept(ModItems.AMMO_HEAVY_CONTAINER.get());
-                ModItems.addAbyssNuggetVariants(output);
-                output.accept(ModItems.ABYSS_METAL.get());
+                output.accept(ModItems.INSTANT_CON_MAT.get());
+                output.accept(ModItems.KAITAI_HAMMER.get());
+                output.accept(ModItems.MARRIAGE_RING.get());
+                output.accept(ModItems.MODERN_KIT.get());
+                output.accept(ModItems.OWNER_PAPER.get());
+                output.accept(ModItems.OP_TOOL.get());
+                output.accept(ModItems.SHIN_COMB.get());
+                output.accept(ModItems.POINTER_ITEM.get());
+                output.accept(ModItems.POINTER_ITEM.get());
+                output.accept(ModItems.RECIPE_PAPER.get());
+                output.accept(ModItems.REPAIR_GODDESS.get());
+                output.accept(ModItems.SHIP_TANK.get());
+                output.accept(ModItems.TARGET_WRENCH.get());
+                output.accept(ModItems.TRAINING_BOOK.get());
+                output.accept(ModItems.TOY_AIRPLANE.get());
+
+                // ===== BLOCKS (1.12.2 block registration order) =====
                 output.accept(ModItems.ABYSSIUM.get());
-                output.accept(ModItems.ABYSS_POLYMETAL.get());
-                ModItems.addGrudgeVariants(output);
+                output.accept(ModItems.CRANE.get());
+                output.accept(ModItems.DESK.get());
+                output.accept(ModItems.FRAME_BLOCK.get());
                 output.accept(ModItems.GRUDGE_BLOCK.get());
                 output.accept(ModItems.GRUDGE_HEAVY_BLOCK.get());
                 output.accept(ModItems.POLYMETAL.get());
-                output.accept(ModItems.POLYMETAL_ORE.get());
                 output.accept(ModItems.POLYMETAL_GRAVEL.get());
+                output.accept(ModItems.POLYMETAL_ORE.get());
                 output.accept(ModItems.SMALL_SHIPYARD.get());
                 output.accept(ModItems.LARGE_SHIPYARD.get());
-                output.accept(ModItems.DESK.get());
-                output.accept(ModItems.FRAME_BLOCK.get());
                 output.accept(ModItems.VOL_CORE.get());
                 output.accept(ModItems.WAYPOINT.get());
-                output.accept(ModItems.CRANE.get());
+
+                // ===== DEBUG (appended last, not in 1.12.2) =====
                 output.accept(ModItems.DEBUG_INSPECTOR.get());
             }).build());
 }
