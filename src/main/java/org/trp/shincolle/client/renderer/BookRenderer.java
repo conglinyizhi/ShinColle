@@ -11,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.reference.Values;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class BookRenderer {
@@ -47,15 +48,40 @@ public class BookRenderer {
         List<int[]> content = Values.BookList.get(bookID);
         if (content == null) {
             drawTitleText(g, x, y, page, chapNum, guiScale);
-            drawBookText(g, x, y, 0, 0, 0, bookID, guiScale);
-            drawBookText(g, x, y, 1, 0, 0, bookID, guiScale);
+            drawBookText(g, x, y, 0, 0, 0, bookID, guiScale, 0);
+            drawBookText(g, x, y, 1, 0, 0, bookID, guiScale, 0);
             return;
         }
+        // Collect picture ranges per side: {picTop, picBottom}
+        List<int[]>[] pics = new List[]{new ArrayList<>(), new ArrayList<>()};
+        for (int[] data : content) {
+            if (data != null) {
+                if (data[0] == 1 && data.length >= 9) { // picture
+                    int s = data[1];
+                    if (s >= 0 && s < pics.length) {
+                        int top = y + 48 + data[3], h = data[8];
+                        pics[s].add(new int[]{top, top + h});
+                    }
+                }
+            }
+        }
+
         drawTitleText(g, x, y, page, chapNum, guiScale);
         for (int[] data : content) {
             if (data == null) continue;
             switch (data[0]) {
-                case 0 -> drawBookText(g, x, y, data[1], data[2], data[3], bookID, guiScale);
+                case 0 -> {
+                    if (data.length < 4) continue;
+                    int s = data[1], tt = y + TY + data[3];
+                    int push = 0;
+                    if (s >= 0 && s < pics.length) { for (int[] p : pics[s]) {
+                        if (tt < p[1] && tt + 5 > p[0]) { // text overlaps picture
+                            if (p[1] > push) push = p[1];
+                        }
+                        }
+                    }
+                    drawBookText(g, x, y, s, data[2], data[3], bookID, guiScale, push);
+                }
                 case 1 -> drawBookPic(g, x, y, data);
                 case 2 -> drawBookIcon(g, x, y, data[1], data[2], data[3], data[4]);
             }
@@ -75,7 +101,7 @@ public class BookRenderer {
 
     // ---- Text: counter-scaled to native resolution ----
 
-    private static void drawBookText(GuiGraphics g, int x, int y, int side, int offX, int offY, int bookID, float guiScale) {
+    private static void drawBookText(GuiGraphics g, int x, int y, int side, int offX, int offY, int bookID, float guiScale, int reservedY) {
         String key = "gui.shincolle.book.chap" + (bookID / 1000) + ".text" + (bookID % 1000) + "d" + side;
         String text = net.minecraft.client.resources.language.I18n.get(key);
         if (text.equals(key)) return;
@@ -83,6 +109,8 @@ public class BookRenderer {
         Font font = Minecraft.getInstance().font;
         int bx = x + (side == 0 ? LX : RX) + offX;
         int by = y + TY + offY;
+        // Push below reserved picture/icon area on this side
+        if (reservedY > by) by = reservedY + 2;
         String[] lines = text.split("(?i)<\\s*br\\s*/?\\s*>|#");
 
         // scale(1/guiScale) cancels DeskScreen's scale(guiScale):
