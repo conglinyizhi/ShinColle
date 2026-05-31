@@ -58,6 +58,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     // Settings tab constants
     private static final int SETTINGS_TAB_1 = 1;
+    private static final int SETTINGS_TAB_3 = 3;
+    private static final int SETTINGS_TAB_4 = 4;
     private static final int SETTINGS_TAB_6 = 6;
     private static final int SETTINGS_TAB_7 = 7;
     private static final int SETTINGS_TAB_8 = 8;
@@ -124,6 +126,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private final List<IconButton> settingsTabButtons = new ArrayList<>();
     private final List<IconButton> toggleButtons = new ArrayList<>();
     private final java.util.List<Integer> toggleParentTabs = new java.util.ArrayList<>();
+    private final List<BooleanSupplier> toggleVisibilitySuppliers = new ArrayList<>();
 
     public ShipInventoryScreen(ShipContainerMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
@@ -173,7 +176,42 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             addSettingsTab(tab);
         }
 
-        // ---- Toggle buttons: removed from GUI, pending Cloth Config integration ----
+        // ---- Toggle buttons ----
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y, () -> this.canMelee,
+                ShipContainerMenu.TOGGLE_BUTTON_CAN_MELEE, () -> true);
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, () -> this.lightAttack,
+                ShipContainerMenu.TOGGLE_BUTTON_LIGHT_ATTACK, () -> this.menu.getShip().isStateGuiBtn1());
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, () -> this.heavyAttack,
+                ShipContainerMenu.TOGGLE_BUTTON_HEAVY_ATTACK, () -> this.menu.getShip().isStateGuiBtn2());
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, () -> this.lightAircraftAttack,
+                ShipContainerMenu.TOGGLE_BUTTON_LIGHT_AIRCRAFT, () -> this.menu.getShip().isStateGuiBtn3());
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, () -> this.heavyAircraftAttack,
+                ShipContainerMenu.TOGGLE_BUTTON_HEAVY_AIRCRAFT, () -> this.menu.getShip().isStateGuiBtn4());
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, () -> this.ringEffect,
+                ShipContainerMenu.TOGGLE_BUTTON_RING_EFFECT, () -> true);
+
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y, () -> this.passiveAttack,
+                ShipContainerMenu.TOGGLE_BUTTON_PASSIVE_ATTACK, () -> true);
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, () -> this.onSight,
+                ShipContainerMenu.TOGGLE_BUTTON_ON_SIGHT, () -> true);
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, () -> this.pvpMode,
+                ShipContainerMenu.TOGGLE_BUTTON_PVP, () -> true);
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, () -> this.antiAir,
+                ShipContainerMenu.TOGGLE_BUTTON_ANTI_AIR, () -> true);
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, () -> this.antiSub,
+                ShipContainerMenu.TOGGLE_BUTTON_ANTI_SUB, () -> true);
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, () -> this.timeKeeping,
+                ShipContainerMenu.TOGGLE_BUTTON_TIMEKEEP, () -> true);
+
+        addToggle(SETTINGS_TAB_4, TOGGLE_X, TOGGLE_ROW_1_Y, () -> this.pickItem,
+                ShipContainerMenu.TOGGLE_BUTTON_PICK_ITEM, () -> this.menu.getShip().supportsItemPickup());
+        addToggle(SETTINGS_TAB_4, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, () -> this.autoPump,
+                ShipContainerMenu.TOGGLE_BUTTON_AUTO_PUMP, () -> true);
+
+        addToggle(SETTINGS_TAB_6, TOGGLE_X, TOGGLE_ROW_1_Y, () -> this.appearance,
+                ShipContainerMenu.TOGGLE_BUTTON_SHOW_HELD, () -> true);
+        addToggle(SETTINGS_TAB_6, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, () -> this.mount,
+                ShipContainerMenu.TOGGLE_BUTTON_MOUNT, () -> true);
     }
 
     private void addDetailTab(int tabId, int y) {
@@ -211,14 +249,16 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 .pos(this.leftPos + x, this.topPos + y)
                 .size(TOGGLE_SIZE, TOGGLE_SIZE)
                 .uv(-1, -1)
-                .hoverUv(0, 214)
+                .hoverUv(-1, -1)
                 .activeState(state)
                 .onPress(() -> sendMenuButton(buttonId))
                 .build();
         btn.visible = false;
+        btn.active = false;
         this.addRenderableWidget(btn);
         this.toggleButtons.add(btn);
         this.toggleParentTabs.add(parentTab);
+        this.toggleVisibilitySuppliers.add(visible);
     }
 
     @Override
@@ -351,7 +391,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         // Show toggle buttons for the active settings tab
         for (int i = 0; i < toggleButtons.size(); i++) {
             boolean matches = i < toggleParentTabs.size() && toggleParentTabs.get(i) == this.activeSettingsTab;
-            toggleButtons.get(i).visible = matches;
+            boolean enabled = matches && i < toggleVisibilitySuppliers.size() && toggleVisibilitySuppliers.get(i).getAsBoolean();
+            toggleButtons.get(i).visible = enabled;
+            toggleButtons.get(i).active = enabled;
         }
     }
 
@@ -525,13 +567,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     private void drawToggleStateMarks(GuiGraphics g) {
         switch (this.activeSettingsTab) {
-            case 1 -> {
-            }
+            case 1 -> drawAiPage1ToggleMarks(g);
             case 2 -> drawFollowSliderTab(g);
-            case 3 -> {
-            }
-            case 4 -> {
-            }
+            case 3 -> drawAiPage3ToggleMarks(g);
+            case 4 -> drawAiPage4ToggleMarks(g);
             case 5 -> drawRationSliderTab(g);
             case 6 -> drawAppearanceToggleMarks(g);
             case 7 -> drawAIPage7Background(g);
@@ -541,6 +580,29 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     private void drawOnOff(GuiGraphics g, int x, int y, boolean on) {
         g.blit(TEXTURE_BG, this.leftPos + x, this.topPos + y, on ? Sprites.SHIP_INV_TOGGLE_ON_U : Sprites.SHIP_INV_TOGGLE_OFF_U, Sprites.SHIP_INV_TOGGLE_V, Sprites.SHIP_INV_TOGGLE_W, Sprites.SHIP_INV_TOGGLE_H, 256, 256);
+    }
+
+    private void drawAiPage1ToggleMarks(GuiGraphics g) {
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, this.canMelee);
+        if (this.menu.getShip().isStateGuiBtn1()) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, this.lightAttack);
+        if (this.menu.getShip().isStateGuiBtn2()) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, this.heavyAttack);
+        if (this.menu.getShip().isStateGuiBtn3()) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, this.lightAircraftAttack);
+        if (this.menu.getShip().isStateGuiBtn4()) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, this.heavyAircraftAttack);
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, this.ringEffect);
+    }
+
+    private void drawAiPage3ToggleMarks(GuiGraphics g) {
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, this.passiveAttack);
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, this.onSight);
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, this.pvpMode);
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, this.antiAir);
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, this.antiSub);
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, this.timeKeeping);
+    }
+
+    private void drawAiPage4ToggleMarks(GuiGraphics g) {
+        if (this.menu.getShip().supportsItemPickup()) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, this.pickItem);
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, this.autoPump);
     }
 
     private void drawFollowSliderTab(GuiGraphics g) {

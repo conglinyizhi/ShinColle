@@ -949,6 +949,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 if (ship.isStateGuiBtn1()) {
                     ship.setStateLightAttack(!ship.isStateLightAttack());
                     lightAttackSynced = ship.isStateLightAttack();
+                    this.broadcastFullState();
                 }
                 return true;
             }
@@ -956,6 +957,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 if (ship.isStateGuiBtn2()) {
                     ship.setStateHeavyAttack(!ship.isStateHeavyAttack());
                     heavyAttackSynced = ship.isStateHeavyAttack();
+                    this.broadcastFullState();
                 }
                 return true;
             }
@@ -963,6 +965,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 if (ship.isStateGuiBtn3()) {
                     ship.setStateLightAircraftAttack(!ship.isStateLightAircraftAttack());
                     lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
+                    this.broadcastFullState();
                 }
                 return true;
             }
@@ -970,6 +973,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
                 if (ship.isStateGuiBtn4()) {
                     ship.setStateHeavyAircraftAttack(!ship.isStateHeavyAircraftAttack());
                     heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
+                    this.broadcastFullState();
                 }
                 return true;
             }
