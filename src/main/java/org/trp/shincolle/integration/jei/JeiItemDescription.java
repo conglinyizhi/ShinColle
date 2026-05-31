@@ -22,6 +22,7 @@ public final class JeiItemDescription {
     public static void register(IRecipeRegistration registration) {
         registerSpawnEggDescriptions(registration);
         registerEquipmentDescriptions(registration);
+        registerBlockDescriptions(registration);
     }
 
     private static void registerSpawnEggDescriptions(IRecipeRegistration registration) {
@@ -152,6 +153,11 @@ public final class JeiItemDescription {
                 Component.translatable("jei.description.shincolle.equip.searchlight"));
         addInfo(registration, new ItemStack(ModItems.EQUIP_AMMO.get()),
                 Component.translatable("jei.description.shincolle.equip.ammo"));
+    }
+
+    private static void registerBlockDescriptions(IRecipeRegistration registration) {
+        addInfo(registration, new ItemStack(ModItems.LARGE_SHIPYARD.get()),
+                Component.translatable("jei.description.shincolle.large_shipyard"));
     }
 
     private static void addInfo(IRecipeRegistration registration, ItemStack stack, Component... description) {
