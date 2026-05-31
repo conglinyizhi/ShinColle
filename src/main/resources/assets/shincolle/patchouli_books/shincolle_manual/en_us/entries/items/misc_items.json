@@ -1,0 +1,31 @@
+{
+  "name": "patchouli.shincolle.entry.misc_items.name",
+  "category": "shincolle:items",
+  "icon": "shincolle:ownerpaper",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.misc_items.page0.title",
+      "text": "patchouli.shincolle.entry.misc_items.page0.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.misc_items.page1.title",
+      "item": "shincolle:ownerpaper",
+      "text": "patchouli.shincolle.entry.misc_items.page1.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.misc_items.page2.title",
+      "item": "shincolle:trainingbook",
+      "text": "patchouli.shincolle.entry.misc_items.page2.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.misc_items.page3.title",
+      "item": "shincolle:equipammo",
+      "text": "patchouli.shincolle.entry.misc_items.page3.text"
+    }
+  ]
+}

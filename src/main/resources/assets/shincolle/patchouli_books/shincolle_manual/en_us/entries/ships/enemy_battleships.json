@@ -1,0 +1,55 @@
+{
+  "name": "patchouli.shincolle.entry.enemy_battleships.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.enemy_battleships.page0.title",
+      "text": "patchouli.shincolle.entry.enemy_battleships.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:battleship_nagato",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_battleships.page1.title",
+      "text": "patchouli.shincolle.entry.enemy_battleships.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:battleship_yamato",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_battleships.page2.title",
+      "text": "patchouli.shincolle.entry.enemy_battleships.page2.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:bb_kongou",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_battleships.page3.title",
+      "text": "patchouli.shincolle.entry.enemy_battleships.page3.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:bb_hiei",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_battleships.page4.title",
+      "text": "patchouli.shincolle.entry.enemy_battleships.page4.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:bb_haruna",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_battleships.page5.title",
+      "text": "patchouli.shincolle.entry.enemy_battleships.page5.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:bb_kirishima",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_battleships.page6.title",
+      "text": "patchouli.shincolle.entry.enemy_battleships.page6.text"
+    }
+  ]
+}

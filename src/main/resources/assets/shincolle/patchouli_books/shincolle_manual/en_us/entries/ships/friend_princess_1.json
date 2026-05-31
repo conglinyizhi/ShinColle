@@ -1,0 +1,41 @@
+{
+  "name": "patchouli.shincolle.entry.friend_princess_1.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.friend_princess_1.page0.title",
+      "text": "patchouli.shincolle.entry.friend_princess_1.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:airfield_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_1.page1.title",
+      "text": "patchouli.shincolle.entry.friend_princess_1.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:battleship_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_1.page2.title",
+      "text": "patchouli.shincolle.entry.friend_princess_1.page2.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:harbour_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_1.page3.title",
+      "text": "patchouli.shincolle.entry.friend_princess_1.page3.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:northern_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_1.page4.title",
+      "text": "patchouli.shincolle.entry.friend_princess_1.page4.text"
+    }
+  ]
+}

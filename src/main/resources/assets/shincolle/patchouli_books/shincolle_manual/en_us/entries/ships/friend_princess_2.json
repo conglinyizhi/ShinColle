@@ -1,0 +1,27 @@
+{
+  "name": "patchouli.shincolle.entry.friend_princess_2.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.friend_princess_2.page0.title",
+      "text": "patchouli.shincolle.entry.friend_princess_2.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:carrier_w_demon",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_2.page1.title",
+      "text": "patchouli.shincolle.entry.friend_princess_2.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:carrier_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_2.page2.title",
+      "text": "patchouli.shincolle.entry.friend_princess_2.page2.text"
+    }
+  ]
+}

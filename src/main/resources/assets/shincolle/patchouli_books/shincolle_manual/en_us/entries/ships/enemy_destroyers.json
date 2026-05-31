@@ -1,0 +1,48 @@
+{
+  "name": "patchouli.shincolle.entry.enemy_destroyers.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.enemy_destroyers.page0.title",
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:destroyer_shimakaze",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_destroyers.page1.title",
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:destroyer_akatsuki",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_destroyers.page2.title",
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page2.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:destroyer_hibiki",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_destroyers.page3.title",
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page3.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:destroyer_ikazuchi",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_destroyers.page4.title",
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page4.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:destroyer_inazuma",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_destroyers.page5.title",
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page5.text"
+    }
+  ]
+}

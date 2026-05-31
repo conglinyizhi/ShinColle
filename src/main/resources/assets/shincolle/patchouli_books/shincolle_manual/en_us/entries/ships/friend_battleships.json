@@ -1,0 +1,34 @@
+{
+  "name": "patchouli.shincolle.entry.friend_battleships.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.friend_battleships.page0.title",
+      "text": "patchouli.shincolle.entry.friend_battleships.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:battleship_ta",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_battleships.page1.title",
+      "text": "patchouli.shincolle.entry.friend_battleships.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:battleship_re",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_battleships.page2.title",
+      "text": "patchouli.shincolle.entry.friend_battleships.page2.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:battleship_ru",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_battleships.page3.title",
+      "text": "patchouli.shincolle.entry.friend_battleships.page3.text"
+    }
+  ]
+}

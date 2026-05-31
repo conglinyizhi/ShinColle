@@ -1,0 +1,27 @@
+{
+  "name": "patchouli.shincolle.entry.friend_cruisers.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.friend_cruisers.page0.title",
+      "text": "patchouli.shincolle.entry.friend_cruisers.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:heavy_cruiser_ri",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_cruisers.page1.title",
+      "text": "patchouli.shincolle.entry.friend_cruisers.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:heavy_cruiser_ne",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_cruisers.page2.title",
+      "text": "patchouli.shincolle.entry.friend_cruisers.page2.text"
+    }
+  ]
+}

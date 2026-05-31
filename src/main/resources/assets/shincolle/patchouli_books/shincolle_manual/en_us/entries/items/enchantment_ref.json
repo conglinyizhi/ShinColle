@@ -1,0 +1,28 @@
+{
+  "name": "patchouli.shincolle.entry.enchantment_ref.name",
+  "category": "shincolle:items",
+  "icon": "minecraft:enchanted_book",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.enchantment_ref.page0.title",
+      "text": "patchouli.shincolle.entry.enchantment_ref.page0.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.enchantment_ref.page1.title",
+      "text": "patchouli.shincolle.entry.enchantment_ref.page1.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.enchantment_ref.page2.title",
+      "text": "patchouli.shincolle.entry.enchantment_ref.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.enchantment_ref.page3.title",
+      "text": "patchouli.shincolle.entry.enchantment_ref.page3.text"
+    }
+  ]
+}

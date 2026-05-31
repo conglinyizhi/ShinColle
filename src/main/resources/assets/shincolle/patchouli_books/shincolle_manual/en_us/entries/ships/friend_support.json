@@ -1,0 +1,41 @@
+{
+  "name": "patchouli.shincolle.entry.friend_support.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.friend_support.page0.title",
+      "text": "patchouli.shincolle.entry.friend_support.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:transport_wa",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_support.page1.title",
+      "text": "patchouli.shincolle.entry.friend_support.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:subm_ka",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_support.page2.title",
+      "text": "patchouli.shincolle.entry.friend_support.page2.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:subm_yo",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_support.page3.title",
+      "text": "patchouli.shincolle.entry.friend_support.page3.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:subm_so",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_support.page4.title",
+      "text": "patchouli.shincolle.entry.friend_support.page4.text"
+    }
+  ]
+}

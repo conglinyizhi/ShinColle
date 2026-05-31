@@ -1,0 +1,55 @@
+{
+  "name": "patchouli.shincolle.entry.friend_princess_3.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.friend_princess_3.page0.title",
+      "text": "patchouli.shincolle.entry.friend_princess_3.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:destroyer_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_3.page1.title",
+      "text": "patchouli.shincolle.entry.friend_princess_3.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:ca_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_3.page2.title",
+      "text": "patchouli.shincolle.entry.friend_princess_3.page2.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:isolated_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_3.page3.title",
+      "text": "patchouli.shincolle.entry.friend_princess_3.page3.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:midway_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_3.page4.title",
+      "text": "patchouli.shincolle.entry.friend_princess_3.page4.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:subm_hime",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_3.page5.title",
+      "text": "patchouli.shincolle.entry.friend_princess_3.page5.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:ssnh",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_princess_3.page6.title",
+      "text": "patchouli.shincolle.entry.friend_princess_3.page6.text"
+    }
+  ]
+}

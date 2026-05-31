@@ -1,0 +1,29 @@
+{
+  "name": "patchouli.shincolle.entry.furniture.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:blockvolblock",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.furniture.page0.title",
+      "text": "patchouli.shincolle.entry.furniture.page0.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.furniture.page1.title",
+      "text": "patchouli.shincolle.entry.furniture.page1.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.furniture.page2.title",
+      "item": "shincolle:blockvolblock",
+      "text": "patchouli.shincolle.entry.furniture.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.furniture.page3.title",
+      "text": "patchouli.shincolle.entry.furniture.page3.text"
+    }
+  ]
+}

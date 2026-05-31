@@ -1,0 +1,20 @@
+{
+  "name": "patchouli.shincolle.entry.friend_wo.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.friend_wo.page0.title",
+      "text": "patchouli.shincolle.entry.friend_wo.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:carrier_wo",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.friend_wo.page1.title",
+      "text": "patchouli.shincolle.entry.friend_wo.page1.text"
+    }
+  ]
+}

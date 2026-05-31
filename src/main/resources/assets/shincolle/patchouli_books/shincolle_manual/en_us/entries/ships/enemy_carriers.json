@@ -1,0 +1,27 @@
+{
+  "name": "patchouli.shincolle.entry.enemy_carriers.name",
+  "category": "shincolle:ships",
+  "icon": "shincolle:shipspawneggs",
+  "sortnum": 13,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.enemy_carriers.page0.title",
+      "text": "patchouli.shincolle.entry.enemy_carriers.page0.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:carrier_kaga",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_carriers.page1.title",
+      "text": "patchouli.shincolle.entry.enemy_carriers.page1.text"
+    },
+    {
+      "type": "patchouli:entity",
+      "entity": "shincolle:carrier_akagi",
+      "scale": 0.8,
+      "title": "patchouli.shincolle.entry.enemy_carriers.page2.title",
+      "text": "patchouli.shincolle.entry.enemy_carriers.page2.text"
+    }
+  ]
+}
