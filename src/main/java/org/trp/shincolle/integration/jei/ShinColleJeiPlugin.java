@@ -27,10 +27,11 @@ public class ShinColleJeiPlugin implements IModPlugin {
         IGuiHelper guiHelper = registration.getJeiHelpers().getGuiHelper();
 
         registration.addRecipeCategories(
-                new ShipyardRecipeCategory(guiHelper, false),  // Small Shipyard
-                new ShipyardRecipeCategory(guiHelper, true),   // Large Shipyard
-                new EquipmentRecipeCategory(guiHelper, false), // Small Equipment Development
-                new EquipmentRecipeCategory(guiHelper, true)   // Large Equipment Development
+                new ShipyardRecipeCategory(guiHelper, false),
+                new ShipyardRecipeCategory(guiHelper, true),
+                new EquipmentRecipeCategory(guiHelper, false),
+                new EquipmentRecipeCategory(guiHelper, true),
+                new ShipAcquisitionCategory(guiHelper)
         );
     }
 
@@ -47,6 +48,10 @@ public class ShinColleJeiPlugin implements IModPlugin {
                 JeiRecipeMaker.getSmallEquipRecipes());
         registration.addRecipes(EquipmentRecipeCategory.LARGE_TYPE,
                 JeiRecipeMaker.getLargeEquipRecipes());
+
+        // Ship acquisition reference
+        registration.addRecipes(ShipAcquisitionCategory.TYPE,
+                JeiRecipeMaker.getShipAcquisitions());
 
         // Item descriptions
         JeiItemDescription.register(registration);

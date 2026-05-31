@@ -263,4 +263,55 @@ public final class JeiRecipeMaker {
         }
         return recipes;
     }
+    // ---- Ship Acquisition Data ----
+
+    /**
+     * Returns ShipAcquisitionWrapper entries showing how each ship can be obtained.
+     */
+    public static List<ShipAcquisitionWrapper> getShipAcquisitions() {
+        List<ShipAcquisitionWrapper> result = new ArrayList<>();
+        ItemStack smallYard = new ItemStack(ModItems.SMALL_SHIPYARD.get());
+        ItemStack largeYard = new ItemStack(ModItems.LARGE_SHIPYARD.get());
+        ItemStack battleIcon = new ItemStack(Items.DIAMOND_SWORD);
+
+        for (int[] cand : SMALL_SHIP_CANDIDATES) {
+            result.add(new ShipAcquisitionWrapper(
+                new ItemStack(getShipEggForType(cand[0], false)),
+                List.of(smallYard),
+                List.of("jei.source.shincolle.small_shipyard")
+            ));
+        }
+        for (int[] cand : LARGE_SHIP_CANDIDATES) {
+            result.add(new ShipAcquisitionWrapper(
+                new ItemStack(getShipEggForType(cand[0], true)),
+                List.of(largeYard),
+                List.of("jei.source.shincolle.large_shipyard")
+            ));
+        }
+        // Enemy kanmusu
+        addAcq(result, ModItems.DESTROYER_SHIMAKAZE_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.DESTROYER_AKATSUKI_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.DESTROYER_HIBIKI_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.DESTROYER_IKAZUCHI_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.DESTROYER_INAZUMA_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.CRUISER_TENRYUU_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.CRUISER_TATSUTA_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.CRUISER_TAKAO_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.CRUISER_ATAGO_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.CARRIER_KAGA_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.CARRIER_AKAGI_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.BB_KONGOU_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.BB_HIEI_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.BB_HARUNA_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.BB_KIRISHIMA_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.BATTLESHIP_NAGATO_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.SUBM_U511_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        addAcq(result, ModItems.SUBM_RO500_SPAWN_EGG.get(), battleIcon, "jei.source.shincolle.wild_kanmusu");
+        return result;
+    }
+
+    private static void addAcq(List<ShipAcquisitionWrapper> list, Item egg, ItemStack icon, String langKey) {
+        list.add(new ShipAcquisitionWrapper(new ItemStack(egg), List.of(icon), List.of(langKey)));
+    }
 }

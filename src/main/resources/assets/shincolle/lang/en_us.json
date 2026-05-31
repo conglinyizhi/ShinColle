@@ -1644,5 +1644,9 @@
   "patchouli.shincolle.category.ships.name": "Ship Registry",
   "patchouli.shincolle.category.ships.desc": "Detailed data on every abyssal ship and kanmusu you have encountered",
   "jei.shincolle.shipyard.random_tip": "Output is random, affected by material ratios",
-  "jei.shincolle.equipment.random_tip": "Output is random, affected by material ratios"
+  "jei.shincolle.equipment.random_tip": "Output is random, affected by material ratios",
+  "jei.category.shincolle.ship_acquisition": "Ship Acquisition",
+  "jei.source.shincolle.small_shipyard": "Small Shipyard",
+  "jei.source.shincolle.large_shipyard": "Large Shipyard",
+  "jei.source.shincolle.wild_kanmusu": "Wild Kanmusu"
 }
