@@ -37,6 +37,7 @@ import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.item.ScaledTextTooltipData;
 import org.trp.shincolle.item.ShipTankItem;
 import org.trp.shincolle.menu.ModMenus;
+import net.neoforged.fml.ModList;
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = Dist.CLIENT)
 public class ClientModEventBusEvents {
@@ -52,6 +53,11 @@ public class ClientModEventBusEvents {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
                 event.enqueueWork(() -> {
+                        var mc = net.neoforged.fml.ModList.get().getModContainerById(Shincolle.MODID);
+                        mc.ifPresent(c -> c.registerExtensionPoint(
+                            net.neoforged.neoforge.client.gui.IConfigScreenFactory.class,
+                            (modContainer, parentScreen) -> org.trp.shincolle.client.gui.ShincolleConfigScreen.tryCreate(parentScreen)
+                        ));
                         registerLegacyVariantProperty(ModItems.EQUIP_AIRPLANE.get());
                         registerLegacyVariantProperty(ModItems.EQUIP_CANNON.get());
                         registerLegacyVariantProperty(ModItems.EQUIP_DRUM.get());

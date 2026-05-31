@@ -207,6 +207,26 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             ringEffectSynced = value != 0;
         }
     };
+    private final DataSlot ammoLightData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAmmoLight();
+        }
+        @Override
+        public void set(int value) {
+            ammoLightSynced = value;
+        }
+    };
+    private final DataSlot ammoHeavyData = new DataSlot() {
+        @Override
+        public int get() {
+            return ship.getAmmoHeavy();
+        }
+        @Override
+        public void set(int value) {
+            ammoHeavySynced = value;
+        }
+    };
     private final DataSlot marriedData = new DataSlot() {
         @Override
         public int get() {
@@ -462,6 +482,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
     private boolean lightAircraftAttackSynced;
     private boolean heavyAircraftAttackSynced;
     private boolean ringEffectSynced;
+    private int ammoLightSynced;
+    private int ammoHeavySynced;
     private boolean marriedSynced;
     private int followMinSynced;
     private int followMaxSynced;
@@ -512,6 +534,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.lightAircraftAttackSynced = ship.isStateLightAircraftAttack();
         this.heavyAircraftAttackSynced = ship.isStateHeavyAircraftAttack();
         this.ringEffectSynced = ship.isStateRingEffect();
+        this.ammoLightSynced = ship.getAmmoLight();
+        this.ammoHeavySynced = ship.getAmmoHeavy();
         this.marriedSynced = ship.isStateMarried();
         this.followMinSynced = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN));
         this.followMaxSynced = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this.followMinSynced);
@@ -546,6 +570,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         this.addDataSlot(lightAircraftAttackData);
         this.addDataSlot(heavyAircraftAttackData);
         this.addDataSlot(ringEffectData);
+        this.addDataSlot(ammoLightData);
+        this.addDataSlot(ammoHeavyData);
         this.addDataSlot(marriedData);
         this.addDataSlot(followMinData);
         this.addDataSlot(followMaxData);
@@ -697,6 +723,12 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return ringEffectSynced;
     }
 
+    public int getAmmoLightSynced() {
+        return ammoLightSynced;
+    }
+    public int getAmmoHeavySynced() {
+        return ammoHeavySynced;
+    }
     public boolean isMarried() {
         return marriedSynced;
     }
@@ -910,6 +942,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             case TOGGLE_BUTTON_CAN_MELEE -> {
                 ship.setStateCanMelee(!ship.isStateCanMelee());
                 canMeleeSynced = ship.isStateCanMelee();
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_LIGHT_ATTACK -> {
@@ -943,57 +976,68 @@ public class ShipContainerMenu extends AbstractContainerMenu {
             case TOGGLE_BUTTON_RING_EFFECT -> {
                 ship.setStateRingEffect(!ship.isStateRingEffect());
                 ringEffectSynced = ship.isStateRingEffect();
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_PASSIVE_ATTACK -> {
                 ship.setStateFlag(STATE_FLAG_PASSIVE_ATTACK, !ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK));
                 passiveAttackSynced = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_ON_SIGHT -> {
                 ship.setStateFlag(STATE_FLAG_ON_SIGHT, !ship.getStateFlag(STATE_FLAG_ON_SIGHT));
                 onSightSynced = ship.getStateFlag(STATE_FLAG_ON_SIGHT);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_PVP -> {
                 ship.setStateFlag(STATE_FLAG_PVP, !ship.getStateFlag(STATE_FLAG_PVP));
                 pvpSynced = ship.getStateFlag(STATE_FLAG_PVP);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_ANTI_AIR -> {
                 ship.setStateFlag(STATE_FLAG_ANTI_AIR, !ship.getStateFlag(STATE_FLAG_ANTI_AIR));
                 antiAirSynced = ship.getStateFlag(STATE_FLAG_ANTI_AIR);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_ANTI_SUB -> {
                 ship.setStateFlag(STATE_FLAG_ANTI_SUB, !ship.getStateFlag(STATE_FLAG_ANTI_SUB));
                 antiSubSynced = ship.getStateFlag(STATE_FLAG_ANTI_SUB);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_TIMEKEEP -> {
                 ship.setStateFlag(STATE_FLAG_TIMEKEEP, !ship.getStateFlag(STATE_FLAG_TIMEKEEP));
                 timeKeepingSynced = ship.getStateFlag(STATE_FLAG_TIMEKEEP);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_PICK_ITEM -> {
                 ship.setStateFlag(STATE_FLAG_PICK_ITEM, !ship.getStateFlag(STATE_FLAG_PICK_ITEM));
                 pickItemSynced = ship.getStateFlag(STATE_FLAG_PICK_ITEM);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_AUTO_PUMP -> {
                 ship.setStateFlag(STATE_FLAG_AUTO_PUMP, !ship.getStateFlag(STATE_FLAG_AUTO_PUMP));
                 autoPumpSynced = ship.getStateFlag(STATE_FLAG_AUTO_PUMP);
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_SHOW_HELD -> {
                 ship.setStateAppearance(!ship.isStateAppearance());
                 appearanceSynced = ship.isStateAppearance();
+                this.broadcastFullState();
                 return true;
             }
             case TOGGLE_BUTTON_MOUNT -> {
                 int current = ship.getStateEmotion(0);
                 ship.setStateEmotion(0, current ^ 1, true);
                 mountSynced = (ship.getStateEmotion(0) & 1) != 0;
+                this.broadcastFullState();
                 return true;
             }
             default -> {

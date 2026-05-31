@@ -123,6 +123,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     // Widget references for visibility management
     private final List<IconButton> settingsTabButtons = new ArrayList<>();
     private final List<IconButton> toggleButtons = new ArrayList<>();
+    private final java.util.List<Integer> toggleParentTabs = new java.util.ArrayList<>();
 
     public ShipInventoryScreen(ShipContainerMenu menu, Inventory playerInv, Component title) {
         super(menu, playerInv, title);
@@ -172,30 +173,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             addSettingsTab(tab);
         }
 
-        // ---- Toggle buttons for settings panels ----
-        // Tab 1: Combat toggles
-        addToggle(1, 174, 131, () -> this.canMelee, ShipContainerMenu.TOGGLE_BUTTON_CAN_MELEE, () -> true);
-        addToggle(1, 174, 144, () -> this.lightAttack, ShipContainerMenu.TOGGLE_BUTTON_LIGHT_ATTACK, () -> this.menu.getShip().isStateGuiBtn1());
-        addToggle(1, 174, 157, () -> this.heavyAttack, ShipContainerMenu.TOGGLE_BUTTON_HEAVY_ATTACK, () -> this.menu.getShip().isStateGuiBtn2());
-        addToggle(1, 174, 170, () -> this.lightAircraftAttack, ShipContainerMenu.TOGGLE_BUTTON_LIGHT_AIRCRAFT, () -> this.menu.getShip().isStateGuiBtn3());
-        addToggle(1, 174, 183, () -> this.heavyAircraftAttack, ShipContainerMenu.TOGGLE_BUTTON_HEAVY_AIRCRAFT, () -> this.menu.getShip().isStateGuiBtn4());
-        addToggle(1, 174, 196, () -> this.ringEffect, ShipContainerMenu.TOGGLE_BUTTON_RING_EFFECT, () -> true);
-
-        // Tab 3: AI toggles
-        addToggle(3, 174, 131, () -> this.passiveAttack, ShipContainerMenu.TOGGLE_BUTTON_PASSIVE_ATTACK, () -> true);
-        addToggle(3, 174, 144, () -> this.onSight, ShipContainerMenu.TOGGLE_BUTTON_ON_SIGHT, () -> true);
-        addToggle(3, 174, 157, () -> this.pvpMode, ShipContainerMenu.TOGGLE_BUTTON_PVP, () -> true);
-        addToggle(3, 174, 170, () -> this.antiAir, ShipContainerMenu.TOGGLE_BUTTON_ANTI_AIR, () -> true);
-        addToggle(3, 174, 183, () -> this.antiSub, ShipContainerMenu.TOGGLE_BUTTON_ANTI_SUB, () -> true);
-        addToggle(3, 174, 196, () -> this.timeKeeping, ShipContainerMenu.TOGGLE_BUTTON_TIMEKEEP, () -> true);
-
-        // Tab 4: Item toggles
-        addToggle(4, 174, 131, () -> this.pickItem, ShipContainerMenu.TOGGLE_BUTTON_PICK_ITEM, () -> this.menu.getShip().supportsItemPickup());
-        addToggle(4, 174, 144, () -> this.autoPump, ShipContainerMenu.TOGGLE_BUTTON_AUTO_PUMP, () -> true);
-
-        // Tab 6: Appearance toggles
-        addToggle(6, TOGGLE_X, TOGGLE_ROW_1_Y, () -> this.appearance, ShipContainerMenu.TOGGLE_BUTTON_SHOW_HELD, () -> true);
-        addToggle(6, TOGGLE_X, TOGGLE_ROW_2_Y, () -> this.mount, ShipContainerMenu.TOGGLE_BUTTON_MOUNT, () -> true);
+        // ---- Toggle buttons: removed from GUI, pending Cloth Config integration ----
     }
 
     private void addDetailTab(int tabId, int y) {
@@ -237,9 +215,10 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 .activeState(state)
                 .onPress(() -> sendMenuButton(buttonId))
                 .build();
-        btn.visible = false; // visibility managed in containerTick
+        btn.visible = false;
         this.addRenderableWidget(btn);
         this.toggleButtons.add(btn);
+        this.toggleParentTabs.add(parentTab);
     }
 
     @Override
@@ -276,9 +255,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawLabel(guiGraphics, tr("gui.shincolle.exp"), 75, 41);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipExp()), 135, 51, 0xFFFFFF);
             drawLabel(guiGraphics, tr("gui.shincolle.ammolight"), 75, 62);
-            drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoLight()), 135, 72, 0xFFFFFF);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getAmmoLightSynced()), 135, 72, 0xFFFFFF);
             drawLabel(guiGraphics, tr("gui.shincolle.ammoheavy"), 75, 83);
-            drawValueRight(guiGraphics, String.valueOf(this.menu.getShip().getAmmoHeavy()), 135, 93, 0xFFFFFF);
+            drawValueRight(guiGraphics, String.valueOf(this.menu.getAmmoHeavySynced()), 135, 93, 0xFFFFFF);
             drawLabel(guiGraphics, tr("gui.shincolle.grudge"), 75, 104);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipFuel()), 135, 114, 0xFFFFFF);
         } else if (this.activeDetailTab == DETAIL_TAB_STATUS) {
@@ -369,13 +348,11 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         for (int i = 0; i < pageButtons.size(); i++) {
             pageButtons.get(i).active = i == 0 || unlocked >= i;
         }
-        // Update toggle button visibility based on active settings tab and conditions
-        int tabIdx = 0;
-        for (IconButton btn : toggleButtons) {
-            btn.visible = false;
+        // Show toggle buttons for the active settings tab
+        for (int i = 0; i < toggleButtons.size(); i++) {
+            boolean matches = i < toggleParentTabs.size() && toggleParentTabs.get(i) == this.activeSettingsTab;
+            toggleButtons.get(i).visible = matches;
         }
-        // We use a simpler approach: just check each toggle type in the render phase
-        // Toggle visibility is managed by the settings tab render logic
     }
 
     // ---- Mouse interaction ----
@@ -549,22 +526,11 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private void drawToggleStateMarks(GuiGraphics g) {
         switch (this.activeSettingsTab) {
             case 1 -> {
-                drawOnOff(g, 174, 131, this.canMelee);
-                if (this.menu.getShip().isStateGuiBtn1()) drawOnOff(g, 174, 144, this.lightAttack);
-                if (this.menu.getShip().isStateGuiBtn2()) drawOnOff(g, 174, 157, this.heavyAttack);
-                if (this.menu.getShip().isStateGuiBtn3()) drawOnOff(g, 174, 170, this.lightAircraftAttack);
-                if (this.menu.getShip().isStateGuiBtn4()) drawOnOff(g, 174, 183, this.heavyAircraftAttack);
-                drawOnOff(g, 174, 196, this.ringEffect);
             }
             case 2 -> drawFollowSliderTab(g);
             case 3 -> {
-                drawOnOff(g, 174, 131, this.passiveAttack); drawOnOff(g, 174, 144, this.onSight);
-                drawOnOff(g, 174, 157, this.pvpMode); drawOnOff(g, 174, 170, this.antiAir);
-                drawOnOff(g, 174, 183, this.antiSub); drawOnOff(g, 174, 196, this.timeKeeping);
             }
             case 4 -> {
-                if (this.menu.getShip().supportsItemPickup()) drawOnOff(g, 174, 131, this.pickItem);
-                drawOnOff(g, 174, 144, this.autoPump);
             }
             case 5 -> drawRationSliderTab(g);
             case 6 -> drawAppearanceToggleMarks(g);
