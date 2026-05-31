@@ -85,3 +85,4 @@ logs/
 todo.md
 
 .sisyphus/
+.sisyphus/run-continuation/
