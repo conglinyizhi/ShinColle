@@ -2,7 +2,7 @@
   "name": "patchouli.shincolle.entry.automation_tools.name",
   "category": "shincolle:items",
   "icon": "shincolle:targetwrench",
-  "sortnum": 2,
+  "sortnum": 3,
   "pages": [
     {
       "type": "patchouli:text",

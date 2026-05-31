@@ -1,8 +1,8 @@
 {
   "name": "patchouli.shincolle.entry.enchantment_ref.name",
-  "category": "shincolle:items",
+  "category": "shincolle:equipment",
   "icon": "minecraft:enchanted_book",
-  "sortnum": 11,
+  "sortnum": 3,
   "pages": [
     {
       "type": "patchouli:text",

@@ -2,7 +2,7 @@
   "name": "patchouli.shincolle.entry.op_tools.name",
   "category": "shincolle:items",
   "icon": "shincolle:optool",
-  "sortnum": 7,
+  "sortnum": 4,
   "pages": [
     {
       "type": "patchouli:text",

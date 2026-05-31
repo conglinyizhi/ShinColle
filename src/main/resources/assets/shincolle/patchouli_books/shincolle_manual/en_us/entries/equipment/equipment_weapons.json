@@ -1,8 +1,8 @@
 {
   "name": "patchouli.shincolle.entry.equipment_weapons.name",
-  "category": "shincolle:items",
+  "category": "shincolle:equipment",
   "icon": "shincolle:equipcannon",
-  "sortnum": 3,
+  "sortnum": 0,
   "pages": [
     {
       "type": "patchouli:text",

@@ -1,8 +1,8 @@
 {
   "name": "patchouli.shincolle.entry.equipment_special.name",
-  "category": "shincolle:items",
+  "category": "shincolle:equipment",
   "icon": "shincolle:equipdrum",
-  "sortnum": 5,
+  "sortnum": 2,
   "pages": [
     {
       "type": "patchouli:text",
