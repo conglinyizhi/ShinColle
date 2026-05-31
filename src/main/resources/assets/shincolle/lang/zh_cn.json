@@ -1661,5 +1661,7 @@
   "patchouli.shincolle.entry.furniture.page3.title": "深海支架",
   "patchouli.shincolle.entry.furniture.page3.text": "被深海的高压扭曲而成的$(item)深海支架$()，是一种装饰性建筑方块。它还可以当梯子使用，为你的港区提供实用的垂直移动功能。",
   "patchouli.shincolle.category.ships.name": "舰娘图鉴",
-  "patchouli.shincolle.category.ships.desc": "你遇到过的深海栖舰与舰娘的详细资料"
+  "patchouli.shincolle.category.ships.desc": "你遇到过的深海栖舰与舰娘的详细资料",
+  "jei.shincolle.shipyard.random_tip": "产出结果随机，受材料配比影响",
+  "jei.shincolle.equipment.random_tip": "产出结果随机，受材料配比影响"
 }

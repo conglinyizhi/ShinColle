@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.init.ModItems;
+import net.minecraft.client.Minecraft;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -104,5 +105,9 @@ public class EquipmentRecipeCategory implements IRecipeCategory<EquipmentRecipeW
 
     @Override
     public void draw(EquipmentRecipeWrapper recipe, IRecipeSlotsView slotsView, GuiGraphics guiGraphics, double mouseX, double mouseY) {
+        guiGraphics.drawString(
+            Minecraft.getInstance().font,
+            Component.translatable("jei.shincolle.equipment.random_tip"),
+            2, HEIGHT - 11, 0xFF888888, false);
     }
 }
