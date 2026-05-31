@@ -81,23 +81,30 @@ jobs:
         run: |
           git fetch --tags --force
           PREV_TAG="$(git tag --sort=-creatordate | grep '^canary-' | grep -Fxv "$CURRENT_TAG" | head -n 1 || true)"
+          if [ -z "$PREV_TAG" ]; then
+            PREV_TAG="$(git tag --sort=-creatordate | grep -Fxv "$CURRENT_TAG" | head -n 1 || true)"
+          fi
 
           {
             echo "body<<EOF"
-            echo "Automated canary build for testing only."
+            echo "警告：这是金丝雀测试版本，仅供测试，不建议用于正式存档。"
+            echo "Warning: This is a canary testing build for validation only and is not recommended for production worlds."
+            echo "警告：これはテスト専用のカナリア版であり、本番ワールドでの利用は推奨されません。"
             echo
-            echo "Notes:"
-            echo "- This build is intended for validation before wider release."
             echo "- Single-player testing is recommended first."
             echo "- Please attach latest.log or crash reports when reporting issues."
             echo
+            echo "Changes in this canary"
+            echo "Chinese only."
+            echo "<details>"
+            echo "<summary>Expand commit summary</summary>"
+            echo
             if [ -n "$PREV_TAG" ]; then
-              echo "Changes since $PREV_TAG:"
               git log --no-merges --pretty='- %s (%h)' "$PREV_TAG..$CURRENT_TAG"
             else
-              echo "Changes in this canary:"
               git log --no-merges --pretty='- %s (%h)' "$CURRENT_TAG"
             fi
+            echo "</details>"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
@@ -113,6 +120,6 @@ jobs:
           tag_name: ${{ steps.meta.outputs.tag }}
           name: ${{ steps.meta.outputs.name }}
           prerelease: true
-          generate_release_notes: true
+          generate_release_notes: false
           body: ${{ steps.changelog.outputs.body }}
           files: release-artifacts/*.jar
