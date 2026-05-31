@@ -50,5 +50,7 @@ public class Shincolle {
         ModDataAttachments.ATTACHMENT_TYPES.register(modEventBus);
         ModLootModifiers.LOOT_MODIFIERS.register(modEventBus);
         modEventBus.addListener(ModCapabilityEvents::registerCapabilities);
+
+        // Config screen registered in ClientModEventBusEvents (client-only)
     }
 }
