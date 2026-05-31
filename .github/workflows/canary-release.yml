@@ -1,0 +1,118 @@
+name: Canary Release
+
+on:
+  push:
+    tags:
+      - "canary-*"
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Canary tag to release, for example canary-20260531
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release metadata
+        id: meta
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          INPUT_RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            TAG="$INPUT_RELEASE_TAG"
+          else
+            TAG="$REF_NAME"
+          fi
+
+          if [ -z "$TAG" ]; then
+            echo "Release tag is empty" >&2
+            exit 1
+          fi
+
+          case "$TAG" in
+            canary-*) ;;
+            *)
+              echo "Unsupported release tag: $TAG" >&2
+              exit 1
+              ;;
+          esac
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "name=Canary Build ${TAG#canary-}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make Gradle wrapper executable
+        run: chmod +x ./gradlew
+
+      - name: Compile sources
+        run: ./gradlew compileJava --no-daemon
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+      - name: Build jar
+        run: ./gradlew build --no-daemon
+
+      - name: Collect changelog
+        id: changelog
+        env:
+          CURRENT_TAG: ${{ steps.meta.outputs.tag }}
+        run: |
+          git fetch --tags --force
+          PREV_TAG="$(git tag --sort=-creatordate | grep '^canary-' | grep -Fxv "$CURRENT_TAG" | head -n 1 || true)"
+
+          {
+            echo "body<<EOF"
+            echo "Automated canary build for testing only."
+            echo
+            echo "Notes:"
+            echo "- This build is intended for validation before wider release."
+            echo "- Single-player testing is recommended first."
+            echo "- Please attach latest.log or crash reports when reporting issues."
+            echo
+            if [ -n "$PREV_TAG" ]; then
+              echo "Changes since $PREV_TAG:"
+              git log --no-merges --pretty='- %s (%h)' "$PREV_TAG..$CURRENT_TAG"
+            else
+              echo "Changes in this canary:"
+              git log --no-merges --pretty='- %s (%h)' "$CURRENT_TAG"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Collect jar artifacts
+        run: |
+          mkdir -p release-artifacts
+          find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' -exec cp {} release-artifacts/ \;
+          ls -lah release-artifacts
+
+      - name: Create prerelease
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.meta.outputs.tag }}
+          name: ${{ steps.meta.outputs.name }}
+          prerelease: true
+          generate_release_notes: true
+          body: ${{ steps.changelog.outputs.body }}
+          files: release-artifacts/*.jar
