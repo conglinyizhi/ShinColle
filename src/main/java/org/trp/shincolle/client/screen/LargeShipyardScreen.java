@@ -4,18 +4,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.client.gui.component.Sprites;
 import org.trp.shincolle.menu.LargeShipyardMenu;
+import net.minecraft.resources.ResourceLocation;
 
 public class LargeShipyardScreen extends AbstractContainerScreen<LargeShipyardMenu> {
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guilargeshipyard.png");
-
-    private static final int[] ANIM_ICON_V_OFFSETS = new int[]{103, 121, 139, 157, 175, 193};
+    private static final ResourceLocation TEXTURE = Sprites.T_LARGE_SHIPYARD;
 
     private float guiTicks;
+    private static final int[] ANIM_ICON_V_OFFSETS = new int[]{103, 121, 139, 157, 175, 193};
 
     public LargeShipyardScreen(LargeShipyardMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -164,16 +162,16 @@ public class LargeShipyardScreen extends AbstractContainerScreen<LargeShipyardMe
         int y = this.topPos + 24;
         int v = building ? ANIM_ICON_V_OFFSETS[(int) this.guiTicks % ANIM_ICON_V_OFFSETS.length] : 64;
 
-        guiGraphics.blit(TEXTURE, x, y, 208, v, 18, 18, 256, 256);
+        guiGraphics.blit(TEXTURE, x, y, Sprites.SHIPYARD_LARGE_SELECTION_ICON_U, v, Sprites.SHIPYARD_LARGE_SELECTION_ICON_W, Sprites.SHIPYARD_LARGE_SELECTION_ICON_H, 256, 256);
     }
 
     private void drawSelectionHighlights(GuiGraphics guiGraphics) {
         int selectMat = this.menu.getSelectMat();
-        guiGraphics.blit(TEXTURE, this.leftPos + 50, this.topPos + 8 + selectMat * 19, 0, 223, 48, 30, 256, 256);
-        guiGraphics.blit(TEXTURE, this.leftPos + 27, this.topPos + 14 + selectMat * 19, 208, 64, 18, 18, 256, 256);
+        guiGraphics.blit(TEXTURE, this.leftPos + 50, this.topPos + 8 + selectMat * 19, Sprites.SHIPYARD_LARGE_SELECTION_BG_U, Sprites.SHIPYARD_LARGE_SELECTION_BG_V, Sprites.SHIPYARD_LARGE_SELECTION_BG_W, Sprites.SHIPYARD_LARGE_SELECTION_BG_H, 256, 256);
+        guiGraphics.blit(TEXTURE, this.leftPos + 27, this.topPos + 14 + selectMat * 19, Sprites.SHIPYARD_LARGE_SELECTION_ICON_U, Sprites.SHIPYARD_LARGE_SELECTION_ICON_V, Sprites.SHIPYARD_LARGE_SELECTION_ICON_W, Sprites.SHIPYARD_LARGE_SELECTION_ICON_H, 256, 256);
 
         if (this.menu.getInvMode() == 1) {
-            guiGraphics.blit(TEXTURE, this.leftPos + 23, this.topPos + 92, 208, 82, 25, 20, 256, 256);
+            guiGraphics.blit(TEXTURE, this.leftPos + 23, this.topPos + 92, Sprites.SHIPYARD_LARGE_INV_MODE_ICON_U, Sprites.SHIPYARD_LARGE_INV_MODE_ICON_V, Sprites.SHIPYARD_LARGE_INV_MODE_ICON_W, Sprites.SHIPYARD_LARGE_INV_MODE_ICON_H, 256, 256);
         }
     }
 

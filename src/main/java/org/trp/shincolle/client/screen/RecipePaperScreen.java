@@ -5,15 +5,15 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.client.gui.component.Sprites;
 import org.trp.shincolle.menu.RecipePaperMenu;
 
 public class RecipePaperScreen extends AbstractContainerScreen<RecipePaperMenu> {
 
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guirecipepaper.png");
-    private static final int LABEL_COLOR = 0x404040;
+    private static final ResourceLocation TEXTURE = Sprites.T_RECIPE_PAPER;
     private static final int SECTION_COLOR = 0xFFF1C8;
     private static final int SECTION_SHADOW_COLOR = 0x6A5640;
+    private static final int LABEL_COLOR = 0x404040;
 
     public RecipePaperScreen(RecipePaperMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);

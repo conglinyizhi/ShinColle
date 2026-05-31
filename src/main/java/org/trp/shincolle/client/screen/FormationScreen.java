@@ -7,10 +7,11 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.attachment.AdmiralData;
+import org.trp.shincolle.client.gui.component.Sprites;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.menu.FormationMenu;
 import org.trp.shincolle.network.C2SFormationActionPayload;
@@ -19,7 +20,7 @@ import org.trp.shincolle.utility.FormationHelper;
 import java.util.*;
 
 public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guiformation.png");
+    private static final ResourceLocation TEXTURE = Sprites.T_FORMATION;
     private static final ResourceLocation NAME_ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guinameicon0.png");
 
     private static final int BAR_LENGTH = 20;
@@ -161,7 +162,7 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
         int currentTeam = data.getCurrentTeamID();
 
         if (selectedSlot >= 0 && selectedSlot < AdmiralData.SLOT_COUNT) {
-            graphics.blit(TEXTURE, x + 142, y + 5 + selectedSlot * 27, 3, 192, 108, 27);
+            graphics.blit(TEXTURE, x + 142, y + 5 + selectedSlot * 27, Sprites.FORMATION_SLOT_HIGHLIGHT_U, Sprites.FORMATION_SLOT_HIGHLIGHT_V, Sprites.FORMATION_SLOT_HIGHLIGHT_W, Sprites.FORMATION_SLOT_HIGHLIGHT_H);
         }
 
         graphics.blit(TEXTURE, x + 18 + currentTeam * 12, y + 167, 111 + currentTeam * 9, 207, 9, 11);
@@ -465,7 +466,7 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
                 String stats = ChatFormatting.AQUA + "LV " + ChatFormatting.YELLOW + ship.getLevel()
                         + "   " + ChatFormatting.GOLD + (int) ship.getHealth()
                         + " / " + ChatFormatting.RED + (int) ship.getMaxHealth();
-                graphics.drawString(this.font, stats, 195, textY + 14, 0, false);
+                graphics.drawString(this.font, stats, 195, textY + 14, 0xFFFFFF, false);
             } else {
                 UUID uuid = data.getShipUUID(currentTeam, i);
                 MutableComponent noSignal = Component.translatable("gui.shincolle.formation.nosignal")
@@ -493,7 +494,7 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
     private void drawFormationBuffBars(GuiGraphics graphics, int left, int top, int formationId, int slotId) {
         for (int i = 0; i < 3; ++i) {
             for (int j = 0; j < 6; ++j) {
-                graphics.blit(TEXTURE, left + BAR_COLS[i], top + BAR_ROWS[j], 0, 220, BAR_LENGTH, 4);
+                graphics.blit(TEXTURE, left + BAR_COLS[i], top + BAR_ROWS[j], Sprites.FORMATION_BAR_BG_U, Sprites.FORMATION_BAR_BG_V, Sprites.FORMATION_BAR_BG_W, Sprites.FORMATION_BAR_BG_H);
             }
         }
 

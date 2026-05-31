@@ -25,6 +25,7 @@ import org.trp.shincolle.network.C2STeamDiplomacyPayload;
 import org.trp.shincolle.network.DeskDiplomacySync;
 import org.trp.shincolle.reference.Values;
 import org.trp.shincolle.server.PlayerStateService;
+import org.trp.shincolle.client.gui.component.Sprites;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -158,11 +159,11 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         
         if (mx >= 50 && mx <= 80 && my >= 180 && my <= 195) {
             if (pageId > 0) {
-                guiGraphics.blit(BookRenderer.GUI_BOOK, 53, 182, 0, 192, 18, 10, 256, 256);
+                guiGraphics.blit(BookRenderer.GUI_BOOK, 53, 182, Sprites.DESK_BOOK_PREV_BTN_U, Sprites.DESK_BOOK_PREV_BTN_V, Sprites.DESK_BOOK_PREV_BTN_W, Sprites.DESK_BOOK_PREV_BTN_H, 256, 256);
             }
         } else if (mx >= 170 && mx <= 200 && my >= 180 && my <= 195) {
             if (pageId < Values.PageLimit[chapId]) {
-                guiGraphics.blit(BookRenderer.GUI_BOOK, 175, 182, 0, 202, 18, 10, 256, 256);
+                guiGraphics.blit(BookRenderer.GUI_BOOK, 175, 182, Sprites.DESK_BOOK_NEXT_BTN_U, Sprites.DESK_BOOK_NEXT_BTN_V, Sprites.DESK_BOOK_NEXT_BTN_W, Sprites.DESK_BOOK_NEXT_BTN_H, 256, 256);
             }
         }
     }
@@ -270,11 +271,11 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         for (int i = 0; i < 5; ++i) {
             int actualShipIndex = this.listNum[0] + i;
             if (actualShipIndex < this.shipList.size() && isSelectedShip(this.shipList.get(actualShipIndex))) {
-                guiGraphics.blit(BookRenderer.GUI_RADAR, 142, 25 + i * 32, 68, 192, 108, 31);
+                guiGraphics.blit(BookRenderer.GUI_RADAR, 142, 25 + i * 32, Sprites.DESK_RADAR_SELECTED_ROW_U, Sprites.DESK_RADAR_SELECTED_ROW_V, Sprites.DESK_RADAR_SELECTED_ROW_W, Sprites.DESK_RADAR_SELECTED_ROW_H, 256, 256);
             }
         }
         if (!this.selectedShips.isEmpty()) {
-            guiGraphics.blit(BookRenderer.GUI_RADAR, 88, 159, 24, 216, 44, 10);
+            guiGraphics.blit(BookRenderer.GUI_RADAR, 88, 159, Sprites.DESK_RADAR_ACTION_BTN_U, Sprites.DESK_RADAR_ACTION_BTN_V, Sprites.DESK_RADAR_ACTION_BTN_W, Sprites.DESK_RADAR_ACTION_BTN_H, 256, 256);
         }
     }
 

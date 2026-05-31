@@ -5,14 +5,14 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.client.gui.component.Sprites;
 import org.trp.shincolle.menu.VolCoreMenu;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class VolCoreScreen extends AbstractContainerScreen<VolCoreMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guivolcore.png");
+    private static final ResourceLocation GUI_TEXTURE = Sprites.T_VOLCORE;
 
     public VolCoreScreen(VolCoreMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
@@ -27,7 +27,7 @@ public class VolCoreScreen extends AbstractContainerScreen<VolCoreMenu> {
         graphics.blit(GUI_TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight);
 
         if (menu.isBtnActive()) {
-            graphics.blit(GUI_TEXTURE, leftPos + 7, topPos + 6, 12, 166, 13, 13);
+            graphics.blit(GUI_TEXTURE, leftPos + 7, topPos + 6, Sprites.VOLCORE_BTN_ACTIVE_U, Sprites.VOLCORE_BTN_ACTIVE_V, Sprites.VOLCORE_BTN_W, Sprites.VOLCORE_BTN_H);
         }
 
         int power = menu.getRemainedPower();

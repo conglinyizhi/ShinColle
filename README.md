@@ -16,3 +16,14 @@ See [LICENSE](./LICENSE) and [NOTICE](./NOTICE) for license and upstream attribu
 Related upstream references:
 - Update history: [updates.MD](https://github.com/reiwa/Shincolle-1.21.1/blob/main/updates.MD)
 - Upstream jar archive: [Shincolle-1.12.2-1.21.1alpha](https://github.com/reiwa/Shincolle-1.12.2-1.21.1alpha)
+
+
+## Font Driver
+
+This project uses [MiSans](https://hyperos.mi.com/font) as its font driver for legacy deep-sea log books (the desk book and the held-item book when Patchouli is not installed).
+
+The font is embedded at `assets/shincolle/font/MiSans-Normal.ttf`.
+
+**Configuration** (via `shincolle-client.toml`):
+- `misans_font.useMiSansFont` — Enable MiSans font (default: `true`)
+- `misans_font.miSansOnlyForLegacyLogs` — Only apply to legacy logs (default: `true`)

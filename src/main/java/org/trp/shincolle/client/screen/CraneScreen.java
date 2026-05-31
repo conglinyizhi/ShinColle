@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
-import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.client.gui.component.Sprites;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.menu.CraneMenu;
 
@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guicrane.png");
+    private static final ResourceLocation TEXTURE = Sprites.T_CRANE;
 
     public CraneScreen(CraneMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -43,47 +43,47 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
 
         
         if (menu.isActive()) {
-            graphics.blit(TEXTURE, x + 7, y + 6, 176, 0, 13, 13);
+            graphics.blit(TEXTURE, x + 7, y + 6, Sprites.CRANE_BTN_ACTIVE_U, Sprites.CRANE_BTN_ACTIVE_V, Sprites.CRANE_BTN_ACTIVE_W, Sprites.CRANE_BTN_ACTIVE_H);
         }
 
         
-        if (menu.isCheckMetadata()) graphics.blit(TEXTURE, x + 23, y + 22, 176, 13, 11, 11);
-        if (menu.isCheckOredict()) graphics.blit(TEXTURE, x + 37, y + 22, 176, 24, 11, 11);
-        if (menu.isCheckNbt()) graphics.blit(TEXTURE, x + 51, y + 22, 176, 46, 11, 11);
+        if (menu.isCheckMetadata()) graphics.blit(TEXTURE, x + 23, y + 22, Sprites.CRANE_CHK_METADATA_U, Sprites.CRANE_CHK_METADATA_V, Sprites.CRANE_CHK_METADATA_W, Sprites.CRANE_CHK_METADATA_H);
+        if (menu.isCheckOredict()) graphics.blit(TEXTURE, x + 37, y + 22, Sprites.CRANE_CHK_OREDICT_U, Sprites.CRANE_CHK_OREDICT_V, Sprites.CRANE_CHK_OREDICT_W, Sprites.CRANE_CHK_OREDICT_H);
+        if (menu.isCheckNbt()) graphics.blit(TEXTURE, x + 51, y + 22, Sprites.CRANE_CHK_NBT_U, Sprites.CRANE_CHK_NBT_V, Sprites.CRANE_CHK_NBT_W, Sprites.CRANE_CHK_NBT_H);
 
         
         int redMode = menu.getModeRedstone();
-        if (redMode == 1) graphics.blit(TEXTURE, x + 65, y + 22, 176, 57, 11, 11);
-        else if (redMode == 2) graphics.blit(TEXTURE, x + 65, y + 22, 176, 68, 11, 11);
+        if (redMode == 1) graphics.blit(TEXTURE, x + 65, y + 22, Sprites.CRANE_RED_MODE1_U, Sprites.CRANE_RED_MODE1_V, Sprites.CRANE_RED_MODE1_W, Sprites.CRANE_RED_MODE1_H);
+        else if (redMode == 2) graphics.blit(TEXTURE, x + 65, y + 22, Sprites.CRANE_RED_MODE2_U, Sprites.CRANE_RED_MODE2_V, Sprites.CRANE_RED_MODE2_W, Sprites.CRANE_RED_MODE2_H);
 
         
         if (!menu.isEnabLoad()) {
-            graphics.blit(TEXTURE, x + 7, y + 52, 176, 35, 11, 11);
+            graphics.blit(TEXTURE, x + 7, y + 52, Sprites.CRANE_BTN_DISABLED_U, Sprites.CRANE_BTN_DISABLED_V, Sprites.CRANE_BTN_DISABLED_W, Sprites.CRANE_BTN_DISABLED_H);
             com.mojang.blaze3d.systems.RenderSystem.enableBlend();
             com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
             com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            graphics.blit(TEXTURE, x + 8, y + 65, 0, 201, 160, 16); 
+            graphics.blit(TEXTURE, x + 8, y + 65, Sprites.CRANE_DISABLED_OVERLAY_U, Sprites.CRANE_DISABLED_OVERLAY_V, Sprites.CRANE_DISABLED_OVERLAY_W, Sprites.CRANE_DISABLED_OVERLAY_H); 
             com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
         if (!menu.isEnabUnload()) {
-            graphics.blit(TEXTURE, x + 7, y + 83, 176, 35, 11, 11);
+            graphics.blit(TEXTURE, x + 7, y + 83, Sprites.CRANE_BTN_DISABLED_U, Sprites.CRANE_BTN_DISABLED_V, Sprites.CRANE_BTN_DISABLED_W, Sprites.CRANE_BTN_DISABLED_H);
             com.mojang.blaze3d.systems.RenderSystem.enableBlend();
             com.mojang.blaze3d.systems.RenderSystem.defaultBlendFunc();
             com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
-            graphics.blit(TEXTURE, x + 8, y + 96, 0, 201, 160, 16); 
+            graphics.blit(TEXTURE, x + 8, y + 96, Sprites.CRANE_DISABLED_OVERLAY_U, Sprites.CRANE_DISABLED_OVERLAY_V, Sprites.CRANE_DISABLED_OVERLAY_W, Sprites.CRANE_DISABLED_OVERLAY_H); 
             com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
         }
 
         
         int liqMode = menu.getModeLiquid();
-        if (liqMode == 0) graphics.blit(TEXTURE, x + 23, y + 36, 202, 101, 13, 13);
-        else if (liqMode == 1) graphics.blit(TEXTURE, x + 23, y + 36, 176, 101, 13, 13);
-        else if (liqMode == 2) graphics.blit(TEXTURE, x + 23, y + 36, 189, 101, 13, 13);
+        if (liqMode == 0) graphics.blit(TEXTURE, x + 23, y + 36, Sprites.CRANE_LIQ_MODE0_U, Sprites.CRANE_LIQ_MODE0_V, Sprites.CRANE_LIQ_MODE0_W, Sprites.CRANE_LIQ_MODE0_H);
+        else if (liqMode == 1) graphics.blit(TEXTURE, x + 23, y + 36, Sprites.CRANE_LIQ_MODE1_U, Sprites.CRANE_LIQ_MODE1_V, Sprites.CRANE_LIQ_MODE1_W, Sprites.CRANE_LIQ_MODE1_H);
+        else if (liqMode == 2) graphics.blit(TEXTURE, x + 23, y + 36, Sprites.CRANE_LIQ_MODE2_U, Sprites.CRANE_LIQ_MODE2_V, Sprites.CRANE_LIQ_MODE2_W, Sprites.CRANE_LIQ_MODE2_H);
 
         int energyMode = menu.getModeEnergy();
-        if (energyMode == 0) graphics.blit(TEXTURE, x + 39, y + 36, 202, 114, 13, 13);
-        else if (energyMode == 1) graphics.blit(TEXTURE, x + 39, y + 36, 176, 114, 13, 13);
-        else if (energyMode == 2) graphics.blit(TEXTURE, x + 39, y + 36, 189, 114, 13, 13);
+        if (energyMode == 0) graphics.blit(TEXTURE, x + 39, y + 36, Sprites.CRANE_ENERGY_MODE0_U, Sprites.CRANE_ENERGY_MODE0_V, Sprites.CRANE_ENERGY_MODE0_W, Sprites.CRANE_ENERGY_MODE0_H);
+        else if (energyMode == 1) graphics.blit(TEXTURE, x + 39, y + 36, Sprites.CRANE_ENERGY_MODE1_U, Sprites.CRANE_ENERGY_MODE1_V, Sprites.CRANE_ENERGY_MODE1_W, Sprites.CRANE_ENERGY_MODE1_H);
+        else if (energyMode == 2) graphics.blit(TEXTURE, x + 39, y + 36, Sprites.CRANE_ENERGY_MODE2_U, Sprites.CRANE_ENERGY_MODE2_V, Sprites.CRANE_ENERGY_MODE2_W, Sprites.CRANE_ENERGY_MODE2_H);
 
         
         for (int i = 0; i < 18; i++) {
@@ -93,9 +93,9 @@ public class CraneScreen extends AbstractContainerScreen<CraneMenu> {
                 int sx = x + 7 + (i % 9) * 18;
                 int sy = y + (i < 9 ? 64 : 95);
                 if (slotMode) {
-                    graphics.blit(TEXTURE, sx, sy, 0, 217, 18, 18);
+                    graphics.blit(TEXTURE, sx, sy, Sprites.CRANE_SLOT_ON_U, Sprites.CRANE_SLOT_ON_V, Sprites.CRANE_SLOT_ON_W, Sprites.CRANE_SLOT_ON_H);
                 } else {
-                    graphics.blit(TEXTURE, sx, sy, 19, 217, 18, 18);
+                    graphics.blit(TEXTURE, sx, sy, Sprites.CRANE_SLOT_OFF_U, Sprites.CRANE_SLOT_OFF_V, Sprites.CRANE_SLOT_OFF_W, Sprites.CRANE_SLOT_OFF_H);
                 }
             }
         }

@@ -6,12 +6,11 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import org.trp.shincolle.Shincolle;
+import org.trp.shincolle.client.gui.component.Sprites;
 import org.trp.shincolle.menu.SmallShipyardMenu;
 
 public class SmallShipyardScreen extends AbstractContainerScreen<SmallShipyardMenu> {
-    private static final ResourceLocation TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/gui/guismallshipyard.png");
+    private static final ResourceLocation TEXTURE = Sprites.T_SMALL_SHIPYARD;
 
     private float guiTicks;
 
@@ -96,11 +95,11 @@ public class SmallShipyardScreen extends AbstractContainerScreen<SmallShipyardMe
             return;
         }
 
-        int u = 176;
+        int u = Sprites.SHIPYARD_SMALL_BUILD_ICON_U;
         int x = buildType == 1 || buildType == 3 ? 123 : 143;
         boolean animating = buildType == 3 || buildType == 4;
         int v = animating ? 65 + ((int) this.guiTicks % 6) * 18 : 47;
-        guiGraphics.blit(TEXTURE, this.leftPos + x, this.topPos + 17, u, v, 18, 18, 256, 256);
+        guiGraphics.blit(TEXTURE, this.leftPos + x, this.topPos + 17, u, v, Sprites.SHIPYARD_SMALL_BUILD_ICON_W, Sprites.SHIPYARD_SMALL_BUILD_ICON_H, 256, 256);
     }
 
     private void sendMenuButton(int id) {

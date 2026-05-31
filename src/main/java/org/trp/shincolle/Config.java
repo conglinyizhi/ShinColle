@@ -126,6 +126,8 @@ public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
     public static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_Y;
     public static final ModConfigSpec.DoubleValue CLIENT_OFFSET_HELD_ITEM_Z;
 
+    public static final ModConfigSpec.BooleanValue USE_MISANS_FONT;
+    public static final ModConfigSpec.BooleanValue MISANS_ONLY_LEGACY_LOGS;
     public static final ModConfigSpec SPEC;
     public static final ModConfigSpec CLIENT_SPEC;
 
@@ -228,6 +230,8 @@ public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
     public static float offsetHeldItemX = 0.0F;
     public static float offsetHeldItemY = 0.0F;
     public static float offsetHeldItemZ = 0.0F;
+    public static boolean useMiSansFont = true;
+    public static boolean miSansOnlyForLegacyLogs = true;
 
     public record MiningEntry(
             int dimensionId,
@@ -622,6 +626,15 @@ public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
         CLIENT_OFFSET_HELD_ITEM_Z = CLIENT_BUILDER
                 .comment("Held item offset Z")
                 .defineInRange("offsetHeldItemZ", 0.0D, -10.0D, 10.0D);
+
+        CLIENT_BUILDER.comment("MiSans font settings").push("misans_font");
+        USE_MISANS_FONT = CLIENT_BUILDER
+                .comment("Use MiSans font for in-game text rendering")
+                .define("useMiSansFont", true);
+        MISANS_ONLY_LEGACY_LOGS = CLIENT_BUILDER
+                .comment("Only apply MiSans font to legacy deep-sea log books (desk book & held item)")
+                .define("miSansOnlyForLegacyLogs", true);
+        CLIENT_BUILDER.pop();
         CLIENT_BUILDER.pop();
 
         SPEC = BUILDER.build();
@@ -739,6 +752,9 @@ public static final ModConfigSpec.BooleanValue ENABLE_FIRING_LINE_CHECK;
             offsetHeldItemX = CLIENT_OFFSET_HELD_ITEM_X.get().floatValue();
             offsetHeldItemY = CLIENT_OFFSET_HELD_ITEM_Y.get().floatValue();
             offsetHeldItemZ = CLIENT_OFFSET_HELD_ITEM_Z.get().floatValue();
+
+            useMiSansFont = USE_MISANS_FONT.get();
+            miSansOnlyForLegacyLogs = MISANS_ONLY_LEGACY_LOGS.get();
         }
     }
 

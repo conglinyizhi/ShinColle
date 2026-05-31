@@ -41,7 +41,7 @@ class ShipTaskSideButtonRegressionTest {
                 "Crafting task UI should use the legacy 12..20 working-slot range");
         assertTrue(screen.contains("boolean occupied = !this.menu.getShip().getInventory().getStackInSlot(CRAFTING_WORK_START_SLOT + i).isEmpty();"),
                 "Crafting task UI should inspect the actual working-slot occupancy");
-        assertTrue(screen.contains("drawSlotOverlay(guiGraphics, col, row, occupied ? 51 : 33, 225);"),
+        assertTrue(screen.contains("occupied ? Sprites.SHIP_INV_SLOT_OCCUPIED_U : Sprites.SHIP_INV_SLOT_OVERLAY_U, Sprites.SHIP_INV_SLOT_OVERLAY_V"),
                 "Crafting task UI should preserve the legacy empty/full background distinction");
     }
 
