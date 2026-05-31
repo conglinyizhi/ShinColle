@@ -65,6 +65,9 @@ jobs:
       - name: Make Gradle wrapper executable
         run: chmod +x ./gradlew
 
+      - name: Make release note script executable
+        run: chmod +x ./scripts/build_canary_release_notes.sh
+
       - name: Compile sources
         run: ./gradlew compileJava --no-daemon
 
@@ -79,44 +82,11 @@ jobs:
         env:
           CURRENT_TAG: ${{ steps.meta.outputs.tag }}
         run: |
-          git fetch --tags --force
-          PREV_TAG="$(git tag --sort=-creatordate | grep '^canary-' | grep -Fxv "$CURRENT_TAG" | head -n 1 || true)"
-          if [ -z "$PREV_TAG" ]; then
-            PREV_TAG="$(git tag --sort=-creatordate | grep -Fxv "$CURRENT_TAG" | head -n 1 || true)"
-          fi
+          ./scripts/build_canary_release_notes.sh "$CURRENT_TAG" canary-release-notes.md
 
           {
             echo "body<<EOF"
-            echo "警告：这是金丝雀测试版本，仅供测试，不建议用于正式存档。"
-            echo "Warning: This is a canary testing build for validation only and is not recommended for production worlds."
-            echo "警告：これはテスト専用のカナリア版であり、本番ワールドでの利用は推奨されません。"
-            echo
-            echo "- 建议优先在单人环境中测试。"
-            echo "- Single-player testing is recommended first."
-            echo "- まずはシングルプレイ環境でのテストを推奨します。"
-            echo
-            echo "- 反馈问题时请附上 latest.log 或崩溃报告。"
-            echo "- Please attach latest.log or crash reports when reporting issues."
-            echo "- 問題を報告する際は latest.log またはクラッシュレポートを添付してください。"
-            echo
-            echo "本次金丝雀版本变更"
-            echo "Changes in this canary"
-            echo "今回のカナリア版の変更点"
-            echo
-            echo "以下提交摘要仅提供中文。"
-            echo "Chinese only below."
-            echo "以下のコミット要約は中国語のみです。"
-            echo "<details>"
-            echo "<summary>展开提交摘要 / Expand commit summary / コミット要約を展開</summary>"
-            echo
-            echo '```text'
-            if [ -n "$PREV_TAG" ]; then
-              git log --no-merges --pretty='- %s (%h)' "$PREV_TAG..$CURRENT_TAG"
-            else
-              git log --no-merges --pretty='- %s (%h)' "$CURRENT_TAG"
-            fi
-            echo '```'
-            echo "</details>"
+            cat canary-release-notes.md
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
