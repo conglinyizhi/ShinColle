@@ -14,7 +14,9 @@
       "entity": "shincolle:carrier_wo",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_wo.page1.title",
-      "text": "patchouli.shincolle.entry.friend_wo.page1.text"
+      "text": "patchouli.shincolle.entry.friend_wo.page1.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     }
   ]
 }

@@ -14,35 +14,45 @@
       "entity": "shincolle:destroyer_shimakaze",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_destroyers.page1.title",
-      "text": "patchouli.shincolle.entry.enemy_destroyers.page1.text"
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page1.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:destroyer_akatsuki",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_destroyers.page2.title",
-      "text": "patchouli.shincolle.entry.enemy_destroyers.page2.text"
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page2.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:destroyer_hibiki",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_destroyers.page3.title",
-      "text": "patchouli.shincolle.entry.enemy_destroyers.page3.text"
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page3.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:destroyer_ikazuchi",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_destroyers.page4.title",
-      "text": "patchouli.shincolle.entry.enemy_destroyers.page4.text"
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page4.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:destroyer_inazuma",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_destroyers.page5.title",
-      "text": "patchouli.shincolle.entry.enemy_destroyers.page5.text"
+      "text": "patchouli.shincolle.entry.enemy_destroyers.page5.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     }
   ]
 }

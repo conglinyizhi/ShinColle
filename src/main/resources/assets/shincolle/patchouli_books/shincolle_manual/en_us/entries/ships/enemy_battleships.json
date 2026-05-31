@@ -14,42 +14,54 @@
       "entity": "shincolle:battleship_nagato",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_battleships.page1.title",
-      "text": "patchouli.shincolle.entry.enemy_battleships.page1.text"
+      "text": "patchouli.shincolle.entry.enemy_battleships.page1.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:battleship_yamato",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_battleships.page2.title",
-      "text": "patchouli.shincolle.entry.enemy_battleships.page2.text"
+      "text": "patchouli.shincolle.entry.enemy_battleships.page2.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:bb_kongou",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_battleships.page3.title",
-      "text": "patchouli.shincolle.entry.enemy_battleships.page3.text"
+      "text": "patchouli.shincolle.entry.enemy_battleships.page3.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:bb_hiei",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_battleships.page4.title",
-      "text": "patchouli.shincolle.entry.enemy_battleships.page4.text"
+      "text": "patchouli.shincolle.entry.enemy_battleships.page4.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:bb_haruna",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_battleships.page5.title",
-      "text": "patchouli.shincolle.entry.enemy_battleships.page5.text"
+      "text": "patchouli.shincolle.entry.enemy_battleships.page5.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:bb_kirishima",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_battleships.page6.title",
-      "text": "patchouli.shincolle.entry.enemy_battleships.page6.text"
+      "text": "patchouli.shincolle.entry.enemy_battleships.page6.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     }
   ]
 }

@@ -14,14 +14,18 @@
       "entity": "shincolle:heavy_cruiser_ri",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_cruisers.page1.title",
-      "text": "patchouli.shincolle.entry.friend_cruisers.page1.text"
+      "text": "patchouli.shincolle.entry.friend_cruisers.page1.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:heavy_cruiser_ne",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_cruisers.page2.title",
-      "text": "patchouli.shincolle.entry.friend_cruisers.page2.text"
+      "text": "patchouli.shincolle.entry.friend_cruisers.page2.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     }
   ]
 }

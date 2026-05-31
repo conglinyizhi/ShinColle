@@ -14,14 +14,18 @@
       "entity": "shincolle:subm_u511",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_submarines.page1.title",
-      "text": "patchouli.shincolle.entry.enemy_submarines.page1.text"
+      "text": "patchouli.shincolle.entry.enemy_submarines.page1.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:subm_ro500",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_submarines.page2.title",
-      "text": "patchouli.shincolle.entry.enemy_submarines.page2.text"
+      "text": "patchouli.shincolle.entry.enemy_submarines.page2.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     }
   ]
 }

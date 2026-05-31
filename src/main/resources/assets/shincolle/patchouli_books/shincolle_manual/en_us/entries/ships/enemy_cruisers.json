@@ -14,28 +14,36 @@
       "entity": "shincolle:cruiser_tenryuu",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_cruisers.page1.title",
-      "text": "patchouli.shincolle.entry.enemy_cruisers.page1.text"
+      "text": "patchouli.shincolle.entry.enemy_cruisers.page1.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:cruiser_tatsuta",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_cruisers.page2.title",
-      "text": "patchouli.shincolle.entry.enemy_cruisers.page2.text"
+      "text": "patchouli.shincolle.entry.enemy_cruisers.page2.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:cruiser_atago",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_cruisers.page3.title",
-      "text": "patchouli.shincolle.entry.enemy_cruisers.page3.text"
+      "text": "patchouli.shincolle.entry.enemy_cruisers.page3.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:cruiser_takao",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.enemy_cruisers.page4.title",
-      "text": "patchouli.shincolle.entry.enemy_cruisers.page4.text"
+      "text": "patchouli.shincolle.entry.enemy_cruisers.page4.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     }
   ]
 }

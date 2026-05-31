@@ -2,7 +2,7 @@
   "name": "patchouli.shincolle.entry.friend_princess_3.name",
   "category": "shincolle:ships",
   "icon": "shincolle:shipspawneggs",
-  "sortnum": 8,
+  "sortnum": 7,
   "pages": [
     {
       "type": "patchouli:text",
@@ -14,42 +14,54 @@
       "entity": "shincolle:destroyer_hime",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_princess_3.page1.title",
-      "text": "patchouli.shincolle.entry.friend_princess_3.page1.text"
+      "text": "patchouli.shincolle.entry.friend_princess_3.page1.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:ca_hime",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_princess_3.page2.title",
-      "text": "patchouli.shincolle.entry.friend_princess_3.page2.text"
+      "text": "patchouli.shincolle.entry.friend_princess_3.page2.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:isolated_hime",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_princess_3.page3.title",
-      "text": "patchouli.shincolle.entry.friend_princess_3.page3.text"
+      "text": "patchouli.shincolle.entry.friend_princess_3.page3.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:midway_hime",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_princess_3.page4.title",
-      "text": "patchouli.shincolle.entry.friend_princess_3.page4.text"
+      "text": "patchouli.shincolle.entry.friend_princess_3.page4.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:subm_hime",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_princess_3.page5.title",
-      "text": "patchouli.shincolle.entry.friend_princess_3.page5.text"
+      "text": "patchouli.shincolle.entry.friend_princess_3.page5.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     },
     {
       "type": "patchouli:entity",
       "entity": "shincolle:ssnh",
       "scale": 0.8,
       "title": "patchouli.shincolle.entry.friend_princess_3.page6.title",
-      "text": "patchouli.shincolle.entry.friend_princess_3.page6.text"
+      "text": "patchouli.shincolle.entry.friend_princess_3.page6.text",
+      "default_rotation": -15.0,
+      "offset": 0.5
     }
   ]
 }
