@@ -227,7 +227,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
             drawRadarText(guiGraphics);
         } else if (guiFunc == 2) {
             BookRenderer.drawBookBase(guiGraphics, 0, 0, chapId, pageId);
-            BookRenderer.drawBookContent(guiGraphics, 0, 0, pageId, chapId);
+            BookRenderer.drawBookContent(guiGraphics, 0, 0, pageId, chapId, this.guiScale);
             
             if (chapId == 4 || chapId == 5) {
                 updateEntityTemp();
