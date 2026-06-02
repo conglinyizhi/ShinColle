@@ -151,6 +151,12 @@ public class ShincolleConfigScreen {
                     .setDefaultValue(100).setSaveConsumer(Config.HOSTILE_MOB_SPAWN_MAX::set).build());
             hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileMobSpawnChancePercent"), Config.HOSTILE_MOB_SPAWN_CHANCE_PERCENT.get())
                     .setDefaultValue(20).setSaveConsumer(Config.HOSTILE_MOB_SPAWN_CHANCE_PERCENT::set).build());
+            hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileMobSpawnGroups"), Config.HOSTILE_MOB_SPAWN_GROUPS.get())
+                    .setDefaultValue(1).setSaveConsumer(Config.HOSTILE_MOB_SPAWN_GROUPS::set).build());
+            hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileMobSpawnGroupMin"), Config.HOSTILE_MOB_SPAWN_GROUP_MIN.get())
+                    .setDefaultValue(1).setSaveConsumer(Config.HOSTILE_MOB_SPAWN_GROUP_MIN::set).build());
+            hostileCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.hostileMobSpawnGroupMax"), Config.HOSTILE_MOB_SPAWN_GROUP_MAX.get())
+                    .setDefaultValue(1).setSaveConsumer(Config.HOSTILE_MOB_SPAWN_GROUP_MAX::set).build());
 
             // === Ship Interaction ===
             var interactCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.interaction"));
