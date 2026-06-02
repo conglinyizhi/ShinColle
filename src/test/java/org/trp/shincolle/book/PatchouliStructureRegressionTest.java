@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -67,6 +69,8 @@ class PatchouliStructureRegressionTest {
         }
 
         List<String> issues = new ArrayList<>();
+        Map<String, Integer> categoryEntryCounts = new HashMap<>();
+        Map<String, Map<Integer, String>> categorySortnums = new HashMap<>();
         try (Stream<Path> stream = Files.walk(ENTRY_ROOT)) {
             for (Path json : (Iterable<Path>) stream
                     .filter(Files::isRegularFile)
@@ -88,6 +92,21 @@ class PatchouliStructureRegressionTest {
                             : category;
                     if (!existingCategories.contains(normalizedCategory)) {
                         issues.add(ENTRY_ROOT.relativize(json) + " references missing category " + category);
+                    } else {
+                        categoryEntryCounts.merge(normalizedCategory, 1, Integer::sum);
+                    }
+
+                    Integer sortnum = readNumericField(content, "sortnum");
+                    if (sortnum == null) {
+                        issues.add(ENTRY_ROOT.relativize(json) + " missing field sortnum");
+                    } else {
+                        Map<Integer, String> seenSortnums =
+                                categorySortnums.computeIfAbsent(normalizedCategory, ignored -> new HashMap<>());
+                        String previous = seenSortnums.putIfAbsent(sortnum, ENTRY_ROOT.relativize(json).toString().replace('\\', '/'));
+                        if (previous != null) {
+                            issues.add(normalizedCategory + " has duplicate sortnum " + sortnum
+                                    + " for " + previous + " and " + ENTRY_ROOT.relativize(json).toString().replace('\\', '/'));
+                        }
                     }
                 }
 
@@ -95,6 +114,12 @@ class PatchouliStructureRegressionTest {
                 if (pagesContent == null || pagesContent.isBlank()) {
                     issues.add(ENTRY_ROOT.relativize(json) + " missing non-empty pages array");
                 }
+            }
+        }
+
+        for (String category : existingCategories) {
+            if (!categoryEntryCounts.containsKey(category)) {
+                issues.add("category " + category + " has no entries");
             }
         }
 
@@ -119,6 +144,12 @@ class PatchouliStructureRegressionTest {
         Pattern pattern = Pattern.compile(String.format(STRING_FIELD_PATTERN_TEMPLATE.pattern(), field));
         Matcher matcher = pattern.matcher(content);
         return matcher.find() ? matcher.group(1) : null;
+    }
+
+    private static Integer readNumericField(String content, String field) {
+        Pattern pattern = Pattern.compile(String.format(NUMERIC_FIELD_PATTERN_TEMPLATE.pattern(), field));
+        Matcher matcher = pattern.matcher(content);
+        return matcher.find() ? Integer.parseInt(matcher.group(1)) : null;
     }
 
     private static String readArrayContent(String content, String field) {
