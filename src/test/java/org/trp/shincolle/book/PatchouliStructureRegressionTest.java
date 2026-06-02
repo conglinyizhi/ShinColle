@@ -21,6 +21,8 @@ class PatchouliStructureRegressionTest {
             Path.of("src/main/resources/assets/shincolle/patchouli_books/shincolle_manual/en_us");
     private static final Path CATEGORY_ROOT = PATCHOULI_ROOT.resolve("categories");
     private static final Path ENTRY_ROOT = PATCHOULI_ROOT.resolve("entries");
+    private static final Path SHINCOLLE_ASSET_ROOT =
+            Path.of("src/main/resources/assets/shincolle");
     private static final Pattern STRING_FIELD_PATTERN_TEMPLATE =
             Pattern.compile("\"%s\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern NUMERIC_FIELD_PATTERN_TEMPLATE =
@@ -39,7 +41,12 @@ class PatchouliStructureRegressionTest {
                 String content = Files.readString(json);
                 assertStringField(content, json, "name", issues);
                 assertStringField(content, json, "description", issues);
-                assertStringField(content, json, "icon", issues);
+                String icon = readStringField(content, "icon");
+                if (icon == null) {
+                    issues.add(relativePath(json) + " missing field icon");
+                } else {
+                    assertIconResolvable(icon, json, issues);
+                }
                 assertNumericField(content, json, "sortnum", issues);
             }
         }
@@ -66,6 +73,12 @@ class PatchouliStructureRegressionTest {
                     .filter(path -> path.toString().endsWith(".json"))::iterator) {
                 String content = Files.readString(json);
                 assertStringField(content, json, "name", issues);
+                String icon = readStringField(content, "icon");
+                if (icon == null) {
+                    issues.add(relativePath(json) + " missing field icon");
+                } else {
+                    assertIconResolvable(icon, json, issues);
+                }
                 String category = readStringField(content, "category");
                 if (category == null || category.isBlank()) {
                     issues.add(ENTRY_ROOT.relativize(json) + " missing field category");
@@ -112,6 +125,18 @@ class PatchouliStructureRegressionTest {
         Pattern pattern = Pattern.compile("\"" + Pattern.quote(field) + "\"\\s*:\\s*\\[(.*?)]", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(content);
         return matcher.find() ? matcher.group(1).trim() : null;
+    }
+
+    private static void assertIconResolvable(String icon, Path file, List<String> issues) {
+        if (!icon.startsWith("shincolle:")) {
+            return;
+        }
+        String resourcePath = icon.substring("shincolle:".length());
+        Path itemModel = SHINCOLLE_ASSET_ROOT.resolve("models/item").resolve(resourcePath + ".json");
+        Path blockModel = SHINCOLLE_ASSET_ROOT.resolve("models/block").resolve(resourcePath + ".json");
+        if (!Files.exists(itemModel) && !Files.exists(blockModel)) {
+            issues.add(relativePath(file) + " references missing icon model " + icon);
+        }
     }
 
     private static String relativePath(Path file) {
