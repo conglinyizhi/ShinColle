@@ -34,3 +34,7 @@ public enum ShipJadeProvider implements IEntityComponentProvider {
     }
 
     @Override
+    public ResourceLocation getUid() {
+        return UID;
+    }
+}
