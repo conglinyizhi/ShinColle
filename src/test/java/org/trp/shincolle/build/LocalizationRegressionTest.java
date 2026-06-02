@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -27,6 +28,27 @@ class LocalizationRegressionTest {
             "item.shincolle.debug_inspector",
             "item.shincolle.debug_inspector.desc",
             "item.shincolle.debug_inspector.desc2"
+    );
+
+    private static final Set<String> EXPECTED_ZH_CN_EXTRA_KEYS = Set.of(
+            "chat.shincolle.settargetclass",
+            "chat.shincolle.wrench.unatkshow",
+            "gui.shincolle.book.chap1.title17",
+            "inter.shincolle.bee1.desc",
+            "inter.shincolle.bee1.name",
+            "inter.shincolle.bee2.desc",
+            "inter.shincolle.bee2.name",
+            "inter.shincolle.bee3.desc",
+            "inter.shincolle.bee3.name",
+            "inter.shincolle.flower",
+            "item.shincolle.AbyssMetal1.name",
+            "item.shincolle.RepairGoddess.name",
+            "item.shincolle.deskitembook",
+            "item.shincolle.deskitemradar",
+            "item.shincolle.hostile_egg_l",
+            "item.shincolle.repairgoddess",
+            "tile.shincolle.BlockGrudge.name",
+            "tile.shincolle.BlockGrudgeHeavy.name"
     );
 
     @Test
@@ -64,6 +86,19 @@ class LocalizationRegressionTest {
         assertTrue(missing.isEmpty(),
                 () -> "Simplified Chinese language file should cover all English keys, missing: "
                         + String.join(", ", missing));
+    }
+
+    @Test
+    void simplifiedChineseExtraKeysShouldStayWithinKnownLegacyAliasAllowlist() throws IOException {
+        Set<String> englishKeys = readKeys(EN_US_LANG);
+        Set<String> simplifiedChineseKeys = readKeys(ZH_CN_LANG);
+
+        Set<String> extras = new TreeSet<>(simplifiedChineseKeys);
+        extras.removeAll(englishKeys);
+
+        assertTrue(extras.equals(EXPECTED_ZH_CN_EXTRA_KEYS),
+                () -> "Simplified Chinese extra keys should stay limited to known legacy aliases, found: "
+                        + String.join(", ", extras));
     }
 
     private static void assertContainsKeys(Path file, List<String> keys) throws IOException {
