@@ -87,11 +87,14 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int MODEL_BOX_TOP_GATTAI = 195;
     private static final int MODEL_BOX_BOTTOM_GATTAI = 130;
     private static final float MODEL_SCALE_GATTAI_MULTIPLIER = 0.90F;
+    private static final float MODEL_SCALE_TAB6_MULTIPLIER = 0.82F;
+    private static final int MODEL_TAB6_OFFSET_X = -22;
+    private static final int MODEL_TAB6_OFFSET_Y = -4;
     private static final int HELD_MAIN_COL = 1, HELD_MAIN_ROW = 5;
     private static final int HELD_OFF_COL = 2, HELD_OFF_ROW = 5;
     private static final int CRAFTING_WORK_START_SLOT = 12;
     private static final int LEGACY_LABEL_COLOR = 0xFFFFFF;
-    private static final int LEGACY_LABEL_SHADOW_COLOR = 0x301010;
+    private static final int LEGACY_LABEL_OUTLINE_COLOR = 0x181010;
 
     // Morale tables
     private static final float[] LEGACY_MORALE_NEUTRAL =
@@ -827,16 +830,20 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     // ---- Text helpers ----
     private String tr(String key) { return Component.translatable(key).getString(); }
     private void drawLabel(GuiGraphics g, String text, int x, int y) {
-        g.drawString(this.font, text, x+1, y+1, LEGACY_LABEL_SHADOW_COLOR, false);
-        g.drawString(this.font, text, x, y, LEGACY_LABEL_COLOR, false);
+        drawOutlinedText(g, text, x, y, LEGACY_LABEL_COLOR);
     }
     private void drawValueLeft(GuiGraphics g, String text, int x, int y, int color) {
-        g.drawString(this.font, text, x+1, y+1, LEGACY_LABEL_SHADOW_COLOR, false);
-        g.drawString(this.font, text, x, y, color, false);
+        drawOutlinedText(g, text, x, y, color);
     }
     private void drawValueRight(GuiGraphics g, String text, int xRight, int y, int color) {
         int x = xRight - this.font.width(text);
-        g.drawString(this.font, text, x+1, y+1, LEGACY_LABEL_SHADOW_COLOR, false);
+        drawOutlinedText(g, text, x, y, color);
+    }
+    private void drawOutlinedText(GuiGraphics g, String text, int x, int y, int color) {
+        g.drawString(this.font, text, x - 1, y, LEGACY_LABEL_OUTLINE_COLOR, false);
+        g.drawString(this.font, text, x + 1, y, LEGACY_LABEL_OUTLINE_COLOR, false);
+        g.drawString(this.font, text, x, y - 1, LEGACY_LABEL_OUTLINE_COLOR, false);
+        g.drawString(this.font, text, x, y + 1, LEGACY_LABEL_OUTLINE_COLOR, false);
         g.drawString(this.font, text, x, y, color, false);
     }
     private boolean inside(int x, int y, int x1, int y1, int x2, int y2) {
@@ -877,8 +884,14 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         EntityShipBase ship = this.menu.getShip();
         float[] mp = ship.getModelPos();
         boolean gattai = isRaidenGattaiState(ship);
-        int mX = this.leftPos + 218 + Mth.floor(mp[0]), mY = this.topPos + 100 + Mth.floor(mp[1]);
+        int extraOffsetX = this.activeSettingsTab == SETTINGS_TAB_6 ? MODEL_TAB6_OFFSET_X : 0;
+        int extraOffsetY = this.activeSettingsTab == SETTINGS_TAB_6 ? MODEL_TAB6_OFFSET_Y : 0;
+        int mX = this.leftPos + 218 + Mth.floor(mp[0]) + extraOffsetX;
+        int mY = this.topPos + 100 + Mth.floor(mp[1]) + extraOffsetY;
         float sm = gattai ? MODEL_SCALE_GATTAI_MULTIPLIER : 1f;
+        if (this.activeSettingsTab == SETTINGS_TAB_6) {
+            sm *= MODEL_SCALE_TAB6_MULTIPLIER;
+        }
         int sc = Math.max(16, Mth.floor(mp[3]*sm));
         int hw = gattai ? MODEL_BOX_HALF_WIDTH_GATTAI : MODEL_BOX_HALF_WIDTH;
         int tp = gattai ? MODEL_BOX_TOP_GATTAI : MODEL_BOX_TOP;
