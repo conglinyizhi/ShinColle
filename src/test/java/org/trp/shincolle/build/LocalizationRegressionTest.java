@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -50,11 +51,34 @@ class LocalizationRegressionTest {
                 "English language file should define the radar clear tooltip");
     }
 
+    @Test
+    void simplifiedChineseShouldCoverAllEnglishKeys() throws IOException {
+        Set<String> englishKeys = readKeys(EN_US_LANG);
+        Set<String> simplifiedChineseKeys = readKeys(ZH_CN_LANG);
+
+        List<String> missing = englishKeys.stream()
+                .filter(key -> !simplifiedChineseKeys.contains(key))
+                .sorted()
+                .toList();
+
+        assertTrue(missing.isEmpty(),
+                () -> "Simplified Chinese language file should cover all English keys, missing: "
+                        + String.join(", ", missing));
+    }
+
     private static void assertContainsKeys(Path file, List<String> keys) throws IOException {
         String content = Files.readString(file);
         for (String key : keys) {
             assertTrue(content.contains("\"" + key + "\""),
                     () -> file + " should define language key " + key);
         }
+    }
+
+    private static Set<String> readKeys(Path file) throws IOException {
+        return Files.readAllLines(file).stream()
+                .map(String::trim)
+                .filter(line -> line.startsWith("\""))
+                .map(line -> line.substring(1, line.indexOf('"', 1)))
+                .collect(java.util.stream.Collectors.toSet());
     }
 }
