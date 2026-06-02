@@ -1495,6 +1495,8 @@
   "config.shincolle.offsetHeldItemX": "Held Item Offset X",
   "config.shincolle.offsetHeldItemY": "Held Item Offset Y",
   "config.shincolle.offsetHeldItemZ": "Held Item Offset Z",
+  "config.shincolle.useMiSansFont": "Use MiSans Font",
+  "config.shincolle.miSansOnlyForLegacyLogs": "MiSans Only For Legacy Logs",
   "config.shincolle.freezeWhenGuiOpen": "Freeze Ship Movement When GUI Open",
   "config.shincolle.buffDuration": "Ship Buff Duration (ticks)",
   "patchouli.shincolle.entry.friend_intro.name": "How to Read Ship Data",

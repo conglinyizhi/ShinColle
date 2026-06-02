@@ -184,6 +184,8 @@ public class ShincolleConfigScreen {
             soundCat.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.shincolle.canTimeKeeping"), Config.SHIP_CAN_TIMEKEEPING.get())
                     .setSaveConsumer(Config.SHIP_CAN_TIMEKEEPING::set).build());
             soundCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.volumeTimeKeeping"), Config.SHIP_VOLUME_TIMEKEEPING.get(), 1.0D, Config.SHIP_VOLUME_TIMEKEEPING::set));
+            soundCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.volumeShip"), Config.SHIP_VOLUME_GENERAL.get(), 0.6D, Config.SHIP_VOLUME_GENERAL::set));
+            soundCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.volumeAttack"), Config.SHIP_VOLUME_ATTACK.get(), 0.7D, Config.SHIP_VOLUME_ATTACK::set));
             // === Client Visual ===
             var visualCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.visual"));
 
@@ -191,6 +193,10 @@ public class ShincolleConfigScreen {
             visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.offsetHeldItemX"), Config.CLIENT_OFFSET_HELD_ITEM_X.get(), 0.0D, Config.CLIENT_OFFSET_HELD_ITEM_X::set));
             visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.offsetHeldItemY"), Config.CLIENT_OFFSET_HELD_ITEM_Y.get(), 0.0D, Config.CLIENT_OFFSET_HELD_ITEM_Y::set));
             visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.offsetHeldItemZ"), Config.CLIENT_OFFSET_HELD_ITEM_Z.get(), 0.0D, Config.CLIENT_OFFSET_HELD_ITEM_Z::set));
+            visualCat.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.shincolle.useMiSansFont"), Config.USE_MISANS_FONT.get())
+                    .setSaveConsumer(Config.USE_MISANS_FONT::set).build());
+            visualCat.addEntry(entryBuilder.startBooleanToggle(Component.translatable("config.shincolle.miSansOnlyForLegacyLogs"), Config.MISANS_ONLY_LEGACY_LOGS.get())
+                    .setSaveConsumer(Config.MISANS_ONLY_LEGACY_LOGS::set).build());
             builder.setSavingRunnable(() -> {
                 Config.SPEC.save();
                 Config.CLIENT_SPEC.save();

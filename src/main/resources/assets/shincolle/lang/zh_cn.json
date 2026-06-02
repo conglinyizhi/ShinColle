@@ -1513,6 +1513,8 @@
   "config.shincolle.offsetHeldItemX": "手持物偏移 X",
   "config.shincolle.offsetHeldItemY": "手持物偏移 Y",
   "config.shincolle.offsetHeldItemZ": "手持物偏移 Z",
+  "config.shincolle.useMiSansFont": "启用 MiSans 字体",
+  "config.shincolle.miSansOnlyForLegacyLogs": "仅对旧版深海日志使用 MiSans",
   "config.shincolle.freezeWhenGuiOpen": "打开 GUI 时冻结舰娘移动",
   "config.shincolle.buffDuration": "舰娘增益效果时长（tick）",
   "patchouli.shincolle.entry.friend_intro.name": "深海栖舰图鉴说明",
