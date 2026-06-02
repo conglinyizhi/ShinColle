@@ -177,6 +177,14 @@ public class ShincolleConfigScreen {
                     .setDefaultValue(10).setSaveConsumer(Config.DEBUG_PERF_SLOW_SHIP_TICK_MS::set).build());
             debugCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.debugPerfSlowTaskTickMs"), Config.DEBUG_PERF_SLOW_TASK_TICK_MS.get())
                     .setDefaultValue(10).setSaveConsumer(Config.DEBUG_PERF_SLOW_TASK_TICK_MS::set).build());
+            debugCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.debugPerfSlowBlockEntityTickMs"), Config.DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS.get())
+                    .setDefaultValue(5).setSaveConsumer(Config.DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS::set).build());
+            debugCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.debugPerfSlowProjectileTickMs"), Config.DEBUG_PERF_SLOW_PROJECTILE_TICK_MS.get())
+                    .setDefaultValue(5).setSaveConsumer(Config.DEBUG_PERF_SLOW_PROJECTILE_TICK_MS::set).build());
+            debugCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.debugPerfSlowServerTickMs"), Config.DEBUG_PERF_SLOW_SERVER_TICK_MS.get())
+                    .setDefaultValue(40).setSaveConsumer(Config.DEBUG_PERF_SLOW_SERVER_TICK_MS::set).build());
+            debugCat.addEntry(entryBuilder.startIntField(Component.translatable("config.shincolle.debugPerfMinLogIntervalTicks"), Config.DEBUG_PERF_MIN_LOG_INTERVAL_TICKS.get())
+                    .setDefaultValue(20).setSaveConsumer(Config.DEBUG_PERF_MIN_LOG_INTERVAL_TICKS::set).build());
 
             // === Ship Sound ===
             var soundCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.sound"));
