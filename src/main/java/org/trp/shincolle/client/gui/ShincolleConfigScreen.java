@@ -188,6 +188,9 @@ public class ShincolleConfigScreen {
             var visualCat = builder.getOrCreateCategory(Component.translatable("config.shincolle.visual"));
 
             visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.scaleHeldItem"), Config.CLIENT_SCALE_HELD_ITEM.get(), 1.0D, Config.CLIENT_SCALE_HELD_ITEM::set));
+            visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.offsetHeldItemX"), Config.CLIENT_OFFSET_HELD_ITEM_X.get(), 0.0D, Config.CLIENT_OFFSET_HELD_ITEM_X::set));
+            visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.offsetHeldItemY"), Config.CLIENT_OFFSET_HELD_ITEM_Y.get(), 0.0D, Config.CLIENT_OFFSET_HELD_ITEM_Y::set));
+            visualCat.addEntry(formattedDouble(entryBuilder, Component.translatable("config.shincolle.offsetHeldItemZ"), Config.CLIENT_OFFSET_HELD_ITEM_Z.get(), 0.0D, Config.CLIENT_OFFSET_HELD_ITEM_Z::set));
             builder.setSavingRunnable(() -> {
                 Config.SPEC.save();
                 Config.CLIENT_SPEC.save();
