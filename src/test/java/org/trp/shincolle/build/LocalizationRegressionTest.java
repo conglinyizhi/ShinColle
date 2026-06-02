@@ -59,6 +59,23 @@ class LocalizationRegressionTest {
             "tile.shincolle.BlockGrudgeHeavy.name"
     );
 
+    private static final Set<String> EXPECTED_JA_JP_EXTRA_KEYS = Set.of(
+            "chat.shincolle.pointer.addtargetclass",
+            "chat.shincolle.wrench.unatkshow",
+            "gui.shincolle.book.chap1.title17",
+            "gui.shincolle.missrateair",
+            "inter.shincolle.bee1.desc",
+            "inter.shincolle.bee1.name",
+            "inter.shincolle.bee2.desc",
+            "inter.shincolle.bee2.name",
+            "inter.shincolle.bee3.desc",
+            "inter.shincolle.bee3.name",
+            "inter.shincolle.flower",
+            "item.shincolle.AbyssMetal1.name",
+            "tile.shincolle.BlockGrudge.name",
+            "tile.shincolle.BlockGrudgeHeavy.name"
+    );
+
     @Test
     void allSupportedLanguagesShouldDefineRequiredIntegrationAndUiKeys() throws IOException {
         assertContainsKeys(EN_US_LANG, REQUIRED_KEYS);
@@ -119,6 +136,19 @@ class LocalizationRegressionTest {
 
         assertTrue(extras.equals(EXPECTED_ZH_TW_EXTRA_KEYS),
                 () -> "Traditional Chinese extra keys should stay limited to known legacy aliases, found: "
+                        + String.join(", ", extras));
+    }
+
+    @Test
+    void japaneseExtraKeysShouldStayWithinKnownLegacyAliasAllowlist() throws IOException {
+        Set<String> englishKeys = readKeys(EN_US_LANG);
+        Set<String> japaneseKeys = readKeys(JA_JP_LANG);
+
+        Set<String> extras = new TreeSet<>(japaneseKeys);
+        extras.removeAll(englishKeys);
+
+        assertTrue(extras.equals(EXPECTED_JA_JP_EXTRA_KEYS),
+                () -> "Japanese extra keys should stay limited to known legacy aliases, found: "
                         + String.join(", ", extras));
     }
 
