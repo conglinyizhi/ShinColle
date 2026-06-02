@@ -6,6 +6,7 @@ import org.trp.shincolle.block.LargeShipyardBlock;
 import org.trp.shincolle.block.SmallShipyardBlock;
 import org.trp.shincolle.block.entity.LargeShipyardBlockEntity;
 import org.trp.shincolle.block.entity.SmallShipyardBlockEntity;
+import org.trp.shincolle.entity.base.EntityShipBase;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -29,5 +30,6 @@ public class ShinColleJadePlugin implements IWailaPlugin {
     public void registerClient(IWailaClientRegistration registration) {
         registration.registerBlockComponent(ShipyardJadeProvider.INSTANCE, SmallShipyardBlock.class);
         registration.registerBlockComponent(ShipyardJadeProvider.INSTANCE, LargeShipyardBlock.class);
+        registration.registerEntityComponent(ShipJadeProvider.INSTANCE, EntityShipBase.class);
     }
 }

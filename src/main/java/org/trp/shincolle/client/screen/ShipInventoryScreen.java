@@ -4,8 +4,6 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.network.chat.Component;
@@ -16,7 +14,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
-import org.trp.shincolle.client.gui.ShincolleConfigScreen;
 import org.trp.shincolle.client.gui.component.IconButton;
 import org.trp.shincolle.client.gui.component.Sprites;
 import org.trp.shincolle.client.gui.component.TooltipBuilder;
@@ -138,12 +135,6 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     protected void init() {
         super.init();
         syncStateFromMenu();
-
-        // ---- Settings gear button (top-right corner) ----
-        this.addRenderableWidget(Button.builder(Component.literal("\u2699"), btn -> {
-            Screen configScreen = ShincolleConfigScreen.tryCreate(this);
-            if (configScreen != null) Minecraft.getInstance().setScreen(configScreen);
-        }).bounds(this.leftPos + this.imageWidth - 18, this.topPos + 20, 14, 14).build());
 
         // ---- Inventory page buttons (left column) — respect unlock state ----
         int[] pageYs = {18, 54, 90};
