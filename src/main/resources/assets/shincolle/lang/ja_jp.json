@@ -919,5 +919,13 @@
     "gui.shincolle.morph.nofuel": "燃料切れ",
     "gui.shincolle.morph.sit": "待機",
     "gui.shincolle.morph.emo1": "感情フラグ1",
-    "gui.shincolle.morph.emo2": "感情フラグ2"
+    "gui.shincolle.morph.emo2": "感情フラグ2",
+    "tooltip.shincolle.jade.shipyard.idle": "待機中",
+    "tooltip.shincolle.jade.shipyard.ready": "設定済み",
+    "tooltip.shincolle.jade.shipyard.active": "建造中",
+    "tooltip.shincolle.jade.shipyard.progress": "進捗: %s / %s",
+    "tooltip.shincolle.jade.shipyard.fuel": "蓄積エネルギー: %s",
+    "tooltip.shincolle.jade.shipyard.time": "残り時間: %s",
+    "tooltip.shincolle.jade.shipyard.materials": "建造素材: %s",
+    "tooltip.shincolle.jade.shipyard.stock": "在庫素材: %s"
 }

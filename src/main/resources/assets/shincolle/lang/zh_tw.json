@@ -895,5 +895,13 @@
     "gui.shincolle.equip.belt": "Belt",
     "gui.shincolle.equip.upper": "Upper",
     "gui.shincolle.equip.head": "Head",
-    "gui.shincolle.book.chap0.text2d1": ""
+    "gui.shincolle.book.chap0.text2d1": "",
+    "tooltip.shincolle.jade.shipyard.idle": "未運作",
+    "tooltip.shincolle.jade.shipyard.ready": "已設定",
+    "tooltip.shincolle.jade.shipyard.active": "建造中",
+    "tooltip.shincolle.jade.shipyard.progress": "進度：%s / %s",
+    "tooltip.shincolle.jade.shipyard.fuel": "儲備能量：%s",
+    "tooltip.shincolle.jade.shipyard.time": "剩餘時間：%s",
+    "tooltip.shincolle.jade.shipyard.materials": "建造材料：%s",
+    "tooltip.shincolle.jade.shipyard.stock": "庫存材料：%s"
 }
