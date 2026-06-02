@@ -27,7 +27,10 @@ public class BookRenderer {
     private static final ResourceLocation FONT_MISANS = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "default");
     private static final int LX = 13, RX = 132, TY = 44, MAXW = 102;
 
-    private static boolean useMiSans() { return org.trp.shincolle.Config.useMiSansFont; }
+    private static boolean useMiSans() {
+        return org.trp.shincolle.Config.useMiSansFont
+                && org.trp.shincolle.Config.miSansOnlyForLegacyLogs;
+    }
 
     private static FormattedCharSequence forceFont(FormattedCharSequence seq) {
         return sink -> seq.accept((i, s, cp) -> sink.accept(i, s.withFont(FONT_MISANS), cp));
