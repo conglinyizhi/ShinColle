@@ -506,4 +506,14 @@ public class ModItems {
 
                 output.accept(resolved);
         }
+
+        public static void addPointerVariants(CreativeModeTab.Output output) {
+                Item resolved = POINTER_ITEM.get();
+                if (resolved instanceof PointerItem pointerItem) {
+                        pointerItem.addAllVariantsToCreativeTab(output);
+                        return;
+                }
+
+                output.accept(resolved);
+        }
 }

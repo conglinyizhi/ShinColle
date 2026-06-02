@@ -107,8 +107,7 @@ public class ModTabs {
                 output.accept(ModItems.OWNER_PAPER.get());
                 output.accept(ModItems.OP_TOOL.get());
                 output.accept(ModItems.SHIN_COMB.get());
-                output.accept(ModItems.POINTER_ITEM.get());
-                output.accept(ModItems.POINTER_ITEM.get());
+                ModItems.addPointerVariants(output);
                 output.accept(ModItems.RECIPE_PAPER.get());
                 output.accept(ModItems.REPAIR_GODDESS.get());
                 output.accept(ModItems.SHIP_TANK.get());
