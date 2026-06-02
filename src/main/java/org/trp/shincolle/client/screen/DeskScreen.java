@@ -48,6 +48,18 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     private static final int DIPLOMACY_BUTTON_RIGHT = 54;
     private static final int DIPLOMACY_BUTTON_TOP_Y = 158;
     private static final int DIPLOMACY_BUTTON_BOTTOM_Y = 172;
+    private static final int RADAR_ZOOM_X1 = 9;
+    private static final int RADAR_ZOOM_X2 = 53;
+    private static final int RADAR_ZOOM_Y1 = 160;
+    private static final int RADAR_ZOOM_Y2 = 168;
+    private static final int RADAR_CLEAR_X1 = 9;
+    private static final int RADAR_CLEAR_X2 = 53;
+    private static final int RADAR_CLEAR_Y1 = 172;
+    private static final int RADAR_CLEAR_Y2 = 182;
+    private static final int RADAR_ACTION_X1 = 88;
+    private static final int RADAR_ACTION_X2 = 132;
+    private static final int RADAR_ACTION_Y1 = 159;
+    private static final int RADAR_ACTION_Y2 = 169;
     
     private int pageId = 0;
     private int chapId = 0;
@@ -199,6 +211,23 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
     }
 
     private void drawRadarHoverText(GuiGraphics guiGraphics, int mx, int my, int mouseX, int mouseY) {
+        if (mx >= RADAR_ZOOM_X1 && mx <= RADAR_ZOOM_X2 && my >= RADAR_ZOOM_Y1 && my <= RADAR_ZOOM_Y2) {
+            guiGraphics.renderTooltip(this.font, Component.translatable("gui.shincolle.radar.zoom.tooltip"), mouseX, mouseY);
+            return;
+        }
+        if (mx >= RADAR_CLEAR_X1 && mx <= RADAR_CLEAR_X2 && my >= RADAR_CLEAR_Y1 && my <= RADAR_CLEAR_Y2) {
+            guiGraphics.renderTooltip(this.font, Component.translatable("gui.shincolle.radar.clear.tooltip"), mouseX, mouseY);
+            return;
+        }
+        if (!this.selectedShips.isEmpty()
+                && mx >= RADAR_ACTION_X1 && mx <= RADAR_ACTION_X2
+                && my >= RADAR_ACTION_Y1 && my <= RADAR_ACTION_Y2) {
+            String key = menu.getDeskType() == 0
+                    ? "gui.shincolle.radar.action.recall.tooltip"
+                    : "gui.shincolle.radar.action.open.tooltip";
+            guiGraphics.renderTooltip(this.font, Component.translatable(key), mouseX, mouseY);
+            return;
+        }
         java.util.List<Component> list = new java.util.ArrayList<>();
         for (RadarEntity obj : this.shipList) {
             if (obj != null && obj.ship != null && mx < obj.pixelx + 4.0 && mx > obj.pixelx - 2.0 && my < obj.pixelz + 4.0 && my > obj.pixelz - 2.0) {
@@ -868,9 +897,13 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         }
 
         if (guiFunc == 1) {
-            if (mx >= 9 && mx <= 53 && my >= 160 && my <= 168) {
+            if (mx >= RADAR_ZOOM_X1 && mx <= RADAR_ZOOM_X2 && my >= RADAR_ZOOM_Y1 && my <= RADAR_ZOOM_Y2) {
                 this.radarZoomLv = (this.radarZoomLv + 1) % 3;
                 syncDeskGui();
+                return true;
+            }
+            if (mx >= RADAR_CLEAR_X1 && mx <= RADAR_CLEAR_X2 && my >= RADAR_CLEAR_Y1 && my <= RADAR_CLEAR_Y2) {
+                this.selectedShips.clear();
                 return true;
             }
             if (mx >= 142 && mx <= 250) {
@@ -902,7 +935,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
                 }
             }
             if (!this.selectedShips.isEmpty()) {
-                if (mx >= 88 && mx <= 132 && my >= 159 && my <= 169) {
+                if (mx >= RADAR_ACTION_X1 && mx <= RADAR_ACTION_X2 && my >= RADAR_ACTION_Y1 && my <= RADAR_ACTION_Y2) {
                     handleRadarActionButton();
                     return true;
                 }
