@@ -110,7 +110,6 @@ public class ModTabs {
                 ModItems.addPointerVariants(output);
                 output.accept(ModItems.RECIPE_PAPER.get());
                 output.accept(ModItems.REPAIR_GODDESS.get());
-                output.accept(ModItems.SHIP_TANK.get());
                 output.accept(ModItems.TARGET_WRENCH.get());
                 output.accept(ModItems.TRAINING_BOOK.get());
                 output.accept(ModItems.TOY_AIRPLANE.get());
