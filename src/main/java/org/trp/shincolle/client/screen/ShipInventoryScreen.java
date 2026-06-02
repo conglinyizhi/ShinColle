@@ -21,6 +21,7 @@ import org.trp.shincolle.client.gui.component.TooltipBuilder;
 import org.trp.shincolle.entity.EntityDestroyerIkazuchi;
 import org.trp.shincolle.entity.EntityDestroyerInazuma;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.item.DebugInspectorItem;
 import org.trp.shincolle.menu.ShipContainerMenu;
 
 import java.util.ArrayList;
@@ -71,7 +72,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int TOGGLE_ROW_2_Y = 144;
     private static final int TOGGLE_ROW_STEP = 13;
     private static final int APPEARANCE_GRID_X = 176;
-    private static final int APPEARANCE_GRID_Y = 157;
+    private static final int APPEARANCE_TITLE_Y = 159;
+    private static final int APPEARANCE_GRID_Y = 171;
     private static final int APPEARANCE_GAP_X = 16;
     private static final int APPEARANCE_GAP_Y = 13;
     private static final int SLIDER_NONE = -1;
@@ -87,15 +89,11 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private static final int MODEL_BOX_TOP_GATTAI = 195;
     private static final int MODEL_BOX_BOTTOM_GATTAI = 130;
     private static final float MODEL_SCALE_GATTAI_MULTIPLIER = 0.90F;
-    private static final float MODEL_SCALE_TAB6_MULTIPLIER = 0.82F;
-    private static final int MODEL_TAB6_OFFSET_X = -22;
-    private static final int MODEL_TAB6_OFFSET_Y = -4;
     private static final int HELD_MAIN_COL = 1, HELD_MAIN_ROW = 5;
     private static final int HELD_OFF_COL = 2, HELD_OFF_ROW = 5;
     private static final int CRAFTING_WORK_START_SLOT = 12;
     private static final int LEGACY_LABEL_COLOR = 0xFFFFFF;
     private static final int LEGACY_LABEL_OUTLINE_COLOR = 0x181010;
-
     // Morale tables
     private static final float[] LEGACY_MORALE_NEUTRAL =
         {0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 1.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F};
@@ -280,7 +278,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
 
     @Override
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        drawLabel(guiGraphics, this.menu.getShip().getName().getString(), 8, 6);
+        drawPlainText(guiGraphics, this.menu.getShip().getName().getString(), 8, 6, 0x000000);
         drawTopRightStatus(guiGraphics);
 
         if (this.activeDetailTab == DETAIL_TAB_BASIC) {
@@ -289,11 +287,11 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
             drawLabel(guiGraphics, tr("gui.shincolle.exp"), 75, 41);
             drawValueRight(guiGraphics, String.valueOf(this.menu.getShipExp()), 135, 51, 0xFFFFFF);
             drawLabel(guiGraphics, tr("gui.shincolle.ammolight"), 75, 62);
-            drawValueRight(guiGraphics, String.valueOf(this.menu.getAmmoLightSynced()), 135, 72, 0xFFFFFF);
+            drawValueRightLegacy(guiGraphics, getResourceDisplay(String.valueOf(this.menu.getAmmoLightSynced())), 135, 72, getResourceDisplayColor());
             drawLabel(guiGraphics, tr("gui.shincolle.ammoheavy"), 75, 83);
-            drawValueRight(guiGraphics, String.valueOf(this.menu.getAmmoHeavySynced()), 135, 93, 0xFFFFFF);
+            drawValueRightLegacy(guiGraphics, getResourceDisplay(String.valueOf(this.menu.getAmmoHeavySynced())), 135, 93, getResourceDisplayColor());
             drawLabel(guiGraphics, tr("gui.shincolle.grudge"), 75, 104);
-            drawValueRight(guiGraphics, String.valueOf(this.menu.getShipFuel()), 135, 114, 0xFFFFFF);
+            drawValueRightLegacy(guiGraphics, getResourceDisplay(String.valueOf(this.menu.getShipFuel())), 135, 114, getResourceDisplayColor());
         } else if (this.activeDetailTab == DETAIL_TAB_STATUS) {
             drawLabel(guiGraphics, tr("gui.shincolle.firepower1"), 75, 20);
             drawValueRight(guiGraphics, String.format("%.0f", this.menu.getShipFirepower()), 135, 30, getModernizationColor(this.menu.getShip().getAttrBonus(1)));
@@ -355,8 +353,8 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
                 drawValueLeft(guiGraphics, getRationMoraleDisplay(), 174, 169, 0xFFFFFF);
             }
             case 6 -> {
-                drawLabel(guiGraphics, tr("gui.shincolle.showhelditem"), 187, 133);
-                drawLabel(guiGraphics, tr("gui.shincolle.equip.mount"), 187, 146);
+                drawCenteredLabel(guiGraphics, tr("gui.shincolle.showhelditem"), 212, 133);
+                drawCenteredLabel(guiGraphics, tr("gui.shincolle.equip.mount"), 212, 146);
                 drawAppearanceLabels(guiGraphics);
             }
             case 7 -> {
@@ -832,6 +830,12 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     private void drawLabel(GuiGraphics g, String text, int x, int y) {
         drawOutlinedText(g, text, x, y, LEGACY_LABEL_COLOR);
     }
+    private void drawCenteredLabel(GuiGraphics g, String text, int centerX, int y) {
+        drawOutlinedText(g, text, centerX - this.font.width(text) / 2, y, LEGACY_LABEL_COLOR);
+    }
+    private void drawPlainText(GuiGraphics g, String text, int x, int y, int color) {
+        g.drawString(this.font, text, x, y, color, false);
+    }
     private void drawValueLeft(GuiGraphics g, String text, int x, int y, int color) {
         drawOutlinedText(g, text, x, y, color);
     }
@@ -839,12 +843,23 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         int x = xRight - this.font.width(text);
         drawOutlinedText(g, text, x, y, color);
     }
+    private void drawValueRightLegacy(GuiGraphics g, String text, int xRight, int y, int color) {
+        int x = xRight - this.font.width(text);
+        g.drawString(this.font, text, x + 1, y + 1, 0x301010, false);
+        g.drawString(this.font, text, x, y, color, false);
+    }
     private void drawOutlinedText(GuiGraphics g, String text, int x, int y, int color) {
         g.drawString(this.font, text, x - 1, y, LEGACY_LABEL_OUTLINE_COLOR, false);
         g.drawString(this.font, text, x + 1, y, LEGACY_LABEL_OUTLINE_COLOR, false);
         g.drawString(this.font, text, x, y - 1, LEGACY_LABEL_OUTLINE_COLOR, false);
         g.drawString(this.font, text, x, y + 1, LEGACY_LABEL_OUTLINE_COLOR, false);
         g.drawString(this.font, text, x, y, color, false);
+    }
+    private String getResourceDisplay(String fallback) {
+        return this.menu.isCreativeDebuggerActive() ? DebugInspectorItem.creativeInfiniteLabel().getString() : fallback;
+    }
+    private int getResourceDisplayColor() {
+        return this.menu.isCreativeDebuggerActive() ? 0xFFD700 : 0xFFFFFF;
     }
     private boolean inside(int x, int y, int x1, int y1, int x2, int y2) {
         return x >= x1 && x <= x2 && y >= y1 && y <= y2;
@@ -884,14 +899,9 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
         EntityShipBase ship = this.menu.getShip();
         float[] mp = ship.getModelPos();
         boolean gattai = isRaidenGattaiState(ship);
-        int extraOffsetX = this.activeSettingsTab == SETTINGS_TAB_6 ? MODEL_TAB6_OFFSET_X : 0;
-        int extraOffsetY = this.activeSettingsTab == SETTINGS_TAB_6 ? MODEL_TAB6_OFFSET_Y : 0;
-        int mX = this.leftPos + 218 + Mth.floor(mp[0]) + extraOffsetX;
-        int mY = this.topPos + 100 + Mth.floor(mp[1]) + extraOffsetY;
+        int mX = this.leftPos + 218 + Mth.floor(mp[0]);
+        int mY = this.topPos + 100 + Mth.floor(mp[1]);
         float sm = gattai ? MODEL_SCALE_GATTAI_MULTIPLIER : 1f;
-        if (this.activeSettingsTab == SETTINGS_TAB_6) {
-            sm *= MODEL_SCALE_TAB6_MULTIPLIER;
-        }
         int sc = Math.max(16, Mth.floor(mp[3]*sm));
         int hw = gattai ? MODEL_BOX_HALF_WIDTH_GATTAI : MODEL_BOX_HALF_WIDTH;
         int tp = gattai ? MODEL_BOX_TOP_GATTAI : MODEL_BOX_TOP;
@@ -982,7 +992,7 @@ public class ShipInventoryScreen extends AbstractContainerScreen<ShipContainerMe
     }
 
     private void drawAppearanceLabels(GuiGraphics g) {
-        drawLabel(g, tr("gui.shincolle.appearance"), 177, 159);
+        drawCenteredLabel(g, tr("gui.shincolle.appearance"), 212, APPEARANCE_TITLE_Y);
     }
 
     // ---- Ship icon data maps ----
