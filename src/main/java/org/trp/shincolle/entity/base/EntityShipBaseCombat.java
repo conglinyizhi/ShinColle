@@ -181,6 +181,11 @@ class EntityShipBaseCombat {
     }
 
     void recalculateAmmoCounts() {
+        if (this.ship.hasCreativeDebugger()) {
+            this.ship.setAmmoLight(30000);
+            this.ship.setAmmoHeavy(30000);
+            return;
+        }
         int light = 0;
         int heavy = 0;
         for (int i = 0; i < this.ship.getInventory().getSlots(); i++) {
@@ -363,6 +368,9 @@ class EntityShipBaseCombat {
         if (amount <= 0) {
             return true;
         }
+        if (this.ship.hasCreativeDebugger()) {
+            return true;
+        }
         int remaining = amount;
         for (int i = 0; i < this.ship.getInventory().getSlots() && remaining > 0; i++) {
             ItemStack stack = this.ship.getInventory().getStackInSlot(i);
@@ -397,6 +405,9 @@ class EntityShipBaseCombat {
 
     boolean consumeLightAmmo(int amount) {
         if (amount <= 0) {
+            return true;
+        }
+        if (this.ship.hasCreativeDebugger()) {
             return true;
         }
         int remaining = amount;

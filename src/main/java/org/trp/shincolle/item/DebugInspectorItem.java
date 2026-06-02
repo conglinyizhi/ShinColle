@@ -1,6 +1,8 @@
 package org.trp.shincolle.item;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.HoverEvent;
@@ -14,15 +16,68 @@ import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import org.trp.shincolle.entity.base.EntityShipBase;
+
+import java.util.List;
 
 public class DebugInspectorItem extends Item {
 
     private static final int MAX_CHAT_LENGTH = 8000;
+    private static final String TAG_BUCKET_REPAIR_COUNT = "BucketRepairCount";
+    private static final String TAG_BUCKET_REPAIR_GAME_TIME = "BucketRepairGameTime";
+    private static final String TAG_BUCKET_REPAIR_SHIP = "BucketRepairShip";
 
     public DebugInspectorItem(Properties properties) {
         super(properties);
+    }
+
+    public static Component creativeInfiniteLabel() {
+        return Component.translatable("gui.shincolle.creative_infinite").withStyle(ChatFormatting.GOLD);
+    }
+
+    public static void markBucketRepairTriggered(ItemStack stack, EntityShipBase ship) {
+        stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, data -> data.update(tag -> {
+            tag.putInt(TAG_BUCKET_REPAIR_COUNT, tag.getInt(TAG_BUCKET_REPAIR_COUNT) + 1);
+            tag.putLong(TAG_BUCKET_REPAIR_GAME_TIME, ship.level().getGameTime());
+            tag.putString(TAG_BUCKET_REPAIR_SHIP, ship.getName().getString());
+        }));
+    }
+
+    @Override
+    public boolean isFoil(ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("item.shincolle.debug_inspector.desc").withStyle(ChatFormatting.AQUA));
+        tooltipComponents.add(Component.translatable("item.shincolle.debug_inspector.desc2").withStyle(ChatFormatting.GRAY));
+
+        var customData = stack.get(DataComponents.CUSTOM_DATA);
+        if (customData == null) {
+            return;
+        }
+
+        CompoundTag tag = customData.copyTag();
+        int repairCount = tag.getInt(TAG_BUCKET_REPAIR_COUNT);
+        if (repairCount > 0) {
+            tooltipComponents.add(Component.translatable("item.shincolle.debug_inspector.bucket_count", repairCount)
+                    .withStyle(ChatFormatting.GOLD));
+            String shipName = tag.getString(TAG_BUCKET_REPAIR_SHIP);
+            if (!shipName.isEmpty()) {
+                tooltipComponents.add(Component.translatable("item.shincolle.debug_inspector.bucket_ship", shipName)
+                        .withStyle(ChatFormatting.DARK_AQUA));
+            }
+            long gameTime = tag.getLong(TAG_BUCKET_REPAIR_GAME_TIME);
+            if (gameTime > 0L) {
+                tooltipComponents.add(Component.translatable("item.shincolle.debug_inspector.bucket_time", gameTime)
+                        .withStyle(ChatFormatting.DARK_GRAY));
+            }
+        }
     }
 
     @Override

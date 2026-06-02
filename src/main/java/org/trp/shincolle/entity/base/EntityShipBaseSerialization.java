@@ -24,6 +24,7 @@ final class EntityShipBaseSerialization {
         builder.define(EntityShipBase.EMOTION_PRIMARY, EntityShipBase.EMOTION_NORMAL);
         builder.define(EntityShipBase.EMOTION_SECONDARY, EntityShipBase.EMOTION_NORMAL);
         builder.define(EntityShipBase.EMOTION_PARTICLE, 0);
+        builder.define(EntityShipBase.CREATIVE_DEBUGGER_ACTIVE, false);
         builder.define(EntityShipBase.NO_FUEL, false);
         builder.define(EntityShipBase.MORALE, EntityShipBase.getMoraleDefaultValue());
         builder.define(EntityShipBase.FUEL, 0);

@@ -4,6 +4,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
+import org.trp.shincolle.item.DebugInspectorItem;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.IEntityComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -20,17 +21,22 @@ public enum ShipJadeProvider implements IEntityComponentProvider {
         if (!(accessor.getEntity() instanceof EntityShipBase ship)) {
             return;
         }
+        boolean creativeInfinite = ship.hasCreativeDebugger();
 
         tooltip.add(Component.translatable("gui.shincolle.level")
                 .append(": " + ship.getLevel()));
         tooltip.add(Component.translatable("gui.shincolle.hp")
-                .append(": " + Math.round(ship.getHealth()) + " / " + Math.round(ship.getMaxHealth())));
+                .append(": " + Math.round(ship.getHealth()) + " / " + Math.round(ship.getMaxHealth()))
+                .append(creativeInfinite ? Component.literal(" ").append(DebugInspectorItem.creativeInfiniteLabel()) : Component.empty()));
         tooltip.add(Component.translatable("gui.shincolle.ammolight")
-                .append(": " + ship.getAmmoLight()));
+                .append(": ")
+                .append(creativeInfinite ? DebugInspectorItem.creativeInfiniteLabel() : Component.literal(String.valueOf(ship.getAmmoLight()))));
         tooltip.add(Component.translatable("gui.shincolle.ammoheavy")
-                .append(": " + ship.getAmmoHeavy()));
+                .append(": ")
+                .append(creativeInfinite ? DebugInspectorItem.creativeInfiniteLabel() : Component.literal(String.valueOf(ship.getAmmoHeavy()))));
         tooltip.add(Component.translatable("gui.shincolle.grudge")
-                .append(": " + ship.getFuel()));
+                .append(": ")
+                .append(creativeInfinite ? DebugInspectorItem.creativeInfiniteLabel() : Component.literal(String.valueOf(ship.getFuel()))));
     }
 
     @Override

@@ -638,6 +638,10 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         return ship.getFuel();
     }
 
+    public boolean isCreativeDebuggerActive() {
+        return ship.hasCreativeDebugger();
+    }
+
     public float getShipFirepower() {
         return ship.getLegacyShipStats().getFirepower();
     }

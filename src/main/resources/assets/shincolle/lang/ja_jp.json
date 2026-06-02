@@ -625,6 +625,8 @@
     "gui.shincolle.crane.usemeta": "メタデータヲ チェックスルカドウカ",
     "gui.shincolle.crane.useoredict": "Forge鉱石辞書ヲ参照スルカドウカ",
     "gui.shincolle.crane.usenbt": "NBTタグヲ チェックスルカドウカ",
+    "config.jade.plugin_shincolle.ship": "艦娘情報",
+    "config.jade.plugin_shincolle.shipyard": "造船所情報",
     "gui.shincolle.crane.nowait": "待機シナイ",
     "gui.shincolle.crane.nowait1": "アイテムガ積ミ降ロシ デキナイ場合ハ直グニ クレーンヲ停止スル",
     "gui.shincolle.crane.untilfull": "完全ニ積ミ込ム迄",
@@ -927,5 +929,12 @@
     "tooltip.shincolle.jade.shipyard.fuel": "蓄積エネルギー: %s",
     "tooltip.shincolle.jade.shipyard.time": "残り時間: %s",
     "tooltip.shincolle.jade.shipyard.materials": "建造素材: %s",
-    "tooltip.shincolle.jade.shipyard.stock": "在庫素材: %s"
+    "tooltip.shincolle.jade.shipyard.stock": "在庫素材: %s",
+    "item.shincolle.debug_inspector": "クリエイティブデバッガー",
+    "item.shincolle.debug_inspector.desc": "艦娘のインベントリに入れると、弾薬・怨念が無限になり撃沈されません。",
+    "item.shincolle.debug_inspector.desc2": "既存のデバッグ確認機能を保持しつつ、修復バケツ発動回数を記録します。",
+    "item.shincolle.debug_inspector.bucket_count": "修復バケツ発動回数: %s",
+    "item.shincolle.debug_inspector.bucket_ship": "最近発動した艦娘: %s",
+    "item.shincolle.debug_inspector.bucket_time": "最近発動したゲーム時間: %s",
+    "gui.shincolle.creative_infinite": "[クリエイティブ-無限]"
 }

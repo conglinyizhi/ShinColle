@@ -617,6 +617,8 @@
     "gui.shincolle.crane.usemeta": "檢查物品的metadata值",
     "gui.shincolle.crane.useoredict": "使用Forge Ore Dictinoary檢查物品",
     "gui.shincolle.crane.usenbt": "檢查物品的NBT tag是否相同",
+    "config.jade.plugin_shincolle.ship": "艦娘資訊",
+    "config.jade.plugin_shincolle.shipyard": "船塢資訊",
     "gui.shincolle.crane.nowait": "不等待",
     "gui.shincolle.crane.nowait1": "若沒有貨物可以裝卸，則馬上結束等待",
     "gui.shincolle.crane.untilfull": "直到滿",
@@ -903,5 +905,12 @@
     "tooltip.shincolle.jade.shipyard.fuel": "儲備能量：%s",
     "tooltip.shincolle.jade.shipyard.time": "剩餘時間：%s",
     "tooltip.shincolle.jade.shipyard.materials": "建造材料：%s",
-    "tooltip.shincolle.jade.shipyard.stock": "庫存材料：%s"
+    "tooltip.shincolle.jade.shipyard.stock": "庫存材料：%s",
+    "item.shincolle.debug_inspector": "創造調試器",
+    "item.shincolle.debug_inspector.desc": "放入艦娘背包後：無限彈藥、無限怨念且無法被擊沉。",
+    "item.shincolle.debug_inspector.desc2": "同時保留原有調試查看功能，並記錄修復桶觸發次數。",
+    "item.shincolle.debug_inspector.bucket_count": "修復桶觸發次數：%s",
+    "item.shincolle.debug_inspector.bucket_ship": "最近觸發艦娘：%s",
+    "item.shincolle.debug_inspector.bucket_time": "最近觸發遊戲刻：%s",
+    "gui.shincolle.creative_infinite": "[創造模式-無限]"
 }

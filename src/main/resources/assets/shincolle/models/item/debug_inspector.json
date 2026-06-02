@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "minecraft:item/paper"
+    "layer0": "minecraft:block/diamond_block",
+    "layer1": "minecraft:item/nether_star"
   }
 }

@@ -61,6 +61,7 @@ import org.trp.shincolle.init.ModParticles;
 import org.trp.shincolle.init.ModSounds;
 import org.trp.shincolle.inventory.ShipInventoryHandler;
 import org.trp.shincolle.item.CombatRationItem;
+import org.trp.shincolle.item.DebugInspectorItem;
 import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.LegacyEquipStats;
 import org.trp.shincolle.menu.ShipContainerMenu;
@@ -218,6 +219,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     protected static final EntityDataAccessor<Integer> EMOTION_PRIMARY = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> EMOTION_SECONDARY = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> EMOTION_PARTICLE = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
+    protected static final EntityDataAccessor<Boolean> CREATIVE_DEBUGGER_ACTIVE = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Boolean> NO_FUEL = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.BOOLEAN);
     protected static final EntityDataAccessor<Integer> MORALE = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
     protected static final EntityDataAccessor<Integer> FORMATION_TEAM = SynchedEntityData.defineId(EntityShipBase.class, EntityDataSerializers.INT);
@@ -544,6 +546,9 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public int getAmmoLight() {
+        if (this.isCreativeDebuggerActive()) {
+            return 30000;
+        }
         return this.entityData.get(AMMO_LIGHT);
     }
 
@@ -552,6 +557,9 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public int getAmmoHeavy() {
+        if (this.isCreativeDebuggerActive()) {
+            return 30000;
+        }
         return this.entityData.get(AMMO_HEAVY);
     }
 
@@ -1580,10 +1588,16 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public int getFuel() {
+        if (this.isCreativeDebuggerActive()) {
+            return MAX_FUEL;
+        }
         return this.entityData.get(FUEL);
     }
 
     public void setFuel(int val) {
+        if (this.isCreativeDebuggerActive()) {
+            val = MAX_FUEL;
+        }
         int newFuel = Math.max(0, Math.min(MAX_FUEL, val));
         boolean wasNoFuel = this.isNoFuel();
         this.entityData.set(FUEL, newFuel);
@@ -2237,6 +2251,7 @@ public abstract class EntityShipBase extends TamableAnimal {
         if ((this.tickCount & 0x1F) == 0
                 && this.getHealth() < this.getMaxHealth() * AUTO_HEAL_THRESHOLD_RATIO) {
             if (this.consumeItemInInventory(ModItems.BUCKET_REPAIR.get())) {
+                this.recordCreativeDebuggerBucketRepair();
                 this.heal(this.getMaxHealth() * AUTO_HEAL_FAST_RATIO + AUTO_HEAL_FAST_FLAT);
                 if (this.supportsAircraftCombat()) {
                     this.setNumAircraftLight(this.getNumAircraftLight() + 1);
@@ -2795,6 +2810,7 @@ public abstract class EntityShipBase extends TamableAnimal {
             } else {
                 this.heal(this.getMaxHealth() * 0.1F + 5.0F);
             }
+            this.recordCreativeDebuggerBucketRepair();
 
             if (this.supportsAircraftCombat()) {
                 this.setNumAircraftLight(this.getNumAircraftLight() + 1);
@@ -2881,6 +2897,35 @@ public abstract class EntityShipBase extends TamableAnimal {
             return true;
         }
         return false;
+    }
+
+    private boolean hasCreativeDebuggerInInventory() {
+        return findItemInInventory(ModItems.DEBUG_INSPECTOR.get()) >= 0;
+    }
+
+    public boolean hasCreativeDebugger() {
+        return this.isCreativeDebuggerActive();
+    }
+
+    public boolean isCreativeDebuggerActive() {
+        return this.entityData.get(CREATIVE_DEBUGGER_ACTIVE);
+    }
+
+    private void refreshCreativeDebuggerState() {
+        this.entityData.set(CREATIVE_DEBUGGER_ACTIVE, hasCreativeDebuggerInInventory());
+    }
+
+    @Nullable
+    public ItemStack getCreativeDebuggerStack() {
+        int slot = findItemInInventory(ModItems.DEBUG_INSPECTOR.get());
+        return slot >= 0 ? this.inventory.getStackInSlot(slot) : null;
+    }
+
+    public void recordCreativeDebuggerBucketRepair() {
+        ItemStack stack = getCreativeDebuggerStack();
+        if (stack != null && !stack.isEmpty()) {
+            DebugInspectorItem.markBucketRepairTriggered(stack, this);
+        }
     }
 
     private void tickAutoSupplies() {
@@ -3197,6 +3242,12 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         boolean isHammer = source.getEntity() instanceof Player p && p.getMainHandItem().is(ModItems.KAITAI_HAMMER.get());
 
+        if (!this.level().isClientSide && this.isCreativeDebuggerActive() && !isHammer && reduced >= this.getHealth()) {
+            this.setHealth(Math.max(1.0F, this.getHealth()));
+            this.customHurtTime = 20;
+            return false;
+        }
+
         if (!this.level().isClientSide && !isHammer && !this.isDeadOrDying() && reduced >= this.getHealth() && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) {
             Entity attacker = source.getEntity();
             boolean isOwnerAttack = attacker instanceof Player && attacker.getUUID().equals(this.getOwnerUUID());
@@ -3295,6 +3346,7 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void onInventoryChanged() {
+        this.refreshCreativeDebuggerState();
         this.combat.recalculateAmmoCounts();
         this.recalculateLegacyShipStats();
     }
@@ -3762,6 +3814,13 @@ public abstract class EntityShipBase extends TamableAnimal {
 
     @Override
     public void die(DamageSource cause) {
+        boolean isHammer = cause.getEntity() instanceof Player p && p.getMainHandItem().is(ModItems.KAITAI_HAMMER.get());
+        if (!this.level().isClientSide && this.isCreativeDebuggerActive() && !isHammer) {
+            this.setHealth(Math.max(1.0F, this.getHealth()));
+            this.customHurtTime = 20;
+            return;
+        }
+
         if (!this.level().isClientSide) {
             if (this.isHostileShipMob()) {
                 this.applyEmotesAOE(48.0, 6, true);
