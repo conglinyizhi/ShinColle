@@ -25,12 +25,18 @@ class PatchouliStructureRegressionTest {
     private static final Path ENTRY_ROOT = PATCHOULI_ROOT.resolve("entries");
     private static final Path SHINCOLLE_ASSET_ROOT =
             Path.of("src/main/resources/assets/shincolle");
+    private static final Path RECIPE_ROOT =
+            Path.of("src/main/resources/data/shincolle/recipe");
+    private static final Path EN_US_LANG =
+            Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
     private static final Pattern STRING_FIELD_PATTERN_TEMPLATE =
             Pattern.compile("\"%s\"\\s*:\\s*\"([^\"]+)\"");
     private static final Pattern NUMERIC_FIELD_PATTERN_TEMPLATE =
             Pattern.compile("\"%s\"\\s*:\\s*(-?\\d+)");
-    private static final Pattern PAGES_PATTERN =
-            Pattern.compile("\"pages\"\\s*:\\s*\\[(.*?)]", Pattern.DOTALL);
+    private static final Pattern CRAFTING_PAGE_PATTERN =
+            Pattern.compile("\\{[^{}]*\"type\"\\s*:\\s*\"patchouli:crafting\"[^{}]*}", Pattern.DOTALL);
+    private static final Pattern ENTITY_PAGE_PATTERN =
+            Pattern.compile("\\{[^{}]*\"type\"\\s*:\\s*\"patchouli:entity\"[^{}]*}", Pattern.DOTALL);
 
     @Test
     void patchouliCategoriesShouldKeepRequiredFields() throws IOException {
@@ -60,11 +66,20 @@ class PatchouliStructureRegressionTest {
     @Test
     void patchouliEntriesShouldKeepRequiredFieldsAndReferenceExistingCategories() throws IOException {
         Set<String> existingCategories;
+        Set<String> existingRecipes;
+        String englishLang = Files.readString(EN_US_LANG);
         try (Stream<Path> stream = Files.walk(CATEGORY_ROOT)) {
             existingCategories = stream
                     .filter(Files::isRegularFile)
                     .filter(path -> path.toString().endsWith(".json"))
                     .map(path -> stripJsonExtension(CATEGORY_ROOT.relativize(path).toString().replace('\\', '/')))
+                    .collect(Collectors.toCollection(TreeSet::new));
+        }
+        try (Stream<Path> stream = Files.walk(RECIPE_ROOT)) {
+            existingRecipes = stream
+                    .filter(Files::isRegularFile)
+                    .filter(path -> path.toString().endsWith(".json"))
+                    .map(path -> stripJsonExtension(RECIPE_ROOT.relativize(path).toString().replace('\\', '/')))
                     .collect(Collectors.toCollection(TreeSet::new));
         }
 
@@ -114,6 +129,8 @@ class PatchouliStructureRegressionTest {
                 if (pagesContent == null || pagesContent.isBlank()) {
                     issues.add(ENTRY_ROOT.relativize(json) + " missing non-empty pages array");
                 }
+
+                validatePageReferences(content, json, existingRecipes, englishLang, issues);
             }
         }
 
@@ -167,6 +184,39 @@ class PatchouliStructureRegressionTest {
         Path blockModel = SHINCOLLE_ASSET_ROOT.resolve("models/block").resolve(resourcePath + ".json");
         if (!Files.exists(itemModel) && !Files.exists(blockModel)) {
             issues.add(relativePath(file) + " references missing icon model " + icon);
+        }
+    }
+
+    private static void validatePageReferences(
+            String content,
+            Path file,
+            Set<String> existingRecipes,
+            String englishLang,
+            List<String> issues
+    ) {
+        String relative = ENTRY_ROOT.relativize(file).toString().replace('\\', '/');
+        Matcher craftingMatcher = CRAFTING_PAGE_PATTERN.matcher(content);
+        while (craftingMatcher.find()) {
+            String page = craftingMatcher.group();
+            String recipe = readStringField(page, "recipe");
+            if (recipe != null && recipe.startsWith("shincolle:")) {
+                String normalizedRecipe = recipe.substring("shincolle:".length());
+                if (!existingRecipes.contains(normalizedRecipe)) {
+                    issues.add(relative + " references missing recipe " + recipe);
+                }
+            }
+        }
+
+        Matcher entityMatcher = ENTITY_PAGE_PATTERN.matcher(content);
+        while (entityMatcher.find()) {
+            String page = entityMatcher.group();
+            String entity = readStringField(page, "entity");
+            if (entity != null && entity.startsWith("shincolle:")) {
+                String entityKey = "\"entity.shincolle." + entity.substring("shincolle:".length()) + "\"";
+                if (!englishLang.contains(entityKey)) {
+                    issues.add(relative + " references entity without English translation " + entity);
+                }
+            }
         }
     }
 
