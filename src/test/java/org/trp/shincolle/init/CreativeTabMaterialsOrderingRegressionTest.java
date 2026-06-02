@@ -1,0 +1,41 @@
+package org.trp.shincolle.init;
+
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class CreativeTabMaterialsOrderingRegressionTest {
+    private static final Path MOD_TABS =
+            Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java");
+
+    @Test
+    void materialsSectionShouldKeepLegacyResourceOrdering() throws IOException {
+        String modTabs = Files.readString(MOD_TABS);
+
+        assertOrder(modTabs, List.of(
+                "output.accept(ModItems.ABYSS_METAL.get());",
+                "ModItems.addAbyssNuggetVariants(output);",
+                "output.accept(ModItems.AMMO_LIGHT.get());",
+                "output.accept(ModItems.AMMO_LIGHT_CONTAINER.get());",
+                "output.accept(ModItems.AMMO_HEAVY.get());",
+                "output.accept(ModItems.AMMO_HEAVY_CONTAINER.get());",
+                "ModItems.addGrudgeVariants(output);",
+                "output.accept(ModItems.ABYSS_POLYMETAL.get());"
+        ), "Creative tab materials section should keep the preserved legacy resource ordering");
+    }
+
+    private static void assertOrder(String source, List<String> snippets, String message) {
+        int cursor = -1;
+        for (String snippet : snippets) {
+            int next = source.indexOf(snippet, cursor + 1);
+            assertTrue(next >= 0, () -> "Expected snippet to exist: " + snippet);
+            assertTrue(next > cursor, () -> message + " around " + snippet);
+            cursor = next;
+        }
+    }
+}
