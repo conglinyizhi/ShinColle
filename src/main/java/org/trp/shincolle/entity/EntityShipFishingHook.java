@@ -69,7 +69,7 @@ public class EntityShipFishingHook extends Entity {
             this.discard();
         }
         if (!this.level().isClientSide) {
-            if (this.host == null || !this.host.isAlive()) {
+            if (this.host == null || !this.host.isAlive() || this.host.isRemoved()) {
                 this.discard();
                 return;
             }
