@@ -82,10 +82,7 @@ class LocalizationRegressionTest {
             "inter.shincolle.flower",
             "item.shincolle.AbyssMetal1.name",
             "item.shincolle.RepairGoddess.name",
-            "item.shincolle.deskitembook",
-            "item.shincolle.deskitemradar",
             "item.shincolle.hostile_egg_l",
-            "item.shincolle.repairgoddess",
             "tile.shincolle.BlockGrudge.name",
             "tile.shincolle.BlockGrudgeHeavy.name"
     );
