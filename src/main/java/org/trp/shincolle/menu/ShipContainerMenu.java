@@ -1414,7 +1414,8 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
         int entityId = buf.readInt();
         if (playerInv.player.level().getEntity(entityId) instanceof EntityShipBase ship
-                && ship.isAlive()) {
+                && ship.isAlive()
+                && !ship.isRemoved()) {
             return ship;
         }
 

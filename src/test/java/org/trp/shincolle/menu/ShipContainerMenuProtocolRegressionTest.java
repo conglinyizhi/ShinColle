@@ -38,8 +38,8 @@ class ShipContainerMenuProtocolRegressionTest {
                 "Ship container menu should keep a stable missing-buffer failure message");
         assertTrue(source.contains("int entityId = buf.readInt();"),
                 "Ship container menu should decode exactly one entity id from the menu payload");
-        assertTrue(source.contains("playerInv.player.level().getEntity(entityId) instanceof EntityShipBase ship\n                && ship.isAlive()"),
-                "Ship container menu should resolve live ships even when they are out of fuel");
+        assertTrue(source.contains("playerInv.player.level().getEntity(entityId) instanceof EntityShipBase ship\n                && ship.isAlive()\n                && !ship.isRemoved()"),
+                "Ship container menu should only resolve live, non-removed ships even when they are out of fuel");
         assertTrue(source.contains("throw new IllegalStateException(\"Ship entity not found.\");"),
                 "Ship container menu should keep the stable fail-fast message for missing or invalid ships");
     }
