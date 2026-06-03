@@ -65,6 +65,10 @@ class ServicePlayerGuardRegressionTest {
                 "FormationService should only send admiral sync after real state changes");
         assertTrue(source.contains("public static void handlePointerRosterToggle(Player player, UUID targetUuid) {\n        if (player == null || targetUuid == null) {\n            return;\n        }"),
                 "FormationService handlePointerRosterToggle should ignore null players before attachment access");
+        assertTrue(source.contains("boolean shouldSync = false;"),
+                "FormationService pointer roster toggle should track whether the roster action actually changed admiral state");
+        assertTrue(source.contains("if (shouldSync && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
+                "FormationService pointer roster toggle should only sync after a real roster change");
     }
 
     @Test
@@ -91,5 +95,13 @@ class ServicePlayerGuardRegressionTest {
                 "PointerInteractionService should keep a dedicated payload-facing entrypoint");
         assertTrue(source.contains("if (player == null || player.level().isClientSide) {\n            return;\n        }\n        if (!(pointerStack.getItem() instanceof PointerItem pointerItem)) {"),
                 "PointerInteractionService handlePayloadAction should reject null players and client-side calls before pointer item logic");
+        assertTrue(source.contains("boolean shouldSync = false;"),
+                "PointerInteractionService grouped selection should track whether formation operations actually changed state");
+        assertTrue(source.contains("if (shouldSync) {\n                sendAdmiralStateIfServerPlayer(player);\n            }"),
+                "PointerInteractionService should only sync admiral state after real grouped formation changes");
+        assertTrue(source.contains("if (PlayerStateService.removeShipFromTeams(player, ship.getUUID())) {\n                        FormationService.clearFormationState(ship);\n                        shouldSync = true;\n                    }"),
+                "PointerInteractionService should only sync grouped removal when a ship was actually removed from teams");
+        assertTrue(source.contains("if (PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState)) {\n                        ship.setPointerSelected(nextState);\n                        shouldSync = true;\n                    }"),
+                "PointerInteractionService should only sync grouped roster toggles when selection state actually changes");
     }
 }

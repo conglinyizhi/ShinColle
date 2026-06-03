@@ -102,11 +102,13 @@ public final class FormationService {
         AdmiralData data = PlayerStateService.admiralData(player);
         int teamId = data.getCurrentTeamID();
         int slot = data.findShipSlot(teamId, targetUuid);
+        boolean shouldSync = false;
 
         if (slot != -1) {
             boolean nextState = !data.isSelected(teamId, slot);
             if (PlayerStateService.setCurrentTeamSlotSelected(player, slot, nextState)) {
                 withServerShip(player, targetUuid, ship -> ship.setPointerSelected(nextState));
+                shouldSync = true;
             }
         } else {
             int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, targetUuid);
@@ -114,10 +116,11 @@ public final class FormationService {
                 player.displayClientMessage(Component.translatable("chat.shincolle.formation.teamfull"), false);
             } else {
                 withServerShip(player, targetUuid, ship -> applyFormationState(ship, teamId, assignedSlot, true));
+                shouldSync = true;
             }
         }
 
-        if (player instanceof ServerPlayer serverPlayer) {
+        if (shouldSync && player instanceof ServerPlayer serverPlayer) {
             PlayerStateService.sendAdmiralState(serverPlayer);
         }
     }

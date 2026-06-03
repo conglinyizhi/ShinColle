@@ -295,28 +295,36 @@ public final class PointerInteractionService {
         int teamId = data.getCurrentTeamID();
         int existingTeam = data.findShipTeam(ship.getUUID());
         int existingSlot = existingTeam >= 0 ? data.findShipSlot(existingTeam, ship.getUUID()) : -1;
+        boolean shouldSync = false;
 
         if (existingTeam != -1) {
             if (existingTeam == teamId) {
                 if (mode == PointerItem.MODE_FORMATION) {
-                    PlayerStateService.removeShipFromTeams(player, ship.getUUID());
-                    FormationService.clearFormationState(ship);
+                    if (PlayerStateService.removeShipFromTeams(player, ship.getUUID())) {
+                        FormationService.clearFormationState(ship);
+                        shouldSync = true;
+                    }
                 } else {
                     boolean nextState = !data.isSelected(teamId, existingSlot);
-                    PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState);
-                    ship.setPointerSelected(nextState);
+                    if (PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState)) {
+                        ship.setPointerSelected(nextState);
+                        shouldSync = true;
+                    }
                 }
             } else if (mode == PointerItem.MODE_FORMATION) {
                 int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID());
                 if (assignedSlot != -1) {
                     FormationService.applyFormationState(ship, teamId, assignedSlot, true);
+                    shouldSync = true;
                 } else {
                     player.displayClientMessage(net.minecraft.network.chat.Component.translatable("chat.shincolle.formation.teamfull"), false);
                 }
             } else {
                 ship.togglePointerSelected();
             }
-            sendAdmiralStateIfServerPlayer(player);
+            if (shouldSync) {
+                sendAdmiralStateIfServerPlayer(player);
+            }
         } else if (mode == PointerItem.MODE_FORMATION) {
             int assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID());
             if (assignedSlot != -1) {
