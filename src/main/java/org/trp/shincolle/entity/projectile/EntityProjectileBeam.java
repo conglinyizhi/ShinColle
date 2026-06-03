@@ -12,8 +12,12 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.trp.shincolle.entity.EntityAircraftBase;
+import org.trp.shincolle.entity.base.EntityMountBase;
+import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.utility.PerformanceTrace;
 
@@ -21,7 +25,6 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.Set;
-import java.util.UUID;
 
 public class EntityProjectileBeam extends Entity {
     private static final EntityDataAccessor<Optional<UUID>> OWNER_UUID = SynchedEntityData.defineId(EntityProjectileBeam.class, EntityDataSerializers.OPTIONAL_UUID);
@@ -205,16 +208,33 @@ public class EntityProjectileBeam extends Entity {
 
     private boolean isSameOwner(Entity target) {
         Entity owner = getOwnerEntity();
-        UUID ownerId = null;
-        if (owner instanceof TamableAnimal t1) {
-            ownerId = t1.getOwnerUUID();
-        }
+        UUID ownerId = resolveOwnerUuid(owner);
         if (ownerId == null) return false;
 
-        if (target instanceof TamableAnimal t2) {
-            return ownerId.equals(t2.getOwnerUUID());
+        return ownerId.equals(resolveOwnerUuid(target));
+    }
+
+    private UUID resolveOwnerUuid(Entity entity) {
+        if (entity instanceof Player player) {
+            return player.getUUID();
         }
-        return false;
+        if (entity instanceof EntityShipBase ship) {
+            return ship.getOwnerUUID();
+        }
+        if (entity instanceof TamableAnimal tamable) {
+            return tamable.getOwnerUUID();
+        }
+        if (entity instanceof EntityMountBase mount) {
+            EntityShipBase host = mount.getHost();
+            if (host != null) {
+                return host.getOwnerUUID();
+            }
+            return mount.getHostUUID();
+        }
+        if (entity instanceof EntityAircraftBase aircraft) {
+            return aircraft.getOwnerUUID();
+        }
+        return null;
     }
 
     private void onImpact(Entity target, Entity owner) {

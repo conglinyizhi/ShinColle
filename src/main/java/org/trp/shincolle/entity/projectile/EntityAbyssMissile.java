@@ -29,6 +29,9 @@ import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import org.trp.shincolle.entity.EntityAircraftBase;
+import org.trp.shincolle.entity.base.EntityMountBase;
+import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.init.ModEntities;
 import org.trp.shincolle.init.ModSounds;
 import org.trp.shincolle.utility.PerformanceTrace;
@@ -659,23 +662,34 @@ public class EntityAbyssMissile extends Entity implements IEntityWithComplexSpaw
     private boolean isFriendlyTarget(Entity owner, Entity target) {
         if (owner == target) return true;
 
-        UUID ownerId = null;
-        if (owner instanceof TamableAnimal t1) {
-            ownerId = t1.getOwnerUUID();
-        } else if (owner instanceof Player p1) {
-            ownerId = p1.getUUID();
-        }
-
+        UUID ownerId = resolveOwnerUuid(owner);
         if (ownerId == null) return false;
 
-        UUID targetId = null;
-        if (target instanceof TamableAnimal t2) {
-            targetId = t2.getOwnerUUID();
-        } else if (target instanceof Player p2) {
-            targetId = p2.getUUID();
-        }
-
+        UUID targetId = resolveOwnerUuid(target);
         return ownerId.equals(targetId);
+    }
+
+    private UUID resolveOwnerUuid(Entity entity) {
+        if (entity instanceof Player player) {
+            return player.getUUID();
+        }
+        if (entity instanceof EntityShipBase ship) {
+            return ship.getOwnerUUID();
+        }
+        if (entity instanceof TamableAnimal tamable) {
+            return tamable.getOwnerUUID();
+        }
+        if (entity instanceof EntityMountBase mount) {
+            EntityShipBase host = mount.getHost();
+            if (host != null) {
+                return host.getOwnerUUID();
+            }
+            return mount.getHostUUID();
+        }
+        if (entity instanceof EntityAircraftBase aircraft) {
+            return aircraft.getOwnerUUID();
+        }
+        return null;
     }
 
     private Vec3 getAimVector(Entity target) {
