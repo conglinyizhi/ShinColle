@@ -25,6 +25,11 @@ configurations {
     modIntegrationRuntimeOnly
 }
 
+def syncModIntegrationMods = tasks.register("syncModIntegrationMods", Sync) {
+    from(configurations.modIntegrationRuntimeOnly)
+    into(layout.projectDirectory.dir("run/mods"))
+}
+
 neoForge {
     // Specify the version of NeoForge to use.
     version = project.neo_version
@@ -52,7 +57,7 @@ neoForge {
             client()
             ideName = "ShinColle Client (Integrations)"
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-            additionalRuntimeClasspathConfiguration.extendsFrom(configurations.modIntegrationRuntimeOnly)
+            taskBefore(syncModIntegrationMods)
         }
 
         server {
