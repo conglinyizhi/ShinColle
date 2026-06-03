@@ -18,6 +18,12 @@ class ProjectileFriendlyFireRegressionTest {
     void missileFriendlyFireCheckShouldResolvePlayersShipsMountsAndAircraft() throws IOException {
         String source = Files.readString(MISSILE);
 
+        assertTrue(source.contains("Entity entity = serverLevel.getEntity(ownerUuid.get());"),
+                "Missile owner lookup should resolve the current owner entity through the server world");
+        assertTrue(source.contains("Entity entity = serverLevel.getEntity(targetUuid.get());"),
+                "Missile target lookup should resolve the current target entity through the server world");
+        assertTrue(source.contains("if (entity == null || !entity.isAlive() || entity.isRemoved()) {\n            return null;\n        }"),
+                "Missile owner/target lookup should treat dead or removed entities as invalid projectile references");
         assertTrue(source.contains("UUID ownerId = resolveOwnerUuid(owner);"),
                 "Missile friendly-fire checks should normalize owner identity through a shared resolver");
         assertTrue(source.contains("UUID targetId = resolveOwnerUuid(target);"),
@@ -38,6 +44,10 @@ class ProjectileFriendlyFireRegressionTest {
     void beamFriendlyFireCheckShouldResolvePlayersShipsMountsAndAircraft() throws IOException {
         String source = Files.readString(BEAM);
 
+        assertTrue(source.contains("Entity entity = serverLevel.getEntity(ownerUuid.get());"),
+                "Beam owner lookup should resolve the current owner entity through the server world");
+        assertTrue(source.contains("if (entity == null || !entity.isAlive() || entity.isRemoved()) {\n            return null;\n        }"),
+                "Beam owner lookup should treat dead or removed entities as invalid projectile references");
         assertTrue(source.contains("UUID ownerId = resolveOwnerUuid(owner);"),
                 "Beam same-owner checks should normalize owner identity through a shared resolver");
         assertTrue(source.contains("return ownerId.equals(resolveOwnerUuid(target));"),

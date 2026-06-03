@@ -265,7 +265,11 @@ public class EntityProjectileBeam extends Entity {
         if (ownerUuid.isEmpty() || !(this.level() instanceof ServerLevel serverLevel)) {
             return null;
         }
-        return serverLevel.getEntity(ownerUuid.get());
+        Entity entity = serverLevel.getEntity(ownerUuid.get());
+        if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            return null;
+        }
+        return entity;
     }
 
     public Optional<UUID> getOwnerUuid() {
