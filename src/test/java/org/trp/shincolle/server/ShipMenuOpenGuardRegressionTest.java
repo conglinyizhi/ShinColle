@@ -42,4 +42,16 @@ class ShipMenuOpenGuardRegressionTest {
         assertTrue(pointerServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()) {\n            ship.openShipMenu(player);\n        }"),
                 "Pointer ship-open service should keep forwarding owned ships that are alive, including out-of-fuel ships");
     }
+
+    @Test
+    void ownedShipMobInteractShouldKeepSneakOpenAndDefaultRightClickStateToggle() throws IOException {
+        String shipSource = Files.readString(SHIP_SOURCE);
+
+        assertTrue(shipSource.contains("if (player.isShiftKeyDown()) {\n                this.openShipMenu(player);\n                this.resetInteractionEmotionState();\n                this.focusOnPlayer(player);\n                return InteractionResult.sidedSuccess(this.level().isClientSide);\n            }"),
+                "Owned ship interaction should keep opening the ship menu on sneak right-click");
+        assertTrue(shipSource.contains("boolean isSitting = !this.isOrderedToSit();\n            this.setOrderedToSit(isSitting);\n            this.setInSittingPose(isSitting);"),
+                "Owned ship interaction should keep using default right-click to toggle standby and follow state");
+        assertTrue(shipSource.contains("if (!isSitting && this.hasBlockGuardTarget()) {\n                this.clearGuardTarget();\n            }"),
+                "Leaving standby through default right-click should still clear stale block-guard targets");
+    }
 }
