@@ -49,4 +49,14 @@ class TeamDiplomacySavedDataRegressionTest {
         assertTrue(source.contains("diplomacy.setDisplayData(player.getUUID(), teamName, leaderName);"),
                 "Diplomacy service should route display metadata updates through TeamDiplomacySavedData");
     }
+
+    @Test
+    void diplomacyEntryViewsShouldStayReadOnly() throws IOException {
+        String source = Files.readString(TEAM_DIPLOMACY_SAVED_DATA);
+
+        assertTrue(source.contains("return java.util.Collections.unmodifiableSet(this.allies);"),
+                "Diplomacy ally views should stay read-only so callers cannot bypass SavedData dirty tracking");
+        assertTrue(source.contains("return java.util.Collections.unmodifiableSet(this.banned);"),
+                "Diplomacy banned views should stay read-only so callers cannot bypass SavedData dirty tracking");
+    }
 }

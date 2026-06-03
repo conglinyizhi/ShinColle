@@ -200,11 +200,11 @@ public final class TeamDiplomacySavedData extends SavedData {
         }
 
         public Collection<UUID> allies() {
-            return this.allies;
+            return java.util.Collections.unmodifiableSet(this.allies);
         }
 
         public Collection<UUID> banned() {
-            return this.banned;
+            return java.util.Collections.unmodifiableSet(this.banned);
         }
     }
 }

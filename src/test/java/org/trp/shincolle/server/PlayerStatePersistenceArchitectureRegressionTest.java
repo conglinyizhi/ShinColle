@@ -301,6 +301,10 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 "Diplomacy loading should restore allies");
         assertTrue(diplomacy.contains("readUuidList(entryTag.getList(\"Banned\", Tag.TAG_STRING), entry.banned);"),
                 "Diplomacy loading should restore banned players");
+        assertTrue(diplomacy.contains("return java.util.Collections.unmodifiableSet(this.allies);"),
+                "Diplomacy ally views should stay read-only so callers cannot bypass SavedData dirty tracking");
+        assertTrue(diplomacy.contains("return java.util.Collections.unmodifiableSet(this.banned);"),
+                "Diplomacy banned views should stay read-only so callers cannot bypass SavedData dirty tracking");
 
         assertSavedDataUsesServerWideStorage(targets, "shincolle_player_target_lists");
         assertTrue(targets.contains("entryTag.putUUID(\"Owner\", entry.getKey());"),
