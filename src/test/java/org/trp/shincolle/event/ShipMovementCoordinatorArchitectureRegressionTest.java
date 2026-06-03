@@ -743,6 +743,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Summon Brain provider should route through the summon Brain AI helper");
         assertTrue(summon.contains("return EntitySummonBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));"),
                 "Summon Brain construction should route through the summon Brain AI helper");
+        assertTrue(summon.contains("Entity entity = serverLevel.getEntity(this.targetId);"),
+                "Summon mission-target lookup should resolve the current target entity through the server world");
+        assertTrue(summon.contains("if (entity == null || !entity.isAlive() || entity.isRemoved()) {\n            return null;\n        }"),
+                "Summon mission-target lookup should treat dead or removed entities as invalid mission targets");
         assertFalse(summon.contains("this.goalSelector.addGoal"),
                 "Summon entity should no longer register summon behaviors through GoalSelector");
         assertFalse(summon.contains("this.distanceToSqr(carrier) > 1024.0D"),

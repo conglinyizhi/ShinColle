@@ -302,6 +302,10 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
         if (this.targetId == null || !(this.level() instanceof ServerLevel serverLevel)) {
             return null;
         }
-        return serverLevel.getEntity(this.targetId);
+        Entity entity = serverLevel.getEntity(this.targetId);
+        if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            return null;
+        }
+        return entity;
     }
 }
