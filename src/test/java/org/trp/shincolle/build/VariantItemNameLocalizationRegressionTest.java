@@ -20,8 +20,12 @@ class VariantItemNameLocalizationRegressionTest {
     private record VariantNameExpectation(String nameBase, int variantCount) {
     }
 
-    private static final Path EN_US_LANG =
-            Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
+    private static final List<Path> MAINTAINED_LANGS = List.of(
+            Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
+            Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
+            Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
+            Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
+    );
     private static final Path MOD_ITEMS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
     private static final Path COMBAT_RATION_SOURCE =
@@ -49,22 +53,26 @@ class VariantItemNameLocalizationRegressionTest {
     );
 
     @Test
-    void englishShouldCoverAllVariantItemNameKeys() throws IOException {
-        Set<String> englishKeys = readKeys(EN_US_LANG);
-        List<String> missing = new ArrayList<>();
+    void maintainedLanguagesShouldCoverAllVariantItemNameKeys() throws IOException {
+        List<VariantNameExpectation> expectations = readExpectations();
 
-        for (VariantNameExpectation expectation : readExpectations()) {
-            for (int variant = 0; variant < expectation.variantCount(); variant++) {
-                String key = keyFor(expectation.nameBase(), variant);
-                if (!englishKeys.contains(key)) {
-                    missing.add(key);
+        for (Path lang : MAINTAINED_LANGS) {
+            Set<String> keys = readKeys(lang);
+            List<String> missing = new ArrayList<>();
+
+            for (VariantNameExpectation expectation : expectations) {
+                for (int variant = 0; variant < expectation.variantCount(); variant++) {
+                    String key = keyFor(expectation.nameBase(), variant);
+                    if (!keys.contains(key)) {
+                        missing.add(key);
+                    }
                 }
             }
-        }
 
-        assertTrue(missing.isEmpty(),
-                () -> "English language file should define every variant item name key, missing: "
-                        + String.join(", ", missing));
+            assertTrue(missing.isEmpty(),
+                    () -> lang.getFileName() + " should define every variant item name key, missing: "
+                            + String.join(", ", missing));
+        }
     }
 
     private static List<VariantNameExpectation> readExpectations() throws IOException {
