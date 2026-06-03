@@ -118,6 +118,9 @@ public class CraneMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
+        if (this.blockEntity.getLevel() == null) {
+            return false;
+        }
         if (player.level().getBlockEntity(this.blockEntity.getBlockPos()) != this.blockEntity) {
             return false;
         }

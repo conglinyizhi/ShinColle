@@ -80,6 +80,18 @@ class BlockMenuProtocolRegressionTest {
         }
     }
 
+    @Test
+    void blockMenusShouldInvalidateWhenTheirBlockEntityGetsDetached() throws IOException {
+        for (MenuContract contract : MENU_CONTRACTS) {
+            String source = Files.readString(contract.source());
+
+            assertTrue(source.contains("if (this.blockEntity.getLevel() == null) {\n            return false;\n        }"),
+                    contract.menuId() + " should reject detached block entities before distance checks");
+            assertTrue(source.contains("if (player.level().getBlockEntity(this.blockEntity.getBlockPos()) != this.blockEntity) {\n            return false;\n        }"),
+                    contract.menuId() + " should reject replaced block entities before distance checks");
+        }
+    }
+
     private record MenuContract(
             String menuId,
             Path source,
