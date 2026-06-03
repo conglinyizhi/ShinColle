@@ -105,6 +105,9 @@ public final class MarriageRingService {
     }
 
     public static boolean hasActiveMarriageRing(Player player) {
+        if (player == null) {
+            return false;
+        }
         return !findActiveMarriageRing(player).isEmpty();
     }
 
