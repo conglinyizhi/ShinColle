@@ -55,6 +55,7 @@
     "item.shincolle.blockwaypoint": "深海ウェイポイント",
     "chat.shincolle.entity_fainted": "%s ハ戦闘不能ニナッタ。",
     "chat.shincolle.formation.teamfull": "現在ノ艦隊ハ既ニ満員デス。",
+    "chat.shincolle:levelfail": "レベルガ低スギマス！",
     "chat.shincolle.team.ally_added": "同盟ヲ追加: ",
     "chat.shincolle.team.ally_missing": "同盟相手ガ見ツカラナイ: ",
     "chat.shincolle.team.ally_removed": "同盟ヲ解除: ",

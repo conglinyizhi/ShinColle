@@ -54,6 +54,7 @@
     "item.shincolle.blockwaypoint": "深海路點",
     "chat.shincolle.entity_fainted": "%s 已失去戰鬥能力。",
     "chat.shincolle.formation.teamfull": "目前隊伍已滿。",
+    "chat.shincolle:levelfail": "等級太低！",
     "chat.shincolle.team.ally_added": "已新增盟友：",
     "chat.shincolle.team.ally_missing": "找不到盟友：",
     "chat.shincolle.team.ally_removed": "已移除盟友：",
