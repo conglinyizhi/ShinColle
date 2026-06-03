@@ -123,7 +123,7 @@ public class RecipePaperMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return ItemStack.isSameItemSameComponents(player.getItemInHand(hand), hostStack);
+        return player.getItemInHand(hand) == hostStack;
     }
 
     @Override

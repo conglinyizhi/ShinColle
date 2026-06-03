@@ -26,4 +26,14 @@ class RecipePaperMenuRegressionTest {
         assertFalse(source.contains("placeGhostIngredient"),
                 "Recipe paper should not repurpose shift-click into ghost ingredient insertion");
     }
+
+    @Test
+    void recipePaperShouldCloseWhenTheOriginalHandStackChanges() throws IOException {
+        String source = Files.readString(RECIPE_PAPER_MENU_SOURCE);
+
+        assertTrue(source.contains("return player.getItemInHand(hand) == hostStack;"),
+                "Recipe paper menu should stay bound to the original stack reference in the original hand");
+        assertFalse(source.contains("ItemStack.isSameItemSameComponents(player.getItemInHand(hand), hostStack)"),
+                "Recipe paper menu should not stay open just because another matching stack exists in that hand");
+    }
 }
