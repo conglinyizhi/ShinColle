@@ -124,6 +124,7 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
         }
 
         this.numRensouhou--;
+        this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLight);
         this.setAttackTick(100);
         this.applyEmotesReaction(3);
 
@@ -184,6 +185,7 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
             return false;
         }
 
+        this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         this.setAttackTick(50);
         this.applyEmotesReaction(3);
 

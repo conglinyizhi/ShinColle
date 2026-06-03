@@ -77,6 +77,7 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         if (this.numRensouhou > 0 && this.getRandom().nextInt(3) == 0) {
             if (consumeLightAmmo(4)) {
                 this.numRensouhou--;
+                this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLight);
                 this.setAttackTick(100);
                 this.applyEmotesReaction(3);
                 serverLevel.sendParticles(ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0D, this.getZ(),

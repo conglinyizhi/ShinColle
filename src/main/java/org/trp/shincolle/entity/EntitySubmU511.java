@@ -70,6 +70,7 @@ public class EntitySubmU511 extends EntityShipBase {
             return false;
         }
 
+        this.setFuel(this.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavy);
         this.setAttackTick(50);
         this.applyEmotesReaction(3);
         spawnTorpedoes(target);
