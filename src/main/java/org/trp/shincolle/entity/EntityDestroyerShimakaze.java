@@ -113,6 +113,12 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
         if (this.numRensouhou <= 0) {
             return false;
         }
+        if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (isSameOwnerAttackTarget(target)) {
+            return false;
+        }
         if (!consumeLightAmmo(4)) {
             return false;
         }
@@ -133,6 +139,12 @@ public class EntityDestroyerShimakaze extends EntityShipBase implements IShipSum
 
     public boolean attackEntityWithHeavyAmmo(Entity target) {
         if (target == null) {
+            return false;
+        }
+        if (!target.isAlive()) {
+            return false;
+        }
+        if (isSameOwnerAttackTarget(target)) {
             return false;
         }
         return launchTorpedoSalvo(target.blockPosition(), target);
