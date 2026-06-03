@@ -86,6 +86,9 @@ public final class PointerInteractionService {
 
     public static void handlePayloadAction(Player player, ItemStack pointerStack, int action,
                                            Optional<UUID> targetEntityUuid, Optional<Vec3> targetPos) {
+        if (player == null || player.level().isClientSide) {
+            return;
+        }
         if (!(pointerStack.getItem() instanceof PointerItem pointerItem)) {
             return;
         }

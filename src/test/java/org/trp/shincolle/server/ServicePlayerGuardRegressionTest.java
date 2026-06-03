@@ -13,6 +13,8 @@ class ServicePlayerGuardRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/server/WaypointService.java");
     private static final Path FORMATION_SERVICE =
             Path.of("src/main/java/org/trp/shincolle/server/FormationService.java");
+    private static final Path POINTER_SERVICE =
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
 
     @Test
     void waypointServiceShouldIgnoreNullPlayersBeforeAccessingLevel() throws IOException {
@@ -41,5 +43,15 @@ class ServicePlayerGuardRegressionTest {
                 "FormationService handleFormationAction should ignore null players");
         assertTrue(source.contains("public static void handlePointerRosterToggle(Player player, UUID targetUuid) {\n        if (player == null || targetUuid == null) {\n            return;\n        }"),
                 "FormationService handlePointerRosterToggle should ignore null players before attachment access");
+    }
+
+    @Test
+    void pointerPayloadServiceShouldGuardNullPlayersAndClientSideCalls() throws IOException {
+        String source = Files.readString(POINTER_SERVICE);
+
+        assertTrue(source.contains("public static void handlePayloadAction(Player player, ItemStack pointerStack, int action,"),
+                "PointerInteractionService should keep a dedicated payload-facing entrypoint");
+        assertTrue(source.contains("if (player == null || player.level().isClientSide) {\n            return;\n        }\n        if (!(pointerStack.getItem() instanceof PointerItem pointerItem)) {"),
+                "PointerInteractionService handlePayloadAction should reject null players and client-side calls before pointer item logic");
     }
 }
