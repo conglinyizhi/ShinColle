@@ -269,7 +269,7 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
         AABB aabb = new AABB(this.worldPosition).inflate(8.0);
         List<EntityShipBase> ships = this.level.getEntitiesOfClass(EntityShipBase.class, aabb);
         for (EntityShipBase ship : ships) {
-            if (ship.isAlive() && ship.isTame() && this.ownerUUID != null && this.ownerUUID.equals(ship.getOwnerUUID())) {
+            if (ship.isAlive() && !ship.isRemoved() && ship.isTame() && this.ownerUUID != null && this.ownerUUID.equals(ship.getOwnerUUID())) {
                 if (ship.getStateMinor(43) == 1 || ship.getStateMinor(43) == 2) {
                     this.craningShip = ship;
                     this.liquidTransferRate = calculateLiquidTransferRate(ship);

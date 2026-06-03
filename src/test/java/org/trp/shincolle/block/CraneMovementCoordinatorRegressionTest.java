@@ -25,6 +25,8 @@ class CraneMovementCoordinatorRegressionTest {
                 "Existing craning ship should use the movement helper");
         assertTrue(source.contains("moveShipToCrane(ship);"),
                 "Newly detected craning ship should use the movement helper");
+        assertTrue(source.contains("if (ship.isAlive() && !ship.isRemoved() && ship.isTame() && this.ownerUUID != null && this.ownerUUID.equals(ship.getOwnerUUID())) {"),
+                "Crane nearby ship scans should ignore removed ships before adopting a craning target");
         assertFalse(source.contains("getNavigation().moveTo(this.worldPosition.getX() + 0.5"),
                 "Crane should not issue raw navigation requests to its working position");
     }
