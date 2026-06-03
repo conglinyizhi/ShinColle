@@ -20,6 +20,9 @@ class LocalizationRegressionTest {
     private static final List<String> REQUIRED_KEYS = List.of(
             "chat.shincolle.entity_fainted",
             "chat.shincolle.formation.teamfull",
+            "chat.shincolle.optool.add",
+            "chat.shincolle.optool.remove",
+            "chat.shincolle.optool.show",
             "chat.shincolle.pointer.settargetclass",
             "chat.shincolle.target.add",
             "chat.shincolle.target.remove",
