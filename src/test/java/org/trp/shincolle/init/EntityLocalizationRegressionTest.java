@@ -5,7 +5,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,32 +21,30 @@ class EntityLocalizationRegressionTest {
             Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
     );
-    private static final List<String> ENTITY_KEYS = List.of(
-            "entity.shincolle.abyss_missile",
-            "entity.shincolle.carrier_w_demon",
-            "entity.shincolle.mount_is_h",
-            "entity.shincolle.mount_mi_h",
-            "entity.shincolle.mount_su_h",
-            "entity.shincolle.projectile_beam",
-            "entity.shincolle.ship_fishing_hook",
-            "entity.shincolle.ship_grudge",
-            "entity.shincolle.takoyaki"
-    );
+    private static final Pattern ENTITY_REGISTRATION_PATTERN =
+            Pattern.compile("ENTITY_TYPES\\.register\\(\"([a-z0-9_]+)\"");
 
     @Test
     void registeredEntityNamesShouldRemainLocalizedInMaintainedLanguages() throws IOException {
         String modEntities = Files.readString(MOD_ENTITIES_SOURCE);
+        List<String> entityIds = readRegisteredEntityIds(modEntities);
 
-        for (String key : ENTITY_KEYS) {
-            assertRegisteredEntitySourceStillUses(key, modEntities);
+        assertTrue(!entityIds.isEmpty(),
+                "Expected ModEntities to keep declaring registered entity ids");
+
+        for (String entityId : entityIds) {
+            String key = "entity.shincolle." + entityId;
             assertLocalizedInMaintainedLanguages(key);
         }
     }
 
-    private static void assertRegisteredEntitySourceStillUses(String key, String modEntities) {
-        String entityId = key.substring("entity.shincolle.".length());
-        assertTrue(modEntities.contains("register(\"" + entityId + "\""),
-                () -> "Expected ModEntities to keep registering entity " + entityId);
+    private static List<String> readRegisteredEntityIds(String modEntities) {
+        List<String> entityIds = new ArrayList<>();
+        Matcher matcher = ENTITY_REGISTRATION_PATTERN.matcher(modEntities);
+        while (matcher.find()) {
+            entityIds.add(matcher.group(1));
+        }
+        return entityIds;
     }
 
     private static void assertLocalizedInMaintainedLanguages(String key) throws IOException {
