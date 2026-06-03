@@ -27,6 +27,9 @@ public final class TargetProtectionService {
     }
 
     public static void toggleUnattackableTarget(Player player, Entity entity) {
+        if (player == null) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel serverLevel) || !player.hasPermissions(2) || entity == null) {
             return;
         }
@@ -38,6 +41,9 @@ public final class TargetProtectionService {
     }
 
     public static void showUnattackableTargets(Player player) {
+        if (player == null) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -49,6 +55,9 @@ public final class TargetProtectionService {
     }
 
     public static void togglePlayerTarget(Player player, Entity entity) {
+        if (player == null) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel serverLevel) || entity == null) {
             return;
         }
@@ -60,6 +69,9 @@ public final class TargetProtectionService {
     }
 
     public static void showPlayerTargets(Player player) {
+        if (player == null) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel serverLevel)) {
             return;
         }
