@@ -5,12 +5,23 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecipePaperScreenRegressionTest {
     private static final Path SCREEN_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/client/screen/RecipePaperScreen.java");
+    private static final List<Path> LANGUAGE_SOURCES = List.of(
+            Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
+            Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
+            Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
+            Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
+    );
+    private static final List<String> RECIPE_PAPER_KEYS = List.of(
+            "gui.shincolle.recipepaper.title",
+            "gui.shincolle.recipepaper.material"
+    );
 
     @Test
     void recipePaperScreenShouldDrawReadableSectionHeaders() throws IOException {
@@ -23,5 +34,16 @@ class RecipePaperScreenRegressionTest {
                 "Recipe Paper section headers should use a brighter foreground color for readability");
         assertTrue(source.contains("SECTION_SHADOW_COLOR"),
                 "Recipe Paper section headers should keep a darker shadow pass for contrast");
+    }
+
+    @Test
+    void recipePaperScreenShouldKeepMaintainedLanguageLabels() throws IOException {
+        for (Path languageSource : LANGUAGE_SOURCES) {
+            String source = Files.readString(languageSource);
+            for (String key : RECIPE_PAPER_KEYS) {
+                assertTrue(source.contains("\"" + key + "\""),
+                        () -> "Expected maintained languages to define " + key);
+            }
+        }
     }
 }

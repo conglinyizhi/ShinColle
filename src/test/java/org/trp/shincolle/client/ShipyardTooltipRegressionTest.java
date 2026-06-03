@@ -16,6 +16,12 @@ class ShipyardTooltipRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/client/screen/LargeShipyardScreen.java");
     private static final Path EN_US_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
+    private static final Path JA_JP_LANG =
+            Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json");
+    private static final Path ZH_CN_LANG =
+            Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json");
+    private static final Path ZH_TW_LANG =
+            Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json");
 
     private static final List<String> SHIPYARD_TOOLTIP_KEYS = List.of(
             "gui.shincolle.shipyard.fuel_slot",
@@ -26,7 +32,12 @@ class ShipyardTooltipRegressionTest {
     void bothShipyardScreensShouldKeepFuelSlotTooltipContent() throws IOException {
         String small = Files.readString(SMALL_SCREEN_SOURCE);
         String large = Files.readString(LARGE_SCREEN_SOURCE);
-        String enUs = Files.readString(EN_US_LANG);
+        List<String> languageSources = List.of(
+                Files.readString(EN_US_LANG),
+                Files.readString(JA_JP_LANG),
+                Files.readString(ZH_CN_LANG),
+                Files.readString(ZH_TW_LANG)
+        );
 
         assertTrue(small.contains("if (inside(mouseX - this.leftPos, mouseY - this.topPos, 8, 53, 26, 71)) {"),
                 "Small shipyard should keep the fuel-slot hover hitbox");
@@ -43,8 +54,10 @@ class ShipyardTooltipRegressionTest {
         }
 
         for (String key : SHIPYARD_TOOLTIP_KEYS) {
-            assertTrue(enUs.contains("\"" + key + "\""),
-                    () -> "Expected en_us to keep defining " + key);
+            for (String source : languageSources) {
+                assertTrue(source.contains("\"" + key + "\""),
+                        () -> "Expected maintained languages to keep defining " + key);
+            }
         }
     }
 
