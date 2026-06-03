@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -20,8 +22,12 @@ class SoundResourceReferenceRegressionTest {
             Path.of("src/main/resources/assets/shincolle/sounds.json");
     private static final Path SOUND_ROOT =
             Path.of("src/main/resources/assets/shincolle/sounds");
-    private static final Path EN_US_LANG =
-            Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
+    private static final Map<String, Path> MAINTAINED_LANGS = new LinkedHashMap<>(Map.of(
+            "en_us", Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
+            "ja_jp", Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
+            "zh_cn", Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
+            "zh_tw", Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
+    ));
     private static final Path MOD_SOUNDS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/init/ModSounds.java");
 
@@ -31,6 +37,8 @@ class SoundResourceReferenceRegressionTest {
             Pattern.compile("\"(shincolle:[a-z0-9_./-]+)\"");
     private static final Pattern SUBTITLE_PATTERN =
             Pattern.compile("\"subtitle\"\\s*:\\s*\"([a-z0-9_./-]+)\"");
+    private static final Pattern DIRECT_REGISTER_PATTERN =
+            Pattern.compile("register\\(\"([a-z0-9_./-]+)\"\\)");
 
     @Test
     void soundsJsonShouldReferenceExistingShincolleOggFiles() throws IOException {
@@ -52,71 +60,56 @@ class SoundResourceReferenceRegressionTest {
     }
 
     @Test
-    void englishLanguageShouldCoverEverySoundSubtitleKey() throws IOException {
+    void maintainedLanguagesShouldCoverEverySoundSubtitleKey() throws IOException {
         String sounds = Files.readString(SOUNDS_JSON);
-        Set<String> englishKeys = readKeys(EN_US_LANG);
-        Set<String> missing = new TreeSet<>();
+        Set<String> subtitleKeys = readSubtitleKeys(sounds);
 
-        Matcher matcher = SUBTITLE_PATTERN.matcher(sounds);
-        while (matcher.find()) {
-            String key = matcher.group(1);
-            if (!englishKeys.contains(key)) {
-                missing.add(key);
-            }
+        for (Map.Entry<String, Path> entry : MAINTAINED_LANGS.entrySet()) {
+            Set<String> langKeys = readKeys(entry.getValue());
+            Set<String> missing = new TreeSet<>(subtitleKeys);
+            missing.removeAll(langKeys);
+
+            assertTrue(missing.isEmpty(),
+                    () -> "Language file " + entry.getKey()
+                            + " should define every sound subtitle key, missing: "
+                            + String.join(", ", missing));
         }
-
-        assertTrue(missing.isEmpty(),
-                () -> "English language file should define every sound subtitle key, missing: "
-                        + String.join(", ", missing));
     }
 
     @Test
     void modSoundsRegistrationsShouldRemainBackedBySoundsJsonEntries() throws IOException {
         String modSounds = Files.readString(MOD_SOUNDS_SOURCE);
-        String sounds = Files.readString(SOUNDS_JSON);
-
-        Set<String> definedEvents = new TreeSet<>();
-        Matcher eventMatcher = SOUND_EVENT_KEY_PATTERN.matcher(sounds);
-        while (eventMatcher.find()) {
-            definedEvents.add(eventMatcher.group(1));
-        }
-
-        List<String> expectedEvents = List.of(
-                "ship-idle",
-                "ship-hurt",
-                "ship-death",
-                "ship-firelight",
-                "ship-explode",
-                "ship-fireheavy",
-                "ship-hit",
-                "ship-levelup",
-                "ship-machinegun",
-                "ship-aircraft",
-                "ship-marry",
-                "ship-feed",
-                "ship-knockback",
-                "ship-item",
-                "ship-ap_phase1",
-                "ship-ap_phase2",
-                "ship-ap_attack",
-                "ship-yamato_ready",
-                "ship-yamato_shot"
-        );
-
-        for (String event : expectedEvents) {
-            assertTrue(modSounds.contains("register(\"" + event + "\")"),
-                    () -> "ModSounds should keep registering sound event " + event);
-            assertTrue(definedEvents.contains(event),
-                    () -> "sounds.json should keep defining sound event " + event);
-        }
-
-        for (int hour = 0; hour < 24; hour++) {
-            String event = "ship-time" + hour;
-            assertTrue(definedEvents.contains(event),
-                    () -> "sounds.json should keep defining hourly sound event " + event);
-        }
         assertTrue(modSounds.contains("for (int i = 0; i < 24; i++) {\n            sounds.add(register(\"ship-time\" + i));\n        }"),
                 "ModSounds should keep generating the 24 hourly ship-time events");
+
+        Set<String> registered = readRegisteredSoundEvents(modSounds);
+        Set<String> definedEvents = readDefinedSoundEvents();
+        Set<String> missingDefinitions = new TreeSet<>(registered);
+        missingDefinitions.removeAll(definedEvents);
+
+        assertTrue(missingDefinitions.isEmpty(),
+                () -> "Every registered sound event should map to a sounds.json entry, missing: "
+                        + String.join(", ", missingDefinitions));
+    }
+
+    @Test
+    void soundsJsonEntriesShouldStayWithinRegisteredOrResourceOnlyAllowlist() throws IOException {
+        String modSounds = Files.readString(MOD_SOUNDS_SOURCE);
+        Set<String> registered = readRegisteredSoundEvents(modSounds);
+        Set<String> resourceOnly = readDefinedSoundEvents();
+        resourceOnly.removeAll(registered);
+
+        Set<String> expectedResourceOnly = Set.of(
+                "ship-bell",
+                "ship-garuru",
+                "ship-hitmetal",
+                "ship-jet",
+                "ship-laser"
+        );
+
+        assertTrue(resourceOnly.equals(expectedResourceOnly),
+                () -> "sounds.json entries without ModSounds registrations changed unexpectedly, found: "
+                        + String.join(", ", resourceOnly));
     }
 
     private static Path resolveSoundPath(String resourceLocation) {
@@ -130,5 +123,36 @@ class SoundResourceReferenceRegressionTest {
                 .filter(line -> line.startsWith("\""))
                 .map(line -> line.substring(1, line.indexOf('"', 1)))
                 .collect(Collectors.toSet());
+    }
+
+    private static Set<String> readSubtitleKeys(String sounds) {
+        Set<String> keys = new TreeSet<>();
+        Matcher matcher = SUBTITLE_PATTERN.matcher(sounds);
+        while (matcher.find()) {
+            keys.add(matcher.group(1));
+        }
+        return keys;
+    }
+
+    private static Set<String> readRegisteredSoundEvents(String modSounds) {
+        Set<String> registered = new TreeSet<>();
+        Matcher matcher = DIRECT_REGISTER_PATTERN.matcher(modSounds);
+        while (matcher.find()) {
+            registered.add(matcher.group(1));
+        }
+        for (int hour = 0; hour < 24; hour++) {
+            registered.add("ship-time" + hour);
+        }
+        return registered;
+    }
+
+    private static Set<String> readDefinedSoundEvents() throws IOException {
+        String sounds = Files.readString(SOUNDS_JSON);
+        Set<String> events = new TreeSet<>();
+        Matcher matcher = SOUND_EVENT_KEY_PATTERN.matcher(sounds);
+        while (matcher.find()) {
+            events.add(matcher.group(1));
+        }
+        return events;
     }
 }
