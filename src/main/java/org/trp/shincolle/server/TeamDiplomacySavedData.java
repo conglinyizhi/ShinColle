@@ -132,14 +132,20 @@ public final class TeamDiplomacySavedData extends SavedData {
         return changed;
     }
 
-    public void setDisplayData(UUID owner, String teamName, String leaderName) {
+    public boolean setDisplayData(UUID owner, String teamName, String leaderName) {
         if (owner == null) {
-            return;
+            return false;
         }
         TeamDiplomacyEntry entry = getOrCreate(owner);
-        entry.teamName = teamName == null ? "" : teamName;
-        entry.leaderName = leaderName == null ? "" : leaderName;
+        String nextTeamName = teamName == null ? "" : teamName;
+        String nextLeaderName = leaderName == null ? "" : leaderName;
+        if (entry.teamName.equals(nextTeamName) && entry.leaderName.equals(nextLeaderName)) {
+            return false;
+        }
+        entry.teamName = nextTeamName;
+        entry.leaderName = nextLeaderName;
         setDirty();
+        return true;
     }
 
     private static boolean isValidRelation(UUID owner, UUID target) {
