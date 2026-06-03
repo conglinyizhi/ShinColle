@@ -25,9 +25,19 @@ configurations {
     modIntegrationRuntimeOnly
 }
 
+def modIntegrationRunDir = layout.projectDirectory.dir("run-mod-integration")
+
 def syncModIntegrationMods = tasks.register("syncModIntegrationMods", Sync) {
     from(configurations.modIntegrationRuntimeOnly)
-    into(layout.projectDirectory.dir("run/mods"))
+    into(modIntegrationRunDir.dir("mods"))
+}
+
+def cleanModIntegrationMods = tasks.register("cleanModIntegrationMods", Delete) {
+    delete(provider {
+        configurations.modIntegrationRuntimeOnly.files.collect { artifact ->
+            layout.projectDirectory.file("run/mods/${artifact.name}").asFile
+        }
+    })
 }
 
 neoForge {
@@ -51,11 +61,13 @@ neoForge {
 
             // Comma-separated list of namespaces to load gametests from. Empty = all namespaces.
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            taskBefore(cleanModIntegrationMods)
         }
 
         modIntegrationClient {
             client()
             ideName = "ShinColle Client (Integrations)"
+            gameDirectory = modIntegrationRunDir.asFile
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
             taskBefore(syncModIntegrationMods)
         }
@@ -64,6 +76,7 @@ neoForge {
             server()
             programArgument '--nogui'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            taskBefore(cleanModIntegrationMods)
         }
 
         // This run config launches GameTestServer and runs all registered gametests, then exits.
