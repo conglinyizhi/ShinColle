@@ -897,6 +897,8 @@
     "gui.shincolle.ship": "Ship",
     "gui.shincolle.ship_tab.inventory": "Inventory",
     "gui.shincolle.ship_tab.equip": "Equip",
+    "gui.shincolle.equip": "艤裝顯示",
+    "gui.shincolle.equip.mount": "搭載座",
     "gui.shincolle.equip.cannon": "Cannon",
     "gui.shincolle.equip.santa_cloth": "Santa Cloth",
     "gui.shincolle.equip.santa_hat": "Santa Hat",
