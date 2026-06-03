@@ -9,6 +9,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.item.ItemStack;
 import org.trp.shincolle.block.entity.DeskBlockEntity;
+import org.trp.shincolle.item.DeskItemBook;
+import org.trp.shincolle.item.DeskItemRadar;
 import org.trp.shincolle.server.TeamDiplomacyService;
 
 public class DeskMenu extends AbstractContainerMenu {
@@ -138,7 +140,16 @@ public class DeskMenu extends AbstractContainerMenu {
             }
             return AbstractContainerMenu.stillValid(net.minecraft.world.inventory.ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()), player, blockEntity.getBlockState().getBlock());
         }
-        return !player.isRemoved() && player.isAlive();
+        if (player.isRemoved() || !player.isAlive()) {
+            return false;
+        }
+        return switch (this.deskType) {
+            case 1 -> player.getMainHandItem().getItem() instanceof DeskItemRadar
+                    || player.getOffhandItem().getItem() instanceof DeskItemRadar;
+            case 2 -> player.getMainHandItem().getItem() instanceof DeskItemBook
+                    || player.getOffhandItem().getItem() instanceof DeskItemBook;
+            default -> true;
+        };
     }
 
     public int getDeskType() {

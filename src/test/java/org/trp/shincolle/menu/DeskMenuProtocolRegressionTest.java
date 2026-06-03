@@ -45,5 +45,9 @@ class DeskMenuProtocolRegressionTest {
                 "DeskMenu should fail fast when the synced desk block entity is missing");
         assertTrue(menuSource.contains("if (blockEntity.getLevel() == null || player.level().getBlockEntity(blockEntity.getBlockPos()) != blockEntity) {\n                return false;\n            }"),
                 "DeskMenu should become invalid when the backing desk block entity is detached or replaced");
+        assertTrue(menuSource.contains("case 1 -> player.getMainHandItem().getItem() instanceof DeskItemRadar\n                    || player.getOffhandItem().getItem() instanceof DeskItemRadar;"),
+                "Desk radar menus should close once the player no longer holds a desk radar");
+        assertTrue(menuSource.contains("case 2 -> player.getMainHandItem().getItem() instanceof DeskItemBook\n                    || player.getOffhandItem().getItem() instanceof DeskItemBook;"),
+                "Desk book fallback menus should close once the player no longer holds a desk book");
     }
 }
