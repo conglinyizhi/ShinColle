@@ -80,6 +80,7 @@ local.properties
 *~
 
 run/
+run-mod-integration/
 
 logs/
 todo.md
