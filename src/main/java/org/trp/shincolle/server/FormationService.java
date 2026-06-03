@@ -40,6 +40,9 @@ public final class FormationService {
     }
 
     public static void syncNearbyShipsForCurrentTeam(Player player, boolean clearDeselectedTargets) {
+        if (player == null) {
+            return;
+        }
         AdmiralData data = PlayerStateService.admiralData(player);
         int teamId = data.getCurrentTeamID();
         List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class,
@@ -62,6 +65,9 @@ public final class FormationService {
 
     public static void handleFormationAction(Player player, int action, int param1, int param2,
                                              String paramString, Optional<UUID> paramUuid) {
+        if (player == null) {
+            return;
+        }
         AdmiralData data = PlayerStateService.admiralData(player);
 
         switch (action) {
@@ -88,10 +94,9 @@ public final class FormationService {
     }
 
     public static void handlePointerRosterToggle(Player player, UUID targetUuid) {
-        if (targetUuid == null) {
+        if (player == null || targetUuid == null) {
             return;
         }
-
         AdmiralData data = PlayerStateService.admiralData(player);
         int teamId = data.getCurrentTeamID();
         int slot = data.findShipSlot(teamId, targetUuid);

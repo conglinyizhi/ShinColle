@@ -14,6 +14,9 @@ public final class WaypointService {
     }
 
     public static void handleAction(Player player, int action, BlockPos pos1, BlockPos pos2) {
+        if (player == null) {
+            return;
+        }
         if (player.level() == null) {
             return;
         }
