@@ -46,15 +46,15 @@ class DeskBlockEntityPersistenceRegressionTest {
     void deskBlockEntityShouldClampStateBeforeSyncingMenus() throws IOException {
         String source = Files.readString(DESK_BLOCK_ENTITY);
 
-        assertTrue(source.contains("this.guiFunc = Math.max(0, Math.min(4, guiFunc));"),
+        assertTrue(source.contains("int next = Math.max(0, Math.min(4, guiFunc));"),
                 "Desk GUI writes should clamp tabs into the supported range before syncing");
-        assertTrue(source.contains("this.radarZoomLv = Math.max(0, Math.min(2, radarZoomLv));"),
+        assertTrue(source.contains("int next = Math.max(0, Math.min(2, radarZoomLv));"),
                 "Desk radar zoom writes should clamp levels into the supported range before syncing");
-        assertTrue(source.contains("this.bookChap = clampChapter(bookChap);"),
+        assertTrue(source.contains("int nextChap = clampChapter(bookChap);"),
                 "Desk manual chapter writes should clamp the chapter before syncing");
-        assertTrue(source.contains("this.bookPage = clampPageForChapter(this.bookChap, this.bookPage);"),
+        assertTrue(source.contains("int nextPage = clampPageForChapter(nextChap, this.bookPage);"),
                 "Changing the desk manual chapter should re-clamp the current page to the new chapter range");
-        assertTrue(source.contains("this.bookPage = clampPageForChapter(this.bookChap, bookPage);"),
+        assertTrue(source.contains("int next = clampPageForChapter(this.bookChap, bookPage);"),
                 "Desk manual page writes should clamp the page against the active chapter before syncing");
         assertTrue(source.contains("private static int clampChapter(int chapter) {"),
                 "Desk block entity should keep a dedicated chapter clamping helper");
@@ -66,5 +66,19 @@ class DeskBlockEntityPersistenceRegressionTest {
                 "Page clamping should respect the allowed page range of the active chapter");
         assertTrue(source.contains("return new DeskMenu(containerId, playerInventory, 0, this.bookChap, this.bookPage, this.guiFunc, this.radarZoomLv, this);"),
                 "Desk menu creation should expose the persisted and clamped desk state back to the GUI");
+    }
+
+    @Test
+    void deskBlockEntityShouldSkipNoopStateSyncs() throws IOException {
+        String source = Files.readString(DESK_BLOCK_ENTITY);
+
+        assertTrue(source.contains("if (this.guiFunc == next) {\n            return;\n        }"),
+                "Desk GUI writes should not mark the block entity dirty when the tab did not actually change");
+        assertTrue(source.contains("if (this.radarZoomLv == next) {\n            return;\n        }"),
+                "Desk radar zoom writes should not mark the block entity dirty when the zoom level did not actually change");
+        assertTrue(source.contains("if (this.bookChap == nextChap && this.bookPage == nextPage) {\n            return;\n        }"),
+                "Desk manual chapter writes should not mark the block entity dirty when chapter and clamped page stay unchanged");
+        assertTrue(source.contains("if (this.bookPage == next) {\n            return;\n        }"),
+                "Desk manual page writes should not mark the block entity dirty when the clamped page stays unchanged");
     }
 }

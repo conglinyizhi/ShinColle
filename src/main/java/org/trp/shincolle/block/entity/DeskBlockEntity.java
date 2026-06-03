@@ -29,7 +29,11 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setGuiFunc(int guiFunc) {
-        this.guiFunc = Math.max(0, Math.min(4, guiFunc));
+        int next = Math.max(0, Math.min(4, guiFunc));
+        if (this.guiFunc == next) {
+            return;
+        }
+        this.guiFunc = next;
         markForSync();
     }
 
@@ -38,7 +42,11 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setRadarZoomLv(int radarZoomLv) {
-        this.radarZoomLv = Math.max(0, Math.min(2, radarZoomLv));
+        int next = Math.max(0, Math.min(2, radarZoomLv));
+        if (this.radarZoomLv == next) {
+            return;
+        }
+        this.radarZoomLv = next;
         markForSync();
     }
 
@@ -47,8 +55,13 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setBookChap(int bookChap) {
-        this.bookChap = clampChapter(bookChap);
-        this.bookPage = clampPageForChapter(this.bookChap, this.bookPage);
+        int nextChap = clampChapter(bookChap);
+        int nextPage = clampPageForChapter(nextChap, this.bookPage);
+        if (this.bookChap == nextChap && this.bookPage == nextPage) {
+            return;
+        }
+        this.bookChap = nextChap;
+        this.bookPage = nextPage;
         markForSync();
     }
 
@@ -57,7 +70,11 @@ public class DeskBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setBookPage(int bookPage) {
-        this.bookPage = clampPageForChapter(this.bookChap, bookPage);
+        int next = clampPageForChapter(this.bookChap, bookPage);
+        if (this.bookPage == next) {
+            return;
+        }
+        this.bookPage = next;
         markForSync();
     }
 
