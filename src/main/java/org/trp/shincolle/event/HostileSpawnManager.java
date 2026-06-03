@@ -187,24 +187,31 @@ final class HostileSpawnManager {
                 continue;
             }
 
+            int spawnedCount = 0;
             int bossCount = Math.max(1, Config.hostileSpawnBossCount);
             for (int j = 0; j < bossCount; ++j) {
                 int scaleLevel = random.nextInt(100) > 65 ? 3 : 2;
-                spawnRandomHostileShip(level, random, scaleLevel,
+                if (spawnRandomHostileShip(level, random, scaleLevel,
                         spawnX + random.nextInt(3),
                         spawnY + 0.5D,
-                        spawnZ + random.nextInt(3));
+                        spawnZ + random.nextInt(3))) {
+                    spawnedCount++;
+                }
             }
 
             int minionCount = Math.max(1, Config.hostileSpawnMinionCount);
             for (int j = 0; j < minionCount; ++j) {
-                spawnRandomHostileShip(level, random, random.nextInt(2),
+                if (spawnRandomHostileShip(level, random, random.nextInt(2),
                         spawnX + random.nextInt(3),
                         spawnY + 0.5D,
-                        spawnZ + random.nextInt(3));
+                        spawnZ + random.nextInt(3))) {
+                    spawnedCount++;
+                }
             }
 
-            broadcastBossSpawn(level, random, spawnX, spawnY, spawnZ);
+            if (spawnedCount > 0) {
+                broadcastBossSpawn(level, random, spawnX, spawnY, spawnZ);
+            }
             break;
         }
     }
