@@ -15,8 +15,12 @@ class GrudgeResourceRegressionTest {
             Path.of("src/main/resources/assets/shincolle/models/item/grudge1.json");
     private static final Path EN_US_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
+    private static final Path JA_JP_LANG =
+            Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json");
     private static final Path ZH_CN_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json");
+    private static final Path ZH_TW_LANG =
+            Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json");
 
     @Test
     void grudgeItemShouldStillExposeLegacyVariantOverride() throws IOException {
@@ -34,15 +38,25 @@ class GrudgeResourceRegressionTest {
     @Test
     void grudgeXpBlockAndFrameShouldKeepTranslatedBlockNames() throws IOException {
         String enUs = Files.readString(EN_US_LANG);
+        String jaJp = Files.readString(JA_JP_LANG);
         String zhCn = Files.readString(ZH_CN_LANG);
+        String zhTw = Files.readString(ZH_TW_LANG);
 
         assertTrue(enUs.contains("\"block.shincolle.blockframe\": \"Abyss Frame\""),
                 "English lang should define the abyss frame block name");
         assertTrue(enUs.contains("\"block.shincolle.grudge_xp_block\": \"Sublimated Grudge Lump\""),
                 "English lang should define the grudge XP block name");
+        assertTrue(jaJp.contains("\"block.shincolle.blockframe\": \"深海支柱\""),
+                "Japanese lang should define the abyss frame block name");
+        assertTrue(jaJp.contains("\"block.shincolle.grudge_xp_block\": \"昇華シタ怨念ノ塊\""),
+                "Japanese lang should define the grudge XP block name");
         assertTrue(zhCn.contains("\"block.shincolle.blockframe\": \"深海框架\""),
                 "Simplified Chinese lang should define the abyss frame block name");
         assertTrue(zhCn.contains("\"block.shincolle.grudge_xp_block\": \"升华怨念团块\""),
                 "Simplified Chinese lang should define the grudge XP block name");
+        assertTrue(zhTw.contains("\"block.shincolle.blockframe\": \"深海支架\""),
+                "Traditional Chinese lang should define the abyss frame block name");
+        assertTrue(zhTw.contains("\"block.shincolle.grudge_xp_block\": \"昇華的怨念團塊\""),
+                "Traditional Chinese lang should define the grudge XP block name");
     }
 }

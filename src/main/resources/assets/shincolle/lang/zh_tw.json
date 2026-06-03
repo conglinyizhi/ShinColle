@@ -15,6 +15,8 @@
     "tile.shincolle.BlockVolCore.name": "深海火山核心",
     "tile.shincolle.BlockWaypoint.name": "深海路標",
     "block.shincolle.blockvolblock": "深海火山方塊",
+    "block.shincolle.blockframe": "深海支架",
+    "block.shincolle.grudge_xp_block": "昇華的怨念團塊",
     "item.shincolle.blockvolblock": "深海火山方塊",
     "item.shincolle.AbyssMetal1.name": "多金屬結核",
     "item.shincolle.AbyssNugget.name": "深海金屬粒",
