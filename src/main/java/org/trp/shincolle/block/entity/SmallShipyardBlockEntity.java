@@ -141,9 +141,15 @@ public class SmallShipyardBlockEntity extends BlockEntity implements MenuProvide
 
     public void setBuildType(int buildType) {
         int clamped = Math.max(0, Math.min(buildType, 4));
+        boolean repeatBuild = clamped == 3 || clamped == 4;
+        int[] nextRecord = repeatBuild ? getCurrentMaterialAmount() : this.buildRecord;
+        if (this.buildType == clamped
+                && (!repeatBuild || java.util.Arrays.equals(this.buildRecord, nextRecord))) {
+            return;
+        }
         this.buildType = clamped;
-        if (clamped == 3 || clamped == 4) {
-            this.buildRecord = getCurrentMaterialAmount();
+        if (repeatBuild) {
+            this.buildRecord = nextRecord;
         }
         markForSync();
     }

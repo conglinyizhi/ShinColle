@@ -188,7 +188,11 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public void setBuildType(int buildType) {
-        this.buildType = Math.max(0, Math.min(buildType, 4));
+        int next = Math.max(0, Math.min(buildType, 4));
+        if (this.buildType == next) {
+            return;
+        }
+        this.buildType = next;
         markForSync();
     }
 
@@ -197,7 +201,11 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public void setInvMode(int invMode) {
-        this.invMode = invMode <= 0 ? 0 : 1;
+        int next = invMode <= 0 ? 0 : 1;
+        if (this.invMode == next) {
+            return;
+        }
+        this.invMode = next;
         markForSync();
     }
 
@@ -206,7 +214,11 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public void setSelectMat(int selectMat) {
-        this.selectMat = Math.max(0, Math.min(selectMat, MAT_COUNT - 1));
+        int next = Math.max(0, Math.min(selectMat, MAT_COUNT - 1));
+        if (this.selectMat == next) {
+            return;
+        }
+        this.selectMat = next;
         markForSync();
     }
 

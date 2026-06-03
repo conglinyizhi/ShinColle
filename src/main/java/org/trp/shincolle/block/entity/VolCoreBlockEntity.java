@@ -206,6 +206,9 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setRemainedPower(int remainedPower) {
+        if (this.remainedPower == remainedPower) {
+            return;
+        }
         this.remainedPower = remainedPower;
         markForSync();
     }
@@ -215,6 +218,9 @@ public class VolCoreBlockEntity extends BlockEntity implements MenuProvider {
     }
 
     public void setBtnActive(boolean btnActive) {
+        if (this.btnActive == btnActive) {
+            return;
+        }
         this.btnActive = btnActive;
         markForSync();
     }
