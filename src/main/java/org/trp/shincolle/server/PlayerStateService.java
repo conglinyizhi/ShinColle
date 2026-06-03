@@ -153,6 +153,7 @@ public final class PlayerStateService {
         AABB search = player.getBoundingBox().inflate(256.0D, 128.0D, 256.0D);
         int scanned = player.level().getEntitiesOfClass(EntityShipBase.class, search,
                 ship -> ship.isAlive()
+                        && !ship.isRemoved()
                         && ship.isTame()
                         && ship.isStateMarried()
                         && Objects.equals(ship.getOwnerUUID(), ownerId)).size();
@@ -184,6 +185,7 @@ public final class PlayerStateService {
                     EntityShipBase.class,
                     AABB.INFINITE,
                     ship -> ship.isAlive()
+                            && !ship.isRemoved()
                             && ship.isTame()
                             && ship.isStateMarried()
                             && Objects.equals(ship.getOwnerUUID(), ownerId)

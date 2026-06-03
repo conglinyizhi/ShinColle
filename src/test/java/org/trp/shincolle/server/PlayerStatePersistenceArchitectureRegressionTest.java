@@ -94,6 +94,10 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 "Ship collection registration should be centralized");
         assertTrue(service.contains("public static int reconcileOwnedMarriedShipCount(ServerPlayer player)"),
                 "Persistent married ship counters should be reconciled server-side");
+        assertTrue(service.contains("ship -> ship.isAlive()\n                        && !ship.isRemoved()\n                        && ship.isTame()"),
+                "Nearby married-ship scans should ignore removed ship entities");
+        assertTrue(service.contains("ship -> ship.isAlive()\n                            && !ship.isRemoved()\n                            && ship.isTame()"),
+                "Server-wide married-ship reconciliation should ignore removed ship entities");
         assertTrue(service.contains("public static SlotAssignment setCurrentTeamSlot(Player player, int slotId, UUID shipUuid)"),
                 "Direct slot assignment should go through the service so replacement semantics stay consistent");
     }

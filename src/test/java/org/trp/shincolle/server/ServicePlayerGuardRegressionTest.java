@@ -81,12 +81,16 @@ class ServicePlayerGuardRegressionTest {
 
         assertTrue(source.contains("if (player == null) {\n            return 0;\n        }\n        if (player instanceof ServerPlayer serverPlayer) {"),
                 "PlayerStateService should treat null players as zero married ships before server-side reconciliation");
+        assertTrue(source.contains("ship -> ship.isAlive()\n                        && !ship.isRemoved()\n                        && ship.isTame()"),
+                "PlayerStateService nearby married-ship scan should ignore removed ships");
         assertTrue(source.contains("if (player == null) {\n            return false;\n        }\n        return admiralData(player).isRingFlightActive();"),
                 "PlayerStateService should treat null players as ring-flight inactive");
         assertTrue(source.contains("if (player == null) {\n            return;\n        }\n        admiralData(player).setRingFlightActive(active);"),
                 "PlayerStateService should ignore null players when toggling ring flight state");
         assertTrue(source.contains("if (player == null || delta == 0) {\n            return;\n        }"),
                 "PlayerStateService should ignore null players before adjusting married ship counters");
+        assertTrue(source.contains("ship -> ship.isAlive()\n                            && !ship.isRemoved()\n                            && ship.isTame()"),
+                "PlayerStateService server reconciliation should ignore removed ships");
         assertTrue(source.contains("if (player == null) {\n            return 0;\n        }\n        return admiralData(player).getCurrentTeamID();"),
                 "PlayerStateService should treat null players as team zero when callers ask for the current team id");
         assertTrue(source.contains("if (player == null || teamId < 0 || teamId >= AdmiralData.TEAM_COUNT) {\n            return false;\n        }"),
