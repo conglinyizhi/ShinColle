@@ -305,7 +305,9 @@ public class CraneMenu extends AbstractContainerMenu {
         if (id <= 0) {
             return null;
         }
-        if (level.getEntity(id) instanceof EntityShipBase ship) {
+        if (level.getEntity(id) instanceof EntityShipBase ship
+                && ship.isAlive()
+                && !ship.isRemoved()) {
             return ship;
         }
         return null;

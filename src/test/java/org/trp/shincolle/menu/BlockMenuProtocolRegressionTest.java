@@ -92,6 +92,16 @@ class BlockMenuProtocolRegressionTest {
         }
     }
 
+    @Test
+    void craneMenuShouldRejectStaleCraningShipEntityReferences() throws IOException {
+        String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/menu/CraneMenu.java"));
+
+        assertTrue(source.contains("if (level.getEntity(id) instanceof EntityShipBase ship\n                && ship.isAlive()\n                && !ship.isRemoved()) {\n            return ship;\n        }"),
+                "Crane menu should only surface live, non-removed craning ships to the client screen");
+        assertTrue(source.contains("if (id <= 0) {\n            return null;\n        }"),
+                "Crane menu should still treat non-positive ship ids as no active craning ship");
+    }
+
     private record MenuContract(
             String menuId,
             Path source,
