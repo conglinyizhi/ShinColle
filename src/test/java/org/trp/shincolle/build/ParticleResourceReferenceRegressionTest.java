@@ -67,6 +67,29 @@ class ParticleResourceReferenceRegressionTest {
     }
 
     @Test
+    void registeredParticlesShouldStayWithinKnownJsonOrProviderOnlyAllowlist() throws IOException {
+        Set<String> registered = readRegisteredParticleNames();
+        Set<String> withoutJson = new TreeSet<>(registered);
+        withoutJson.removeAll(EXPECTED_PARTICLE_JSONS);
+
+        Set<String> expectedProviderOnly = Set.of(
+                "particle_beam",
+                "particle_chi",
+                "particle_craning",
+                "particle_cube",
+                "particle_91type",
+                "particle_lightning",
+                "particleheal_sparkle",
+                "particle_sparkle",
+                "particle_waypoint_line_red"
+        );
+
+        assertTrue(withoutJson.equals(expectedProviderOnly),
+                () -> "Registered particles without JSON resources changed unexpectedly, found: "
+                        + String.join(", ", withoutJson));
+    }
+
+    @Test
     void shincolleParticleTextureReferencesShouldResolveToExistingTextures() throws IOException {
         List<String> missing = new ArrayList<>();
 
