@@ -378,6 +378,10 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Mount Brain provider should route through mount Brain AI helper");
         assertTrue(mount.contains("return EntityMountBrainAi.makeBrain(this, this.brainProvider().makeBrain(dynamic));"),
                 "Mount Brain construction should route through mount Brain AI helper");
+        assertTrue(mount.contains("if (this.host != null && (!this.host.isAlive() || this.host.isRemoved())) {\n            this.host = null;\n        }"),
+                "Mount host lookup should clear stale cached host references once the host dies or is removed");
+        assertTrue(mount.contains("if (p instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {"),
+                "Mount host lookup should only latch onto live, non-removed ship passengers");
         assertTrue(mount.contains("this.followMovement.stopAny();"),
                 "Mount global AI stop should route navigation cleanup through the movement coordinator");
         assertFalse(mount.contains("this.goalSelector.addGoal"),

@@ -99,9 +99,12 @@ public abstract class EntityMountBase extends PathfinderMob {
     }
 
     @Nullable public EntityShipBase getHost() {
+        if (this.host != null && (!this.host.isAlive() || this.host.isRemoved())) {
+            this.host = null;
+        }
         if (this.host == null) {
             for (Entity p : this.getPassengers()) {
-                if (p instanceof EntityShipBase ship) {
+                if (p instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {
                     this.host = ship;
                     break;
                 }
