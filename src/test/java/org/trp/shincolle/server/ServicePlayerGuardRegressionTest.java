@@ -43,14 +43,44 @@ class ServicePlayerGuardRegressionTest {
                 "FormationService syncNearbyShipsForCurrentTeam should ignore null players");
         assertTrue(source.contains("public static void handleFormationAction(Player player, int action, int param1, int param2,\n                                             String paramString, Optional<UUID> paramUuid) {\n        if (player == null) {\n            return;\n        }"),
                 "FormationService handleFormationAction should ignore null players");
-        assertTrue(source.contains("boolean handled = true;"),
-                "FormationService should track whether an incoming action id was actually recognized");
-        assertTrue(source.contains("default -> handled = false;"),
-                "FormationService should treat unknown action ids as ignored instead of syncing state");
-        assertTrue(source.contains("if (handled && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
-                "FormationService should only send admiral sync after recognized actions");
+        assertTrue(source.contains("boolean shouldSync = false;"),
+                "FormationService should track whether an incoming action actually changed admiral state");
+        assertTrue(source.contains("case 1 -> shouldSync = PlayerStateService.setCurrentTeamFormation(player, param1);"),
+                "FormationService should only sync formation changes when the formation id actually changes");
+        assertTrue(source.contains("case 2 -> shouldSync = setCurrentTeamSlotSelected(player, data, param1, param2 != 0);"),
+                "FormationService should only sync slot selection changes when the selection state actually changes");
+        assertTrue(source.contains("case 3 -> shouldSync = removeCurrentTeamSlot(player, data, param1);"),
+                "FormationService should only sync slot removals when a ship was actually removed");
+        assertTrue(source.contains("case 4 -> shouldSync = PlayerStateService.setCurrentTeamName(player, paramString);"),
+                "FormationService should only sync team renames when the stored name actually changes");
+        assertTrue(source.contains("case 5 -> shouldSync = paramUuid.map(uuid -> replaceCurrentTeamSlot(player, param1, uuid)).orElse(false);"),
+                "FormationService should only sync slot replacement when a valid uuid produced a real slot change");
+        assertTrue(source.contains("case 6 -> shouldSync = swapCurrentTeamSlots(player, data, param1, param2);"),
+                "FormationService should only sync slot swaps when the swap request is valid");
+        assertTrue(source.contains("case 7 -> shouldSync = importNearbySelectedShips(player, data);"),
+                "FormationService should only sync nearby import when selected ships were actually imported");
+        assertTrue(source.contains("case 8 -> openCurrentTeamSlotShipMenu(player, data, param1);"),
+                "FormationService should keep menu-open actions side-effect only and avoid admiral sync");
+        assertTrue(source.contains("if (shouldSync && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
+                "FormationService should only send admiral sync after real state changes");
         assertTrue(source.contains("public static void handlePointerRosterToggle(Player player, UUID targetUuid) {\n        if (player == null || targetUuid == null) {\n            return;\n        }"),
                 "FormationService handlePointerRosterToggle should ignore null players before attachment access");
+    }
+
+    @Test
+    void playerStateServiceShouldRejectNoopFormationMutations() throws IOException {
+        String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.java"));
+
+        assertTrue(source.contains("if (data.getCurrentTeamID() == teamId) {\n            return false;\n        }"),
+                "PlayerStateService should reject no-op current team switches");
+        assertTrue(source.contains("if (data.getFormationID(data.getCurrentTeamID()) == formationId) {\n            return false;\n        }"),
+                "PlayerStateService should reject no-op formation changes");
+        assertTrue(source.contains("if (data.isSelected(teamId, slotId) == selected) {\n            return false;\n        }"),
+                "PlayerStateService should reject no-op slot selection updates");
+        assertTrue(source.contains("if (currentName.equals(nextName)) {\n            return false;\n        }"),
+                "PlayerStateService should reject no-op team renames after normalization");
+        assertTrue(source.contains("if (shipUuid.equals(replacedUuid) && data.isSelected(teamId, slotId)) {\n            return null;\n        }"),
+                "PlayerStateService should reject no-op slot replacement when the same selected ship is already present");
     }
 
     @Test

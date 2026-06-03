@@ -205,7 +205,11 @@ public final class PlayerStateService {
             return false;
         }
 
-        admiralData(player).setCurrentTeamID(teamId);
+        AdmiralData data = admiralData(player);
+        if (data.getCurrentTeamID() == teamId) {
+            return false;
+        }
+        data.setCurrentTeamID(teamId);
         return true;
     }
 
@@ -215,6 +219,9 @@ public final class PlayerStateService {
         }
 
         AdmiralData data = admiralData(player);
+        if (data.getFormationID(data.getCurrentTeamID()) == formationId) {
+            return false;
+        }
         data.setFormationID(data.getCurrentTeamID(), formationId);
         return true;
     }
@@ -224,12 +231,29 @@ public final class PlayerStateService {
             return false;
         }
 
-        admiralData(player).setSelected(currentTeamId(player), slotId, selected);
+        AdmiralData data = admiralData(player);
+        int teamId = data.getCurrentTeamID();
+        if (data.isSelected(teamId, slotId) == selected) {
+            return false;
+        }
+        data.setSelected(teamId, slotId, selected);
         return true;
     }
 
     public static boolean setCurrentTeamName(Player player, String name) {
-        admiralData(player).setTeamName(currentTeamId(player), name);
+        AdmiralData data = admiralData(player);
+        int teamId = data.getCurrentTeamID();
+        String currentName = data.getTeamName(teamId);
+        String nextName;
+        if (name == null || name.isBlank()) {
+            nextName = "Team " + (teamId + 1);
+        } else {
+            nextName = name.strip();
+        }
+        if (currentName.equals(nextName)) {
+            return false;
+        }
+        data.setTeamName(teamId, name);
         return true;
     }
 
@@ -260,6 +284,9 @@ public final class PlayerStateService {
         AdmiralData data = admiralData(player);
         int teamId = data.getCurrentTeamID();
         UUID replacedUuid = data.getShipUUID(teamId, slotId);
+        if (shipUuid.equals(replacedUuid) && data.isSelected(teamId, slotId)) {
+            return null;
+        }
         data.removeShip(shipUuid);
         if (replacedUuid != null && !replacedUuid.equals(shipUuid)) {
             data.removeShip(replacedUuid);

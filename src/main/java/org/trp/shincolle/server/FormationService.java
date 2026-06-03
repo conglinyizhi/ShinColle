@@ -69,26 +69,28 @@ public final class FormationService {
             return;
         }
         AdmiralData data = PlayerStateService.admiralData(player);
-        boolean handled = true;
+        boolean shouldSync = false;
 
         switch (action) {
             case 0 -> {
                 if (PlayerStateService.setCurrentTeamId(player, param1)) {
                     syncNearbyShipsForCurrentTeam(player, true);
+                    shouldSync = true;
                 }
             }
-            case 1 -> PlayerStateService.setCurrentTeamFormation(player, param1);
-            case 2 -> setCurrentTeamSlotSelected(player, data, param1, param2 != 0);
-            case 3 -> removeCurrentTeamSlot(player, data, param1);
-            case 4 -> PlayerStateService.setCurrentTeamName(player, paramString);
-            case 5 -> paramUuid.ifPresent(uuid -> replaceCurrentTeamSlot(player, param1, uuid));
-            case 6 -> swapCurrentTeamSlots(player, data, param1, param2);
-            case 7 -> importNearbySelectedShips(player, data);
+            case 1 -> shouldSync = PlayerStateService.setCurrentTeamFormation(player, param1);
+            case 2 -> shouldSync = setCurrentTeamSlotSelected(player, data, param1, param2 != 0);
+            case 3 -> shouldSync = removeCurrentTeamSlot(player, data, param1);
+            case 4 -> shouldSync = PlayerStateService.setCurrentTeamName(player, paramString);
+            case 5 -> shouldSync = paramUuid.map(uuid -> replaceCurrentTeamSlot(player, param1, uuid)).orElse(false);
+            case 6 -> shouldSync = swapCurrentTeamSlots(player, data, param1, param2);
+            case 7 -> shouldSync = importNearbySelectedShips(player, data);
             case 8 -> openCurrentTeamSlotShipMenu(player, data, param1);
-            default -> handled = false;
+            default -> {
+            }
         }
 
-        if (handled && player instanceof ServerPlayer serverPlayer) {
+        if (shouldSync && player instanceof ServerPlayer serverPlayer) {
             PlayerStateService.sendAdmiralState(serverPlayer);
         }
     }
@@ -120,15 +122,16 @@ public final class FormationService {
         }
     }
 
-    private static void setCurrentTeamSlotSelected(Player player, AdmiralData data, int slotId, boolean selected) {
+    private static boolean setCurrentTeamSlotSelected(Player player, AdmiralData data, int slotId, boolean selected) {
         if (!PlayerStateService.setCurrentTeamSlotSelected(player, slotId, selected)) {
-            return;
+            return false;
         }
 
         UUID shipUuid = data.getShipUUID(data.getCurrentTeamID(), slotId);
         if (shipUuid != null) {
             withServerShip(player, shipUuid, ship -> ship.setPointerSelected(selected));
         }
+        return true;
     }
 
     private static void openCurrentTeamSlotShipMenu(Player player, AdmiralData data, int slotId) {
@@ -142,22 +145,23 @@ public final class FormationService {
         }
     }
 
-    private static void removeCurrentTeamSlot(Player player, AdmiralData data, int slotId) {
+    private static boolean removeCurrentTeamSlot(Player player, AdmiralData data, int slotId) {
         if (slotId < 0 || slotId >= AdmiralData.SLOT_COUNT) {
-            return;
+            return false;
         }
 
         UUID shipUuid = data.getShipUUID(data.getCurrentTeamID(), slotId);
-        if (shipUuid != null) {
-            withServerShip(player, shipUuid, FormationService::clearFormationState);
+        if (shipUuid == null) {
+            return false;
         }
-        PlayerStateService.removeShipFromTeams(player, shipUuid);
+        withServerShip(player, shipUuid, FormationService::clearFormationState);
+        return PlayerStateService.removeShipFromTeams(player, shipUuid);
     }
 
-    private static void replaceCurrentTeamSlot(Player player, int slotId, UUID shipUuid) {
+    private static boolean replaceCurrentTeamSlot(Player player, int slotId, UUID shipUuid) {
         PlayerStateService.SlotAssignment assignment = PlayerStateService.setCurrentTeamSlot(player, slotId, shipUuid);
         if (assignment == null) {
-            return;
+            return false;
         }
 
         UUID replacedUuid = assignment.replacedUuid();
@@ -165,11 +169,12 @@ public final class FormationService {
             withServerShip(player, replacedUuid, FormationService::clearFormationState);
         }
         withServerShip(player, shipUuid, ship -> applyFormationState(ship, assignment.teamId(), assignment.slotId(), true));
+        return true;
     }
 
-    private static void swapCurrentTeamSlots(Player player, AdmiralData data, int slot1, int slot2) {
+    private static boolean swapCurrentTeamSlots(Player player, AdmiralData data, int slot1, int slot2) {
         if (!PlayerStateService.swapCurrentTeamSlots(player, slot1, slot2)) {
-            return;
+            return false;
         }
 
         int teamId = data.getCurrentTeamID();
@@ -188,15 +193,17 @@ public final class FormationService {
                 ship.setPointerSelected(data.isSelected(teamId, slot2));
             });
         }
+        return true;
     }
 
-    private static void importNearbySelectedShips(Player player, AdmiralData data) {
+    private static boolean importNearbySelectedShips(Player player, AdmiralData data) {
         if (!(player.level() instanceof ServerLevel serverLevel)) {
-            return;
+            return false;
         }
 
         int teamId = data.getCurrentTeamID();
         boolean teamFilledDuringSync = false;
+        boolean changed = false;
         List<EntityShipBase> nearbySelected = serverLevel.getEntitiesOfClass(EntityShipBase.class,
                 player.getBoundingBox().inflate(NEARBY_SELECTED_IMPORT_RADIUS),
                 ship -> ship.isPointerSelected() && player.getUUID().equals(ship.getOwnerUUID()));
@@ -205,15 +212,19 @@ public final class FormationService {
                 ship -> player.getUUID().equals(ship.getOwnerUUID()) && !ship.isInDeadPose());
 
         for (EntityShipBase ship : nearbySelected) {
-            if (!data.isShipInTeam(teamId, ship.getUUID())
-                    && PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID()) == -1) {
-                teamFilledDuringSync = true;
+            if (!data.isShipInTeam(teamId, ship.getUUID())) {
+                if (PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID()) == -1) {
+                    teamFilledDuringSync = true;
+                } else {
+                    changed = true;
+                }
             }
         }
 
         for (EntityShipBase ship : nearbyOwned) {
             if (ship.getFormationTeam() == teamId && !data.isShipInTeam(teamId, ship.getUUID())) {
                 clearFormationState(ship);
+                changed = true;
             }
         }
 
@@ -228,6 +239,7 @@ public final class FormationService {
         if (teamFilledDuringSync) {
             player.displayClientMessage(Component.translatable("chat.shincolle.formation.teamfull"), false);
         }
+        return changed;
     }
 
     private static void withServerShip(Player player, UUID shipUuid, java.util.function.Consumer<EntityShipBase> action) {
