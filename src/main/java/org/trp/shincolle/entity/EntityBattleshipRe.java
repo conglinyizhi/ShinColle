@@ -75,6 +75,9 @@ public class EntityBattleshipRe extends EntityShipBase {
         if (target == null || !target.isAlive()) {
             return;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return;
+        }
         if (!consumeLightAmmo(1)) {
             return;
         }

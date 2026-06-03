@@ -450,6 +450,10 @@ class EntityShipBaseCombat {
         return stack.is(ModItems.AMMO_LIGHT.get());
     }
 
+    boolean isSameOwnerTarget(Entity target) {
+        return isSameOwner(target);
+    }
+
     void returnAircraftToDeck(boolean lightAircraft) {
         if (!this.ship.supportsAircraftCombat()) {
             return;

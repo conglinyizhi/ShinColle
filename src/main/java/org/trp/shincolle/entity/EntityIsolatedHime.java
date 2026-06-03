@@ -40,6 +40,9 @@ public class EntityIsolatedHime extends EntityShipBase {
         if (target == null || this.level().isClientSide) {
             return false;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return false;
+        }
         if (!consumeHeavyAmmo(1)) {
             return false;
         }
@@ -96,4 +99,3 @@ public class EntityIsolatedHime extends EntityShipBase {
         return new EntityMountIsH(org.trp.shincolle.init.ModEntities.MOUNT_IS_H.get(), this.level());
     }
 }
-

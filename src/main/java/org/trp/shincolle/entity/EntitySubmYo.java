@@ -104,6 +104,9 @@ public class EntitySubmYo extends EntityShipBase {
         if (target == null || this.level().isClientSide) {
             return false;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return false;
+        }
         if (!consumeHeavyAmmo(1)) {
             return false;
         }

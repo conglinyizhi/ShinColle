@@ -982,6 +982,10 @@ public abstract class EntityShipBase extends TamableAnimal {
         return this.combat.consumeHeavyAmmo(amount);
     }
 
+    protected boolean isSameOwnerAttackTarget(Entity target) {
+        return this.combat.isSameOwnerTarget(target);
+    }
+
     public boolean supportsAircraftCombat() {
         return false;
     }

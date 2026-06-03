@@ -70,6 +70,9 @@ public class EntityBattleshipTa extends EntityShipBase implements IShipSummonAtt
         if (target == null || !target.isAlive()) {
             return;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return;
+        }
 
         if (this.numRensouhou > 0 && this.getRandom().nextInt(3) == 0) {
             if (consumeLightAmmo(4)) {

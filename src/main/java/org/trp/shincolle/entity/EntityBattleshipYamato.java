@@ -96,6 +96,9 @@ public class EntityBattleshipYamato extends EntityShipBase {
         if (target == null || !target.isAlive()) {
             return false;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return false;
+        }
 
         if (this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
             if (!consumeHeavyAmmo(1)) {

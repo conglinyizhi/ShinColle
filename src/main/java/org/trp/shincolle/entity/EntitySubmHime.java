@@ -70,6 +70,9 @@ public class EntitySubmHime extends EntityShipBase {
         if (target == null || this.level().isClientSide) {
             return false;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return false;
+        }
         if (!consumeHeavyAmmo(1)) {
             return false;
         }
@@ -124,4 +127,3 @@ public class EntitySubmHime extends EntityShipBase {
         return true;
     }
 }
-

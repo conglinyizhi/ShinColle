@@ -103,6 +103,9 @@ public class EntityBattleshipNagato extends EntityShipBase {
         if (target == null || !target.isAlive()) {
             return false;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return false;
+        }
         if (!consumeHeavyAmmo(1)) {
             return false;
         }

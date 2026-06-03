@@ -63,6 +63,9 @@ public class EntitySubmU511 extends EntityShipBase {
         if (target == null || this.level().isClientSide) {
             return false;
         }
+        if (isSameOwnerAttackTarget(target)) {
+            return false;
+        }
         if (!consumeHeavyAmmo(1)) {
             return false;
         }
@@ -116,4 +119,3 @@ public class EntitySubmU511 extends EntityShipBase {
         return true;
     }
 }
-
