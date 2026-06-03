@@ -25,6 +25,9 @@ public class DeskMenu extends AbstractContainerMenu {
     }
 
     private static Object[] getDeskTypeAndEntity(Inventory playerInventory, RegistryFriendlyByteBuf data) {
+        if (data == null) {
+            throw new IllegalStateException("Missing desk menu data.");
+        }
         int deskType = data.readInt();
         if (deskType == 0) {
             BlockPos pos = data.readBlockPos();
@@ -130,6 +133,9 @@ public class DeskMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         if (blockEntity != null) {
+            if (blockEntity.getLevel() == null || player.level().getBlockEntity(blockEntity.getBlockPos()) != blockEntity) {
+                return false;
+            }
             return AbstractContainerMenu.stillValid(net.minecraft.world.inventory.ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()), player, blockEntity.getBlockState().getBlock());
         }
         return !player.isRemoved() && player.isAlive();

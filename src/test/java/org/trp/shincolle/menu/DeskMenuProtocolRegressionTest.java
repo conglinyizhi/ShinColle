@@ -23,6 +23,8 @@ class DeskMenuProtocolRegressionTest {
         String radarSource = Files.readString(DESK_RADAR_ITEM_SOURCE);
         String bookSource = Files.readString(DESK_BOOK_ITEM_SOURCE);
 
+        assertTrue(menuSource.contains("if (data == null) {\n            throw new IllegalStateException(\"Missing desk menu data.\");\n        }"),
+                "DeskMenu should fail fast when the client payload is missing");
         assertTrue(menuSource.contains("return new Object[]{deskType, data.readInt(), data.readInt()};"),
                 "DeskMenu should keep decoding two ints for non-block desk variants");
         assertTrue(radarSource.contains("buffer.writeInt(1);")
@@ -33,5 +35,15 @@ class DeskMenuProtocolRegressionTest {
                         && bookSource.contains("buffer.writeInt(chap);")
                         && bookSource.contains("buffer.writeInt(page);"),
                 "DeskItemBook fallback menu should keep sending deskType=2 with chapter/page payload");
+    }
+
+    @Test
+    void deskBlockMenuShouldRejectStaleBlockEntitiesDuringValidation() throws IOException {
+        String menuSource = Files.readString(DESK_MENU_SOURCE);
+
+        assertTrue(menuSource.contains("if (playerInventory.player.level().getBlockEntity(pos) instanceof DeskBlockEntity desk) {\n                return new Object[]{deskType, desk};\n            }\n            throw new IllegalStateException(\"Desk block entity not found.\");"),
+                "DeskMenu should fail fast when the synced desk block entity is missing");
+        assertTrue(menuSource.contains("if (blockEntity.getLevel() == null || player.level().getBlockEntity(blockEntity.getBlockPos()) != blockEntity) {\n                return false;\n            }"),
+                "DeskMenu should become invalid when the backing desk block entity is detached or replaced");
     }
 }
