@@ -39,6 +39,9 @@ public final class TeamDiplomacyService {
     }
 
     public static void handleAction(Player player, int action, UUID target) {
+        if (player == null) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel serverLevel)) {
             return;
         }

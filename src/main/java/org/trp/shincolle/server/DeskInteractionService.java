@@ -22,6 +22,9 @@ public final class DeskInteractionService {
     }
 
     public static void updateBookState(Player player, int chapter, int page) {
+        if (player == null) {
+            return;
+        }
         if (player.containerMenu instanceof DeskMenu deskMenu) {
             DeskBlockEntity blockEntity = deskMenu.getBlockEntity();
             if (deskMenu.getDeskType() == 0 && blockEntity != null) {
@@ -43,6 +46,9 @@ public final class DeskInteractionService {
     }
 
     public static void updateDeskGui(Player player, int guiFunc, int radarZoom) {
+        if (player == null) {
+            return;
+        }
         if (!(player.containerMenu instanceof DeskMenu deskMenu)) {
             return;
         }
@@ -58,6 +64,9 @@ public final class DeskInteractionService {
     }
 
     public static void openOwnedShipFromDesk(Player player, UUID shipUuid) {
+        if (player == null) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel serverLevel)) {
             return;
         }
@@ -69,7 +78,8 @@ public final class DeskInteractionService {
     }
 
     public static void summonOwnedShipsToDesk(Player player, Collection<UUID> shipUuids) {
-        if (!(player.level() instanceof ServerLevel serverLevel)
+        if (player == null
+                || !(player.level() instanceof ServerLevel serverLevel)
                 || !(player.containerMenu instanceof DeskMenu deskMenu)
                 || deskMenu.getDeskType() != 0
                 || deskMenu.getBlockEntity() == null

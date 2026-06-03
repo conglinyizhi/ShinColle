@@ -16,6 +16,8 @@ class TeamDiplomacyServiceRegressionTest {
     void diplomacyActionsShouldOnlySyncDeskStateAfterRealRelationChanges() throws IOException {
         String source = Files.readString(TEAM_DIPLOMACY_SERVICE);
 
+        assertTrue(source.contains("public static void handleAction(Player player, int action, UUID target) {\n        if (player == null) {\n            return;\n        }"),
+                "TeamDiplomacyService should ignore null players before touching server-level diplomacy state");
         assertTrue(source.contains("boolean changed;"),
                 "TeamDiplomacyService should explicitly track whether a diplomacy action changed saved data");
         assertTrue(source.contains("changed = diplomacy.addAlly(owner, target);"),
