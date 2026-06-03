@@ -19,6 +19,17 @@ class BossEggLocalizationRegressionTest {
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
     );
     private static final List<String> BOSS_EGG_KEYS = List.of(
+            "item.shincolle.destroyer_i_boss_egg",
+            "item.shincolle.destroyer_ro_boss_egg",
+            "item.shincolle.destroyer_ha_boss_egg",
+            "item.shincolle.destroyer_ni_boss_egg",
+            "item.shincolle.heavy_cruiser_ri_boss_egg",
+            "item.shincolle.heavy_cruiser_ne_boss_egg",
+            "item.shincolle.carrier_wo_boss_egg",
+            "item.shincolle.battleship_ru_boss_egg",
+            "item.shincolle.battleship_ta_boss_egg",
+            "item.shincolle.battleship_re_boss_egg",
+            "item.shincolle.transport_wa_boss_egg",
             "item.shincolle.destroyer_akatsuki_boss_egg",
             "item.shincolle.destroyer_hibiki_boss_egg",
             "item.shincolle.destroyer_ikazuchi_boss_egg",
