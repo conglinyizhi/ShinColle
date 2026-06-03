@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.trp.shincolle.Shincolle;
 import org.trp.shincolle.entity.base.EntityShipBase;
 import org.trp.shincolle.item.DebugInspectorItem;
+import org.trp.shincolle.menu.ShipContainerMenu;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.IEntityComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -34,9 +35,46 @@ public enum ShipJadeProvider implements IEntityComponentProvider {
         tooltip.add(Component.translatable("gui.shincolle.ammoheavy")
                 .append(": ")
                 .append(creativeInfinite ? DebugInspectorItem.creativeInfiniteLabel() : Component.literal(String.valueOf(ship.getAmmoHeavy()))));
+        tooltip.add(Component.translatable("tooltip.shincolle.jade.ship.status", runningState(ship)));
         tooltip.add(Component.translatable("gui.shincolle.grudge")
                 .append(": ")
                 .append(creativeInfinite ? DebugInspectorItem.creativeInfiniteLabel() : Component.literal(String.valueOf(ship.getFuel()))));
+    }
+
+    private static Component runningState(EntityShipBase ship) {
+        if (!ship.isAlive()) {
+            return Component.translatable("tooltip.shincolle.jade.ship.status.idle");
+        }
+        if (ship.isNoFuel()) {
+            return Component.translatable("tooltip.shincolle.jade.ship.status.no_fuel");
+        }
+
+        int taskId = ship.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID);
+        if (taskId >= 1 && taskId <= 4) {
+            return Component.translatable(switch (taskId) {
+                case 1 -> "gui.shincolle.ai.cooking";
+                case 2 -> "gui.shincolle.ai.fishing";
+                case 3 -> "gui.shincolle.ai.mining";
+                case 4 -> "gui.shincolle.ai.crafting";
+                default -> "tooltip.shincolle.jade.ship.status.idle";
+            });
+        }
+        if (ship.hasBlockGuardTarget()) {
+            return Component.translatable("tooltip.shincolle.jade.ship.status.guard");
+        }
+        if (ship.hasPointerTargetEntity()) {
+            return Component.translatable("tooltip.shincolle.jade.ship.status.pointer_attack");
+        }
+        if (ship.hasPointerTarget()) {
+            return Component.translatable("tooltip.shincolle.jade.ship.status.pointer_move");
+        }
+        if (ship.shouldFollowOwner()) {
+            return Component.translatable("tooltip.shincolle.jade.ship.status.follow");
+        }
+        return Component.translatable(switch (ship.explainFollowBlockReason()) {
+            case "orderedToSit", "sittingPose" -> "tooltip.shincolle.jade.ship.status.standby";
+            default -> "tooltip.shincolle.jade.ship.status.idle";
+        });
     }
 
     @Override
