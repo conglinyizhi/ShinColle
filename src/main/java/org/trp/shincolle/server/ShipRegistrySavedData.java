@@ -112,7 +112,7 @@ public final class ShipRegistrySavedData extends SavedData {
     }
 
     public Collection<ShipEntry> all() {
-        return this.ships.values();
+        return java.util.Collections.unmodifiableCollection(this.ships.values());
     }
 
     public List<ShipEntry> listSorted() {

@@ -284,6 +284,7 @@ class PlayerStatePersistenceArchitectureRegressionTest {
         String diplomacy = Files.readString(TEAM_DIPLOMACY);
         String targets = Files.readString(PLAYER_TARGET_LIST);
         String unattackable = Files.readString(UNATTACKABLE_TARGETS);
+        String registry = Files.readString(SHIP_REGISTRY);
 
         assertSavedDataUsesServerWideStorage(diplomacy, "shincolle_team_diplomacy");
         assertTrue(diplomacy.contains("entryTag.putUUID(\"Owner\", entry.owner);"),
@@ -310,12 +311,18 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 "Per-player target loading should restore owner UUIDs");
         assertTrue(targets.contains("data.entries.put(owner, classNames);"),
                 "Per-player target loading should restore class-name sets");
+        assertTrue(targets.contains("return classNames == null ? java.util.List.of() : java.util.Collections.unmodifiableSet(classNames);"),
+                "Per-player target-list views should stay read-only so callers cannot bypass SavedData dirty tracking");
 
         assertSavedDataUsesServerWideStorage(unattackable, "shincolle_unattackable_targets");
         assertTrue(unattackable.contains("tag.put(\"ClassNames\", list);"),
                 "Global unattackable targets should persist class names");
         assertTrue(unattackable.contains("data.classNames.add(name);"),
                 "Global unattackable target loading should restore class names");
+        assertTrue(unattackable.contains("return java.util.Collections.unmodifiableSet(this.classNames);"),
+                "Global unattackable target views should stay read-only so callers cannot bypass SavedData dirty tracking");
+        assertTrue(registry.contains("return java.util.Collections.unmodifiableCollection(this.ships.values());"),
+                "Ship registry collection views should stay read-only so callers cannot mutate cached entries without dirty tracking");
     }
 
     @Test

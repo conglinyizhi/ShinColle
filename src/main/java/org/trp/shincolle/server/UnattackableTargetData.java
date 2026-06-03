@@ -59,7 +59,7 @@ public final class UnattackableTargetData extends SavedData {
     }
 
     public Collection<String> entries() {
-        return this.classNames;
+        return java.util.Collections.unmodifiableSet(this.classNames);
     }
 
     @Override
