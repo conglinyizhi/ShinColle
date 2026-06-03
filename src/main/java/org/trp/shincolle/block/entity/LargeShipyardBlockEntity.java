@@ -265,7 +265,13 @@ public class LargeShipyardBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public void moveBuildMaterialAmount(int matType, int value) {
+        int[] beforeBuild = this.matsBuild.clone();
+        int[] beforeStock = this.matsStock.clone();
         ShipyardRecipes.moveBuildMaterialAmount(this.matsBuild, this.matsStock, matType, value);
+        if (java.util.Arrays.equals(beforeBuild, this.matsBuild)
+                && java.util.Arrays.equals(beforeStock, this.matsStock)) {
+            return;
+        }
         markForSync();
     }
 

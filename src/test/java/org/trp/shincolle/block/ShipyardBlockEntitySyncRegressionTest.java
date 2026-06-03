@@ -54,5 +54,11 @@ class ShipyardBlockEntitySyncRegressionTest {
                 "Large shipyard selected material writes should clamp before syncing");
         assertTrue(source.contains("if (this.selectMat == next) {\n            return;\n        }"),
                 "Large shipyard selected material writes should not sync when the clamped value is unchanged");
+        assertTrue(source.contains("int[] beforeBuild = this.matsBuild.clone();"),
+                "Large shipyard material moves should snapshot the build materials before mutating them");
+        assertTrue(source.contains("int[] beforeStock = this.matsStock.clone();"),
+                "Large shipyard material moves should snapshot the stock materials before mutating them");
+        assertTrue(source.contains("if (java.util.Arrays.equals(beforeBuild, this.matsBuild)\n                && java.util.Arrays.equals(beforeStock, this.matsStock)) {\n            return;\n        }"),
+                "Large shipyard material moves should not sync when the build and stock materials remain unchanged");
     }
 }
