@@ -113,6 +113,7 @@ class ShipGuardTargetArchitectureRegressionTest {
     void guardRecoveryShouldResetWhenGuardTargetIdentityChanges() throws IOException {
         String guardGoal = Files.readString(BRAIN_AI_SOURCE);
         String mount = Files.readString(MOUNT_BRAIN_SOURCE);
+        String ship = Files.readString(SHIP_SOURCE);
 
         assertTrue(guardGoal.contains("ShipGuardTarget guardTarget = guardMemory.target();"),
                 "Brain guard behavior should read the typed guard target through Brain memory");
@@ -130,6 +131,12 @@ class ShipGuardTargetArchitectureRegressionTest {
                 "Brain guard behavior should reset recovery when switching guard targets");
         assertTrue(guardGoal.contains("private record GuardRecoveryTargetKey"),
                 "Brain guard recovery target identity should remain explicit after migration");
+        assertTrue(ship.contains("Entity entity = serverLevel.getEntity(this.guardedEntityId);"),
+                "Guarded-entity lookup should resolve the current guard target through the owning server level");
+        assertTrue(ship.contains("if (entity == null || !entity.isAlive() || entity.isRemoved()) {\n                    return null;\n                }"),
+                "Guarded-entity lookup should treat dead or removed entities as invalid guard targets");
+        assertTrue(ship.contains("if (entity.getUUID().equals(this.guardedEntityId) && entity.isAlive() && !entity.isRemoved()) {"),
+                "Client-side guarded-entity lookup should ignore dead or removed nearby entities");
 
         assertTrue(mount.contains("private FollowRecoveryTargetKey lastRecoveryTargetKey;"),
                 "Mount follow should remember which host-follow mode owns the current recovery counters");

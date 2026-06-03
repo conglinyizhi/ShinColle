@@ -1168,19 +1168,27 @@ public abstract class EntityShipBase extends TamableAnimal {
 
         if (this.level() instanceof ServerLevel serverLevel) {
             if (this.getGuardedPos(3) == getLegacyDimensionId(serverLevel)) {
-                return serverLevel.getEntity(this.guardedEntityId);
+                Entity entity = serverLevel.getEntity(this.guardedEntityId);
+                if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+                    return null;
+                }
+                return entity;
             }
 
             for (ServerLevel level : serverLevel.getServer().getAllLevels()) {
                 if (this.getGuardedPos(3) == getLegacyDimensionId(level)) {
-                    return level.getEntity(this.guardedEntityId);
+                    Entity entity = level.getEntity(this.guardedEntityId);
+                    if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+                        return null;
+                    }
+                    return entity;
                 }
             }
             return null;
         }
 
         for (Entity entity : this.level().getEntities(this, this.getBoundingBox().inflate(128.0D), candidate -> candidate.getUUID().equals(this.guardedEntityId))) {
-            if (entity.getUUID().equals(this.guardedEntityId)) {
+            if (entity.getUUID().equals(this.guardedEntityId) && entity.isAlive() && !entity.isRemoved()) {
                 return entity;
             }
         }
