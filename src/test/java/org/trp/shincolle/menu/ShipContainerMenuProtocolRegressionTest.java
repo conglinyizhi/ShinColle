@@ -30,8 +30,8 @@ class ShipContainerMenuProtocolRegressionTest {
                 "Ship container menu should keep the client constructor that receives RegistryFriendlyByteBuf");
         assertTrue(source.contains("this(containerId, playerInv, getEntity(playerInv, buf));"),
                 "Ship container menu should keep delegating buffer decoding through getEntity");
-        assertTrue(source.contains("if (ship == null || !ship.isAlive()) {\n            throw new IllegalStateException(\"Ship entity is not available for menu access.\");\n        }"),
-                "Ship container menu should fail fast before constructing against unavailable or actually dead ships");
+        assertTrue(source.contains("if (ship == null || !ship.isAlive() || ship.isRemoved()) {\n            throw new IllegalStateException(\"Ship entity is not available for menu access.\");\n        }"),
+                "Ship container menu should fail fast before constructing against unavailable, dead, or removed ships");
         assertTrue(source.contains("private static EntityShipBase getEntity(Inventory playerInv, RegistryFriendlyByteBuf buf) {"),
                 "Ship container menu should keep a dedicated buffer -> ship resolver");
         assertTrue(source.contains("if (buf == null) {\n            throw new IllegalStateException(\"Missing ship entity data.\");\n        }"),
@@ -48,7 +48,7 @@ class ShipContainerMenuProtocolRegressionTest {
     void shipMenuShouldStayValidForLiveShipsEvenWhenTheyRunOutOfFuel() throws IOException {
         String source = Files.readString(MENU_SOURCE);
 
-        assertTrue(source.contains("return ship.isAlive() && player.distanceToSqr(ship) < 64.0D;"),
-                "Ship container menu should remain valid for live ships even when no-fuel drives a dead-pose animation");
+        assertTrue(source.contains("return ship.isAlive() && !ship.isRemoved() && player.distanceToSqr(ship) < 64.0D;"),
+                "Ship container menu should remain valid only for live, non-removed ships even when no-fuel drives a dead-pose animation");
     }
 }
