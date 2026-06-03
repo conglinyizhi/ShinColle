@@ -84,7 +84,7 @@ public final class TeamDiplomacyService {
         }
 
         player.displayClientMessage(message, false);
-        if (player instanceof ServerPlayer serverPlayer) {
+        if (changed && player instanceof ServerPlayer serverPlayer) {
             sendDeskDiplomacySync(serverPlayer);
         }
     }
