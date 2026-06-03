@@ -566,6 +566,7 @@ public class FormationScreen extends AbstractContainerScreen<FormationMenu> {
                 EntityShipBase.class,
                 this.minecraft.player.getBoundingBox().inflate(64.0),
                 ship -> ship.isAlive()
+                        && !ship.isRemoved()
                         && !ship.isInDeadPose()
                         && ship.isPointerSelected()
                         && this.minecraft.player.getUUID().equals(ship.getOwnerUUID())

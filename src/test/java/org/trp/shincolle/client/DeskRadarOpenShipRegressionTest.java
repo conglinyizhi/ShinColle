@@ -22,6 +22,8 @@ class DeskRadarOpenShipRegressionTest {
 
         assertTrue(screenSource.contains("boolean sameSelection = this.selectedShips.size() == 1 && this.selectedShips.contains(shipUuid);"),
                 "Desk radar should detect clicking the already selected ship");
+        assertTrue(screenSource.contains("if (entity instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved() && ship.getOwnerUUID() != null && ship.getOwnerUUID().equals(this.minecraft.player.getUUID())) {"),
+                "Desk radar list should ignore removed ships while collecting owned radar targets");
         assertTrue(screenSource.contains("if (sameSelection) {\n                                openRadarSelectedShip(shipUuid);\n                                return true;\n                            }"),
                 "Desk radar should reopen the selected ship menu on repeated click");
         assertTrue(screenSource.contains("PacketDistributor.sendToServer(new C2SDeskOpenShipPayload(shipUuid));"),

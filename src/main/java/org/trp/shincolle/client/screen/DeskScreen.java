@@ -322,7 +322,7 @@ public class DeskScreen extends AbstractContainerScreen<DeskMenu> {
         
         int id = 0;
         for (Entity entity : this.minecraft.level.entitiesForRendering()) {
-            if (entity instanceof EntityShipBase ship && ship.isAlive() && ship.getOwnerUUID() != null && ship.getOwnerUUID().equals(this.minecraft.player.getUUID())) {
+            if (entity instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved() && ship.getOwnerUUID() != null && ship.getOwnerUUID().equals(this.minecraft.player.getUUID())) {
                 double px = (ship.getX() - ox) * radarScale;
                 double py = ship.getY() - oy;
                 double pz = (ship.getZ() - oz) * radarScale;
