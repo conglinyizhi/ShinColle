@@ -382,6 +382,8 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Mount host lookup should clear stale cached host references once the host dies or is removed");
         assertTrue(mount.contains("if (p instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {"),
                 "Mount host lookup should only latch onto live, non-removed ship passengers");
+        assertTrue(mount.contains("if (entity instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {"),
+                "Mount HostUUID recovery should only rebind to a live, non-removed ship host");
         assertTrue(mount.contains("this.followMovement.stopAny();"),
                 "Mount global AI stop should route navigation cleanup through the movement coordinator");
         assertFalse(mount.contains("this.goalSelector.addGoal"),

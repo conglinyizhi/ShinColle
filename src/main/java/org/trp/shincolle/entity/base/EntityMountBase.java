@@ -212,7 +212,7 @@ public abstract class EntityMountBase extends PathfinderMob {
 
         if (this.host == null || this.host.isRemoved()) {
             Entity entity = ((ServerLevel) this.level()).getEntity(uuid);
-            if (entity instanceof EntityShipBase ship) {
+            if (entity instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {
                 this.host = ship;
             } else {
                 this.discard();
