@@ -7,6 +7,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.trp.shincolle.attachment.AdmiralData;
+import org.trp.shincolle.item.PointerItem;
 import org.trp.shincolle.server.PlayerStateService;
 
 public class FormationMenu extends AbstractContainerMenu {
@@ -46,6 +47,10 @@ public class FormationMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return !player.isRemoved() && player.isAlive();
+        if (player.isRemoved() || !player.isAlive()) {
+            return false;
+        }
+        return player.getMainHandItem().getItem() instanceof PointerItem
+                || player.getOffhandItem().getItem() instanceof PointerItem;
     }
 }
