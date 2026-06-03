@@ -17,12 +17,22 @@ public final class HostileDropService {
     }
 
     public static void handleLivingDrops(LivingDropsEvent event) {
+        if (event == null) {
+            return;
+        }
         Entity target = event.getEntity();
+        if (target == null) {
+            return;
+        }
         if (target.level().isClientSide || !isHostileDropTarget(target)) {
             return;
         }
 
         if (!target.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+            return;
+        }
+
+        if (event.getSource() == null) {
             return;
         }
 
