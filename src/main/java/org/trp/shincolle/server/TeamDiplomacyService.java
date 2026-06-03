@@ -21,6 +21,9 @@ public final class TeamDiplomacyService {
     }
 
     public static boolean isDiplomaticAlly(EntityShipBase ship, Entity target) {
+        if (ship == null || target == null) {
+            return false;
+        }
         if (!(ship.level() instanceof ServerLevel serverLevel)) {
             return false;
         }
@@ -30,6 +33,9 @@ public final class TeamDiplomacyService {
     }
 
     public static boolean isDiplomaticBanned(EntityShipBase ship, Entity target) {
+        if (ship == null || target == null) {
+            return false;
+        }
         if (!(ship.level() instanceof ServerLevel serverLevel)) {
             return false;
         }

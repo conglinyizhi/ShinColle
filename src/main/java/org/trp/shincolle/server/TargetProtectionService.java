@@ -13,6 +13,9 @@ public final class TargetProtectionService {
     }
 
     public static boolean isUnattackableTargetClass(EntityShipBase ship, LivingEntity target) {
+        if (ship == null || target == null) {
+            return false;
+        }
         if (!(ship.level() instanceof ServerLevel serverLevel)) {
             return false;
         }
@@ -20,6 +23,9 @@ public final class TargetProtectionService {
     }
 
     public static boolean isPlayerConfiguredTargetClass(EntityShipBase ship, Entity target) {
+        if (ship == null || target == null) {
+            return false;
+        }
         if (!(ship.level() instanceof ServerLevel serverLevel)) {
             return false;
         }
