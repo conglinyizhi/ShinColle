@@ -20,6 +20,9 @@ public final class WaypointService {
         if (player.level() == null) {
             return;
         }
+        if (pos1 == null || pos2 == null) {
+            return;
+        }
 
         if (action == 0) {
             pairWaypointToWaypoint(player, pos1, pos2);

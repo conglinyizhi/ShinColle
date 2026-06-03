@@ -24,6 +24,8 @@ class ServicePlayerGuardRegressionTest {
                 "WaypointService should keep a dedicated payload-facing handleAction entrypoint");
         assertTrue(source.contains("if (player == null) {\n            return;\n        }\n        if (player.level() == null) {"),
                 "WaypointService should return early when payload handling reaches it without a player");
+        assertTrue(source.contains("if (pos1 == null || pos2 == null) {\n            return;\n        }"),
+                "WaypointService should reject malformed payloads that omit either waypoint position before pairing logic");
         assertTrue(source.contains("if (action == 0) {\n            pairWaypointToWaypoint(player, pos1, pos2);\n        } else if (action == 1) {\n            pairWaypointToContainer(player, pos1, pos2);\n        } else if (action == 2) {\n            autoPair(player, pos1, pos2);\n        }"),
                 "WaypointService should ignore unknown action ids instead of dispatching unexpected pairing logic");
     }
