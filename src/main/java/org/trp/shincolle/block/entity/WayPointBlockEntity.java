@@ -32,19 +32,31 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
 
     public BlockPos getLastPos() { return lastPos; }
     public void setLastPos(BlockPos pos) {
-        this.lastPos = pos == null ? BlockPos.ZERO : pos;
+        BlockPos next = pos == null ? BlockPos.ZERO : pos;
+        if (this.lastPos.equals(next)) {
+            return;
+        }
+        this.lastPos = next;
         markForSync();
     }
 
     public BlockPos getNextPos() { return nextPos; }
     public void setNextPos(BlockPos pos) {
-        this.nextPos = pos == null ? BlockPos.ZERO : pos;
+        BlockPos next = pos == null ? BlockPos.ZERO : pos;
+        if (this.nextPos.equals(next)) {
+            return;
+        }
+        this.nextPos = next;
         markForSync();
     }
 
     public BlockPos getChestPos() { return chestPos; }
     public void setChestPos(BlockPos pos) {
-        this.chestPos = pos == null ? BlockPos.ZERO : pos;
+        BlockPos next = pos == null ? BlockPos.ZERO : pos;
+        if (this.chestPos.equals(next)) {
+            return;
+        }
+        this.chestPos = next;
         markForSync();
     }
 
@@ -67,7 +79,11 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
     }
 
     public void nextWpStayTime() {
-        wpStayTime = (wpStayTime + 1) % 17;
+        int next = (wpStayTime + 1) % 17;
+        if (wpStayTime == next) {
+            return;
+        }
+        wpStayTime = next;
         markForSync();
     }
 
@@ -76,6 +92,9 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
     public UUID getOwnerUUID() { return ownerUUID; }
 
     public void setOwnerUUID(@Nullable UUID uuid) {
+        if (java.util.Objects.equals(this.ownerUUID, uuid)) {
+            return;
+        }
         this.ownerUUID = uuid;
         markForSync();
     }
@@ -83,7 +102,11 @@ public class WayPointBlockEntity extends BlockEntity implements IWaypoint {
     @Override
     public String getOwnerName() { return ownerName; }
     public void setOwnerName(String name) {
-        this.ownerName = name;
+        String next = name == null ? "" : name;
+        if (this.ownerName.equals(next)) {
+            return;
+        }
+        this.ownerName = next;
         markForSync();
     }
 
