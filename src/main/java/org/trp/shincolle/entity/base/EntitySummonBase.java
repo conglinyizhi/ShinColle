@@ -291,7 +291,7 @@ public abstract class EntitySummonBase extends EntityShincolleSimpleMob {
             return null;
         }
         Entity entity = serverLevel.getEntity(this.carrierId);
-        if (entity instanceof EntityShipBase ship) {
+        if (entity instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {
             return ship;
         }
         return null;
