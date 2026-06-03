@@ -129,5 +129,13 @@ class ServicePlayerGuardRegressionTest {
                 "PointerInteractionService should only sync grouped removal when a ship was actually removed from teams");
         assertTrue(source.contains("if (PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState)) {\n                        ship.setPointerSelected(nextState);\n                        shouldSync = true;\n                    }"),
                 "PointerInteractionService should only sync grouped roster toggles when selection state actually changes");
+        assertTrue(source.contains("public static EntityHitResult getLookTargetResult(Player player) {\n        if (player == null) {\n            return null;\n        }"),
+                "PointerInteractionService should reject null players before ray-picking entity targets");
+        assertTrue(source.contains("private static void applyPointerModeSelectionState(Player player, int nextMode) {\n        if (player == null) {\n            return;\n        }"),
+                "PointerInteractionService should reject null players before reconciling pointer mode selection state");
+        assertTrue(source.contains("private static void clearOwnedPointerSelection(Player player, EntityShipBase keepSelected, double radius) {\n        if (player == null) {\n            return;\n        }"),
+                "PointerInteractionService should reject null players before clearing owned pointer selection");
+        assertTrue(source.contains("private static void openOwnedShipMenu(Player player, UUID shipUuid) {\n        if (player == null) {\n            return;\n        }"),
+                "PointerInteractionService should reject null players before opening owned ship menus");
     }
 }

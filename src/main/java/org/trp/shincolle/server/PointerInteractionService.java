@@ -184,6 +184,9 @@ public final class PointerInteractionService {
     }
 
     public static EntityHitResult getLookTargetResult(Player player) {
+        if (player == null) {
+            return null;
+        }
         double reach = POINTER_SEARCH_RADIUS;
         Vec3 eyePos = player.getEyePosition();
         Vec3 look = player.getViewVector(1.0F);
@@ -204,6 +207,9 @@ public final class PointerInteractionService {
     }
 
     private static void applyPointerModeSelectionState(Player player, int nextMode) {
+        if (player == null) {
+            return;
+        }
         if (player.level().isClientSide) {
             return;
         }
@@ -231,6 +237,9 @@ public final class PointerInteractionService {
     }
 
     private static void clearOwnedPointerSelection(Player player, EntityShipBase keepSelected, double radius) {
+        if (player == null) {
+            return;
+        }
         List<EntityShipBase> ships = player.level().getEntitiesOfClass(EntityShipBase.class,
                 player.getBoundingBox().inflate(radius),
                 ship -> ship.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose());
@@ -280,6 +289,9 @@ public final class PointerInteractionService {
     }
 
     private static void openOwnedShipMenu(Player player, UUID shipUuid) {
+        if (player == null) {
+            return;
+        }
         if (!(player.level() instanceof ServerLevel serverLevel)) {
             return;
         }
