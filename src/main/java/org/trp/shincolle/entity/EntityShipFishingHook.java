@@ -23,6 +23,9 @@ public class EntityShipFishingHook extends Entity {
     }
 
     public EntityShipBase getHost() {
+        if (this.host != null && (!this.host.isAlive() || this.host.isRemoved())) {
+            this.host = null;
+        }
         return this.host;
     }
 
@@ -55,7 +58,7 @@ public class EntityShipFishingHook extends Entity {
             int id = this.entityData.get(HOST_ID);
             if (id != -1) {
                 Entity e = this.level().getEntity(id);
-                if (e instanceof EntityShipBase ship) {
+                if (e instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {
                     this.host = ship;
                     ship.setFishHook(this);
                 }

@@ -23,6 +23,10 @@ class ShipFishingHookLifecycleRegressionTest {
                 "Fishing task should clear hooks at the legacy max wait threshold");
         assertTrue(hook.contains("if (this.tickCount > Config.tickFishingMin + Config.tickFishingMax)"),
                 "Fishing hook entity should use the same legacy max wait threshold");
+        assertTrue(hook.contains("if (this.host != null && (!this.host.isAlive() || this.host.isRemoved())) {\n            this.host = null;\n        }"),
+                "Fishing hook host lookup should clear stale cached host references when the ship dies or is removed");
+        assertTrue(hook.contains("if (e instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {"),
+                "Fishing hook client-side host sync should only latch onto live, non-removed ships");
         assertTrue(hook.contains("this.host.setFishHook(null);"),
                 "Fishing hook removal should clear the host-side hook reference");
     }
