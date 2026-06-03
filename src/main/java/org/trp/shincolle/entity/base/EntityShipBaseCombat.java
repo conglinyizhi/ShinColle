@@ -509,11 +509,6 @@ class EntityShipBaseCombat {
         if (!canUseLightAircraft()) {
             return false;
         }
-        if (!consumeLightAmmo(AIRCRAFT_LIGHT_AMMO_COST)) {
-            return false;
-        }
-        this.ship.setNumAircraftLight(Math.max(0, this.ship.getNumAircraftLight() - 1));
-        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLightAircraft);
         return spawnAircraft(target, true);
     }
 
@@ -521,11 +516,6 @@ class EntityShipBaseCombat {
         if (!canUseHeavyAircraft()) {
             return false;
         }
-        if (!consumeHeavyAmmo(AIRCRAFT_HEAVY_AMMO_COST)) {
-            return false;
-        }
-        this.ship.setNumAircraftHeavy(Math.max(0, this.ship.getNumAircraftHeavy() - 1));
-        this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavyAircraft);
         return spawnAircraft(target, false);
     }
 
@@ -538,6 +528,20 @@ class EntityShipBaseCombat {
         Entity spawned = type.create(serverLevel);
         if (!(spawned instanceof EntityAircraftBase aircraft)) {
             return false;
+        }
+
+        if (lightAircraft) {
+            if (!consumeLightAmmo(AIRCRAFT_LIGHT_AMMO_COST)) {
+                return false;
+            }
+            this.ship.setNumAircraftLight(Math.max(0, this.ship.getNumAircraftLight() - 1));
+            this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionLightAircraft);
+        } else {
+            if (!consumeHeavyAmmo(AIRCRAFT_HEAVY_AMMO_COST)) {
+                return false;
+            }
+            this.ship.setNumAircraftHeavy(Math.max(0, this.ship.getNumAircraftHeavy() - 1));
+            this.ship.setFuel(this.ship.getFuel() - org.trp.shincolle.Config.fuelConsumeActionHeavyAircraft);
         }
 
         double launchY = this.ship.getY() + this.ship.getAircraftLaunchHeight();
