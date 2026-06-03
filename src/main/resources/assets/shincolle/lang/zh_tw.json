@@ -767,6 +767,8 @@
     "gui.shincolle.oponly": "僅限OP使用",
     "gui.shincolle.optool1": "數字鍵盤1: 新增/移除不可攻擊目標",
     "gui.shincolle.optool2": "數字鍵盤2: 顯示不可攻擊目標清單",
+    "gui.shincolle.wrench1": "左鍵：新增/移除不可攻擊目標",
+    "gui.shincolle.wrench2": "右鍵：顯示不可攻擊目標清單",
     "gui.shincolle.wrench3": "蹲下右鍵: 配對起重機跟箱子 / 設定深海路徑",
     "gui.shincolle.compass": "獲得Chunk Loader功能，使其遠離玩家依然能正常運作",
     "gui.shincolle.drum": "船艙擴充一頁",
