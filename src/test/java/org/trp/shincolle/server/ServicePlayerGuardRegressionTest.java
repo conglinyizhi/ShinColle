@@ -71,8 +71,8 @@ class ServicePlayerGuardRegressionTest {
                 "FormationService pointer roster toggle should track whether the roster action actually changed admiral state");
         assertTrue(source.contains("if (shouldSync && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
                 "FormationService pointer roster toggle should only sync after a real roster change");
-        assertTrue(source.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive()) {\n            action.accept(ship);\n        }"),
-                "FormationService should only hand UUID-resolved ships to callbacks when they are still owned by the player and alive");
+        assertTrue(source.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isRemoved()) {\n            action.accept(ship);\n        }"),
+                "FormationService should only hand UUID-resolved ships to callbacks when they are still owned by the player, alive, and not removed");
     }
 
     @Test
@@ -141,8 +141,8 @@ class ServicePlayerGuardRegressionTest {
                 "PointerInteractionService should reject null players before clearing owned pointer selection");
         assertTrue(source.contains("private static void openOwnedShipMenu(Player player, UUID shipUuid) {\n        if (player == null) {\n            return;\n        }"),
                 "PointerInteractionService should reject null players before opening owned ship menus");
-        assertTrue(source.contains("if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player) || !ship.isAlive()) {\n                continue;\n            }"),
-                "PointerInteractionService formation target assignment should skip UUID-resolved ships that are no longer owned by the player or alive");
+        assertTrue(source.contains("if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player) || !ship.isAlive() || ship.isRemoved()) {\n                continue;\n            }"),
+                "PointerInteractionService formation target assignment should skip UUID-resolved ships that are no longer owned by the player, alive, or still present");
         assertTrue(source.contains("if (target == null || !target.isAlive() || target.isRemoved()) {\n                    continue;\n                }"),
                 "PointerInteractionService formation target assignment should skip UUID-resolved targets that are already dead or removed");
     }

@@ -251,7 +251,7 @@ public final class FormationService {
         }
 
         Entity entity = serverLevel.getEntity(shipUuid);
-        if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive()) {
+        if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isRemoved()) {
             action.accept(ship);
         }
     }

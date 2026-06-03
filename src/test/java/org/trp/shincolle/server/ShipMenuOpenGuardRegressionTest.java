@@ -37,10 +37,10 @@ class ShipMenuOpenGuardRegressionTest {
         String deskServiceSource = Files.readString(DESK_SERVICE_SOURCE);
         String pointerServiceSource = Files.readString(POINTER_SERVICE_SOURCE);
 
-        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()) {\n            ship.openShipMenu(player);\n        }"),
-                "Desk ship-open service should keep forwarding owned ships that are alive, including out-of-fuel ships");
-        assertTrue(pointerServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()) {\n            ship.openShipMenu(player);\n        }"),
-                "Pointer ship-open service should keep forwarding owned ships that are alive, including out-of-fuel ships");
+        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()\n                && !ship.isRemoved()) {\n            ship.openShipMenu(player);\n        }"),
+                "Desk ship-open service should keep forwarding owned ships that are alive, not removed, and may still need refuel");
+        assertTrue(pointerServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()\n                && !ship.isRemoved()) {\n            ship.openShipMenu(player);\n        }"),
+                "Pointer ship-open service should keep forwarding owned ships that are alive, not removed, and may still need refuel");
     }
 
     @Test

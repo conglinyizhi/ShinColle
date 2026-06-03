@@ -273,7 +273,7 @@ public final class PointerInteractionService {
             }
 
             Entity entity = serverLevel.getEntity(shipUuid);
-            if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player) || !ship.isAlive()) {
+            if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player) || !ship.isAlive() || ship.isRemoved()) {
                 continue;
             }
 
@@ -302,7 +302,8 @@ public final class PointerInteractionService {
         Entity entity = serverLevel.getEntity(shipUuid);
         if (entity instanceof EntityShipBase ship
                 && ship.isOwnedBy(player)
-                && ship.isAlive()) {
+                && ship.isAlive()
+                && !ship.isRemoved()) {
             ship.openShipMenu(player);
         }
     }

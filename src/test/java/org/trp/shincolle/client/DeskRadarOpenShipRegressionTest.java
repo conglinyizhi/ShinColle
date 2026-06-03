@@ -59,10 +59,10 @@ class DeskRadarOpenShipRegressionTest {
                 "Network should delegate desk summon authorization to the service layer");
         assertTrue(deskServiceSource.contains("Entity entity = serverLevel.getEntity(shipUuid);"),
                 "Server should resolve the ship from the payload UUID");
-        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()) {\n            ship.openShipMenu(player);\n        }"),
-                "Server should keep opening ship menu for owned ships that are alive, including out-of-fuel ships that need refuel");
-        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isInDeadPose())"),
-                "Server should only summon live ships owned by the requesting player");
+        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()\n                && !ship.isRemoved()) {\n            ship.openShipMenu(player);\n        }"),
+                "Server should keep opening ship menu for owned ships that are alive and not removed, including out-of-fuel ships that need refuel");
+        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isRemoved() && !ship.isInDeadPose())"),
+                "Server should only summon live, non-removed ships owned by the requesting player");
         assertTrue(deskServiceSource.contains("FormationHelper.applySummonShipsToDesk(player, deskMenu.getBlockEntity().getBlockPos(), ownedShips);"),
                 "Server-side desk summon should route through the shared formation summon helper");
     }

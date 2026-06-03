@@ -74,7 +74,8 @@ public final class DeskInteractionService {
         Entity entity = serverLevel.getEntity(shipUuid);
         if (entity instanceof EntityShipBase ship
                 && ship.isOwnedBy(player)
-                && ship.isAlive()) {
+                && ship.isAlive()
+                && !ship.isRemoved()) {
             ship.openShipMenu(player);
         }
     }
@@ -97,7 +98,7 @@ public final class DeskInteractionService {
                 continue;
             }
             Entity entity = serverLevel.getEntity(shipUuid);
-            if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isInDeadPose()) {
+            if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isRemoved() && !ship.isInDeadPose()) {
                 ownedShips.add(shipUuid);
             }
         }
