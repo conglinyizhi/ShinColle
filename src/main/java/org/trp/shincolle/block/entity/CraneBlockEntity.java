@@ -1018,63 +1018,164 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     }
 
     public int getRemainedPower() { return remainedPower; }
-    public void setRemainedPower(int val) { this.remainedPower = val; markForSync(); }
+    public void setRemainedPower(int val) {
+        if (this.remainedPower == val) {
+            return;
+        }
+        this.remainedPower = val;
+        markForSync();
+    }
 
     public int getPowerMax() { return powerMax; }
 
     public boolean isActive() { return isActive; }
-    public void setActive(boolean val) { this.isActive = val; markForSync(); }
+    public void setActive(boolean val) {
+        if (this.isActive == val) {
+            return;
+        }
+        this.isActive = val;
+        markForSync();
+    }
 
     public boolean isCheckMetadata() { return checkMetadata; }
-    public void setCheckMetadata(boolean val) { this.checkMetadata = val; markForSync(); }
+    public void setCheckMetadata(boolean val) {
+        if (this.checkMetadata == val) {
+            return;
+        }
+        this.checkMetadata = val;
+        markForSync();
+    }
 
     public boolean isCheckOredict() { return checkOredict; }
-    public void setCheckOredict(boolean val) { this.checkOredict = val; markForSync(); }
+    public void setCheckOredict(boolean val) {
+        if (this.checkOredict == val) {
+            return;
+        }
+        this.checkOredict = val;
+        markForSync();
+    }
 
     public boolean isCheckNbt() { return checkNbt; }
-    public void setCheckNbt(boolean val) { this.checkNbt = val; markForSync(); }
+    public void setCheckNbt(boolean val) {
+        if (this.checkNbt == val) {
+            return;
+        }
+        this.checkNbt = val;
+        markForSync();
+    }
 
     public boolean isEnabLoad() { return enabLoad; }
-    public void setEnabLoad(boolean val) { this.enabLoad = val; markForSync(); }
+    public void setEnabLoad(boolean val) {
+        if (this.enabLoad == val) {
+            return;
+        }
+        this.enabLoad = val;
+        markForSync();
+    }
 
     public boolean isEnabUnload() { return enabUnload; }
-    public void setEnabUnload(boolean val) { this.enabUnload = val; markForSync(); }
+    public void setEnabUnload(boolean val) {
+        if (this.enabUnload == val) {
+            return;
+        }
+        this.enabUnload = val;
+        markForSync();
+    }
 
     public int getCraneMode() { return craneMode; }
-    public void setCraneMode(int val) { this.craneMode = val; markForSync(); }
+    public void setCraneMode(int val) {
+        if (this.craneMode == val) {
+            return;
+        }
+        this.craneMode = val;
+        markForSync();
+    }
 
     public int getModeItem() { return modeItem; }
-    public void setModeItem(int val) { this.modeItem = val; markForSync(); }
+    public void setModeItem(int val) {
+        if (this.modeItem == val) {
+            return;
+        }
+        this.modeItem = val;
+        markForSync();
+    }
     public void setItemMode(int id, boolean val) {
-        if (val) modeItem |= (1 << id);
-        else modeItem &= ~(1 << id);
+        int next = val ? modeItem | (1 << id) : modeItem & ~(1 << id);
+        if (this.modeItem == next) {
+            return;
+        }
+        modeItem = next;
         markForSync();
     }
     public boolean getItemMode(int id) { return (modeItem & (1 << id)) != 0; }
 
     public int getModeRedstone() { return modeRedstone; }
-    public void setModeRedstone(int val) { this.modeRedstone = val; markForSync(); }
+    public void setModeRedstone(int val) {
+        if (this.modeRedstone == val) {
+            return;
+        }
+        this.modeRedstone = val;
+        markForSync();
+    }
 
     public int getModeLiquid() { return modeLiquid; }
-    public void setModeLiquid(int val) { this.modeLiquid = val; markForSync(); }
+    public void setModeLiquid(int val) {
+        if (this.modeLiquid == val) {
+            return;
+        }
+        this.modeLiquid = val;
+        markForSync();
+    }
 
     public int getModeEnergy() { return modeEnergy; }
-    public void setModeEnergy(int val) { this.modeEnergy = val; markForSync(); }
+    public void setModeEnergy(int val) {
+        if (this.modeEnergy == val) {
+            return;
+        }
+        this.modeEnergy = val;
+        markForSync();
+    }
 
     public BlockPos getLastPos() { return lastPos; }
-    public void setLastPos(BlockPos pos) { this.lastPos = (pos == null ? BlockPos.ZERO : pos); markForSync(); }
+    public void setLastPos(BlockPos pos) {
+        BlockPos next = pos == null ? BlockPos.ZERO : pos;
+        if (this.lastPos.equals(next)) {
+            return;
+        }
+        this.lastPos = next;
+        markForSync();
+    }
 
     public BlockPos getNextPos() { return nextPos; }
-    public void setNextPos(BlockPos pos) { this.nextPos = (pos == null ? BlockPos.ZERO : pos); markForSync(); }
+    public void setNextPos(BlockPos pos) {
+        BlockPos next = pos == null ? BlockPos.ZERO : pos;
+        if (this.nextPos.equals(next)) {
+            return;
+        }
+        this.nextPos = next;
+        markForSync();
+    }
 
     public BlockPos getChestPos() { return chestPos; }
-    public void setChestPos(BlockPos pos) { this.chestPos = (pos == null ? BlockPos.ZERO : pos); this.isPaired = (this.chestPos != BlockPos.ZERO); markForSync(); }
+    public void setChestPos(BlockPos pos) {
+        BlockPos next = pos == null ? BlockPos.ZERO : pos;
+        boolean nextPaired = next != BlockPos.ZERO;
+        if (this.chestPos.equals(next) && this.isPaired == nextPaired) {
+            return;
+        }
+        this.chestPos = next;
+        this.isPaired = nextPaired;
+        markForSync();
+    }
 
     @Override
     @Nullable
     public UUID getOwnerUUID() { return ownerUUID; }
 
     public void setOwnerUUID(@Nullable UUID uuid) {
+        if (java.util.Objects.equals(this.ownerUUID, uuid)) {
+            return;
+        }
         this.ownerUUID = uuid;
         markForSync();
     }
@@ -1082,7 +1183,11 @@ public class CraneBlockEntity extends BlockEntity implements MenuProvider, IWayp
     @Override
     public String getOwnerName() { return ownerName; }
     public void setOwnerName(String name) {
-        this.ownerName = name;
+        String next = name == null ? "" : name;
+        if (this.ownerName.equals(next)) {
+            return;
+        }
+        this.ownerName = next;
         markForSync();
     }
 
