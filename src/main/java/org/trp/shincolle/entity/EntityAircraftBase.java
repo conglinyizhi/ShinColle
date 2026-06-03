@@ -612,7 +612,7 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
             return null;
         }
         Entity entity = serverLevel.getEntity(this.carrierId);
-        if (entity instanceof EntityShipBase ship) {
+        if (entity instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {
             return ship;
         }
         return null;
@@ -623,7 +623,11 @@ public abstract class EntityAircraftBase extends org.trp.shincolle.entity.base.E
         if (this.targetId == null || !(this.level() instanceof ServerLevel serverLevel)) {
             return null;
         }
-        return serverLevel.getEntity(this.targetId);
+        Entity entity = serverLevel.getEntity(this.targetId);
+        if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            return null;
+        }
+        return entity;
     }
 
     @Nullable

@@ -655,6 +655,12 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
                 "Aircraft server AI step should tick aircraft Brain AI helper");
         assertTrue(aircraft.contains("public ShipMovementCoordinator attackMovementCoordinator()"),
                 "Aircraft should expose the attack movement coordinator to Brain behaviors");
+        assertTrue(aircraft.contains("if (entity instanceof EntityShipBase ship && ship.isAlive() && !ship.isRemoved()) {"),
+                "Aircraft carrier lookup should reject dead or removed carrier entities");
+        assertTrue(aircraft.contains("Entity entity = serverLevel.getEntity(this.targetId);"),
+                "Aircraft mission-target lookup should resolve the current target entity through the server world");
+        assertTrue(aircraft.contains("if (entity == null || !entity.isAlive() || entity.isRemoved()) {\n            return null;\n        }"),
+                "Aircraft mission-target lookup should treat dead or removed entities as invalid mission targets");
         assertFalse(aircraft.contains("RETURN_MAX_DISTANCE_SQR"),
                 "Aircraft return-home should not discard solely because it is far from the carrier");
         assertFalse(aircraft.contains("this.getNavigation().moveTo(homePos.x, homePos.y, homePos.z"),
