@@ -58,6 +58,47 @@ class GrudgeResourceRegressionTest {
                 "Traditional Chinese lang should define the abyss frame block name");
         assertTrue(zhTw.contains("\"block.shincolle.grudge_xp_block\": \"昇華的怨念團塊\""),
                 "Traditional Chinese lang should define the grudge XP block name");
+
+        assertTrue(enUs.contains("\"item.shincolle.blockframe\": \"Abyss Frame\""),
+                "English lang should define the abyss frame item name");
+        assertTrue(enUs.contains("\"item.shincolle.blockvolcore\": \"Abyssal Volcano Core\""),
+                "English lang should define the volcano core item name");
+        assertTrue(enUs.contains("\"item.shincolle.grudge_xp_block\": \"Sublimated Grudge Lump\""),
+                "English lang should define the grudge XP item name");
+        assertTrue(enUs.contains("\"item.shincolle.hostile_egg\": \"Hostile Ship (Small)\""),
+                "English lang should define the hostile ship item name");
+        assertTrue(enUs.contains("\"item.shincolle.large_shipyard\": \"Hadal Hydrothermal Vortex\""),
+                "English lang should define the large shipyard item name");
+        assertTrue(jaJp.contains("\"item.shincolle.blockframe\": \"深海支柱\""),
+                "Japanese lang should define the abyss frame item name");
+        assertTrue(jaJp.contains("\"item.shincolle.blockvolcore\": \"深海火山コア\""),
+                "Japanese lang should define the volcano core item name");
+        assertTrue(jaJp.contains("\"item.shincolle.grudge_xp_block\": \"昇華シタ怨念ノ塊\""),
+                "Japanese lang should define the grudge XP item name");
+        assertTrue(jaJp.contains("\"item.shincolle.hostile_egg\": \"敵対艦娘（小型）\""),
+                "Japanese lang should define the hostile ship item name");
+        assertTrue(jaJp.contains("\"item.shincolle.large_shipyard\": \"超深海ノ熱水噴出孔\""),
+                "Japanese lang should define the large shipyard item name");
+        assertTrue(zhCn.contains("\"item.shincolle.blockframe\": \"深海框架\""),
+                "Simplified Chinese lang should define the abyss frame item name");
+        assertTrue(zhCn.contains("\"item.shincolle.blockvolcore\": \"深海火山核心\""),
+                "Simplified Chinese lang should define the volcano core item name");
+        assertTrue(zhCn.contains("\"item.shincolle.grudge_xp_block\": \"升华怨念团块\""),
+                "Simplified Chinese lang should define the grudge XP item name");
+        assertTrue(zhCn.contains("\"item.shincolle.hostile_egg\": \"敌对舰娘（小型）\""),
+                "Simplified Chinese lang should define the hostile ship item name");
+        assertTrue(zhCn.contains("\"item.shincolle.large_shipyard\": \"超深海热漩\""),
+                "Simplified Chinese lang should define the large shipyard item name");
+        assertTrue(zhTw.contains("\"item.shincolle.blockframe\": \"深海支架\""),
+                "Traditional Chinese lang should define the abyss frame item name");
+        assertTrue(zhTw.contains("\"item.shincolle.blockvolcore\": \"深海火山核心\""),
+                "Traditional Chinese lang should define the volcano core item name");
+        assertTrue(zhTw.contains("\"item.shincolle.grudge_xp_block\": \"昇華的怨念團塊\""),
+                "Traditional Chinese lang should define the grudge XP item name");
+        assertTrue(zhTw.contains("\"item.shincolle.hostile_egg\": \"敵對艦娘（小型）\""),
+                "Traditional Chinese lang should define the hostile ship item name");
+        assertTrue(zhTw.contains("\"item.shincolle.large_shipyard\": \"超深海熱漩\""),
+                "Traditional Chinese lang should define the large shipyard item name");
     }
 
     @Test
