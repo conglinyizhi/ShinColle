@@ -103,6 +103,9 @@ public class ModNetwork {
     private static void handleBookState(final C2SBookStatePayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             DeskInteractionService.updateBookState(player, payload.chapter(), payload.page());
         });
     }
@@ -110,6 +113,9 @@ public class ModNetwork {
     private static void handleDeskGui(final C2SDeskGuiPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             DeskInteractionService.updateDeskGui(player, payload.guiFunc(), payload.radarZoom());
         });
     }
@@ -117,6 +123,9 @@ public class ModNetwork {
     private static void handleWaypointAction(final C2SWaypointActionPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             BlockPos pos1 = new BlockPos(payload.x1(), payload.y1(), payload.z1());
             BlockPos pos2 = new BlockPos(payload.x2(), payload.y2(), payload.z2());
             WaypointService.handleAction(player, payload.action(), pos1, pos2);
@@ -126,6 +135,9 @@ public class ModNetwork {
     private static void handlePointerAction(final C2SPointerActionPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             var stack = PointerInteractionService.getPointerStack(player);
             PointerInteractionService.handlePayloadAction(player, stack, payload.action(), payload.targetEntity(), payload.targetPos());
         });
@@ -134,6 +146,9 @@ public class ModNetwork {
     private static void handleFormationAction(final C2SFormationActionPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             FormationService.handleFormationAction(player, payload.action(), payload.param1(), payload.param2(),
                     payload.paramString(), payload.paramUUID());
         });
@@ -142,6 +157,9 @@ public class ModNetwork {
     private static void handleDeskOpenShip(final C2SDeskOpenShipPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             DeskInteractionService.openOwnedShipFromDesk(player, payload.shipUuid());
         });
     }
@@ -149,6 +167,9 @@ public class ModNetwork {
     private static void handleDeskSummon(final C2SDeskSummonPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             DeskInteractionService.summonOwnedShipsToDesk(player, payload.shipUuids());
         });
     }
@@ -156,6 +177,9 @@ public class ModNetwork {
     private static void handleTeamDiplomacy(final C2STeamDiplomacyPayload payload, final IPayloadContext context) {
         context.enqueueWork(() -> {
             Player player = context.player();
+            if (player == null) {
+                return;
+            }
             TeamDiplomacyService.handleAction(player, payload.action(), payload.targetUuid());
         });
     }
