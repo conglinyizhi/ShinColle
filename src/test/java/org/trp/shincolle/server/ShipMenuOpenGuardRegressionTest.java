@@ -22,8 +22,8 @@ class ShipMenuOpenGuardRegressionTest {
 
         assertTrue(shipSource.contains("public void openShipMenu(Player player) {"),
                 "EntityShipBase should keep a dedicated menu-open entrypoint");
-        assertTrue(shipSource.contains("if (!(player instanceof ServerPlayer serverPlayer)\n                || !this.isAlive()\n                || this.isInDeadPose()) {\n            return;\n        }"),
-                "EntityShipBase menu-open should reject non-server players and dead ship states");
+        assertTrue(shipSource.contains("if (!(player instanceof ServerPlayer serverPlayer)\n                || !this.isAlive()) {\n            return;\n        }"),
+                "EntityShipBase menu-open should reject non-server players and actually dead ship states");
         assertTrue(shipSource.contains("if (this.level() != serverPlayer.level()) {\n            return;\n        }"),
                 "EntityShipBase menu-open should reject cross-level menu open attempts");
         assertTrue(shipSource.contains("if (!this.isOwnedBy(player)) {\n            return;\n        }"),
@@ -33,13 +33,13 @@ class ShipMenuOpenGuardRegressionTest {
     }
 
     @Test
-    void shipMenuOpenServicesShouldOnlyForwardOwnedLiveShips() throws IOException {
+    void shipMenuOpenServicesShouldForwardOwnedLiveShipsEvenWhenOutOfFuel() throws IOException {
         String deskServiceSource = Files.readString(DESK_SERVICE_SOURCE);
         String pointerServiceSource = Files.readString(POINTER_SERVICE_SOURCE);
 
-        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()\n                && !ship.isInDeadPose()) {\n            ship.openShipMenu(player);\n        }"),
-                "Desk ship-open service should only forward owned ships that are alive and not in dead pose");
-        assertTrue(pointerServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()\n                && !ship.isInDeadPose()) {\n            ship.openShipMenu(player);\n        }"),
-                "Pointer ship-open service should only forward owned ships that are alive and not in dead pose");
+        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()) {\n            ship.openShipMenu(player);\n        }"),
+                "Desk ship-open service should keep forwarding owned ships that are alive, including out-of-fuel ships");
+        assertTrue(pointerServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()) {\n            ship.openShipMenu(player);\n        }"),
+                "Pointer ship-open service should keep forwarding owned ships that are alive, including out-of-fuel ships");
     }
 }
