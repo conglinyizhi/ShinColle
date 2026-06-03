@@ -69,6 +69,8 @@ class ServicePlayerGuardRegressionTest {
                 "FormationService pointer roster toggle should track whether the roster action actually changed admiral state");
         assertTrue(source.contains("if (shouldSync && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
                 "FormationService pointer roster toggle should only sync after a real roster change");
+        assertTrue(source.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive()) {\n            action.accept(ship);\n        }"),
+                "FormationService should only hand UUID-resolved ships to callbacks when they are still owned by the player and alive");
     }
 
     @Test
