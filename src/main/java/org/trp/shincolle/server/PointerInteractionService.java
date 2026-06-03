@@ -279,6 +279,9 @@ public final class PointerInteractionService {
 
             if (action == 1 && targetEntityUuid.isPresent()) {
                 Entity target = serverLevel.getEntity(targetEntityUuid.get());
+                if (target == null || !target.isAlive() || target.isRemoved()) {
+                    continue;
+                }
                 if (canAssignPointerEntityTarget(player, ship, target)) {
                     ship.setPointerTargetEntity(target, POINTER_TARGET_DURATION_TICKS);
                 }

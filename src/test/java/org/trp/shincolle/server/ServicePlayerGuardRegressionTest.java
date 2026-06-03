@@ -143,5 +143,7 @@ class ServicePlayerGuardRegressionTest {
                 "PointerInteractionService should reject null players before opening owned ship menus");
         assertTrue(source.contains("if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player) || !ship.isAlive()) {\n                continue;\n            }"),
                 "PointerInteractionService formation target assignment should skip UUID-resolved ships that are no longer owned by the player or alive");
+        assertTrue(source.contains("if (target == null || !target.isAlive() || target.isRemoved()) {\n                    continue;\n                }"),
+                "PointerInteractionService formation target assignment should skip UUID-resolved targets that are already dead or removed");
     }
 }
