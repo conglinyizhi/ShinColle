@@ -69,6 +69,7 @@ public final class FormationService {
             return;
         }
         AdmiralData data = PlayerStateService.admiralData(player);
+        boolean handled = true;
 
         switch (action) {
             case 0 -> {
@@ -84,11 +85,10 @@ public final class FormationService {
             case 6 -> swapCurrentTeamSlots(player, data, param1, param2);
             case 7 -> importNearbySelectedShips(player, data);
             case 8 -> openCurrentTeamSlotShipMenu(player, data, param1);
-            default -> {
-            }
+            default -> handled = false;
         }
 
-        if (player instanceof ServerPlayer serverPlayer) {
+        if (handled && player instanceof ServerPlayer serverPlayer) {
             PlayerStateService.sendAdmiralState(serverPlayer);
         }
     }

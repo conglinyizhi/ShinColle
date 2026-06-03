@@ -24,6 +24,8 @@ class ServicePlayerGuardRegressionTest {
                 "WaypointService should keep a dedicated payload-facing handleAction entrypoint");
         assertTrue(source.contains("if (player == null) {\n            return;\n        }\n        if (player.level() == null) {"),
                 "WaypointService should return early when payload handling reaches it without a player");
+        assertTrue(source.contains("if (action == 0) {\n            pairWaypointToWaypoint(player, pos1, pos2);\n        } else if (action == 1) {\n            pairWaypointToContainer(player, pos1, pos2);\n        } else if (action == 2) {\n            autoPair(player, pos1, pos2);\n        }"),
+                "WaypointService should ignore unknown action ids instead of dispatching unexpected pairing logic");
     }
 
     @Test
@@ -41,6 +43,12 @@ class ServicePlayerGuardRegressionTest {
                 "FormationService syncNearbyShipsForCurrentTeam should ignore null players");
         assertTrue(source.contains("public static void handleFormationAction(Player player, int action, int param1, int param2,\n                                             String paramString, Optional<UUID> paramUuid) {\n        if (player == null) {\n            return;\n        }"),
                 "FormationService handleFormationAction should ignore null players");
+        assertTrue(source.contains("boolean handled = true;"),
+                "FormationService should track whether an incoming action id was actually recognized");
+        assertTrue(source.contains("default -> handled = false;"),
+                "FormationService should treat unknown action ids as ignored instead of syncing state");
+        assertTrue(source.contains("if (handled && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
+                "FormationService should only send admiral sync after recognized actions");
         assertTrue(source.contains("public static void handlePointerRosterToggle(Player player, UUID targetUuid) {\n        if (player == null || targetUuid == null) {\n            return;\n        }"),
                 "FormationService handlePointerRosterToggle should ignore null players before attachment access");
     }
