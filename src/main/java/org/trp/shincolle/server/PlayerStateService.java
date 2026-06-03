@@ -137,6 +137,9 @@ public final class PlayerStateService {
     }
 
     public static int getOwnedMarriedShipCount(Player player) {
+        if (player == null) {
+            return 0;
+        }
         if (player instanceof ServerPlayer serverPlayer) {
             return reconcileOwnedMarriedShipCount(serverPlayer);
         }
@@ -160,10 +163,16 @@ public final class PlayerStateService {
     }
 
     public static boolean isRingFlightActive(Player player) {
+        if (player == null) {
+            return false;
+        }
         return admiralData(player).isRingFlightActive();
     }
 
     public static void setRingFlightActive(Player player, boolean active) {
+        if (player == null) {
+            return;
+        }
         admiralData(player).setRingFlightActive(active);
     }
 
@@ -186,7 +195,7 @@ public final class PlayerStateService {
     }
 
     public static void adjustOwnedMarriedShipCount(Player player, int delta) {
-        if (delta == 0) {
+        if (player == null || delta == 0) {
             return;
         }
 
@@ -197,11 +206,14 @@ public final class PlayerStateService {
     }
 
     public static int currentTeamId(Player player) {
+        if (player == null) {
+            return 0;
+        }
         return admiralData(player).getCurrentTeamID();
     }
 
     public static boolean setCurrentTeamId(Player player, int teamId) {
-        if (teamId < 0 || teamId >= AdmiralData.TEAM_COUNT) {
+        if (player == null || teamId < 0 || teamId >= AdmiralData.TEAM_COUNT) {
             return false;
         }
 
@@ -214,7 +226,7 @@ public final class PlayerStateService {
     }
 
     public static boolean setCurrentTeamFormation(Player player, int formationId) {
-        if (formationId < 0) {
+        if (player == null || formationId < 0) {
             return false;
         }
 
@@ -227,7 +239,7 @@ public final class PlayerStateService {
     }
 
     public static boolean setCurrentTeamSlotSelected(Player player, int slotId, boolean selected) {
-        if (slotId < 0 || slotId >= AdmiralData.SLOT_COUNT) {
+        if (player == null || slotId < 0 || slotId >= AdmiralData.SLOT_COUNT) {
             return false;
         }
 
@@ -241,6 +253,9 @@ public final class PlayerStateService {
     }
 
     public static boolean setCurrentTeamName(Player player, String name) {
+        if (player == null) {
+            return false;
+        }
         AdmiralData data = admiralData(player);
         int teamId = data.getCurrentTeamID();
         String currentName = data.getTeamName(teamId);
@@ -258,7 +273,8 @@ public final class PlayerStateService {
     }
 
     public static boolean swapCurrentTeamSlots(Player player, int slot1, int slot2) {
-        if (slot1 < 0 || slot1 >= AdmiralData.SLOT_COUNT
+        if (player == null
+                || slot1 < 0 || slot1 >= AdmiralData.SLOT_COUNT
                 || slot2 < 0 || slot2 >= AdmiralData.SLOT_COUNT
                 || slot1 == slot2) {
             return false;
@@ -269,15 +285,21 @@ public final class PlayerStateService {
     }
 
     public static int assignShipToCurrentTeam(Player player, UUID shipUuid) {
+        if (player == null || shipUuid == null) {
+            return -1;
+        }
         return admiralData(player).assignShipToTeam(currentTeamId(player), shipUuid);
     }
 
     public static boolean removeShipFromTeams(Player player, UUID shipUuid) {
+        if (player == null || shipUuid == null) {
+            return false;
+        }
         return admiralData(player).removeShip(shipUuid);
     }
 
     public static SlotAssignment setCurrentTeamSlot(Player player, int slotId, UUID shipUuid) {
-        if (slotId < 0 || slotId >= AdmiralData.SLOT_COUNT || shipUuid == null) {
+        if (player == null || slotId < 0 || slotId >= AdmiralData.SLOT_COUNT || shipUuid == null) {
             return null;
         }
 

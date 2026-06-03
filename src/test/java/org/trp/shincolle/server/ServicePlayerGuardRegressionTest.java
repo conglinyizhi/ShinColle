@@ -75,6 +75,32 @@ class ServicePlayerGuardRegressionTest {
     void playerStateServiceShouldRejectNoopFormationMutations() throws IOException {
         String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.java"));
 
+        assertTrue(source.contains("if (player == null) {\n            return 0;\n        }\n        if (player instanceof ServerPlayer serverPlayer) {"),
+                "PlayerStateService should treat null players as zero married ships before server-side reconciliation");
+        assertTrue(source.contains("if (player == null) {\n            return false;\n        }\n        return admiralData(player).isRingFlightActive();"),
+                "PlayerStateService should treat null players as ring-flight inactive");
+        assertTrue(source.contains("if (player == null) {\n            return;\n        }\n        admiralData(player).setRingFlightActive(active);"),
+                "PlayerStateService should ignore null players when toggling ring flight state");
+        assertTrue(source.contains("if (player == null || delta == 0) {\n            return;\n        }"),
+                "PlayerStateService should ignore null players before adjusting married ship counters");
+        assertTrue(source.contains("if (player == null) {\n            return 0;\n        }\n        return admiralData(player).getCurrentTeamID();"),
+                "PlayerStateService should treat null players as team zero when callers ask for the current team id");
+        assertTrue(source.contains("if (player == null || teamId < 0 || teamId >= AdmiralData.TEAM_COUNT) {\n            return false;\n        }"),
+                "PlayerStateService should reject null players before changing current team");
+        assertTrue(source.contains("if (player == null || formationId < 0) {\n            return false;\n        }"),
+                "PlayerStateService should reject null players before changing formation ids");
+        assertTrue(source.contains("if (player == null || slotId < 0 || slotId >= AdmiralData.SLOT_COUNT) {\n            return false;\n        }"),
+                "PlayerStateService should reject null players before mutating slot selection");
+        assertTrue(source.contains("if (player == null) {\n            return false;\n        }\n        AdmiralData data = admiralData(player);"),
+                "PlayerStateService should reject null players before mutating team names");
+        assertTrue(source.contains("if (player == null\n                || slot1 < 0 || slot1 >= AdmiralData.SLOT_COUNT"),
+                "PlayerStateService should reject null players before swapping team slots");
+        assertTrue(source.contains("if (player == null || shipUuid == null) {\n            return -1;\n        }"),
+                "PlayerStateService should reject null players before assigning ships to the current team");
+        assertTrue(source.contains("if (player == null || shipUuid == null) {\n            return false;\n        }\n        return admiralData(player).removeShip(shipUuid);"),
+                "PlayerStateService should reject null players before removing ships from teams");
+        assertTrue(source.contains("if (player == null || slotId < 0 || slotId >= AdmiralData.SLOT_COUNT || shipUuid == null) {\n            return null;\n        }"),
+                "PlayerStateService should reject null players before replacing team slots");
         assertTrue(source.contains("if (data.getCurrentTeamID() == teamId) {\n            return false;\n        }"),
                 "PlayerStateService should reject no-op current team switches");
         assertTrue(source.contains("if (data.getFormationID(data.getCurrentTeamID()) == formationId) {\n            return false;\n        }"),
