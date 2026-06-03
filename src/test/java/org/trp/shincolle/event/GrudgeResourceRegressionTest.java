@@ -59,4 +59,20 @@ class GrudgeResourceRegressionTest {
         assertTrue(zhTw.contains("\"block.shincolle.grudge_xp_block\": \"昇華的怨念團塊\""),
                 "Traditional Chinese lang should define the grudge XP block name");
     }
+
+    @Test
+    void traditionalChineseShouldKeepPrimaryBlockDisplayNames() throws IOException {
+        String zhTw = Files.readString(ZH_TW_LANG);
+
+        assertTrue(zhTw.contains("\"block.shincolle.blockcrane\": \"深海起重機\""),
+                "Traditional Chinese lang should define the abyss crane block name");
+        assertTrue(zhTw.contains("\"block.shincolle.blockdesk\": \"深海提督的辦公桌\""),
+                "Traditional Chinese lang should define the abyss desk block name");
+        assertTrue(zhTw.contains("\"block.shincolle.blockvolcore\": \"深海火山核心\""),
+                "Traditional Chinese lang should define the volcano core block name");
+        assertTrue(zhTw.contains("\"block.shincolle.small_shipyard\": \"深海熱泉\""),
+                "Traditional Chinese lang should define the small shipyard block name");
+        assertTrue(zhTw.contains("\"block.shincolle.large_shipyard\": \"超深海熱漩\""),
+                "Traditional Chinese lang should define the large shipyard block name");
+    }
 }
