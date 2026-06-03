@@ -47,6 +47,7 @@ class ShipEquipOptionLocalizationRegressionTest {
             "gui.shincolle.equip.pose2",
             "gui.shincolle.equip.rensouhou_type",
             "gui.shincolle.equip.shoulder_searchlight",
+            "gui.shincolle.equip.skirt",
             "gui.shincolle.equip.staff"
     );
 
