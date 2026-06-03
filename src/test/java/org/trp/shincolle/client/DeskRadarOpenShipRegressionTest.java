@@ -59,8 +59,8 @@ class DeskRadarOpenShipRegressionTest {
                 "Network should delegate desk summon authorization to the service layer");
         assertTrue(deskServiceSource.contains("Entity entity = serverLevel.getEntity(shipUuid);"),
                 "Server should resolve the ship from the payload UUID");
-        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player)) {\n            ship.openShipMenu(player);\n        }"),
-                "Server should only open ship menu for ships owned by the requesting player");
+        assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship\n                && ship.isOwnedBy(player)\n                && ship.isAlive()\n                && !ship.isInDeadPose()) {\n            ship.openShipMenu(player);\n        }"),
+                "Server should only open ship menu for ships owned by the requesting player and still in a valid live state");
         assertTrue(deskServiceSource.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isInDeadPose())"),
                 "Server should only summon live ships owned by the requesting player");
         assertTrue(deskServiceSource.contains("FormationHelper.applySummonShipsToDesk(player, deskMenu.getBlockEntity().getBlockPos(), ownedShips);"),

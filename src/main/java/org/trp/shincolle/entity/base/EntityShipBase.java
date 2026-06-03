@@ -3544,7 +3544,18 @@ public abstract class EntityShipBase extends TamableAnimal {
     }
 
     public void openShipMenu(Player player) {
-        if (player instanceof ServerPlayer serverPlayer) {
+        if (!(player instanceof ServerPlayer serverPlayer)
+                || !this.isAlive()
+                || this.isInDeadPose()) {
+            return;
+        }
+        if (this.level() != serverPlayer.level()) {
+            return;
+        }
+        if (!this.isOwnedBy(player)) {
+            return;
+        }
+        {
             MenuProvider provider = new SimpleMenuProvider(
                     (id, inv, ply) -> new ShipContainerMenu(id, inv, this),
                     Component.translatable("gui.shincolle.ship")
