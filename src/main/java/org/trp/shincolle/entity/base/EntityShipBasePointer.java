@@ -200,11 +200,15 @@ class EntityShipBasePointer {
             return null;
         }
         if (this.ship.level() instanceof ServerLevel serverLevel) {
-            return serverLevel.getEntity(this.pointerTargetEntityId);
+            Entity entity = serverLevel.getEntity(this.pointerTargetEntityId);
+            if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+                return null;
+            }
+            return entity;
         }
         if (this.ship.level().isClientSide && this.ship.level() instanceof net.minecraft.client.multiplayer.ClientLevel clientLevel) {
             for (Entity e : clientLevel.entitiesForRendering()) {
-                if (e.getUUID().equals(this.pointerTargetEntityId)) {
+                if (e.getUUID().equals(this.pointerTargetEntityId) && e.isAlive() && !e.isRemoved()) {
                     return e;
                 }
             }

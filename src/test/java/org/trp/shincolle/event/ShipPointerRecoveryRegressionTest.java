@@ -97,5 +97,11 @@ class ShipPointerRecoveryRegressionTest {
                 "Pointer entity commands should pass through the pointer runtime API");
         assertTrue(source.contains("this.pointerTarget = null;\n        this.pointerTargetUntil = 0L;\n        this.pointerTargetEntityId = target.getUUID();"),
                 "Pointer entity commands should always clear any active point command before assigning the entity");
+        assertTrue(source.contains("Entity entity = serverLevel.getEntity(this.pointerTargetEntityId);"),
+                "Pointer entity lookup should resolve the current target entity through the server world");
+        assertTrue(source.contains("if (entity == null || !entity.isAlive() || entity.isRemoved()) {\n                return null;\n            }"),
+                "Pointer entity lookup should treat dead or removed entities as invalid command targets");
+        assertTrue(source.contains("if (e.getUUID().equals(this.pointerTargetEntityId) && e.isAlive() && !e.isRemoved()) {"),
+                "Client-side pointer entity lookup should ignore dead or removed rendered entities");
     }
 }
