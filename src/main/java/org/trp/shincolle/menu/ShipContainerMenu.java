@@ -511,6 +511,9 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     public ShipContainerMenu(int containerId, Inventory playerInv, EntityShipBase ship) {
         super(ModMenus.SHIP_MENU.get(), containerId);
+        if (ship == null || !ship.isAlive() || ship.isInDeadPose()) {
+            throw new IllegalStateException("Ship entity is not available for menu access.");
+        }
         this.ship = ship;
 
         if (!ship.level().isClientSide) {
@@ -884,7 +887,7 @@ public class ShipContainerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return ship.isAlive() && player.distanceToSqr(ship) < 64.0D;
+        return ship.isAlive() && !ship.isInDeadPose() && player.distanceToSqr(ship) < 64.0D;
     }
 
     @Override
@@ -1410,7 +1413,9 @@ public class ShipContainerMenu extends AbstractContainerMenu {
         }
 
         int entityId = buf.readInt();
-        if (playerInv.player.level().getEntity(entityId) instanceof EntityShipBase ship) {
+        if (playerInv.player.level().getEntity(entityId) instanceof EntityShipBase ship
+                && ship.isAlive()
+                && !ship.isInDeadPose()) {
             return ship;
         }
 
