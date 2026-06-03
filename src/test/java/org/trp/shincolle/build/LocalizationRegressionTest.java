@@ -18,6 +18,11 @@ class LocalizationRegressionTest {
     private static final Path JA_JP_LANG = Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json");
 
     private static final List<String> REQUIRED_KEYS = List.of(
+            "chat.shincolle.entity_fainted",
+            "chat.shincolle.formation.teamfull",
+            "chat.shincolle.pointer.settargetclass",
+            "chat.shincolle.target.add",
+            "chat.shincolle.target.remove",
             "config.jade.plugin_shincolle.ship",
             "config.jade.plugin_shincolle.shipyard",
             "gui.shincolle.creative_infinite",
