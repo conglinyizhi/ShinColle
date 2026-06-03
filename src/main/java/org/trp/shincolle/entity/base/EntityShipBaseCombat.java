@@ -23,6 +23,7 @@ import net.minecraft.world.entity.TamableAnimal;
 import org.trp.shincolle.Config;
 import java.util.UUID;
 import org.trp.shincolle.entity.EntityAircraftBase;
+import org.trp.shincolle.entity.base.EntityMountBase;
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.init.ModSounds;
@@ -217,6 +218,9 @@ class EntityShipBaseCombat {
         if (target == null || !target.isAlive()) {
             return;
         }
+        if (isSameOwner(target)) {
+            return;
+        }
         if (!consumeLightAmmo(1)) {
             return;
         }
@@ -224,9 +228,6 @@ class EntityShipBaseCombat {
         float damage = this.ship.getLegacyShipStats().getFirepower();
         if (damage <= 0.0F) {
             damage = 2.0F;
-        }
-        if (isSameOwner(target)) {
-            return;
         }
         target.hurt(this.ship.damageSources().mobAttack(this.ship), damage);
         this.ship.spawnLightAttackTargetParticles(serverLevel, target);
@@ -246,6 +247,9 @@ class EntityShipBaseCombat {
             return false;
         }
         if (target == null || !target.isAlive()) {
+            return false;
+        }
+        if (isSameOwner(target)) {
             return false;
         }
         if (Config.enableFiringLineCheck && !hasClearFiringLine(target)) {
@@ -593,8 +597,24 @@ class EntityShipBaseCombat {
         UUID shipOwnerId = this.ship.getOwnerUUID();
         if (shipOwnerId == null) return false;
 
+        if (target instanceof net.minecraft.world.entity.player.Player player) {
+            return shipOwnerId.equals(player.getUUID());
+        }
+        if (target instanceof EntityShipBase shipTarget) {
+            return shipOwnerId.equals(shipTarget.getOwnerUUID());
+        }
         if (target instanceof TamableAnimal t) {
             return shipOwnerId.equals(t.getOwnerUUID());
+        }
+        if (target instanceof EntityMountBase mount) {
+            EntityShipBase host = mount.getHost();
+            if (host != null) {
+                return shipOwnerId.equals(host.getOwnerUUID());
+            }
+            return shipOwnerId.equals(mount.getHostUUID());
+        }
+        if (target instanceof EntityAircraftBase aircraft) {
+            return shipOwnerId.equals(aircraft.getOwnerUUID());
         }
         return false;
     }
