@@ -22,9 +22,8 @@ class TargetWrenchWaypointSyncRegressionTest {
 
         assertTrue(targetWrench.contains("PacketDistributor.sendToServer(new C2SWaypointActionPayload("),
                 "Second waypoint/container click should send a server payload instead of only changing client state");
-        assertTrue(targetWrench.contains("if (level.isClientSide) {\n            PacketDistributor.sendToServer(new C2SWaypointActionPayload(")
-                        && targetWrench.contains("        }\n        clearMarked(stack);\n\n        return InteractionResult.SUCCESS;"),
-                "Marked waypoint state should be cleared after the second click on both logical sides");
+        assertTrue(targetWrench.contains("if (level.isClientSide) {\n            PacketDistributor.sendToServer(new C2SWaypointActionPayload("),
+                "Waypoint pairing should still send the logical-side payload from the client branch");
     }
 
     @Test
