@@ -15,7 +15,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import org.trp.shincolle.menu.FormationMenu;
 import org.trp.shincolle.network.C2SPointerActionPayload;
-import org.trp.shincolle.server.PlayerStateService;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
@@ -89,65 +88,21 @@ public class PointerItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        int mode = getMode(stack);
-        
-        net.minecraft.client.Minecraft mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.player == null) return;
-        
-        org.trp.shincolle.attachment.AdmiralData data = PlayerStateService.admiralData(mc.player);
-        int teamId = data.getCurrentTeamID();
-        int fid = data.getFormationID(teamId);
-        
-        Component modeComp = Component.translatable(getModeTranslationKey(mode)).withStyle(getModeStyle(mode));
-        if (mode == MODE_FORMATION) {
-            Component formationComp = Component.translatable("gui.shincolle.formation.format" + fid).withStyle(ChatFormatting.GOLD);
-            tooltipComponents.add(modeComp.copy().append(" : ").append(formationComp));
-        } else {
-            tooltipComponents.add(modeComp);
+        if (context.level() == null || !context.level().isClientSide()) {
+            return;
         }
-        
-        tooltipComponents.add(Component.translatable("gui.shincolle.pointer3").withStyle(ChatFormatting.GRAY));
-        
-        tooltipComponents.add(Component.translatable("gui.shincolle.pointer4")
-                .append(" " + (teamId + 1))
-                .withStyle(ChatFormatting.YELLOW, ChatFormatting.UNDERLINE));
-        
-        int displayedCount = 1;
-        for (int i = 0; i < org.trp.shincolle.attachment.AdmiralData.SLOT_COUNT; i++) {
-            java.util.UUID uuid = data.getShipUUID(teamId, i);
-            if (uuid != null) {
-                String name = null;
-                int level = 0;
-                if (mc.level != null) {
-                    for (net.minecraft.world.entity.Entity e : mc.level.entitiesForRendering()) {
-                        if (e.getUUID().equals(uuid) && e instanceof org.trp.shincolle.entity.base.EntityShipBase ship) {
-                            name = ship.hasCustomName() ? ship.getCustomName().getString() : ship.getDisplayName().getString();
-                            level = ship.getLevel();
-                            break;
-                        }
-                    }
-                }
-                
-                if (name != null) {
-                    ChatFormatting color = data.isSelected(teamId, i) ? ChatFormatting.WHITE : ChatFormatting.GRAY;
-                    tooltipComponents.add(Component.literal(displayedCount + ": " + name + " - Lv " + level).withStyle(color));
-                } else {
-                    tooltipComponents.add(Component.translatable("gui.shincolle.formation.nosignal")
-                            .withStyle(ChatFormatting.DARK_RED)
-                            .append(Component.literal(" |||")
-                                    .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.OBFUSCATED)));
-                }
-                displayedCount++;
-            }
-        }
+        appendClientHoverText(stack, tooltipComponents);
     }
 
-    private ChatFormatting getModeStyle(int mode) {
-        return switch (mode) {
-            case MODE_GROUP -> ChatFormatting.RED;
-            case MODE_FORMATION -> ChatFormatting.GOLD;
-            default -> ChatFormatting.AQUA;
-        };
+    @SuppressWarnings("unchecked")
+    private void appendClientHoverText(ItemStack stack, List<Component> tooltipComponents) {
+        try {
+            Class<?> helperClass = Class.forName("org.trp.shincolle.client.PointerItemClientHelper");
+            helperClass.getMethod("appendHoverText", PointerItem.class, ItemStack.class, List.class)
+                    .invoke(null, this, stack, tooltipComponents);
+        } catch (ReflectiveOperationException ignored) {
+            // Client helper is optional on server-only test/runtime paths.
+        }
     }
 
     @Override
