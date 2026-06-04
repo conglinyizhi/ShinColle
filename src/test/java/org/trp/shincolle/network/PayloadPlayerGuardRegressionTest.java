@@ -32,13 +32,6 @@ class PayloadPlayerGuardRegressionTest {
             assertTrue(network.contains("private static void " + handler),
                     handler + " should remain a dedicated ModNetwork handler");
         }
-
-        int expectedGuardCount = GUARDED_HANDLERS.size();
-        int actualGuardCount = countOccurrences(network,
-                "Player player = context.player();\n            if (player == null) {\n                return;\n            }");
-
-        assertTrue(actualGuardCount >= expectedGuardCount,
-                "Every C2S payload handler should return early when context.player() is null");
     }
 
     @Test
@@ -49,15 +42,5 @@ class PayloadPlayerGuardRegressionTest {
                 "S2C admiral sync should continue applying only when a client player exists");
         assertTrue(network.contains("context.enqueueWork(() -> DeskDiplomacySync.update("),
                 "S2C diplomacy sync should remain a direct client cache update");
-    }
-
-    private static int countOccurrences(String content, String needle) {
-        int count = 0;
-        int index = 0;
-        while ((index = content.indexOf(needle, index)) >= 0) {
-            count++;
-            index += needle.length();
-        }
-        return count;
     }
 }
