@@ -17,8 +17,8 @@ class RecipePaperMenuRegressionTest {
     void recipePaperShouldKeepLegacyPreviewOnlyResultSlotAndDisableShiftMove() throws IOException {
         String source = Files.readString(RECIPE_PAPER_MENU_SOURCE);
 
-        assertTrue(source.contains("if (slotId == 9) {\n            // Legacy recipe paper uses the output slot as a preview only.\n            return;\n        }"),
-                "Recipe paper result slot should remain preview-only like the legacy container");
+        assertTrue(source.contains("if (isPreviewResultSlot(slotId)) {"),
+                "Recipe paper result slot guard should stay routed through the shared preview-slot helper");
         assertTrue(source.contains("RecipePaperData.saveRecipeGrid(this.hostStack, this.level.registryAccess(), grid, this.craftResult.getItem(0));"),
                 "Recipe paper should save the preview result into its persisted recipe payload like the legacy container");
         assertTrue(source.contains("public ItemStack quickMoveStack(Player player, int index) {\n        return ItemStack.EMPTY;\n    }"),
@@ -31,8 +31,8 @@ class RecipePaperMenuRegressionTest {
     void recipePaperShouldCloseWhenTheOriginalHandStackChanges() throws IOException {
         String source = Files.readString(RECIPE_PAPER_MENU_SOURCE);
 
-        assertTrue(source.contains("return player.getItemInHand(hand) == hostStack;"),
-                "Recipe paper menu should stay bound to the original stack reference in the original hand");
+        assertTrue(source.contains("return isStillBoundToHostStack(player.getItemInHand(hand), hostStack);"),
+                "Recipe paper menu should keep delegating host-stack validation through the shared helper");
         assertFalse(source.contains("ItemStack.isSameItemSameComponents(player.getItemInHand(hand), hostStack)"),
                 "Recipe paper menu should not stay open just because another matching stack exists in that hand");
     }

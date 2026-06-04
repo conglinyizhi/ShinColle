@@ -123,11 +123,15 @@ public class RecipePaperMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return player.getItemInHand(hand) == hostStack;
+        return isStillBoundToHostStack(player.getItemInHand(hand), hostStack);
     }
 
     @Override
     public void clicked(int slotId, int button, ClickType clickType, Player player) {
+        if (isPreviewResultSlot(slotId)) {
+            // Legacy recipe paper uses the output slot as a preview only.
+            return;
+        }
         if (slotId >= 0 && slotId < 9) {
             Slot slot = slots.get(slotId);
             ItemStack cursorStack = getCarried();
@@ -146,15 +150,19 @@ public class RecipePaperMenu extends AbstractContainerMenu {
             saveRecipeIfServer();
             return;
         }
-        if (slotId == 9) {
-            // Legacy recipe paper uses the output slot as a preview only.
-            return;
-        }
         super.clicked(slotId, button, clickType, player);
     }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         return ItemStack.EMPTY;
+    }
+
+    static boolean isStillBoundToHostStack(ItemStack currentHandStack, ItemStack hostStack) {
+        return currentHandStack == hostStack;
+    }
+
+    static boolean isPreviewResultSlot(int slotId) {
+        return slotId == 9;
     }
 }
