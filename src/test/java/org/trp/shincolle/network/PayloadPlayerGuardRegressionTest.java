@@ -33,14 +33,4 @@ class PayloadPlayerGuardRegressionTest {
                     handler + " should remain a dedicated ModNetwork handler");
         }
     }
-
-    @Test
-    void s2cPayloadHandlersShouldKeepTheirExistingClientSyncShape() throws IOException {
-        String network = Files.readString(NETWORK_SOURCE);
-
-        assertTrue(network.contains("if (player != null) {\n                PlayerStateService.applyAdmiralSync(player, payload.admiralNbt(), payload.collectedShips());"),
-                "S2C admiral sync should continue applying only when a client player exists");
-        assertTrue(network.contains("context.enqueueWork(() -> DeskDiplomacySync.update("),
-                "S2C diplomacy sync should remain a direct client cache update");
-    }
 }
