@@ -85,5 +85,9 @@ run-mod-integration/
 logs/
 todo.md
 
+config/fml.toml
+config/neoforge-common.toml
+config/shincolle-common.toml
+
 .sisyphus/
 .sisyphus/run-continuation/
