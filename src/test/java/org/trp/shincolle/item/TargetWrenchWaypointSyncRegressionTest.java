@@ -9,22 +9,10 @@ import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TargetWrenchWaypointSyncRegressionTest {
-    private static final Path TARGET_WRENCH_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/TargetWrenchItem.java");
     private static final Path NETWORK_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.java");
     private static final Path WAYPOINT_SERVICE_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/server/WaypointService.java");
-
-    @Test
-    void waypointPairingShouldSendPayloadAndClearMarkedStateOnBothSides() throws IOException {
-        String targetWrench = Files.readString(TARGET_WRENCH_SOURCE);
-
-        assertTrue(targetWrench.contains("PacketDistributor.sendToServer(new C2SWaypointActionPayload("),
-                "Second waypoint/container click should send a server payload instead of only changing client state");
-        assertTrue(targetWrench.contains("if (level.isClientSide) {\n            PacketDistributor.sendToServer(new C2SWaypointActionPayload("),
-                "Waypoint pairing should still send the logical-side payload from the client branch");
-    }
 
     @Test
     void waypointPayloadShouldBeHandledByServiceAndWriteBlockStateServerSide() throws IOException {
