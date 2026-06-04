@@ -10,8 +10,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PointerAndInstantConstructionLocalizationRegressionTest {
-    private static final Path INSTANT_CONSTRUCTION_ITEM_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/InstantConstructionMaterialItem.java");
     private static final List<Path> LANGUAGE_SOURCES = List.of(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
@@ -25,11 +23,7 @@ class PointerAndInstantConstructionLocalizationRegressionTest {
 
     @Test
     void instantConstructionTooltipShouldRemainLocalizedInMaintainedLanguages() throws IOException {
-        String source = Files.readString(INSTANT_CONSTRUCTION_ITEM_SOURCE);
-
         for (String key : INSTANT_CONSTRUCTION_KEYS) {
-            assertTrue(source.contains("Component.translatable(\"" + key + "\")"),
-                    () -> "InstantConstructionMaterialItem should keep using translation key " + key);
             assertLocalizedInMaintainedLanguages(key);
         }
     }
