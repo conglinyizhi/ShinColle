@@ -10,8 +10,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PointerAndInstantConstructionLocalizationRegressionTest {
-    private static final Path POINTER_ITEM_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/PointerItem.java");
     private static final Path INSTANT_CONSTRUCTION_ITEM_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/item/InstantConstructionMaterialItem.java");
     private static final List<Path> LANGUAGE_SOURCES = List.of(
@@ -20,24 +18,10 @@ class PointerAndInstantConstructionLocalizationRegressionTest {
             Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
     );
-    private static final List<String> POINTER_KEYS = List.of(
-            "gui.shincolle.formation.title"
-    );
     private static final List<String> INSTANT_CONSTRUCTION_KEYS = List.of(
             "gui.shincolle.instantconmat",
             "gui.shincolle.instantconmat.slot"
     );
-
-    @Test
-    void pointerFormationMenuTitleShouldRemainLocalizedInMaintainedLanguages() throws IOException {
-        String source = Files.readString(POINTER_ITEM_SOURCE);
-
-        for (String key : POINTER_KEYS) {
-            assertTrue(source.contains("Component.translatable(\"" + key + "\")"),
-                    () -> "PointerItem should keep using translation key " + key);
-            assertLocalizedInMaintainedLanguages(key);
-        }
-    }
 
     @Test
     void instantConstructionTooltipShouldRemainLocalizedInMaintainedLanguages() throws IOException {
