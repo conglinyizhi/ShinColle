@@ -1,6 +1,9 @@
 package org.trp.shincolle.build;
 
 import org.junit.jupiter.api.Test;
+import org.trp.shincolle.init.ModItems;
+import org.trp.shincolle.item.CombatRationItem;
+import org.trp.shincolle.item.ShipTankItem;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -28,10 +31,6 @@ class VariantItemNameLocalizationRegressionTest {
     );
     private static final Path MOD_ITEMS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
-    private static final Path COMBAT_RATION_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/CombatRationItem.java");
-    private static final Path SHIP_TANK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/ShipTankItem.java");
 
     private static final Pattern INT_ARRAY_PATTERN_TEMPLATE = Pattern.compile(
             "private static final int\\[] %s = new int\\[]\\{([^}]*)};");
@@ -84,9 +83,9 @@ class VariantItemNameLocalizationRegressionTest {
         }
 
         expectations.add(new VariantNameExpectation("CombatRation",
-                readIntArrayLength(Files.readString(COMBAT_RATION_SOURCE), "FOOD_VALUE")));
+                ((CombatRationItem) ModItems.COMBAT_RATION.get()).getVariantCount()));
         expectations.add(new VariantNameExpectation("ShipTank",
-                readIntArrayLength(Files.readString(SHIP_TANK_SOURCE), "CAPACITY_BY_VARIANT")));
+                ((ShipTankItem) ModItems.SHIP_TANK.get()).getVariantCount()));
         expectations.add(new VariantNameExpectation("Grudge", 2));
         expectations.add(new VariantNameExpectation("AbyssNugget", 2));
 
