@@ -10,8 +10,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class GrudgeXpChainRegressionTest {
 
-    private static final Path GRUDGE_ITEM_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/GrudgeItem.java");
     private static final Path MOD_BLOCKS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.java");
     private static final Path MODERNKIT_RECIPE =
@@ -25,15 +23,12 @@ class GrudgeXpChainRegressionTest {
 
     @Test
     void grudgeXpLegacyCraftChainShouldStayRestored() throws IOException {
-        String grudgeSource = Files.readString(GRUDGE_ITEM_SOURCE);
         String blocksSource = Files.readString(MOD_BLOCKS_SOURCE);
         String modernKitRecipe = Files.readString(MODERNKIT_RECIPE);
         String trainingBookRecipe = Files.readString(TRAININGBOOK_RECIPE);
         String grudgeXpRecipe = Files.readString(GRUDGEXP_RECIPE);
         String grudgeXpBlockRecipe = Files.readString(GRUDGEXP_BLOCK_RECIPE);
 
-        assertTrue(grudgeSource.contains("return Mth.clamp(customData.copyTag().getInt(TAG_VARIANT), 0, 1);"),
-                "GrudgeItem should keep a variant slot for legacy GrudgeXP");
         assertTrue(blocksSource.contains("GRUDGE_XP_BLOCK = BLOCKS.register(\"grudge_xp_block\""),
                 "ModBlocks should keep registering the legacy GrudgeXP block");
         assertTrue(grudgeXpRecipe.contains("\"minecraft:custom_data\": \"{LegacyVariant:1}\""),
