@@ -22,5 +22,7 @@ class RecipePaperTooltipRegressionTest {
                 "RecipePaperItem should prefer the stored slot-9 result like the legacy tooltip");
         assertTrue(itemSource.contains("if (result.isEmpty() && context.level() != null) {"),
                 "RecipePaperItem should only fall back to live recipe recomputation when no stored result exists");
+        assertTrue(itemSource.contains("appendRecipePreviewTooltip(tooltipComponents, inputList, result);"),
+                "RecipePaperItem should keep routing final tooltip assembly through the shared helper");
     }
 }

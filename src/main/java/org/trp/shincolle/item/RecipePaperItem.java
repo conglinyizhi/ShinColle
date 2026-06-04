@@ -37,11 +37,7 @@ public class RecipePaperItem extends Item {
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         ItemStack[] recipeGrid = RecipePaperData.loadRecipeGrid(stack, context.registries());
-        List<ItemStack> inputList = new java.util.ArrayList<>(9);
-        for (int i = 0; i < 9; i++) {
-            ItemStack ingredient = recipeGrid[i];
-            inputList.add(ingredient);
-        }
+        List<ItemStack> inputList = recipeGridAsList(recipeGrid);
 
         if (!RecipePaperData.hasAnyRecipeIngredient(recipeGrid)) {
             return;
@@ -51,6 +47,18 @@ public class RecipePaperItem extends Item {
         if (result.isEmpty() && context.level() != null) {
             result = RecipePaperData.getRecipePreviewResult(context.level(), inputList);
         }
+        appendRecipePreviewTooltip(tooltipComponents, inputList, result);
+    }
+
+    static List<ItemStack> recipeGridAsList(ItemStack[] recipeGrid) {
+        List<ItemStack> inputList = new java.util.ArrayList<>(9);
+        for (int i = 0; i < 9; i++) {
+            inputList.add(recipeGrid[i]);
+        }
+        return inputList;
+    }
+
+    static void appendRecipePreviewTooltip(List<Component> tooltipComponents, List<ItemStack> inputList, ItemStack result) {
         if (!result.isEmpty()) {
             tooltipComponents.add(Component.translatable("gui.shincolle.recipepaper.result")
                     .withStyle(ChatFormatting.YELLOW)
