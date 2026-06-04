@@ -16,6 +16,9 @@ import org.trp.shincolle.entity.base.EntityShipBase;
 import java.util.List;
 
 public class ModernKitItem extends Item {
+    record MaxedFeedback(Component message, boolean actionBar) {
+    }
+
     public ModernKitItem(Properties properties) {
         super(properties.stacksTo(1));
     }
@@ -47,9 +50,8 @@ public class ModernKitItem extends Item {
         if (!ship.interactModernKit(player, stack)) {
             Shincolle.debugLog("ModernKit noEffect ship={} bonusesMaxed=true", ship.getUUID());
             if (Config.modernKitNotifyWhenMaxed) {
-                player.displayClientMessage(
-                        Component.translatable("chat.shincolle.modernkit.maxed"),
-                        Config.modernKitNotifyWhenMaxedActionBar);
+                MaxedFeedback feedback = maxedFeedback();
+                player.displayClientMessage(feedback.message(), feedback.actionBar());
             }
             return InteractionResult.FAIL;
         }
@@ -74,5 +76,11 @@ public class ModernKitItem extends Item {
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         tooltipComponents.add(Component.translatable("gui.shincolle.modernkit").withStyle(ChatFormatting.GOLD));
+    }
+
+    static MaxedFeedback maxedFeedback() {
+        return new MaxedFeedback(
+                Component.translatable("chat.shincolle.modernkit.maxed"),
+                Config.modernKitNotifyWhenMaxedActionBar);
     }
 }

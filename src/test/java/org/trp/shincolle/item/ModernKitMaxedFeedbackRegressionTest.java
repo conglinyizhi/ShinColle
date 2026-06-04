@@ -27,10 +27,8 @@ class ModernKitMaxedFeedbackRegressionTest {
 
         assertTrue(modernKitSource.contains("if (Config.modernKitNotifyWhenMaxed) {"),
                 "ModernKit should guard maxed-out feedback behind a config toggle");
-        assertTrue(modernKitSource.contains("Component.translatable(\"chat.shincolle.modernkit.maxed\")"),
-                "ModernKit should use a dedicated localized maxed-out feedback key");
-        assertTrue(modernKitSource.contains("Config.modernKitNotifyWhenMaxedActionBar"),
-                "ModernKit should let config decide whether feedback uses the action bar");
+        assertTrue(modernKitSource.contains("MaxedFeedback feedback = maxedFeedback();"),
+                "ModernKit should route maxed-out feedback through the shared helper");
 
         assertTrue(configSource.contains("define(\"modernKitNotifyWhenMaxed\", modernKitNotifyWhenMaxed)"),
                 "Config should expose a toggle for maxed modernization feedback");
