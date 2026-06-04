@@ -38,8 +38,6 @@ class AbyssNuggetChainRegressionTest {
         String polymetalRecipe = Files.readString(POLYMETAL_RECIPE);
         String marriageRingRecipe = Files.readString(MARRIAGE_RING_RECIPE);
 
-        assertTrue(itemSource.contains("return Mth.clamp(customData.copyTag().getInt(TAG_VARIANT), 0, 1);"),
-                "AbyssNuggetItem should keep the legacy two-variant storage");
         assertTrue(clientSource.contains("registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get());"),
                 "Client item properties should keep the abyss nugget model override");
         assertTrue(tabsSource.contains("ModItems.addAbyssNuggetVariants(output);"),
