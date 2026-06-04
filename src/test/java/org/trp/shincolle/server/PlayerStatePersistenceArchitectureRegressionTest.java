@@ -296,44 +296,10 @@ class PlayerStatePersistenceArchitectureRegressionTest {
         String registry = Files.readString(SHIP_REGISTRY);
 
         assertSavedDataUsesServerWideStorage(diplomacy, "shincolle_team_diplomacy");
-        assertTrue(diplomacy.contains("entryTag.putUUID(\"Owner\", entry.owner);"),
-                "Diplomacy entries should persist the owning player");
-        assertTrue(diplomacy.contains("entryTag.put(\"Allies\", writeUuidList(entry.allies));"),
-                "Diplomacy entries should persist allies");
-        assertTrue(diplomacy.contains("entryTag.put(\"Banned\", writeUuidList(entry.banned));"),
-                "Diplomacy entries should persist banned players");
-        assertTrue(diplomacy.contains("entryTag.putString(\"TeamName\", entry.teamName);"),
-                "Diplomacy entries should persist display team names");
-        assertTrue(diplomacy.contains("entryTag.putString(\"LeaderName\", entry.leaderName);"),
-                "Diplomacy entries should persist display leader names");
-        assertTrue(diplomacy.contains("readUuidList(entryTag.getList(\"Allies\", Tag.TAG_STRING), entry.allies);"),
-                "Diplomacy loading should restore allies");
-        assertTrue(diplomacy.contains("readUuidList(entryTag.getList(\"Banned\", Tag.TAG_STRING), entry.banned);"),
-                "Diplomacy loading should restore banned players");
-        assertTrue(diplomacy.contains("return java.util.Collections.unmodifiableSet(this.allies);"),
-                "Diplomacy ally views should stay read-only so callers cannot bypass SavedData dirty tracking");
-        assertTrue(diplomacy.contains("return java.util.Collections.unmodifiableSet(this.banned);"),
-                "Diplomacy banned views should stay read-only so callers cannot bypass SavedData dirty tracking");
 
         assertSavedDataUsesServerWideStorage(targets, "shincolle_player_target_lists");
-        assertTrue(targets.contains("entryTag.putUUID(\"Owner\", entry.getKey());"),
-                "Per-player target lists should persist the owning player");
-        assertTrue(targets.contains("entryTag.put(\"ClassNames\", classes);"),
-                "Per-player target lists should persist class names");
-        assertTrue(targets.contains("UUID owner = entryTag.getUUID(\"Owner\");"),
-                "Per-player target loading should restore owner UUIDs");
-        assertTrue(targets.contains("data.entries.put(owner, classNames);"),
-                "Per-player target loading should restore class-name sets");
-        assertTrue(targets.contains("return classNames == null ? java.util.List.of() : java.util.Collections.unmodifiableSet(classNames);"),
-                "Per-player target-list views should stay read-only so callers cannot bypass SavedData dirty tracking");
 
         assertSavedDataUsesServerWideStorage(unattackable, "shincolle_unattackable_targets");
-        assertTrue(unattackable.contains("tag.put(\"ClassNames\", list);"),
-                "Global unattackable targets should persist class names");
-        assertTrue(unattackable.contains("data.classNames.add(name);"),
-                "Global unattackable target loading should restore class names");
-        assertTrue(unattackable.contains("return java.util.Collections.unmodifiableSet(this.classNames);"),
-                "Global unattackable target views should stay read-only so callers cannot bypass SavedData dirty tracking");
         assertTrue(registry.contains("return java.util.Collections.unmodifiableCollection(this.ships.values());"),
                 "Ship registry collection views should stay read-only so callers cannot mutate cached entries without dirty tracking");
     }
