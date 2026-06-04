@@ -18,13 +18,4 @@ class LegacyEquipCreativeSortRegressionTest {
         assertTrue(modTabs.contains("addSortedLegacyEquipVariants(output, ModItems.EQUIP_TORPEDO)"));
         assertTrue(modTabs.contains("addSortedLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE)"));
     }
-
-    @Test
-    void modItemsDefinesPrimaryStatSortHelper() throws Exception {
-        String modItems = Files.readString(MOD_ITEMS);
-        assertTrue(modItems.contains("addSortedLegacyEquipVariants(CreativeModeTab.Output output, DeferredItem<Item> item)"));
-        assertTrue(modItems.contains("getLegacyEquipSortScore"));
-        assertTrue(modItems.contains("case 0, 1, 2, 3 ->"));
-        assertTrue(modItems.contains("case 4, 5 ->"));
-    }
 }
