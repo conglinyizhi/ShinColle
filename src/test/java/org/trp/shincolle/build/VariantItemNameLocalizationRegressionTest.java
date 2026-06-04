@@ -3,18 +3,15 @@ package org.trp.shincolle.build;
 import org.junit.jupiter.api.Test;
 import org.trp.shincolle.init.ModItems;
 import org.trp.shincolle.item.CombatRationItem;
+import org.trp.shincolle.item.LegacyEquipItem;
 import org.trp.shincolle.item.ShipTankItem;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,27 +25,6 @@ class VariantItemNameLocalizationRegressionTest {
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
-    );
-    private static final Path MOD_ITEMS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
-
-    private static final Pattern INT_ARRAY_PATTERN_TEMPLATE = Pattern.compile(
-            "private static final int\\[] %s = new int\\[]\\{([^}]*)};");
-
-    private static final Map<String, String> LEGACY_EQUIP_VARIANT_ARRAYS = Map.ofEntries(
-            Map.entry("EquipAirplane", "EQUIP_AIRPLANE_TYPES"),
-            Map.entry("EquipAmmo", "EQUIP_AMMO_TYPES"),
-            Map.entry("EquipArmor", "EQUIP_ARMOR_TYPES"),
-            Map.entry("EquipCannon", "EQUIP_CANNON_TYPES"),
-            Map.entry("EquipCatapult", "EQUIP_CATAPULT_TYPES"),
-            Map.entry("EquipCompass", "EQUIP_COMPASS_TYPES"),
-            Map.entry("EquipDrum", "EQUIP_DRUM_TYPES"),
-            Map.entry("EquipFlare", "EQUIP_FLARE_TYPES"),
-            Map.entry("EquipMachinegun", "EQUIP_MACHINEGUN_TYPES"),
-            Map.entry("EquipRadar", "EQUIP_RADAR_TYPES"),
-            Map.entry("EquipSearchlight", "EQUIP_SEARCHLIGHT_TYPES"),
-            Map.entry("EquipTorpedo", "EQUIP_TORPEDO_TYPES"),
-            Map.entry("EquipTurbine", "EQUIP_TURBINE_TYPES")
     );
 
     @Test
@@ -76,11 +52,19 @@ class VariantItemNameLocalizationRegressionTest {
 
     private static List<VariantNameExpectation> readExpectations() throws IOException {
         List<VariantNameExpectation> expectations = new ArrayList<>();
-        String modItems = Files.readString(MOD_ITEMS_SOURCE);
-
-        for (Map.Entry<String, String> entry : LEGACY_EQUIP_VARIANT_ARRAYS.entrySet()) {
-            expectations.add(new VariantNameExpectation(entry.getKey(), readIntArrayLength(modItems, entry.getValue())));
-        }
+        expectations.add(legacyEquipExpectation("EquipAirplane", (LegacyEquipItem) ModItems.EQUIP_AIRPLANE.get()));
+        expectations.add(legacyEquipExpectation("EquipAmmo", (LegacyEquipItem) ModItems.EQUIP_AMMO.get()));
+        expectations.add(legacyEquipExpectation("EquipArmor", (LegacyEquipItem) ModItems.EQUIP_ARMOR.get()));
+        expectations.add(legacyEquipExpectation("EquipCannon", (LegacyEquipItem) ModItems.EQUIP_CANNON.get()));
+        expectations.add(legacyEquipExpectation("EquipCatapult", (LegacyEquipItem) ModItems.EQUIP_CATAPULT.get()));
+        expectations.add(legacyEquipExpectation("EquipCompass", (LegacyEquipItem) ModItems.EQUIP_COMPASS.get()));
+        expectations.add(legacyEquipExpectation("EquipDrum", (LegacyEquipItem) ModItems.EQUIP_DRUM.get()));
+        expectations.add(legacyEquipExpectation("EquipFlare", (LegacyEquipItem) ModItems.EQUIP_FLARE.get()));
+        expectations.add(legacyEquipExpectation("EquipMachinegun", (LegacyEquipItem) ModItems.EQUIP_MACHINEGUN.get()));
+        expectations.add(legacyEquipExpectation("EquipRadar", (LegacyEquipItem) ModItems.EQUIP_RADAR.get()));
+        expectations.add(legacyEquipExpectation("EquipSearchlight", (LegacyEquipItem) ModItems.EQUIP_SEARCHLIGHT.get()));
+        expectations.add(legacyEquipExpectation("EquipTorpedo", (LegacyEquipItem) ModItems.EQUIP_TORPEDO.get()));
+        expectations.add(legacyEquipExpectation("EquipTurbine", (LegacyEquipItem) ModItems.EQUIP_TURBINE.get()));
 
         expectations.add(new VariantNameExpectation("CombatRation",
                 ((CombatRationItem) ModItems.COMBAT_RATION.get()).getVariantCount()));
@@ -92,19 +76,8 @@ class VariantItemNameLocalizationRegressionTest {
         return expectations;
     }
 
-    private static int readIntArrayLength(String source, String arrayFieldName) {
-        Pattern pattern = Pattern.compile(String.format(INT_ARRAY_PATTERN_TEMPLATE.pattern(), arrayFieldName));
-        Matcher matcher = pattern.matcher(source);
-        assertTrue(matcher.find(), () -> "Expected array field " + arrayFieldName + " to exist");
-
-        String[] values = matcher.group(1).split(",");
-        int count = 0;
-        for (String value : values) {
-            if (!value.trim().isEmpty()) {
-                count++;
-            }
-        }
-        return count;
+    private static VariantNameExpectation legacyEquipExpectation(String nameBase, LegacyEquipItem item) {
+        return new VariantNameExpectation(nameBase, item.getVariantCount());
     }
 
     private static String keyFor(String nameBase, int variant) {
