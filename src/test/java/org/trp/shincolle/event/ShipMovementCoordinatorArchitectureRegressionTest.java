@@ -20,11 +20,11 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     private static final Path SHIP_BRAIN_RECOVERY_SUPPORT_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainRecoverySupport.java");
     private static final Path SHIP_BRAIN_RECOVERY_SUPPORT_TEST_SOURCE =
-            Path.of("src/test/java/org/trp/shincolle/entity/base/ShipBrainRecoverySupportTest.java");
+            Path.of("src/test/kotlin/org/trp/shincolle/entity/base/ShipBrainRecoverySupportTest.kt");
     private static final Path SHIP_POINTER_POINT_DECISION_RESOLVER_TEST_SOURCE =
-            Path.of("src/test/java/org/trp/shincolle/entity/base/ShipPointerPointDecisionResolverTest.java");
+            Path.of("src/test/kotlin/org/trp/shincolle/entity/base/ShipPointerPointDecisionResolverTest.kt");
     private static final Path SHIP_FOLLOW_DECISION_RESOLVER_TEST_SOURCE =
-            Path.of("src/test/java/org/trp/shincolle/entity/base/ShipFollowDecisionResolverTest.java");
+            Path.of("src/test/kotlin/org/trp/shincolle/entity/base/ShipFollowDecisionResolverTest.kt");
     private static final Path AI_NUMBERS_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
     private static final Path POINTER_SOURCE =

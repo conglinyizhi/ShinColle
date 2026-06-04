@@ -37,6 +37,8 @@ class PlayerStatePersistenceArchitectureRegressionTest {
             Path.of("src/main/java/org/trp/shincolle/menu/FormationMenu.java");
     private static final Path POINTER_ITEM_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/item/PointerItem.java");
+    private static final Path POINTER_ITEM_CLIENT_HELPER_SOURCE =
+            Path.of("src/main/java/org/trp/shincolle/client/PointerItemClientHelper.java");
     private static final Path SHIP_SOURCE =
             Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
     private static final Path SHIP_POINTER_SOURCE =
@@ -115,6 +117,7 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 Map.entry(SHIP_MENU_SOURCE, Files.readString(SHIP_MENU_SOURCE)),
                 Map.entry(FORMATION_MENU_SOURCE, Files.readString(FORMATION_MENU_SOURCE)),
                 Map.entry(POINTER_ITEM_SOURCE, Files.readString(POINTER_ITEM_SOURCE)),
+                Map.entry(POINTER_ITEM_CLIENT_HELPER_SOURCE, Files.readString(POINTER_ITEM_CLIENT_HELPER_SOURCE)),
                 Map.entry(SHIP_SOURCE, Files.readString(SHIP_SOURCE)),
                 Map.entry(SHIP_POINTER_SOURCE, Files.readString(SHIP_POINTER_SOURCE)),
                 Map.entry(BRAIN_AI_SOURCE, Files.readString(BRAIN_AI_SOURCE))
@@ -200,8 +203,10 @@ class PlayerStatePersistenceArchitectureRegressionTest {
                 "Opening ship inventory should register collection through the service");
         assertTrue(sources.get(FORMATION_MENU_SOURCE).contains("PlayerStateService.admiralData(playerInventory.player)"),
                 "Formation menu should get player state through the service");
-        assertTrue(sources.get(POINTER_ITEM_SOURCE).contains("PlayerStateService.admiralData(mc.player)"),
-                "Pointer item should read current team through the service");
+        assertTrue(sources.get(POINTER_ITEM_SOURCE).contains("PointerItemClientHelper"),
+                "Pointer item should delegate client-only tooltip state to the client helper");
+        assertTrue(sources.get(POINTER_ITEM_CLIENT_HELPER_SOURCE).contains("PlayerStateService.admiralData(mc.player)"),
+                "Pointer item client helper should read current team through the service");
         assertTrue(sources.get(SHIP_SOURCE).contains("PlayerStateService.adjustOwnedMarriedShipCount(player, 1);"),
                 "Marriage item flow should update persistent player counters through the service");
     }
