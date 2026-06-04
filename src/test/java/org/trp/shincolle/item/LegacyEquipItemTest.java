@@ -4,6 +4,7 @@ import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import org.junit.jupiter.api.Test;
+import net.neoforged.neoforge.registries.DeferredItem;
 import org.trp.shincolle.init.ModItems;
 
 import java.util.ArrayList;
@@ -54,6 +55,8 @@ class LegacyEquipItemTest {
     @Test
     void legacyEquipShouldUseLegacyTranslationKeysAndExposeAllCreativeVariants() {
         LegacyEquipItem cannon = (LegacyEquipItem) ModItems.EQUIP_CANNON.get();
+        LegacyEquipItem torpedo = (LegacyEquipItem) ModItems.EQUIP_TORPEDO.get();
+        LegacyEquipItem airplane = (LegacyEquipItem) ModItems.EQUIP_AIRPLANE.get();
 
         String baseKey = ((TranslatableContents) cannon.getName(cannon.createVariantStack(0)).getContents()).getKey();
         String variantKey = ((TranslatableContents) cannon.getName(cannon.createVariantStack(3)).getContents()).getKey();
@@ -74,6 +77,21 @@ class LegacyEquipItemTest {
         for (int i = 0; i < sortedVariants.size(); i++) {
             assertEquals(i, cannon.getVariant(sortedVariants.get(i)));
             assertEquals(cannon.getEquipId(cannon.createVariantStack(i)), cannon.getEquipId(sortedVariants.get(i)));
+        }
+
+        assertSortedLegacyCreativeVariants(torpedo, ModItems.EQUIP_TORPEDO);
+        assertSortedLegacyCreativeVariants(airplane, ModItems.EQUIP_AIRPLANE);
+    }
+
+    private static void assertSortedLegacyCreativeVariants(LegacyEquipItem item, DeferredItem<net.minecraft.world.item.Item> deferredItem) {
+        List<ItemStack> sortedVariants = new ArrayList<>();
+
+        ModItems.addSortedLegacyEquipVariants(new CollectingOutput(sortedVariants), deferredItem);
+
+        assertEquals(item.getVariantCount(), sortedVariants.size());
+        for (int i = 0; i < sortedVariants.size(); i++) {
+            assertEquals(i, item.getVariant(sortedVariants.get(i)));
+            assertEquals(item.getEquipId(item.createVariantStack(i)), item.getEquipId(sortedVariants.get(i)));
         }
     }
 
