@@ -13,6 +13,7 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 
 import java.util.List;
+import java.util.UUID;
 
 public class OwnerPaperItem extends Item {
     private static final String SIGN_NAME_A = "SignNameA";
@@ -29,29 +30,32 @@ public class OwnerPaperItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (!level.isClientSide && !player.isShiftKeyDown()) {
-            stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY, data -> data.update(tag -> {
-                boolean firstWrite = !tag.contains(SIGN_NAME_A);
-                if (firstWrite) {
-                    tag.putString(SIGN_NAME_A, player.getName().getString());
-                    tag.putString(SIGN_NAME_B, "");
-                    tag.putString(SIGN_ID_A, player.getUUID().toString());
-                    tag.putString(SIGN_ID_B, "");
-                    tag.putBoolean(SIGN_POS, false);
-                    return;
-                }
-
-                if (tag.getBoolean(SIGN_POS)) {
-                    tag.putString(SIGN_NAME_A, player.getName().getString());
-                    tag.putString(SIGN_ID_A, player.getUUID().toString());
-                    tag.putBoolean(SIGN_POS, false);
-                } else {
-                    tag.putString(SIGN_NAME_B, player.getName().getString());
-                    tag.putString(SIGN_ID_B, player.getUUID().toString());
-                    tag.putBoolean(SIGN_POS, true);
-                }
-            }));
+            stack.update(DataComponents.CUSTOM_DATA, CustomData.EMPTY,
+                    data -> data.update(tag -> writeOwnerSignature(tag, player.getName().getString(), player.getUUID())));
         }
         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+    }
+
+    static void writeOwnerSignature(net.minecraft.nbt.CompoundTag tag, String playerName, UUID playerUuid) {
+        boolean firstWrite = !tag.contains(SIGN_NAME_A);
+        if (firstWrite) {
+            tag.putString(SIGN_NAME_A, playerName);
+            tag.putString(SIGN_NAME_B, "");
+            tag.putString(SIGN_ID_A, playerUuid.toString());
+            tag.putString(SIGN_ID_B, "");
+            tag.putBoolean(SIGN_POS, false);
+            return;
+        }
+
+        if (tag.getBoolean(SIGN_POS)) {
+            tag.putString(SIGN_NAME_A, playerName);
+            tag.putString(SIGN_ID_A, playerUuid.toString());
+            tag.putBoolean(SIGN_POS, false);
+        } else {
+            tag.putString(SIGN_NAME_B, playerName);
+            tag.putString(SIGN_ID_B, playerUuid.toString());
+            tag.putBoolean(SIGN_POS, true);
+        }
     }
 
     @Override
