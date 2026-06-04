@@ -1,23 +1,18 @@
-package org.trp.shincolle.init;
+package org.trp.shincolle.init
 
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import java.nio.file.Path
 
 class CreativeTabSectionOrderingRegressionTest {
-    private static final Path MOD_TABS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java");
-
     @Test
-    void miscToolsSectionShouldKeepLegacyUtilityOrdering() throws IOException {
-        String modTabs = Files.readString(MOD_TABS);
+    fun miscToolsSectionShouldKeepLegacyUtilityOrdering() {
+        val modTabs = Files.readString(MOD_TABS)
 
-        assertOrder(modTabs, List.of(
+        assertOrder(
+            modTabs,
+            listOf(
                 "output.accept(ModItems.BUCKET_REPAIR.get());",
                 "ModItems.addCombatRationVariants(output);",
                 "output.accept(ModItems.DESK_ITEM_BOOK.get());",
@@ -35,14 +30,18 @@ class CreativeTabSectionOrderingRegressionTest {
                 "output.accept(ModItems.TARGET_WRENCH.get());",
                 "output.accept(ModItems.TRAINING_BOOK.get());",
                 "output.accept(ModItems.TOY_AIRPLANE.get());"
-        ), "Creative tab misc/tools section should keep the preserved legacy utility ordering");
+            ),
+            "Creative tab misc/tools section should keep the preserved legacy utility ordering"
+        )
     }
 
     @Test
-    void blockSectionShouldKeepCoreBuildProgressionOrdering() throws IOException {
-        String modTabs = Files.readString(MOD_TABS);
+    fun blockSectionShouldKeepCoreBuildProgressionOrdering() {
+        val modTabs = Files.readString(MOD_TABS)
 
-        assertOrder(modTabs, List.of(
+        assertOrder(
+            modTabs,
+            listOf(
                 "output.accept(ModItems.ABYSSIUM.get());",
                 "output.accept(ModItems.CRANE.get());",
                 "output.accept(ModItems.DESK.get());",
@@ -56,16 +55,22 @@ class CreativeTabSectionOrderingRegressionTest {
                 "output.accept(ModItems.LARGE_SHIPYARD.get());",
                 "output.accept(ModItems.VOL_CORE.get());",
                 "output.accept(ModItems.WAYPOINT.get());"
-        ), "Creative tab block section should keep the legacy build-block ordering");
+            ),
+            "Creative tab block section should keep the legacy build-block ordering"
+        )
     }
 
-    private static void assertOrder(String source, List<String> snippets, String message) {
-        int cursor = -1;
-        for (String snippet : snippets) {
-            int next = source.indexOf(snippet, cursor + 1);
-            assertTrue(next >= 0, () -> "Expected snippet to exist: " + snippet);
-            assertTrue(next > cursor, () -> message + " around " + snippet);
-            cursor = next;
+    private fun assertOrder(source: String, snippets: List<String>, message: String) {
+        var cursor = -1
+        snippets.forEach { snippet ->
+            val next = source.indexOf(snippet, cursor + 1)
+            assertTrue(next >= 0) { "Expected snippet to exist: $snippet" }
+            assertTrue(next > cursor) { "$message around $snippet" }
+            cursor = next
         }
+    }
+
+    companion object {
+        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
     }
 }

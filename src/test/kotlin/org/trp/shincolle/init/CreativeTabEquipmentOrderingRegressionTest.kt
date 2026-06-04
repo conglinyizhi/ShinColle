@@ -1,23 +1,18 @@
-package org.trp.shincolle.init;
+package org.trp.shincolle.init
 
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import java.nio.file.Path
 
 class CreativeTabEquipmentOrderingRegressionTest {
-    private static final Path MOD_TABS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java");
-
     @Test
-    void equipmentSectionShouldKeepLegacyEquipOrdering() throws IOException {
-        String modTabs = Files.readString(MOD_TABS);
+    fun equipmentSectionShouldKeepLegacyEquipOrdering() {
+        val modTabs = Files.readString(MOD_TABS)
 
-        assertOrder(modTabs, List.of(
+        assertOrder(
+            modTabs,
+            listOf(
                 "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE);",
                 "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AMMO);",
                 "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_ARMOR);",
@@ -32,16 +27,22 @@ class CreativeTabEquipmentOrderingRegressionTest {
                 "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_SEARCHLIGHT);",
                 "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TORPEDO);",
                 "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TURBINE);"
-        ), "Creative tab equipment section should keep the preserved legacy equipment ordering");
+            ),
+            "Creative tab equipment section should keep the preserved legacy equipment ordering"
+        )
     }
 
-    private static void assertOrder(String source, List<String> snippets, String message) {
-        int cursor = -1;
-        for (String snippet : snippets) {
-            int next = source.indexOf(snippet, cursor + 1);
-            assertTrue(next >= 0, () -> "Expected snippet to exist: " + snippet);
-            assertTrue(next > cursor, () -> message + " around " + snippet);
-            cursor = next;
+    private fun assertOrder(source: String, snippets: List<String>, message: String) {
+        var cursor = -1
+        snippets.forEach { snippet ->
+            val next = source.indexOf(snippet, cursor + 1)
+            assertTrue(next >= 0) { "Expected snippet to exist: $snippet" }
+            assertTrue(next > cursor) { "$message around $snippet" }
+            cursor = next
         }
+    }
+
+    companion object {
+        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
     }
 }
