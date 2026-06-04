@@ -1,17 +1,21 @@
-name: Canary Release
+name: Rolling Prerelease
 
 on:
-  push:
-    tags:
-      - "canary-*"
+  schedule:
+    - cron: "0 20 * * *"
   workflow_dispatch:
     inputs:
-      release_tag:
-        description: Canary tag to release, for example canary-20260531
-        required: true
+      release_note:
+        description: 本次金丝雀构建备注 / Canary build note / カナリアビルドのメモ
+        required: false
+        type: string
 
 permissions:
   contents: write
+
+concurrency:
+  group: rolling-prerelease-${{ github.event_name }}
+  cancel-in-progress: false
 
 jobs:
   build-and-release:
@@ -27,32 +31,65 @@ jobs:
         id: meta
         env:
           EVENT_NAME: ${{ github.event_name }}
-          REF_NAME: ${{ github.ref_name }}
-          INPUT_RELEASE_TAG: ${{ inputs.release_tag }}
+          INPUT_RELEASE_NOTE: ${{ inputs.release_note }}
+          GITHUB_SHA: ${{ github.sha }}
+          GITHUB_REF_NAME: ${{ github.ref_name }}
         run: |
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
-            TAG="$INPUT_RELEASE_TAG"
+          if [ "$EVENT_NAME" = "schedule" ]; then
+            CHANNEL="nightly"
+            TAG="nightly"
+            NAME="Nightly Build"
           else
-            TAG="$REF_NAME"
+            CHANNEL="canary"
+            TAG="canary"
+            NAME="Canary Build"
           fi
 
-          if [ -z "$TAG" ]; then
-            echo "Release tag is empty" >&2
-            exit 1
+          SHORT_SHA="$(printf '%s' "$GITHUB_SHA" | cut -c1-7)"
+          UTC_TIME="$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+          CN_DATE="$(TZ=Asia/Shanghai date '+%Y-%m-%d %H:%M:%S CST')"
+
+          {
+            echo "channel=$CHANNEL"
+            echo "tag=$TAG"
+            echo "name=$NAME"
+            echo "short_sha=$SHORT_SHA"
+            echo "utc_time=$UTC_TIME"
+            echo "cn_date=$CN_DATE"
+            echo "release_note<<EOF"
+            printf '%s\n' "$INPUT_RELEASE_NOTE"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Decide whether nightly should build
+        id: gate
+        if: steps.meta.outputs.channel == 'nightly'
+        env:
+          TAG_NAME: ${{ steps.meta.outputs.tag }}
+        run: |
+          git fetch --tags --force
+
+          if git rev-parse -q --verify "refs/tags/$TAG_NAME" >/dev/null; then
+            COUNT="$(git log "refs/tags/$TAG_NAME..HEAD" --no-merges --format='%s' | grep -Eiv '^ci(\(.+\))?:' | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
+          else
+            COUNT="$(git log HEAD --no-merges --format='%s' | grep -Eiv '^ci(\(.+\))?:' | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
           fi
 
-          case "$TAG" in
-            canary-*) ;;
-            *)
-              echo "Unsupported release tag: $TAG" >&2
-              exit 1
-              ;;
-          esac
+          if [ "$COUNT" -gt 10 ]; then
+            echo "should_release=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_release=false" >> "$GITHUB_OUTPUT"
+          fi
 
-          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
-          echo "name=Canary Build ${TAG#canary-}" >> "$GITHUB_OUTPUT"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Skip nightly release
+        if: steps.meta.outputs.channel == 'nightly' && steps.gate.outputs.should_release != 'true'
+        run: |
+          echo "Skipping nightly release because only ${{ steps.gate.outputs.count }} non-ci commits were found since the previous nightly tag."
 
       - name: Set up JDK 21
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -60,48 +97,97 @@ jobs:
           cache: gradle
 
       - name: Set up Gradle
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         uses: gradle/actions/setup-gradle@v4
 
       - name: Make Gradle wrapper executable
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         run: chmod +x ./gradlew
 
       - name: Make release note script executable
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         run: chmod +x ./scripts/build_canary_release_notes.sh
 
       - name: Verify Kotlin test compilation
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         run: ./gradlew clean compileTestKotlin --no-daemon
 
       - name: Run tests
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         run: ./gradlew test --no-daemon
 
       - name: Build jar
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         run: ./gradlew build --no-daemon
 
       - name: Collect changelog
         id: changelog
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         env:
+          CHANNEL: ${{ steps.meta.outputs.channel }}
           CURRENT_TAG: ${{ steps.meta.outputs.tag }}
+          RELEASE_NAME: ${{ steps.meta.outputs.name }}
+          RELEASE_NOTE: ${{ steps.meta.outputs.release_note }}
+          FULL_SHA: ${{ github.sha }}
+          SHORT_SHA: ${{ steps.meta.outputs.short_sha }}
+          REF_NAME: ${{ github.ref_name }}
+          UTC_TIME: ${{ steps.meta.outputs.utc_time }}
+          CN_DATE: ${{ steps.meta.outputs.cn_date }}
+          NIGHTLY_COUNT: ${{ steps.gate.outputs.count }}
         run: |
-          ./scripts/build_canary_release_notes.sh "$CURRENT_TAG" canary-release-notes.md
+          ./scripts/build_canary_release_notes.sh "$CHANNEL" "$CURRENT_TAG" "$RELEASE_NAME" "$RELEASE_NOTE" canary-release-notes.md
 
           {
             echo "body<<EOF"
             cat canary-release-notes.md
+            echo
+            echo "<details>"
+            echo "<summary>Build Metadata / 构建元数据 / ビルドメタデータ</summary>"
+            echo
+            echo "## Overview / 概览 / 概要"
+            echo
+            echo "- Channel / 渠道 / チャンネル: \`$CHANNEL\`"
+            echo "- Tag / 标签 / タグ: \`$CURRENT_TAG\`"
+            echo "- Commit / 提交哈希 / コミット: \`$FULL_SHA\`"
+            echo "- Short SHA / 短哈希 / 短縮 SHA: \`$SHORT_SHA\`"
+            echo "- Ref / 引用 / 参照: \`$REF_NAME\`"
+            echo "- Built At (UTC): \`$UTC_TIME\`"
+            echo "- Built At (CST): \`$CN_DATE\`"
+            if [ "$CHANNEL" = "nightly" ]; then
+              echo "- Eligible non-ci commits since previous nightly / 上次 nightly 以来符合条件的非 ci 提交数 / 前回 nightly 以降の対象コミット数: \`${NIGHTLY_COUNT:-0}\`"
+            fi
+            echo
+            echo "</details>"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
+      - name: Move rolling tag to current commit
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
+        env:
+          TAG_NAME: ${{ steps.meta.outputs.tag }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "$TAG_NAME" "$GITHUB_SHA"
+          git push origin "refs/tags/$TAG_NAME" --force
+
       - name: Collect jar artifacts
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         run: |
           mkdir -p release-artifacts
           find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' -exec cp {} release-artifacts/ \;
           ls -lah release-artifacts
 
-      - name: Create prerelease
+      - name: Create or update prerelease
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.meta.outputs.tag }}
-          name: ${{ steps.meta.outputs.name }}
+          name: ${{ steps.meta.outputs.name }} (${{ steps.meta.outputs.short_sha }})
           prerelease: true
+          make_latest: false
           generate_release_notes: false
           body: ${{ steps.changelog.outputs.body }}
           files: release-artifacts/*.jar
+          overwrite_files: true
