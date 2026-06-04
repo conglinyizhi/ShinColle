@@ -69,10 +69,12 @@ jobs:
         run: |
           git fetch --tags --force
 
+          COMMIT_FILTER='^(feat|fix|perf|refactor|revert|test)(\(.+\))?:'
+
           if git rev-parse -q --verify "refs/tags/$TAG_NAME" >/dev/null; then
-            COUNT="$(git log "refs/tags/$TAG_NAME..HEAD" --no-merges --format='%s' | grep -Eiv '^ci(\(.+\))?:' | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
+            COUNT="$(git log "refs/tags/$TAG_NAME..HEAD" --no-merges --format='%s' | grep -Ei "$COMMIT_FILTER" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
           else
-            COUNT="$(git log HEAD --no-merges --format='%s' | grep -Eiv '^ci(\(.+\))?:' | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
+            COUNT="$(git log HEAD --no-merges --format='%s' | grep -Ei "$COMMIT_FILTER" | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')"
           fi
 
           if [ "$COUNT" -gt 10 ]; then
@@ -86,7 +88,7 @@ jobs:
       - name: Skip nightly release
         if: steps.meta.outputs.channel == 'nightly' && steps.gate.outputs.should_release != 'true'
         run: |
-          echo "Skipping nightly release because only ${{ steps.gate.outputs.count }} non-ci commits were found since the previous nightly tag."
+          echo "Skipping nightly release because only ${{ steps.gate.outputs.count }} eligible commits were found since the previous nightly tag."
 
       - name: Set up JDK 21
         if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
@@ -154,7 +156,8 @@ jobs:
             echo "- Built At (UTC): \`$UTC_TIME\`"
             echo "- Built At (CST): \`$CN_DATE\`"
             if [ "$CHANNEL" = "nightly" ]; then
-              echo "- Eligible non-ci commits since previous nightly / 上次 nightly 以来符合条件的非 ci 提交数 / 前回 nightly 以降の対象コミット数: \`${NIGHTLY_COUNT:-0}\`"
+              echo "- Eligible commits since previous nightly / 上次 nightly 以来符合条件的提交数 / 前回 nightly 以降の対象コミット数: \`${NIGHTLY_COUNT:-0}\`"
+              echo "- Counted types / 计数类型 / 集計対象: \`feat|fix|perf|refactor|revert|test\`"
             fi
             echo
             echo "</details>"

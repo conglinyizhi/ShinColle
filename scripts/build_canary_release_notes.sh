@@ -111,7 +111,7 @@ write_notes() {
   else
     printf '本次金丝雀版本变更 / Changes in this canary / 今回のカナリア版の変更点\n'
   fi
-  printf '以下提交摘要仅提供中文。/ Chinese only below. / 以下のコミット要約は中国語のみです。\n\n'
+  printf '以下为上次同渠道构建到本次构建之间的提交详情，仅提供中文。/ The details below cover commits between the previous build of the same channel and this build, in Chinese only. / 以下は同一チャネルの前回ビルドから今回ビルドまでのコミット詳細で、中国語のみです。\n\n'
 
   printf '<details>\n'
   printf '<summary>Commit Summary / 提交摘要 / コミット要約</summary>\n\n'
