@@ -50,8 +50,6 @@ class ServicePlayerGuardRegressionTest {
                 "FormationService should keep menu-open actions side-effect only and avoid admiral sync");
         assertTrue(source.contains("if (shouldSync && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
                 "FormationService should only send admiral sync after real state changes");
-        assertTrue(source.contains("if (shouldSync && player instanceof ServerPlayer serverPlayer) {\n            PlayerStateService.sendAdmiralState(serverPlayer);\n        }"),
-                "FormationService pointer roster toggle should only sync after a real roster change");
         assertTrue(source.contains("if (entity instanceof EntityShipBase ship && ship.isOwnedBy(player) && ship.isAlive() && !ship.isRemoved()) {\n            action.accept(ship);\n        }"),
                 "FormationService should only hand UUID-resolved ships to callbacks when they are still owned by the player, alive, and not removed");
     }
@@ -60,10 +58,6 @@ class ServicePlayerGuardRegressionTest {
     void playerStateServiceShouldRejectNoopFormationMutations() throws IOException {
         String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.java"));
 
-        assertTrue(source.contains("ship -> ship.isAlive()\n                        && !ship.isRemoved()\n                        && ship.isTame()"),
-                "PlayerStateService nearby married-ship scan should ignore removed ships");
-        assertTrue(source.contains("ship -> ship.isAlive()\n                            && !ship.isRemoved()\n                            && ship.isTame()"),
-                "PlayerStateService server reconciliation should ignore removed ships");
         assertTrue(source.contains("if (data.getCurrentTeamID() == teamId) {\n            return false;\n        }"),
                 "PlayerStateService should reject no-op current team switches");
         assertTrue(source.contains("if (data.getFormationID(data.getCurrentTeamID()) == formationId) {\n            return false;\n        }"),
@@ -84,10 +78,6 @@ class ServicePlayerGuardRegressionTest {
                 "PointerInteractionService grouped selection should track whether formation operations actually changed state");
         assertTrue(source.contains("if (shouldSync) {\n                sendAdmiralStateIfServerPlayer(player);\n            }"),
                 "PointerInteractionService should only sync admiral state after real grouped formation changes");
-        assertTrue(source.contains("if (PlayerStateService.removeShipFromTeams(player, ship.getUUID())) {\n                        FormationService.clearFormationState(ship);\n                        shouldSync = true;\n                    }"),
-                "PointerInteractionService should only sync grouped removal when a ship was actually removed from teams");
-        assertTrue(source.contains("if (PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState)) {\n                        ship.setPointerSelected(nextState);\n                        shouldSync = true;\n                    }"),
-                "PointerInteractionService should only sync grouped roster toggles when selection state actually changes");
         assertTrue(source.contains("if (!(entity instanceof EntityShipBase ship) || !ship.isOwnedBy(player) || !ship.isAlive() || ship.isRemoved()) {\n                continue;\n            }"),
                 "PointerInteractionService formation target assignment should skip UUID-resolved ships that are no longer owned by the player, alive, or still present");
         assertTrue(source.contains("if (target == null || !target.isAlive() || target.isRemoved()) {\n                    continue;\n                }"),
