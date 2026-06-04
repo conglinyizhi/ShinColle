@@ -60,29 +60,25 @@ public final class TeamDiplomacyService {
         TeamDiplomacySavedData diplomacy = TeamDiplomacySavedData.get(serverLevel);
         Player targetPlayer = serverLevel.getPlayerByUUID(target);
         Component targetName = targetPlayer != null ? targetPlayer.getDisplayName() : Component.literal(target.toString());
-        boolean changed;
+        boolean changed = applyDiplomacyAction(diplomacy, owner, action, target);
         Component message;
         switch (action) {
             case C2STeamDiplomacyPayload.ACTION_ADD_ALLY -> {
-                changed = diplomacy.addAlly(owner, target);
                 message = changed
                         ? Component.translatable("chat.shincolle.team.ally_added").append(targetName)
                         : Component.translatable("chat.shincolle.team.ally_unchanged").append(targetName);
             }
             case C2STeamDiplomacyPayload.ACTION_REMOVE_ALLY -> {
-                changed = diplomacy.removeAlly(owner, target);
                 message = changed
                         ? Component.translatable("chat.shincolle.team.ally_removed").append(targetName)
                         : Component.translatable("chat.shincolle.team.ally_missing").append(targetName);
             }
             case C2STeamDiplomacyPayload.ACTION_ADD_BANNED -> {
-                changed = diplomacy.addBanned(owner, target);
                 message = changed
                         ? Component.translatable("chat.shincolle.team.hostile_added").append(targetName)
                         : Component.translatable("chat.shincolle.team.hostile_unchanged").append(targetName);
             }
             case C2STeamDiplomacyPayload.ACTION_REMOVE_BANNED -> {
-                changed = diplomacy.removeBanned(owner, target);
                 message = changed
                         ? Component.translatable("chat.shincolle.team.hostile_removed").append(targetName)
                         : Component.translatable("chat.shincolle.team.hostile_missing").append(targetName);
@@ -96,6 +92,16 @@ public final class TeamDiplomacyService {
         if (changed && player instanceof ServerPlayer serverPlayer) {
             sendDeskDiplomacySync(serverPlayer);
         }
+    }
+
+    static boolean applyDiplomacyAction(TeamDiplomacySavedData diplomacy, UUID owner, int action, UUID target) {
+        return switch (action) {
+            case C2STeamDiplomacyPayload.ACTION_ADD_ALLY -> diplomacy.addAlly(owner, target);
+            case C2STeamDiplomacyPayload.ACTION_REMOVE_ALLY -> diplomacy.removeAlly(owner, target);
+            case C2STeamDiplomacyPayload.ACTION_ADD_BANNED -> diplomacy.addBanned(owner, target);
+            case C2STeamDiplomacyPayload.ACTION_REMOVE_BANNED -> diplomacy.removeBanned(owner, target);
+            default -> false;
+        };
     }
 
     public static void sendDeskDiplomacySync(ServerPlayer player) {
