@@ -1,24 +1,44 @@
-package org.trp.shincolle.init;
+package org.trp.shincolle.init
 
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Test
+import java.nio.file.Files
+import java.nio.file.Path
 
 class BossEggLocalizationRegressionTest {
-    private static final Path MOD_ITEMS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
-    private static final List<Path> LANGUAGE_SOURCES = List.of(
+    @Test
+    fun registeredBossEggNamesShouldRemainLocalizedInMaintainedLanguages() {
+        val modItems = Files.readString(MOD_ITEMS_SOURCE)
+
+        BOSS_EGG_KEYS.forEach { key ->
+            assertRegisteredBossEggSourceStillUses(key, modItems)
+            assertLocalizedInMaintainedLanguages(key)
+        }
+    }
+
+    private fun assertRegisteredBossEggSourceStillUses(key: String, modItems: String) {
+        val bossEggId = key.substring("item.shincolle.".length, key.length - "_boss_egg".length)
+        assertTrue(modItems.contains("registerBossEgg(\"$bossEggId\"")) {
+            "Expected ModItems to keep registering boss egg $bossEggId"
+        }
+    }
+
+    private fun assertLocalizedInMaintainedLanguages(key: String) {
+        LANGUAGE_SOURCES.forEach { languageSource ->
+            val source = Files.readString(languageSource)
+            assertTrue(source.contains("\"$key\"")) { "Expected maintained languages to define $key" }
+        }
+    }
+
+    companion object {
+        private val MOD_ITEMS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModItems.java")
+        private val LANGUAGE_SOURCES = listOf(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
-    );
-    private static final List<String> BOSS_EGG_KEYS = List.of(
+        )
+        private val BOSS_EGG_KEYS = listOf(
             "item.shincolle.destroyer_hime_boss_egg",
             "item.shincolle.ca_hime_boss_egg",
             "item.shincolle.carrier_hime_boss_egg",
@@ -64,29 +84,6 @@ class BossEggLocalizationRegressionTest {
             "item.shincolle.bb_hiei_boss_egg",
             "item.shincolle.bb_haruna_boss_egg",
             "item.shincolle.bb_kirishima_boss_egg"
-    );
-
-    @Test
-    void registeredBossEggNamesShouldRemainLocalizedInMaintainedLanguages() throws IOException {
-        String modItems = Files.readString(MOD_ITEMS_SOURCE);
-
-        for (String key : BOSS_EGG_KEYS) {
-            assertRegisteredBossEggSourceStillUses(key, modItems);
-            assertLocalizedInMaintainedLanguages(key);
-        }
-    }
-
-    private static void assertRegisteredBossEggSourceStillUses(String key, String modItems) {
-        String bossEggId = key.substring("item.shincolle.".length(), key.length() - "_boss_egg".length());
-        assertTrue(modItems.contains("registerBossEgg(\"" + bossEggId + "\""),
-                () -> "Expected ModItems to keep registering boss egg " + bossEggId);
-    }
-
-    private static void assertLocalizedInMaintainedLanguages(String key) throws IOException {
-        for (Path languageSource : LANGUAGE_SOURCES) {
-            String source = Files.readString(languageSource);
-            assertTrue(source.contains("\"" + key + "\""),
-                    () -> "Expected maintained languages to define " + key);
-        }
+        )
     }
 }
