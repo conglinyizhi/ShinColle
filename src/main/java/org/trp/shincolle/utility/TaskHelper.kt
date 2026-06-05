@@ -72,7 +72,7 @@ object TaskHelper {
 
     @JvmStatic
     fun onUpdateTask(host: EntityShipBase) {
-        if (host.getIsSitting() || !host.isAlive() || host.isNoFuel()) {
+        if (host.isInSittingPose || !host.isAlive() || host.isNoFuel) {
             host.taskRuntime.clearTask()
             return
         }
@@ -139,8 +139,8 @@ object TaskHelper {
 
     private fun onUpdateCooking(host: EntityShipBase?, runtime: ShipTaskRuntime) {
         if (host == null || host.level().isClientSide) return
-        val mainStack = host.getHeldItemMainhandSlot()
-        var offhandStack = host.getHeldItemOffhandSlot()
+        val mainStack = host.heldItemMainhandSlot
+        var offhandStack = host.heldItemOffhandSlot
         if (mainStack.isEmpty()) {
             invalidateTask(runtime)
             return
@@ -148,9 +148,9 @@ object TaskHelper {
 
         val level = host.level()
         val resultStack = level.getRecipeManager()
-            .getRecipeFor<SingleRecipeInput?, SmeltingRecipe?>(RecipeType.SMELTING, SingleRecipeInput(mainStack), level)
-            .map<ItemStack>(Function { recipe: RecipeHolder<SmeltingRecipe?>? ->
-                recipe!!.value().assemble(SingleRecipeInput(mainStack), level.registryAccess())
+            .getRecipeFor<SingleRecipeInput, SmeltingRecipe>(RecipeType.SMELTING, SingleRecipeInput(mainStack), level)
+            .map<ItemStack>(Function { recipe: RecipeHolder<SmeltingRecipe> ->
+                recipe.value().assemble(SingleRecipeInput(mainStack), level.registryAccess())
             })
             .orElse(ItemStack.EMPTY)
         if (resultStack.isEmpty()) {
@@ -158,7 +158,7 @@ object TaskHelper {
             return
         }
 
-        val guardTarget = host.getGuardTarget()
+        val guardTarget = host.guardTarget
         if (!isWaypointGuardContext(guardTarget, level)) {
             invalidateTask(runtime)
             return
@@ -168,7 +168,8 @@ object TaskHelper {
         val gz = guardTarget.z
 
         val wpPos = BlockPos(gx, gy, gz)
-        if (level.getBlockEntity(wpPos) is WayPointBlockEntity) {
+        val wpbe = level.getBlockEntity(wpPos)
+        if (wpbe is WayPointBlockEntity) {
             val chestPos: BlockPos = wpbe.getChestPos()
             if (chestPos.getY() <= 0) {
                 invalidateTask(runtime)
@@ -209,9 +210,9 @@ object TaskHelper {
                     invalidateTask(runtime)
                     return
                 }
-                inHandlers = List.of<IItemHandler?>(singleSlotView(fallbackHandler, 0))
-                fuelHandlers = List.of<IItemHandler?>(singleSlotView(fallbackHandler, 1))
-                outHandlers = List.of<IItemHandler?>(singleSlotView(fallbackHandler, 2))
+                inHandlers = mutableListOf<IItemHandler>(singleSlotView(fallbackHandler, 0))
+                fuelHandlers = mutableListOf<IItemHandler>(singleSlotView(fallbackHandler, 1))
+                outHandlers = mutableListOf<IItemHandler>(singleSlotView(fallbackHandler, 2))
             }
 
             var swing = false
@@ -224,7 +225,7 @@ object TaskHelper {
 
                 if (canFit > 0) {
                     val material = getAndRemoveItem(
-                        host.inventory,
+                        host.inventory!!,
                         mainStack,
                         canFit,
                         checkMeta,
@@ -242,13 +243,13 @@ object TaskHelper {
                             swing = true
                         }
                         if (!remaining.isEmpty()) {
-                            moveItemstackToInv(host.inventory, remaining, null)
+                            moveItemstackToInv(host.inventory!!, remaining, null)
                         }
                     }
                 }
             }
 
-            offhandStack = host.getHeldItemOffhandSlot()
+            offhandStack = host.heldItemOffhandSlot
             if (!offhandStack.isEmpty() && !fuelHandlers.isEmpty()) {
                 var canFit = 0
                 for (handler in fuelHandlers) {
@@ -257,7 +258,7 @@ object TaskHelper {
 
                 if (canFit > 0) {
                     val fuel = getAndRemoveItem(
-                        host.inventory,
+                        host.inventory!!,
                         offhandStack,
                         canFit,
                         checkMeta,
@@ -274,7 +275,7 @@ object TaskHelper {
                         if (remaining.getCount() < fuel.getCount()) {
                             swing = true
                         }
-                        if (!remaining.isEmpty()) moveItemstackToInv(host.inventory, remaining, null)
+                        if (!remaining.isEmpty()) moveItemstackToInv(host.inventory!!, remaining, null)
                     }
                 }
             }
@@ -288,23 +289,23 @@ object TaskHelper {
                     }
                     if (matchTargetItem(inOutputSlot, resultStack, checkMeta, checkNbt, checkOre)) {
                         val remainderSim =
-                            ItemHandlerHelper.insertItemStacked(host.inventory, inOutputSlot.copy(), true)
+                            ItemHandlerHelper.insertItemStacked(host.inventory!!, inOutputSlot.copy(), true)
                         val movable = inOutputSlot.getCount() - remainderSim.getCount()
                         if (movable <= 0) {
                             continue
                         }
                         val taken = handler.extractItem(slot, movable, false)
                         if (!taken.isEmpty()) {
-                            ItemHandlerHelper.insertItemStacked(host.inventory, taken, false)
+                            ItemHandlerHelper.insertItemStacked(host.inventory!!, taken, false)
                             swing = true
                             tookOutput = true
 
                             host.addShipExp(Config.expGainTask[0])
-                            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[0])
+                            host.fuel -= Config.consumeGrudgeTask[0]
                             host.addMorale(100)
 
                             val failChance =
-                                (Config.shipMaxLevelNormal - host.getLevel()) / Config.shipMaxLevelNormal.toFloat() * 0.2f + 0.05f
+                                (Config.shipMaxLevelNormal - host.level) / Config.shipMaxLevelNormal.toFloat() * 0.2f + 0.05f
                             if (host.getRandom().nextFloat() < failChance) {
                                 val entity = ItemEntity(
                                     level,
@@ -347,13 +348,13 @@ object TaskHelper {
     private fun onUpdateFishing(host: EntityShipBase?, runtime: ShipTaskRuntime) {
         if (host == null) return
         val level = host.level()
-        val rod = host.getHeldItemMainhandSlot()
+        val rod = host.heldItemMainhandSlot
         if (rod.isEmpty() || rod.getItem() !== Items.FISHING_ROD) {
             invalidateTask(runtime)
             return
         }
 
-        val guardTarget = host.getGuardTarget()
+        val guardTarget = host.guardTarget
         if (!isWaypointGuardContext(guardTarget, level)) {
             invalidateTask(runtime)
             return
@@ -383,7 +384,8 @@ object TaskHelper {
             return
         }
 
-        if (host.fishHook == null || host.fishHook.isRemoved()) {
+        val fishHook = host.fishHook
+        if (fishHook == null || fishHook.isRemoved) {
             host.startCustomSwing()
             if (!level.isClientSide) {
                 val hook = EntityShipFishingHook(level, host)
@@ -399,16 +401,16 @@ object TaskHelper {
         }
 
         if (level is ServerLevel) {
-            if (host.fishHook.tickCount > Config.tickFishingMin + host.getRandom()
+            if (fishHook.tickCount > Config.tickFishingMin + host.getRandom()
                     .nextInt(Config.tickFishingMax)
             ) {
                 host.startCustomSwing()
                 stageStart = if (enabled()) now() else 0L
-                val lootTable = level.getServer().reloadableRegistries().getLootTable(BuiltInLootTables.FISHING)
+                val lootTable = level.server.reloadableRegistries().getLootTable(BuiltInLootTables.FISHING)
                 val params = (LootParams.Builder(level))
-                    .withParameter<Vec3?>(LootContextParams.ORIGIN, host.position())
-                    .withParameter<ItemStack?>(LootContextParams.TOOL, rod)
-                    .withParameter<Entity?>(LootContextParams.THIS_ENTITY, host)
+                    .withParameter<Vec3>(LootContextParams.ORIGIN, host.position())
+                    .withParameter<ItemStack>(LootContextParams.TOOL, rod)
+                    .withParameter<Entity>(LootContextParams.THIS_ENTITY, host)
                     .withLuck(getFishingLuck(host, level))
                     .create(LootContextParamSets.FISHING)
 
@@ -416,24 +418,24 @@ object TaskHelper {
                 if (enabled()) {
                     logTaskStage(
                         host, "fishing", "lootRoll", elapsed(stageStart),
-                        "items=" + items.size + " hookTicks=" + host.fishHook.tickCount
+                        "items=" + items.size + " hookTicks=" + fishHook.tickCount
                     )
                 }
                 for (stack in items) {
-                    val remainder = ItemHandlerHelper.insertItemStacked(host.inventory, stack, false)
+                    val remainder = ItemHandlerHelper.insertItemStacked(host.inventory!!, stack, false)
                     if (!remainder.isEmpty()) {
                         val entity = ItemEntity(level, host.getX(), host.getY(), host.getZ(), remainder)
                         level.addFreshEntity(entity)
                     }
                 }
 
-                host.fishHook.discard()
+                fishHook.discard()
                 host.addShipExp(Config.expGainTask[1])
-                host.setFuel(host.getFuel() - Config.consumeGrudgeTask[1])
+                host.fuel -= Config.consumeGrudgeTask[1]
                 host.addMorale(300)
                 host.applyParticleEmotion(host.getRandom().nextInt(5))
-            } else if (host.fishHook.tickCount > Config.tickFishingMin + Config.tickFishingMax) {
-                host.fishHook.discard()
+            } else if (fishHook.tickCount > Config.tickFishingMin + Config.tickFishingMax) {
+                fishHook.discard()
             }
         }
     }
@@ -446,7 +448,7 @@ object TaskHelper {
     private fun onUpdateMining(host: EntityShipBase?, runtime: ShipTaskRuntime) {
         if (host == null) return
         val level = host.level()
-        val pickaxe = host.getHeldItemMainhandSlot()
+        val pickaxe = host.heldItemMainhandSlot
         if (pickaxe.isEmpty() || !pickaxe.`is`(ItemTags.PICKAXES)) {
             invalidateTask(runtime)
             return
@@ -519,14 +521,14 @@ object TaskHelper {
                 }
                 val result = drop.stack
                 if (!result.isEmpty()) {
-                    val remainder = ItemHandlerHelper.insertItemStacked(host.inventory, result, false)
+                    val remainder = ItemHandlerHelper.insertItemStacked(host.inventory!!, result, false)
                     if (!remainder.isEmpty()) {
                         level.addFreshEntity(ItemEntity(level, host.getX(), host.getY(), host.getZ(), remainder))
                     }
                 }
 
                 host.addShipExp(Config.expGainTask[2])
-                host.setFuel(host.getFuel() - Config.consumeGrudgeTask[2])
+                host.fuel -= Config.consumeGrudgeTask[2]
                 host.addMorale(-200)
                 host.applyParticleEmotion(host.getRandom().nextInt(5))
                 host.startCustomSwing()
@@ -537,17 +539,17 @@ object TaskHelper {
 
     private fun rollMiningDrop(host: EntityShipBase): MiningDropResult {
         if (Config.miningEntries.isEmpty()) {
-            return createFallback()
+            return MiningDropResult.createFallback()
         }
 
         val level = host.level()
-        val shipLevel = host.getLevel()
+        val shipLevel = host.level
         val y = host.blockPosition().getY()
-        val toolLevel = getToolLevel(host.getHeldItemMainhandSlot())
+        val toolLevel = getToolLevel(host.heldItemMainhandSlot)
         val biomeId = getLegacyBiomeId(level, host.blockPosition())
         val biomePath = level.getBiome(host.blockPosition())
             .unwrapKey()
-            .map<String>(Function { key: ResourceKey<Biome?>? -> key!!.location().toString() })
+            .map<String>(Function { key: ResourceKey<Biome>? -> key!!.location().toString() })
             .orElse("*")
         val dimensionId = getLegacyDimensionId(level)
 
@@ -564,7 +566,7 @@ object TaskHelper {
         }
 
         if (candidates.isEmpty() || totalWeight <= 0) {
-            return MiningDropResult.Companion.createFallback(candidates.size, totalWeight)
+            return MiningDropResult.createFallback(candidates.size, totalWeight)
         }
 
         var roll = host.getRandom().nextInt(totalWeight)
@@ -582,7 +584,7 @@ object TaskHelper {
             amount += host.getRandom().nextInt(chosen.max - chosen.min + 1)
         }
 
-        val fortuneLevel = getFortuneLevel(host.getHeldItemMainhandSlot(), level)
+        val fortuneLevel = getFortuneLevel(host.heldItemMainhandSlot, level)
         val luckLevel = getLuckLevel(host)
         val scaledAmount = amount * (1.0f + chosen.enchantFactor * (fortuneLevel + luckLevel))
         val finalAmount = max(1, Math.round(scaledAmount))
@@ -708,17 +710,17 @@ object TaskHelper {
     private fun createLegacyVariantStack(item: Item?, itemMeta: Int, host: EntityShipBase): ItemStack {
         if (item is LegacyEquipItem) {
             return createVariantStack(
-                itemMeta, item.getVariantCount(), host,
+                itemMeta, item.variantCount, host,
                 IntFunction { variant: Int -> item.createVariantStack(variant) })
         }
         if (item is CombatRationItem) {
             return createVariantStack(
-                itemMeta, item.getVariantCount(), host,
+                itemMeta, item.variantCount, host,
                 IntFunction { variant: Int -> item.createVariantStack(variant) })
         }
         if (item is ShipTankItem) {
             return createVariantStack(
-                itemMeta, item.getVariantCount(), host,
+                itemMeta, item.variantCount, host,
                 IntFunction { variant: Int -> item.createVariantStack(variant) })
         }
         if (item is GrudgeItem) {
@@ -757,7 +759,8 @@ object TaskHelper {
             return 0
         }
         if (pickaxe.getItem() is TieredItem) {
-            val tier: Tier = tieredItem.getTier()
+            val tieredItem = pickaxe.getItem() as TieredItem
+            val tier: Tier = tieredItem.tier
             if (tier === Tiers.STONE) {
                 return 1
             }
@@ -789,10 +792,10 @@ object TaskHelper {
 
     private fun getFishingLuck(host: EntityShipBase, level: Level): Float {
         return (max(
-            getLuckOfTheSeaLevel(host.getHeldItemMainhandSlot(), level),
-            getLuckOfTheSeaLevel(host.getHeldItemOffhandSlot(), level)
+            getLuckOfTheSeaLevel(host.heldItemMainhandSlot, level),
+            getLuckOfTheSeaLevel(host.heldItemOffhandSlot, level)
         ) + getLuckLevel(host)
-                + host.getLevel() / Config.shipMaxLevelNormal.toFloat() * 1.5f)
+                + host.level / Config.shipMaxLevelNormal.toFloat() * 1.5f)
     }
 
     private fun getLuckOfTheSeaLevel(stack: ItemStack, level: Level): Int {
@@ -846,26 +849,26 @@ object TaskHelper {
         if (host == null || host.level().isClientSide) return
 
 
-        val inv = host.inventory
-        val recipePaper = host.getHeldItemMainhandSlot()
+        val inv = host.inventory!!
+        val recipePaper = host.heldItemMainhandSlot
         if (recipePaper.isEmpty() || !recipePaper.`is`(ModItems.RECIPE_PAPER.get())) {
             invalidateTask(runtime)
             return
         }
 
         val level = host.level()
-        val recipeGrid: Array<ItemStack> = loadRecipeGrid(recipePaper, level.registryAccess())
+        val recipeGrid: Array<ItemStack?> = loadRecipeGrid(recipePaper, level.registryAccess())
         val recipeSlots: MutableList<ItemStack> = ArrayList<ItemStack>(9)
         val materials: MutableList<ItemStack> = ArrayList<ItemStack>()
         for (i in 0..8) {
-            val stack = recipeGrid[i]
+            val stack = recipeGrid[i] ?: ItemStack.EMPTY
             recipeSlots.add(stack)
             if (!stack.isEmpty()) {
                 materials.add(stack)
             }
         }
 
-        if (!hasAnyRecipeIngredient(recipeGrid)) {
+        if (!hasAnyRecipeIngredient(recipeSlots)) {
             invalidateTask(runtime)
             return
         }
@@ -885,8 +888,8 @@ object TaskHelper {
         }
 
 
-        val uniqueMaterials: MutableList<ItemStack?> = ArrayList<ItemStack?>()
-        val counts: MutableList<Int?> = ArrayList<Int?>()
+        val uniqueMaterials: MutableList<ItemStack> = ArrayList<ItemStack>()
+        val counts: MutableList<Int> = ArrayList<Int>()
         val taskSide = host.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_SIDE)
         val checkMeta = (taskSide and (1 shl 18)) != 0
         val checkOre = (taskSide and (1 shl 19)) != 0
@@ -895,8 +898,8 @@ object TaskHelper {
         for (m in materials) {
             var found = false
             for (i in uniqueMaterials.indices) {
-                if (InventoryHelper.matchTargetItem(uniqueMaterials.get(i)!!, m, checkMeta, checkNbt, checkOre)) {
-                    counts.set(i, counts.get(i)!! + 1)
+                if (InventoryHelper.matchTargetItem(uniqueMaterials[i], m, checkMeta, checkNbt, checkOre)) {
+                    counts[i] = counts[i] + 1
                     found = true
                     break
                 }
@@ -907,7 +910,7 @@ object TaskHelper {
             }
         }
 
-        val guardTarget = host.getGuardTarget()
+        val guardTarget = host.guardTarget
         if (!isWaypointGuardContext(guardTarget, level)) {
             invalidateTask(runtime)
             return
@@ -917,7 +920,8 @@ object TaskHelper {
         val gz = guardTarget.z
 
         val wpPos = BlockPos(gx, gy, gz)
-        if (level.getBlockEntity(wpPos) !is WayPointBlockEntity) {
+        val wpbe = level.getBlockEntity(wpPos)
+        if (wpbe !is WayPointBlockEntity) {
             invalidateTask(runtime)
             return
         }
@@ -946,10 +950,10 @@ object TaskHelper {
                 return
             }
             val fallbackHandler: IItemHandler = InvWrapper(targetBE)
-            inHandlers = List.of<IItemHandler?>(fallbackHandler)
-            outHandlers = List.of<IItemHandler?>(fallbackHandler)
+            inHandlers = mutableListOf<IItemHandler>(fallbackHandler)
+            outHandlers = mutableListOf<IItemHandler>(fallbackHandler)
         }
-        val maxCraft = host.getLevel() / 20 + 1
+        val maxCraft = host.level / 20 + 1
         var craftedCount = 0
         val craftLoopStart = if (enabled()) now() else 0L
 
@@ -1070,7 +1074,7 @@ object TaskHelper {
         if (craftedCount > 0) {
             host.startCustomSwing()
             host.addShipExp(Config.expGainTask[3])
-            host.setFuel(host.getFuel() - Config.consumeGrudgeTask[3])
+            host.fuel -= Config.consumeGrudgeTask[3]
             host.addMorale(-10)
             if (host.getRandom().nextInt(5) == 0) {
                 host.applyParticleEmotion(host.getRandom().nextInt(5))
@@ -1079,7 +1083,7 @@ object TaskHelper {
     }
 
     private fun isWaypointGuardContext(guardTarget: ShipGuardTarget, level: Level): Boolean {
-        if (!guardTarget.isBlock()) {
+        if (!guardTarget.isBlock) {
             return false
         }
 
@@ -1166,7 +1170,7 @@ object TaskHelper {
         val fallback: Boolean
     ) {
         companion object {
-            private fun createFallback(candidates: Int = 0, totalWeight: Int = 0): MiningDropResult {
+            internal fun createFallback(candidates: Int = 0, totalWeight: Int = 0): MiningDropResult {
                 return MiningDropResult(ItemStack.EMPTY, candidates, totalWeight, true)
             }
         }

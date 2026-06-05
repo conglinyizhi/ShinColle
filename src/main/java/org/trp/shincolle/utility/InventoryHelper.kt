@@ -157,8 +157,8 @@ object InventoryHelper {
     }
 
     @JvmStatic
-    fun getHandlersFromSide(level: Level, pos: BlockPos, taskSide: Int, type: Int): MutableList<IItemHandler?> {
-        val handlers: MutableList<IItemHandler?> = ArrayList<IItemHandler?>()
+    fun getHandlersFromSide(level: Level, pos: BlockPos, taskSide: Int, type: Int): MutableList<IItemHandler> {
+        val handlers: MutableList<IItemHandler> = ArrayList<IItemHandler>()
         val padbit = type * 6
         for (i in 0..5) {
             val tarbit = i + padbit
