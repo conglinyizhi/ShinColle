@@ -12,7 +12,6 @@ import net.minecraft.world.item.crafting.RecipeHolder
 import net.minecraft.world.item.crafting.RecipeType
 import net.minecraft.world.level.Level
 import java.util.function.Consumer
-import java.util.function.Function
 import java.util.function.UnaryOperator
 import kotlin.math.min
 
@@ -112,11 +111,10 @@ object RecipePaperData {
     fun getRecipePreviewResult(level: Level, grid: MutableList<ItemStack?>): ItemStack {
         val input = CraftingInput.of(3, 3, grid)
         val recipe =
-            level.getRecipeManager().getRecipeFor<CraftingInput?, CraftingRecipe?>(RecipeType.CRAFTING, input, level)
-        return recipe.map<ItemStack>(Function { holder: RecipeHolder<CraftingRecipe?>? ->
-            holder!!.value().assemble(input, level.registryAccess())
-        })
-            .orElse(ItemStack.EMPTY)
+            level.recipeManager.getRecipeFor<CraftingInput, CraftingRecipe>(RecipeType.CRAFTING, input, level)
+        return recipe.map { holder: RecipeHolder<CraftingRecipe> ->
+            holder.value.assemble(input, level.registryAccess())
+        }.orElse(ItemStack.EMPTY)
     }
 
     fun hasAnyRecipeIngredient(grid: MutableList<ItemStack>): Boolean {
