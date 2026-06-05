@@ -1,14 +1,22 @@
 package org.trp.shincolle.integration.jei
 
 import mezz.jei.api.IModPlugin
+import mezz.jei.api.JeiPlugin
+import mezz.jei.api.registration.IRecipeCatalystRegistration
+import mezz.jei.api.registration.IRecipeCategoryRegistration
+import mezz.jei.api.registration.IRecipeRegistration
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.ItemStack
+import org.trp.shincolle.Shincolle
+import org.trp.shincolle.init.ModItems
 
 @JeiPlugin
 class ShinColleJeiPlugin : IModPlugin {
-    val pluginUid: ResourceLocation
-        get() = PLUGIN_UID
 
-    public override fun registerCategories(registration: IRecipeCategoryRegistration) {
-        val guiHelper: IGuiHelper = registration.getJeiHelpers().getGuiHelper()
+    override fun getPluginUid(): ResourceLocation = PLUGIN_UID
+
+    override fun registerCategories(registration: IRecipeCategoryRegistration) {
+        val guiHelper = registration.jeiHelpers.guiHelper
 
         registration.addRecipeCategories(
             ShipyardRecipeCategory(guiHelper, false),
@@ -19,52 +27,33 @@ class ShinColleJeiPlugin : IModPlugin {
         )
     }
 
-    public override fun registerRecipes(registration: IRecipeRegistration) {
+    override fun registerRecipes(registration: IRecipeRegistration) {
         // Shipyard recipes
-        registration.addRecipes(
-            ShipyardRecipeCategory.Companion.SMALL_TYPE,
-            JeiRecipeMaker.getSmallShipyardRecipes()
-        )
-        registration.addRecipes(
-            ShipyardRecipeCategory.Companion.LARGE_TYPE,
-            JeiRecipeMaker.getLargeShipyardRecipes()
-        )
+        registration.addRecipes(ShipyardRecipeCategory.SMALL_TYPE, JeiRecipeMaker.smallShipyardRecipes)
+        registration.addRecipes(ShipyardRecipeCategory.LARGE_TYPE, JeiRecipeMaker.largeShipyardRecipes)
 
         // Equipment development recipes
-        registration.addRecipes(
-            EquipmentRecipeCategory.Companion.SMALL_TYPE,
-            JeiRecipeMaker.getSmallEquipRecipes()
-        )
-        registration.addRecipes(
-            EquipmentRecipeCategory.Companion.LARGE_TYPE,
-            JeiRecipeMaker.getLargeEquipRecipes()
-        )
+        registration.addRecipes(EquipmentRecipeCategory.SMALL_TYPE, JeiRecipeMaker.smallEquipRecipes)
+        registration.addRecipes(EquipmentRecipeCategory.LARGE_TYPE, JeiRecipeMaker.largeEquipRecipes)
 
         // Ship acquisition reference
-        registration.addRecipes(
-            ShipAcquisitionCategory.Companion.TYPE,
-            JeiRecipeMaker.getShipAcquisitions()
-        )
+        registration.addRecipes(ShipAcquisitionCategory.TYPE, JeiRecipeMaker.shipAcquisitions)
 
         // Item descriptions
         JeiItemDescription.register(registration)
     }
 
-    public override fun registerRecipeCatalysts(registration: IRecipeCatalystRegistration) {
+    override fun registerRecipeCatalysts(registration: IRecipeCatalystRegistration) {
         registration.addRecipeCatalyst(
             ItemStack(ModItems.SMALL_SHIPYARD.get()),
-            ShipyardRecipeCategory.Companion.SMALL_TYPE,
-            EquipmentRecipeCategory.Companion.SMALL_TYPE
+            ShipyardRecipeCategory.SMALL_TYPE,
+            EquipmentRecipeCategory.SMALL_TYPE
         )
         registration.addRecipeCatalyst(
             ItemStack(ModItems.LARGE_SHIPYARD.get()),
-            ShipyardRecipeCategory.Companion.LARGE_TYPE,
-            EquipmentRecipeCategory.Companion.LARGE_TYPE
+            ShipyardRecipeCategory.LARGE_TYPE,
+            EquipmentRecipeCategory.LARGE_TYPE
         )
-    }
-
-    public override fun registerItemSubtypes(registration: ISubtypeRegistration?) {
-        // No item subtypes needed for JEI integration
     }
 
     companion object {
