@@ -13,14 +13,9 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.saveddata.SavedData
 import org.trp.shincolle.entity.base.EntityShipBase
-import java.lang.String
 import java.util.*
 import java.util.function.BiFunction
-import java.util.function.Function
 import java.util.function.Supplier
-import kotlin.Boolean
-import kotlin.Comparator
-import kotlin.toString
 
 class ShipRegistrySavedData : SavedData() {
     private val ships: MutableMap<UUID?, ShipEntry> = HashMap<UUID?, ShipEntry>()
@@ -30,16 +25,17 @@ class ShipRegistrySavedData : SavedData() {
             return
         }
 
-        val shipUuid = ship.getUUID()
+        val serverLevel = ship.level() as ServerLevel
+        val shipUuid = ship.uuid
         val next = ShipEntry(
             shipUuid,
-            ship.getName().getString(),
-            BuiltInRegistries.ENTITY_TYPE.getKey(ship.getType()),
+            ship.name.string,
+            BuiltInRegistries.ENTITY_TYPE.getKey(ship.type),
             serverLevel.dimension(),
             ship.blockPosition().immutable(),
-            ship.getOwnerUUID(),
-            ship.isStateMarried(),
-            ship.isHostileShipMob(),
+            ship.ownerUUID,
+            ship.isStateMarried,
+            ship.isHostileShipMob,
             false
         )
 
@@ -54,17 +50,18 @@ class ShipRegistrySavedData : SavedData() {
             return
         }
 
-        val shipUuid = ship.getUUID()
+        val serverLevel = ship.level() as ServerLevel
+        val shipUuid = ship.uuid
         val previous = this.ships.get(shipUuid)
         val next = ShipEntry(
             shipUuid,
-            ship.getName().getString(),
-            BuiltInRegistries.ENTITY_TYPE.getKey(ship.getType()),
+            ship.name.string,
+            BuiltInRegistries.ENTITY_TYPE.getKey(ship.type),
             serverLevel.dimension(),
             ship.blockPosition().immutable(),
-            ship.getOwnerUUID(),
-            ship.isStateMarried(),
-            ship.isHostileShipMob(),
+            ship.ownerUUID,
+            ship.isStateMarried,
+            ship.isHostileShipMob,
             true
         )
         this.ships.put(shipUuid, next)
@@ -89,21 +86,17 @@ class ShipRegistrySavedData : SavedData() {
         return if (shipUuid == null) null else this.ships.get(shipUuid)
     }
 
-    fun all(): MutableCollection<ShipEntry?> {
-        return Collections.unmodifiableCollection<ShipEntry?>(this.ships.values)
+    fun all(): MutableCollection<ShipEntry> {
+        return Collections.unmodifiableCollection(this.ships.values)
     }
 
-    fun listSorted(): MutableList<ShipEntry?> {
-        val list: MutableList<ShipEntry?> = ArrayList<ShipEntry?>(this.ships.values)
-        list.sort(
-            Comparator
-                .comparing<ShipEntry?, String?>(Function { entry: ShipEntry? -> if (entry!!.ownerUuid == null) "" else entry.ownerUuid.toString() })
-                .thenComparing<ResourceLocation?>(
-                    ShipEntry::typeId,
-                    Comparator.comparing<ResourceLocation?, String?>(Function { obj: ResourceLocation? -> obj.toString() })
-                )
-                .thenComparing<String?>(ShipEntry::displayName, String.CASE_INSENSITIVE_ORDER)
-                .thenComparing<UUID?>(ShipEntry::shipUuid)
+    fun listSorted(): MutableList<ShipEntry> {
+        val list: MutableList<ShipEntry> = ArrayList(this.ships.values)
+        list.sortWith(
+            compareBy<ShipEntry> { it.ownerUuid?.toString() ?: "" }
+                .thenBy { it.typeId.toString() }
+                .thenBy(String.CASE_INSENSITIVE_ORDER) { it.displayName ?: "" }
+                .thenBy { it.shipUuid }
         )
         return list
     }
@@ -120,7 +113,7 @@ class ShipRegistrySavedData : SavedData() {
     @JvmRecord
     data class ShipEntry(
         @JvmField val shipUuid: UUID?,
-        @JvmField val displayName: kotlin.String?,
+        @JvmField val displayName: String?,
         @JvmField val typeId: ResourceLocation?,
         @JvmField val dimension: ResourceKey<Level?>?,
         @JvmField val pos: BlockPos?,
@@ -129,15 +122,15 @@ class ShipRegistrySavedData : SavedData() {
         @JvmField val hostile: Boolean,
         @JvmField val removed: Boolean
     ) {
-        private fun toTag(): CompoundTag {
+        internal fun toTag(): CompoundTag {
             val tag = CompoundTag()
             tag.putUUID("ShipUuid", this.shipUuid)
             tag.putString("DisplayName", this.displayName)
             tag.putString("TypeId", this.typeId.toString())
             tag.putString("Dimension", this.dimension!!.location().toString())
-            tag.putInt("PosX", this.pos!!.getX())
-            tag.putInt("PosY", this.pos.getY())
-            tag.putInt("PosZ", this.pos.getZ())
+            tag.putInt("PosX", this.pos!!.x)
+            tag.putInt("PosY", this.pos.y)
+            tag.putInt("PosZ", this.pos.z)
             if (this.ownerUuid != null) {
                 tag.putUUID("OwnerUuid", this.ownerUuid)
             }
@@ -148,7 +141,7 @@ class ShipRegistrySavedData : SavedData() {
         }
 
         companion object {
-            private fun fromTag(tag: CompoundTag): ShipEntry? {
+            internal fun fromTag(tag: CompoundTag): ShipEntry? {
                 if (!tag.hasUUID("ShipUuid")) {
                     return null
                 }
@@ -203,7 +196,7 @@ class ShipRegistrySavedData : SavedData() {
                 if (!entryTag.hasUUID("ShipUuid")) {
                     continue
                 }
-                val entry = ShipEntry.Companion.fromTag(entryTag)
+                val entry = ShipEntry.fromTag(entryTag)
                 if (entry != null) {
                     data.ships.put(entry.shipUuid, entry)
                 }
