@@ -42,12 +42,11 @@ object PerformanceTrace {
 
     @JvmStatic
     fun endServerTick() {
-        if (!enabled() || serverTickTrace == null) {
-            serverTickTrace = null
-            return
-        }
         val trace = serverTickTrace
         serverTickTrace = null
+        if (trace == null) {
+            return
+        }
         if (trace.totalNanos >= thresholdNanos(Config.debugPerfSlowServerTickMs)
             && shouldLog(SERVER_TICK_OWNER, "serverTick", trace.tickCount.toLong())
         ) {
@@ -59,43 +58,43 @@ object PerformanceTrace {
                 formatMs(trace.taskNanos), trace.taskCalls,
                 formatMs(trace.blockEntityNanos), trace.blockEntityCalls,
                 formatMs(trace.projectileNanos), trace.projectileCalls,
-                formatMs(trace!!.otherNanos())
+                formatMs(trace.otherNanos())
             )
         }
     }
 
     @JvmStatic
     fun addShipTime(nanos: Long) {
-        if (serverTickTrace != null) {
-            serverTickTrace.shipNanos += nanos
-            serverTickTrace.shipCalls++
-            serverTickTrace.totalNanos += nanos
+        serverTickTrace?.let {
+            it.shipNanos += nanos
+            it.shipCalls++
+            it.totalNanos += nanos
         }
     }
 
     @JvmStatic
     fun addTaskTime(nanos: Long) {
-        if (serverTickTrace != null) {
-            serverTickTrace.taskNanos += nanos
-            serverTickTrace.taskCalls++
+        serverTickTrace?.let {
+            it.taskNanos += nanos
+            it.taskCalls++
         }
     }
 
     @JvmStatic
     fun addBlockEntityTime(nanos: Long) {
-        if (serverTickTrace != null) {
-            serverTickTrace.blockEntityNanos += nanos
-            serverTickTrace.blockEntityCalls++
-            serverTickTrace.totalNanos += nanos
+        serverTickTrace?.let {
+            it.blockEntityNanos += nanos
+            it.blockEntityCalls++
+            it.totalNanos += nanos
         }
     }
 
     @JvmStatic
     fun addProjectileTime(nanos: Long) {
-        if (serverTickTrace != null) {
-            serverTickTrace.projectileNanos += nanos
-            serverTickTrace.projectileCalls++
-            serverTickTrace.totalNanos += nanos
+        serverTickTrace?.let {
+            it.projectileNanos += nanos
+            it.projectileCalls++
+            it.totalNanos += nanos
         }
     }
 
@@ -157,14 +156,14 @@ object PerformanceTrace {
         if (!enabled() || elapsedNanos < thresholdNanos(Config.debugPerfSlowBlockEntityTickMs)) {
             return
         }
-        val level = be.getLevel()
+        val level = be.level
         val gameTime = gameTime(level)
         if (!shouldLog(be, "blockEntity:" + name, gameTime)) {
             return
         }
         perfLog(
             "SlowBlockEntityTick gameTime={} type={} dim={} pos={} ms={} {}",
-            gameTime, name, dimension(level), be.getBlockPos(), formatMs(elapsedNanos), detail
+            gameTime, name, dimension(level), be.blockPos, formatMs(elapsedNanos), detail
         )
     }
 
@@ -209,28 +208,28 @@ object PerformanceTrace {
 
     private fun ownerKey(owner: Any?): String {
         if (owner is Entity) {
-            val uuid = owner.getUUID()
+            val uuid = owner.uuid
             return "entity:" + uuid
         }
         if (owner is BlockEntity) {
-            val level = owner.getLevel()
-            return "be:" + dimension(level) + ':' + owner.getBlockPos().asLong()
+            val level = owner.level
+            return "be:" + dimension(level) + ':' + owner.blockPos.asLong()
         }
         return "object:" + System.identityHashCode(owner)
     }
 
     private fun describeEntity(entity: Entity): String {
-        val type = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType())
+        val type = BuiltInRegistries.ENTITY_TYPE.getKey(entity.type)
         var owner = ""
-        if (entity is TamableAnimal && entity.getOwnerUUID() != null) {
-            owner = ",owner=" + entity.getOwnerUUID()
+        if (entity is TamableAnimal && entity.ownerUUID != null) {
+            owner = ",owner=" + entity.ownerUUID
         }
-        return type.toString() + "[id=" + entity.getId() + ",uuid=" + entity.getUUID() + owner + "]"
+        return type.toString() + "[id=" + entity.id + ",uuid=" + entity.uuid + owner + "]"
     }
 
     private fun blockPos(entity: Entity): String {
         val pos = entity.blockPosition()
-        return pos.getX().toString() + "," + pos.getY() + "," + pos.getZ()
+        return pos.x.toString() + "," + pos.y + "," + pos.z
     }
 
     private fun dimension(level: Level?): String {
@@ -247,16 +246,16 @@ object PerformanceTrace {
     @JvmRecord
     private data class LastLog(val gameTime: Long)
 
-    private class ServerTickTrace(private val tickCount: Int) {
-        private var totalNanos: Long = 0
-        private var shipNanos: Long = 0
-        private var taskNanos: Long = 0
-        private var blockEntityNanos: Long = 0
-        private var projectileNanos: Long = 0
-        private var shipCalls = 0
-        private var taskCalls = 0
-        private var blockEntityCalls = 0
-        private var projectileCalls = 0
+    private class ServerTickTrace(val tickCount: Int) {
+        var totalNanos: Long = 0
+        var shipNanos: Long = 0
+        var taskNanos: Long = 0
+        var blockEntityNanos: Long = 0
+        var projectileNanos: Long = 0
+        var shipCalls = 0
+        var taskCalls = 0
+        var blockEntityCalls = 0
+        var projectileCalls = 0
 
         fun otherNanos(): Long {
             val known = shipNanos + blockEntityNanos + projectileNanos
