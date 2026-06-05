@@ -1,0 +1,206 @@
+package org.trp.shincolle.entity
+
+import net.minecraft.core.particles.ParticleTypes
+import net.minecraft.core.particles.SimpleParticleType
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.util.Mth
+import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.TamableAnimal
+import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.item.Item
+import net.minecraft.world.level.Level
+import org.trp.shincolle.Config
+import org.trp.shincolle.entity.base.EntityShipBase
+import org.trp.shincolle.entity.projectile.EntityProjectileBeam
+import org.trp.shincolle.init.ModItems
+import org.trp.shincolle.init.ModParticles
+import org.trp.shincolle.init.ModSounds
+import java.util.List
+import kotlin.math.max
+
+class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+    init {
+        setModelPos(floatArrayOf(0f, 25f, 0f, 40f))
+        setStateMinor(STATE_MINOR_FACTION_ID, 6)
+        setStateMinor(STATE_MINOR_SHIP_CLASS, 46)
+        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3)
+        setStateMinor(STATE_MINOR_RARITY, 4)
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeBB)
+        setStateGuiBtn3(false)
+        setStateGuiBtn4(false)
+    }
+
+    override fun aiStep() {
+        super.aiStep()
+
+        if (this.level().isClientSide) {
+            updateClientParticles()
+        }
+    }
+
+    override fun tickAliveLogic() {
+        super.tickAliveLogic()
+        if ((this.tickCount % 128) == 0) {
+            applyBuffToNearbyAllies()
+        }
+
+        if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
+            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0) {
+                this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
+            }
+        }
+    }
+
+    val passengersRidingOffset: Double
+        get() {
+            if (!this.getIsSitting()) {
+                return (this.getBbHeight() * 0.75f).toDouble()
+            }
+            if (checkModelState(0, this.getStateEmotion(0))) {
+                return (this.getBbHeight() * 0.5f).toDouble()
+            }
+            if (this.getStateEmotion(1) == 4) {
+                return (this.getBbHeight() * 0.1f).toDouble()
+            }
+            return (this.getBbHeight() * 0.4f).toDouble()
+        }
+
+    override fun getEquipOptions(): MutableList<EquipOption?> {
+        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+        list.addAll(
+            List.of<EquipOption?>(
+                EquipOption(EQUIP_BELT, "gui.shincolle.equip.belt"),
+                EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"),
+                EquipOption(EQUIP_UPPER, "gui.shincolle.equip.upper"),
+                EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg")
+            )
+        )
+        return list
+    }
+
+    protected override fun performHeavyAttack(target: Entity?): Boolean {
+        if (this.level() !is ServerLevel) {
+            return false
+        }
+        if (target == null || !target.isAlive()) {
+            return false
+        }
+        if (isSameOwnerAttackTarget(target)) {
+            return false
+        }
+
+        if (this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
+            if (!consumeHeavyAmmo(1)) {
+                return false
+            }
+            this.setFuel(this.getFuel() - Config.fuelConsumeActionHeavy)
+            val baseDamage = this.getAttributeValue(Attributes.ATTACK_DAMAGE).toFloat()
+            val damage = max(6.0f, baseDamage * 1.6f)
+            this.playSound(ModSounds.SHIP_YAMATO_SHOT.get(), max(0.0f, Config.volumeAttack), 1.0f)
+            spawnBeamEntity(serverLevel, target, damage)
+            this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
+        } else {
+            this.setStateEmotion(EMOTION_ATTACK_PHASE, 1, true)
+            this.playSound(ModSounds.SHIP_YAMATO_READY.get(), max(0.0f, Config.volumeAttack), 1.0f)
+            serverLevel.sendParticles<SimpleParticleType?>(
+                ModParticles.PARTICLE_CUBE.get(),
+                this.getX(), this.getY() + this.getBbHeight() * 0.6, this.getZ(),
+                0, 1.5, this.getId().toDouble(), 0.0, 1.0
+            )
+            for (i in 0..5) {
+                serverLevel.sendParticles<SimpleParticleType?>(
+                    ModParticles.PARTICLE_LIGHTNING.get(),
+                    this.getX(), this.getY() + 1.2, this.getZ(),
+                    0, 0.1, this.getId().toDouble(), 3.0, 1.0
+                )
+            }
+            this.tryFlareTarget(target)
+            this.setAttackTick(50)
+            this.applyEmotesReaction(3)
+            return false
+        }
+
+        this.setAttackTick(50)
+        this.applyEmotesReaction(3)
+        return true
+    }
+
+    private fun updateClientParticles() {
+        if (this.tickCount % 4 == 0 && checkModelState(0, this.getStateEmotion(0))
+            && !this.getIsSitting() && !this.isStateNoEquip()
+        ) {
+            val partPos = rotateXZByAxis(-0.63f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f)
+            for (i in 0..2) {
+                this.level().addParticle(
+                    ParticleTypes.SMOKE,
+                    this.getX() + partPos[1], this.getY() + 1.65 + i * 0.1, this.getZ() + partPos[0],
+                    0.0, 0.0, 0.0
+                )
+            }
+        }
+
+        if (this.tickCount % 16 == 0 && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
+            for (i in 0..3) {
+                this.level().addParticle(
+                    ModParticles.PARTICLE_LIGHTNING.get(),
+                    this.getX(), this.getY() + 1.2, this.getZ(),
+                    0.1, this.getId().toDouble(), 1.0
+                )
+            }
+        }
+    }
+
+    private fun applyBuffToNearbyAllies() {
+        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+            return
+        }
+        val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
+            EntityShipBase::class.java,
+            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+        )
+        if (ships.isEmpty()) {
+            return
+        }
+        val duration = 50 + this.getStateMinor(0)
+        val amp = max(0, this.getStateMinor(0) / 70)
+        for (ship in ships) {
+            if (ship === this) {
+                continue
+            }
+            if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+                continue
+            }
+            ship.addEffect(MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, duration, amp, false, false))
+            ship.addEffect(MobEffectInstance(MobEffects.FIRE_RESISTANCE, duration, amp, false, false))
+        }
+    }
+
+    private fun spawnBeamEntity(serverLevel: ServerLevel, target: Entity, damage: Float) {
+        val start = this.position().add(0.0, this.getBbHeight() * 0.7, 0.0)
+        val end = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
+        var delta = end.subtract(start)
+        val dist = delta.length()
+        if (dist > 1.0E-4) {
+            delta = delta.scale(1.0 / dist)
+        }
+        val beam = EntityProjectileBeam(serverLevel)
+        beam.initAttrs(this, 0, delta.x.toFloat(), delta.y.toFloat(), delta.z.toFloat(), damage)
+        serverLevel.addFreshEntity(beam)
+    }
+
+    override fun getShipSpawnEggItem(): Item {
+        return ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get()
+    }
+
+    companion object {
+        const val EQUIP_BELT: String = "equip_belt"
+        const val EQUIP_HEAD_BASE: String = "equip_head_base"
+        const val EQUIP_UPPER: String = "equip_upper"
+        const val EQUIP_LEG: String = "equip_leg"
+
+        private const val EMOTION_ATTACK_PHASE = 5
+    }
+}

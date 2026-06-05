@@ -1,0 +1,93 @@
+package org.trp.shincolle.entity
+
+import net.minecraft.world.effect.MobEffectInstance
+import net.minecraft.world.effect.MobEffects
+import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.TamableAnimal
+import net.minecraft.world.item.Item
+import net.minecraft.world.level.Level
+import org.trp.shincolle.Config
+import org.trp.shincolle.entity.base.EntityMountBase
+import org.trp.shincolle.entity.base.EntityShipBase
+import org.trp.shincolle.init.ModEntities
+import org.trp.shincolle.init.ModItems
+import kotlin.math.max
+
+class EntityCarrierWDemon(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+    init {
+        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        setStateMinor(STATE_MINOR_FACTION_ID, 9)
+        setStateMinor(STATE_MINOR_SHIP_CLASS, 33)
+        setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1)
+        setStateMinor(STATE_MINOR_RARITY, 2)
+        setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCV)
+        setStateGuiBtn2(false)
+    }
+
+    override fun tickAliveLogic() {
+        super.tickAliveLogic()
+
+        if ((this.tickCount % 128) == 0) {
+            updateServerLogic()
+        }
+    }
+
+    private fun updateServerLogic() {
+        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+            val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
+                EntityShipBase::class.java,
+                this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            )
+            if (!ships.isEmpty()) {
+                val duration = 50 + this.getStateMinor(0)
+                val amp = max(0, this.getStateMinor(0) / 70)
+                for (ship in ships) {
+                    if (ship === this) {
+                        continue
+                    }
+                    if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+                        continue
+                    }
+                    ship.addEffect(MobEffectInstance(MobEffects.DIG_SPEED, duration, amp, false, false))
+                }
+            }
+        }
+
+        this.addEffect(MobEffectInstance(MobEffects.NIGHT_VISION, 150, 0, false, false))
+    }
+
+    override fun getEquipOptions(): MutableList<EquipOption?> {
+        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+        list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
+        return list
+    }
+
+    override fun supportsAircraftCombat(): Boolean {
+        return true
+    }
+
+    override fun getAttackAircraftType(isLightAircraft: Boolean): EntityType<out TamableAnimal?> {
+        return if (isLightAircraft) ModEntities.AIRPLANE.get() else ModEntities.TAKOYAKI.get()
+    }
+
+    override fun getAircraftLaunchHeight(): Double {
+        return this.getBbHeight() * 1.2
+    }
+
+    override fun getShipSpawnEggItem(): Item {
+        return ModItems.CARRIER_W_DEMON_SPAWN_EGG.get()
+    }
+
+    override fun hasShipMounts(): Boolean {
+        return true
+    }
+
+    override fun summonMountEntity(): EntityMountBase {
+        return EntityMountCaWD(ModEntities.MOUNT_CA_WD.get(), this.level())
+    }
+
+    companion object {
+        const val EQUIP_RIGGING: String = "equip_rigging"
+    }
+}
+
