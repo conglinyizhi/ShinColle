@@ -52,19 +52,18 @@ object WaypointService {
             return
         }
 
-        if (player.level().getBlockEntity(from) is IWaypoint
-            && player.level().getBlockEntity(to) is IWaypoint
-            && checkWaypointOwner(player, wpFrom)
-        ) {
-            wpFrom.setNextPos(to)
-            if (wpTo.getNextPos() != from) {
-                wpTo.setLastPos(from)
+        val wpFrom = player.level().getBlockEntity(from)
+        val wpTo = player.level().getBlockEntity(to)
+        if (wpFrom is IWaypoint && wpTo is IWaypoint && checkWaypointOwner(player, wpFrom)) {
+            wpFrom.nextPos = to
+            if (wpTo.nextPos != from) {
+                wpTo.lastPos = from
             }
             player.displayClientMessage(
                 Component.translatable("chat.shincolle.wrench.setwp")
                     .append(
-                        (" " + from.getX() + " " + from.getY() + " " + from.getZ()
-                                + " --> " + to.getX() + " " + to.getY() + " " + to.getZ())
+                        (" " + from.x + " " + from.y + " " + from.z
+                                + " --> " + to.x + " " + to.y + " " + to.z)
                     ), false
             )
         }
@@ -77,23 +76,21 @@ object WaypointService {
         }
 
         val container = player.level().getBlockEntity(containerPos)
-        if (player.level().getBlockEntity(waypointPos) is IWaypoint
-            && isWaypointContainer(container)
-            && checkWaypointOwner(player, waypoint)
-        ) {
-            waypoint.setChestPos(containerPos)
+        val waypoint = player.level().getBlockEntity(waypointPos)
+        if (waypoint is IWaypoint && isWaypointContainer(container) && checkWaypointOwner(player, waypoint)) {
+            waypoint.chestPos = containerPos
             player.displayClientMessage(
                 Component.translatable("chat.shincolle.wrench.setwp")
                     .append(
-                        (" " + waypointPos.getX() + " " + waypointPos.getY() + " " + waypointPos.getZ()
-                                + " & " + containerPos.getX() + " " + containerPos.getY() + " " + containerPos.getZ())
+                        (" " + waypointPos.x + " " + waypointPos.y + " " + waypointPos.z
+                                + " & " + containerPos.x + " " + containerPos.y + " " + containerPos.z)
                     ), false
             )
         }
     }
 
     private fun checkWaypointOwner(player: Player, waypoint: IWaypoint): Boolean {
-        if (waypoint.ownerUUID != null && waypoint.ownerUUID != player.getUUID()) {
+        if (waypoint.ownerUUID != null && waypoint.ownerUUID != player.uuid) {
             player.displayClientMessage(Component.translatable("chat.shincolle.wrongowner"), false)
             return false
         }
