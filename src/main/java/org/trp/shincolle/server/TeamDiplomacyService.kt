@@ -11,7 +11,6 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.network.C2STeamDiplomacyPayload
 import org.trp.shincolle.network.S2CDeskDiplomacySyncPayload
 import java.util.*
-import java.util.function.Function
 
 object TeamDiplomacyService {
     @JvmStatic
@@ -22,7 +21,8 @@ object TeamDiplomacyService {
         if (ship.level() !is ServerLevel) {
             return false
         }
-        val owner = ship.getOwnerUUID()
+        val serverLevel = ship.level() as ServerLevel
+        val owner = ship.ownerUUID
         val targetOwner = PointerInteractionService.getTargetOwnerUUID(target)
         return TeamDiplomacySavedData.Companion.get(serverLevel).areAllies(owner, targetOwner)
     }
@@ -35,7 +35,8 @@ object TeamDiplomacyService {
         if (ship.level() !is ServerLevel) {
             return false
         }
-        val owner = ship.getOwnerUUID()
+        val serverLevel = ship.level() as ServerLevel
+        val owner = ship.ownerUUID
         val targetOwner = PointerInteractionService.getTargetOwnerUUID(target)
         return TeamDiplomacySavedData.Companion.get(serverLevel).isBanned(owner, targetOwner)
     }
@@ -49,7 +50,8 @@ object TeamDiplomacyService {
             return
         }
 
-        val owner = player.getUUID()
+        val serverLevel = player.level() as ServerLevel
+        val owner = player.uuid
         if (target == null || owner == target) {
             return
         }
@@ -57,9 +59,7 @@ object TeamDiplomacyService {
         val diplomacy: TeamDiplomacySavedData = TeamDiplomacySavedData.Companion.get(serverLevel)
         val targetPlayer: Player? = serverLevel.getPlayerByUUID(target)
         val targetName: Component =
-            (if (targetPlayer != null) targetPlayer.getDisplayName() else net.minecraft.network.chat.Component.literal(
-                target.toString()
-            ))!!
+            (targetPlayer?.displayName ?: net.minecraft.network.chat.Component.literal(target.toString()))
         val changed = applyDiplomacyAction(diplomacy, owner, action, target)
         val message: Component?
         when (action) {
@@ -116,11 +116,11 @@ object TeamDiplomacyService {
     fun sendDeskDiplomacySync(player: ServerPlayer) {
         val diplomacy: TeamDiplomacySavedData = TeamDiplomacySavedData.Companion.get(player.serverLevel())
         updateDiplomacyDisplayData(player, diplomacy)
-        val entry = diplomacy.getOrCreate(player.getUUID())
+        val entry = diplomacy.getOrCreate(player.uuid)
 
         val displayIds = LinkedHashSet<UUID?>()
-        displayIds.addAll(entry.allies())
-        displayIds.addAll(entry.banned())
+        displayIds.addAll(entry.allies)
+        displayIds.addAll(entry.banned)
 
         val uuids = ArrayList<UUID?>()
         val teamNames = ArrayList<String?>()
@@ -131,8 +131,8 @@ object TeamDiplomacyService {
             }
             uuids.add(target)
             val targetEntry = diplomacy.get(target)
-            teamNames.add(if (targetEntry == null) "" else targetEntry.teamName())
-            var leaderName = if (targetEntry == null) "" else targetEntry.leaderName()
+            teamNames.add(targetEntry?.teamName ?: "")
+            var leaderName = targetEntry?.leaderName ?: ""
             if (leaderName.isBlank()) {
                 leaderName = resolveDiplomacyLeaderName(player, target)
             }
@@ -141,9 +141,9 @@ object TeamDiplomacyService {
 
         PacketDistributor.sendToPlayer(
             player, S2CDeskDiplomacySyncPayload.of(
-                player.getUUID(),
-                entry.allies(),
-                entry.banned(),
+                player.uuid,
+                ArrayList(entry.allies),
+                ArrayList(entry.banned),
                 uuids,
                 teamNames,
                 leaderNames
@@ -154,22 +154,22 @@ object TeamDiplomacyService {
     private fun updateDiplomacyDisplayData(player: ServerPlayer, diplomacy: TeamDiplomacySavedData) {
         val data = PlayerStateService.admiralData(player)
         val teamName = data.getTeamName(data.getCurrentTeamID())
-        val leaderName = player.getName().getString()
-        diplomacy.setDisplayData(player.getUUID(), teamName, leaderName)
+        val leaderName = player.name.string
+        diplomacy.setDisplayData(player.uuid, teamName, leaderName)
     }
 
     private fun resolveDiplomacyLeaderName(player: ServerPlayer, target: UUID?): String {
         if (target == null) {
             return ""
         }
-        val onlinePlayer = player.server.getPlayerList().getPlayer(target)
+        val onlinePlayer = player.server.playerList.getPlayer(target)
         if (onlinePlayer != null) {
-            return onlinePlayer.getName().getString()
+            return onlinePlayer.name.string
         }
-        val profileCache = player.server.getProfileCache()
+        val profileCache = player.server.profileCache
         if (profileCache == null) {
             return ""
         }
-        return profileCache.get(target).map<String>(Function { GameProfile.getName() }).orElse("")
+        return profileCache.get(target).map { it.name }.orElse("")
     }
 }

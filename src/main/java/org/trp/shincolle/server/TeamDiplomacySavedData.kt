@@ -15,7 +15,7 @@ class TeamDiplomacySavedData : SavedData() {
     private val entries: MutableMap<UUID?, TeamDiplomacyEntry> = HashMap<UUID?, TeamDiplomacyEntry>()
 
     fun getOrCreate(owner: UUID?): TeamDiplomacyEntry {
-        return this.entries.computeIfAbsent(owner) { owner: UUID? -> TeamDiplomacyEntry(owner) }
+        return this.entries.computeIfAbsent(owner) { key: UUID? -> TeamDiplomacyEntry(key!!) }
     }
 
     fun get(owner: UUID?): TeamDiplomacyEntry? {
@@ -122,31 +122,11 @@ class TeamDiplomacySavedData : SavedData() {
         return tag
     }
 
-    class TeamDiplomacyEntry private constructor(private val owner: UUID) {
-        private var teamName = ""
-        private var leaderName = ""
-        private val allies = TreeSet<UUID>()
-        private val banned = TreeSet<UUID>()
-
-        fun owner(): UUID {
-            return this.owner
-        }
-
-        fun teamName(): String {
-            return this.teamName
-        }
-
-        fun leaderName(): String {
-            return this.leaderName
-        }
-
-        fun allies(): MutableCollection<UUID?> {
-            return Collections.unmodifiableSet<UUID?>(this.allies)
-        }
-
-        fun banned(): MutableCollection<UUID?> {
-            return Collections.unmodifiableSet<UUID?>(this.banned)
-        }
+    class TeamDiplomacyEntry internal constructor(val owner: UUID) {
+        internal var teamName = ""
+        internal var leaderName = ""
+        internal val allies = TreeSet<UUID>()
+        internal val banned = TreeSet<UUID>()
     }
 
     companion object {
