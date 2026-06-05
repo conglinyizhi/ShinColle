@@ -20,7 +20,7 @@ object ModBlockEntities {
         BLOCK_ENTITY_TYPES.register<BlockEntityType<DeskBlockEntity?>?>(
             "blockdesk",
             Supplier {
-                BlockEntityType.Builder.of<DeskBlockEntity?>(BlockEntitySupplier { pos: BlockPos?, blockState: BlockState? ->
+                BlockEntityType.Builder.of<DeskBlockEntity?>(BlockEntitySupplier { pos: BlockPos, blockState: BlockState ->
                     DeskBlockEntity(
                         pos,
                         blockState
@@ -33,7 +33,7 @@ object ModBlockEntities {
         BLOCK_ENTITY_TYPES.register<BlockEntityType<SmallShipyardBlockEntity?>?>(
             "small_shipyard",
             Supplier {
-                BlockEntityType.Builder.of<SmallShipyardBlockEntity?>(BlockEntitySupplier { pos: BlockPos?, blockState: BlockState? ->
+                BlockEntityType.Builder.of<SmallShipyardBlockEntity?>(BlockEntitySupplier { pos: BlockPos, blockState: BlockState ->
                     SmallShipyardBlockEntity(
                         pos,
                         blockState
@@ -46,7 +46,7 @@ object ModBlockEntities {
         BLOCK_ENTITY_TYPES.register<BlockEntityType<LargeShipyardBlockEntity?>?>(
             "large_shipyard",
             Supplier {
-                BlockEntityType.Builder.of<LargeShipyardBlockEntity?>(BlockEntitySupplier { pos: BlockPos?, blockState: BlockState? ->
+                BlockEntityType.Builder.of<LargeShipyardBlockEntity?>(BlockEntitySupplier { pos: BlockPos, blockState: BlockState ->
                     LargeShipyardBlockEntity(
                         pos,
                         blockState
@@ -59,7 +59,7 @@ object ModBlockEntities {
         BLOCK_ENTITY_TYPES.register<BlockEntityType<VolCoreBlockEntity?>?>(
             "blockvolcore",
             Supplier {
-                BlockEntityType.Builder.of<VolCoreBlockEntity?>(BlockEntitySupplier { pos: BlockPos?, blockState: BlockState? ->
+                BlockEntityType.Builder.of<VolCoreBlockEntity?>(BlockEntitySupplier { pos: BlockPos, blockState: BlockState ->
                     VolCoreBlockEntity(
                         pos,
                         blockState
@@ -72,7 +72,7 @@ object ModBlockEntities {
         BLOCK_ENTITY_TYPES.register<BlockEntityType<WayPointBlockEntity?>?>(
             "blockwaypoint",
             Supplier {
-                BlockEntityType.Builder.of<WayPointBlockEntity?>(BlockEntitySupplier { pos: BlockPos?, state: BlockState? ->
+                BlockEntityType.Builder.of<WayPointBlockEntity?>(BlockEntitySupplier { pos: BlockPos, state: BlockState ->
                     WayPointBlockEntity(
                         pos,
                         state
@@ -85,7 +85,7 @@ object ModBlockEntities {
         BLOCK_ENTITY_TYPES.register<BlockEntityType<CraneBlockEntity?>?>(
             "blockcrane",
             Supplier {
-                BlockEntityType.Builder.of<CraneBlockEntity?>(BlockEntitySupplier { pos: BlockPos?, blockState: BlockState? ->
+                BlockEntityType.Builder.of<CraneBlockEntity?>(BlockEntitySupplier { pos: BlockPos, blockState: BlockState ->
                     CraneBlockEntity(
                         pos,
                         blockState

@@ -40,7 +40,7 @@ class GenericGlowLayer<T : LivingEntity?, M>(
             color = 0x26FFFFFF
         }
 
-        this.getParentModel().renderGlow(
+        this.getParentModel()!!.renderGlow(
             poseStack,
             vertexConsumer,
             LightTexture.FULL_BRIGHT,

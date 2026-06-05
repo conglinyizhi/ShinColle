@@ -72,7 +72,7 @@ object ModTabs {
 
                     // ===== HOSTILE SPAWN EGGS (1.12.2: classId + 2002) =====
                     for (egg in ModItems.BOSS_EGGS) {
-                        output.accept(egg.get())
+                        output.accept(egg!!.get())
                     }
 
                     // ===== MATERIALS (1.12.2 order: AbyssMetal, AbyssNugget, Ammo, Grudge) =====

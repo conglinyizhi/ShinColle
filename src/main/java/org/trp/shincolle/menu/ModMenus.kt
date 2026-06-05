@@ -19,7 +19,7 @@ object ModMenus {
         MENUS.register<MenuType<ShipContainerMenu?>?>(
             "ship_menu",
             Supplier {
-                IMenuTypeExtension.create<ShipContainerMenu?>(IContainerFactory { containerId: Int, playerInv: Inventory?, buf: RegistryFriendlyByteBuf? ->
+                IMenuTypeExtension.create<ShipContainerMenu?>(IContainerFactory { containerId: Int, playerInv: Inventory, buf: RegistryFriendlyByteBuf ->
                     ShipContainerMenu(
                         containerId,
                         playerInv,
@@ -33,7 +33,7 @@ object ModMenus {
         MENUS.register<MenuType<SmallShipyardMenu?>?>(
             "small_shipyard_menu",
             Supplier {
-                IMenuTypeExtension.create<SmallShipyardMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory?, buffer: RegistryFriendlyByteBuf? ->
+                IMenuTypeExtension.create<SmallShipyardMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory, buffer: RegistryFriendlyByteBuf ->
                     SmallShipyardMenu(
                         containerId,
                         playerInventory,
@@ -48,7 +48,7 @@ object ModMenus {
         MENUS.register<MenuType<LargeShipyardMenu?>?>(
             "large_shipyard_menu",
             Supplier {
-                IMenuTypeExtension.create<LargeShipyardMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory?, buffer: RegistryFriendlyByteBuf? ->
+                IMenuTypeExtension.create<LargeShipyardMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory, buffer: RegistryFriendlyByteBuf ->
                     LargeShipyardMenu(
                         containerId,
                         playerInventory,
@@ -61,7 +61,7 @@ object ModMenus {
     val DESK_MENU: DeferredHolder<MenuType<*>?, MenuType<DeskMenu?>?> = MENUS.register<MenuType<DeskMenu?>?>(
         "desk_menu",
         Supplier {
-            IMenuTypeExtension.create<DeskMenu?>(IContainerFactory { id: Int, playerInventory: Inventory?, data: RegistryFriendlyByteBuf? ->
+            IMenuTypeExtension.create<DeskMenu?>(IContainerFactory { id: Int, playerInventory: Inventory, data: RegistryFriendlyByteBuf ->
                 DeskMenu(
                     id,
                     playerInventory,
@@ -75,7 +75,7 @@ object ModMenus {
     val VOL_CORE_MENU: DeferredHolder<MenuType<*>?, MenuType<VolCoreMenu?>?> = MENUS.register<MenuType<VolCoreMenu?>?>(
         "vol_core_menu",
         Supplier {
-            IMenuTypeExtension.create<VolCoreMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory?, buffer: RegistryFriendlyByteBuf? ->
+            IMenuTypeExtension.create<VolCoreMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory, buffer: RegistryFriendlyByteBuf ->
                 VolCoreMenu(
                     containerId,
                     playerInventory,
@@ -89,7 +89,7 @@ object ModMenus {
     val CRANE_MENU: DeferredHolder<MenuType<*>?, MenuType<CraneMenu?>?> = MENUS.register<MenuType<CraneMenu?>?>(
         "crane_menu",
         Supplier {
-            IMenuTypeExtension.create<CraneMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory?, buffer: RegistryFriendlyByteBuf? ->
+            IMenuTypeExtension.create<CraneMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory, buffer: RegistryFriendlyByteBuf ->
                 CraneMenu(
                     containerId,
                     playerInventory,
@@ -103,7 +103,7 @@ object ModMenus {
     val FORMATION: DeferredHolder<MenuType<*>?, MenuType<FormationMenu?>?> = MENUS.register<MenuType<FormationMenu?>?>(
         "formation",
         Supplier {
-            IMenuTypeExtension.create<FormationMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory?, buffer: RegistryFriendlyByteBuf? ->
+            IMenuTypeExtension.create<FormationMenu?>(IContainerFactory { containerId: Int, playerInventory: Inventory, buffer: RegistryFriendlyByteBuf ->
                 FormationMenu(
                     containerId,
                     playerInventory,
@@ -118,7 +118,7 @@ object ModMenus {
         MENUS.register<MenuType<RecipePaperMenu?>?>(
             "recipe_paper_menu",
             Supplier {
-                IMenuTypeExtension.create<RecipePaperMenu?>(IContainerFactory { id: Int, playerInv: Inventory?, buf: RegistryFriendlyByteBuf? ->
+                IMenuTypeExtension.create<RecipePaperMenu?>(IContainerFactory { id: Int, playerInv: Inventory, buf: RegistryFriendlyByteBuf ->
                     RecipePaperMenu(
                         id,
                         playerInv,

@@ -49,7 +49,7 @@ object ShipyardRecipes {
     private const val LAVA_FUEL_MB = 1000
     private const val LAVA_FUEL_VALUE = 20000
 
-    private val SMALL_SHIP_CANDIDATES: MutableList<Candidate?> = List.of<Candidate?>(
+    private val SMALL_SHIP_CANDIDATES: MutableList<Candidate> = List.of<Candidate>(
         Candidate(0, 80, 0),
         Candidate(1, 90, 0),
         Candidate(2, 100, 0),
@@ -62,7 +62,7 @@ object ShipyardRecipes {
         Candidate(10, 256, 2)
     )
 
-    private val LARGE_SHIP_CANDIDATES: MutableList<Candidate> = List.of<Candidate?>(
+    private val LARGE_SHIP_CANDIDATES: MutableList<Candidate> = List.of<Candidate>(
         Candidate(27, 500, 0),
         Candidate(12, 650, 3),
         Candidate(14, 800, 2),
@@ -81,7 +81,7 @@ object ShipyardRecipes {
         Candidate(33, 5000, 3)
     )
 
-    private val SMALL_EQUIP_TYPE_CANDIDATES: MutableList<Candidate?> = List.of<Candidate?>(
+    private val SMALL_EQUIP_TYPE_CANDIDATES: MutableList<Candidate> = List.of<Candidate>(
         Candidate(18, 80, 1),
         Candidate(26, 80, 2),
         Candidate(27, 80, 0),
@@ -96,7 +96,7 @@ object ShipyardRecipes {
         Candidate(1, 320, 2)
     )
 
-    private val LARGE_EQUIP_TYPE_CANDIDATES: MutableList<Candidate> = List.of<Candidate?>(
+    private val LARGE_EQUIP_TYPE_CANDIDATES: MutableList<Candidate> = List.of<Candidate>(
         Candidate(19, 500, 1),
         Candidate(21, 800, 2),
         Candidate(29, 1000, 2),
@@ -337,16 +337,18 @@ object ShipyardRecipes {
             return true
         }
 
-        if (stack.getItem() is RandomShipSpawnEggItem) {
+        val randomEgg = stack.getItem()
+        if (randomEgg is RandomShipSpawnEggItem) {
             addShipRecycleMats(
-                matStock, randomShipSpawnEggItem.shipClass,
-                randomShipSpawnEggItem == ModItems.SHIPSPAWNEGGL.get()
+                matStock, randomEgg.shipClass,
+                randomEgg == ModItems.SHIPSPAWNEGGL.get()
             )
             return true
         }
 
-        if (stack.getItem() is ShipSpawnEggItem) {
-            addShipRecycleMats(matStock, shipSpawnEggItem.shipClass, false)
+        val shipEgg = stack.getItem()
+        if (shipEgg is ShipSpawnEggItem) {
+            addShipRecycleMats(matStock, shipEgg.shipClass, false)
             return true
         }
 
@@ -541,7 +543,7 @@ object ShipyardRecipes {
         }!!
     }
 
-    private fun getShipEggForType(type: Int, largeShipyard: Boolean): Item {
+    private fun getShipEggForType(type: Int, largeShipyard: Boolean): Item? {
         return when (type) {
             0 -> ModItems.DESTROYER_I_SPAWN_EGG.get()
             1 -> ModItems.DESTROYER_RO_SPAWN_EGG.get()
@@ -595,7 +597,7 @@ object ShipyardRecipes {
         }
 
         if (totalProb <= 0.0f) {
-            return candidates.getFirst().id
+            return candidates.first().id
         }
 
         val random = ThreadLocalRandom.current().nextFloat() * totalProb
@@ -606,7 +608,7 @@ object ShipyardRecipes {
                 return candidates.get(i).id
             }
         }
-        return candidates.getLast().id
+        return candidates.last().id
     }
 
     private fun rollEquipType(largeShipyard: Boolean, mats: IntArray): Int {
@@ -644,7 +646,7 @@ object ShipyardRecipes {
             }
         }
 
-        return candidates.getLast().id
+        return candidates.last().id
     }
 
     private fun rollEquipOfType(type: Int, totalMats: Int, largeShipyard: Boolean): ItemStack {

@@ -19,7 +19,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import org.trp.shincolle.entity.EntityShipGrudge
 import org.trp.shincolle.entity.base.EntityShipBase
-import org.trp.shincolle.entity.base.EntityShipBase.isInDeadPose
+// import org.trp.shincolle.entity.base.EntityShipBase.isInDeadPose
 import org.trp.shincolle.entity.base.ShipMovementCoordinator
 import org.trp.shincolle.init.ModParticles
 import org.trp.shincolle.server.PlayerStateService.adjustOwnedMarriedShipCount
@@ -43,25 +43,25 @@ object ModCommands {
             Commands.literal("ship")
                 .then(
                     Commands.literal("info")
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.showLookingShipInfo(
-                                context!!.getSource()!!
+                                context.source
                             )
                         })
                 )
                 .then(
                     Commands.literal("list")
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.listRegisteredShips(
-                                context!!.getSource()!!,
+                                context.source,
                                 0
                             )
                         })
                         .then(
                             Commands.argument<Int?>("page", IntegerArgumentType.integer(0))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.listRegisteredShips(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         IntegerArgumentType.getInteger(context, "page")
                                     )
                                 })
@@ -69,17 +69,17 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("emote")
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.triggerShipEmote(
-                                context!!.getSource()!!,
+                                context.source,
                                 -1
                             )
                         })
                         .then(
                             Commands.argument<String?>("emote", StringArgumentType.word())
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.triggerShipEmote(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         parseEmoteArgument(StringArgumentType.getString(context, "emote"))
                                     )
                                 })
@@ -87,18 +87,18 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("stopai")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.setStopAi(
-                                context!!.getSource()!!,
+                                context.source,
                                 !isStopShipAi
                             )
                         })
                         .then(
                             Commands.argument<Boolean?>("enabled", BoolArgumentType.bool())
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.setStopAi(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         BoolArgumentType.getBool(context, "enabled")
                                     )
                                 })
@@ -106,21 +106,21 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("get")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                         .then(
                             Commands.argument<Int?>("ship_id", IntegerArgumentType.integer(0))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.recallRegisteredShipByListIndex(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         IntegerArgumentType.getInteger(context, "ship_id")
                                     )
                                 })
                         )
                         .then(
                             Commands.argument<String?>("uuid", StringArgumentType.word())
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.recallRegisteredShip(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         ModCommands.parseUuidArgument(
                                             context.getSource()!!,
                                             StringArgumentType.getString(context, "uuid")
@@ -131,21 +131,21 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("del")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                         .then(
                             Commands.argument<Int?>("ship_id", IntegerArgumentType.integer(0))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.deleteRegisteredShipByListIndex(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         IntegerArgumentType.getInteger(context, "ship_id")
                                     )
                                 })
                         )
                         .then(
                             Commands.argument<String?>("uuid", StringArgumentType.word())
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.deleteRegisteredShip(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         ModCommands.parseUuidArgument(
                                             context.getSource()!!,
                                             StringArgumentType.getString(context, "uuid")
@@ -156,26 +156,26 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("attrs")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                         .then(shipAttrsArguments())
                 )
                 .then(
                     Commands.literal("tp_selected")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.teleportSelectedShips(
-                                context!!.getSource()!!
+                                context.source
                             )
                         })
                 )
                 .then(
                     Commands.literal("change_owner")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                         .then(
                             Commands.argument<EntitySelector?>("player", EntityArgument.player())
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.changeTargetShipOwner(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         EntityArgument.getPlayer(context, "player")
                                     )
                                 })
@@ -183,18 +183,18 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("refresh_owner_state")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.refreshNearbyOwnerState(
-                                context!!.getSource()!!,
+                                context.source,
                                 128
                             )
                         })
                         .then(
                             Commands.argument<Int?>("range", IntegerArgumentType.integer(1, 1024))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.refreshNearbyOwnerState(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         IntegerArgumentType.getInteger(context, "range")
                                     )
                                 })
@@ -202,18 +202,18 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("clear_drops")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.clearNearbyGrudgeDrops(
-                                context!!.getSource()!!,
+                                context.source,
                                 128
                             )
                         })
                         .then(
                             Commands.argument<Int?>("range", IntegerArgumentType.integer(1, 1024))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.clearNearbyGrudgeDrops(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         IntegerArgumentType.getInteger(context, "range")
                                     )
                                 })
@@ -221,20 +221,20 @@ object ModCommands {
                 )
                 .then(
                     Commands.literal("kill")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                         .then(
                             Commands.argument<String?>("type", StringArgumentType.word())
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.killShips(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         StringArgumentType.getString(context, "type"), 64
                                     )
                                 })
                                 .then(
                                     Commands.argument<Int?>("range", IntegerArgumentType.integer(1, 1024))
-                                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                                             ModCommands.killShips(
-                                                context!!.getSource()!!,
+                                                context.source,
                                                 StringArgumentType.getString(context, "type"),
                                                 IntegerArgumentType.getInteger(context, "range")
                                             )
@@ -246,18 +246,18 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipstopai")
-                .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                .executes(Command { context: CommandContext<CommandSourceStack> ->
                     ModCommands.setStopAi(
-                        context!!.getSource()!!,
+                        context.source,
                         !isStopShipAi
                     )
                 })
                 .then(
                     Commands.argument<Boolean?>("enabled", BoolArgumentType.bool())
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.setStopAi(
-                                context!!.getSource()!!,
+                                context.source,
                                 BoolArgumentType.getBool(context, "enabled")
                             )
                         })
@@ -266,18 +266,18 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipstop")
-                .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                .executes(Command { context: CommandContext<CommandSourceStack> ->
                     ModCommands.setStopAi(
-                        context!!.getSource()!!,
+                        context.source,
                         !isStopShipAi
                     )
                 })
                 .then(
                     Commands.argument<Boolean?>("enabled", BoolArgumentType.bool())
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.setStopAi(
-                                context!!.getSource()!!,
+                                context.source,
                                 BoolArgumentType.getBool(context, "enabled")
                             )
                         })
@@ -286,9 +286,9 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipinfo")
-                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                .executes(Command { context: CommandContext<CommandSourceStack> ->
                     ModCommands.showLookingShipInfo(
-                        context!!.getSource()!!
+                        context.source
                     )
                 })
         )
@@ -301,24 +301,24 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipattrs")
-                .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                 .then(shipAttrsArguments())
         )
 
         dispatcher.register(
             Commands.literal("shipcleardrop")
-                .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                .executes(Command { context: CommandContext<CommandSourceStack> ->
                     ModCommands.clearNearbyGrudgeDrops(
-                        context!!.getSource()!!,
+                        context.source,
                         128
                     )
                 })
                 .then(
                     Commands.argument<Int?>("range", IntegerArgumentType.integer(1, 1024))
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.clearNearbyGrudgeDrops(
-                                context!!.getSource()!!,
+                                context.source,
                                 IntegerArgumentType.getInteger(context, "range")
                             )
                         })
@@ -327,36 +327,36 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipupdateowneruid")
-                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                .executes(Command { context: CommandContext<CommandSourceStack> ->
                     ModCommands.updateOwnerUid(
-                        context!!.getSource()!!,
+                        context.source,
                         null
                     )
                 })
                 .then(
                     Commands.argument<EntitySelector?>("player", EntityArgument.player())
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.updateOwnerUid(
-                                context!!.getSource()!!,
+                                context.source,
                                 EntityArgument.getPlayer(context, "player")
                             )
                         })
                 )
                 .then(
                     Commands.literal("range")
-                        .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.refreshNearbyOwnerState(
-                                context!!.getSource()!!,
+                                context.source,
                                 128
                             )
                         })
                         .then(
                             Commands.argument<Int?>("range", IntegerArgumentType.integer(1, 1024))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.refreshNearbyOwnerState(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         IntegerArgumentType.getInteger(context, "range")
                                     )
                                 })
@@ -366,12 +366,12 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipchangeowner")
-                .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                 .then(
                     Commands.argument<EntitySelector?>("player", EntityArgument.player())
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.changeTargetShipOwner(
-                                context!!.getSource()!!,
+                                context.source,
                                 EntityArgument.getPlayer(context, "player")
                             )
                         })
@@ -380,12 +380,12 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipch")
-                .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                 .then(
                     Commands.argument<EntitySelector?>("player", EntityArgument.player())
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.changeTargetShipOwner(
-                                context!!.getSource()!!,
+                                context.source,
                                 EntityArgument.getPlayer(context, "player")
                             )
                         })
@@ -394,21 +394,21 @@ object ModCommands {
 
         dispatcher.register(
             Commands.literal("shipkill")
-                .requires(Predicate { obj: CommandSourceStack? -> ModCommands.canUseLegacyAdminCommand() })
+                .requires(Predicate { obj: CommandSourceStack -> ModCommands.canUseLegacyAdminCommand(obj) })
                 .then(
                     Commands.argument<Int?>("class_id", IntegerArgumentType.integer(2))
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.killShipsByLegacyClassId(
-                                context!!.getSource()!!,
+                                context.source,
                                 IntegerArgumentType.getInteger(context, "class_id"),
                                 64
                             )
                         })
                         .then(
                             Commands.argument<Int?>("range", IntegerArgumentType.integer(1, 1024))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.killShipsByLegacyClassId(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         IntegerArgumentType.getInteger(context, "class_id"),
                                         IntegerArgumentType.getInteger(context, "range")
                                     )
@@ -417,18 +417,18 @@ object ModCommands {
                 )
                 .then(
                     Commands.argument<String?>("type", StringArgumentType.word())
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.killShips(
-                                context!!.getSource()!!,
+                                context.source,
                                 StringArgumentType.getString(context, "type"),
                                 64
                             )
                         })
                         .then(
                             Commands.argument<Int?>("range", IntegerArgumentType.integer(1, 1024))
-                                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                                .executes(Command { context: CommandContext<CommandSourceStack> ->
                                     ModCommands.killShips(
-                                        context!!.getSource()!!,
+                                        context.source,
                                         StringArgumentType.getString(context, "type"),
                                         IntegerArgumentType.getInteger(context, "range")
                                     )
@@ -440,18 +440,18 @@ object ModCommands {
 
     private fun shipAttrsArguments(): ArgumentBuilder<CommandSourceStack?, *> {
         val levelArg = Commands.argument<Int?>("level", IntegerArgumentType.integer(1, 150))
-            .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+            .executes(Command { context: CommandContext<CommandSourceStack> ->
                 ModCommands.setTargetShipAttrs(
-                    context!!.getSource()!!,
+                    context.source,
                     IntegerArgumentType.getInteger(context, "level"),
                     null, null, null, null,
                     null, null, null, null, null, null
                 )
             })
         val fuelArg = Commands.argument<Int?>("fuel", IntegerArgumentType.integer(0, 30000))
-            .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+            .executes(Command { context: CommandContext<CommandSourceStack> ->
                 ModCommands.setTargetShipAttrs(
-                    context!!.getSource()!!,
+                    context.source,
                     IntegerArgumentType.getInteger(context, "level"),
                     IntegerArgumentType.getInteger(context, "fuel"),
                     null, null, null,
@@ -459,9 +459,9 @@ object ModCommands {
                 )
             })
         val ammoLightArg = Commands.argument<Int?>("ammo_light", IntegerArgumentType.integer(0, 30000))
-            .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+            .executes(Command { context: CommandContext<CommandSourceStack> ->
                 ModCommands.setTargetShipAttrs(
-                    context!!.getSource()!!,
+                    context.source,
                     IntegerArgumentType.getInteger(context, "level"),
                     IntegerArgumentType.getInteger(context, "fuel"),
                     IntegerArgumentType.getInteger(context, "ammo_light"),
@@ -470,9 +470,9 @@ object ModCommands {
                 )
             })
         val ammoHeavyArg = Commands.argument<Int?>("ammo_heavy", IntegerArgumentType.integer(0, 30000))
-            .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+            .executes(Command { context: CommandContext<CommandSourceStack> ->
                 ModCommands.setTargetShipAttrs(
-                    context!!.getSource()!!,
+                    context.source,
                     IntegerArgumentType.getInteger(context, "level"),
                     IntegerArgumentType.getInteger(context, "fuel"),
                     IntegerArgumentType.getInteger(context, "ammo_light"),
@@ -482,9 +482,9 @@ object ModCommands {
                 )
             })
         val moraleArg = Commands.argument<Int?>("morale", IntegerArgumentType.integer(0, 16000))
-            .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+            .executes(Command { context: CommandContext<CommandSourceStack> ->
                 ModCommands.setTargetShipAttrs(
-                    context!!.getSource()!!,
+                    context.source,
                     IntegerArgumentType.getInteger(context, "level"),
                     IntegerArgumentType.getInteger(context, "fuel"),
                     IntegerArgumentType.getInteger(context, "ammo_light"),
@@ -510,9 +510,9 @@ object ModCommands {
         val spdArg = Commands.argument<Int?>("bonus_spd", IntegerArgumentType.integer(0, 100))
         val movArg = Commands.argument<Int?>("bonus_mov", IntegerArgumentType.integer(0, 100))
         val hitArg = Commands.argument<Int?>("bonus_hit", IntegerArgumentType.integer(0, 100))
-            .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+            .executes(Command { context: CommandContext<CommandSourceStack> ->
                 ModCommands.setTargetShipAttrs(
-                    context!!.getSource()!!,
+                    context.source,
                     IntegerArgumentType.getInteger(context, "level"),
                     null, null, null, null,
                     IntegerArgumentType.getInteger(context, "bonus_hp"),
@@ -539,9 +539,9 @@ object ModCommands {
         val spdArg = Commands.argument<Int?>("bonus_spd", IntegerArgumentType.integer(0, 100))
         val movArg = Commands.argument<Int?>("bonus_mov", IntegerArgumentType.integer(0, 100))
         val hitArg = Commands.argument<Int?>("bonus_hit", IntegerArgumentType.integer(0, 100))
-            .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+            .executes(Command { context: CommandContext<CommandSourceStack> ->
                 ModCommands.setTargetShipAttrs(
-                    context!!.getSource()!!,
+                    context.source,
                     IntegerArgumentType.getInteger(context, "level"),
                     IntegerArgumentType.getInteger(context, "fuel"),
                     IntegerArgumentType.getInteger(context, "ammo_light"),
@@ -567,17 +567,17 @@ object ModCommands {
     private fun registerEmoteAlias(dispatcher: CommandDispatcher<CommandSourceStack?>, name: String) {
         dispatcher.register(
             Commands.literal(name)
-                .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                .executes(Command { context: CommandContext<CommandSourceStack> ->
                     ModCommands.triggerSourceEmote(
-                        context!!.getSource()!!,
+                        context.source,
                         -1
                     )
                 })
                 .then(
                     Commands.argument<String?>("emote", StringArgumentType.word())
-                        .executes(Command { context: CommandContext<CommandSourceStack?>? ->
+                        .executes(Command { context: CommandContext<CommandSourceStack> ->
                             ModCommands.triggerSourceEmote(
-                                context!!.getSource()!!,
+                                context.source,
                                 parseEmoteArgument(StringArgumentType.getString(context, "emote"))
                             )
                         })
@@ -890,7 +890,8 @@ object ModCommands {
 
     private fun getTargetShip(player: ServerPlayer, radius: Double, ownedOnly: Boolean): EntityShipBase? {
         val hitResult = getLookTargetResult(player)
-        if (hitResult != null && hitResult.getEntity() is EntityShipBase && !ship.isInDeadPose) {
+        val ship = hitResult?.getEntity()
+        if (ship is EntityShipBase && !ship.isInDeadPose) {
             if (!ownedOnly || ship.isOwnedBy(player)) {
                 return ship
             }
@@ -1172,8 +1173,6 @@ object ModCommands {
             source.sendFailure(Component.literal("Server level only command."))
             return 0
         }
-
-        val serverLevel = source.getLevel() as ServerLevel
 
         val serverLevel = source.getLevel() as ServerLevel
 

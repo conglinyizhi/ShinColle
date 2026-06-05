@@ -742,72 +742,72 @@ object ModItems {
         Supplier { Item(Item.Properties()) })
 
     @JvmField
-    val EQUIP_AIRPLANE: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_AIRPLANE: DeferredItem<Item> = ITEMS.register<Item>(
         "equipairplane",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipAirplane", EQUIP_AIRPLANE_TYPES, EQUIP_AIRPLANE_MODELS) })
 
     @JvmField
-    val EQUIP_AMMO: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_AMMO: DeferredItem<Item> = ITEMS.register<Item>(
         "equipammo",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipAmmo", EQUIP_AMMO_TYPES) })
 
     @JvmField
-    val EQUIP_ARMOR: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_ARMOR: DeferredItem<Item> = ITEMS.register<Item>(
         "equiparmor",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipArmor", EQUIP_ARMOR_TYPES) })
 
     @JvmField
-    val EQUIP_CANNON: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_CANNON: DeferredItem<Item> = ITEMS.register<Item>(
         "equipcannon",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipCannon", EQUIP_CANNON_TYPES, EQUIP_CANNON_MODELS) })
 
     @JvmField
-    val EQUIP_CATAPULT: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_CATAPULT: DeferredItem<Item> = ITEMS.register<Item>(
         "equipcatapult",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipCatapult", EQUIP_CATAPULT_TYPES) })
 
     @JvmField
-    val EQUIP_COMPASS: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_COMPASS: DeferredItem<Item> = ITEMS.register<Item>(
         "equipcompass",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipCompass", EQUIP_COMPASS_TYPES) })
 
     @JvmField
-    val EQUIP_DRUM: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_DRUM: DeferredItem<Item> = ITEMS.register<Item>(
         "equipdrum",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipDrum", EQUIP_DRUM_TYPES, EQUIP_DRUM_MODELS) })
 
     @JvmField
-    val SHIP_TANK: DeferredItem<Item> = ITEMS.register<Item?>(
+    val SHIP_TANK: DeferredItem<Item> = ITEMS.register<Item>(
         "shiptank",
         Supplier { ShipTankItem(Item.Properties().stacksTo(1)) })
 
     @JvmField
-    val EQUIP_FLARE: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_FLARE: DeferredItem<Item> = ITEMS.register<Item>(
         "equipflare",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipFlare", EQUIP_FLARE_TYPES) })
 
     @JvmField
-    val EQUIP_MACHINEGUN: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_MACHINEGUN: DeferredItem<Item> = ITEMS.register<Item>(
         "equipmachinegun",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipMachinegun", EQUIP_MACHINEGUN_TYPES) })
 
     @JvmField
-    val EQUIP_RADAR: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_RADAR: DeferredItem<Item> = ITEMS.register<Item>(
         "equipradar",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipRadar", EQUIP_RADAR_TYPES) })
 
     @JvmField
-    val EQUIP_SEARCHLIGHT: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_SEARCHLIGHT: DeferredItem<Item> = ITEMS.register<Item>(
         "equipsearchlight",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipSearchlight", EQUIP_SEARCHLIGHT_TYPES) })
 
     @JvmField
-    val EQUIP_TORPEDO: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_TORPEDO: DeferredItem<Item> = ITEMS.register<Item>(
         "equiptorpedo",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipTorpedo", EQUIP_TORPEDO_TYPES) })
 
     @JvmField
-    val EQUIP_TURBINE: DeferredItem<Item?> = ITEMS.register<Item?>(
+    val EQUIP_TURBINE: DeferredItem<Item> = ITEMS.register<Item>(
         "equipturbine",
         Supplier { LegacyEquipItem(Item.Properties(), "EquipTurbine", EQUIP_TURBINE_TYPES) })
 
@@ -877,7 +877,7 @@ object ModItems {
 
     val DESK: DeferredItem<Item?> = ITEMS.register<Item?>(
         "blockdesk",
-        Supplier { DeskBlockItem(ModBlocks.DESK.get(), Item.Properties()) })
+        Supplier { DeskBlockItem(ModBlocks.DESK.get()!!, Item.Properties()) })
 
     @JvmField
     val GRUDGE_BLOCK: DeferredItem<Item?> = ITEMS.register<Item?>(
@@ -891,7 +891,7 @@ object ModItems {
     @JvmField
     val GRUDGE_HEAVY_BLOCK: DeferredItem<Item?> = ITEMS.register<Item?>(
         "grudge_heavy_block",
-        Supplier { GrudgeHeavyBlockItem(ModBlocks.GRUDGE_HEAVY_BLOCK.get(), Item.Properties()) })
+        Supplier { GrudgeHeavyBlockItem(ModBlocks.GRUDGE_HEAVY_BLOCK.get()!!, Item.Properties()) })
 
     val FRAME_BLOCK: DeferredItem<Item?> = ITEMS.register<Item?>(
         "blockframe",
@@ -912,7 +912,7 @@ object ModItems {
 
     val SMALL_SHIPYARD: DeferredItem<Item?> = ITEMS.register<Item?>(
         "small_shipyard",
-        Supplier { SmallShipyardBlockItem(ModBlocks.SMALL_SHIPYARD.get(), Item.Properties()) })
+        Supplier { SmallShipyardBlockItem(ModBlocks.SMALL_SHIPYARD.get()!!, Item.Properties()) })
 
     val LARGE_SHIPYARD: DeferredItem<Item?> = ITEMS.register<Item?>(
         "large_shipyard",
@@ -962,7 +962,7 @@ object ModItems {
             variants.add(resolved.createVariantStack(variant))
         }
 
-        variants.sort(
+        variants.sortWith(
             Comparator
                 .comparingInt<ItemStack>(ToIntFunction { stack: ItemStack -> resolved.getVariant(stack) })
                 .thenComparingInt(ToIntFunction { stack: ItemStack? -> resolved.getEquipId(stack!!) })
@@ -981,18 +981,18 @@ object ModItems {
         }
 
         return when (item.getEquipTypeId(stack)) {
-            0, 1, 2, 3 -> main[1] + main[3] * 0.5f + main[8] * 0.05f
-            4, 5 -> main[2] + main[14] * 0.15f + main[8] * 0.05f
-            6, 7, 8, 9, 10, 11, 12, 13 -> main[3] + main[4] + main[13] * 0.25f + main[8] * 0.05f
-            14, 15 -> main[13] + main[14] + main[8] * 0.2f + main[9] * 25.0f
-            16, 17 -> main[7] * 100.0f + main[15] * 25.0f + main[17] * 10.0f
-            18, 19 -> main[0] + main[5] * 100.0f + main[20] * 50.0f
-            20, 21 -> main[13] + main[1] * 0.25f
-            22, 23 -> main[6] * 100.0f + main[8] * 0.2f
-            24 -> main[16] * 100.0f + main[19] * 100.0f
-            25 -> main[8] * 0.3f + main[12] * 100.0f
-            26, 27 -> main[12] * 100.0f + main[8] * 0.2f
-            28, 29 -> main[1] + main[3] + main[2] + main[4] + main[13] * 0.2f
+            0, 1, 2, 3 -> main[1].toDouble() + main[3] * 0.5 + main[8] * 0.05
+            4, 5 -> main[2].toDouble() + main[14] * 0.15 + main[8] * 0.05
+            6, 7, 8, 9, 10, 11, 12, 13 -> main[3].toDouble() + main[4] + main[13] * 0.25 + main[8] * 0.05
+            14, 15 -> main[13].toDouble() + main[14] + main[8] * 0.2 + main[9] * 25.0
+            16, 17 -> main[7] * 100.0 + main[15] * 25.0 + main[17] * 10.0
+            18, 19 -> main[0].toDouble() + main[5] * 100.0 + main[20] * 50.0
+            20, 21 -> main[13].toDouble() + main[1] * 0.25
+            22, 23 -> main[6] * 100.0 + main[8] * 0.2
+            24 -> main[16] * 100.0 + main[19] * 100.0
+            25 -> main[8] * 0.3 + main[12] * 100.0
+            26, 27 -> main[12] * 100.0 + main[8] * 0.2
+            28, 29 -> main[1].toDouble() + main[3] + main[2] + main[4] + main[13] * 0.2
             else -> 0.0
         }
     }

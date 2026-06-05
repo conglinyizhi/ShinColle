@@ -1188,7 +1188,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             this.refreshDimensions()
         }
 
-    var waypoints: Array<BlockPos>?
+    var waypoints: Array<BlockPos?>?
         get() = legacyStateInternal.waypoints?.copyOf()
         set(points) {
             legacyStateInternal.applyWaypoints(points)
@@ -3581,7 +3581,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                                 )
                             }
                         }
-                        val newWps: Array<BlockPos> =
+                        val newWps: Array<BlockPos?> =
                             if (wps != null && wps.size > 0) wps.copyOf() else arrayOf(BlockPos.ZERO)
                         newWps[0] = pos
                         this.waypoints = newWps
