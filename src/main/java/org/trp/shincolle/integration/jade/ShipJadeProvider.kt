@@ -1,26 +1,32 @@
 package org.trp.shincolle.integration.jade
 
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import org.trp.shincolle.Shincolle
+import org.trp.shincolle.entity.base.EntityShipBase
+import org.trp.shincolle.item.DebugInspectorItem
+import org.trp.shincolle.menu.ShipContainerMenu
 import snownee.jade.api.EntityAccessor
+import snownee.jade.api.IEntityComponentProvider
+import snownee.jade.api.ITooltip
+import snownee.jade.api.config.IPluginConfig
 
 enum class ShipJadeProvider : IEntityComponentProvider {
     INSTANCE;
 
-    public override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig?) {
-        if (accessor.getEntity() !is EntityShipBase) {
-            return
-        }
-        val creativeInfinite: Boolean = ship.hasCreativeDebugger()
+    override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig) {
+        val ship = accessor.entity as? EntityShipBase ?: return
+        val creativeInfinite = ship.hasCreativeDebugger()
 
         tooltip.add(
             Component.translatable("gui.shincolle.level")
-                .append(": " + ship.getLevel())
+                .append(": ${ship.level}")
         )
         tooltip.add(
             Component.translatable("gui.shincolle.hp")
-                .append(": " + Math.round(ship.getHealth()) + " / " + Math.round(ship.getMaxHealth()))
+                .append(": ${Math.round(ship.health)} / ${Math.round(ship.maxHealth)}")
                 .append(
-                    if (creativeInfinite) Component.literal(" ")
+                    if (creativeInfinite) Component.literal(" " )
                         .append(DebugInspectorItem.creativeInfiniteLabel()) else Component.empty()
                 )
         )
@@ -54,8 +60,7 @@ enum class ShipJadeProvider : IEntityComponentProvider {
         )
     }
 
-    val uid: ResourceLocation
-        get() = UID
+    override fun getUid(): ResourceLocation = UID
 
     companion object {
         private val UID: ResourceLocation = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "ship")
@@ -64,12 +69,12 @@ enum class ShipJadeProvider : IEntityComponentProvider {
             if (!ship.isAlive) {
                 return Component.translatable("tooltip.shincolle.jade.ship.status.idle")
             }
-            if (ship.isNoFuel()) {
+            if (ship.isNoFuel) {
                 return Component.translatable("tooltip.shincolle.jade.ship.status.no_fuel")
             }
 
-            val taskId: Int = ship.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID)
-            if (taskId >= 1 && taskId <= 4) {
+            val taskId = ship.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID)
+            if (taskId in 1..4) {
                 return Component.translatable(
                     when (taskId) {
                         1 -> "gui.shincolle.ai.cooking"

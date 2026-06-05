@@ -1,27 +1,38 @@
 package org.trp.shincolle.integration.jade
 
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.level.block.entity.BlockEntity
+import org.trp.shincolle.Shincolle
+import org.trp.shincolle.block.entity.LargeShipyardBlockEntity
+import org.trp.shincolle.block.entity.SmallShipyardBlockEntity
 import snownee.jade.api.BlockAccessor
+import snownee.jade.api.IBlockComponentProvider
+import snownee.jade.api.IServerDataProvider
+import snownee.jade.api.ITooltip
+import snownee.jade.api.config.IPluginConfig
 
-class ShipyardJadeProvider private constructor() : IBlockComponentProvider, IServerDataProvider<BlockAccessor?>,
-    IJadeProvider {
-    public override fun appendTooltip(tooltip: ITooltip, accessor: BlockAccessor, config: IPluginConfig?) {
-        val data: CompoundTag? = accessor.getServerData()
-        if (data == null || data.isEmpty()) {
+class ShipyardJadeProvider private constructor() : IBlockComponentProvider,
+    IServerDataProvider<BlockAccessor> {
+
+    override fun appendTooltip(tooltip: ITooltip, accessor: BlockAccessor, config: IPluginConfig) {
+        val data = accessor.serverData
+        if (data.isEmpty()) {
             return
         }
 
-        val buildType: Int = data.getInt(KEY_BUILD_TYPE)
+        val buildType = data.getInt(KEY_BUILD_TYPE)
         if (buildType <= 0) {
             tooltip.add(Component.translatable("tooltip.shincolle.jade.shipyard.idle"))
             return
         }
 
-        val active: Boolean = data.getBoolean(KEY_ACTIVE)
-        val consumed: Int = data.getInt(KEY_POWER_CONSUMED)
-        val goal: Int = data.getInt(KEY_POWER_GOAL)
-        val remained: Int = data.getInt(KEY_POWER_REMAINED)
-        val remainingTime: String = data.getString(KEY_REMAINING_TIME)
+        val active = data.getBoolean(KEY_ACTIVE)
+        val consumed = data.getInt(KEY_POWER_CONSUMED)
+        val goal = data.getInt(KEY_POWER_GOAL)
+        val remained = data.getInt(KEY_POWER_REMAINED)
+        val remainingTime = data.getString(KEY_REMAINING_TIME)
 
         tooltip.add(
             Component.translatable(
@@ -30,7 +41,7 @@ class ShipyardJadeProvider private constructor() : IBlockComponentProvider, ISer
         )
         tooltip.add(Component.translatable("tooltip.shincolle.jade.shipyard.progress", consumed, goal))
         tooltip.add(Component.translatable("tooltip.shincolle.jade.shipyard.fuel", remained))
-        if (!remainingTime.isEmpty()) {
+        if (remainingTime.isNotEmpty()) {
             tooltip.add(Component.translatable("tooltip.shincolle.jade.shipyard.time", remainingTime))
         }
 
@@ -53,17 +64,15 @@ class ShipyardJadeProvider private constructor() : IBlockComponentProvider, ISer
         }
     }
 
-    public override fun appendServerData(tag: CompoundTag, accessor: BlockAccessor) {
-        val blockEntity: BlockEntity? = accessor.getBlockEntity()
-        if (blockEntity is SmallShipyardBlockEntity) {
-            appendSmallShipyard(tag, blockEntity)
-        } else if (blockEntity is LargeShipyardBlockEntity) {
-            appendLargeShipyard(tag, blockEntity)
+    override fun appendServerData(tag: CompoundTag, accessor: BlockAccessor) {
+        when (val blockEntity = accessor.blockEntity) {
+            is SmallShipyardBlockEntity -> appendSmallShipyard(tag, blockEntity)
+            is LargeShipyardBlockEntity -> appendLargeShipyard(tag, blockEntity)
+            else -> {}
         }
     }
 
-    val uid: ResourceLocation
-        get() = UID
+    override fun getUid(): ResourceLocation = UID
 
     companion object {
         val INSTANCE: ShipyardJadeProvider = ShipyardJadeProvider()
@@ -80,30 +89,30 @@ class ShipyardJadeProvider private constructor() : IBlockComponentProvider, ISer
 
         private fun appendSmallShipyard(tag: CompoundTag, shipyard: SmallShipyardBlockEntity) {
             tag.putBoolean(KEY_ACTIVE, shipyard.hasRemainedPower() && shipyard.powerGoal > 0)
-            tag.putInt(KEY_POWER_CONSUMED, shipyard.getPowerConsumed())
+            tag.putInt(KEY_POWER_CONSUMED, shipyard.powerConsumed)
             tag.putInt(KEY_POWER_GOAL, shipyard.powerGoal)
             tag.putInt(KEY_POWER_REMAINED, shipyard.powerRemained)
             tag.putInt(KEY_BUILD_TYPE, shipyard.getBuildType())
-            tag.putString(KEY_REMAINING_TIME, shipyard.getBuildTimeString())
+            tag.putString(KEY_REMAINING_TIME, shipyard.buildTimeString)
             tag.putIntArray(KEY_MATS_BUILD, shipyard.getBuildRecord())
         }
 
         private fun appendLargeShipyard(tag: CompoundTag, shipyard: LargeShipyardBlockEntity) {
             tag.putBoolean(KEY_ACTIVE, shipyard.hasRemainedPower() && shipyard.powerGoal > 0)
-            tag.putInt(KEY_POWER_CONSUMED, shipyard.getPowerConsumed())
+            tag.putInt(KEY_POWER_CONSUMED, shipyard.powerConsumed)
             tag.putInt(KEY_POWER_GOAL, shipyard.powerGoal)
             tag.putInt(KEY_POWER_REMAINED, shipyard.powerRemained)
             tag.putInt(KEY_BUILD_TYPE, shipyard.getBuildType())
-            tag.putString(KEY_REMAINING_TIME, shipyard.getBuildTimeString())
-            tag.putIntArray(KEY_MATS_BUILD, shipyard.getMatsBuild())
-            tag.putIntArray(KEY_MATS_STOCK, shipyard.getMatsStock())
+            tag.putString(KEY_REMAINING_TIME, shipyard.buildTimeString)
+            tag.putIntArray(KEY_MATS_BUILD, shipyard.matsBuild)
+            tag.putIntArray(KEY_MATS_STOCK, shipyard.matsStock)
         }
 
         private fun formatMats(mats: IntArray?): String {
             if (mats == null || mats.size < 4) {
                 return "0 / 0 / 0 / 0"
             }
-            return mats[0].toString() + " / " + mats[1] + " / " + mats[2] + " / " + mats[3]
+            return "${mats[0]} / ${mats[1]} / ${mats[2]} / ${mats[3]}"
         }
     }
 }

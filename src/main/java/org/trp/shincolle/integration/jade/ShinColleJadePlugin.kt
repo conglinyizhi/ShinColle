@@ -1,23 +1,34 @@
 package org.trp.shincolle.integration.jade
 
+import net.minecraft.resources.ResourceLocation
+import org.trp.shincolle.Shincolle
+import org.trp.shincolle.block.LargeShipyardBlock
+import org.trp.shincolle.block.SmallShipyardBlock
+import org.trp.shincolle.block.entity.LargeShipyardBlockEntity
+import org.trp.shincolle.block.entity.SmallShipyardBlockEntity
+import org.trp.shincolle.entity.base.EntityShipBase
 import snownee.jade.api.IWailaClientRegistration
+import snownee.jade.api.IWailaCommonRegistration
+import snownee.jade.api.IWailaPlugin
+import snownee.jade.api.WailaPlugin
 
 @WailaPlugin
 class ShinColleJadePlugin : IWailaPlugin {
-    public override fun register(registration: IWailaCommonRegistration) {
+
+    override fun register(registration: IWailaCommonRegistration) {
         registration.registerBlockDataProvider(
-            ShipyardJadeProvider.Companion.INSTANCE,
+            ShipyardJadeProvider.INSTANCE,
             SmallShipyardBlockEntity::class.java
         )
         registration.registerBlockDataProvider(
-            ShipyardJadeProvider.Companion.INSTANCE,
+            ShipyardJadeProvider.INSTANCE,
             LargeShipyardBlockEntity::class.java
         )
     }
 
-    public override fun registerClient(registration: IWailaClientRegistration) {
-        registration.registerBlockComponent(ShipyardJadeProvider.Companion.INSTANCE, SmallShipyardBlock::class.java)
-        registration.registerBlockComponent(ShipyardJadeProvider.Companion.INSTANCE, LargeShipyardBlock::class.java)
+    override fun registerClient(registration: IWailaClientRegistration) {
+        registration.registerBlockComponent(ShipyardJadeProvider.INSTANCE, SmallShipyardBlock::class.java)
+        registration.registerBlockComponent(ShipyardJadeProvider.INSTANCE, LargeShipyardBlock::class.java)
         registration.registerEntityComponent(ShipJadeProvider.INSTANCE, EntityShipBase::class.java)
     }
 
