@@ -713,7 +713,7 @@ class ModelBBKongou<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBas
         val isCrouching = entity != null && entity.isCrouching()
         val isSitting =
             ctx.isSitting || (entity != null && entity.isPassenger() && (entity.getVehicle() !is EntityMountBase))
-        val isSprinting = (entity != null && entity.getIsSprinting()) || limbSwingAmount > 0.9f
+        val isSprinting = (entity != null && entity.isSprinting) || limbSwingAmount > 0.9f
 
         if (isSprinting) {
             spcStand = false

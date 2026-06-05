@@ -15,14 +15,14 @@ import kotlin.math.max
 
 class EntityCarrierHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 20)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1)
         setStateMinor(STATE_MINOR_RARITY, 3)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCV)
-        setStateGuiBtn1(false)
-        setStateGuiBtn2(false)
+        this.isStateGuiBtn1 = false
+        this.isStateGuiBtn2 = false
     }
 
     override fun tickAliveLogic() {
@@ -34,7 +34,7 @@ class EntityCarrierHime(type: EntityType<out TamableAnimal?>?, level: Level?) : 
     }
 
     private fun updateServerLogic() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0)) {
             return
         }
 
@@ -59,8 +59,9 @@ class EntityCarrierHime(type: EntityType<out TamableAnimal?>?, level: Level?) : 
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_LEFT, "gui.shincolle.equip.left"))
         list.add(EquipOption(EQUIP_RIGHT, "gui.shincolle.equip.right"))
         return list

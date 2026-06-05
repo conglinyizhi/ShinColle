@@ -62,11 +62,11 @@ class MarriageRingItem(properties: Properties) : Item(properties) {
         val nearbyShips = level.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, area)
 
         for (ship in nearbyShips) {
-            if (ship == null || !ship.isAlive() || !ship.isTame() || !ship.isOwnedBy(player)) {
+            if (ship == null || !ship.isAlive || !ship.isTame || !ship.isOwnedBy(player)) {
                 continue
             }
 
-            ship.setEmotionPrimary(EntityShipBase.EMOTION_HAPPY)
+            ship.emotionPrimary = EntityShipBase.EMOTION_HAPPY
             if (ship.getRandom().nextInt(5) == 0) {
                 ship.applyParticleEmotion(EmotionParticleType.HEART)
             }

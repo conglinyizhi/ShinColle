@@ -15,13 +15,13 @@ import kotlin.math.max
 
 class EntityCarrierWDemon(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 9)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 33)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1)
         setStateMinor(STATE_MINOR_RARITY, 2)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCV)
-        setStateGuiBtn2(false)
+        this.isStateGuiBtn2 = false
     }
 
     override fun tickAliveLogic() {
@@ -33,7 +33,7 @@ class EntityCarrierWDemon(type: EntityType<out TamableAnimal?>?, level: Level?) 
     }
 
     private fun updateServerLogic() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
             val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
                 EntityShipBase::class.java,
                 this.getBoundingBox().inflate(16.0, 16.0, 16.0)
@@ -56,8 +56,9 @@ class EntityCarrierWDemon(type: EntityType<out TamableAnimal?>?, level: Level?) 
         this.addEffect(MobEffectInstance(MobEffects.NIGHT_VISION, 150, 0, false, false))
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
         return list
     }

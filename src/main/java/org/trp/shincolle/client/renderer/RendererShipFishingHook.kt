@@ -68,7 +68,7 @@ class RendererShipFishingHook(context: EntityRendererProvider.Context) :
 
 
             if (host.isCrouching()) tipY -= 0.15
-            if (host.getIsSitting()) tipY -= host.getBbHeight() * 0.3
+            if (host.isInSittingPose) tipY -= host.getBbHeight() * 0.3
 
 
             val actualHookLocalY = bobbing + 0.25

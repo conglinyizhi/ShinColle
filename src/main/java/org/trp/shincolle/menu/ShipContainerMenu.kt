@@ -49,7 +49,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val canMeleeData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateCanMelee()) 1 else 0
+            return if (ship.isStateCanMelee) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -58,7 +58,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val lightAttackData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateLightAttack()) 1 else 0
+            return if (ship.isStateLightAttack) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -67,7 +67,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val heavyAttackData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateHeavyAttack()) 1 else 0
+            return if (ship.isStateHeavyAttack) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -76,7 +76,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val lightAircraftAttackData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateLightAircraftAttack()) 1 else 0
+            return if (ship.isStateLightAircraftAttack) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -85,7 +85,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val heavyAircraftAttackData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateHeavyAircraftAttack()) 1 else 0
+            return if (ship.isStateHeavyAircraftAttack) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -94,7 +94,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val ringEffectData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateRingEffect()) 1 else 0
+            return if (ship.isStateRingEffect) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -103,7 +103,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val ammoLightData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return ship.getAmmoLight()
+            return ship.ammoLight
         }
 
         override fun set(value: Int) {
@@ -112,7 +112,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val ammoHeavyData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return ship.getAmmoHeavy()
+            return ship.ammoHeavy
         }
 
         override fun set(value: Int) {
@@ -121,7 +121,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val marriedData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateMarried()) 1 else 0
+            return if (ship.isStateMarried) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -229,7 +229,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val appearanceData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return if (ship.isStateAppearance()) 1 else 0
+            return if (ship.isStateAppearance) 1 else 0
         }
 
         override fun set(value: Int) {
@@ -386,7 +386,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     )
 
     init {
-        check(!(ship == null || !ship.isAlive() || ship.isRemoved())) { "Ship entity is not available for menu access." }
+        check(!(ship == null || !ship.isAlive || ship.isRemoved)) { "Ship entity is not available for menu access." }
         this.ship = ship
 
         if (!ship.level().isClientSide) {
@@ -404,15 +404,15 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         this.unlockedStoragePagesSynced = Mth.clamp(ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, SHIP_PAGE_COUNT - 1)
-        this.isCanMeleeEnabled = ship.isStateCanMelee()
-        this.isLightAttackEnabled = ship.isStateLightAttack()
-        this.isHeavyAttackEnabled = ship.isStateHeavyAttack()
-        this.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack()
-        this.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack()
-        this.isRingEffectEnabled = ship.isStateRingEffect()
-        this.ammoLightSynced = ship.getAmmoLight()
-        this.ammoHeavySynced = ship.getAmmoHeavy()
-        this.isMarried = ship.isStateMarried()
+        this.isCanMeleeEnabled = ship.isStateCanMelee
+        this.isLightAttackEnabled = ship.isStateLightAttack
+        this.isHeavyAttackEnabled = ship.isStateHeavyAttack
+        this.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack
+        this.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack
+        this.isRingEffectEnabled = ship.isStateRingEffect
+        this.ammoLightSynced = ship.ammoLight
+        this.ammoHeavySynced = ship.ammoHeavy
+        this.isMarried = ship.isStateMarried
         this.followMinDistance = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN))
         this.followMaxDistance = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this.followMinDistance)
         this.fleeHpPercent = clampFleeHp(ship.getStateMinor(STATE_MINOR_FLEE_HP))
@@ -424,7 +424,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         this.isTimeKeepingEnabled = ship.getStateFlag(STATE_FLAG_TIMEKEEP)
         this.isPickItemEnabled = ship.getStateFlag(STATE_FLAG_PICK_ITEM)
         this.isAutoPumpEnabled = ship.getStateFlag(STATE_FLAG_AUTO_PUMP)
-        this.isAppearanceEnabled = ship.isStateAppearance()
+        this.isAppearanceEnabled = ship.isStateAppearance
         this.isMountEnabled = (ship.getStateEmotion(0) and 1) != 0
         this.rationMoraleThreshold = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE))
         this.wpStaySetting = clampWpStay(ship.getStateMinor(STATE_MINOR_WP_STAY))
@@ -508,7 +508,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         get() = ship.getShipKills()
 
     val shipFuel: Int
-        get() = ship.getFuel()
+        get() = ship.fuel
 
     val isCreativeDebuggerActive: Boolean
         get() = ship.hasCreativeDebugger()
@@ -565,23 +565,23 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         get() = max(0, shipTankFluidCapacitySynced)
 
     val equipOptions: MutableList<EquipOption>?
-        get() = ship.getEquipOptions()
+        get() = ship.equipOptions
 
     val equipOptionCount: Int
-        get() = ship.getEquipOptions().size
+        get() = ship.equipOptions.size
 
     fun getEquipOptionLabel(index: Int): Component {
-        if (index < 0 || index >= ship.getEquipOptions().size) {
+        if (index < 0 || index >= ship.equipOptions.size) {
             return Component.empty()
         }
-        return Component.translatable(ship.getEquipOptions().get(index).labelKey)
+        return Component.translatable(ship.equipOptions.get(index).labelKey)
     }
 
     fun isEquipOptionEnabled(index: Int): Boolean {
-        if (index < 0 || index >= ship.getEquipOptions().size) {
+        if (index < 0 || index >= ship.equipOptions.size) {
             return false
         }
-        return ship.getEquipFlag(ship.getEquipOptions().get(index).key)
+        return ship.getEquipFlag(ship.equipOptions.get(index).key)
     }
 
     fun getEquipOptionButtonId(index: Int): Int {
@@ -632,7 +632,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
 
     override fun stillValid(player: Player): Boolean {
-        return ship.isAlive() && !ship.isRemoved() && player.distanceToSqr(ship) < 64.0
+        return ship.isAlive && !ship.isRemoved && player.distanceToSqr(ship) < 64.0
     }
 
     override fun broadcastChanges() {
@@ -693,16 +693,16 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
         when (id) {
             TOGGLE_BUTTON_CAN_MELEE -> {
-                ship.setStateCanMelee(!ship.isStateCanMelee())
-                this.isCanMeleeEnabled = ship.isStateCanMelee()
+                ship.setStateCanMelee(!ship.isStateCanMelee)
+                this.isCanMeleeEnabled = ship.isStateCanMelee
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_LIGHT_ATTACK -> {
                 if (ship.isStateGuiBtn1()) {
-                    ship.setStateLightAttack(!ship.isStateLightAttack())
-                    this.isLightAttackEnabled = ship.isStateLightAttack()
+                    ship.setStateLightAttack(!ship.isStateLightAttack)
+                    this.isLightAttackEnabled = ship.isStateLightAttack
                     this.broadcastFullState()
                 }
                 return true
@@ -710,8 +710,8 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
             TOGGLE_BUTTON_HEAVY_ATTACK -> {
                 if (ship.isStateGuiBtn2()) {
-                    ship.setStateHeavyAttack(!ship.isStateHeavyAttack())
-                    this.isHeavyAttackEnabled = ship.isStateHeavyAttack()
+                    ship.setStateHeavyAttack(!ship.isStateHeavyAttack)
+                    this.isHeavyAttackEnabled = ship.isStateHeavyAttack
                     this.broadcastFullState()
                 }
                 return true
@@ -719,8 +719,8 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
             TOGGLE_BUTTON_LIGHT_AIRCRAFT -> {
                 if (ship.isStateGuiBtn3()) {
-                    ship.setStateLightAircraftAttack(!ship.isStateLightAircraftAttack())
-                    this.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack()
+                    ship.setStateLightAircraftAttack(!ship.isStateLightAircraftAttack)
+                    this.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack
                     this.broadcastFullState()
                 }
                 return true
@@ -728,16 +728,16 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
             TOGGLE_BUTTON_HEAVY_AIRCRAFT -> {
                 if (ship.isStateGuiBtn4()) {
-                    ship.setStateHeavyAircraftAttack(!ship.isStateHeavyAircraftAttack())
-                    this.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack()
+                    ship.setStateHeavyAircraftAttack(!ship.isStateHeavyAircraftAttack)
+                    this.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack
                     this.broadcastFullState()
                 }
                 return true
             }
 
             TOGGLE_BUTTON_RING_EFFECT -> {
-                ship.setStateRingEffect(!ship.isStateRingEffect())
-                this.isRingEffectEnabled = ship.isStateRingEffect()
+                ship.setStateRingEffect(!ship.isStateRingEffect)
+                this.isRingEffectEnabled = ship.isStateRingEffect
                 this.broadcastFullState()
                 return true
             }
@@ -799,8 +799,8 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
             }
 
             TOGGLE_BUTTON_SHOW_HELD -> {
-                ship.setStateAppearance(!ship.isStateAppearance())
-                this.isAppearanceEnabled = ship.isStateAppearance()
+                ship.setStateAppearance(!ship.isStateAppearance)
+                this.isAppearanceEnabled = ship.isStateAppearance
                 this.broadcastFullState()
                 return true
             }
@@ -854,8 +854,8 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         val index: Int = id - EQUIP_BUTTON_BASE
-        if (index >= 0 && index < ship.getEquipOptions().size) {
-            val option = ship.getEquipOptions().get(index)
+        if (index >= 0 && index < ship.equipOptions.size) {
+            val option = ship.equipOptions.get(index)
             val next = !ship.getEquipFlag(option.key)
             ship.setEquipFlag(option.key, next)
             return true
@@ -1248,8 +1248,8 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
             val entityId = buf.readInt()
             if (playerInv.player.level().getEntity(entityId) is EntityShipBase
-                && ship.isAlive()
-                && !ship.isRemoved()
+                && ship.isAlive
+                && !ship.isRemoved
             ) {
                 return ship
             }

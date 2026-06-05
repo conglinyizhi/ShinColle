@@ -155,7 +155,7 @@ class ModelSubmU511<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBas
         this.applyEquipVisibility(entity)
         applyFaceAndMouth(entity)
 
-        val inDeadPose = entity != null && entity.isInDeadPose()
+        val inDeadPose = entity != null && entity.isInDeadPose
 
         if (inDeadPose) {
             this.applyDeadPose()
@@ -318,8 +318,8 @@ class ModelSubmU511<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBas
         val angleX = Mth.cos(ageInTicks * 0.08f)
         val isPassenger = entity!!.isPassenger()
         val isCrouching = entity.isCrouching()
-        val isSprinting = if (entity != null) entity.getIsSprinting() else limbSwingAmount > 0.9f
-        val isSitting = entity.getIsSitting() || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.9f
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
 
         if (isSprinting) {
         }
@@ -377,8 +377,8 @@ class ModelSubmU511<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBas
             }
         }
 
-        if (entity != null && entity.getAttackTick() > 43) {
-            var ft = (50 - entity.getAttackTick()) + (ageInTicks - ageInTicks.toInt())
+        if (entity != null && entity.attackTick > 43) {
+            var ft = (50 - entity.attackTick) + (ageInTicks - ageInTicks.toInt())
             val fa = Mth.cos((0.08f.let { ft *= it; ft }) * ft * Math.PI.toFloat())
             val fb = Mth.cos(Mth.sqrt(ft) * Math.PI.toFloat())
             this.ArmLeft01.xRot += -fb * 80.0f * (Math.PI.toFloat() / 180f) - 0.9f

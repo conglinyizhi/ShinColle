@@ -38,32 +38,32 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
 
     fun canUseLightAmmo(): Boolean {
         return this.ship.isStateGuiBtn1()
-                && this.ship.isStateLightAttack()
-                && this.ship.getAmmoLight() > 0
+                && this.ship.isStateLightAttack
+                && this.ship.ammoLight > 0
     }
 
     fun canUseHeavyAmmo(): Boolean {
         return this.ship.isStateGuiBtn2()
-                && this.ship.isStateHeavyAttack()
-                && this.ship.getAmmoHeavy() > 0
+                && this.ship.isStateHeavyAttack
+                && this.ship.ammoHeavy > 0
     }
 
     fun canUseMeleeAttack(): Boolean {
-        return this.ship.isStateCanMelee()
+        return this.ship.isStateCanMelee
     }
 
     fun canUseLightAircraft(): Boolean {
         return this.ship.isStateGuiBtn3()
-                && this.ship.isStateLightAircraftAttack()
+                && this.ship.isStateLightAircraftAttack
                 && this.ship.hasAirLight()
-                && this.ship.getAmmoLight() >= AIRCRAFT_LIGHT_AMMO_COST
+                && this.ship.ammoLight >= AIRCRAFT_LIGHT_AMMO_COST
     }
 
     fun canUseHeavyAircraft(): Boolean {
         return this.ship.isStateGuiBtn4()
-                && this.ship.isStateHeavyAircraftAttack()
+                && this.ship.isStateHeavyAircraftAttack
                 && this.ship.hasAirHeavy()
-                && this.ship.getAmmoHeavy() >= AIRCRAFT_HEAVY_AMMO_COST
+                && this.ship.ammoHeavy >= AIRCRAFT_HEAVY_AMMO_COST
     }
 
     fun hasAircraftAttackEnabled(): Boolean {
@@ -114,15 +114,15 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         if (this.ship.level() !is ServerLevel) {
             return false
         }
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return false
         }
 
         this.aircraftLaunchDelay--
-        if (!this.ship.isStateLightAircraftAttack()) {
+        if (!this.ship.isStateLightAircraftAttack) {
             this.aircraftLaunchTypeLight = false
         }
-        if (!this.ship.isStateHeavyAircraftAttack()) {
+        if (!this.ship.isStateHeavyAircraftAttack) {
             this.aircraftLaunchTypeLight = true
         }
 
@@ -145,8 +145,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
 
         this.aircraftLaunchTypeLight = !this.aircraftLaunchTypeLight
         if (launched) {
-            val lightDelay = this.ship.getLegacyShipStats().getLightDelay()
-            val heavyDelay = this.ship.getLegacyShipStats().getHeavyDelay()
+            val lightDelay = this.ship.legacyShipStats.getLightDelay()
+            val heavyDelay = this.ship.legacyShipStats.getHeavyDelay()
             val delay = max(20, max(lightDelay, heavyDelay))
             this.aircraftLaunchDelay = delay
             return true
@@ -158,14 +158,14 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
 
     fun recalculateAmmoCounts() {
         if (this.ship.hasCreativeDebugger()) {
-            this.ship.setAmmoLight(30000)
-            this.ship.setAmmoHeavy(30000)
+            this.ship.ammoLight = 30000
+            this.ship.ammoHeavy = 30000
             return
         }
         var light = 0
         var heavy = 0
-        for (i in 0..<this.ship.getInventory().getSlots()) {
-            val stack = this.ship.getInventory().getStackInSlot(i)
+        for (i in 0..<this.ship.inventory.getSlots()) {
+            val stack = this.ship.inventory.getStackInSlot(i)
             if (stack.isEmpty()) {
                 continue
             }
@@ -179,8 +179,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 heavy += stack.getCount() * AMMO_HEAVY_CONTAINER_VALUE
             }
         }
-        this.ship.setAmmoLight(light)
-        this.ship.setAmmoHeavy(heavy)
+        this.ship.ammoLight = light
+        this.ship.ammoHeavy = heavy
     }
 
     fun performLightAttack(target: Entity?) {
@@ -190,7 +190,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         if (this.ship.level() !is ServerLevel) {
             return
         }
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return
         }
         if (isSameOwner(target)) {
@@ -200,7 +200,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             return
         }
 
-        var damage = this.ship.getLegacyShipStats().getFirepower()
+        var damage = this.ship.legacyShipStats.getFirepower()
         if (damage <= 0.0f) {
             damage = 2.0f
         }
@@ -211,8 +211,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             ModSounds.SHIP_FIRELIGHT.get(), max(0.0f, Config.volumeAttack),
             this.ship.getRandom().nextFloat() * 0.12f + 0.98f
         )
-        this.ship.setAttackTick(50)
-        this.ship.setFuel(this.ship.getFuel() - Config.fuelConsumeActionLight)
+        this.ship.attackTick = 50
+        this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionLight
         this.ship.applyEmotesReaction(3)
     }
 
@@ -223,7 +223,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         if (this.ship.level() !is ServerLevel) {
             return false
         }
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return false
         }
         if (isSameOwner(target)) {
@@ -236,7 +236,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             return false
         }
 
-        var damage = this.ship.getLegacyShipStats().getFirepower()
+        var damage = this.ship.legacyShipStats.getFirepower()
         if (damage <= 0.0f) {
             damage = 4.0f
         }
@@ -248,8 +248,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             ModSounds.SHIP_FIREHEAVY.get(), max(0.0f, Config.volumeAttack),
             this.ship.getRandom().nextFloat() * 0.12f + 0.83f
         )
-        this.ship.setAttackTick(50)
-        this.ship.setFuel(this.ship.getFuel() - Config.fuelConsumeActionHeavy)
+        this.ship.attackTick = 50
+        this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionHeavy
         this.ship.applyEmotesReaction(3)
         return true
     }
@@ -299,8 +299,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
     }
 
     private fun configureAmmoEffects(missile: EntityAbyssMissile) {
-        for (i in 0..<this.ship.getInventory().getSlots()) {
-            val stack = this.ship.getInventory().getStackInSlot(i)
+        for (i in 0..<this.ship.inventory.getSlots()) {
+            val stack = this.ship.inventory.getStackInSlot(i)
             if (stack.isEmpty() || stack.getItem() !is LegacyEquipItem) {
                 continue
             }
@@ -357,8 +357,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         }
         var remaining = amount
         var i = 0
-        while (i < this.ship.getInventory().getSlots() && remaining > 0) {
-            val stack = this.ship.getInventory().getStackInSlot(i)
+        while (i < this.ship.inventory.getSlots() && remaining > 0) {
+            val stack = this.ship.inventory.getStackInSlot(i)
             if (stack.isEmpty()) {
                 i++
                 continue
@@ -367,7 +367,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 val take = min(stack.getCount(), remaining)
                 val updated = stack.copy()
                 updated.shrink(take)
-                this.ship.getInventory().setStackInSlot(i, updated)
+                this.ship.inventory.setStackInSlot(i, updated)
                 remaining -= take
             } else if (isHeavyAmmoContainer(stack)) {
                 if (stack.getCount() <= 0) {
@@ -376,7 +376,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 }
                 val updated = stack.copy()
                 updated.shrink(1)
-                this.ship.getInventory().setStackInSlot(i, updated)
+                this.ship.inventory.setStackInSlot(i, updated)
 
                 val used = min(remaining, AMMO_HEAVY_CONTAINER_VALUE)
                 val leftover: Int = AMMO_HEAVY_CONTAINER_VALUE - used
@@ -400,8 +400,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         }
         var remaining = amount
         var i = 0
-        while (i < this.ship.getInventory().getSlots() && remaining > 0) {
-            val stack = this.ship.getInventory().getStackInSlot(i)
+        while (i < this.ship.inventory.getSlots() && remaining > 0) {
+            val stack = this.ship.inventory.getStackInSlot(i)
             if (stack.isEmpty()) {
                 i++
                 continue
@@ -410,7 +410,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 val take = min(stack.getCount(), remaining)
                 val updated = stack.copy()
                 updated.shrink(take)
-                this.ship.getInventory().setStackInSlot(i, updated)
+                this.ship.inventory.setStackInSlot(i, updated)
                 remaining -= take
             } else if (isLightAmmoContainer(stack)) {
                 if (stack.getCount() <= 0) {
@@ -419,7 +419,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 }
                 val updated = stack.copy()
                 updated.shrink(1)
-                this.ship.getInventory().setStackInSlot(i, updated)
+                this.ship.inventory.setStackInSlot(i, updated)
 
                 val used = min(remaining, AMMO_LIGHT_CONTAINER_VALUE)
                 val leftover: Int = AMMO_LIGHT_CONTAINER_VALUE - used
@@ -477,12 +477,12 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             val stack = ItemStack(item, min(remaining, maxStackSize))
             var leftover = stack
             var i = 0
-            while (i < this.ship.getInventory().getSlots() && !leftover.isEmpty()) {
+            while (i < this.ship.inventory.getSlots() && !leftover.isEmpty()) {
                 if (i == avoidSlot) {
                     i++
                     continue
                 }
-                leftover = this.ship.getInventory().insertItem(i, leftover, false)
+                leftover = this.ship.inventory.insertItem(i, leftover, false)
                 i++
             }
             val inserted = stack.getCount() - leftover.getCount()
@@ -505,10 +505,10 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
     }
 
     private val maxAircraftLight: Int
-        get() = 8 + this.ship.getLevel() / 5 + (this.ship.getLevel() * this.ship.getAircraftLightLevelBonus()).toInt()
+        get() = 8 + this.ship.level / 5 + (this.ship.level * this.ship.getAircraftLightLevelBonus()).toInt()
 
     private val maxAircraftHeavy: Int
-        get() = 4 + this.ship.getLevel() / 10 + (this.ship.getLevel() * this.ship.getAircraftHeavyLevelBonus()).toInt()
+        get() = 4 + this.ship.level / 10 + (this.ship.level * this.ship.getAircraftHeavyLevelBonus()).toInt()
 
     private fun performLightAircraftAttack(target: Entity?): Boolean {
         if (!canUseLightAircraft()) {
@@ -540,13 +540,13 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 return false
             }
             this.ship.setNumAircraftLight(max(0, this.ship.getNumAircraftLight() - 1))
-            this.ship.setFuel(this.ship.getFuel() - Config.fuelConsumeActionLightAircraft)
+            this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionLightAircraft
         } else {
             if (!consumeHeavyAmmo(AIRCRAFT_HEAVY_AMMO_COST)) {
                 return false
             }
             this.ship.setNumAircraftHeavy(max(0, this.ship.getNumAircraftHeavy() - 1))
-            this.ship.setFuel(this.ship.getFuel() - Config.fuelConsumeActionHeavyAircraft)
+            this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionHeavyAircraft
         }
 
         val launchY = this.ship.getY() + this.ship.getAircraftLaunchHeight()
@@ -554,14 +554,14 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         spawned.initCarrierMission(this.ship, target, lightAircraft)
         serverLevel.addFreshEntity(spawned)
 
-        this.ship.setAttackTick(50)
+        this.ship.attackTick = 50
         this.ship.applyEmotesReaction(3)
         return true
     }
 
     fun resetAircraftLaunchDelay() {
-        val lightDelay = this.ship.getLegacyShipStats().getLightDelay()
-        val heavyDelay = this.ship.getLegacyShipStats().getHeavyDelay()
+        val lightDelay = this.ship.legacyShipStats.getLightDelay()
+        val heavyDelay = this.ship.legacyShipStats.getHeavyDelay()
         this.aircraftLaunchDelay = max(20, max(lightDelay, heavyDelay))
     }
 

@@ -574,8 +574,8 @@ class ModelSubmHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBas
         var addHR2 = 0.0f
         val isPassenger = entity!!.isPassenger()
         val isCrouching = entity.isCrouching()
-        val isSprinting = if (entity != null) entity.getIsSprinting() else limbSwingAmount > 0.9f
-        val isSitting = entity.getIsSitting() || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.9f
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
         val showTails = entity.getEquipFlag(EntitySubmHime.EQUIP_TAILS)
 
         if (isSprinting) {

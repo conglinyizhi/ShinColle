@@ -71,7 +71,7 @@ internal object EntitySummonBrainAi {
 
     private fun syncAttackTargetMemory(summon: EntitySummonBase, brain: Brain<EntitySummonBase?>) {
         val target = summon.getTarget()
-        if (target != null && target.isAlive()) {
+        if (target != null && target.isAlive) {
             brain.setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
             brain.eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
@@ -122,10 +122,10 @@ internal object EntitySummonBrainAi {
         val attackTarget = summon.getTarget()
         return SummonBrainDecisionResolver.State(
             carrier != null,
-            carrier != null && carrier.isAlive(),
+            carrier != null && carrier.isAlive,
             if (carrier == null) -1.0 else summon.distanceToSqr(carrier),
             attackTarget != null,
-            attackTarget != null && attackTarget.isAlive(),
+            attackTarget != null && attackTarget.isAlive,
             summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             if (attackTarget == null) -1.0 else summon.distanceToSqr(attackTarget),
             summon.getAttackRangeSq().toDouble(),
@@ -141,10 +141,10 @@ internal object EntitySummonBrainAi {
         val attackTarget = summon.getTarget()
         return SummonBrainDecisionResolver.State(
             carrier != null,
-            carrier != null && carrier.isAlive(),
+            carrier != null && carrier.isAlive,
             if (carrier == null) -1.0 else summon.distanceToSqr(carrier),
             attackTarget != null,
-            attackTarget != null && attackTarget.isAlive(),
+            attackTarget != null && attackTarget.isAlive,
             summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             if (attackTarget == null) -1.0 else summon.distanceToSqr(attackTarget),
             summon.getAttackRangeSq().toDouble(),
@@ -163,7 +163,7 @@ internal object EntitySummonBrainAi {
         override fun start(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
             summon.attackMovementCoordinator().reset()
             val target = summon.getTarget()
-            if (target != null && target.isAlive()) {
+            if (target != null && target.isAlive) {
                 summon.getBrain().setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
             }
         }

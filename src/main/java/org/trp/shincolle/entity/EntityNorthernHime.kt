@@ -16,7 +16,7 @@ import org.trp.shincolle.init.ModItems
 
 class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 7)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 31)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5)
@@ -36,8 +36,9 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         return false
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"))
         list.add(EquipOption(EQUIP_SANTA_CLOTH, "gui.shincolle.equip.santa_cloth"))
         list.add(EquipOption(EQUIP_SANTA_HAT, "gui.shincolle.equip.santa_hat"))
@@ -60,89 +61,89 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
     }
 
     protected override fun setFaceNormal() {
-        this.setFaceId(FACE_EYES_OPEN)
+        this.faceId = FACE_EYES_OPEN
         val tick = this.tickCount and EMOTION_TICK_MASK_8BIT
         if (this.getEmotionSecondary() == EMOTION_BORED && tick > 200) {
-            this.setMouthId(mapLegacyMouth(0))
+            this.mouthId = mapLegacyMouth(0)
         } else {
-            this.setMouthId(mapLegacyMouth(3))
+            this.mouthId = mapLegacyMouth(3)
         }
     }
 
     protected override fun setFaceCry() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
         if (tick < 128) {
-            this.setFaceId(FACE_DOT_EYES_TEAR)
-            this.setMouthId(mapLegacyMouth(if (tick < 64) 2 else 5))
+            this.faceId = FACE_DOT_EYES_TEAR
+            this.mouthId = mapLegacyMouth(if (tick < 64 2 else 5))
         } else {
-            this.setFaceId(FACE_CRY)
-            this.setMouthId(mapLegacyMouth(5))
+            this.faceId = FACE_CRY
+            this.mouthId = mapLegacyMouth(5)
         }
     }
 
     override fun setFaceDamaged() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_9BIT
         if (tick < 200) {
-            this.setFaceId(FACE_DOT_EYES_TEAR)
-            this.setMouthId(mapLegacyMouth(if (tick < 60) 4 else 5))
+            this.faceId = FACE_DOT_EYES_TEAR
+            this.mouthId = mapLegacyMouth(if (tick < 60 4 else 5))
         } else if (tick < 400) {
-            this.setFaceId(FACE_TENSION)
-            this.setMouthId(mapLegacyMouth(if (tick < 250) 3 else 5))
+            this.faceId = FACE_TENSION
+            this.mouthId = mapLegacyMouth(if (tick < 250 3 else 5))
         } else {
-            this.setFaceId(FACE_SOFT)
-            this.setMouthId(mapLegacyMouth(if (tick < 450) 2 else 3))
+            this.faceId = FACE_SOFT
+            this.mouthId = mapLegacyMouth(if (tick < 450 2 else 3))
         }
     }
 
     override fun setFaceScorn() {
-        this.setFaceId(FACE_EYES_HALF)
-        this.setMouthId(mapLegacyMouth(3))
+        this.faceId = FACE_EYES_HALF
+        this.mouthId = mapLegacyMouth(3)
     }
 
     protected override fun setFaceHungry() {
-        this.setFaceId(FACE_DESPAIR)
-        this.setMouthId(mapLegacyMouth(3))
+        this.faceId = FACE_DESPAIR
+        this.mouthId = mapLegacyMouth(3)
     }
 
     protected override fun setFaceAngry() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
         if (tick < 128) {
-            this.setFaceId(FACE_EYES_CLOSED)
-            this.setMouthId(mapLegacyMouth(if (tick < 64) 3 else 1))
+            this.faceId = FACE_EYES_CLOSED
+            this.mouthId = mapLegacyMouth(if (tick < 64 3 else 1))
         } else {
-            this.setFaceId(FACE_EYES_HALF)
-            this.setMouthId(mapLegacyMouth(if (tick < 170) 0 else 3))
+            this.faceId = FACE_EYES_HALF
+            this.mouthId = mapLegacyMouth(if (tick < 170 0 else 3))
         }
     }
 
     protected override fun setFaceBored() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_9BIT
         if (tick < 170) {
-            this.setFaceId(FACE_EYES_CLOSED)
-            this.setMouthId(mapLegacyMouth(if (tick < 80) 0 else 3))
+            this.faceId = FACE_EYES_CLOSED
+            this.mouthId = mapLegacyMouth(if (tick < 80 0 else 3))
         } else if (tick < 340) {
-            this.setFaceId(FACE_DOT_EYES)
-            this.setMouthId(mapLegacyMouth(if (tick < 250) 4 else 3))
+            this.faceId = FACE_DOT_EYES
+            this.mouthId = mapLegacyMouth(if (tick < 250 4 else 3))
         } else {
-            this.setFaceId(FACE_EYES_OPEN)
-            this.setMouthId(mapLegacyMouth(if (tick < 420) 4 else 3))
+            this.faceId = FACE_EYES_OPEN
+            this.mouthId = mapLegacyMouth(if (tick < 420 4 else 3))
         }
     }
 
     protected override fun setFaceShy() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
-        this.setFaceId(FACE_EYES_OPEN)
-        this.setMouthId(mapLegacyMouth(if (tick < 150) 3 else 2))
+        this.faceId = FACE_EYES_OPEN
+        this.mouthId = mapLegacyMouth(if (tick < 150 3 else 2))
     }
 
     protected override fun setFaceHappy() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
         if (tick < 140) {
-            this.setFaceId(FACE_TENSION)
-            this.setMouthId(mapLegacyMouth(if (tick < 80) 4 else 3))
+            this.faceId = FACE_TENSION
+            this.mouthId = mapLegacyMouth(if (tick < 80 4 else 3))
         } else {
-            this.setFaceId(FACE_WINK)
-            this.setMouthId(mapLegacyMouth(3))
+            this.faceId = FACE_WINK
+            this.mouthId = mapLegacyMouth(3)
         }
     }
 

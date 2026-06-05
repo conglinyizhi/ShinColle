@@ -28,7 +28,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) :
     private var skillTarget: Vec3 = Vec3.ZERO
 
     init {
-        setModelPos(floatArrayOf(-6f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 13)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2)
@@ -55,7 +55,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) :
 
     val passengersRidingOffset: Double
         get() {
-            if (!this.getIsSitting()) {
+            if (!this.isInSittingPose) {
                 return (this.getBbHeight() * 0.72f).toDouble()
             }
             if (checkModelState(0, this.getStateEmotion(0))) {
@@ -71,7 +71,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
 
     protected override fun performHeavyAttack(target: Entity?): Boolean {
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return false
         }
         if (isSameOwnerAttackTarget(target)) {
@@ -81,15 +81,15 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) :
             return false
         }
 
-        this.setFuel(this.getFuel() - Config.fuelConsumeActionHeavy)
-        this.setAttackTick(50)
+        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.attackTick = 50
         this.applyEmotesReaction(3)
 
         val targetPos = target.position().add(0.0, target.getBbHeight() * 0.35, 0.0)
         this.skillTarget = targetPos
         if (this.getStateEmotion(EMOTION_SKILL_PHASE) == 0) {
             this.setStateEmotion(EMOTION_SKILL_PHASE, 1, true)
-            this.remainAttack = 5 + (this.getLevel() * 0.035f).toInt()
+            this.remainAttack = 5 + (this.level * 0.035f).toInt()
         }
         return true
     }
@@ -102,8 +102,9 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) :
         return false
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_WEAPON, "gui.shincolle.equip.weapon"))
         list.add(EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"))
         list.add(EquipOption(EQUIP_GLOVES, "gui.shincolle.equip.gloves"))
@@ -145,7 +146,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) :
     }
 
     private fun updateServerEffects() {
-        if ((this.tickCount and 0x7F) == 0 && this.level().isDay() && this.isStateRingEffect()) {
+        if ((this.tickCount and 0x7F) == 0 && this.level().isDay() && this.isStateRingEffect) {
             this.addEffect(MobEffectInstance(MobEffects.LUCK, 150, max(0, this.getStateMinor(0) / 140), false, false))
         }
         if (this.getStateEmotion(EMOTION_SKILL_PHASE) > 0) {

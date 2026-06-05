@@ -422,7 +422,7 @@ class ModelCarrierWo<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBa
         val isSprinting = entity != null && entity.isSprinting
         val isCrouching = entity != null && entity.isCrouching()
         val isPassenger = entity != null && entity.isPassenger()
-        val isSitting = entity != null && (entity.getIsSitting() || isPassenger)
+        val isSitting = entity != null && (entity.isInSittingPose || isPassenger)
 
         if (isSprinting || limbSwingAmount > 0.9f) {
             val angleZFast = Mth.cos(ageInTicks * 0.3f)

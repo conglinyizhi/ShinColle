@@ -139,13 +139,13 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
             sb.append("Health: ").append(String.format("%.1f / %.1f", ship.getHealth(), ship.getMaxHealth()))
                 .append("\n")
             sb.append("Owner: ").append(if (ship.getOwnerUUID() != null) ship.getOwnerUUID() else "none").append("\n")
-            sb.append("Tame: ").append(ship.isTame()).append("\n")
+            sb.append("Tame: ").append(ship.isTame).append("\n")
             sb.append("Level: ").append(ship.getLevel()).append("\n")
             sb.append("ShipKills: ").append(ship.getShipKills()).append("\n")
-            sb.append("Fuel: ").append(ship.getFuel()).append("\n")
-            sb.append("Ammo L/H: ").append(ship.getAmmoLight()).append(" / ").append(ship.getAmmoHeavy()).append("\n")
+            sb.append("Fuel: ").append(ship.fuel).append("\n")
+            sb.append("Ammo L/H: ").append(ship.ammoLight).append(" / ").append(ship.ammoHeavy).append("\n")
             sb.append("Morale: ").append(ship.getMorale()).append("\n")
-            sb.append("Married: ").append(ship.isStateMarried()).append("\n")
+            sb.append("Married: ").append(ship.isStateMarried).append("\n")
 
             val target: Entity? = ship.getTarget()
             if (target != null) {

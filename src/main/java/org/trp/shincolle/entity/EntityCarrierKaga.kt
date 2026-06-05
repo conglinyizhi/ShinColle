@@ -15,14 +15,14 @@ import kotlin.math.max
 
 class EntityCarrierKaga(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 20f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 20f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 5)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 47)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1)
         setStateMinor(STATE_MINOR_RARITY, 8)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCV)
-        setStateGuiBtn1(false)
-        setStateGuiBtn2(false)
+        this.isStateGuiBtn1 = false
+        this.isStateGuiBtn2 = false
     }
 
     override fun tickAliveLogic() {
@@ -34,7 +34,7 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal?>?, level: Level?) : 
     }
 
     private fun updateServerLogic() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0)) {
             return
         }
 
@@ -83,8 +83,9 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal?>?, level: Level?) : 
         return ModItems.CARRIER_KAGA_SPAWN_EGG.get()
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.addAll(
             List.of<EquipOption?>(
                 EquipOption(EQUIP_CAT_PARTS, "gui.shincolle.equip.cat_parts"),

@@ -66,9 +66,9 @@ class BossSpawnEggItem(
                 Predicate { e: Entity? -> e!!.getType() === spawnedType && e is EntityShipBase })) {
                 val ship = entity as EntityShipBase
                 ship.initializeHostileSpawnState(bossScale)
-                ship.setAmmoLight(ship.getAmmoLight() + 128)
-                ship.setAmmoHeavy(ship.getAmmoHeavy() + 64)
-                ship.setFuel(max(ship.getFuel(), 5000))
+                ship.ammoLight = ship.ammoLight + 128
+                ship.ammoHeavy = ship.ammoHeavy + 64
+                ship.fuel = max(ship.fuel, 5000)
                 break
             }
         }
@@ -107,9 +107,9 @@ class BossSpawnEggItem(
                 Predicate { e: Entity? -> e!!.getType() === spawnedType && e is EntityShipBase })) {
                 val ship = entity as EntityShipBase
                 ship.initializeHostileSpawnState(bossScale)
-                ship.setAmmoLight(ship.getAmmoLight() + 128)
-                ship.setAmmoHeavy(ship.getAmmoHeavy() + 64)
-                ship.setFuel(max(ship.getFuel(), 5000))
+                ship.ammoLight = ship.ammoLight + 128
+                ship.ammoHeavy = ship.ammoHeavy + 64
+                ship.fuel = max(ship.fuel, 5000)
                 break
             }
         }

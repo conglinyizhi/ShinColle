@@ -183,7 +183,7 @@ internal object EntityShipBrainAi {
 
     private fun syncAttackTargetMemory(ship: EntityShipBase, brain: Brain<EntityShipBase?>) {
         val target = ship.getTarget()
-        if (target != null && target.isAlive()) {
+        if (target != null && target.isAlive) {
             brain.setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
             brain.eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
@@ -207,8 +207,8 @@ internal object EntityShipBrainAi {
             describeDesiredActivity(ship, brain),
             ship.getOwnerUUID(),
             followMemory.ownerPresent,
-            ship.isTame(),
-            ship.isInDeadPose(),
+            ship.isTame,
+            ship.isInDeadPose,
             ship.isNoFuel(),
             followMemory.shouldFollow,
             followMemory.blockReason,
@@ -301,7 +301,7 @@ internal object EntityShipBrainAi {
     }
 
     private fun canMove(ship: EntityShipBase): Boolean {
-        return !ship.isOrderedToSit() && !ship.isInSittingPose() && !ship.isInDeadPose() && !ship.isVehicle() && !isPassengerOfLivingVehicle(
+        return !ship.isOrderedToSit() && !ship.isInSittingPose() && !ship.isInDeadPose && !ship.isVehicle() && !isPassengerOfLivingVehicle(
             ship
         )
     }
@@ -309,7 +309,7 @@ internal object EntityShipBrainAi {
     private fun isPassengerOfLivingVehicle(ship: EntityShipBase): Boolean {
         if (!ship.isPassenger()) return false
         val vehicle = ship.getVehicle()
-        return vehicle != null && vehicle.isAlive()
+        return vehicle != null && vehicle.isAlive
     }
 
     private fun shouldFollowOwner(ship: EntityShipBase, following: Boolean): Boolean {
@@ -396,7 +396,7 @@ internal object EntityShipBrainAi {
         private var nextCanStillUseLogTick = 0
 
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isInDeadPose()
+            return !ship.isInDeadPose
         }
 
         override fun start(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
@@ -408,15 +408,15 @@ internal object EntityShipBrainAi {
                 ship.tickCount,
                 describeDesiredActivity(ship),
                 ship.getOwnerUUID(),
-                ship.isTame(),
-                ship.isInDeadPose(),
+                ship.isTame,
+                ship.isInDeadPose,
                 followMemory.shouldFollow,
                 followMemory.blockReason
             )
         }
 
         override fun canStillUse(level: ServerLevel, ship: EntityShipBase, gameTime: Long): Boolean {
-            val canStillUse = !ship.isInDeadPose()
+            val canStillUse = !ship.isInDeadPose
             if (!canStillUse || ship.tickCount >= this.nextCanStillUseLogTick) {
                 this.nextCanStillUseLogTick = ship.tickCount + 40
                 val followMemory = followStateMemory(ship)
@@ -427,7 +427,7 @@ internal object EntityShipBrainAi {
                     gameTime,
                     ship.tickCount,
                     describeDesiredActivity(ship),
-                    ship.isInDeadPose(),
+                    ship.isInDeadPose,
                     ship.getOwnerUUID(),
                     followMemory.shouldFollow,
                     followMemory.blockReason
@@ -454,7 +454,7 @@ internal object EntityShipBrainAi {
                 describeDesiredActivity(ship),
                 ship.getOwnerUUID(),
                 followMemory.ownerPresent,
-                ship.isTame(),
+                ship.isTame,
                 canMove(ship),
                 followMemory.shouldFollow,
                 followMemory.blockReason,
@@ -474,8 +474,8 @@ internal object EntityShipBrainAi {
                 ship.tickCount,
                 describeDesiredActivity(ship),
                 ship.getOwnerUUID(),
-                ship.isTame(),
-                ship.isInDeadPose(),
+                ship.isTame,
+                ship.isInDeadPose,
                 followMemory.shouldFollow,
                 followMemory.blockReason
             )
@@ -489,11 +489,11 @@ internal object EntityShipBrainAi {
         private var lastCombatTargetId: UUID? = null
 
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return ship.getTarget() != null && !ship.isInDeadPose()
+            return ship.getTarget() != null && !ship.isInDeadPose
         }
 
         override fun canStillUse(level: ServerLevel, ship: EntityShipBase, gameTime: Long): Boolean {
-            return ship.getTarget() != null && !ship.isInDeadPose()
+            return ship.getTarget() != null && !ship.isInDeadPose
         }
 
         override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
@@ -502,7 +502,7 @@ internal object EntityShipBrainAi {
                 .setMemory<PassiveCombatStateMemory?>(ModMemoryModules.SHIP_PASSIVE_COMBAT_STATE.get(), state)
             state = passiveCombatStateMemory(ship)
             val target = ship.getTarget()
-            if (target != null && target.isAlive()) {
+            if (target != null && target.isAlive) {
                 ship.getBrain().setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
             } else {
                 ship.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
@@ -528,7 +528,7 @@ internal object EntityShipBrainAi {
         }
 
         override fun stop(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
-            if (ship.getTarget() == null || !ship.getTarget()!!.isAlive()) {
+            if (ship.getTarget() == null || !ship.getTarget()!!.isAlive) {
                 ship.clearPassiveCombatTargetBrain(true)
             }
             ship.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
@@ -660,11 +660,11 @@ internal object EntityShipBrainAi {
     private class ShipPassiveCombatTargetingBehavior :
         Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isNoFuel() && !ship.hasPointerTargetEntity() && !ship.isInDeadPose()
+            return !ship.isNoFuel() && !ship.hasPointerTargetEntity() && !ship.isInDeadPose
         }
 
         override fun canStillUse(level: ServerLevel, ship: EntityShipBase, gameTime: Long): Boolean {
-            return !ship.isNoFuel() && !ship.hasPointerTargetEntity() && !ship.isInDeadPose()
+            return !ship.isNoFuel() && !ship.hasPointerTargetEntity() && !ship.isInDeadPose
         }
 
         override fun timedOut(gameTime: Long): Boolean {
@@ -676,7 +676,7 @@ internal object EntityShipBrainAi {
         }
 
         override fun stop(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
-            if (ship.isNoFuel() || ship.hasPointerTargetEntity() || ship.isInDeadPose()) {
+            if (ship.isNoFuel() || ship.hasPointerTargetEntity() || ship.isInDeadPose) {
                 ship.clearPassiveCombatTargetBrain(true)
             }
         }
@@ -800,7 +800,7 @@ internal object EntityShipBrainAi {
 
         fun tickPointerEntityMove(ship: EntityShipBase, pointerMemory: PointerTargetMemory) {
             val target = ship.getPointerTargetEntity()
-            if (target == null || !target.isAlive()) {
+            if (target == null || !target.isAlive) {
                 ship.clearPointerTargetEntity()
                 clearPointerMoveState(ship)
                 return
@@ -973,7 +973,7 @@ internal object EntityShipBrainAi {
         }
 
         fun resetPointerEntityAttackCadence(ship: EntityShipBase) {
-            val aimDelay = ShipPointerEntityDecisionResolver.aimDelayTicks(ship.getLevel())
+            val aimDelay = ShipPointerEntityDecisionResolver.aimDelayTicks(ship.level)
             this.pointerEntityMeleeAttackTick = ship.tickCount + aimDelay
             this.pointerEntityLightShotTick = ship.tickCount + aimDelay
             this.pointerEntityHeavyShotTick = ship.tickCount + aimDelay
@@ -993,15 +993,15 @@ internal object EntityShipBrainAi {
             val attackState = AttackState(
                 ship.tickCount,
                 combat.canUseLightAmmo(),
-                ship.getLegacyShipStats().getLightDelay(),
+                ship.legacyShipStats.getLightDelay(),
                 this.pointerEntityLightShotTick,
                 combat.canUseHeavyAmmo(),
-                ship.getLegacyShipStats().getHeavyDelay(),
+                ship.legacyShipStats.getHeavyDelay(),
                 this.pointerEntityHeavyShotTick,
                 pointerMemory.entityCanMeleeAttack,
                 pointerMemory.entityDistanceSqr,
                 pointerMemory.entityAttackRangeSqr,
-                ship.getLegacyShipStats().getMeleeDelay(),
+                ship.legacyShipStats.getMeleeDelay(),
                 this.pointerEntityMeleeAttackTick
             )
 
@@ -1348,7 +1348,7 @@ internal object EntityShipBrainAi {
 
             ship.resetInteractionEmotionState()
             if (followMemory.ownerHasCombatRation) {
-                ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_HAPPY)
+                ship.emotionPrimary = EntityShipBase.Companion.EMOTION_HAPPY
                 if (ship.tickCount % ShipAiNumbers.FOLLOW_POSITIVE_EMOTE_INTERVAL == 0) {
                     val positiveEmotes = arrayOf<EmotionParticleType>(
                         EmotionParticleType.HEART,
@@ -1534,11 +1534,11 @@ internal object EntityShipBrainAi {
     private class ShipLookAtPlayerBehavior :
         Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isInDeadPose()
+            return !ship.isInDeadPose
         }
 
         override fun canStillUse(level: ServerLevel, ship: EntityShipBase, gameTime: Long): Boolean {
-            return !ship.isInDeadPose()
+            return !ship.isInDeadPose
         }
 
         override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
@@ -1605,7 +1605,7 @@ internal object EntityShipBrainAi {
     private class ShipRandomLookAroundBehavior :
         Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isInDeadPose() && ship.getRandom().nextInt(ShipAiNumbers.RANDOM_LOOK_CHANCE) == 0
+            return !ship.isInDeadPose && ship.getRandom().nextInt(ShipAiNumbers.RANDOM_LOOK_CHANCE) == 0
         }
 
         override fun start(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
@@ -1621,7 +1621,7 @@ internal object EntityShipBrainAi {
     private class ShipRandomStrollBehavior :
         Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isOrderedToSit() && !ship.isInSittingPose() && !ship.isInDeadPose() && !isPassengerOfLivingVehicle(
+            return !ship.isOrderedToSit() && !ship.isInSittingPose() && !ship.isInDeadPose && !isPassengerOfLivingVehicle(
                 ship
             ) && !ship.isVehicle() && !pointerTargetMemory(ship).hasAnyTarget() && ship.getTarget() == null && !followStateMemory(
                 ship

@@ -288,7 +288,7 @@ object FormationService {
 
         val serverLevel = player.level() as ServerLevel
         val entity: Entity? = serverLevel.getEntity(shipUuid)
-        if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive() && !entity.isRemoved) {
+        if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive && !entity.isRemoved) {
             action.accept(entity)
         }
     }

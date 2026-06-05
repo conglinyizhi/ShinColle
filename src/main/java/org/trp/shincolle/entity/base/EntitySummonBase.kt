@@ -54,7 +54,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         if (carrier != null) {
             damage = max(
                 SummonAiNumbers.DAMAGE_MIN,
-                carrier.getLegacyShipStats().getFirepower() * SummonAiNumbers.ATTACK_DAMAGE_CARRIER_FACTOR
+                carrier.legacyShipStats.getFirepower() * SummonAiNumbers.ATTACK_DAMAGE_CARRIER_FACTOR
             )
         }
 
@@ -98,18 +98,18 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         this.setOwnerUUID(carrier.getOwnerUUID())
         this.setTame(true, false)
 
-        val maxHealth = SummonAiNumbers.HEALTH_BASE + carrier.getLegacyShipStats()
+        val maxHealth = SummonAiNumbers.HEALTH_BASE + carrier.legacyShipStats
             .getMaxHealth() * SummonAiNumbers.HEALTH_SCALE_FACTOR
         this.getAttribute(Attributes.MAX_HEALTH)!!.setBaseValue(maxHealth.toDouble())
         this.setHealth(maxHealth)
 
-        val speed = SummonAiNumbers.SPEED_BASE + carrier.getLegacyShipStats()
+        val speed = SummonAiNumbers.SPEED_BASE + carrier.legacyShipStats
             .getMoveSpeed() * SummonAiNumbers.SPEED_SCALE_FACTOR
         this.getAttribute(Attributes.MOVEMENT_SPEED)!!.setBaseValue(speed.toDouble())
 
         val damage = max(
             SummonAiNumbers.DAMAGE_MIN,
-            carrier.getLegacyShipStats().getFirepower() * SummonAiNumbers.DAMAGE_SCALE_FACTOR
+            carrier.legacyShipStats.getFirepower() * SummonAiNumbers.DAMAGE_SCALE_FACTOR
         )
         this.getAttribute(Attributes.ATTACK_DAMAGE)!!.setBaseValue(damage.toDouble())
         this.getAttribute(Attributes.FOLLOW_RANGE)!!.setBaseValue(SummonAiNumbers.FOLLOW_RANGE_ATTR)
@@ -163,7 +163,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             this.discard()
             return
         }
-        if (!carrier.isAlive()) {
+        if (!carrier.isAlive) {
             // Carrier is dead but still exists; return resources before discarding
             returnSummonResourcesOnce(carrier)
             this.discard()
@@ -175,14 +175,14 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             return
         }
 
-        if (this.getTarget() == null || !this.getTarget()!!.isAlive()) {
+        if (this.getTarget() == null || !this.getTarget()!!.isAlive) {
             val currentTarget = this.missionTarget
-            if (currentTarget is LivingEntity && currentTarget.isAlive()) {
+            if (currentTarget is LivingEntity && currentTarget.isAlive) {
                 this.setTarget(currentTarget)
                 resetReturnState()
             } else {
                 val carrierTarget: Entity? = carrier.getTarget()
-                if (carrierTarget is LivingEntity && carrierTarget.isAlive()) {
+                if (carrierTarget is LivingEntity && carrierTarget.isAlive) {
                     this.setTarget(carrierTarget)
                     this.targetId = carrierTarget.getUUID()
                     resetReturnState()
@@ -272,6 +272,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
 
     override fun customServerAiStep() {
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
             EntitySummonBrainAi.tick(serverLevel, this)
         }
         super.customServerAiStep()
@@ -310,7 +311,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
                 return null
             }
             val entity: Entity? = serverLevel.getEntity(this.carrierId)
-            if (entity is EntityShipBase && entity.isAlive() && !entity.isRemoved()) {
+            if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) {
                 return entity
             }
             return null
@@ -322,7 +323,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
                 return null
             }
             val entity: Entity? = serverLevel.getEntity(this.targetId)
-            if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }
             return entity

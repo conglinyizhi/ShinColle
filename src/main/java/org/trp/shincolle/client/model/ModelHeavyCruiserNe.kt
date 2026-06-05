@@ -234,7 +234,7 @@ class ModelHeavyCruiserNe<T : EntityShipBase?>(root: ModelPart) : ShipModelHuman
             this.Ear02.zRot = -0.1745f
         }
 
-        if (entity.getIsSprinting() || limbSwingAmount > 0.8f) {
+        if (entity.isSprinting || limbSwingAmount > 0.8f) {
             addk1 *= 2.0f
             addk2 *= 2.0f
             this.ArmRight01.xRot = addk1
@@ -247,7 +247,7 @@ class ModelHeavyCruiserNe<T : EntityShipBase?>(root: ModelPart) : ShipModelHuman
             this.GlowHead.y = this.glowHeadDefaultY + (0.2f * OFFSET_SCALE)
         }
 
-        if (entity.getIsSitting() || entity.isPassenger()) {
+        if (entity.isInSittingPose || entity.isPassenger()) {
             if (entity.getStateEmotion(1) == 4) {
                 this.poseTranslateY += 0.22f * 5
                 this.Head.xRot = 1.5359f

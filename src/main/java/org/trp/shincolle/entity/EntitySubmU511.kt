@@ -18,15 +18,15 @@ import kotlin.math.max
 
 class EntitySubmU511(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 20f, 0f, 45f))
+        this.modelPos = floatArrayOf(0f, 20f, 0f, 45f)
         setStateMinor(STATE_MINOR_FACTION_ID, 8)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 38)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6)
         setStateMinor(STATE_MINOR_RARITY, 3)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeSS)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
-        setStateCanRide(true)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
+        this.isStateCanRide = true
     }
 
     override fun tickAliveLogic() {
@@ -38,11 +38,11 @@ class EntitySubmU511(type: EntityType<out TamableAnimal?>?, level: Level?) : Ent
     }
 
     private fun updateServerLogic() {
-        if (this.isStateRingEffect()) {
-            val duration = 40 + this.getLevel()
+        if (this.isStateRingEffect) {
+            val duration = 40 + this.level
             this.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
-            if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0) {
-                this.getOwnerPlayer().addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
+            if (this.isStateMarried && this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+                this.ownerPlayer.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
             }
         }
     }
@@ -58,15 +58,16 @@ class EntitySubmU511(type: EntityType<out TamableAnimal?>?, level: Level?) : Ent
             return false
         }
 
-        this.setFuel(this.getFuel() - Config.fuelConsumeActionHeavy)
-        this.setAttackTick(50)
+        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.attackTick = 50
         this.applyEmotesReaction(3)
         spawnTorpedoes(target)
         return true
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"))
         list.add(EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"))
         list.add(EquipOption(EQUIP_PIPE, "gui.shincolle.equip.pipe"))

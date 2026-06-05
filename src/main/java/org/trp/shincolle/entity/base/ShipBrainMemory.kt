@@ -22,7 +22,7 @@ object ShipBrainMemory {
                 combat.canUseHeavyAmmo(),
                 combat.hasAircraftAttackEnabled(),
                 combat.canUseMeleeAttack(),
-                ship.getLegacyShipStats().getAttackRange().toDouble(),
+                ship.legacyShipStats.getAttackRange().toDouble(),
                 ship.getBbWidth().toDouble(),
                 if (targetEntity == null) 0.0 else targetEntity.getBbWidth().toDouble()
             )
@@ -34,7 +34,7 @@ object ShipBrainMemory {
             ship.getPointerTargetRemainingTicks(),
             hasEntityTargetCommand,
             if (targetEntity != null) targetEntity.getUUID() else null,
-            targetEntity != null && targetEntity.isAlive(),
+            targetEntity != null && targetEntity.isAlive,
             if (targetEntity != null) targetEntity.position() else null,
             ship.getPointerTargetEntityRemainingTicks(),
             entityDistanceSqr,
@@ -55,13 +55,13 @@ object ShipBrainMemory {
         val disabled = ship.getStateFlag(EntityShipBase.Companion.STATE_FLAG_DISABLE_GUARD_POS)
         val canGuard = target.isActive()
                 && !disabled && (target.isBlock() && target.isIn(ship.level())
-                || target.isEntity() && guarded != null && guarded.isAlive())
+                || target.isEntity() && guarded != null && guarded.isAlive)
         return GuardTargetMemory(
             target,
             canGuard,
             disabled,
             if (guarded != null) guarded.getUUID() else null,
-            guarded != null && guarded.isAlive(),
+            guarded != null && guarded.isAlive,
             if (guarded != null) guarded.position() else null,
             if (target.isBlock()) target.blockCenter() else null,
             target.dimensionId

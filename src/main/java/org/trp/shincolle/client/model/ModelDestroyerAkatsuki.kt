@@ -605,7 +605,7 @@ class ModelDestroyerAkatsuki<T : EntityShipBase?>(root: ModelPart) : ShipModelHu
             EquipSL01.visible = false
             EquipSL01f.visible = false
 
-            if (entity != null && entity.getIsSitting()) {
+            if (entity != null && entity.isInSittingPose) {
                 this.poseTranslateY = 0.525f * 3.0f
                 this.setFace(EntityShipBase.FACE_DOT_EYES)
                 Head.xRot = -1.1f

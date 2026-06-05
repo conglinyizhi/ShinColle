@@ -69,24 +69,24 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
 
     private fun updateEmotionState() {
         if (this.ship.isNoFuel()) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_HUNGRY)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_HUNGRY
             this.faceTick = -1
             return
         }
 
         val healthRatio = this.ship.getHealth() / this.ship.getMaxHealth()
         if (healthRatio <= 0.25f) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_CRY)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_CRY
             this.faceTick = -1
             return
         }
         if (healthRatio <= 0.5f) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_ANGRY)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_ANGRY
             this.faceTick = -1
             return
         }
         if (healthRatio <= 0.75f) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_SCORN)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_SCORN
             this.faceTick = -1
             return
         }
@@ -100,10 +100,10 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
 
         if (this.ship.getEmotionPrimary() == EntityShipBase.Companion.EMOTION_NORMAL) {
             if (this.ship.getRandom().nextInt(3) == 0) {
-                this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_BORED)
+                this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_BORED
             }
         } else if (this.ship.getRandom().nextInt(4) == 0) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_NORMAL)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_NORMAL
         }
 
         if (this.ship.getEmotionSecondary() == EntityShipBase.Companion.EMOTION_NORMAL) {
@@ -158,7 +158,7 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
         if (emotion == EntityShipBase.Companion.EMOTION_NORMAL && this.ship.getRandom()
                 .nextInt(BLINK_RANDOM_INTERVAL) == 0
         ) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_BLINK)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_BLINK
             this.faceTick = -1
         }
     }
@@ -167,18 +167,18 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
         ensureFaceTick()
         val tick = this.faceElapsed
         if (tick >= BLINK_DURATION) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_NORMAL)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_NORMAL
             this.faceTick = -1
             return
         }
-        this.ship.setFaceId(EntityShipBase.Companion.FACE_EYES_CLOSED)
-        this.ship.setMouthId(EntityShipBase.Companion.MOUTH_FRONT_0)
+        this.ship.faceId = EntityShipBase.Companion.FACE_EYES_CLOSED
+        this.ship.mouthId = EntityShipBase.Companion.MOUTH_FRONT_0
     }
 
     private fun applyTimedEmotion(maxTime: Int, action: Runnable, resetEmotion: Int) {
         ensureFaceTick()
         if (this.faceElapsed > maxTime) {
-            this.ship.setEmotionPrimary(resetEmotion)
+            this.ship.emotionPrimary = resetEmotion
             this.faceTick = -1
             this.ship.setFaceNormal()
             return

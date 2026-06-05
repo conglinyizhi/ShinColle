@@ -393,7 +393,7 @@ class ModelDestroyerInazuma<T : EntityShipBase?>(root: ModelPart) : ShipModelHum
                     ArmRight02.zRot = -1.45f
                 }
                 EquipBase.visible = false
-                if (entity.getIsSitting() && entity.ridingState != 3) {
+                if (entity.isInSittingPose && entity.ridingState != 3) {
                     this.poseTranslateY = 0.275f * 3
                     Head.xRot -= 0.1f
                     BodyMain.xRot = 0.0f

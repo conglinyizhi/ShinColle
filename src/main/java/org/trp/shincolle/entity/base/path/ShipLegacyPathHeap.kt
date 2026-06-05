@@ -8,7 +8,7 @@ internal class ShipLegacyPathHeap {
         for (i in 0..<this.count) {
             val point = this.points[i]
             if (point != null) {
-                point.setHeapIndex(-1)
+                point.heapIndex = -1
                 this.points[i] = null
             }
         }
@@ -26,7 +26,7 @@ internal class ShipLegacyPathHeap {
         }
 
         this.points[this.count] = point
-        point.setHeapIndex(this.count)
+        point.heapIndex = this.count
         this.sortBack(this.count++)
         return point
     }
@@ -39,16 +39,16 @@ internal class ShipLegacyPathHeap {
         this.points[this.count] = null
 
         if (this.count > 0) {
-            this.points[0].setHeapIndex(0)
+            this.points[0].heapIndex = 0
             this.sortForward(0)
         }
 
-        result.setHeapIndex(-1)
+        result.heapIndex = -1
         return result
     }
 
     fun changeDistance(point: ShipLegacyPathPoint, distance: Float) {
-        val heapIndex = point.getHeapIndex()
+        val heapIndex = point.heapIndex
         check(!(heapIndex < 0 || heapIndex >= this.count || this.points[heapIndex] != point)) { "Point is not assigned to this heap" }
 
         val prev = point.getDistanceToTarget()
@@ -74,12 +74,12 @@ internal class ShipLegacyPathHeap {
             }
 
             this.points[index] = parent
-            parent.setHeapIndex(index)
+            parent.heapIndex = index
             index = parentIndex
         }
 
         this.points[index] = current
-        current.setHeapIndex(index)
+        current.heapIndex = index
     }
 
     private fun sortForward(index: Int) {
@@ -111,7 +111,7 @@ internal class ShipLegacyPathHeap {
                 }
 
                 this.points[index] = leftPoint
-                leftPoint.setHeapIndex(index)
+                leftPoint.heapIndex = index
                 index = left
             } else {
                 if (rightDist >= currentDist) {
@@ -119,12 +119,12 @@ internal class ShipLegacyPathHeap {
                 }
 
                 this.points[index] = rightPoint!!
-                rightPoint.setHeapIndex(index)
+                rightPoint.heapIndex = index
                 index = right
             }
         }
 
         this.points[index] = current
-        current.setHeapIndex(index)
+        current.heapIndex = index
     }
 }

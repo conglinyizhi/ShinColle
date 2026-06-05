@@ -328,7 +328,7 @@ class ModelHarbourHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoid
         val isCrouching = entity!!.isCrouching()
         val isPassenger = entity.isPassenger()
         val isSitting =
-            (entity != null && entity.getIsSitting()) || (entity != null && entity.isPassenger() && (entity.getVehicle() !is EntityMountBase))
+            (entity != null && entity.isInSittingPose) || (entity != null && entity.isPassenger() && (entity.getVehicle() !is EntityMountBase))
 
         if (isCrouching) {
             this.poseTranslateY += SNEAK_TRANSLATE_Y

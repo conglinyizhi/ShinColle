@@ -23,7 +23,7 @@ internal object HostileSpawnManager {
     private val BOSS_COOLDOWNS: MutableMap<UUID?, Int?> = HashMap<UUID?, Int?>()
 
     fun tickPlayer(player: Player?) {
-        if (player == null || !player.isAlive() || player.isSpectator()) {
+        if (player == null || !player.isAlive || player.isSpectator()) {
             return
         }
         if (player.level() !is ServerLevel) {
@@ -188,7 +188,7 @@ internal object HostileSpawnManager {
             val ships = level.getEntitiesOfClass<EntityShipBase?>(
                 EntityShipBase::class.java,
                 search,
-                Predicate { obj: EntityShipBase? -> obj!!.isHostileShipMob() })
+                Predicate { obj: EntityShipBase? -> obj!!.isHostileShipMob })
             val bossNum = ships.stream().filter { ship: EntityShipBase? -> ship!!.getScaleLevel() > 1 }.count()
             if (bossNum >= 2) {
                 continue
@@ -292,7 +292,7 @@ internal object HostileSpawnManager {
         var count = 0
         for (entity in level.getAllEntities()) {
             if (entity is EntityShipBase
-                && entity.isHostileShipMob()
+                && entity.isHostileShipMob
                 && entity.getScaleLevel() < 2
             ) {
                 count++
@@ -330,12 +330,12 @@ internal object HostileSpawnManager {
     }
 
     private fun hasMarriageRing(player: Player): Boolean {
-        for (stack in player.getInventory().items) {
+        for (stack in player.inventory.items) {
             if (!stack.isEmpty() && stack.`is`(ModItems.MARRIAGE_RING.get())) {
                 return true
             }
         }
-        for (stack in player.getInventory().offhand) {
+        for (stack in player.inventory.offhand) {
             if (!stack.isEmpty() && stack.`is`(ModItems.MARRIAGE_RING.get())) {
                 return true
             }

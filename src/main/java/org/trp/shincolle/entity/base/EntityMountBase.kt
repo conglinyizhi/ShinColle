@@ -85,12 +85,12 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         }
 
     fun getHost(): EntityShipBase? {
-        if (this.host != null && (!this.host!!.isAlive() || this.host!!.isRemoved())) {
+        if (this.host != null && (!this.host!!.isAlive || this.host!!.isRemoved)) {
             this.host = null
         }
         if (this.host == null) {
             for (p in this.getPassengers()) {
-                if (p is EntityShipBase && p.isAlive() && !p.isRemoved()) {
+                if (p is EntityShipBase && p.isAlive && !p.isRemoved) {
                     this.host = p
                     break
                 }
@@ -200,9 +200,9 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             return false
         }
 
-        if (this.host == null || this.host!!.isRemoved()) {
+        if (this.host == null || this.host!!.isRemoved) {
             val entity = (this.level() as ServerLevel).getEntity(uuid)
-            if (entity is EntityShipBase && entity.isAlive() && !entity.isRemoved()) {
+            if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) {
                 this.host = entity
             } else {
                 this.discard()
@@ -227,7 +227,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         val hostSpeed = this.host!!.getAttributeValue(Attributes.MOVEMENT_SPEED)
         this.getAttribute(Attributes.MOVEMENT_SPEED)!!.setBaseValue(hostSpeed)
 
-        val kr = this.host!!.getLegacyShipStats().getBuffedAttr(20)
+        val kr = this.host!!.legacyShipStats.getBuffedAttr(20)
         this.getAttribute(Attributes.KNOCKBACK_RESISTANCE)!!.setBaseValue(Mth.clamp(kr, 0.0f, 1.0f).toDouble())
 
         this.getAttribute(Attributes.FOLLOW_RANGE)!!.setBaseValue(MountAiNumbers.FOLLOW_RANGE_ATTR)
@@ -303,7 +303,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             return
         }
 
-        if (this.isAlive()) {
+        if (this.isAlive) {
             val rider = getControllingPassenger()
             if (rider != null) {
                 this.setYRot(rider.getYRot())
@@ -452,7 +452,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             return false
         }
 
-        val mountArmor = this.host!!.getLegacyShipStats().getArmor() * 0.5f
+        val mountArmor = this.host!!.legacyShipStats.getArmor() * 0.5f
         var reduced = amount * (1.0f - mountArmor + (this.random.nextFloat() * 0.5f - 0.25f))
 
         if (reduced > 0.0f && reduced < 1.0f) {
@@ -510,6 +510,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
 
     override fun customServerAiStep() {
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
             EntityMountBrainAi.tick(serverLevel, this)
         }
         super.customServerAiStep()

@@ -48,10 +48,10 @@ class LargeShipyardMenu(
             this.matStockSynced[i] = min(Short.MAX_VALUE.toInt(), blockEntity.getMatStock(i))
         }
         this.powerScaleSynced = blockEntity.getPowerRemainingScaled(64)
-        this.hasMaterialSynced = if (blockEntity.getPowerGoal() > 0) 1 else 0
+        this.hasMaterialSynced = if (blockEntity.powerGoal > 0) 1 else 0
         this.hasPowerSynced = if (blockEntity.hasRemainedPower()) 1 else 0
         this.remainingSecondsSynced = blockEntity.getRemainingTimeSeconds()
-        this.powerRemainedSynced = blockEntity.getPowerRemained()
+        this.powerRemainedSynced = blockEntity.powerRemained
         this.powerRemainedLowSynced = this.powerRemainedSynced and 0xFFFF
         this.powerRemainedHighSynced = (this.powerRemainedSynced ushr 16) and 0xFFFF
 
@@ -123,7 +123,7 @@ class LargeShipyardMenu(
 
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return if (this@LargeShipyardMenu.blockEntity.getPowerGoal() > 0) 1 else 0
+                return if (this@LargeShipyardMenu.blockEntity.powerGoal > 0) 1 else 0
             }
 
             override fun set(value: Int) {
@@ -153,7 +153,7 @@ class LargeShipyardMenu(
 
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return this@LargeShipyardMenu.blockEntity.getPowerRemained() and 0xFFFF
+                return this@LargeShipyardMenu.blockEntity.powerRemained and 0xFFFF
             }
 
             override fun set(value: Int) {
@@ -167,7 +167,7 @@ class LargeShipyardMenu(
 
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return (this@LargeShipyardMenu.blockEntity.getPowerRemained() ushr 16) and 0xFFFF
+                return (this@LargeShipyardMenu.blockEntity.powerRemained ushr 16) and 0xFFFF
             }
 
             override fun set(value: Int) {
@@ -217,7 +217,7 @@ class LargeShipyardMenu(
         get() = if (this.clientSide) this.powerScaleSynced else this.blockEntity.getPowerRemainingScaled(64)
 
     fun hasMaterial(): Boolean {
-        return (if (this.clientSide) this.hasMaterialSynced else (if (this.blockEntity.getPowerGoal() > 0) 1 else 0)) != 0
+        return (if (this.clientSide) this.hasMaterialSynced else (if (this.blockEntity.powerGoal > 0) 1 else 0)) != 0
     }
 
     fun hasPower(): Boolean {
@@ -225,7 +225,7 @@ class LargeShipyardMenu(
     }
 
     val powerRemained: Int
-        get() = if (this.clientSide) this.powerRemainedSynced else this.blockEntity.getPowerRemained()
+        get() = if (this.clientSide) this.powerRemainedSynced else this.blockEntity.powerRemained
 
     val buildTimeString: String
         get() {

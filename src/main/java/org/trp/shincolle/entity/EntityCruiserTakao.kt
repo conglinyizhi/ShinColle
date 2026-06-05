@@ -15,14 +15,14 @@ import kotlin.math.max
 
 class EntityCruiserTakao(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 2)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 59)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4)
         setStateMinor(STATE_MINOR_RARITY, 4)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCA)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
     }
 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
@@ -37,8 +37,9 @@ class EntityCruiserTakao(type: EntityType<out TamableAnimal?>?, level: Level?) :
         return result
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
         list.add(EquipOption(EQUIP_BAG, "gui.shincolle.equip.bag"))
         list.add(EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"))

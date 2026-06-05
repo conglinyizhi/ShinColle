@@ -310,7 +310,7 @@ class ModelSubmYo<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<
         this.applyEquipVisibility(entity)
         applyFaceAndMouth(entity)
 
-        val inDeadPose = entity != null && entity.isInDeadPose()
+        val inDeadPose = entity != null && entity.isInDeadPose
 
         if (inDeadPose) {
             this.applyDeadPose()
@@ -574,8 +574,8 @@ class ModelSubmYo<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<
     private fun applySpecialPoseAdjustments(entity: T?, limbSwing: Float, limbSwingAmount: Float, ageInTicks: Float) {
         val isPassenger = entity!!.isPassenger()
         val isCrouching = entity.isCrouching()
-        val isSprinting = if (entity != null) entity.getIsSprinting() else limbSwingAmount > 0.92f
-        val isSitting = entity.getIsSitting() || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.92f
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
         val angleAdd1 = Mth.cos(limbSwing * 0.7f) * limbSwingAmount * 0.7f
 
         if (isSprinting) {
@@ -666,8 +666,8 @@ class ModelSubmYo<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<
             }
         }
 
-        if (entity != null && entity.getAttackTick() > 41) {
-            var ft = (50 - entity.getAttackTick()) + (ageInTicks - ageInTicks.toInt())
+        if (entity != null && entity.attackTick > 41) {
+            var ft = (50 - entity.attackTick) + (ageInTicks - ageInTicks.toInt())
             val fa = Mth.sin((0.125f.let { ft *= it; ft }) * ft * Math.PI.toFloat())
             val fb = Mth.sin(Mth.sqrt(ft) * Math.PI.toFloat())
             this.ArmLeft01.xRot += -fb * 80.0f * (Math.PI.toFloat() / 180f) - 0.3f

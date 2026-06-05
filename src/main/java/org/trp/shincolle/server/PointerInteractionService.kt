@@ -45,7 +45,7 @@ object PointerInteractionService {
         if (target !is LivingEntity) {
             return false
         }
-        if (target === player || target === ship || !target.isAlive()) {
+        if (target === player || target === ship || !target.isAlive) {
             return false
         }
         if (target.isSpectator()) {
@@ -151,7 +151,7 @@ object PointerInteractionService {
         }
 
         val ship = asShipOrHostedShip(targetEntity)
-        if (ship == null || !ship.isAlive() || ship.isInDeadPose || !ship.isOwnedBy(player)) {
+        if (ship == null || !ship.isAlive || ship.isInDeadPose || !ship.isOwnedBy(player)) {
             return
         }
 
@@ -303,13 +303,13 @@ object PointerInteractionService {
             }
 
             val entity: Entity? = serverLevel.getEntity(shipUuid)
-            if ((entity !is EntityShipBase) || !entity.isOwnedBy(player) || !entity.isAlive() || entity.isRemoved()) {
+            if ((entity !is EntityShipBase) || !entity.isOwnedBy(player) || !entity.isAlive || entity.isRemoved) {
                 continue
             }
 
             if (action == 1 && targetEntityUuid.isPresent()) {
                 val target: Entity? = serverLevel.getEntity(targetEntityUuid.get())
-                if (target == null || !target.isAlive() || target.isRemoved()) {
+                if (target == null || !target.isAlive || target.isRemoved) {
                     continue
                 }
                 if (canAssignPointerEntityTarget(player, entity, target)) {
@@ -333,8 +333,8 @@ object PointerInteractionService {
         val entity: Entity? = serverLevel.getEntity(shipUuid)
         if (entity is EntityShipBase
             && entity.isOwnedBy(player)
-            && entity.isAlive()
-            && !entity.isRemoved()
+            && entity.isAlive
+            && !entity.isRemoved
         ) {
             entity.openShipMenu(player)
         }

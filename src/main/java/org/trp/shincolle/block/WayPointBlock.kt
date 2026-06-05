@@ -104,7 +104,7 @@ class WayPointBlock : BaseEntityBlock(
     override fun playerWillDestroy(level: Level, pos: BlockPos, state: BlockState, player: Player): BlockState {
         if (!level.isClientSide && canHarvestBlock(state, level, pos, player)) {
             val stack = ItemStack(this)
-            if (!player.getInventory().add(stack)) {
+            if (!player.inventory.add(stack)) {
                 player.drop(stack, false)
             }
         }

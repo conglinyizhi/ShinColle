@@ -130,7 +130,7 @@ class ModelBattleshipHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHuman
         this.resetOffsets()
         this.applyEquipVisibility(entity)
 
-        if (entity is EntityShipBase && entity.isInDeadPose()) {
+        if (entity is EntityShipBase && entity.isInDeadPose) {
             this.applyDeadPose()
             this.syncGlowParts()
             return
@@ -475,7 +475,7 @@ class ModelBattleshipHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHuman
             }
         }
 
-        if (entity != null && entity.getAttackTick() > 20) {
+        if (entity != null && entity.attackTick > 20) {
             this.ArmLeft01.xRot = -1.6f
             this.ArmLeft01.yRot = 0.0f
             this.ArmLeft01.zRot = 0.21f

@@ -196,7 +196,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
             }
 
             val carrier = this.carrier
-            if (carrier == null || !carrier.isAlive()) {
+            if (carrier == null || !carrier.isAlive) {
                 this.discard()
                 return
             }
@@ -283,7 +283,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         }
 
         val currentTarget = this.missionTarget
-        val needsNewTarget = currentTarget == null || !currentTarget.isAlive() || !isValidTarget(carrier, currentTarget)
+        val needsNewTarget = currentTarget == null || !currentTarget.isAlive || !isValidTarget(carrier, currentTarget)
 
         if (!needsNewTarget) {
             return
@@ -293,7 +293,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
         if (newTarget == null) {
             val carrierTarget: Entity? = carrier.getTarget()
-            if (carrierTarget != null && carrierTarget.isAlive() && !isFriendlyTarget(carrier, carrierTarget)) {
+            if (carrierTarget != null && carrierTarget.isAlive && !isFriendlyTarget(carrier, carrierTarget)) {
                 newTarget = carrierTarget
             }
         }
@@ -322,7 +322,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
     }
 
     private fun handleReturnToHome(carrier: EntityShipBase) {
-        if (!this.isAlive()) return
+        if (!this.isAlive) return
         this.returnHomeTicks++
 
         val distSq = this.distanceToSqr(carrier)
@@ -388,8 +388,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         val returnLight = max(0, this.numAmmoLight - AircraftAiNumbers.AMMO_RETURN_PENALTY_LIGHT)
         val returnHeavy = max(0, this.numAmmoHeavy - AircraftAiNumbers.AMMO_RETURN_PENALTY_HEAVY)
 
-        carrier.setAmmoLight(carrier.getAmmoLight() + returnLight)
-        carrier.setAmmoHeavy(carrier.getAmmoHeavy() + returnHeavy)
+        carrier.ammoLight = carrier.ammoLight + returnLight
+        carrier.ammoHeavy = carrier.ammoHeavy + returnHeavy
 
         carrier.returnAircraftToDeck(this.isMissionLightAircraft)
     }
@@ -415,6 +415,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         this.attackDelay = this.maxAttackDelay
         val atk = max(4.0f, carrier.legacyShipStats.getFirepower() * 0.55f)
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
+            val serverLevel = this.level() as ServerLevel
             val missileDamage = atk * 1.4f
             var targetPos = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
             val distance = this.distanceTo(target).toDouble()
@@ -445,7 +447,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     fun calcMissRate(carrier: EntityShipBase, distance: Float): Float {
         val range = AircraftAiNumbers.ATTACK_RANGE_HEAVY
-        val levelMod = 0.001f * carrier.getLevel()
+        val levelMod = 0.001f * carrier.level
         val miss = 0.25f + 0.25f * (distance / range) - levelMod
         return max(0.0f, min(miss, 0.5f))
     }
@@ -481,7 +483,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
         val result = super.hurt(source, amount)
-        if (!this.level().isClientSide && result && !this.isAlive() && !this.isDying) {
+        if (!this.level().isClientSide && result && !this.isAlive && !this.isDying) {
             this.isDying = true
             this.deathAnimTick = 0
             this.setNoGravity(false)
@@ -507,6 +509,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         this.hasImpulse = true
 
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
+            val serverLevel = this.level() as ServerLevel
             if (this.deathAnimTick % 2 == 0) {
                 val range = this.getBbWidth() * 0.5
                 for (i in 0..2) {
@@ -574,6 +578,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     override fun customServerAiStep() {
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
+            val serverLevel = this.level() as ServerLevel
             AircraftBrainAi.tick(serverLevel, this)
         }
         super.customServerAiStep()
@@ -632,7 +638,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
                 return null
             }
             val entity: Entity? = serverLevel.getEntity(this.carrierId)
-            if (entity is EntityShipBase && entity.isAlive() && !entity.isRemoved()) {
+            if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) {
                 return entity
             }
             return null
@@ -644,7 +650,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
                 return null
             }
             val entity: Entity? = serverLevel.getEntity(this.targetId)
-            if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }
             return entity
@@ -652,10 +658,10 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     private fun findNewTarget(carrier: EntityShipBase): Entity? {
         val range =
-            if (carrier.isStateAntiAir()) AircraftAiNumbers.TARGETING_RANGE_AIR_ONLY else AircraftAiNumbers.TARGETING_RANGE_NORMAL
+            if (carrier.isStateAntiAir) AircraftAiNumbers.TARGETING_RANGE_AIR_ONLY else AircraftAiNumbers.TARGETING_RANGE_NORMAL
         val box = this.getBoundingBox().inflate(range, range, range)
         val entities = this.level().getEntities(this, box, Predicate { entity: Entity? ->
-            if (entity == null || !entity.isAlive() || entity === this) return@getEntities false
+            if (entity == null || !entity.isAlive || entity === this) return@getEntities false
             entity is LivingEntity
         })
 

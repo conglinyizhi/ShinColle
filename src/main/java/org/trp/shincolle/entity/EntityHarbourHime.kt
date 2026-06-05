@@ -11,12 +11,12 @@ import org.trp.shincolle.init.ModItems
 
 class EntityHarbourHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 28)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2)
         setStateMinor(STATE_MINOR_RARITY, 1)
-        setStateCanRide(true)
+        this.isStateCanRide = true
     }
 
     override fun tickAliveLogic() {
@@ -28,7 +28,7 @@ class EntityHarbourHime(type: EntityType<out TamableAnimal?>?, level: Level?) : 
     }
 
     private fun updateServerLogic() {
-        if (!(this.isStateMarried() && this.isStateRingEffect())) {
+        if (!(this.isStateMarried && this.isStateRingEffect)) {
             return
         }
 

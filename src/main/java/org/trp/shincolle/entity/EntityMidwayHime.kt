@@ -14,12 +14,12 @@ import kotlin.math.max
 
 class EntityMidwayHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 30)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2)
         setStateMinor(STATE_MINOR_RARITY, 2)
-        setStateCanRide(true)
+        this.isStateCanRide = true
     }
 
     override fun tickAliveLogic() {
@@ -31,7 +31,7 @@ class EntityMidwayHime(type: EntityType<out TamableAnimal?>?, level: Level?) : E
     }
 
     private fun updateServerLogic() {
-        if (!(this.isStateMarried() && this.isStateRingEffect())) {
+        if (!(this.isStateMarried && this.isStateRingEffect)) {
             return
         }
 
@@ -53,13 +53,14 @@ class EntityMidwayHime(type: EntityType<out TamableAnimal?>?, level: Level?) : E
             }
             ship.addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))
         }
-        if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0) {
-            this.getOwnerPlayer().addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))
+        if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+            this.ownerPlayer.addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
         list.add(EquipOption(EQUIP_COLLAR, "gui.shincolle.equip.collar"))
         return list

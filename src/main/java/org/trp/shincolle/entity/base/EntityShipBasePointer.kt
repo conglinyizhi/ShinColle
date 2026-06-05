@@ -211,14 +211,14 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             }
             if (this.ship.level() is ServerLevel) {
                 val entity: Entity? = serverLevel.getEntity(this.pointerTargetEntityId)
-                if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+                if (entity == null || !entity.isAlive || entity.isRemoved) {
                     return null
                 }
                 return entity
             }
             if (this.ship.level().isClientSide && this.ship.level() is ClientLevel) {
                 for (e in clientLevel.entitiesForRendering()) {
-                    if (e.getUUID() == this.pointerTargetEntityId && e.isAlive() && !e.isRemoved()) {
+                    if (e.getUUID() == this.pointerTargetEntityId && e.isAlive && !e.isRemoved) {
                         return e
                     }
                 }

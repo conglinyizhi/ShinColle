@@ -87,7 +87,7 @@ class ParticleBeam protected constructor(
 
         val host = this.level.getEntity(this.hostId)
         val target = this.level.getEntity(this.targetId)
-        if (host == null || target == null || !host.isAlive() || !target.isAlive()) {
+        if (host == null || target == null || !host.isAlive || !target.isAlive) {
             this.remove()
             return
         }

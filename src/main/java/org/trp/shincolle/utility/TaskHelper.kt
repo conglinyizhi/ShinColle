@@ -72,7 +72,7 @@ object TaskHelper {
 
     @JvmStatic
     fun onUpdateTask(host: EntityShipBase) {
-        if (host.isInSittingPose || !host.isAlive() || host.isNoFuel) {
+        if (host.isInSittingPose || !host.isAlive || host.isNoFuel) {
             host.taskRuntime.clearTask()
             return
         }
@@ -401,6 +401,7 @@ object TaskHelper {
         }
 
         if (level is ServerLevel) {
+        val serverLevel = level as ServerLevel
             if (fishHook.tickCount > Config.tickFishingMin + host.getRandom()
                     .nextInt(Config.tickFishingMax)
             ) {

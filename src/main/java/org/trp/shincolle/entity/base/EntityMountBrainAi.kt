@@ -66,7 +66,7 @@ internal object EntityMountBrainAi {
 
     private fun syncAttackTargetMemory(mount: EntityMountBase, brain: Brain<EntityMountBase?>) {
         val target = mount.getTarget()
-        if (target != null && target.isAlive()) {
+        if (target != null && target.isAlive) {
             brain.setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
             brain.eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
@@ -112,13 +112,13 @@ internal object EntityMountBrainAi {
         val owner = if (host == null) null else host.getOwner()
         val attackTarget = mount.getTarget()
         val aimRequiredTicks = if (host == null) Int.MAX_VALUE else
-            ((MountAiNumbers.AIM_SCALE_TICKS * (MountAiNumbers.LEVEL_CAP - host.getLevel()) / MountAiNumbers.LEVEL_CAP).toInt() + MountAiNumbers.AIM_BASE_TICKS)
+            ((MountAiNumbers.AIM_SCALE_TICKS * (MountAiNumbers.LEVEL_CAP - host.level) / MountAiNumbers.LEVEL_CAP).toInt() + MountAiNumbers.AIM_BASE_TICKS)
         val attackRangeSq = if (host == null)
             0.0
-        else max(MountAiNumbers.MIN_ATTACK_RANGE, host.getLegacyShipStats().getAttackRange().toDouble()).pow(2.0)
+        else max(MountAiNumbers.MIN_ATTACK_RANGE, host.legacyShipStats.getAttackRange().toDouble()).pow(2.0)
         return MountBrainDecisionResolver.State(
             host != null,
-            host != null && host.isAlive(),
+            host != null && host.isAlive,
             host != null && host.isOrderedToSit(),
             mount.isPassenger(),
             host != null && host.hasPointerTarget(),
@@ -128,17 +128,17 @@ internal object EntityMountBrainAi {
             mount.getBbWidth().toDouble(),
             if (host == null) 0 else host.getStateMinor(11),
             attackTarget != null,
-            attackTarget != null && attackTarget.isAlive(),
+            attackTarget != null && attackTarget.isAlive,
             mount.getRandom().nextInt(MountAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             aimTick,
             aimRequiredTicks,
             if (attackTarget == null) -1.0 else mount.distanceToSqr(attackTarget),
             attackRangeSq,
-            host != null && host.isStateLightAttack(),
-            if (host == null) 0 else host.getAmmoLight(),
+            host != null && host.isStateLightAttack,
+            if (host == null) 0 else host.ammoLight,
             lightDelay,
-            host != null && host.isStateHeavyAttack(),
-            if (host == null) 0 else host.getAmmoHeavy(),
+            host != null && host.isStateHeavyAttack,
+            if (host == null) 0 else host.ammoHeavy,
             heavyDelay
         )
     }
@@ -147,7 +147,7 @@ internal object EntityMountBrainAi {
         val guardTarget = host.getGuardTarget()
         if (guardTarget.isEntity()) {
             val guarded = host.getGuardedEntity()
-            return guarded != null && guarded.isAlive()
+            return guarded != null && guarded.isAlive
         }
         return guardTarget.isBlock() && guardTarget.isIn(host.level())
     }
@@ -211,7 +211,7 @@ internal object EntityMountBrainAi {
             val guardTarget = host.getGuardTarget()
             if (guardTarget.isEntity()) {
                 val guarded = host.getGuardedEntity()
-                if (guarded == null || !guarded.isAlive()) {
+                if (guarded == null || !guarded.isAlive) {
                     return false
                 }
 
@@ -324,7 +324,7 @@ internal object EntityMountBrainAi {
             this.aimTick = 0
             this.lightDelay = 0
             this.heavyDelay = 0
-            if (this.target != null && this.target!!.isAlive()) {
+            if (this.target != null && this.target!!.isAlive) {
                 mount.getBrain().setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, this.target)
             }
         }
@@ -335,7 +335,7 @@ internal object EntityMountBrainAi {
         }
 
         override fun tick(level: ServerLevel, mount: EntityMountBase, gameTime: Long) {
-            if (this.target == null || !this.target!!.isAlive()) return
+            if (this.target == null || !this.target!!.isAlive) return
             val h = mount.getHost()
             if (h == null) return
 
@@ -348,11 +348,11 @@ internal object EntityMountBrainAi {
             val state = decisionState(mount, h, this.aimTick, this.lightDelay, this.heavyDelay)
             if (MountBrainDecisionResolver.shouldFireLight(state)) {
                 h.performLightAttack(this.target)
-                this.lightDelay = h.getLegacyShipStats().getLightDelay()
+                this.lightDelay = h.legacyShipStats.getLightDelay()
             }
             if (MountBrainDecisionResolver.shouldFireHeavy(state)) {
                 h.performHeavyAttack(this.target)
-                this.heavyDelay = h.getLegacyShipStats().getHeavyDelay()
+                this.heavyDelay = h.legacyShipStats.getHeavyDelay()
             }
         }
     }

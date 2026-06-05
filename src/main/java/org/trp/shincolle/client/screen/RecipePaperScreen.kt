@@ -1132,7 +1132,7 @@ object ModCommands {
         }
 
         if ("friendly" == filter || "tame" == filter) {
-            return ship.isTame() && !ship.isHostileShipMob
+            return ship.isTame && !ship.isHostileShipMob
         }
 
         if ("hostile" == filter || "mob" == filter) {
@@ -1172,6 +1172,10 @@ object ModCommands {
             source.sendFailure(Component.literal("Server level only command."))
             return 0
         }
+
+        val serverLevel = source.getLevel() as ServerLevel
+
+        val serverLevel = source.getLevel() as ServerLevel
 
         val resolved = if (emoteId >= 0) emoteId else serverLevel.random.nextInt(30)
         val entity = source.getEntity()

@@ -150,7 +150,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
                 return
             }
             val owner = this.ownerEntity
-            if (owner == null || !owner.isAlive()) {
+            if (owner == null || !owner.isAlive) {
                 this.discard()
                 return
             }
@@ -184,7 +184,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
     }
 
     private fun canHitEntity(target: Entity): Boolean {
-        if (!target.isAlive() || !target.isPickable()) {
+        if (!target.isAlive || !target.isPickable()) {
             return false
         }
         val owner = this.ownerEntity
@@ -259,7 +259,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
                 return null
             }
             val entity: Entity? = serverLevel.getEntity(ownerUuid.get())
-            if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }
             return entity

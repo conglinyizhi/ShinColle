@@ -5,18 +5,18 @@ internal class EntityShipBaseFaceExpressions(
     private val emotions: EntityShipBaseEmotions
 ) {
     fun setFaceNormal() {
-        this.ship.setFaceId(EntityShipBase.Companion.FACE_EYES_OPEN)
+        this.ship.faceId = EntityShipBase.Companion.FACE_EYES_OPEN
         if (this.ship.getEmotionSecondary() == EntityShipBase.Companion.EMOTION_BORED
             && (this.ship.tickCount and this.emotions.getNormalMouthTickMask()) > this.emotions.getNormalMouthTickThreshold()
         ) {
-            this.ship.setMouthId(this.ship.resolveMouthId(EntityShipBase.Companion.MOUTH_FLIP_0))
+            this.ship.mouthId = this.ship.resolveMouthId(EntityShipBase.Companion.MOUTH_FLIP_0)
         } else {
-            this.ship.setMouthId(EntityShipBase.Companion.MOUTH_FRONT_0)
+            this.ship.mouthId = EntityShipBase.Companion.MOUTH_FRONT_0
         }
     }
 
     fun setFaceCry() {
-        val tick = this.ship.getFaceElapsed() and this.emotions.getCryMask()
+        val tick = this.ship.faceElapsed and this.emotions.getCryMask()
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(64, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FLIP_2),
             FaceStep(128, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FRONT_2),
@@ -34,12 +34,12 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceScorn() {
-        this.ship.setFaceId(EntityShipBase.Companion.FACE_EYES_HALF)
-        this.ship.setMouthId(EntityShipBase.Companion.MOUTH_FRONT_1)
+        this.ship.faceId = EntityShipBase.Companion.FACE_EYES_HALF
+        this.ship.mouthId = EntityShipBase.Companion.MOUTH_FRONT_1
     }
 
     fun setFaceDamaged() {
-        val tick = this.ship.getFaceElapsed() and this.emotions.getDamagedMask()
+        val tick = this.ship.faceElapsed and this.emotions.getDamagedMask()
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(60, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FLIP_2),
             FaceStep(200, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FRONT_2),
@@ -51,12 +51,12 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceHungry() {
-        this.ship.setFaceId(EntityShipBase.Companion.FACE_DESPAIR)
-        this.ship.setMouthId(EntityShipBase.Companion.MOUTH_FRONT_2)
+        this.ship.faceId = EntityShipBase.Companion.FACE_DESPAIR
+        this.ship.mouthId = EntityShipBase.Companion.MOUTH_FRONT_2
     }
 
     fun setFaceAngry() {
-        val tick = this.ship.getFaceElapsed() and this.emotions.getAngryMask()
+        val tick = this.ship.faceElapsed and this.emotions.getAngryMask()
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(64, EntityShipBase.Companion.FACE_EYES_CLOSED, EntityShipBase.Companion.MOUTH_FRONT_0),
             FaceStep(128, EntityShipBase.Companion.FACE_EYES_CLOSED, EntityShipBase.Companion.MOUTH_FRONT_1),
@@ -66,7 +66,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceBored() {
-        val tick = this.ship.getFaceElapsed() and this.emotions.getBoredMask()
+        val tick = this.ship.faceElapsed and this.emotions.getBoredMask()
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(80, EntityShipBase.Companion.FACE_DOT_EYES, EntityShipBase.Companion.MOUTH_FRONT_0),
             FaceStep(170, EntityShipBase.Companion.FACE_DOT_EYES, EntityShipBase.Companion.MOUTH_FLIP_1),
@@ -76,7 +76,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceShy() {
-        val tick = this.ship.getFaceElapsed() and this.emotions.getShyMask()
+        val tick = this.ship.faceElapsed and this.emotions.getShyMask()
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(80, EntityShipBase.Companion.FACE_EYES_OPEN, EntityShipBase.Companion.MOUTH_FLIP_0),
             FaceStep(140, EntityShipBase.Companion.FACE_EYES_OPEN, EntityShipBase.Companion.MOUTH_FRONT_2)
@@ -85,7 +85,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceHappy() {
-        val tick = this.ship.getFaceElapsed() and this.emotions.getHappyMask()
+        val tick = this.ship.faceElapsed and this.emotions.getHappyMask()
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(80, EntityShipBase.Companion.FACE_TENSION, EntityShipBase.Companion.MOUTH_FRONT_0),
             FaceStep(140, EntityShipBase.Companion.FACE_TENSION, EntityShipBase.Companion.MOUTH_FLIP_1)
@@ -96,13 +96,13 @@ internal class EntityShipBaseFaceExpressions(
     private fun applyFaceTimeline(steps: Array<FaceStep>, fallbackFaceId: Int, fallbackMouthId: Int, tick: Int) {
         for (step in steps) {
             if (tick < step.untilTick) {
-                this.ship.setFaceId(step.faceId)
-                this.ship.setMouthId(this.ship.resolveMouthId(step.mouthId))
+                this.ship.faceId = step.faceId
+                this.ship.mouthId = this.ship.resolveMouthId(step.mouthId)
                 return
             }
         }
-        this.ship.setFaceId(fallbackFaceId)
-        this.ship.setMouthId(this.ship.resolveMouthId(fallbackMouthId))
+        this.ship.faceId = fallbackFaceId
+        this.ship.mouthId = this.ship.resolveMouthId(fallbackMouthId)
     }
 
     @JvmRecord

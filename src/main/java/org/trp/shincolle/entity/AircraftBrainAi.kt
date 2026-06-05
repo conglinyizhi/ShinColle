@@ -98,7 +98,7 @@ internal object AircraftBrainAi {
     private fun decisionState(host: EntityAircraftBase, targetEntity: Entity?): AircraftBrainDecisionResolver.State {
         return AircraftBrainDecisionResolver.State(
             targetEntity != null,
-            targetEntity != null && targetEntity.isAlive(),
+            targetEntity != null && targetEntity.isAlive,
             host.isMissionLightAircraft(),
             host.hasAmmoLight(),
             host.hasAmmoHeavy(),

@@ -609,7 +609,7 @@ class ModelMidwayHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidB
         val isSprinting = entity!!.isSprinting || limbSwingAmount > 0.9f
         val isCrouching = entity.isCrouching()
         val isPassenger = entity.isPassenger()
-        val isSitting = entity.getIsSitting() || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
 
         if (isSprinting) {
             this.Hair01.xRot = angleAdd1 * 0.1f + limbSwingAmount * 0.4f + headX

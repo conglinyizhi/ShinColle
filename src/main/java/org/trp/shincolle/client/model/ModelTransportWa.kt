@@ -247,7 +247,7 @@ class ModelTransportWa<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoid
         this.applyEquipVisibility(entity)
         this.applyFaceAndMouth(entity)
 
-        val inDeadPose = entity != null && entity.isInDeadPose()
+        val inDeadPose = entity != null && entity.isInDeadPose
 
         if (inDeadPose) {
             this.applyDeadPose(entity)
@@ -393,8 +393,8 @@ class ModelTransportWa<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoid
         val hideLeg = entity != null && !entity.getEquipFlag(EntityTransportWa.EQUIP_LEG)
         val isPassenger = entity!!.isPassenger()
         val isCrouching = entity.isCrouching()
-        val isSprinting = if (entity != null) entity.getIsSprinting() else limbSwingAmount > 0.9f
-        val isSitting = entity.getIsSitting() || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.9f
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
         val sitSwing = Mth.cos(ageInTicks * 0.5f) * 0.5f
 
         if (hideLeg) {
@@ -506,7 +506,7 @@ class ModelTransportWa<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoid
             }
         }
 
-        if (entity != null && entity.getAttackTick() > 40) {
+        if (entity != null && entity.attackTick > 40) {
             this.poseTranslateY += 0.08f
             this.Head.xRot -= 1.0472f
             this.BodyMain.xRot = 1.7f

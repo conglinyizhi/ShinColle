@@ -15,17 +15,17 @@ import kotlin.math.max
 
 class EntityTransportWa(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-3f, 20f, 0f, 45f))
+        this.modelPos = floatArrayOf(-3f, 20f, 0f, 45f)
         setStateMinor(STATE_MINOR_FACTION_ID, 7)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 16)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 0)
         setStateMinor(STATE_MINOR_RARITY, 3)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeAP)
-        setStateGuiBtn1(false)
-        setStateGuiBtn2(false)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
-        setStateCanRide(true)
+        this.isStateGuiBtn1 = false
+        this.isStateGuiBtn2 = false
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
+        this.isStateCanRide = true
     }
 
     override fun isNonCombatShip(): Boolean {
@@ -47,8 +47,9 @@ class EntityTransportWa(type: EntityType<out TamableAnimal?>?, level: Level?) : 
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_BASE, "gui.shincolle.equip.base"))
         list.add(EquipOption(EQUIP_LEG, "gui.shincolle.equip.leg"))
         list.add(EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"))
@@ -65,20 +66,20 @@ class EntityTransportWa(type: EntityType<out TamableAnimal?>?, level: Level?) : 
         if (this.getStateMinor(6) <= 5400) {
             consumeSupplyItems(0)
         }
-        if (this.getAmmoLight() <= 540) {
+        if (this.ammoLight <= 540) {
             consumeSupplyItems(1)
         }
-        if (this.getAmmoHeavy() <= 270) {
+        if (this.ammoHeavy <= 270) {
             consumeSupplyItems(2)
         }
 
-        if ((this.tickCount % 256) == 0 && !this.isStateNoEquip()) {
+        if ((this.tickCount % 256) == 0 && !this.isStateNoEquip) {
             trySupplyAllies()
         }
     }
 
     private fun trySupplyAllies() {
-        var supCount = this.getLevel() / 50 + 1
+        var supCount = this.level / 50 + 1
         val range = 2.0 + this.getAttributeValue(Attributes.FOLLOW_RANGE) * 0.5
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
@@ -106,16 +107,16 @@ class EntityTransportWa(type: EntityType<out TamableAnimal?>?, level: Level?) : 
                 ship.setStateMinor(6, max(0, ship.getStateMinor(6) + grant))
                 supplied = true
             }
-            if (this.getAmmoLight() >= 540 && ship.getAmmoLight() < 270) {
+            if (this.ammoLight >= 540 && ship.ammoLight < 270) {
                 addAmmoLight(-540)
                 val grant = max(0, (540.0f * ship.legacyShipStats.getBuffedAttr(18)).toInt())
-                ship.setAmmoLight(max(0, ship.getAmmoLight() + grant))
+                ship.ammoLight = max(0, ship.ammoLight + grant)
                 supplied = true
             }
-            if (this.getAmmoHeavy() >= 270 && ship.getAmmoHeavy() < 135) {
+            if (this.ammoHeavy >= 270 && ship.ammoHeavy < 135) {
                 addAmmoHeavy(-270)
                 val grant = max(0, (270.0f * ship.legacyShipStats.getBuffedAttr(18)).toInt())
-                ship.setAmmoHeavy(max(0, ship.getAmmoHeavy() + grant))
+                ship.ammoHeavy = max(0, ship.ammoHeavy + grant)
                 supplied = true
             }
 
@@ -182,13 +183,13 @@ class EntityTransportWa(type: EntityType<out TamableAnimal?>?, level: Level?) : 
     }
 
     private fun addAmmoLight(amount: Int) {
-        val next = max(0, this.getAmmoLight() + amount)
-        this.setAmmoLight(next)
+        val next = max(0, this.ammoLight + amount)
+        this.ammoLight = next
     }
 
     private fun addAmmoHeavy(amount: Int) {
-        val next = max(0, this.getAmmoHeavy() + amount)
-        this.setAmmoHeavy(next)
+        val next = max(0, this.ammoHeavy + amount)
+        this.ammoHeavy = next
     }
 
     override fun supportsItemPickup(): Boolean {

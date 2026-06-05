@@ -15,13 +15,13 @@ import kotlin.math.max
 
 class EntityBBKongou(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 60)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3)
         setStateMinor(STATE_MINOR_RARITY, 4)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeBB)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn4 = false
     }
 
     override fun aiStep() {
@@ -41,7 +41,7 @@ class EntityBBKongou(type: EntityType<out TamableAnimal?>?, level: Level?) : Ent
 
     val passengersRidingOffset: Double
         get() {
-            if (!this.getIsSitting()) {
+            if (!this.isInSittingPose) {
                 return (this.getBbHeight() * 0.75f).toDouble()
             }
             if (checkModelState(1, this.getStateEmotion(0))) {
@@ -53,8 +53,9 @@ class EntityBBKongou(type: EntityType<out TamableAnimal?>?, level: Level?) : Ent
             return (this.getBbHeight() * 0.35f).toDouble()
         }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
         list.add(EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"))
         list.add(EquipOption(EQUIP_HAIR_SET, "gui.shincolle.equip.hair"))
@@ -63,7 +64,7 @@ class EntityBBKongou(type: EntityType<out TamableAnimal?>?, level: Level?) : Ent
     }
 
     private fun updateClientParticles() {
-        if (this.tickCount % 4 == 0 && !this.getIsSitting() && this.getEquipFlag(EQUIP_RIGGING) && !this.isInDeadPose()) {
+        if (this.tickCount % 4 == 0 && !this.isInSittingPose && this.getEquipFlag(EQUIP_RIGGING) && !this.isInDeadPose) {
             var partPos = rotateXZByAxis(-0.7f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f)
             for (i in 0..2) {
                 this.level().addParticle(
@@ -84,7 +85,7 @@ class EntityBBKongou(type: EntityType<out TamableAnimal?>?, level: Level?) : Ent
     }
 
     private fun applyBuffToNearbyAllies() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0)) {
             return
         }
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(

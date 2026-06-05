@@ -28,13 +28,13 @@ class EntityCAHime(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
 
     init {
         this.pushMovement = ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT)
-        setModelPos(floatArrayOf(0f, 10f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 10f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 49)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4)
         setStateMinor(STATE_MINOR_RARITY, 5)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCA)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn4 = false
     }
 
     override fun tickAliveLogic() {
@@ -49,7 +49,7 @@ class EntityCAHime(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
     }
 
     private fun updateServerLogic() {
-        if (!this.level().isDay() && this.isStateRingEffect()) {
+        if (!this.level().isDay() && this.isStateRingEffect) {
             val duration = 150
             val ampSpeed = max(0, this.getStateMinor(0) / 50)
             val ampJump = max(0, this.getStateMinor(0) / 40)
@@ -59,14 +59,15 @@ class EntityCAHime(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
 
         val canFindTarget = (this.tickCount and 0xFF) == 0 && this.getRandom().nextInt(5) == 0
         val isActionBlocked =
-            this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed() || this.isInDeadPose()
+            this.isInSittingPose || this.isPassenger() || this.isStateNoEquip || this.isLeashed() || this.isInDeadPose
         if (canFindTarget && !isActionBlocked && !this.isPushing) {
             findTargetPush()
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_TAIL_1, "gui.shincolle.equip.tail_1"))
         list.add(EquipOption(EQUIP_TAIL_2, "gui.shincolle.equip.tail_2"))
         list.add(EquipOption(EQUIP_HAT_1, "gui.shincolle.equip.hat_1"))
@@ -77,7 +78,7 @@ class EntityCAHime(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
 
     private fun updatePushingState() {
         this.tickPush++
-        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush!!.isAlive() || this.isInDeadPose()) {
+        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush!!.isAlive || this.isInDeadPose) {
             cancelPush()
             return
         }
@@ -94,6 +95,7 @@ class EntityCAHime(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
         this.targetPush!!.setDeltaMovement(this.targetPush!!.getDeltaMovement().add(push))
         this.swing(InteractionHand.MAIN_HAND)
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
             serverLevel.sendParticles<SimpleParticleType?>(
                 ParticleTypes.CLOUD,
                 this.targetPush!!.getX(), this.targetPush!!.getY() + 1.0, this.targetPush!!.getZ(),
@@ -114,7 +116,7 @@ class EntityCAHime(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
         val impactBox = this.getBoundingBox().inflate(12.0, 6.0, 12.0)
         val list = this.level().getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java, impactBox,
-            Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive() && ent.canBeCollidedWith() })
+            Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive && ent.canBeCollidedWith() })
         if (!list.isEmpty()) {
             this.pushMovement.reset()
             this.targetPush = list.get(this.getRandom().nextInt(list.size))

@@ -18,12 +18,12 @@ import kotlin.math.max
 
 class EntityIsolatedHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 29)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2)
         setStateMinor(STATE_MINOR_RARITY, 8)
-        setStateCanRide(true)
+        this.isStateCanRide = true
     }
 
     protected override fun performHeavyAttack(target: Entity?): Boolean {
@@ -37,8 +37,8 @@ class EntityIsolatedHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
             return false
         }
 
-        this.setFuel(this.getFuel() - Config.fuelConsumeActionHeavy)
-        this.setAttackTick(50)
+        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.attackTick = 50
         this.applyEmotesReaction(3)
         spawnMissile(target)
         return true
@@ -61,8 +61,9 @@ class EntityIsolatedHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         serverLevel.addFreshEntity(missile)
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_HAT_BASE, "gui.shincolle.equip.head_base"))
         list.add(EquipOption(EQUIP_HEAD_GEAR, "gui.shincolle.equip.head"))
         list.add(EquipOption(EQUIP_CLOTH_1, "gui.shincolle.equip.upper"))

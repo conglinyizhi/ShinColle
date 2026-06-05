@@ -144,7 +144,7 @@ class ModelAirfieldHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoi
         this.applyEquipVisibility(entity)
         applyFaceAndMouth(entity)
 
-        if (entity is EntityShipBase && entity.isInDeadPose()) {
+        if (entity is EntityShipBase && entity.isInDeadPose) {
             this.applyDeadPose()
             this.syncGlowParts()
             return
@@ -455,8 +455,8 @@ class ModelAirfieldHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoi
             }
         }
 
-        if (entity != null && entity.getAttackTick() > 0) {
-            if (entity.getAttackTick() > 25) {
+        if (entity != null && entity.attackTick > 0) {
+            if (entity.attackTick > 25) {
                 if (hasLegacyModelFlag(entity, 2)) {
                     this.poseTranslateY += 0.15f
                     this.Head.yRot *= 0.8f
@@ -505,7 +505,7 @@ class ModelAirfieldHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoi
                     this.ArmLeft01.zRot = 0.0f
                 }
             }
-            setRoad(entity.getAttackTick())
+            setRoad(entity.attackTick)
         }
 
         val angleX = Mth.cos(ageInTicks * 0.08f)

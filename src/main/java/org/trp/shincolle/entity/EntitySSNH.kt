@@ -16,15 +16,15 @@ import java.util.function.Predicate
 
 class EntitySSNH(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 8f, 0f, 50f))
+        this.modelPos = floatArrayOf(-6f, 8f, 0f, 50f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 72)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6)
         setStateMinor(STATE_MINOR_RARITY, 3)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeSS)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
-        setStateCanRide(true)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
+        this.isStateCanRide = true
     }
 
     override fun tickAliveLogic() {
@@ -37,17 +37,18 @@ class EntitySSNH(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityS
     }
 
     private fun updateServerLogic() {
-        if (this.isStateRingEffect()) {
-            val duration = 80 + this.getLevel()
+        if (this.isStateRingEffect) {
+            val duration = 80 + this.level
             this.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
-            if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0) {
-                this.getOwnerPlayer().addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
+            if (this.isStateMarried && this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+                this.ownerPlayer.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
             }
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_HAND_RING, "gui.shincolle.equip.ring"))
         list.add(EquipOption(EQUIP_RING_BASE, "gui.shincolle.equip.ring_base"))
         list.add(EquipOption(EQUIP_TORPEDO, "gui.shincolle.equip.torpedo"))
@@ -68,7 +69,7 @@ class EntitySSNH(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityS
         }
 
         val canFindTarget = (this.tickCount and 0x7F) == 0 && this.getRandom().nextInt(4) == 0
-        val isActionBlocked = this.getIsSitting() || this.isStateNoEquip() || this.isLeashed()
+        val isActionBlocked = this.isInSittingPose || this.isStateNoEquip || this.isLeashed()
         if (canFindTarget && !isActionBlocked) {
             findRideTarget()
         }
@@ -78,7 +79,7 @@ class EntitySSNH(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityS
         val range = this.getBoundingBox().inflate(6.0, 4.0, 6.0)
         val candidates = this.level().getEntities(
             this, range,
-            Predicate { ent: Entity? -> ent!!.isAlive() && ent.canBeCollidedWith() && canRideEntity(ent) })
+            Predicate { ent: Entity? -> ent!!.isAlive && ent.canBeCollidedWith() && canRideEntity(ent) })
         if (!candidates.isEmpty()) {
             val target = candidates.get(this.getRandom().nextInt(candidates.size))
             this.startRiding(target, true)

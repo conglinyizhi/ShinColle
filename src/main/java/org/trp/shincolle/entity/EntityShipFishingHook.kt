@@ -18,7 +18,7 @@ class EntityShipFishingHook(type: EntityType<*>, level: Level) : Entity(type, le
     private var host: EntityShipBase? = null
 
     fun getHost(): EntityShipBase? {
-        if (this.host != null && (!this.host!!.isAlive() || this.host!!.isRemoved())) {
+        if (this.host != null && (!this.host!!.isAlive || this.host!!.isRemoved)) {
             this.host = null
         }
         return this.host
@@ -48,7 +48,7 @@ class EntityShipFishingHook(type: EntityType<*>, level: Level) : Entity(type, le
             val id = this.entityData.get<Int?>(HOST_ID)
             if (id != -1) {
                 val e = this.level().getEntity(id)
-                if (e is EntityShipBase && e.isAlive() && !e.isRemoved()) {
+                if (e is EntityShipBase && e.isAlive && !e.isRemoved) {
                     this.host = e
                     e.fishHook = this
                 }
@@ -59,7 +59,7 @@ class EntityShipFishingHook(type: EntityType<*>, level: Level) : Entity(type, le
             this.discard()
         }
         if (!this.level().isClientSide) {
-            if (this.host == null || !this.host!!.isAlive() || this.host!!.isRemoved()) {
+            if (this.host == null || !this.host!!.isAlive || this.host!!.isRemoved) {
                 this.discard()
                 return
             }

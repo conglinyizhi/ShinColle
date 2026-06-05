@@ -29,7 +29,7 @@ enum class ShipJadeProvider : IEntityComponentProvider {
                 .append(": ")
                 .append(
                     if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel() else Component.literal(
-                        ship.getAmmoLight().toString()
+                        ship.ammoLight.toString()
                     )
                 )
         )
@@ -38,7 +38,7 @@ enum class ShipJadeProvider : IEntityComponentProvider {
                 .append(": ")
                 .append(
                     if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel() else Component.literal(
-                        ship.getAmmoHeavy().toString()
+                        ship.ammoHeavy.toString()
                     )
                 )
         )
@@ -48,7 +48,7 @@ enum class ShipJadeProvider : IEntityComponentProvider {
                 .append(": ")
                 .append(
                     if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel() else Component.literal(
-                        ship.getFuel().toString()
+                        ship.fuel.toString()
                     )
                 )
         )
@@ -61,7 +61,7 @@ enum class ShipJadeProvider : IEntityComponentProvider {
         private val UID: ResourceLocation = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "ship")
 
         private fun runningState(ship: EntityShipBase): Component {
-            if (!ship.isAlive()) {
+            if (!ship.isAlive) {
                 return Component.translatable("tooltip.shincolle.jade.ship.status.idle")
             }
             if (ship.isNoFuel()) {

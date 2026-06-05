@@ -424,7 +424,7 @@ class ModelCarrierHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoid
         val isSprinting = entity != null && entity.isSprinting
         val isCrouching = entity != null && entity.isCrouching()
         val isPassenger = entity != null && entity.isPassenger()
-        val isSitting = entity != null && (entity.getIsSitting() || entity.isPassenger())
+        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger())
 
         if (isSprinting || limbSwingAmount > 0.95f) {
             this.poseTranslateY += 0.05f

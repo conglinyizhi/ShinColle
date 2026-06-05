@@ -24,7 +24,7 @@ class TrainingBookItem(properties: Properties) : Item(properties) {
             return InteractionResult.PASS
         }
 
-        if (!interactionTarget.isTame() || !interactionTarget.isOwnedBy(player)) {
+        if (!interactionTarget.isTame || !interactionTarget.isOwnedBy(player)) {
             return InteractionResult.PASS
         }
 

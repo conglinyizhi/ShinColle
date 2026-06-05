@@ -23,14 +23,14 @@ import kotlin.math.max
 
 class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 46)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3)
         setStateMinor(STATE_MINOR_RARITY, 4)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeBB)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
     }
 
     override fun aiStep() {
@@ -48,7 +48,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
         }
 
         if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0) {
+            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack || this.ammoHeavy <= 0) {
                 this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
             }
         }
@@ -56,7 +56,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
 
     val passengersRidingOffset: Double
         get() {
-            if (!this.getIsSitting()) {
+            if (!this.isInSittingPose) {
                 return (this.getBbHeight() * 0.75f).toDouble()
             }
             if (checkModelState(0, this.getStateEmotion(0))) {
@@ -68,8 +68,9 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
             return (this.getBbHeight() * 0.4f).toDouble()
         }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.addAll(
             List.of<EquipOption?>(
                 EquipOption(EQUIP_BELT, "gui.shincolle.equip.belt"),
@@ -85,7 +86,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
         if (this.level() !is ServerLevel) {
             return false
         }
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return false
         }
         if (isSameOwnerAttackTarget(target)) {
@@ -96,7 +97,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
             if (!consumeHeavyAmmo(1)) {
                 return false
             }
-            this.setFuel(this.getFuel() - Config.fuelConsumeActionHeavy)
+            this.fuel = this.fuel - Config.fuelConsumeActionHeavy
             val baseDamage = this.getAttributeValue(Attributes.ATTACK_DAMAGE).toFloat()
             val damage = max(6.0f, baseDamage * 1.6f)
             this.playSound(ModSounds.SHIP_YAMATO_SHOT.get(), max(0.0f, Config.volumeAttack), 1.0f)
@@ -118,19 +119,19 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
                 )
             }
             this.tryFlareTarget(target)
-            this.setAttackTick(50)
+            this.attackTick = 50
             this.applyEmotesReaction(3)
             return false
         }
 
-        this.setAttackTick(50)
+        this.attackTick = 50
         this.applyEmotesReaction(3)
         return true
     }
 
     private fun updateClientParticles() {
         if (this.tickCount % 4 == 0 && checkModelState(0, this.getStateEmotion(0))
-            && !this.getIsSitting() && !this.isStateNoEquip()
+            && !this.isInSittingPose && !this.isStateNoEquip
         ) {
             val partPos = rotateXZByAxis(-0.63f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f)
             for (i in 0..2) {
@@ -154,7 +155,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
     }
 
     private fun applyBuffToNearbyAllies() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0)) {
             return
         }
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(

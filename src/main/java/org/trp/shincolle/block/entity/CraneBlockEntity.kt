@@ -247,7 +247,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     }
 
     private fun checkCraningShip(): Boolean {
-        if (this.craningShip != null && this.craningShip!!.isAlive() && !this.craningShip!!.isRemoved()) {
+        if (this.craningShip != null && this.craningShip!!.isAlive && !this.craningShip!!.isRemoved) {
             if (this.craningShip!!.distanceToSqr(
                     this.worldPosition.getX() + 0.5,
                     this.worldPosition.getY().toDouble(),
@@ -275,7 +275,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         val aabb = AABB(this.worldPosition).inflate(8.0)
         val ships = this.level!!.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, aabb)
         for (ship in ships) {
-            if (ship.isAlive() && !ship.isRemoved() && ship.isTame() && this.ownerUUID != null && this.ownerUUID == ship.getOwnerUUID()) {
+            if (ship.isAlive && !ship.isRemoved && ship.isTame && this.ownerUUID != null && this.ownerUUID == ship.getOwnerUUID()) {
                 if (ship.getStateMinor(43) == 1 || ship.getStateMinor(43) == 2) {
                     this.craningShip = ship
                     this.liquidTransferRate = calculateLiquidTransferRate(ship)
@@ -743,7 +743,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                 continue
             }
 
-            if (equipItem.getEquipTypeId(stack) != 24 || equipItem.getVariant(stack) != 1) {
+            if ((stack.getItem() as LegacyEquipItem).getEquipTypeId(stack) != 24 || (stack.getItem() as LegacyEquipItem).getVariant(stack) != 1) {
                 continue
             }
 
@@ -776,7 +776,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                 continue
             }
 
-            if (equipItem.getEquipTypeId(stack) != 24 || equipItem.getVariant(stack) != 2) {
+            if ((stack.getItem() as LegacyEquipItem).getEquipTypeId(stack) != 24 || (stack.getItem() as LegacyEquipItem).getVariant(stack) != 2) {
                 continue
             }
 

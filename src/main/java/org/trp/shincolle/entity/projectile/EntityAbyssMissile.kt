@@ -594,7 +594,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
 
     private fun canHitEntity(entity: Entity): Boolean {
         val owner = this.ownerEntity
-        return entity.isPickable() && entity.isAlive() && entity !== owner
+        return entity.isPickable() && entity.isAlive && entity !== owner
     }
 
     private fun onImpact(hit: Entity?) {
@@ -646,7 +646,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         val targets = serverLevel.getEntities(
             this, this.getBoundingBox().inflate(radius.toDouble()),
             Predicate { entity: Entity? ->
-                entity!!.isAlive() && entity.isPickable() && (entity !is EntityAbyssMissile) && !isFriendlyTarget(
+                entity!!.isAlive && entity.isPickable() && (entity !is EntityAbyssMissile) && !isFriendlyTarget(
                     owner,
                     entity
                 )
@@ -655,7 +655,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
             entity.hurt(source, damage)
             applyImpactEffects(entity)
         }
-        if (directHit != null && directHit.isAlive() && !isFriendlyTarget(owner, directHit)) {
+        if (directHit != null && directHit.isAlive && !isFriendlyTarget(owner, directHit)) {
             if (!targets.contains(directHit)) {
                 directHit.hurt(source, damage)
             }
@@ -710,7 +710,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         val from = this.position()
         val to: Vec3?
 
-        if (target != null && target.isAlive()) {
+        if (target != null && target.isAlive) {
             to = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
             this.targetPos = to
         } else if (this.targetPos != null) {
@@ -737,7 +737,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
                 return null
             }
             val entity: Entity? = serverLevel.getEntity(ownerUuid.get())
-            if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }
             return entity
@@ -757,7 +757,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
                 return null
             }
             val entity: Entity? = serverLevel.getEntity(targetUuid.get())
-            if (entity == null || !entity.isAlive() || entity.isRemoved()) {
+            if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }
             return entity
@@ -817,7 +817,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         val targets = serverLevel.getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java,
             this.getBoundingBox().inflate(BLACK_HOLE_PULL_RADIUS),
-            Predicate { entity: LivingEntity? -> entity!!.isAlive() && !isFriendlyTarget(owner, entity) })
+            Predicate { entity: LivingEntity? -> entity!!.isAlive && !isFriendlyTarget(owner, entity) })
 
         for (target in targets) {
             val pull = center.subtract(target.position()).normalize().scale(BLACK_HOLE_PULL_STRENGTH)
@@ -832,7 +832,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
     }
 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
-        if (this.level().isClientSide || this.isRemoved()) {
+        if (this.level().isClientSide || this.isRemoved) {
             return false
         }
         onImpact(null)

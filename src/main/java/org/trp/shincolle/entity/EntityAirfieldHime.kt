@@ -22,12 +22,12 @@ import kotlin.math.max
 
 class EntityAirfieldHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 21)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2)
         setStateMinor(STATE_MINOR_RARITY, 4)
-        setStateCanRide(true)
+        this.isStateCanRide = true
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -42,8 +42,9 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         return false
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_HAND, "gui.shincolle.equip.hand"))
         list.add(EquipOption(EQUIP_ARMOR, "gui.shincolle.equip.armor"))
         list.add(EquipOption(EQUIP_POSE_1, "gui.shincolle.equip.pose1"))
@@ -61,7 +62,7 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 if (this.getStateEmotion(1) == 4) {
                     return (this.getBbHeight() * 0.65f).toDouble()
                 }
@@ -75,11 +76,11 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
             this.heal(this.getMaxHealth() * 0.06f + 1.0f)
         }
 
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 50)) {
+        if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 50)) {
             return
         }
 
-        var healCount = this.getLevel() / 15 + 2
+        var healCount = this.level / 15 + 2
         val range = this.getBoundingBox().inflate(12.0, 12.0, 12.0)
         val targets = this.level().getEntitiesOfClass<LivingEntity?>(LivingEntity::class.java, range)
         for (target in targets) {
@@ -95,13 +96,13 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
                 if (target.getUUID() != this.getOwnerUUID()) {
                     continue
                 }
-                target.heal(1.0f + target.getMaxHealth() * 0.04f + this.getLevel() * 0.04f)
+                target.heal(1.0f + target.getMaxHealth() * 0.04f + this.level * 0.04f)
                 healed = true
             } else if (target is EntityShipBase) {
                 if (target.getOwnerUUID() != this.getOwnerUUID()) {
                     continue
                 }
-                target.heal(1.0f + target.getMaxHealth() * 0.04f + this.getLevel() * 0.1f)
+                target.heal(1.0f + target.getMaxHealth() * 0.04f + this.level * 0.1f)
                 healed = true
             }
 

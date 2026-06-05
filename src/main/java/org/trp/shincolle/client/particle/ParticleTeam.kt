@@ -43,7 +43,7 @@ class ParticleTeam protected constructor(
         }
         if (this.followEntityId >= 0) {
             val followEntity = this.level.getEntity(this.followEntityId)
-            if (followEntity == null || !followEntity.isAlive()) {
+            if (followEntity == null || !followEntity.isAlive) {
                 this.remove()
                 return
             }

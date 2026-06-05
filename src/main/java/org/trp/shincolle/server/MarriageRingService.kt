@@ -111,19 +111,19 @@ object MarriageRingService {
             return ItemStack.EMPTY
         }
 
-        for (stack in player.getInventory().items) {
+        for (stack in player.inventory.items) {
             if (isActiveMarriageRingStack(stack)) {
                 return stack
             }
         }
 
-        for (stack in player.getInventory().offhand) {
+        for (stack in player.inventory.offhand) {
             if (isActiveMarriageRingStack(stack)) {
                 return stack
             }
         }
 
-        for (stack in player.getInventory().armor) {
+        for (stack in player.inventory.armor) {
             if (isActiveMarriageRingStack(stack)) {
                 return stack
             }

@@ -30,10 +30,10 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5)
         setStateMinor(STATE_MINOR_RARITY, 5)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeDD)
-        setModelPos(floatArrayOf(0.0f, 25.0f, 0.0f, 50.0f))
+        this.modelPos = floatArrayOf(0.0f, 25.0f, 0.0f, 50.0f)
         setStateFlag(STATE_FLAG_15, false)
         setStateFlag(STATE_FLAG_16, false)
-        setStateCanRide(true)
+        this.isStateCanRide = true
     }
 
     override fun getBreedOffspring(level: ServerLevel, otherParent: AgeableMob): AgeableMob? {
@@ -44,8 +44,9 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         return false
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
         list.add(EquipOption(EQUIP_ANCHOR, "gui.shincolle.equip.anchor"))
         list.add(EquipOption(EQUIP_HAT, "gui.shincolle.equip.hat"))
@@ -80,8 +81,8 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
             return
         }
 
-        val baseOffset = if (this.getIsSitting()) 0.26 else 0.68
-        val yOffsetEmotion = if (this.getStateEmotion(1) == 4 || this.getIsSitting()) 0.0 else 0.1
+        val baseOffset = if (this.isInSittingPose) 0.26 else 0.68
+        val yOffsetEmotion = if (this.getStateEmotion(1) == 4 || this.isInSittingPose) 0.0 else 0.1
 
         if (passenger is EntityDestroyerHibiki) {
             passenger.setStateEmotion(1, this.getStateEmotion(1), false)
@@ -122,7 +123,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * -0.07f else this.getBbHeight() * 0.26f).toDouble()
             }
             return (this.getBbHeight() * 0.64f).toDouble()
@@ -138,7 +139,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
 
     private fun updateClientEffects() {
         if ((this.tickCount % 4) == 0) {
-            if (!this.getIsSitting() && this.getEquipFlag(EQUIP_RIGGING)
+            if (!this.isInSittingPose && this.getEquipFlag(EQUIP_RIGGING)
                 && this.riderType < 1
             ) {
                 val addZ = if (this.isPassenger()) -0.2f else 0.0f
@@ -173,10 +174,10 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
     }
 
     private fun applyPlayerBuff() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
-            if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0) {
+        if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
+            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
                 val amp = this.getStateMinor(0) / 30
-                this.getOwnerPlayer().addEffect(
+                this.ownerPlayer.addEffect(
                     MobEffectInstance(
                         MobEffects.DIG_SPEED,
                         80 + this.getStateMinor(0), amp, false, false
@@ -199,7 +200,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
                 this.riderType = this.riderType or RIDER_TYPE_IKAZUCHI
             }
         }
-        this.setRidingState(if (hasHibiki) 1 else 0)
+        this.ridingState = if (hasHibiki 1 else 0)
     }
 
     private fun addMoraleToRider() {
@@ -220,16 +221,16 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         if (this.getFormationTeam() == -1 || ship.getFormationTeam() != this.getFormationTeam()) {
             return false
         }
-        if (!ship.isAlive()) {
+        if (!ship.isAlive) {
             return false
         }
         if (this.getOwnerUUID() != ship.getOwnerUUID()) {
             return false
         }
-        if (ship.getIsSitting()) {
+        if (ship.isInSittingPose) {
             return false
         }
-        if (ship.isStateNoEquip()) {
+        if (ship.isStateNoEquip) {
             return false
         }
         if (ship.getStateMinor(43) > 0) {
@@ -263,7 +264,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         if (this.getHealth() <= this.getMaxHealth() * 0.5f) {
             return
         }
-        if (this.getIsSitting() || this.isStateNoEquip() || this.riderType == RIDER_TYPE_ALL) {
+        if (this.isInSittingPose || this.isStateNoEquip || this.riderType == RIDER_TYPE_ALL) {
             return
         }
 
@@ -326,13 +327,13 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
     fun dismountAllRider() {
         val wasFullyCombined = (this.riderType == RIDER_TYPE_ALL)
         this.riderType = RIDER_TYPE_NONE
-        this.setRidingState(0)
+        this.ridingState = 0
         for (rider in this.getPassengers()) {
             if (rider is IShipRiderType) {
                 rider.setRiderType(RIDER_TYPE_NONE)
             }
             if (rider is EntityShipBase) {
-                rider.setRidingState(0)
+                rider.ridingState = 0
             }
         }
         this.ejectPassengers()
@@ -352,7 +353,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
             if (this.akatsukiGattaiExpireTick == 0L) {
                 this.akatsukiGattaiExpireTick = this.level().getGameTime() + AKATSUKI_GATTAI_DURATION_TICKS
             }
-            if (this.getIsSitting() || this.isInDeadPose() || this.getHealth() <= this.getMaxHealth() * 0.5f || this.isGattaiDurationExpired) {
+            if (this.isInSittingPose || this.isInDeadPose || this.getHealth() <= this.getMaxHealth() * 0.5f || this.isGattaiDurationExpired) {
                 dismountAllRider()
             }
         } else {
@@ -404,94 +405,94 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
     }
 
     protected override fun setFaceNormal() {
-        this.setFaceId(FACE_EYES_OPEN)
+        this.faceId = FACE_EYES_OPEN
         val tick = this.tickCount and EMOTION_TICK_MASK_8BIT
         if (this.getStateEmotion(7) == 4 && tick > 160) {
-            this.setMouthId(mapLegacyMouth(3))
+            this.mouthId = mapLegacyMouth(3)
         } else {
-            this.setMouthId(mapLegacyMouth(0))
+            this.mouthId = mapLegacyMouth(0)
         }
     }
 
     protected override fun setFaceCry() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
-            this.setFaceId(FACE_DOT_EYES_TEAR)
-            this.setMouthId(mapLegacyMouth(if (tick < 64) 5 else 2))
+            this.faceId = FACE_DOT_EYES_TEAR
+            this.mouthId = mapLegacyMouth(if (tick < 64 5 else 2))
         } else {
-            this.setFaceId(FACE_CRY)
-            this.setMouthId(mapLegacyMouth(2))
+            this.faceId = FACE_CRY
+            this.mouthId = mapLegacyMouth(2)
         }
     }
 
     override fun setFaceDamaged() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT)
         if (tick < 200) {
-            this.setFaceId(FACE_DOT_EYES_TEAR)
-            this.setMouthId(mapLegacyMouth(if (tick < 60) 5 else 2))
+            this.faceId = FACE_DOT_EYES_TEAR
+            this.mouthId = mapLegacyMouth(if (tick < 60 5 else 2))
         } else if (tick < 400) {
-            this.setFaceId(FACE_TENSION)
-            this.setMouthId(mapLegacyMouth(if (tick < 250) 0 else 4))
+            this.faceId = FACE_TENSION
+            this.mouthId = mapLegacyMouth(if (tick < 250 0 else 4))
         } else {
-            this.setFaceId(FACE_SOFT)
-            this.setMouthId(mapLegacyMouth(if (tick < 450) 0 else 1))
+            this.faceId = FACE_SOFT
+            this.mouthId = mapLegacyMouth(if (tick < 450 0 else 1))
         }
     }
 
     override fun setFaceScorn() {
-        this.setFaceId(FACE_EYES_HALF)
-        this.setMouthId(mapLegacyMouth(1))
+        this.faceId = FACE_EYES_HALF
+        this.mouthId = mapLegacyMouth(1)
     }
 
     protected override fun setFaceHungry() {
-        this.setFaceId(FACE_DESPAIR)
-        this.setMouthId(mapLegacyMouth(2))
+        this.faceId = FACE_DESPAIR
+        this.mouthId = mapLegacyMouth(2)
     }
 
     protected override fun setFaceAngry() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
-            this.setFaceId(FACE_EYES_CLOSED)
-            this.setMouthId(mapLegacyMouth(if (tick < 64) 0 else 1))
+            this.faceId = FACE_EYES_CLOSED
+            this.mouthId = mapLegacyMouth(if (tick < 64 0 else 1))
         } else {
-            this.setFaceId(FACE_EYES_HALF)
-            this.setMouthId(mapLegacyMouth(if (tick < 170) 1 else 2))
+            this.faceId = FACE_EYES_HALF
+            this.mouthId = mapLegacyMouth(if (tick < 170 1 else 2))
         }
     }
 
     protected override fun setFaceBored() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT)
         if (tick < 170) {
-            this.setFaceId(FACE_DOT_EYES)
-            this.setMouthId(mapLegacyMouth(if (tick < 80) 0 else 4))
+            this.faceId = FACE_DOT_EYES
+            this.mouthId = mapLegacyMouth(if (tick < 80 0 else 4))
         } else if (tick < 340) {
-            this.setFaceId(FACE_WINK)
-            this.setMouthId(mapLegacyMouth(0))
+            this.faceId = FACE_WINK
+            this.mouthId = mapLegacyMouth(0)
         } else {
-            this.setFaceId(FACE_EYES_OPEN)
-            this.setMouthId(mapLegacyMouth(0))
+            this.faceId = FACE_EYES_OPEN
+            this.mouthId = mapLegacyMouth(0)
         }
     }
 
     protected override fun setFaceShy() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 140) {
-            this.setFaceId(FACE_EYES_OPEN)
-            this.setMouthId(mapLegacyMouth(if (tick < 80) 3 else 2))
+            this.faceId = FACE_EYES_OPEN
+            this.mouthId = mapLegacyMouth(if (tick < 80 3 else 2))
         } else {
-            this.setFaceId(FACE_WINK)
-            this.setMouthId(mapLegacyMouth(0))
+            this.faceId = FACE_WINK
+            this.mouthId = mapLegacyMouth(0)
         }
     }
 
     protected override fun setFaceHappy() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 140) {
-            this.setFaceId(FACE_TENSION)
-            this.setMouthId(mapLegacyMouth(if (tick < 80) 0 else 4))
+            this.faceId = FACE_TENSION
+            this.mouthId = mapLegacyMouth(if (tick < 80 0 else 4))
         } else {
-            this.setFaceId(FACE_WINK)
-            this.setMouthId(mapLegacyMouth(4))
+            this.faceId = FACE_WINK
+            this.mouthId = mapLegacyMouth(4)
         }
     }
 

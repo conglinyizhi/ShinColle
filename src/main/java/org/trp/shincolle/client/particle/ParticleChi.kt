@@ -62,7 +62,7 @@ class ParticleChi protected constructor(level: ClientLevel, scale: Double, hostE
         }
 
         val host = this.level.getEntity(this.hostEntityId)
-        if (host == null || !host.isAlive()) {
+        if (host == null || !host.isAlive) {
             this.remove()
             return
         }

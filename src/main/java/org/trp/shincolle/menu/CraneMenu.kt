@@ -402,8 +402,8 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
                 return null
             }
             if (level.getEntity(id) is EntityShipBase
-                && ship.isAlive()
-                && !ship.isRemoved()
+                && ship.isAlive
+                && !ship.isRemoved
             ) {
                 return ship
             }

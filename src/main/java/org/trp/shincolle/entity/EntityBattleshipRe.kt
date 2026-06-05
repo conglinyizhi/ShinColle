@@ -32,7 +32,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
 
     init {
         this.pushMovement = ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT)
-        setModelPos(floatArrayOf(-6f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 15)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 2)
@@ -54,7 +54,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * 0.35f else 0.0f).toDouble()
             }
             return (this.getBbHeight() * 0.55f).toDouble()
@@ -64,7 +64,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         if (this.level() !is ServerLevel) {
             return
         }
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return
         }
         if (isSameOwnerAttackTarget(target)) {
@@ -73,7 +73,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         if (!consumeLightAmmo(1)) {
             return
         }
-        this.setFuel(this.getFuel() - Config.fuelConsumeActionLight)
+        this.fuel = this.fuel - Config.fuelConsumeActionLight
 
         var damage = this.getAttributeValue(Attributes.ATTACK_DAMAGE).toFloat()
         if (damage <= 0.0f) {
@@ -98,7 +98,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
             this.getRandom().nextFloat() * 0.12f + 0.98f
         )
 
-        this.setAttackTick(50)
+        this.attackTick = 50
         this.applyEmotesReaction(3)
 
         if (hurt) {
@@ -107,94 +107,94 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
     }
 
     protected override fun setFaceNormal() {
-        this.setFaceId(FACE_EYES_OPEN)
+        this.faceId = FACE_EYES_OPEN
         val tick = this.tickCount and EMOTION_TICK_MASK_8BIT
         if (this.getStateEmotion(7) == 4 && tick > 200) {
-            this.setMouthId(mapLegacyMouth(0))
+            this.mouthId = mapLegacyMouth(0)
         } else {
-            this.setMouthId(mapLegacyMouth(3))
+            this.mouthId = mapLegacyMouth(3)
         }
     }
 
     protected override fun setFaceCry() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
-            this.setFaceId(FACE_DOT_EYES_TEAR)
-            this.setMouthId(mapLegacyMouth(if (tick < 64) 2 else 5))
+            this.faceId = FACE_DOT_EYES_TEAR
+            this.mouthId = mapLegacyMouth(if (tick < 64 2 else 5))
         } else {
-            this.setFaceId(FACE_CRY)
-            this.setMouthId(mapLegacyMouth(if (tick < 190) 2 else 5))
+            this.faceId = FACE_CRY
+            this.mouthId = mapLegacyMouth(if (tick < 190 2 else 5))
         }
     }
 
     override fun setFaceDamaged() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT)
         if (tick < 200) {
-            this.setFaceId(FACE_DOT_EYES_TEAR)
-            this.setMouthId(mapLegacyMouth(if (tick < 60) 4 else 5))
+            this.faceId = FACE_DOT_EYES_TEAR
+            this.mouthId = mapLegacyMouth(if (tick < 60 4 else 5))
         } else if (tick < 400) {
-            this.setFaceId(FACE_TENSION)
-            this.setMouthId(mapLegacyMouth(if (tick < 250) 4 else 5))
+            this.faceId = FACE_TENSION
+            this.mouthId = mapLegacyMouth(if (tick < 250 4 else 5))
         } else {
-            this.setFaceId(FACE_SOFT)
-            this.setMouthId(mapLegacyMouth(if (tick < 450) 4 else 5))
+            this.faceId = FACE_SOFT
+            this.mouthId = mapLegacyMouth(if (tick < 450 4 else 5))
         }
     }
 
     override fun setFaceScorn() {
-        this.setFaceId(FACE_EYES_HALF)
-        this.setMouthId(mapLegacyMouth(1))
+        this.faceId = FACE_EYES_HALF
+        this.mouthId = mapLegacyMouth(1)
     }
 
     protected override fun setFaceHungry() {
-        this.setFaceId(FACE_DESPAIR)
-        this.setMouthId(mapLegacyMouth(5))
+        this.faceId = FACE_DESPAIR
+        this.mouthId = mapLegacyMouth(5)
     }
 
     protected override fun setFaceAngry() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
-            this.setFaceId(FACE_EYES_CLOSED)
-            this.setMouthId(mapLegacyMouth(if (tick < 64) 3 else 4))
+            this.faceId = FACE_EYES_CLOSED
+            this.mouthId = mapLegacyMouth(if (tick < 64 3 else 4))
         } else {
-            this.setFaceId(FACE_EYES_HALF)
-            this.setMouthId(mapLegacyMouth(if (tick < 170) 1 else 3))
+            this.faceId = FACE_EYES_HALF
+            this.mouthId = mapLegacyMouth(if (tick < 170 1 else 3))
         }
     }
 
     protected override fun setFaceBored() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT)
         if (tick < 170) {
-            this.setFaceId(FACE_EYES_CLOSED)
-            this.setMouthId(mapLegacyMouth(if (tick < 80) 0 else 4))
+            this.faceId = FACE_EYES_CLOSED
+            this.mouthId = mapLegacyMouth(if (tick < 80 0 else 4))
         } else if (tick < 340) {
-            this.setFaceId(FACE_WINK)
-            this.setMouthId(mapLegacyMouth(if (tick < 250) 0 else 4))
+            this.faceId = FACE_WINK
+            this.mouthId = mapLegacyMouth(if (tick < 250 0 else 4))
         } else {
-            this.setFaceId(FACE_EYES_OPEN)
-            this.setMouthId(mapLegacyMouth(if (tick < 420) 3 else 4))
+            this.faceId = FACE_EYES_OPEN
+            this.mouthId = mapLegacyMouth(if (tick < 420 3 else 4))
         }
     }
 
     protected override fun setFaceShy() {
-        this.setFaceId(FACE_EYES_OPEN)
+        this.faceId = FACE_EYES_OPEN
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
-        this.setMouthId(mapLegacyMouth(if (tick < 150) 2 else 4))
+        this.mouthId = mapLegacyMouth(if (tick < 150 2 else 4))
     }
 
     protected override fun setFaceHappy() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 140) {
-            this.setFaceId(FACE_TENSION)
-            this.setMouthId(mapLegacyMouth(if (tick < 80) 4 else 5))
+            this.faceId = FACE_TENSION
+            this.mouthId = mapLegacyMouth(if (tick < 80 4 else 5))
         } else {
-            this.setFaceId(FACE_WINK)
-            this.setMouthId(mapLegacyMouth(4))
+            this.faceId = FACE_WINK
+            this.mouthId = mapLegacyMouth(4)
         }
     }
 
     private fun updateServerLogic() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
             val owner = this.getOwner()
             if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val duration = 50 + this.getStateMinor(0)
@@ -205,14 +205,15 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
 
         val canFindTarget = (this.tickCount and 0xFF) == 0 && this.getRandom().nextInt(5) != 0
         val isActionBlocked =
-            this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed() || this.isInDeadPose()
+            this.isInSittingPose || this.isPassenger() || this.isStateNoEquip || this.isLeashed() || this.isInDeadPose
         if (canFindTarget && !isActionBlocked && !this.isPushing) {
             findTargetPush()
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_HAIR, "gui.shincolle.equip.hair"))
         list.add(EquipOption(EQUIP_BAG, "gui.shincolle.equip.bag"))
         list.add(EquipOption(EQUIP_EARS, "gui.shincolle.equip.ears"))
@@ -221,7 +222,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
 
     private fun updatePushingState() {
         this.tickPush++
-        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush!!.isAlive() || this.isInDeadPose()) {
+        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush!!.isAlive || this.isInDeadPose) {
             cancelPush()
             return
         }
@@ -242,6 +243,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         this.targetPush!!.setDeltaMovement(this.targetPush!!.getDeltaMovement().add(push))
         this.swing(InteractionHand.MAIN_HAND)
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
             serverLevel.sendParticles<SimpleParticleType?>(
                 ParticleTypes.CLOUD,
                 this.targetPush!!.getX(), this.targetPush!!.getY() + 1.0, this.targetPush!!.getZ(),
@@ -262,7 +264,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         val impactBox = this.getBoundingBox().inflate(12.0, 6.0, 12.0)
         val list = this.level().getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java, impactBox,
-            Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive() && ent.isPushable() })
+            Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive && ent.isPushable() })
         if (!list.isEmpty()) {
             this.pushMovement.reset()
             this.targetPush = list.get(this.getRandom().nextInt(list.size))
@@ -275,7 +277,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         if (this.level() !is ServerLevel) {
             return
         }
-        val maxTargets = max(1, (this.getLevel() * 0.05f).toInt())
+        val maxTargets = max(1, (this.level * 0.05f).toInt())
         val damage = baseAttack * 0.2f
         val impactBox = primaryTarget.getBoundingBox().inflate(3.5, 3.5, 3.5)
         val potentialTargets: MutableList<Entity> = serverLevel.getEntities(this, impactBox)
@@ -284,7 +286,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
             if (hits >= maxTargets) {
                 break
             }
-            if (entity === this || entity === primaryTarget || !entity.isAlive() || !entity.canBeCollidedWith()) {
+            if (entity === this || entity === primaryTarget || !entity.isAlive || !entity.canBeCollidedWith()) {
                 continue
             }
             if (entity is EntityShipBase

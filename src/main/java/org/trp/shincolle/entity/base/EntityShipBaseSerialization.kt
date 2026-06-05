@@ -7,26 +7,26 @@ import org.trp.shincolle.menu.ShipContainerMenu
 
 internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
     fun addAdditionalSaveData(compound: CompoundTag) {
-        compound.put("ShipInventory", this.ship.getInventory().serializeNBT(this.ship.registryAccess()))
+        compound.put("ShipInventory", this.ship.inventory.serializeNBT(this.ship.registryAccess()))
 
-        compound.putInt("ShipLevel", this.ship.getLevel())
+        compound.putInt("ShipLevel", this.ship.level)
         compound.putInt("ShipExp", this.ship.getExp())
-        compound.putInt("AmmoLight", this.ship.getAmmoLight())
-        compound.putInt("AmmoHeavy", this.ship.getAmmoHeavy())
+        compound.putInt("AmmoLight", this.ship.ammoLight)
+        compound.putInt("AmmoHeavy", this.ship.ammoHeavy)
         compound.putInt("AircraftLight", this.ship.getNumAircraftLight())
         compound.putInt("AircraftHeavy", this.ship.getNumAircraftHeavy())
         compound.putInt("EmotionPrimary", this.ship.getEmotionPrimary())
         compound.putInt("EmotionSecondary", this.ship.getEmotionSecondary())
         compound.putInt("Morale", this.ship.getMorale())
         compound.putBoolean("NoFuel", this.ship.isNoFuel())
-        compound.putInt("Fuel", this.ship.getFuel())
+        compound.putInt("Fuel", this.ship.fuel)
         compound.put("EquipFlags", this.ship.copyEquipFlagsTag())
         compound.putBoolean("PointerSelected", this.ship.isPointerSelected())
         compound.putInt("FormationTeam", this.ship.getFormationTeam())
         compound.putInt("FormationSlot", this.ship.getFormationSlot())
         compound.putIntArray("StateEmotion", this.ship.getLegacyEmotionSnapshotInternal())
-        compound.putInt("AttackTick", this.ship.getAttackTick())
-        compound.putInt("AttackTick2", this.ship.getAttackTick2())
+        compound.putInt("AttackTick", this.ship.attackTick)
+        compound.putInt("AttackTick2", this.ship.attackTick2)
         compound.putInt("RidingState", this.ship.getRidingState())
         compound.putInt("ScaleLevel", this.ship.getScaleLevel())
         compound.putInt("ShipKills", this.ship.getShipKills())
@@ -55,16 +55,16 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
 
     fun readAdditionalSaveData(compound: CompoundTag) {
         if (compound.contains("ShipInventory")) {
-            this.ship.getInventory().deserializeNBT(this.ship.registryAccess(), compound.getCompound("ShipInventory"))
+            this.ship.inventory.deserializeNBT(this.ship.registryAccess(), compound.getCompound("ShipInventory"))
         } else if (compound.contains(LEGACY_INV_TAG)) {
-            this.ship.getInventory().deserializeNBT(this.ship.registryAccess(), compound.getCompound(LEGACY_INV_TAG))
+            this.ship.inventory.deserializeNBT(this.ship.registryAccess(), compound.getCompound(LEGACY_INV_TAG))
         }
 
         this.ship.setLevel(compound.getInt("ShipLevel"))
         this.ship.setExp(compound.getInt("ShipExp"))
-        this.ship.setAmmoLight(compound.getInt("AmmoLight"))
-        this.ship.setAmmoHeavy(compound.getInt("AmmoHeavy"))
-        this.ship.setEmotionPrimary(compound.getInt("EmotionPrimary"))
+        this.ship.ammoLight = compound.getInt("AmmoLight")
+        this.ship.ammoHeavy = compound.getInt("AmmoHeavy")
+        this.ship.emotionPrimary = compound.getInt("EmotionPrimary")
         this.ship.setEmotionSecondary(compound.getInt("EmotionSecondary"))
 
         if (compound.contains("Morale")) {
@@ -96,19 +96,19 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
             this.ship.setLegacyStateInitializedInternal(true)
         }
         if (compound.contains("AttackTick")) {
-            this.ship.setAttackTick(compound.getInt("AttackTick"))
+            this.ship.attackTick = compound.getInt("AttackTick")
         }
         if (compound.contains("AttackTick2")) {
             this.ship.setAttackTick2(compound.getInt("AttackTick2"))
         }
         if (compound.contains("RidingState")) {
-            this.ship.setRidingState(compound.getInt("RidingState"))
+            this.ship.ridingState = compound.getInt("RidingState")
         }
         if (compound.contains("ScaleLevel")) {
             this.ship.setScaleLevel(compound.getInt("ScaleLevel"))
         }
         // Tamed ships should always use default scale (hostile boss scale persists in egg NBT)
-        if (this.ship.isTame() && this.ship.getScaleLevel() > 0) {
+        if (this.ship.isTame && this.ship.getScaleLevel() > 0) {
             this.ship.setScaleLevel(0)
         }
 
@@ -132,7 +132,7 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
         // Sync synched data from legacy array or separate tags
         val fuel =
             if (compound.contains("Fuel")) compound.getInt("Fuel") else legacyState.getInt(legacyState.stateMinor, 6)
-        this.ship.setFuel(fuel)
+        this.ship.fuel = fuel
         val airLight = if (compound.contains("AircraftLight")) compound.getInt("AircraftLight") else legacyState.getInt(
             legacyState.stateMinor,
             7
@@ -200,13 +200,13 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
                 this.ship.setExp(minor.getInt("Exp"))
             }
             if (minor.contains("NumAmmoL")) {
-                this.ship.setAmmoLight(minor.getInt("NumAmmoL"))
+                this.ship.ammoLight = minor.getInt("NumAmmoL")
             }
             if (minor.contains("NumAmmoH")) {
-                this.ship.setAmmoHeavy(minor.getInt("NumAmmoH"))
+                this.ship.ammoHeavy = minor.getInt("NumAmmoH")
             }
             if (minor.contains("NumGrudge")) {
-                this.ship.setFuel(minor.getInt("NumGrudge"))
+                this.ship.fuel = minor.getInt("NumGrudge")
             }
             if (minor.contains("NumAirL")) {
                 this.ship.setNumAircraftLight(minor.getInt("NumAirL"))

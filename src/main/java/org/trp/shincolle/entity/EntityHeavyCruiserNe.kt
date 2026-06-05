@@ -28,14 +28,14 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal?>?, level: Level?)
 
     init {
         this.pushMovement = ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMBAT)
-        setModelPos(floatArrayOf(0f, 10f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 10f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 2)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 10)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4)
         setStateMinor(STATE_MINOR_RARITY, 0)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCA)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
     }
 
     override fun tickAliveLogic() {
@@ -51,14 +51,14 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal?>?, level: Level?)
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * 0.05f else this.getBbHeight() * 0.55f).toDouble()
             }
             return (this.getBbHeight() * 0.7f).toDouble()
         }
 
     private fun updateServerLogic() {
-        if (!this.level().isDay() && this.isStateRingEffect()) {
+        if (!this.level().isDay() && this.isStateRingEffect) {
             val duration = 150
             val ampSpeed = max(0, this.getStateMinor(0) / 50)
             this.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, ampSpeed, false, false))
@@ -66,7 +66,7 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal?>?, level: Level?)
 
         val canFindTarget = (this.tickCount and 0xFF) == 0 && this.getRandom().nextInt(5) == 0
         val isActionBlocked =
-            this.getIsSitting() || this.isPassenger() || this.isStateNoEquip() || this.isLeashed() || this.isInDeadPose()
+            this.isInSittingPose || this.isPassenger() || this.isStateNoEquip || this.isLeashed() || this.isInDeadPose
         if (canFindTarget && !isActionBlocked && !this.isPushing) {
             findTargetPush()
         }
@@ -74,7 +74,7 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal?>?, level: Level?)
 
     private fun updatePushingState() {
         this.tickPush++
-        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush!!.isAlive() || this.isInDeadPose()) {
+        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush!!.isAlive || this.isInDeadPose) {
             cancelPush()
             return
         }
@@ -91,6 +91,7 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal?>?, level: Level?)
         this.targetPush!!.setDeltaMovement(this.targetPush!!.getDeltaMovement().add(push))
         this.swing(InteractionHand.MAIN_HAND)
         if (this.level() is ServerLevel) {
+            val serverLevel = this.level() as ServerLevel
             serverLevel.sendParticles<SimpleParticleType?>(
                 ParticleTypes.CLOUD,
                 this.targetPush!!.getX(), this.targetPush!!.getY() + 1.0, this.targetPush!!.getZ(),
@@ -111,7 +112,7 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal?>?, level: Level?)
         val impactBox = this.getBoundingBox().inflate(12.0, 6.0, 12.0)
         val list = this.level().getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java, impactBox,
-            Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive() && ent.canBeCollidedWith() })
+            Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive && ent.canBeCollidedWith() })
         if (!list.isEmpty()) {
             this.pushMovement.reset()
             this.targetPush = list.get(this.getRandom().nextInt(list.size))

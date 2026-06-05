@@ -120,7 +120,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
     private fun reactionNormal() {
         when (this.moraleLevel) {
             0 -> {
-                this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_HAPPY)
+                this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_HAPPY
                 val emotes = arrayOf<EmotionParticleType?>(
                     EmotionParticleType.BLUSH,
                     EmotionParticleType.DIZZY_EYES,
@@ -132,7 +132,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
             }
 
             1 -> {
-                this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_SHY)
+                this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_SHY
                 val emotes = arrayOf<EmotionParticleType?>(
                     EmotionParticleType.HEART,
                     EmotionParticleType.LAUGH,
@@ -142,7 +142,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
             }
 
             2 -> {
-                this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_SHY)
+                this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_SHY
                 val emotes = arrayOf<EmotionParticleType?>(
                     EmotionParticleType.SIGH,
                     EmotionParticleType.MUSIC_NOTE,
@@ -177,7 +177,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
     }
 
     private fun reactionStranger() {
-        this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_ANGRY)
+        this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_ANGRY
         if (this.ship.getRandom().nextBoolean()) {
             applyParticleEmotion(
                 if (this.ship.getRandom().nextBoolean())
@@ -200,7 +200,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
 
     private fun reactionAttack() {
         if (this.moraleLevel == 0) {
-            this.ship.setEmotionPrimary(EntityShipBase.Companion.EMOTION_HAPPY)
+            this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_HAPPY
             val emotes = arrayOf<EmotionParticleType?>(
                 EmotionParticleType.SILLY_TONGUE,
                 EmotionParticleType.EVIL_GRIN,

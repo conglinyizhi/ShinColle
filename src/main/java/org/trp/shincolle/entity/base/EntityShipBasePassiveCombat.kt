@@ -138,7 +138,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         val needsMovement = needsCloser || cannotSee
         return PassiveCombatStateMemory(
             target.getUUID(),
-            target.isAlive(),
+            target.isAlive,
             target.position(),
             distanceSqr,
             preferredRangeSqr,
@@ -183,19 +183,19 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
 
         if (combat.canUseLightAmmo() && this.passiveLightCooldownTick <= 0) {
             this.ship.performLightAttack(target)
-            this.passiveLightCooldownTick = max(1, this.ship.getLegacyShipStats().getLightDelay())
+            this.passiveLightCooldownTick = max(1, this.ship.legacyShipStats.getLightDelay())
         }
 
         if (combat.canUseHeavyAmmo() && this.passiveHeavyCooldownTick <= 0) {
             this.ship.performHeavyAttack(target)
-            this.passiveHeavyCooldownTick = max(1, this.ship.getLegacyShipStats().getHeavyDelay())
+            this.passiveHeavyCooldownTick = max(1, this.ship.legacyShipStats.getHeavyDelay())
         }
 
         if (combat.canUseMeleeAttack()
             && this.passiveMeleeCooldownTick <= 0 && state.distanceSqr <= getPassiveAttackRangeSqr(target)
         ) {
             this.ship.doHurtTarget(target)
-            this.passiveMeleeCooldownTick = max(1, this.ship.getLegacyShipStats().getMeleeDelay())
+            this.passiveMeleeCooldownTick = max(1, this.ship.legacyShipStats.getMeleeDelay())
         }
     }
 
@@ -418,7 +418,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         if (target === this.ship) {
             return false
         }
-        if (!target.isAlive()) {
+        if (!target.isAlive) {
             return false
         }
         if (target.isSpectator()) {
@@ -552,13 +552,13 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
     }
 
     private val passiveAimTime: Int
-        get() = max(5, (20.0f * (150 - this.ship.getLevel()) / 150.0f).toInt() + 10)
+        get() = max(5, (20.0f * (150 - this.ship.level) / 150.0f).toInt() + 10)
 
     private val passiveAcquireRange: Double
         get() {
-            var range = max(2.0, this.ship.getLegacyShipStats().getAttackRange().toDouble())
+            var range = max(2.0, this.ship.legacyShipStats.getAttackRange().toDouble())
             if (this.ship.getCombat().hasAircraftAttackEnabled()) {
-                range = max(range, this.ship.getLegacyShipStats().getAttackRange() * 1.5)
+                range = max(range, this.ship.legacyShipStats.getAttackRange() * 1.5)
             }
             return range
         }
@@ -579,12 +579,12 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         val combat = this.ship.getCombat()
 
         if (combat.canUseLightAmmo() || combat.canUseHeavyAmmo()) {
-            val range = max(2.0, this.ship.getLegacyShipStats().getAttackRange().toDouble())
+            val range = max(2.0, this.ship.legacyShipStats.getAttackRange().toDouble())
             return range * range
         }
 
         if (combat.hasAircraftAttackEnabled()) {
-            val range = max(24.0, this.ship.getLegacyShipStats().getAttackRange() * 1.5)
+            val range = max(24.0, this.ship.legacyShipStats.getAttackRange() * 1.5)
             return range * range
         }
 
@@ -593,7 +593,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
 
     private val passiveMoveSpeed: Double
         get() {
-            val speed = this.ship.getLegacyShipStats().getMoveSpeed() * 3.0
+            val speed = this.ship.legacyShipStats.getMoveSpeed() * 3.0
             return Mth.clamp(
                 speed,
                 ShipAiNumbers.PASSIVE_COMBAT_MOVE_SPEED_MIN,
@@ -602,8 +602,8 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         }
 
     private fun canFight(): Boolean {
-        if (shouldRetreatForLowHealth() || this.ship.getIsSitting() ||
-            this.ship.isInDeadPose() || this.ship.isPassenger() || this.ship.isVehicle()
+        if (shouldRetreatForLowHealth() || this.ship.isInSittingPose ||
+            this.ship.isInDeadPose || this.ship.isPassenger() || this.ship.isVehicle()
         ) {
             return false
         }

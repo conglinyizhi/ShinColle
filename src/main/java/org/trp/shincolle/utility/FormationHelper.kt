@@ -46,7 +46,7 @@ object FormationHelper {
         for (uuid in shipUuids) {
             val entity = world.getEntity(uuid)
             if (entity !is EntityShipBase) continue
-            if (!entity.isOwnedBy(player) || !entity.isAlive() || entity.isInDeadPose) continue
+            if (!entity.isOwnedBy(player) || !entity.isAlive || entity.isInDeadPose) continue
 
             if (totalShips == 1) {
                 col = 1

@@ -11,14 +11,14 @@ import org.trp.shincolle.init.ModItems
 
 class EntityDestroyerHa(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 0f, 0f, 25f))
+        this.modelPos = floatArrayOf(0f, 0f, 0f, 25f)
         setStateMinor(STATE_MINOR_FACTION_ID, -1)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 2)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 5)
         setStateMinor(STATE_MINOR_RARITY, 1)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
-        setStateCanRide(true)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
+        this.isStateCanRide = true
     }
 
     override fun tickAliveLogic() {
@@ -31,23 +31,24 @@ class EntityDestroyerHa(type: EntityType<out TamableAnimal?>?, level: Level?) : 
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 return (this.getBbHeight() * 0.27f).toDouble()
             }
             return (this.getBbHeight() * 0.7f).toDouble()
         }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_HEAD_ORNAMENT, "gui.shincolle.equip.head_ornament"))
         return list
     }
 
     private fun applyBuffToOwner() {
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
-            if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0) {
+        if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
+            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
                 val amp = this.getStateMinor(0) / 45 + 1
-                this.getOwnerPlayer().addEffect(
+                this.ownerPlayer.addEffect(
                     MobEffectInstance(
                         MobEffects.JUMP,
                         80 + this.getStateMinor(0), amp, false, false
@@ -94,8 +95,8 @@ class EntityDestroyerHa(type: EntityType<out TamableAnimal?>?, level: Level?) : 
     }
 
     private fun setSimpleFace(faceId: Int) {
-        this.setFaceId(faceId)
-        this.setMouthId(MOUTH_FRONT_0)
+        this.faceId = faceId
+        this.mouthId = MOUTH_FRONT_0
     }
 
     override fun supportsItemPickup(): Boolean {

@@ -263,7 +263,7 @@ class ParticleLightning protected constructor(
 
     private fun updateYamatoPosition() {
         val host = this.level.getEntity(this.hostEntityId)
-        if (host == null || !host.isAlive()) {
+        if (host == null || !host.isAlive) {
             this.remove()
             return
         }
@@ -278,7 +278,7 @@ class ParticleLightning protected constructor(
 
     private fun updatePosition(initial: Boolean) {
         val host = this.level.getEntity(this.hostEntityId)
-        if (host == null || !host.isAlive()) {
+        if (host == null || !host.isAlive) {
             if (this.age > 2) this.remove()
             return
         }

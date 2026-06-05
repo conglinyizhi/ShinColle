@@ -14,13 +14,13 @@ import kotlin.math.max
 
 class EntityBattleshipHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(-6f, 30f, 0f, 40f))
+        this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 26)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3)
         setStateMinor(STATE_MINOR_RARITY, 1)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
     }
 
     override fun tickAliveLogic() {
@@ -33,7 +33,7 @@ class EntityBattleshipHime(type: EntityType<out TamableAnimal?>?, level: Level?)
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 if (this.getStateEmotion(1) == 4) {
                     return 0.0
                 }
@@ -43,7 +43,7 @@ class EntityBattleshipHime(type: EntityType<out TamableAnimal?>?, level: Level?)
         }
 
     private fun applyBuffToNearbyAllies() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0)) {
             return
         }
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(

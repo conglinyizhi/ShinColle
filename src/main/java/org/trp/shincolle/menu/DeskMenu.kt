@@ -111,7 +111,7 @@ class DeskMenu @JvmOverloads constructor(
                 blockEntity.getBlockState().getBlock()
             )
         }
-        if (player.isRemoved() || !player.isAlive()) {
+        if (player.isRemoved || !player.isAlive) {
             return false
         }
         return when (this.deskType) {

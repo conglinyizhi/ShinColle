@@ -16,14 +16,14 @@ import kotlin.math.max
 
 class EntityCarrierWo(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 20f, 0f, 30f))
+        this.modelPos = floatArrayOf(0f, 20f, 0f, 30f)
         setStateMinor(STATE_MINOR_FACTION_ID, 5)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 12)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 1)
         setStateMinor(STATE_MINOR_RARITY, 5)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCV)
-        setStateGuiBtn1(false)
-        setStateGuiBtn2(false)
+        this.isStateGuiBtn1 = false
+        this.isStateGuiBtn2 = false
         setStateLightAircraftAttack(true)
         setStateHeavyAircraftAttack(true)
     }
@@ -46,14 +46,14 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal?>?, level: Level?) : En
     private fun updateClientEffects() {
         if ((this.tickCount % 4) == 0) {
             val shouldGlow = checkModelState(0, this.getStateEmotion(0))
-                    && !this.isStateNoEquip() && !(this.getIsSitting() && this.getStateEmotion(1) == 4)
+                    && !this.isStateNoEquip && !(this.isInSittingPose && this.getStateEmotion(1) == 4)
             if (shouldGlow) {
                 spawnEyeGlowParticles()
             }
         }
 
         if ((this.tickCount and 0xF) == 0 && checkModelState(4, this.getStateEmotion(0))
-            && !this.getIsSitting() && !this.isPassenger()
+            && !this.isInSittingPose && !this.isPassenger()
         ) {
             this.level().addParticle(
                 ParticleTypes.CLOUD,
@@ -65,10 +65,10 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal?>?, level: Level?) : En
 
     private fun spawnEyeGlowParticles() {
         val radYaw = (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD
-        val zOffset = if (this.getIsSitting()) -0.15f else 0.2f
+        val zOffset = if (this.isInSittingPose) -0.15f else 0.2f
         val left = rotateXZByAxis(zOffset, 0.55f, radYaw, 1.0f)
         val right = rotateXZByAxis(zOffset, -0.55f, radYaw, 1.0f)
-        val yOffset = if (this.getIsSitting()) 1.25 else 1.5
+        val yOffset = if (this.isInSittingPose) 1.25 else 1.5
         this.level().addParticle(
             ParticleTypes.END_ROD,
             this.getX() + left[1], this.getY() + yOffset, this.getZ() + left[0],
@@ -82,7 +82,7 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal?>?, level: Level?) : En
     }
 
     private fun updateServerLogic() {
-        if (!(this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0)) {
+        if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0)) {
             return
         }
 
@@ -131,8 +131,9 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal?>?, level: Level?) : En
         return ModItems.CARRIER_WO_SPAWN_EGG.get()
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_CLOAKNECK, "gui.shincolle.equip.cloakneck"))
         list.add(EquipOption(EQUIP_EQUIPBASE, "gui.shincolle.equip.equipbase"))
         list.add(EquipOption(EQUIP_GLOWEQUIPBASE, "gui.shincolle.equip.glowequipbase"))

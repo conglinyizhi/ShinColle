@@ -79,20 +79,20 @@ class ShipyardJadeProvider private constructor() : IBlockComponentProvider, ISer
         private const val KEY_MATS_STOCK = "matsStock"
 
         private fun appendSmallShipyard(tag: CompoundTag, shipyard: SmallShipyardBlockEntity) {
-            tag.putBoolean(KEY_ACTIVE, shipyard.hasRemainedPower() && shipyard.getPowerGoal() > 0)
+            tag.putBoolean(KEY_ACTIVE, shipyard.hasRemainedPower() && shipyard.powerGoal > 0)
             tag.putInt(KEY_POWER_CONSUMED, shipyard.getPowerConsumed())
-            tag.putInt(KEY_POWER_GOAL, shipyard.getPowerGoal())
-            tag.putInt(KEY_POWER_REMAINED, shipyard.getPowerRemained())
+            tag.putInt(KEY_POWER_GOAL, shipyard.powerGoal)
+            tag.putInt(KEY_POWER_REMAINED, shipyard.powerRemained)
             tag.putInt(KEY_BUILD_TYPE, shipyard.getBuildType())
             tag.putString(KEY_REMAINING_TIME, shipyard.getBuildTimeString())
             tag.putIntArray(KEY_MATS_BUILD, shipyard.getBuildRecord())
         }
 
         private fun appendLargeShipyard(tag: CompoundTag, shipyard: LargeShipyardBlockEntity) {
-            tag.putBoolean(KEY_ACTIVE, shipyard.hasRemainedPower() && shipyard.getPowerGoal() > 0)
+            tag.putBoolean(KEY_ACTIVE, shipyard.hasRemainedPower() && shipyard.powerGoal > 0)
             tag.putInt(KEY_POWER_CONSUMED, shipyard.getPowerConsumed())
-            tag.putInt(KEY_POWER_GOAL, shipyard.getPowerGoal())
-            tag.putInt(KEY_POWER_REMAINED, shipyard.getPowerRemained())
+            tag.putInt(KEY_POWER_GOAL, shipyard.powerGoal)
+            tag.putInt(KEY_POWER_REMAINED, shipyard.powerRemained)
             tag.putInt(KEY_BUILD_TYPE, shipyard.getBuildType())
             tag.putString(KEY_REMAINING_TIME, shipyard.getBuildTimeString())
             tag.putIntArray(KEY_MATS_BUILD, shipyard.getMatsBuild())

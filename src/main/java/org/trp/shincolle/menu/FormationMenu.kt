@@ -43,7 +43,7 @@ class FormationMenu(containerId: Int, playerInventory: Inventory) :
     }
 
     override fun stillValid(player: Player): Boolean {
-        if (player.isRemoved() || !player.isAlive()) {
+        if (player.isRemoved || !player.isAlive) {
             return false
         }
         return player.getMainHandItem().getItem() is PointerItem

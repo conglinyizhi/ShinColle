@@ -13,14 +13,14 @@ import kotlin.math.max
 
 class EntityHeavyCruiserRi(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 20f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 20f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 2)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 9)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4)
         setStateMinor(STATE_MINOR_RARITY, 4)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCA)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
     }
 
     override fun tickAliveLogic() {
@@ -33,14 +33,14 @@ class EntityHeavyCruiserRi(type: EntityType<out TamableAnimal?>?, level: Level?)
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * 0.05f else this.getBbHeight() * 0.55f).toDouble()
             }
             return (this.getBbHeight() * 0.7f).toDouble()
         }
 
     private fun updateServerLogic() {
-        if (!this.level().isDay() && this.isStateRingEffect()) {
+        if (!this.level().isDay() && this.isStateRingEffect) {
             val duration = 150
             val ampSpeed = max(0, this.getStateMinor(0) / 50)
             val ampJump = max(0, this.getStateMinor(0) / 40)
@@ -49,8 +49,9 @@ class EntityHeavyCruiserRi(type: EntityType<out TamableAnimal?>?, level: Level?)
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_LEFT, "gui.shincolle.equip.left"))
         list.add(EquipOption(EQUIP_RIGHT, "gui.shincolle.equip.right"))
         list.add(EquipOption(EQUIP_CLOAK, "gui.shincolle.equip.cloak"))

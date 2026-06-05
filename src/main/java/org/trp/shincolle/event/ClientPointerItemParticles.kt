@@ -54,7 +54,7 @@ object ClientPointerItemParticles {
         val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
         val ships = level.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose() })
+            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose })
         if (ships.isEmpty()) {
             ParticleTeam.clearFollowParticles(ParticleTeam.FollowKind.SHIP_MARKER, null)
             return
@@ -274,7 +274,7 @@ object ClientPointerItemParticles {
         val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
         val ships = level.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose() })
+            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose })
         if (ships.isEmpty()) {
             return
         }
@@ -319,7 +319,7 @@ object ClientPointerItemParticles {
         val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
         val ships = level.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose() })
+            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose })
         if (ships.isEmpty()) {
             return
         }

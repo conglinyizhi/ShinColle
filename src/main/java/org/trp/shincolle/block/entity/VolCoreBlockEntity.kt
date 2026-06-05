@@ -96,7 +96,7 @@ class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
             if (!slist.isEmpty()) {
                 val emotes = level.getRandom().nextInt(11)
                 for (ship in slist) {
-                    if (ship.isAlive()) {
+                    if (ship.isAlive) {
                         ship.applyParticleEmotion(emotes)
                     }
                 }
@@ -139,7 +139,7 @@ class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
         if (this.isNearbyLiquid) {
             val slist = level!!.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, box)
             for (s in slist) {
-                if (s.isTame() && s.isInWaterOrBubble()) {
+                if (s.isTame && s.isInWaterOrBubble()) {
                     if (s.getHealth() < s.getMaxHealth()) {
                         s.heal(s.getMaxHealth() * 0.01f + 4.0f)
                     }

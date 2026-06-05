@@ -407,7 +407,7 @@ class ModelCarrierWDemon<T : EntityShipBase?>(root: ModelPart) : ShipModelHumano
         val isSprinting = entity != null && entity.isSprinting
         val isCrouching = entity != null && entity.isCrouching()
         val isPassenger = entity != null && entity.isPassenger()
-        val isSitting = entity != null && (entity.getIsSitting() || entity.isPassenger())
+        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger())
 
         if (isSprinting || limbSwingAmount > 0.9f) {
             this.Hair01.xRot += 0.09f

@@ -450,7 +450,7 @@ class ModelDestroyerHime<T : EntityShipBase?>(root: ModelPart) : ShipModelHumano
         val isSprinting = entity!!.isSprinting || limbSwingAmount > 0.9f
         val isCrouching = entity.isCrouching()
         val isPassenger = entity.isPassenger()
-        val isSitting = entity.getIsSitting() || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
 
         if (isSprinting) {
             this.Head.xRot -= 0.5f

@@ -627,7 +627,7 @@ class ModelBBHaruna<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBas
         var addk2 = angleAdd2 * 0.3f - 0.21f
         var spcStand = true
 
-        if (entity != null && (entity.getIsSprinting() || limbSwingAmount > 0.9f)) {
+        if (entity != null && (entity.isSprinting || limbSwingAmount > 0.9f)) {
             spcStand = false
             BodyMain.xRot = 0.2f
             Skirt01.xRot = -0.4f

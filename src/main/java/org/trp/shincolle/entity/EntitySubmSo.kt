@@ -12,15 +12,15 @@ import org.trp.shincolle.init.ModItems
 
 class EntitySubmSo(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 25f, 0f, 45f))
+        this.modelPos = floatArrayOf(0f, 25f, 0f, 45f)
         setStateMinor(STATE_MINOR_FACTION_ID, 8)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 19)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 6)
         setStateMinor(STATE_MINOR_RARITY, 4)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeSS)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
-        setStateCanRide(true)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
+        this.isStateCanRide = true
     }
 
     override fun tickAliveLogic() {
@@ -32,17 +32,18 @@ class EntitySubmSo(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
     }
 
     private fun updateServerLogic() {
-        if (this.isStateRingEffect()) {
-            val duration = 40 + this.getLevel()
+        if (this.isStateRingEffect) {
+            val duration = 40 + this.level
             this.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
-            if (this.isStateMarried() && this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0) {
-                this.getOwnerPlayer().addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
+            if (this.isStateMarried && this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+                this.ownerPlayer.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
             }
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_HEAD_BASE, "gui.shincolle.equip.head_base"))
         list.add(EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"))
         list.add(EquipOption(EQUIP_NORMAL_BODY, "gui.shincolle.equip.normal_body"))

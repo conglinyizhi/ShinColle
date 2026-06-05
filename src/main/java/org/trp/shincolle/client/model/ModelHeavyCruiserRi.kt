@@ -166,7 +166,7 @@ class ModelHeavyCruiserRi<T : EntityShipBase?>(root: ModelPart) : ShipModelHuman
         this.HeadTail0.xRot = angleZ * 0.05f + 0.26f
         this.HeadTail1.xRot = angleZ * 0.1f + 0.09f
 
-        if (entity.getIsSprinting() || limbSwingAmount > 0.9f) {
+        if (entity.isSprinting || limbSwingAmount > 0.9f) {
             this.ArmLeft.xRot = 1.0f
             this.ArmRight.xRot = 1.0f
             this.BodyMain.xRot = 0.5f
@@ -185,7 +185,7 @@ class ModelHeavyCruiserRi<T : EntityShipBase?>(root: ModelPart) : ShipModelHuman
             addk2 -= 0.6f
         }
 
-        val isSitting = entity.getIsSitting() || entity.isPassenger()
+        val isSitting = entity.isInSittingPose || entity.isPassenger()
         if (isSitting) {
             if (entity.getStateEmotion(1) == 4) {
                 this.poseTranslateY += 0.44f * 3

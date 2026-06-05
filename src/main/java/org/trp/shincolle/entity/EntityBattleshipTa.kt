@@ -23,12 +23,12 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal?>?, level: Level?) :
     private var numRensouhou = 0
 
     init {
-        setModelPos(floatArrayOf(0f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 14)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3)
         setStateMinor(STATE_MINOR_RARITY, 3)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn4 = false
     }
 
     override fun tickAliveLogic() {
@@ -41,14 +41,15 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal?>?, level: Level?) :
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 return if (this.getStateEmotion(1) == 4) 0.0 else (this.getBbHeight() * 0.47f).toDouble()
             }
             return (this.getBbHeight() * 0.76f).toDouble()
         }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_CLOAK, "gui.shincolle.equip.cloak"))
         list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
         list.add(EquipOption(EQUIP_ARMOR, "gui.shincolle.equip.armor"))
@@ -59,7 +60,7 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal?>?, level: Level?) :
         if (this.level() !is ServerLevel) {
             return
         }
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return
         }
         if (isSameOwnerAttackTarget(target)) {
@@ -69,8 +70,8 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal?>?, level: Level?) :
         if (this.numRensouhou > 0 && this.getRandom().nextInt(3) == 0) {
             if (consumeLightAmmo(4)) {
                 this.numRensouhou--
-                this.setFuel(this.getFuel() - Config.fuelConsumeActionLight)
-                this.setAttackTick(100)
+                this.fuel = this.fuel - Config.fuelConsumeActionLight
+                this.attackTick = 100
                 this.applyEmotesReaction(3)
                 serverLevel.sendParticles<SimpleParticleType?>(
                     ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0, this.getZ(),
@@ -108,7 +109,7 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal?>?, level: Level?) :
         if (this.numRensouhou < MAX_RENSOUHOU) {
             this.numRensouhou++
         }
-        if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+        if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
             applyBuffToNearbyAllies()
         }
     }

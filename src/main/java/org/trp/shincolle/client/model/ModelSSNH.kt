@@ -444,8 +444,8 @@ class ModelSSNH<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?
         val angleX = Mth.cos(ageInTicks * 0.08f)
         val isPassenger = entity!!.isPassenger()
         val isCrouching = entity.isCrouching()
-        val isSprinting = if (entity != null) entity.getIsSprinting() else limbSwingAmount > 0.9f
-        val isSitting = entity.getIsSitting() || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.9f
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
         val showTorpedo = entity != null && entity.getEquipFlag(EntitySSNH.EQUIP_TORPEDO)
 
         if (isSprinting) {

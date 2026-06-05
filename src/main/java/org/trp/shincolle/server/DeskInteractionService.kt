@@ -72,7 +72,7 @@ object DeskInteractionService {
         val entity: Entity? = serverLevel.getEntity(shipUuid)
         if (entity is EntityShipBase
             && entity.isOwnedBy(player)
-            && entity.isAlive()
+            && entity.isAlive
             && !entity.isRemoved
         ) {
             entity.openShipMenu(player)
@@ -96,7 +96,7 @@ object DeskInteractionService {
                 continue
             }
             val entity: Entity? = serverLevel.getEntity(shipUuid)
-            if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive() && !entity.isRemoved && !entity.isInDeadPose) {
+            if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive && !entity.isRemoved && !entity.isInDeadPose) {
                 ownedShips.add(shipUuid)
             }
         }

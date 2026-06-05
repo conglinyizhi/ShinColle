@@ -30,14 +30,14 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
 
     init {
         this.eventMovement = ShipMovementCoordinator(this, ShipMovementCoordinator.PRIORITY_COMMAND)
-        setModelPos(floatArrayOf(0f, 25f, 0f, 40f))
+        this.modelPos = floatArrayOf(0f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 37)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 3)
         setStateMinor(STATE_MINOR_RARITY, 2)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeBB)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
     }
 
     override fun aiStep() {
@@ -53,13 +53,13 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
         tickLoveEventMovement()
         if ((this.tickCount % 128) == 0) {
             addMoraleSpecialEvent()
-            if (this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
+            if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
                 applyBuffToNearbyAllies()
             }
         }
 
         if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack() || this.getAmmoHeavy() <= 0) {
+            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack || this.ammoHeavy <= 0) {
                 this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
             }
         }
@@ -67,7 +67,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
 
     val passengersRidingOffset: Double
         get() {
-            if (this.getIsSitting()) {
+            if (this.isInSittingPose) {
                 if (checkModelState(1, this.getStateEmotion(0))) {
                     return (this.getBbHeight() * 0.42f).toDouble()
                 }
@@ -79,8 +79,9 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
             return (this.getBbHeight() * 0.75f).toDouble()
         }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_HEAD, "gui.shincolle.equip.head"))
         list.add(EquipOption(EQUIP_CANNON, "gui.shincolle.equip.cannon"))
         return list
@@ -90,7 +91,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
         if (this.level() !is ServerLevel) {
             return false
         }
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return false
         }
         if (isSameOwnerAttackTarget(target)) {
@@ -99,7 +100,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
         if (!consumeHeavyAmmo(1)) {
             return false
         }
-        this.setFuel(this.getFuel() - Config.fuelConsumeActionHeavy)
+        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
 
         val phase = this.getStateEmotion(EMOTION_ATTACK_PHASE) + 1
 
@@ -113,21 +114,21 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
             performFinalAttack(serverLevel, target)
             this.tryFlareTarget(target)
-            this.setAttackTick(50)
+            this.attackTick = 50
             this.applyEmotesReaction(3)
             return true
         } else {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, phase, true)
             spawnAttackChargeParticles(serverLevel, phase)
             this.tryFlareTarget(target)
-            this.setAttackTick(50)
+            this.attackTick = 50
             this.applyEmotesReaction(3)
             return false
         }
     }
 
     private fun updateClientParticles() {
-        if (this.tickCount % 4 == 0 && !this.getIsSitting() && this.getEquipFlag(EQUIP_CANNON) && !this.isInDeadPose()) {
+        if (this.tickCount % 4 == 0 && !this.isInSittingPose && this.getEquipFlag(EQUIP_CANNON) && !this.isInDeadPose) {
             val partPos = rotateXZByAxis(-0.56f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f)
             for (i in 0..2) {
                 this.level().addParticle(
@@ -172,7 +173,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
     }
 
     private fun addMoraleSpecialEvent() {
-        if (this.isInDeadPose()) {
+        if (this.isInDeadPose) {
             return
         }
         val nearby = this.level().getEntitiesOfClass<LivingEntity?>(
@@ -188,7 +189,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
         if (this.getMorale() < 7650) {
             this.addMorale(150 * nearby.size)
         }
-        if (!this.getIsSitting() && !this.isPassenger() && this.getRandom().nextFloat() > 0.5f) {
+        if (!this.isInSittingPose && !this.isPassenger() && this.getRandom().nextFloat() > 0.5f) {
             val target = nearby.get(this.getRandom().nextInt(nearby.size))
             startLoveEventMovement(target)
             val particleId: Int = LOVE_PARTICLES[this.getRandom().nextInt(LOVE_PARTICLES.size)]
@@ -197,7 +198,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
     }
 
     private fun startLoveEventMovement(target: LivingEntity?) {
-        if (target == null || !target.isAlive()) {
+        if (target == null || !target.isAlive) {
             return
         }
         this.loveEventMoveTarget = target
@@ -224,8 +225,8 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
     }
 
     private fun canContinueLoveEventMovement(target: LivingEntity): Boolean {
-        return target.isAlive()
-                && !this.getIsSitting() && !this.isPassenger() && !this.isLeashed() && !this.isInDeadPose() && this.loveEventMoveTicks <= LOVE_EVENT_MOVE_MAX_TICKS && this.distanceToSqr(
+        return target.isAlive
+                && !this.isInSittingPose && !this.isPassenger() && !this.isLeashed() && !this.isInDeadPose && this.loveEventMoveTicks <= LOVE_EVENT_MOVE_MAX_TICKS && this.distanceToSqr(
             target
         ) > LOVE_EVENT_MOVE_STOP_DISTANCE_SQ
     }
@@ -275,7 +276,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level
 
         val impact = this.getBoundingBox().inflate(3.5, 3.5, 3.5)
         for (hit in serverLevel.getEntities(this, impact)) {
-            if (hit === this || hit === target || !hit.isAlive()) {
+            if (hit === this || hit === target || !hit.isAlive) {
                 continue
             }
             hit.hurt(this.damageSources().mobAttack(this), damage * 0.5f)

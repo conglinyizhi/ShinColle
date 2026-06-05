@@ -12,14 +12,14 @@ import org.trp.shincolle.init.ModItems
 
 class EntityCruiserTenryuu(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
     init {
-        setModelPos(floatArrayOf(0f, 22f, 0f, 42f))
+        this.modelPos = floatArrayOf(0f, 22f, 0f, 42f)
         setStateMinor(STATE_MINOR_FACTION_ID, 1)
         setStateMinor(STATE_MINOR_SHIP_CLASS, 56)
         setStateMinor(STATE_MINOR_SPECIAL_EQUIP, 4)
         setStateMinor(STATE_MINOR_RARITY, 5)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCL)
-        setStateGuiBtn3(false)
-        setStateGuiBtn4(false)
+        this.isStateGuiBtn3 = false
+        this.isStateGuiBtn4 = false
     }
 
     override fun tickAliveLogic() {
@@ -31,9 +31,9 @@ class EntityCruiserTenryuu(type: EntityType<out TamableAnimal?>?, level: Level?)
     }
 
     private fun updateServerLogic() {
-        if (!this.level().isDay() && this.isStateMarried() && this.isStateRingEffect() && this.getStateMinor(6) > 0) {
-            if (this.getOwnerPlayer() != null && this.distanceToSqr(this.getOwnerPlayer()) < 256.0) {
-                this.getOwnerPlayer().addEffect(
+        if (!this.level().isDay() && this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
+            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+                this.ownerPlayer.addEffect(
                     MobEffectInstance(
                         MobEffects.NIGHT_VISION,
                         Config.SHIP_BUFF_DURATION.get(),
@@ -46,8 +46,9 @@ class EntityCruiserTenryuu(type: EntityType<out TamableAnimal?>?, level: Level?)
         }
     }
 
-    override fun getEquipOptions(): MutableList<EquipOption?> {
-        val list: MutableList<EquipOption?> = ArrayList<EquipOption?>(super.getEquipOptions())
+    override val equipOptions: MutableList<EquipOption>
+        get() {
+        val list: MutableList<EquipOption> = ArrayList(super.equipOptions)
         list.add(EquipOption(EQUIP_RIGGING, "gui.shincolle.equip.rigging"))
         list.add(EquipOption(EQUIP_EARS, "gui.shincolle.equip.ears"))
         list.add(EquipOption(EQUIP_SIDE, "gui.shincolle.equip.side"))
