@@ -14,11 +14,11 @@ object DeskDiplomacySync {
 
     fun update(
         owner: UUID?,
-        nextAllies: MutableCollection<UUID?>,
-        nextBanned: MutableCollection<UUID?>,
-        displayUuids: MutableCollection<UUID?>,
-        displayTeamNames: MutableCollection<String?>,
-        displayLeaderNames: MutableCollection<String?>
+        nextAllies: Collection<UUID?>,
+        nextBanned: Collection<UUID?>,
+        displayUuids: Collection<UUID?>,
+        displayTeamNames: Collection<String?>,
+        displayLeaderNames: Collection<String?>
     ) {
         ownerUuid = owner
         allies.clear()
@@ -28,9 +28,9 @@ object DeskDiplomacySync {
         allies.addAll(nextAllies)
         banned.addAll(nextBanned)
 
-        val uuids: Array<UUID?> = displayUuids.toArray<UUID?>(IntFunction { _Dummy_.__Array__() })
-        val teams: Array<String?> = displayTeamNames.toArray<String?>(IntFunction { _Dummy_.__Array__() })
-        val leaders: Array<String?> = displayLeaderNames.toArray<String?>(IntFunction { _Dummy_.__Array__() })
+        val uuids: Array<UUID?> = displayUuids.toTypedArray()
+        val teams: Array<String?> = displayTeamNames.toTypedArray()
+        val leaders: Array<String?> = displayLeaderNames.toTypedArray()
         val count = min(uuids.size, min(teams.size, leaders.size))
         for (i in 0..<count) {
             val uuid = uuids[i]
