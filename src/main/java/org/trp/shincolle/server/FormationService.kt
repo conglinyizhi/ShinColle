@@ -20,9 +20,9 @@ object FormationService {
         if (ship == null) {
             return
         }
-        ship.setFormationTeam(-1)
-        ship.setFormationSlot(-1)
-        ship.setPointerSelected(false)
+        ship.formationTeam = -1
+        ship.formationSlot = -1
+        ship.isPointerSelected = false
         ship.clearPointerTarget()
         ship.clearPointerTargetEntity()
     }
@@ -31,9 +31,9 @@ object FormationService {
         if (ship == null) {
             return
         }
-        ship.setFormationTeam(teamId)
-        ship.setFormationSlot(slotId)
-        ship.setPointerSelected(selected)
+        ship.formationTeam = teamId
+        ship.formationSlot = slotId
+        ship.isPointerSelected = selected
     }
 
     fun syncNearbyShipsForCurrentTeam(player: Player?, clearDeselectedTargets: Boolean) {
@@ -45,14 +45,14 @@ object FormationService {
         val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
             player.getBoundingBox().inflate(NEARBY_SHIP_SYNC_RADIUS),
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose() })
+            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose })
 
         for (ship in ships) {
-            if (ship.getFormationTeam() == teamId) {
-                val slot = ship.getFormationSlot()
-                ship.setPointerSelected(data.isSelected(teamId, slot))
+            if (ship.formationTeam == teamId) {
+                val slot = ship.formationSlot
+                ship.isPointerSelected = data.isSelected(teamId, slot)
             } else {
-                ship.setPointerSelected(false)
+                ship.isPointerSelected = false
                 if (clearDeselectedTargets) {
                     ship.clearPointerTarget()
                     ship.clearPointerTargetEntity()
@@ -113,7 +113,7 @@ object FormationService {
                 withServerShip(
                     player,
                     targetUuid,
-                    Consumer { ship: EntityShipBase? -> ship!!.setPointerSelected(nextState) })
+                    Consumer { ship: EntityShipBase? -> ship!!.isPointerSelected = nextState })
                 shouldSync = true
             }
         } else {
@@ -149,7 +149,7 @@ object FormationService {
             FormationService.withServerShip(
                 player!!,
                 shipUuid,
-                Consumer { ship: EntityShipBase? -> ship!!.setPointerSelected(selected) })
+                Consumer { ship: EntityShipBase? -> ship!!.isPointerSelected = selected })
         }
         return true
     }
@@ -174,7 +174,7 @@ object FormationService {
         if (shipUuid == null) {
             return false
         }
-        withServerShip(player, shipUuid, Consumer { obj: EntityShipBase? -> FormationService.clearFormationState() })
+        withServerShip(player, shipUuid, Consumer { obj: EntityShipBase? -> FormationService.clearFormationState(obj) })
         return PlayerStateService.removeShipFromTeams(player, shipUuid)
     }
 
@@ -189,7 +189,7 @@ object FormationService {
             FormationService.withServerShip(
                 player!!,
                 replacedUuid,
-                Consumer { obj: EntityShipBase? -> FormationService.clearFormationState() })
+                Consumer { obj: EntityShipBase? -> FormationService.clearFormationState(obj) })
         }
         FormationService.withServerShip(
             player!!,
@@ -207,16 +207,16 @@ object FormationService {
         val uuid1 = data.getShipUUID(teamId, slot1)
         if (uuid1 != null) {
             FormationService.withServerShip(player!!, uuid1, Consumer { ship: EntityShipBase? ->
-                ship!!.setFormationSlot(slot1)
-                ship.setPointerSelected(data.isSelected(teamId, slot1))
+                ship!!.formationSlot = slot1
+                ship.isPointerSelected = data.isSelected(teamId, slot1)
             })
         }
 
         val uuid2 = data.getShipUUID(teamId, slot2)
         if (uuid2 != null) {
             FormationService.withServerShip(player!!, uuid2, Consumer { ship: EntityShipBase? ->
-                ship!!.setFormationSlot(slot2)
-                ship.setPointerSelected(data.isSelected(teamId, slot2))
+                ship!!.formationSlot = slot2
+                ship.isPointerSelected = data.isSelected(teamId, slot2)
             })
         }
         return true
@@ -230,14 +230,15 @@ object FormationService {
         val teamId = data.getCurrentTeamID()
         var teamFilledDuringSync = false
         var changed = false
+        val serverLevel = player.level() as ServerLevel
         val nearbySelected: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
             player.getBoundingBox().inflate(NEARBY_SELECTED_IMPORT_RADIUS),
-            Predicate { ship: EntityShipBase? -> ship!!.isPointerSelected() && player.getUUID() == ship.getOwnerUUID() })
+            Predicate { ship: EntityShipBase? -> ship!!.isPointerSelected && player.getUUID() == ship.getOwnerUUID() })
         val nearbyOwned: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
             player.getBoundingBox().inflate(NEARBY_SHIP_SYNC_RADIUS),
-            Predicate { ship: EntityShipBase? -> player.getUUID() == ship!!.getOwnerUUID() && !ship.isInDeadPose() })
+            Predicate { ship: EntityShipBase? -> player.getUUID() == ship!!.getOwnerUUID() && !ship.isInDeadPose })
 
         for (ship in nearbySelected) {
             if (!data.isShipInTeam(teamId, ship.getUUID())) {
@@ -250,7 +251,7 @@ object FormationService {
         }
 
         for (ship in nearbyOwned) {
-            if (ship.getFormationTeam() == teamId && !data.isShipInTeam(teamId, ship.getUUID())) {
+            if (ship.formationTeam == teamId && !data.isShipInTeam(teamId, ship.getUUID())) {
                 clearFormationState(ship)
                 changed = true
             }
@@ -285,8 +286,9 @@ object FormationService {
             return
         }
 
+        val serverLevel = player.level() as ServerLevel
         val entity: Entity? = serverLevel.getEntity(shipUuid)
-        if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive() && !entity.isRemoved()) {
+        if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive() && !entity.isRemoved) {
             action.accept(entity)
         }
     }

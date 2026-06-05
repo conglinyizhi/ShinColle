@@ -176,7 +176,7 @@ object Values {
         // Ship Type Icon Map (U, V)
         val tempShipTypeIconMap: MutableMap<Byte?, IntArray?> = HashMap<Byte?, IntArray?>()
         tempShipTypeIconMap.put(7.toByte(), intArrayOf(12, 74))
-        tempShipTypeIconMap.put(-1.toByte(), intArrayOf(41, 0))
+        tempShipTypeIconMap.put((-1).toByte(), intArrayOf(41, 0))
         tempShipTypeIconMap.put(1.toByte(), intArrayOf(41, 29))
         tempShipTypeIconMap.put(2.toByte(), intArrayOf(41, 58))
         tempShipTypeIconMap.put(3.toByte(), intArrayOf(41, 87))
@@ -191,7 +191,8 @@ object Values {
         val tempItemIconMap: MutableMap<Short?, ItemStack?> = HashMap<Short?, ItemStack?>()
         tempItemIconMap.put(0.toShort(), ItemStack(Items.IRON_INGOT))
         tempItemIconMap.put(1.toShort(), ItemStack(ModItems.GRUDGE.get()))
-        if (ModItems.GRUDGE.get() is GrudgeItem) {
+        val grudgeItem = ModItems.GRUDGE.get()
+        if (grudgeItem is GrudgeItem) {
             tempItemIconMap.put(77.toShort(), grudgeItem.createVariantStack(1))
         }
         tempItemIconMap.put(2.toShort(), ItemStack(ModItems.GRUDGE_BLOCK.get()))

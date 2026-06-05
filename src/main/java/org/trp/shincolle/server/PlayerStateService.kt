@@ -61,7 +61,7 @@ object PlayerStateService {
             }
         }
         if (!pointerStack.isEmpty() && pointerStack.getItem() is PointerItem) {
-            mode = pointerItem.getMode(pointerStack)
+            mode = (pointerStack.getItem() as PointerItem).getMode(pointerStack)
         }
 
         if (mode == PointerItem.MODE_FORMATION) {
@@ -70,13 +70,13 @@ object PlayerStateService {
             val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
                 EntityShipBase::class.java,
                 player.getBoundingBox().inflate(100.0),
-                Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose() })
+                Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose })
             for (ship in ships) {
-                if (ship.getFormationTeam() == teamId) {
-                    val slot = ship.getFormationSlot()
-                    ship.setPointerSelected(data.isSelected(teamId, slot))
+                if (ship.formationTeam == teamId) {
+                    val slot = ship.formationSlot
+                    ship.isPointerSelected = data.isSelected(teamId, slot)
                 } else {
-                    ship.setPointerSelected(false)
+                    ship.isPointerSelected = false
                 }
             }
         }
@@ -153,9 +153,9 @@ object PlayerStateService {
         val scanned = player.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java, search,
             Predicate { ship: EntityShipBase? ->
-                ship!!.isAlive()
-                        && !ship.isRemoved() && ship.isTame()
-                        && ship.isStateMarried()
+                ship!!.isAlive
+                        && !ship.isRemoved && ship.isTame
+                        && ship.isStateMarried
                         && ship.getOwnerUUID() == ownerId
             }).size
         if (scanned > 0) {
@@ -168,14 +168,14 @@ object PlayerStateService {
         if (player == null) {
             return false
         }
-        return admiralData(player).isRingFlightActive()
+        return admiralData(player).isRingFlightActive
     }
 
     fun setRingFlightActive(player: Player?, active: Boolean) {
         if (player == null) {
             return
         }
-        admiralData(player).setRingFlightActive(active)
+        admiralData(player).isRingFlightActive = active
     }
 
     fun reconcileOwnedMarriedShipCount(player: ServerPlayer): Int {
@@ -186,9 +186,9 @@ object PlayerStateService {
                 EntityShipBase::class.java,
                 AABB.INFINITE,
                 Predicate { ship: EntityShipBase? ->
-                    ship!!.isAlive()
-                            && !ship.isRemoved() && ship.isTame()
-                            && ship.isStateMarried()
+                    ship!!.isAlive
+                            && !ship.isRemoved && ship.isTame
+                            && ship.isStateMarried
                             && ship.getOwnerUUID() == ownerId
                 }
             ).size

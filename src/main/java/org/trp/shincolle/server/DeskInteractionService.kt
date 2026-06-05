@@ -18,9 +18,10 @@ object DeskInteractionService {
         if (player == null) {
             return
         }
-        if (player.containerMenu is DeskMenu) {
-            val blockEntity: DeskBlockEntity? = containerMenu.getBlockEntity()
-            if (containerMenu.getDeskType() == 0 && blockEntity != null) {
+        val containerMenu = player.containerMenu
+        if (containerMenu is DeskMenu) {
+            val blockEntity: DeskBlockEntity? = containerMenu.blockEntity
+            if (containerMenu.deskType == 0 && blockEntity != null) {
                 blockEntity.setBookChap(chapter)
                 blockEntity.setBookPage(page)
                 return
@@ -43,12 +44,13 @@ object DeskInteractionService {
         if (player == null) {
             return
         }
-        if (player.containerMenu !is DeskMenu) {
+        val containerMenu = player.containerMenu
+        if (containerMenu !is DeskMenu) {
             return
         }
 
-        val blockEntity: DeskBlockEntity? = containerMenu.getBlockEntity()
-        if (containerMenu.getDeskType() == 0 && blockEntity != null) {
+        val blockEntity: DeskBlockEntity? = containerMenu.blockEntity
+        if (containerMenu.deskType == 0 && blockEntity != null) {
             blockEntity.setGuiFunc(guiFunc)
             blockEntity.setRadarZoomLv(radarZoom)
             if (guiFunc >= 3 && guiFunc <= 4 && player is ServerPlayer) {
@@ -66,35 +68,41 @@ object DeskInteractionService {
             return
         }
 
+        val serverLevel = player.level() as ServerLevel
         val entity: Entity? = serverLevel.getEntity(shipUuid)
         if (entity is EntityShipBase
             && entity.isOwnedBy(player)
             && entity.isAlive()
-            && !entity.isRemoved()
+            && !entity.isRemoved
         ) {
             entity.openShipMenu(player)
         }
     }
 
     fun summonOwnedShipsToDesk(player: Player?, shipUuids: MutableCollection<UUID?>?) {
-        if (player == null || (player.level() !is ServerLevel) || (player.containerMenu !is DeskMenu) || containerMenu.getDeskType() != 0 || containerMenu.getBlockEntity() == null || shipUuids == null || shipUuids.isEmpty()) {
+        if (player == null || (player.level() !is ServerLevel)) {
+            return
+        }
+        val containerMenu = player.containerMenu
+        if (containerMenu !is DeskMenu || containerMenu.deskType != 0 || containerMenu.blockEntity == null || shipUuids == null || shipUuids.isEmpty()) {
             return
         }
 
-        val ownedShips = ArrayList<UUID?>()
-        val seen = HashSet<UUID?>()
+        val serverLevel = player.level() as ServerLevel
+        val ownedShips = ArrayList<UUID>()
+        val seen = HashSet<UUID>()
         for (shipUuid in shipUuids) {
             if (shipUuid == null || !seen.add(shipUuid)) {
                 continue
             }
             val entity: Entity? = serverLevel.getEntity(shipUuid)
-            if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive() && !entity.isRemoved() && !entity.isInDeadPose()) {
+            if (entity is EntityShipBase && entity.isOwnedBy(player) && entity.isAlive() && !entity.isRemoved && !entity.isInDeadPose) {
                 ownedShips.add(shipUuid)
             }
         }
 
         if (!ownedShips.isEmpty()) {
-            FormationHelper.applySummonShipsToDesk(player, containerMenu.getBlockEntity().getBlockPos(), ownedShips)
+            FormationHelper.applySummonShipsToDesk(player, containerMenu.blockEntity!!.getBlockPos(), ownedShips)
         }
     }
 }

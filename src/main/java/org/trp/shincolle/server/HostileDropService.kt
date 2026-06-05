@@ -68,7 +68,7 @@ object HostileDropService {
 
     private fun isHostileDropTarget(entity: Entity?): Boolean {
         if (entity is EntityShipBase) {
-            return entity.isHostileShipMob()
+            return entity.isHostileShipMob
         }
         return entity is Enemy || entity is Slime || entity is AbstractGolem
     }
