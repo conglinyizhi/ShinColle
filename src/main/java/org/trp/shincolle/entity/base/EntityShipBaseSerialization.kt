@@ -7,47 +7,47 @@ import org.trp.shincolle.menu.ShipContainerMenu
 
 internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
     fun addAdditionalSaveData(compound: CompoundTag) {
-        compound.put("ShipInventory", this.ship.inventory.serializeNBT(this.ship.registryAccess()))
+        compound.put("ShipInventory", this.ship.inventory!!.serializeNBT(this.ship.registryAccess()))
 
         compound.putInt("ShipLevel", this.ship.level)
-        compound.putInt("ShipExp", this.ship.getExp())
+        compound.putInt("ShipExp", this.ship.exp)
         compound.putInt("AmmoLight", this.ship.ammoLight)
         compound.putInt("AmmoHeavy", this.ship.ammoHeavy)
-        compound.putInt("AircraftLight", this.ship.getNumAircraftLight())
-        compound.putInt("AircraftHeavy", this.ship.getNumAircraftHeavy())
-        compound.putInt("EmotionPrimary", this.ship.getEmotionPrimary())
-        compound.putInt("EmotionSecondary", this.ship.getEmotionSecondary())
-        compound.putInt("Morale", this.ship.getMorale())
-        compound.putBoolean("NoFuel", this.ship.isNoFuel())
+        compound.putInt("AircraftLight", this.ship.numAircraftLight)
+        compound.putInt("AircraftHeavy", this.ship.numAircraftHeavy)
+        compound.putInt("EmotionPrimary", this.ship.emotionPrimary)
+        compound.putInt("EmotionSecondary", this.ship.emotionSecondary)
+        compound.putInt("Morale", this.ship.morale)
+        compound.putBoolean("NoFuel", this.ship.isNoFuel)
         compound.putInt("Fuel", this.ship.fuel)
         compound.put("EquipFlags", this.ship.copyEquipFlagsTag())
-        compound.putBoolean("PointerSelected", this.ship.isPointerSelected())
-        compound.putInt("FormationTeam", this.ship.getFormationTeam())
-        compound.putInt("FormationSlot", this.ship.getFormationSlot())
-        compound.putIntArray("StateEmotion", this.ship.getLegacyEmotionSnapshotInternal())
+        compound.putBoolean("PointerSelected", this.ship.isPointerSelected)
+        compound.putInt("FormationTeam", this.ship.formationTeam)
+        compound.putInt("FormationSlot", this.ship.formationSlot)
+        compound.putIntArray("StateEmotion", this.ship.legacyEmotionSnapshotInternal)
         compound.putInt("AttackTick", this.ship.attackTick)
         compound.putInt("AttackTick2", this.ship.attackTick2)
-        compound.putInt("RidingState", this.ship.getRidingState())
-        compound.putInt("ScaleLevel", this.ship.getScaleLevel())
-        compound.putInt("ShipKills", this.ship.getShipKills())
+        compound.putInt("RidingState", this.ship.ridingState)
+        compound.putInt("ScaleLevel", this.ship.scaleLevel)
+        compound.putInt("ShipKills", this.ship.shipKills)
 
         compound.put("LegacyPoint", this.ship.createLegacyBonusTag())
 
-        compound.putBoolean("LegacyStateInit", this.ship.isLegacyStateInitializedInternal())
-        val legacyState = this.ship.getLegacyStateInternal()
+        compound.putBoolean("LegacyStateInit", this.ship.isLegacyStateInitializedInternal)
+        val legacyState = this.ship.legacyStateInternal
         compound.putIntArray("LegacyStateMinor", legacyState.stateMinor)
         compound.putIntArray("LegacyStateTimer", legacyState.stateTimer)
         compound.putByteArray("LegacyStateFlags", legacyState.toByteArray(legacyState.stateFlag))
         compound.putByteArray("LegacyUpdateFlags", legacyState.toByteArray(legacyState.updateFlag))
         compound.putByteArray("LegacyBodyHeightStand", legacyState.bodyHeightStand)
         compound.putByteArray("LegacyBodyHeightSit", legacyState.bodyHeightSit)
-        compound.putIntArray("LegacyModelPos", legacyState.getModelPosBits())
-        compound.putIntArray("LegacyWaypoints", legacyState.getWaypointBits())
-        if (this.ship.getGuardedEntityIdInternal() != null) {
-            compound.putUUID("GuardedEntityId", this.ship.getGuardedEntityIdInternal())
+        compound.putIntArray("LegacyModelPos", legacyState.modelPosBits)
+        compound.putIntArray("LegacyWaypoints", legacyState.waypointBits)
+        if (this.ship.guardedEntityIdInternal != null) {
+            compound.putUUID("GuardedEntityId", this.ship.guardedEntityIdInternal)
         }
-        val legacyShipExtPropsBackup = this.ship.getLegacyShipExtPropsBackupInternal()
-        if (!legacyShipExtPropsBackup.isEmpty()) {
+        val legacyShipExtPropsBackup = this.ship.legacyShipExtPropsBackupInternal
+        if (legacyShipExtPropsBackup != null && !legacyShipExtPropsBackup.isEmpty()) {
             compound.put(LEGACY_EXT_PROPS_BACKUP, legacyShipExtPropsBackup)
         }
         this.ship.savePointerToNbt(compound)
@@ -55,29 +55,29 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
 
     fun readAdditionalSaveData(compound: CompoundTag) {
         if (compound.contains("ShipInventory")) {
-            this.ship.inventory.deserializeNBT(this.ship.registryAccess(), compound.getCompound("ShipInventory"))
+            this.ship.inventory!!.deserializeNBT(this.ship.registryAccess(), compound.getCompound("ShipInventory"))
         } else if (compound.contains(LEGACY_INV_TAG)) {
-            this.ship.inventory.deserializeNBT(this.ship.registryAccess(), compound.getCompound(LEGACY_INV_TAG))
+            this.ship.inventory!!.deserializeNBT(this.ship.registryAccess(), compound.getCompound(LEGACY_INV_TAG))
         }
 
-        this.ship.setLevel(compound.getInt("ShipLevel"))
-        this.ship.setExp(compound.getInt("ShipExp"))
+        this.ship.level = compound.getInt("ShipLevel")
+        this.ship.exp = compound.getInt("ShipExp")
         this.ship.ammoLight = compound.getInt("AmmoLight")
         this.ship.ammoHeavy = compound.getInt("AmmoHeavy")
         this.ship.emotionPrimary = compound.getInt("EmotionPrimary")
-        this.ship.setEmotionSecondary(compound.getInt("EmotionSecondary"))
+        this.ship.emotionSecondary = compound.getInt("EmotionSecondary")
 
         if (compound.contains("Morale")) {
-            this.ship.setMorale(compound.getInt("Morale"))
+            this.ship.morale = compound.getInt("Morale")
         }
 
         if (compound.contains("PointerSelected")) {
-            this.ship.setPointerSelected(compound.getBoolean("PointerSelected"))
+            this.ship.isPointerSelected = compound.getBoolean("PointerSelected")
         } else {
-            this.ship.setPointerSelected(false)
+            this.ship.isPointerSelected = false
         }
-        this.ship.setFormationTeam(compound.getInt("FormationTeam"))
-        this.ship.setFormationSlot(compound.getInt("FormationSlot"))
+        this.ship.formationTeam = compound.getInt("FormationTeam")
+        this.ship.formationSlot = compound.getInt("FormationSlot")
         this.ship.loadPointerFromNbt(compound)
 
         if (compound.contains("EquipFlags")) {
@@ -88,32 +88,32 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
             loadLegacyShipExtProps(compound.getCompound(LEGACY_EXT_PROPS))
         }
         if (compound.contains(LEGACY_EXT_PROPS_BACKUP)) {
-            this.ship.setLegacyShipExtPropsBackupInternal(compound.getCompound(LEGACY_EXT_PROPS_BACKUP))
+            this.ship.legacyShipExtPropsBackupInternal = compound.getCompound(LEGACY_EXT_PROPS_BACKUP)
         }
 
         if (compound.contains("StateEmotion")) {
             this.ship.applyLegacyEmotionSnapshotInternal(compound.getIntArray("StateEmotion"))
-            this.ship.setLegacyStateInitializedInternal(true)
+            this.ship.isLegacyStateInitializedInternal = true
         }
         if (compound.contains("AttackTick")) {
             this.ship.attackTick = compound.getInt("AttackTick")
         }
         if (compound.contains("AttackTick2")) {
-            this.ship.setAttackTick2(compound.getInt("AttackTick2"))
+            this.ship.attackTick2 = compound.getInt("AttackTick2")
         }
         if (compound.contains("RidingState")) {
             this.ship.ridingState = compound.getInt("RidingState")
         }
         if (compound.contains("ScaleLevel")) {
-            this.ship.setScaleLevel(compound.getInt("ScaleLevel"))
+            this.ship.scaleLevel = compound.getInt("ScaleLevel")
         }
         // Tamed ships should always use default scale (hostile boss scale persists in egg NBT)
-        if (this.ship.isTame && this.ship.getScaleLevel() > 0) {
-            this.ship.setScaleLevel(0)
+        if (this.ship.isTame && this.ship.scaleLevel > 0) {
+            this.ship.scaleLevel = 0
         }
 
         if (compound.contains("ShipKills")) {
-            this.ship.setShipKills(compound.getInt("ShipKills"))
+            this.ship.shipKills = compound.getInt("ShipKills")
         }
 
         if (compound.contains("LegacyPoint")) {
@@ -121,10 +121,10 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
         }
 
         if (compound.contains("LegacyStateInit")) {
-            this.ship.setLegacyStateInitializedInternal(compound.getBoolean("LegacyStateInit"))
+            this.ship.isLegacyStateInitializedInternal = compound.getBoolean("LegacyStateInit")
         }
 
-        val legacyState = this.ship.getLegacyStateInternal()
+        val legacyState = this.ship.legacyStateInternal
         if (compound.contains("LegacyStateMinor")) {
             legacyState.applyIntArray(legacyState.stateMinor, compound.getIntArray("LegacyStateMinor"))
         }
@@ -137,12 +137,12 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
             legacyState.stateMinor,
             7
         )
-        this.ship.setNumAircraftLight(airLight)
+        this.ship.numAircraftLight = airLight
         val airHeavy = if (compound.contains("AircraftHeavy")) compound.getInt("AircraftHeavy") else legacyState.getInt(
             legacyState.stateMinor,
             8
         )
-        this.ship.setNumAircraftHeavy(airHeavy)
+        this.ship.numAircraftHeavy = airHeavy
         if (compound.contains("LegacyStateTimer")) {
             legacyState.applyIntArray(legacyState.stateTimer, compound.getIntArray("LegacyStateTimer"))
         }
@@ -172,11 +172,11 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
 
         this.ship.refreshDimensions()
 
-        if (compound.getBoolean(EntityShipBase.Companion.getSpawnEggTagName())) {
+        if (compound.getBoolean(EntityShipBase.spawnEggTagName)) {
             this.ship.resetDeathStateForSpawnEgg()
         }
 
-        if (!this.ship.isLegacyStateInitializedInternal()) {
+        if (!this.ship.isLegacyStateInitializedInternal) {
             this.ship.initializeLegacyStateInternal()
         }
 
@@ -189,15 +189,15 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
     }
 
     private fun loadLegacyShipExtProps(legacyExt: CompoundTag) {
-        this.ship.setLegacyShipExtPropsBackupInternal(legacyExt.copy())
+        this.ship.legacyShipExtPropsBackupInternal = legacyExt.copy()
 
         val minor = legacyExt.getCompound("Minor")
         if (!minor.isEmpty()) {
             if (minor.contains("Level")) {
-                this.ship.setLevel(minor.getInt("Level"))
+                this.ship.level = minor.getInt("Level")
             }
             if (minor.contains("Exp")) {
-                this.ship.setExp(minor.getInt("Exp"))
+                this.ship.exp = minor.getInt("Exp")
             }
             if (minor.contains("NumAmmoL")) {
                 this.ship.ammoLight = minor.getInt("NumAmmoL")
@@ -209,10 +209,10 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
                 this.ship.fuel = minor.getInt("NumGrudge")
             }
             if (minor.contains("NumAirL")) {
-                this.ship.setNumAircraftLight(minor.getInt("NumAirL"))
+                this.ship.numAircraftLight = minor.getInt("NumAirL")
             }
             if (minor.contains("NumAirH")) {
-                this.ship.setNumAircraftHeavy(minor.getInt("NumAirH"))
+                this.ship.numAircraftHeavy = minor.getInt("NumAirH")
             }
             if (minor.contains("GuardX")) {
                 this.ship.setStateMinor(EntityShipBase.Companion.STATE_MINOR_GUARD_X, minor.getInt("GuardX"))
@@ -230,13 +230,13 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
                 this.ship.setStateMinor(EntityShipBase.Companion.STATE_MINOR_GUARD_TYPE, minor.getInt("GuardType"))
             }
             if (minor.contains("FType")) {
-                this.ship.setFormationTeam(minor.getInt("FType"))
+                this.ship.formationTeam = minor.getInt("FType")
             }
             if (minor.contains("FPos")) {
-                this.ship.setFormationSlot(minor.getInt("FPos"))
+                this.ship.formationSlot = minor.getInt("FPos")
             }
             if (minor.contains("Morale")) {
-                this.ship.setMorale(minor.getInt("Morale"))
+                this.ship.morale = minor.getInt("Morale")
             }
             if (minor.contains("Crane")) {
                 this.ship.setStateMinor(EntityShipBase.Companion.STATE_MINOR_CRANING, minor.getInt("Crane"))
@@ -284,7 +284,7 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
             if (display.contains("Phase")) {
                 this.ship.setStateEmotion(3, display.getInt("Phase"), false)
             }
-            this.ship.setLegacyStateInitializedInternal(true)
+            this.ship.isLegacyStateInitializedInternal = true
         }
 
         val legacyBonus = legacyExt.getCompound("Point")
@@ -295,28 +295,28 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
         val flags = legacyExt.getCompound("ShipFlags")
         if (!flags.isEmpty()) {
             if (flags.contains("IsMarried")) {
-                this.ship.setStateMarried(flags.getBoolean("IsMarried"))
+                this.ship.isStateMarried = flags.getBoolean("IsMarried")
             }
             if (flags.contains("NoFuel")) {
-                this.ship.setNoFuel(flags.getBoolean("NoFuel"))
+                this.ship.isNoFuel = flags.getBoolean("NoFuel")
             }
             if (flags.contains("Melee")) {
-                this.ship.setStateCanMelee(flags.getBoolean("Melee"))
+                this.ship.isStateCanMelee = flags.getBoolean("Melee")
             }
             if (flags.contains("AmmoL")) {
-                this.ship.setStateLightAttack(flags.getBoolean("AmmoL"))
+                this.ship.isStateLightAttack = flags.getBoolean("AmmoL")
             }
             if (flags.contains("AmmoH")) {
-                this.ship.setStateHeavyAttack(flags.getBoolean("AmmoH"))
+                this.ship.isStateHeavyAttack = flags.getBoolean("AmmoH")
             }
             if (flags.contains("AirL")) {
-                this.ship.setStateLightAircraftAttack(flags.getBoolean("AirL"))
+                this.ship.isStateLightAircraftAttack = flags.getBoolean("AirL")
             }
             if (flags.contains("AirH")) {
-                this.ship.setStateHeavyAircraftAttack(flags.getBoolean("AirH"))
+                this.ship.isStateHeavyAircraftAttack = flags.getBoolean("AirH")
             }
             if (flags.contains("WedEffect")) {
-                this.ship.setStateRingEffect(flags.getBoolean("WedEffect"))
+                this.ship.isStateRingEffect = flags.getBoolean("WedEffect")
             }
             if (flags.contains("CanFollow")) {
                 this.ship.setOrderedToSit(!flags.getBoolean("CanFollow"))
@@ -331,7 +331,7 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
                 this.ship.setStateFlag(ShipContainerMenu.STATE_FLAG_PVP, flags.getBoolean("PVPFirst"))
             }
             if (flags.contains("AA")) {
-                this.ship.setStateAntiAir(flags.getBoolean("AA"))
+                this.ship.isStateAntiAir = flags.getBoolean("AA")
             }
             if (flags.contains("ASM")) {
                 this.ship.setStateFlag(ShipContainerMenu.STATE_FLAG_ANTI_SUB, flags.getBoolean("ASM"))
@@ -349,7 +349,7 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
                 this.ship.setStateFlag(ShipContainerMenu.STATE_FLAG_AUTO_PUMP, flags.getBoolean("AutoPump"))
             }
             if (flags.contains("HeldItem")) {
-                this.ship.setStateAppearance(flags.getBoolean("HeldItem"))
+                this.ship.isStateAppearance = flags.getBoolean("HeldItem")
             }
         }
 
@@ -376,7 +376,7 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
             builder.define<Int?>(EntityShipBase.Companion.EMOTION_PARTICLE, 0)
             builder.define<Boolean?>(EntityShipBase.Companion.CREATIVE_DEBUGGER_ACTIVE, false)
             builder.define<Boolean?>(EntityShipBase.Companion.NO_FUEL, false)
-            builder.define<Int?>(EntityShipBase.Companion.MORALE, EntityShipBase.Companion.getMoraleDefaultValue())
+            builder.define<Int?>(EntityShipBase.Companion.MORALE, EntityShipBase.Companion.moraleDefaultValue)
             builder.define<Int?>(EntityShipBase.Companion.FUEL, 0)
             builder.define<Int?>(EntityShipBase.Companion.AMMO_LIGHT, 0)
             builder.define<Int?>(EntityShipBase.Companion.AMMO_HEAVY, 0)
