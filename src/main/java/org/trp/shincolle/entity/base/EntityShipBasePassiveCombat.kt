@@ -38,7 +38,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return
         }
 
-        val targetEntity = this.ship.getPointerTargetEntity()
+        val targetEntity = this.ship.pointerTargetEntity
 
         val pointerTarget = if (targetEntity is LivingEntity) targetEntity else null
 
@@ -86,7 +86,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
                 .getLastHurtMob())
         }
 
-        val isCommanded = (target === this.ship.getPointerTargetEntity())
+        val isCommanded = (target === this.ship.pointerTargetEntity)
 
         if (!isAttackAllowed(target, isRevenge, isCommanded)) {
             clearTarget()
@@ -115,7 +115,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             }
         }
 
-        val combat = this.ship.getCombat()
+        val combat = this.ship.combat
         val preferredRangeSqr = getPassivePreferredRangeSqr(target)
         val hasRangedAttack = combat.canUseLightAmmo()
                 || combat.canUseHeavyAmmo()
@@ -176,26 +176,26 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return
         }
 
-        val combat = this.ship.getCombat()
+        val combat = this.ship.combat
         if (combat.hasAircraftAttackEnabled()) {
             combat.tryPerformAircraftCycle(target)
         }
 
         if (combat.canUseLightAmmo() && this.passiveLightCooldownTick <= 0) {
             this.ship.performLightAttack(target)
-            this.passiveLightCooldownTick = max(1, this.ship.legacyShipStats.getLightDelay())
+            this.passiveLightCooldownTick = max(1, this.ship.legacyShipStats.lightDelay)
         }
 
         if (combat.canUseHeavyAmmo() && this.passiveHeavyCooldownTick <= 0) {
             this.ship.performHeavyAttack(target)
-            this.passiveHeavyCooldownTick = max(1, this.ship.legacyShipStats.getHeavyDelay())
+            this.passiveHeavyCooldownTick = max(1, this.ship.legacyShipStats.heavyDelay)
         }
 
         if (combat.canUseMeleeAttack()
             && this.passiveMeleeCooldownTick <= 0 && state.distanceSqr <= getPassiveAttackRangeSqr(target)
         ) {
             this.ship.doHurtTarget(target)
-            this.passiveMeleeCooldownTick = max(1, this.ship.legacyShipStats.getMeleeDelay())
+            this.passiveMeleeCooldownTick = max(1, this.ship.legacyShipStats.meleeDelay)
         }
     }
 
@@ -299,7 +299,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         }
 
         val prioritized = pickPrioritizedTargets(candidates)
-        prioritized.sort(Comparator.comparingDouble<LivingEntity?>(ToDoubleFunction { entity: LivingEntity? ->
+        prioritized.sortWith(Comparator.comparingDouble<LivingEntity?>(ToDoubleFunction { entity: LivingEntity? ->
             this.ship.distanceToSqr(
                 entity
             )
@@ -321,7 +321,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return candidates
         }
 
-        val prioritized: MutableList<LivingEntity?> = ArrayList<LivingEntity?>()
+        val prioritized: MutableList<LivingEntity> = ArrayList<LivingEntity>()
 
         if (this.ship.getStateFlag(STATE_FLAG_ANTI_AIR)) {
             for (target in candidates) {
@@ -390,7 +390,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             this.passiveHeavyCooldownTick = aimTime * 2
         }
 
-        this.ship.getCombat().resetAircraftLaunchDelay()
+        this.ship.combat.resetAircraftLaunchDelay()
     }
 
     private fun shouldRetreatForLowHealth(): Boolean {
@@ -405,7 +405,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         if (target == null) return false
 
         val isRevenge = (target === this.ship.getLastHurtByMob())
-        val isCommanded = (target === this.ship.getPointerTargetEntity())
+        val isCommanded = (target === this.ship.pointerTargetEntity)
         return canAttackTarget(target, isRevenge, isCommanded)
     }
 
@@ -508,7 +508,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             if (host != null) {
                 return host.getOwnerUUID() == this.ship.getOwnerUUID()
             }
-            return target.getHostUUID() == this.ship.getOwnerUUID()
+            return target.hostUUID == this.ship.getOwnerUUID()
         }
 
         return target is EntityShipBase
@@ -556,9 +556,9 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
 
     private val passiveAcquireRange: Double
         get() {
-            var range = max(2.0, this.ship.legacyShipStats.getAttackRange().toDouble())
-            if (this.ship.getCombat().hasAircraftAttackEnabled()) {
-                range = max(range, this.ship.legacyShipStats.getAttackRange() * 1.5)
+            var range = max(2.0, this.ship.legacyShipStats.attackRange.toDouble())
+            if (this.ship.combat.hasAircraftAttackEnabled()) {
+                range = max(range, this.ship.legacyShipStats.attackRange * 1.5)
             }
             return range
         }
@@ -576,15 +576,15 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
     }
 
     private fun getPassivePreferredRangeSqr(target: Entity): Double {
-        val combat = this.ship.getCombat()
+        val combat = this.ship.combat
 
         if (combat.canUseLightAmmo() || combat.canUseHeavyAmmo()) {
-            val range = max(2.0, this.ship.legacyShipStats.getAttackRange().toDouble())
+            val range = max(2.0, this.ship.legacyShipStats.attackRange.toDouble())
             return range * range
         }
 
         if (combat.hasAircraftAttackEnabled()) {
-            val range = max(24.0, this.ship.legacyShipStats.getAttackRange() * 1.5)
+            val range = max(24.0, this.ship.legacyShipStats.attackRange * 1.5)
             return range * range
         }
 
@@ -593,7 +593,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
 
     private val passiveMoveSpeed: Double
         get() {
-            val speed = this.ship.legacyShipStats.getMoveSpeed() * 3.0
+            val speed = this.ship.legacyShipStats.moveSpeed * 3.0
             return Mth.clamp(
                 speed,
                 ShipAiNumbers.PASSIVE_COMBAT_MOVE_SPEED_MIN,
@@ -607,7 +607,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         ) {
             return false
         }
-        return !this.ship.isNoFuel() && !this.ship.isNonCombatShip()
+        return !this.ship.isNoFuel && !this.ship.isNonCombatShip
     }
 
     private fun isAttackAllowed(target: LivingEntity?, isRevenge: Boolean, isCommanded: Boolean): Boolean {
