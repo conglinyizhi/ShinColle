@@ -77,6 +77,13 @@ ordering = "NONE"
 side = "CLIENT"
 
 [[dependencies."${mod_id}"]]
+modId = "kotlinforforge"
+type = "required"
+versionRange = "[5.10,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies."${mod_id}"]]
 modId = "cloth_config"
 type = "optional"
 versionRange = "[15,)"

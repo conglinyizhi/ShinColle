@@ -1,6 +1,6 @@
 plugins {
     id 'java-library'
-    id 'org.jetbrains.kotlin.jvm' version '2.0.21'
+    id 'org.jetbrains.kotlin.jvm' version '2.1.10'
     id 'maven-publish'
     id 'idea'
     id 'net.neoforged.moddev' version '2.0.139'
@@ -13,6 +13,10 @@ repositories {
     maven { url = 'https://maven.blamejared.com' }
     maven { url = 'https://maven.shedaniel.me' }
     maven { url = 'https://api.modrinth.com/maven' }
+    maven {
+        name = 'Kotlin for Forge'
+        url = 'https://thedarkcolour.github.io/KotlinForForge/'
+    }
 }
 
 def gitShortSha = providers.exec {
@@ -176,6 +180,8 @@ dependencies {
 
     compileOnly "me.shedaniel.cloth:cloth-config-neoforge:15.0.140"
     modIntegrationRuntimeOnly "me.shedaniel.cloth:cloth-config-neoforge:15.0.140"
+
+    implementation 'thedarkcolour:kotlinforforge-neoforge:5.10.0'
 
     // JEI integration
     compileOnly "mezz.jei:jei-${mc_version}-neoforge-api:${jei_version}"
