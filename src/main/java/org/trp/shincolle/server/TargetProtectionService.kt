@@ -17,6 +17,7 @@ object TargetProtectionService {
         if (ship.level() !is ServerLevel) {
             return false
         }
+        val serverLevel = ship.level() as ServerLevel
         return UnattackableTargetData.Companion.get(serverLevel).contains(target.javaClass.getName())
     }
 
@@ -28,8 +29,9 @@ object TargetProtectionService {
         if (ship.level() !is ServerLevel) {
             return false
         }
+        val serverLevel = ship.level() as ServerLevel
         return PlayerTargetListSavedData.Companion.get(serverLevel)
-            .contains(ship.getOwnerUUID(), target.javaClass.getName())
+            .contains(ship.ownerUUID, target.javaClass.getName())
     }
 
     @JvmStatic
@@ -42,6 +44,7 @@ object TargetProtectionService {
         }
 
         val className = entity.javaClass.getName()
+        val serverLevel = player.level() as ServerLevel
         val added: Boolean = UnattackableTargetData.Companion.get(serverLevel).toggle(className)
         val prefix: Component =
             Component.translatable(if (added) "chat.shincolle.optool.add" else "chat.shincolle.optool.remove")
@@ -61,6 +64,7 @@ object TargetProtectionService {
             Component.translatable("chat.shincolle.optool.show").withStyle(ChatFormatting.GOLD),
             false
         )
+        val serverLevel = player.level() as ServerLevel
         for (className in UnattackableTargetData.Companion.get(serverLevel).entries()) {
             player.displayClientMessage(Component.literal(className).withStyle(ChatFormatting.AQUA), false)
         }
@@ -76,7 +80,8 @@ object TargetProtectionService {
         }
 
         val className = entity.javaClass.getName()
-        val added: Boolean = PlayerTargetListSavedData.Companion.get(serverLevel).toggle(player.getUUID(), className)
+        val serverLevel = player.level() as ServerLevel
+        val added: Boolean = PlayerTargetListSavedData.Companion.get(serverLevel).toggle(player.uuid, className)
         val prefix: Component =
             Component.translatable(if (added) "chat.shincolle.target.add" else "chat.shincolle.target.remove")
         player.displayClientMessage(prefix.copy().append(" " + className), false)
@@ -95,7 +100,8 @@ object TargetProtectionService {
             Component.translatable("gui.shincolle.targetAI").withStyle(ChatFormatting.GOLD),
             false
         )
-        for (className in PlayerTargetListSavedData.Companion.get(serverLevel).entries(player.getUUID())) {
+        val serverLevel = player.level() as ServerLevel
+        for (className in PlayerTargetListSavedData.Companion.get(serverLevel).entries(player.uuid)) {
             player.displayClientMessage(Component.literal(className).withStyle(ChatFormatting.AQUA), false)
         }
     }
