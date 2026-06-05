@@ -46,7 +46,7 @@ object FormationHelper {
         for (uuid in shipUuids) {
             val entity = world.getEntity(uuid)
             if (entity !is EntityShipBase) continue
-            if (!entity.isOwnedBy(player) || !entity.isAlive() || entity.isInDeadPose()) continue
+            if (!entity.isOwnedBy(player) || !entity.isAlive() || entity.isInDeadPose) continue
 
             if (totalShips == 1) {
                 col = 1
@@ -104,16 +104,16 @@ object FormationHelper {
     fun applyShipGuardEntity(ship: EntityShipBase?, guarded: Entity?) {
         if (ship == null || guarded == null) return
 
-        val current = ship.getGuardedEntity()
-        if (current != null && current.getUUID() == guarded.getUUID()) {
-            ship.setGuardedEntity(null)
+        val current = ship.guardedEntity
+        if (current != null && current.uuid == guarded.uuid) {
+            ship.guardedEntity = null
             ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false)
             return
         }
 
         ship.setOrderedToSit(false)
         ship.setInSittingPose(false)
-        ship.setGuardedEntity(guarded)
+        ship.guardedEntity = guarded
         ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, false)
         ship.moveGuardTargetTo(guarded, 1.2)
         ship.setStateTimer(18, 200)
@@ -166,7 +166,7 @@ object FormationHelper {
 
         when (formationId) {
             1 -> {
-                val i = 0
+                var i = 0
                 while (i < slotId) {
                     newPos = nextLineAheadPos(alongX, faceP, newPos[0], newPos[1], newPos[2])
                     ++i
@@ -174,7 +174,7 @@ object FormationHelper {
             }
 
             4 -> {
-                val i = 0
+                var i = 0
                 while (i < slotId) {
                     newPos = nextEchelonPos(faceP, newPos[0], newPos[1], newPos[2])
                     ++i
@@ -294,6 +294,6 @@ object FormationHelper {
     @JvmStatic
     fun getFormationBuffs(formationId: Int, slotId: Int): FloatArray? {
         val fvalue = Values.FormationAttrs.get(formationId * 10 + slotId)
-        return if (fvalue != null) fvalue.copyOf(fvalue.size) else Values.getResetFormationValue()
+        return fvalue?.copyOf(fvalue.size) ?: Values.resetFormationValue
     }
 }
