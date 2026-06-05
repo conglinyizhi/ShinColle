@@ -19,10 +19,10 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
 
     fun getHeadTiltAngle(ageInTicks: Float): Float {
         val cooldown = this.ship.tickCount - this.headTiltTick
-        val maxAngle = this.headTiltMaxAngle
+        val maxAngle = Companion.headTiltMaxAngle
         var partTick = ageInTicks - ageInTicks.toInt() + cooldown
 
-        if (cooldown > this.headTiltResetBaseTicks + this.ship.getRandom().nextInt(this.headTiltResetRandomTicks)) {
+        if (cooldown > Companion.headTiltResetBaseTicks + this.ship.getRandom().nextInt(Companion.headTiltResetRandomTicks)) {
             this.headTiltTick = this.ship.tickCount
             partTick = ageInTicks - ageInTicks.toInt()
             this.headTiltActive = this.ship.getRandom().nextInt(10) > 4
@@ -32,8 +32,8 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
             if (this.headTiltState > 0) {
                 return maxAngle
             }
-            var f = Mth.sin(partTick * this.headTiltInSpeed * HEAD_TILT_HALF_PI) * maxAngle
-            if (f - this.headTiltAngleEps < maxAngle || partTick > this.headTiltInMaxTicks) {
+            var f = Mth.sin(partTick * Companion.headTiltInSpeed * HEAD_TILT_HALF_PI) * maxAngle
+            if (f - Companion.headTiltAngleEps < maxAngle || partTick > Companion.headTiltInMaxTicks) {
                 this.headTiltState = 1
                 f = maxAngle
             }
@@ -43,8 +43,8 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
         if (this.headTiltState <= 0) {
             return 0.0f
         }
-        var f = (1.0f - Mth.sin(partTick * this.headTiltOutSpeed * HEAD_TILT_HALF_PI)) * maxAngle
-        if (f + this.headTiltAngleEps > 0.0f || partTick > this.headTiltOutMaxTicks) {
+        var f = (1.0f - Mth.sin(partTick * Companion.headTiltOutSpeed * HEAD_TILT_HALF_PI)) * maxAngle
+        if (f + Companion.headTiltAngleEps > 0.0f || partTick > Companion.headTiltOutMaxTicks) {
             this.headTiltState = 0
             f = 0.0f
         }
@@ -68,7 +68,7 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
         }
 
     private fun updateEmotionState() {
-        if (this.ship.isNoFuel()) {
+        if (this.ship.isNoFuel) {
             this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_HUNGRY
             this.faceTick = -1
             return
@@ -91,14 +91,14 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
             return
         }
 
-        val current = this.ship.getEmotionPrimary()
+        val current = this.ship.emotionPrimary
         if (current == EntityShipBase.Companion.EMOTION_HUNGRY) {
             this.faceTick = -1
         } else if (current != EntityShipBase.Companion.EMOTION_NORMAL && current != EntityShipBase.Companion.EMOTION_BORED) {
             return
         }
 
-        if (this.ship.getEmotionPrimary() == EntityShipBase.Companion.EMOTION_NORMAL) {
+        if (this.ship.emotionPrimary == EntityShipBase.Companion.EMOTION_NORMAL) {
             if (this.ship.getRandom().nextInt(3) == 0) {
                 this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_BORED
             }
@@ -106,17 +106,17 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
             this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_NORMAL
         }
 
-        if (this.ship.getEmotionSecondary() == EntityShipBase.Companion.EMOTION_NORMAL) {
+        if (this.ship.emotionSecondary == EntityShipBase.Companion.EMOTION_NORMAL) {
             if (this.ship.getRandom().nextInt(3) == 0) {
-                this.ship.setEmotionSecondary(EntityShipBase.Companion.EMOTION_BORED)
+                this.ship.emotionSecondary = EntityShipBase.Companion.EMOTION_BORED
             }
         } else if (this.ship.getRandom().nextInt(3) == 0) {
-            this.ship.setEmotionSecondary(EntityShipBase.Companion.EMOTION_NORMAL)
+            this.ship.emotionSecondary = EntityShipBase.Companion.EMOTION_NORMAL
         }
     }
 
     private fun applyEmotionState() {
-        val emotion = this.ship.getEmotionPrimary()
+        val emotion = this.ship.emotionPrimary
         when (emotion) {
             EntityShipBase.Companion.EMOTION_BLINK -> applyBlink()
             EntityShipBase.Companion.EMOTION_CRY -> applyTimedEmotion(
@@ -198,45 +198,27 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
         private const val SHY_DURATION = 80
         private const val HAPPY_DURATION = 60
 
-        val scornToggleMask: Int = 0x7FF
-            get() = Companion.field
-        val scornToggleThreshold: Int = 1024
-            get() = Companion.field
+        const val scornToggleMask: Int = 0x7FF
+        const val scornToggleThreshold: Int = 1024
 
-        val normalMouthTickMask: Int = 0xFF
-            get() = Companion.field
-        val normalMouthTickThreshold: Int = 160
-            get() = Companion.field
+        const val normalMouthTickMask: Int = 0xFF
+        const val normalMouthTickThreshold: Int = 160
 
-        val cryMask: Int = 0xFF
-            get() = Companion.field
-        val damagedMask: Int = 0x1FF
-            get() = Companion.field
-        val boredMask: Int = 0x1FF
-            get() = Companion.field
-        val angryMask: Int = 0xFF
-            get() = Companion.field
-        val shyMask: Int = 0xFF
-            get() = Companion.field
-        val happyMask: Int = 0xFF
-            get() = Companion.field
+        const val cryMask: Int = 0xFF
+        const val damagedMask: Int = 0x1FF
+        const val boredMask: Int = 0x1FF
+        const val angryMask: Int = 0xFF
+        const val shyMask: Int = 0xFF
+        const val happyMask: Int = 0xFF
 
         private val headTiltMaxAngle = -0.27f
-            get() = Companion.field
         private val HEAD_TILT_HALF_PI = (Math.PI / 2.0).toFloat()
         private val headTiltResetBaseTicks = 70
-            get() = Companion.field
         private val headTiltResetRandomTicks = 5
-            get() = Companion.field
         private val headTiltInSpeed = 0.1f
-            get() = Companion.field
         private val headTiltOutSpeed = 0.2f
-            get() = Companion.field
         private val headTiltInMaxTicks = 10.0f
-            get() = Companion.field
         private val headTiltOutMaxTicks = 8.0f
-            get() = Companion.field
         private val headTiltAngleEps = 0.03f
-            get() = Companion.field
     }
 }
