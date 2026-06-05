@@ -198,7 +198,7 @@ internal object EntityShipBrainAi {
         val pointerMemory = pointerTargetMemory(brain)
         val guardMemory = guardTargetMemory(brain)
         val followMemory = followStateMemory(brain)
-        if (ship.getOwnerUUID() == null && ship.getTarget() == null && !pointerMemory.hasAnyTarget() && !guardMemory.target.isActive()) {
+        if (ship.getOwnerUUID() == null && ship.getTarget() == null && !pointerMemory.hasAnyTarget() && !guardMemory.target.isActive) {
             return
         }
         diagnosticLog(
@@ -209,13 +209,13 @@ internal object EntityShipBrainAi {
             followMemory.ownerPresent,
             ship.isTame,
             ship.isInDeadPose,
-            ship.isNoFuel(),
+            ship.isNoFuel,
             followMemory.shouldFollow,
             followMemory.blockReason,
             followMemory.ownerDistanceSq,
             ship.getTarget() != null,
             pointerMemory.hasAnyTarget(),
-            guardMemory.target.isActive()
+            guardMemory.target.isActive
         )
     }
 
@@ -343,7 +343,7 @@ internal object EntityShipBrainAi {
         summoning: Boolean
     ): ShipGuardDecisionResolver.State {
         return ShipGuardDecisionResolver.State(
-            guardTarget.isEntity(),
+            guardTarget.isEntity,
             guardMemory.hasLiveEntityTarget(),
             guardMemory.hasBlockTarget(),
             guardedEntity != null,
@@ -460,7 +460,7 @@ internal object EntityShipBrainAi {
                 followMemory.blockReason,
                 followMemory.ownerDistanceSq,
                 pointerMemory.hasAnyTarget(),
-                guardMemory.target.isActive(),
+                guardMemory.target.isActive,
                 ship.getTarget() != null
             )
         }
@@ -567,7 +567,7 @@ internal object EntityShipBrainAi {
                 return
             }
 
-            if (this.nextCombatPathTick-- <= 0 || ship.combatMovementCoordinator().isNavigationDone()) {
+            if (this.nextCombatPathTick-- <= 0 || ship.combatMovementCoordinator().isNavigationDone) {
                 this.nextCombatPathTick = ShipAiNumbers.PASSIVE_COMBAT_PATH_RECALC_INTERVAL
                 if (tryPassiveCombatTeleportRecovery(ship, target, state.distanceSqr, false)) {
                     return
@@ -660,11 +660,11 @@ internal object EntityShipBrainAi {
     private class ShipPassiveCombatTargetingBehavior :
         Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isNoFuel() && !ship.hasPointerTargetEntity() && !ship.isInDeadPose
+            return !ship.isNoFuel && !ship.hasPointerTargetEntity() && !ship.isInDeadPose
         }
 
         override fun canStillUse(level: ServerLevel, ship: EntityShipBase, gameTime: Long): Boolean {
-            return !ship.isNoFuel() && !ship.hasPointerTargetEntity() && !ship.isInDeadPose
+            return !ship.isNoFuel && !ship.hasPointerTargetEntity() && !ship.isInDeadPose
         }
 
         override fun timedOut(gameTime: Long): Boolean {
@@ -676,7 +676,7 @@ internal object EntityShipBrainAi {
         }
 
         override fun stop(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
-            if (ship.isNoFuel() || ship.hasPointerTargetEntity() || ship.isInDeadPose) {
+            if (ship.isNoFuel || ship.hasPointerTargetEntity() || ship.isInDeadPose) {
                 ship.clearPassiveCombatTargetBrain(true)
             }
         }
@@ -853,7 +853,7 @@ internal object EntityShipBrainAi {
                 clearPointerMoveState(ship)
                 return
             }
-            if (this.nextPointerPathTick-- <= 0 || ship.pointerMovementCoordinator().isNavigationDone()) {
+            if (this.nextPointerPathTick-- <= 0 || ship.pointerMovementCoordinator().isNavigationDone) {
                 this.nextPointerPathTick = ShipAiNumbers.POINTER_ENTITY_PATH_RECALC_INTERVAL
                 if (tryPointerEntityTeleportRecovery(ship, target, distanceSqr, false)) {
                     return
@@ -1120,7 +1120,7 @@ internal object EntityShipBrainAi {
                     disableGuardState(ship)
                     return
                 }
-                if (this.nextGuardPathTick-- <= 0 || ship.guardMovementCoordinator().isNavigationDone()) {
+                if (this.nextGuardPathTick-- <= 0 || ship.guardMovementCoordinator().isNavigationDone) {
                     this.nextGuardPathTick = ShipAiNumbers.PATH_RECALC_INTERVAL_TICKS
                     if (!ship.guardMovementCoordinator().moveTo(target, ShipAiNumbers.GUARD_MOVE_SPEED)) {
                         val failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(
@@ -1598,7 +1598,7 @@ internal object EntityShipBrainAi {
                 return true
             }
             return followMemory.ownerDistanceSq <= ShipAiNumbers.GUARD_OWNER_LOOK_MAX_DISTANCE_SQ
-                    && guardTargetMemory(ship).target.isActive()
+                    && guardTargetMemory(ship).target.isActive
         }
     }
 
@@ -1625,7 +1625,7 @@ internal object EntityShipBrainAi {
                 ship
             ) && !ship.isVehicle() && !pointerTargetMemory(ship).hasAnyTarget() && ship.getTarget() == null && !followStateMemory(
                 ship
-            ).shouldFollow && !guardTargetMemory(ship).target.isActive() && ship.getRandom()
+            ).shouldFollow && !guardTargetMemory(ship).target.isActive && ship.getRandom()
                 .nextInt(ShipAiNumbers.RANDOM_STROLL_CHANCE) == 0
         }
 
@@ -1652,7 +1652,7 @@ internal object EntityShipBrainAi {
     ) {
         companion object {
             private fun from(guardTarget: ShipGuardTarget, guardedEntity: Entity?): GuardRecoveryTargetKey {
-                if (guardTarget.isEntity() && guardedEntity != null) {
+                if (guardTarget.isEntity && guardedEntity != null) {
                     return GuardRecoveryTargetKey(
                         guardTarget.type, guardedEntity.getUUID(), 0, 0, 0,
                         EntityShipBase.Companion.getLegacyDimensionId(guardedEntity.level())

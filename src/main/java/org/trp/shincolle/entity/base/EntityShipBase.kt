@@ -68,12 +68,8 @@ import org.trp.shincolle.inventory.ShipInventoryHandler
 import org.trp.shincolle.item.CombatRationItem
 import org.trp.shincolle.item.CombatRationItem.Companion.getMoraleValue
 import org.trp.shincolle.item.CombatRationItem.Companion.rollFuelGain
-import org.trp.shincolle.item.CombatRationItem.getVariant
 import org.trp.shincolle.item.DebugInspectorItem.Companion.markBucketRepairTriggered
 import org.trp.shincolle.item.LegacyEquipItem
-import org.trp.shincolle.item.LegacyEquipItem.getEquipId
-import org.trp.shincolle.item.LegacyEquipItem.getEquipTypeId
-import org.trp.shincolle.item.LegacyEquipItem.getVariant
 import org.trp.shincolle.item.LegacyEquipStats
 import org.trp.shincolle.item.LegacyEquipStats.getMainAttrs
 import org.trp.shincolle.menu.ShipContainerMenu
@@ -359,8 +355,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             }
             return this.entityData.get<Int?>(AMMO_LIGHT)
         }
-        set(val) {
-            this.entityData.set<Int?>(AMMO_LIGHT, `val`)
+        set(value) {
+            this.entityData.set<Int?>(AMMO_LIGHT, value)
         }
 
     var ammoHeavy: Int
@@ -370,8 +366,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             }
             return this.entityData.get<Int?>(AMMO_HEAVY)
         }
-        set(val) {
-            this.entityData.set<Int?>(AMMO_HEAVY, `val`)
+        set(value) {
+            this.entityData.set<Int?>(AMMO_HEAVY, value)
         }
 
     var numAircraftLight: Int
@@ -421,10 +417,10 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         get() = this.pointer.getPointerTarget()
 
     val rawPointerTarget: Vec3?
-        get() = this.pointer.getRawPointerTarget()
+        get() = this.pointer.rawPointerTarget
 
     val pointerTargetRemainingTicks: Long
-        get() = this.pointer.getPointerTargetRemainingTicks()
+        get() = this.pointer.pointerTargetRemainingTicks
 
     fun clearPointerTarget() {
         this.pointer.clearPointerTarget()
@@ -448,10 +444,10 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     val pointerTargetEntity: Entity?
-        get() = this.pointer.getPointerTargetEntity()
+        get() = this.pointer.pointerTargetEntity
 
     val pointerTargetEntityRemainingTicks: Long
-        get() = this.pointer.getPointerTargetEntityRemainingTicks()
+        get() = this.pointer.pointerTargetEntityRemainingTicks
 
     fun clearPointerTargetEntity() {
         this.pointer.clearPointerTargetEntity()
@@ -497,16 +493,16 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
     var emotionPrimary: Int
         get() = this.entityData.get<Int?>(EMOTION_PRIMARY)
-        set(val) {
-            this.entityData.set<Int?>(EMOTION_PRIMARY, `val`)
-            this.setStateEmotion(1, `val`, false)
+        set(value) {
+            this.entityData.set<Int?>(EMOTION_PRIMARY, value)
+            this.setStateEmotion(1, value, false)
         }
 
     var emotionSecondary: Int
         get() = this.entityData.get<Int?>(EMOTION_SECONDARY)
-        set(val) {
-            this.entityData.set<Int?>(EMOTION_SECONDARY, `val`)
-            this.setStateEmotion(7, `val`, false)
+        set(value) {
+            this.entityData.set<Int?>(EMOTION_SECONDARY, value)
+            this.setStateEmotion(7, value, false)
         }
 
     override fun onSyncedDataUpdated(key: EntityDataAccessor<*>) {
@@ -523,10 +519,10 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
     var morale: Int
         get() = this.entityData.get<Int?>(MORALE)
-        set(val) {
+        set(value) {
             this.entityData.set<Int?>(
                 MORALE,
-                Mth.clamp(`val`, 0, MORALE_MAX)
+                Mth.clamp(value, 0, MORALE_MAX)
             )
             if (!this.level().isClientSide) {
                 this.recalculateLegacyShipStats()
@@ -554,10 +550,10 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
     var isNoFuel: Boolean
         get() = this.fuel <= 0
-        set(val) {
+        set(value) {
             val wasNoFuel = field
-            this.entityData.set<Boolean?>(NO_FUEL, `val`)
-            if (`val`) {
+            this.entityData.set<Boolean?>(NO_FUEL, value)
+            if (value) {
                 this.entityData.set<Int?>(FUEL, 0)
             }
             val isNoFuelNow = field
@@ -1369,12 +1365,12 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             }
             return this.entityData.get<Int?>(FUEL)
         }
-        set(val) {
-            var `val`: Int = `val`
+        set(value) {
+            var value: Int = value
             if (this.isCreativeDebuggerActive) {
-                `val` = MAX_FUEL
+                value = MAX_FUEL
             }
-            val newFuel = max(0, min(MAX_FUEL, `val`))
+            val newFuel = max(0, min(MAX_FUEL, value))
             val wasNoFuel = this.isNoFuel
             this.entityData.set<Int?>(FUEL, newFuel)
             this.legacyStateInternal.stateMinor[6] = newFuel
