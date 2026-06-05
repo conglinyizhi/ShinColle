@@ -29,14 +29,9 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.item.PointerItem
 import org.trp.shincolle.menu.FormationMenu
 import org.trp.shincolle.utility.FormationHelper.applyShipGuardEntity
-import java.lang.Double
 import java.util.*
-import java.util.List
 import java.util.function.Consumer
 import java.util.function.Predicate
-import kotlin.Boolean
-import kotlin.Comparator
-import kotlin.Int
 
 object PointerInteractionService {
     const val POINTER_SEARCH_RADIUS: Double = 100.0
@@ -56,7 +51,7 @@ object PointerInteractionService {
         if (target.isSpectator()) {
             return false
         }
-        if (target is Player && livingTarget.getAbilities().invulnerable) {
+        if (target is Player && target.getAbilities().invulnerable) {
             return false
         }
         if (target is EntityShipBase && target.isOwnedBy(player)) {
@@ -101,6 +96,7 @@ object PointerInteractionService {
             return
         }
 
+        val pointerItem = pointerStack.getItem() as PointerItem
         if (action == 0) {
             cyclePointerMode(player, pointerItem, pointerStack)
         } else if (action == 1 || action == 2) {
@@ -115,7 +111,7 @@ object PointerInteractionService {
         } else if (action == 4) {
             player.openMenu(
                 SimpleMenuProvider(
-                    MenuConstructor { id: Int, inv: Inventory?, p: Player? -> FormationMenu(id, inv) },
+                    MenuConstructor { id: Int, inv: Inventory, p: Player -> FormationMenu(id, inv) },
                     Component.translatable("gui.shincolle.formation.title")
                 )
             )
@@ -149,17 +145,17 @@ object PointerInteractionService {
         }
         if (player.isShiftKeyDown()) {
             if (pointerStack.getItem() is PointerItem) {
-                cyclePointerMode(player, pointerItem, pointerStack)
+                cyclePointerMode(player, pointerStack.getItem() as PointerItem, pointerStack)
             }
             return
         }
 
         val ship = asShipOrHostedShip(targetEntity)
-        if (ship == null || !ship.isAlive() || ship.isInDeadPose() || !ship.isOwnedBy(player)) {
+        if (ship == null || !ship.isAlive() || ship.isInDeadPose || !ship.isOwnedBy(player)) {
             return
         }
 
-        val mode = if (pointerStack.getItem() is PointerItem) pi.getMode(pointerStack) else PointerItem.MODE_SINGLE
+        val mode = if (pointerStack.getItem() is PointerItem) (pointerStack.getItem() as PointerItem).getMode(pointerStack) else PointerItem.MODE_SINGLE
         if (mode == PointerItem.MODE_GROUP || mode == PointerItem.MODE_FORMATION) {
             toggleGroupedSelection(player, ship, mode)
             return
@@ -167,7 +163,7 @@ object PointerInteractionService {
 
         clearOwnedPointerSelection(player, ship, POINTER_SEARCH_RADIUS)
         applyPointerModeSelectionState(player, PointerItem.MODE_SINGLE)
-        ship.setPointerSelected(true)
+        ship.isPointerSelected = true
     }
 
     fun handleTargetCommand(player: Player?, pointerStack: ItemStack) {
@@ -176,35 +172,32 @@ object PointerInteractionService {
         }
 
         val searchArea = player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS)
-        var ships = player.level().getEntitiesOfClass<EntityShipBase?>(
+        var ships = player.level().getEntitiesOfClass<EntityShipBase>(
             EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose() })
+            Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
         if (ships.isEmpty() || pointerStack.getItem() !is PointerItem) {
             return
         }
 
+        val pointerItem = pointerStack.getItem() as PointerItem
         val mode: Int = pointerItem.getMode(pointerStack)
         if (mode == PointerItem.MODE_SINGLE && ships.size > 1) {
-            ships.sort(Comparator { a: EntityShipBase?, b: EntityShipBase? ->
-                Double.compare(
-                    a!!.distanceToSqr(player),
-                    b!!.distanceToSqr(player)
-                )
-            })
-            val selected = ships.get(0)
+            ships.sortWith(compareBy { it.distanceToSqr(player) })
+            val selected = ships[0]
             applyPointerModeSelectionState(player, PointerItem.MODE_SINGLE)
-            ships = List.of<EntityShipBase?>(selected)
+            ships.clear()
+            ships.add(selected)
         } else if (mode == PointerItem.MODE_FORMATION) {
             val data = PlayerStateService.admiralData(player)
             val teamId = data.getCurrentTeamID()
-            ships = player.level().getEntitiesOfClass<EntityShipBase?>(
+            ships = player.level().getEntitiesOfClass<EntityShipBase>(
                 EntityShipBase::class.java, searchArea,
-                Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.getFormationTeam() == teamId && !ship.isInDeadPose() })
+                Predicate { ship -> ship.isOwnedBy(player) && ship.formationTeam == teamId && !ship.isInDeadPose })
         }
 
         val hitRes = getLookTargetResult(player)
         if (hitRes != null) {
-            handleEntityTargetCommand(player, ships, hitRes.getEntity())
+            handleEntityTargetCommand(player, ships, hitRes.entity)
             return
         }
 
@@ -217,13 +210,13 @@ object PointerInteractionService {
             return null
         }
         val reach = POINTER_SEARCH_RADIUS
-        val eyePos = player.getEyePosition()
+        val eyePos = player.eyePosition
         val look = player.getViewVector(1.0f)
         val end = eyePos.add(look.x * reach, look.y * reach, look.z * reach)
-        val searchBox = player.getBoundingBox().expandTowards(look.scale(reach)).inflate(1.0)
+        val searchBox = player.boundingBox.expandTowards(look.scale(reach)).inflate(1.0)
         return ProjectileUtil.getEntityHitResult(
             player.level(), player, eyePos, end, searchBox,
-            Predicate { entity: Entity? -> !entity!!.isSpectator() && entity.isPickable() && entity !== player })
+            Predicate { entity -> !entity.isSpectator() && entity.isPickable && entity !== player })
     }
 
     private fun cyclePointerMode(player: Player, pointerItem: PointerItem, pointerStack: ItemStack?) {
@@ -231,7 +224,7 @@ object PointerInteractionService {
             return
         }
 
-        val nextMode = pointerItem.cycleMode(pointerStack)
+        val nextMode = pointerItem.cycleMode(pointerStack!!)
         applyPointerModeSelectionState(player, nextMode)
         player.displayClientMessage(Component.translatable(PointerItem.getModeTranslationKey(nextMode)), true)
     }
@@ -245,48 +238,42 @@ object PointerInteractionService {
         }
 
         if (nextMode == PointerItem.MODE_SINGLE) {
-            val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
+            val ships = player.level().getEntitiesOfClass<EntityShipBase>(
                 EntityShipBase::class.java,
                 player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS),
-                Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose() })
+                Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
             if (ships.size > 1) {
-                ships.sort(Comparator { a: EntityShipBase?, b: EntityShipBase? ->
-                    Double.compare(
-                        a!!.distanceToSqr(
-                            player
-                        ), b!!.distanceToSqr(player)
-                    )
-                })
-                val keep = ships.get(0)
+                ships.sortWith(compareBy { it.distanceToSqr(player) })
+                val keep = ships[0]
                 clearOwnedPointerSelection(player, keep, POINTER_SEARCH_RADIUS)
-                keep.setPointerSelected(true)
+                keep.isPointerSelected = true
             }
         } else if (nextMode == PointerItem.MODE_FORMATION) {
             val data = PlayerStateService.admiralData(player)
             val teamId = data.getCurrentTeamID()
-            val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
+            val ships = player.level().getEntitiesOfClass<EntityShipBase>(
                 EntityShipBase::class.java,
                 player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS),
-                Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose() })
+                Predicate { ship -> ship.isOwnedBy(player) && !ship.isInDeadPose })
             for (ship in ships) {
-                ship.setPointerSelected(ship.getFormationTeam() == teamId)
+                ship.isPointerSelected = ship.formationTeam == teamId
             }
         }
     }
 
-    private fun clearOwnedPointerSelection(player: Player?, keepSelected: EntityShipBase?, radius: kotlin.Double) {
+    private fun clearOwnedPointerSelection(player: Player?, keepSelected: EntityShipBase?, radius: Double) {
         if (player == null) {
             return
         }
-        val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
+        val ships = player.level().getEntitiesOfClass<EntityShipBase>(
             EntityShipBase::class.java,
             player.getBoundingBox().inflate(radius),
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose() })
+            Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
         for (ship in ships) {
             if (ship === keepSelected) {
                 continue
             }
-            ship.setPointerSelected(false)
+            ship.isPointerSelected = false
             ship.clearPointerTarget()
             ship.clearPointerTargetEntity()
         }
@@ -304,6 +291,7 @@ object PointerInteractionService {
 
         val data = PlayerStateService.admiralData(player)
         val teamId = data.getCurrentTeamID()
+        val serverLevel = player.level() as ServerLevel
         for (i in 0..<AdmiralData.SLOT_COUNT) {
             if (!data.isSelected(teamId, i)) {
                 continue
@@ -341,6 +329,7 @@ object PointerInteractionService {
             return
         }
 
+        val serverLevel = player.level() as ServerLevel
         val entity: Entity? = serverLevel.getEntity(shipUuid)
         if (entity is EntityShipBase
             && entity.isOwnedBy(player)
@@ -368,7 +357,7 @@ object PointerInteractionService {
                 } else {
                     val nextState = !data.isSelected(teamId, existingSlot)
                     if (PlayerStateService.setCurrentTeamSlotSelected(player, existingSlot, nextState)) {
-                        ship.setPointerSelected(nextState)
+                        ship.isPointerSelected = nextState
                         shouldSync = true
                     }
                 }
@@ -398,7 +387,7 @@ object PointerInteractionService {
             ship.togglePointerSelected()
         }
 
-        if (!ship.isPointerSelected()) {
+        if (!ship.isPointerSelected) {
             ship.clearPointerTarget()
             ship.clearPointerTargetEntity()
         }
@@ -427,7 +416,7 @@ object PointerInteractionService {
             if (!canAssignPointerEntityTarget(player, ship, target)) {
                 continue
             }
-            if (ship.hasPointerTargetEntity() && ship.getPointerTargetEntity() === target) {
+            if (ship.hasPointerTargetEntity() && ship.pointerTargetEntity === target) {
                 ship.clearPointerTargetEntity()
                 ship.clearPointerTarget()
                 continue
@@ -444,14 +433,15 @@ object PointerInteractionService {
 
         val blockHit = getLookBlockResult(player)
         var guardPos: BlockPos? = null
-        if (blockHit != null && player.level().getBlockEntity(blockHit.getBlockPos()) is IWaypoint) {
-            val resolved = resolveWaypointTarget(player.level(), blockHit.getBlockPos(), waypoint)
+        val be = player.level().getBlockEntity(blockHit.blockPos)
+        if (be is IWaypoint) {
+            val resolved = resolveWaypointTarget(player.level(), blockHit.blockPos, be)
             guardPos = resolved
             target = Vec3.atBottomCenterOf(resolved)
         }
 
         for (ship in ships) {
-            if (ship.hasPointerTarget() && isSamePointerTarget(ship.getPointerTarget(), target)) {
+            if (ship.hasPointerTarget() && isSamePointerTarget(ship.pointerTarget, target)) {
                 ship.clearPointerTarget()
                 continue
             }
@@ -467,8 +457,8 @@ object PointerInteractionService {
         if (targetEntity is EntityShipBase) {
             return targetEntity
         }
-        if (targetEntity is EntityMountBase && targetEntity.getHost() is EntityShipBase) {
-            return hostShip
+        if (targetEntity is EntityMountBase) {
+            return targetEntity.getHost()
         }
         return null
     }
@@ -489,7 +479,7 @@ object PointerInteractionService {
             if (host != null) {
                 return host.getOwnerUUID() == ownerId
             }
-            return target.getHostUUID() == ownerId
+            return target.hostUUID == ownerId
         }
         return false
     }
@@ -509,7 +499,7 @@ object PointerInteractionService {
             if (host != null) {
                 return host.getOwnerUUID()
             }
-            return target.getHostUUID()
+            return target.hostUUID
         }
         if (target is Enemy) {
             return null
@@ -519,17 +509,17 @@ object PointerInteractionService {
 
     private fun getLookTarget(player: Player): Vec3? {
         val hit = getLookBlockResult(player)
-        if (hit == null || hit.getType() != HitResult.Type.BLOCK) {
+        if (hit.type != HitResult.Type.BLOCK) {
             return null
         }
 
-        val pos = hit.getBlockPos()
+        val pos = hit.blockPos
         return Vec3.atBottomCenterOf(pos).add(0.0, 1.0, 0.0)
     }
 
     private fun getLookBlockResult(player: Player): BlockHitResult {
         val reach = POINTER_SEARCH_RADIUS
-        val eyePos = player.getEyePosition()
+        val eyePos = player.eyePosition
         val look = player.getViewVector(1.0f)
         val end = eyePos.add(look.x * reach, look.y * reach, look.z * reach)
         return player.level().clip(ClipContext(eyePos, end, ClipContext.Block.OUTLINE, ClipContext.Fluid.ANY, player))
@@ -537,11 +527,11 @@ object PointerInteractionService {
 
     private fun resolveWaypointTarget(level: Level, waypointPos: BlockPos, waypoint: IWaypoint): BlockPos {
         val next = waypoint.nextPos
-        if (isCraneTarget(level, next)) {
+        if (next != null && isCraneTarget(level, next)) {
             return next
         }
         val chest = waypoint.chestPos
-        if (isCraneTarget(level, chest)) {
+        if (chest != null && isCraneTarget(level, chest)) {
             return chest
         }
         return waypointPos
