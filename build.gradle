@@ -6,7 +6,6 @@ plugins {
     id 'net.neoforged.moddev' version '2.0.139'
 }
 
-version = mod_version
 group = mod_group_id
 
 repositories {
@@ -16,8 +15,16 @@ repositories {
     maven { url = 'https://api.modrinth.com/maven' }
 }
 
+def gitShortSha = providers.exec {
+    commandLine('git', 'rev-parse', '--short', 'HEAD')
+}.standardOutput.asText.get().trim()
+
+def buildType = System.getenv('BUILD_TYPE') ?: 'local'
+
+version = "${mod_version}-${gitShortSha}-${buildType}"
+
 base {
-    archivesName = mod_id
+    archivesName = "${mod_id}-mc${minecraft_version}"
 }
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)

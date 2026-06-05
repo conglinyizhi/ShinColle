@@ -120,6 +120,8 @@ jobs:
 
       - name: Build jar
         if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
+        env:
+          BUILD_TYPE: ${{ steps.meta.outputs.channel }}
         run: ./gradlew build --no-daemon
 
       - name: Collect changelog
@@ -144,20 +146,42 @@ jobs:
             cat canary-release-notes.md
             echo
             echo "<details>"
-            echo "<summary>Build Metadata / 构建元数据 / ビルドメタデータ</summary>"
+            echo "<summary>Build Metadata</summary>"
+          echo "<summary>构建元数据</summary>"
+          echo "<summary>ビルドメタデータ</summary>"
             echo
-            echo "## Overview / 概览 / 概要"
+            echo "## Overview"
+            echo "## 概览"
+            echo "## 概要"
             echo
-            echo "- Channel / 渠道 / チャンネル: \`$CHANNEL\`"
-            echo "- Tag / 标签 / タグ: \`$CURRENT_TAG\`"
-            echo "- Commit / 提交哈希 / コミット: \`$FULL_SHA\`"
-            echo "- Short SHA / 短哈希 / 短縮 SHA: \`$SHORT_SHA\`"
-            echo "- Ref / 引用 / 参照: \`$REF_NAME\`"
+            echo "- Channel: \`$CHANNEL\`"
+            echo "- 渠道: \`$CHANNEL\`"
+            echo "- チャンネル: \`$CHANNEL\`"
+            echo "- Tag: \`$CURRENT_TAG\`"
+            echo "- 标签: \`$CURRENT_TAG\`"
+            echo "- タグ: \`$CURRENT_TAG\`"
+            echo "- Commit: \`$FULL_SHA\`"
+            echo "- 提交哈希: \`$FULL_SHA\`"
+            echo "- コミット: \`$FULL_SHA\`"
+            echo "- Short SHA: \`$SHORT_SHA\`"
+            echo "- 短哈希: \`$SHORT_SHA\`"
+            echo "- 短縮 SHA: \`$SHORT_SHA\`"
+            echo "- Ref: \`$REF_NAME\`"
+            echo "- 引用: \`$REF_NAME\`"
+            echo "- 参照: \`$REF_NAME\`"
             echo "- Built At (UTC): \`$UTC_TIME\`"
+            echo "- 构建时间 (UTC): \`$UTC_TIME\`"
+            echo "- ビルド時刻 (UTC): \`$UTC_TIME\`"
             echo "- Built At (CST): \`$CN_DATE\`"
+            echo "- 构建时间 (CST): \`$CN_DATE\`"
+            echo "- ビルド時刻 (CST): \`$CN_DATE\`"
             if [ "$CHANNEL" = "nightly" ]; then
-              echo "- Eligible commits since previous nightly / 上次 nightly 以来符合条件的提交数 / 前回 nightly 以降の対象コミット数: \`${NIGHTLY_COUNT:-0}\`"
-              echo "- Counted types / 计数类型 / 集計対象: \`feat|fix|perf|refactor|revert|test\`"
+              echo "- Eligible commits since previous nightly: \`${NIGHTLY_COUNT:-0}\`"
+              echo "- 上次 nightly 以来符合条件的提交数: \`${NIGHTLY_COUNT:-0}\`"
+              echo "- 前回 nightly 以降の対象コミット数: \`${NIGHTLY_COUNT:-0}\`"
+              echo "- Counted types: \`feat|fix|perf|refactor|revert|test\`"
+              echo "- 计数类型: \`feat|fix|perf|refactor|revert|test\`"
+              echo "- 集計対象: \`feat|fix|perf|refactor|revert|test\`"
             fi
             echo
             echo "</details>"

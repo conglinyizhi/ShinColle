@@ -85,16 +85,26 @@ print_warning() {
 }
 
 print_shared_advice() {
-  printf '%s\n' '- 虽然可以，但请不要将当前版本打包为整合包组件，我们尚未决定保证向后兼容 / Although it is allowed, please do not package this version as a modpack component; we have not yet decided to ensure backward compatibility. / 可能ですが、このバージョンを modpack コンポーネントとしてバンドルしないでください。後方互換性はまだ保証されていません。'
-  printf '%s\n' '- 建议优先在单人环境中测试 / Single-player testing is recommended first / まずはシングルプレイ環境でのテストを推奨します。'
-  printf '%s\n\n' '- 反馈问题时请附上 `latest.log` 或崩溃报告 / Please attach `latest.log` or crash reports when reporting issues / 問題を報告する際は `latest.log` またはクラッシュレポートを添付してください。'
+  printf '%s\n' '- 虽然可以，但请不要将当前版本打包为整合包组件，我们尚未决定保证向后兼容'
+  printf '%s\n' '  Although it is allowed, please do not package this version as a modpack component; we have not yet decided to ensure backward compatibility.'
+  printf '%s\n' '  可能ですが、このバージョンを modpack コンポーネントとしてバンドルしないでください。後方互換性はまだ保証されていません。'
+  printf '%s\n' '- 建议优先在单人环境中测试'
+  printf '%s\n' '  Single-player testing is recommended first'
+  printf '%s\n' '  まずはシングルプレイ環境でのテストを推奨します。'
+  printf '%s\n' '- 反馈问题时请附上 `latest.log` 或崩溃报告'
+  printf '%s\n' '  Please attach `latest.log` or crash reports when reporting issues'
+  printf '%s\n\n' '  問題を報告する際は `latest.log` またはクラッシュレポートを添付してください。'
 }
 
 print_manual_note() {
   [ -n "$MANUAL_NOTE" ] || return 0
   printf '<details>\n'
-  printf '<summary>Manual Note / 构建备注 / 手動メモ</summary>\n\n'
-  printf '## Reason / 原因 / 理由\n\n'
+  printf '<summary>Manual Note</summary>\n'
+  printf '<summary>构建备注</summary>\n'
+  printf '<summary>手動メモ</summary>\n\n'
+  printf '## Reason\n\n'
+  printf '## 原因\n\n'
+  printf '## 理由\n\n'
   printf '%s\n\n' "$MANUAL_NOTE"
   printf '</details>\n\n'
 }
@@ -111,10 +121,14 @@ write_notes() {
   else
     printf '本次金丝雀版本变更 / Changes in this canary / 今回のカナリア版の変更点\n'
   fi
-  printf '以下为上次同渠道构建到本次构建之间的提交详情，仅提供中文。/ The details below cover commits between the previous build of the same channel and this build, in Chinese only. / 以下は同一チャネルの前回ビルドから今回ビルドまでのコミット詳細で、中国語のみです。\n\n'
+  printf '以下为上次同渠道构建到本次构建之间的提交详情，仅提供中文。\n'
+  printf 'The details below cover commits between the previous build of the same channel and this build, in Chinese only.\n'
+  printf '以下は同一チャネルの前回ビルドから今回ビルドまでのコミット詳細で、中国語のみです。\n\n'
 
   printf '<details>\n'
-  printf '<summary>Commit Summary / 提交摘要 / コミット要約</summary>\n\n'
+  printf '<summary>Commit Summary</summary>\n'
+  printf '<summary>提交摘要</summary>\n'
+  printf '<summary>コミット要約</summary>\n\n'
 
   printf '## %s\n\n' "$RELEASE_NAME"
 
