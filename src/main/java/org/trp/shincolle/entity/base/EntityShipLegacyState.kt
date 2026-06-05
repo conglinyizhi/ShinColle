@@ -25,7 +25,7 @@ internal class EntityShipLegacyState {
     val bodyHeightStand: ByteArray
     val bodyHeightSit: ByteArray
     val modelPos: FloatArray
-    var waypoints: Array<BlockPos>?
+    var waypoints: Array<BlockPos?>?
 
     init {
         this.stateMinor = LEGACY_STATE_MINOR_DEFAULTS.copyOf(LEGACY_STATE_MINOR_SIZE)
@@ -35,7 +35,7 @@ internal class EntityShipLegacyState {
         this.bodyHeightStand = LEGACY_BODY_HEIGHT_STAND_DEFAULTS.copyOf(LEGACY_BODY_HEIGHT_STAND_DEFAULTS.size)
         this.bodyHeightSit = LEGACY_BODY_HEIGHT_SIT_DEFAULTS.copyOf(LEGACY_BODY_HEIGHT_SIT_DEFAULTS.size)
         this.modelPos = LEGACY_MODEL_POS_DEFAULTS.copyOf(LEGACY_MODEL_POS_DEFAULTS.size)
-        this.waypoints = arrayOf<BlockPos>(BlockPos.ZERO)
+        this.waypoints = arrayOf<BlockPos?>(BlockPos.ZERO)
     }
 
     fun getInt(data: IntArray, index: Int): Int {

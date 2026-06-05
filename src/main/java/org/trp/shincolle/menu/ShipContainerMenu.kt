@@ -39,7 +39,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
     private val unlockedStoragePagesData: DataSlot = object : DataSlot() {
         override fun get(): Int {
-            return this.unlockedStoragePagesServer
+            return unlockedStoragePagesSynced
         }
 
         override fun set(value: Int) {
@@ -53,7 +53,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isCanMeleeEnabled = value != 0
+            this@ShipContainerMenu.isCanMeleeEnabled = value != 0
         }
     }
     private val lightAttackData: DataSlot = object : DataSlot() {
@@ -62,7 +62,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isLightAttackEnabled = value != 0
+            this@ShipContainerMenu.isLightAttackEnabled = value != 0
         }
     }
     private val heavyAttackData: DataSlot = object : DataSlot() {
@@ -71,7 +71,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isHeavyAttackEnabled = value != 0
+            this@ShipContainerMenu.isHeavyAttackEnabled = value != 0
         }
     }
     private val lightAircraftAttackData: DataSlot = object : DataSlot() {
@@ -80,7 +80,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isLightAircraftAttackEnabled = value != 0
+            this@ShipContainerMenu.isLightAircraftAttackEnabled = value != 0
         }
     }
     private val heavyAircraftAttackData: DataSlot = object : DataSlot() {
@@ -89,7 +89,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isHeavyAircraftAttackEnabled = value != 0
+            this@ShipContainerMenu.isHeavyAircraftAttackEnabled = value != 0
         }
     }
     private val ringEffectData: DataSlot = object : DataSlot() {
@@ -98,7 +98,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isRingEffectEnabled = value != 0
+            this@ShipContainerMenu.isRingEffectEnabled = value != 0
         }
     }
     private val ammoLightData: DataSlot = object : DataSlot() {
@@ -125,7 +125,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isMarried = value != 0
+            this@ShipContainerMenu.isMarried = value != 0
         }
     }
     private val followMinData: DataSlot = object : DataSlot() {
@@ -134,7 +134,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.followMinDistance = clampFollowMin(value)
+            this@ShipContainerMenu.followMinDistance = clampFollowMin(value)
         }
     }
     private val followMaxData: DataSlot = object : DataSlot() {
@@ -143,7 +143,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.followMaxDistance = clampFollowMax(value, this.followMinDistance)
+            this@ShipContainerMenu.followMaxDistance = clampFollowMax(value, this@ShipContainerMenu.followMinDistance)
         }
     }
     private val fleeHpData: DataSlot = object : DataSlot() {
@@ -152,7 +152,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.fleeHpPercent = clampFleeHp(value)
+            this@ShipContainerMenu.fleeHpPercent = clampFleeHp(value)
         }
     }
     private val passiveAttackData: DataSlot = object : DataSlot() {
@@ -161,7 +161,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isPassiveAttackEnabled = value != 0
+            this@ShipContainerMenu.isPassiveAttackEnabled = value != 0
         }
     }
     private val onSightData: DataSlot = object : DataSlot() {
@@ -170,7 +170,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isOnSightEnabled = value != 0
+            this@ShipContainerMenu.isOnSightEnabled = value != 0
         }
     }
     private val pvpData: DataSlot = object : DataSlot() {
@@ -179,7 +179,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isPvpEnabled = value != 0
+            this@ShipContainerMenu.isPvpEnabled = value != 0
         }
     }
     private val antiAirData: DataSlot = object : DataSlot() {
@@ -188,7 +188,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isAntiAirEnabled = value != 0
+            this@ShipContainerMenu.isAntiAirEnabled = value != 0
         }
     }
     private val antiSubData: DataSlot = object : DataSlot() {
@@ -197,7 +197,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isAntiSubEnabled = value != 0
+            this@ShipContainerMenu.isAntiSubEnabled = value != 0
         }
     }
     private val timeKeepingData: DataSlot = object : DataSlot() {
@@ -206,7 +206,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isTimeKeepingEnabled = value != 0
+            this@ShipContainerMenu.isTimeKeepingEnabled = value != 0
         }
     }
     private val pickItemData: DataSlot = object : DataSlot() {
@@ -215,7 +215,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isPickItemEnabled = value != 0
+            this@ShipContainerMenu.isPickItemEnabled = value != 0
         }
     }
     private val autoPumpData: DataSlot = object : DataSlot() {
@@ -224,7 +224,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isAutoPumpEnabled = value != 0
+            this@ShipContainerMenu.isAutoPumpEnabled = value != 0
         }
     }
     private val appearanceData: DataSlot = object : DataSlot() {
@@ -233,7 +233,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isAppearanceEnabled = value != 0
+            this@ShipContainerMenu.isAppearanceEnabled = value != 0
         }
     }
     private val mountData: DataSlot = object : DataSlot() {
@@ -242,7 +242,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.isMountEnabled = value != 0
+            this@ShipContainerMenu.isMountEnabled = value != 0
         }
     }
     private val rationMoraleData: DataSlot = object : DataSlot() {
@@ -251,7 +251,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.rationMoraleThreshold = clampRationMorale(value)
+            this@ShipContainerMenu.rationMoraleThreshold = clampRationMorale(value)
         }
     }
     private val wpStayData: DataSlot = object : DataSlot() {
@@ -260,7 +260,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.wpStaySetting = clampWpStay(value)
+            this@ShipContainerMenu.wpStaySetting = clampWpStay(value)
         }
     }
     private val taskIdData: DataSlot = object : DataSlot() {
@@ -269,7 +269,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.taskId = value
+            this@ShipContainerMenu.taskId = value
         }
     }
     private val taskSideData: DataSlot = object : DataSlot() {
@@ -278,7 +278,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         override fun set(value: Int) {
-            this.taskSideFlags = value
+            this@ShipContainerMenu.taskSideFlags = value
         }
     }
     private val shipTankFluidAmountLowData: DataSlot = object : DataSlot() {
@@ -404,39 +404,39 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         }
 
         this.unlockedStoragePagesSynced = Mth.clamp(ship.getStateMinor(STATE_MINOR_EQUIP_DRUM), 0, SHIP_PAGE_COUNT - 1)
-        this.isCanMeleeEnabled = ship.isStateCanMelee
-        this.isLightAttackEnabled = ship.isStateLightAttack
-        this.isHeavyAttackEnabled = ship.isStateHeavyAttack
-        this.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack
-        this.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack
-        this.isRingEffectEnabled = ship.isStateRingEffect
+        this@ShipContainerMenu.isCanMeleeEnabled = ship.isStateCanMelee
+        this@ShipContainerMenu.isLightAttackEnabled = ship.isStateLightAttack
+        this@ShipContainerMenu.isHeavyAttackEnabled = ship.isStateHeavyAttack
+        this@ShipContainerMenu.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack
+        this@ShipContainerMenu.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack
+        this@ShipContainerMenu.isRingEffectEnabled = ship.isStateRingEffect
         this.ammoLightSynced = ship.ammoLight
         this.ammoHeavySynced = ship.ammoHeavy
-        this.isMarried = ship.isStateMarried
-        this.followMinDistance = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN))
-        this.followMaxDistance = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this.followMinDistance)
-        this.fleeHpPercent = clampFleeHp(ship.getStateMinor(STATE_MINOR_FLEE_HP))
-        this.isPassiveAttackEnabled = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK)
-        this.isOnSightEnabled = ship.getStateFlag(STATE_FLAG_ON_SIGHT)
-        this.isPvpEnabled = ship.getStateFlag(STATE_FLAG_PVP)
-        this.isAntiAirEnabled = ship.getStateFlag(STATE_FLAG_ANTI_AIR)
-        this.isAntiSubEnabled = ship.getStateFlag(STATE_FLAG_ANTI_SUB)
-        this.isTimeKeepingEnabled = ship.getStateFlag(STATE_FLAG_TIMEKEEP)
-        this.isPickItemEnabled = ship.getStateFlag(STATE_FLAG_PICK_ITEM)
-        this.isAutoPumpEnabled = ship.getStateFlag(STATE_FLAG_AUTO_PUMP)
-        this.isAppearanceEnabled = ship.isStateAppearance
-        this.isMountEnabled = (ship.getStateEmotion(0) and 1) != 0
-        this.rationMoraleThreshold = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE))
-        this.wpStaySetting = clampWpStay(ship.getStateMinor(STATE_MINOR_WP_STAY))
-        this.taskId = ship.getStateMinor(STATE_MINOR_TASK_ID)
-        this.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
+        this@ShipContainerMenu.isMarried = ship.isStateMarried
+        this@ShipContainerMenu.followMinDistance = clampFollowMin(ship.getStateMinor(STATE_MINOR_FOLLOW_MIN))
+        this@ShipContainerMenu.followMaxDistance = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this@ShipContainerMenu.followMinDistance)
+        this@ShipContainerMenu.fleeHpPercent = clampFleeHp(ship.getStateMinor(STATE_MINOR_FLEE_HP))
+        this@ShipContainerMenu.isPassiveAttackEnabled = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK)
+        this@ShipContainerMenu.isOnSightEnabled = ship.getStateFlag(STATE_FLAG_ON_SIGHT)
+        this@ShipContainerMenu.isPvpEnabled = ship.getStateFlag(STATE_FLAG_PVP)
+        this@ShipContainerMenu.isAntiAirEnabled = ship.getStateFlag(STATE_FLAG_ANTI_AIR)
+        this@ShipContainerMenu.isAntiSubEnabled = ship.getStateFlag(STATE_FLAG_ANTI_SUB)
+        this@ShipContainerMenu.isTimeKeepingEnabled = ship.getStateFlag(STATE_FLAG_TIMEKEEP)
+        this@ShipContainerMenu.isPickItemEnabled = ship.getStateFlag(STATE_FLAG_PICK_ITEM)
+        this@ShipContainerMenu.isAutoPumpEnabled = ship.getStateFlag(STATE_FLAG_AUTO_PUMP)
+        this@ShipContainerMenu.isAppearanceEnabled = ship.isStateAppearance
+        this@ShipContainerMenu.isMountEnabled = (ship.getStateEmotion(0) and 1) != 0
+        this@ShipContainerMenu.rationMoraleThreshold = clampRationMorale(ship.getStateMinor(STATE_MINOR_RATION_MORALE))
+        this@ShipContainerMenu.wpStaySetting = clampWpStay(ship.getStateMinor(STATE_MINOR_WP_STAY))
+        this@ShipContainerMenu.taskId = ship.getStateMinor(STATE_MINOR_TASK_ID)
+        this@ShipContainerMenu.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
         refreshShipTankFluidSyncValues()
 
-        ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this.followMinDistance)
-        ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxDistance)
-        ship.setStateMinor(STATE_MINOR_FLEE_HP, this.fleeHpPercent)
-        ship.setStateMinor(STATE_MINOR_RATION_MORALE, this.rationMoraleThreshold)
-        ship.setStateMinor(STATE_MINOR_WP_STAY, this.wpStaySetting)
+        ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this@ShipContainerMenu.followMinDistance)
+        ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this@ShipContainerMenu.followMaxDistance)
+        ship.setStateMinor(STATE_MINOR_FLEE_HP, this@ShipContainerMenu.fleeHpPercent)
+        ship.setStateMinor(STATE_MINOR_RATION_MORALE, this@ShipContainerMenu.rationMoraleThreshold)
+        ship.setStateMinor(STATE_MINOR_WP_STAY, this@ShipContainerMenu.wpStaySetting)
 
         this.addDataSlot(pageData)
         this.addDataSlot(unlockedStoragePagesData)
@@ -499,13 +499,13 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     }
 
     val shipLevel: Int
-        get() = ship.getLevel()
+        get() = ship.level
 
     val shipExp: Int
-        get() = ship.getExp()
+        get() = ship.exp
 
     val shipKills: Int
-        get() = ship.getShipKills()
+        get() = ship.shipKills
 
     val shipFuel: Int
         get() = ship.fuel
@@ -694,7 +694,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         when (id) {
             TOGGLE_BUTTON_CAN_MELEE -> {
                 ship.setStateCanMelee(!ship.isStateCanMelee)
-                this.isCanMeleeEnabled = ship.isStateCanMelee
+                this@ShipContainerMenu.isCanMeleeEnabled = ship.isStateCanMelee
                 this.broadcastFullState()
                 return true
             }
@@ -702,7 +702,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
             TOGGLE_BUTTON_LIGHT_ATTACK -> {
                 if (ship.isStateGuiBtn1()) {
                     ship.setStateLightAttack(!ship.isStateLightAttack)
-                    this.isLightAttackEnabled = ship.isStateLightAttack
+                    this@ShipContainerMenu.isLightAttackEnabled = ship.isStateLightAttack
                     this.broadcastFullState()
                 }
                 return true
@@ -711,7 +711,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
             TOGGLE_BUTTON_HEAVY_ATTACK -> {
                 if (ship.isStateGuiBtn2()) {
                     ship.setStateHeavyAttack(!ship.isStateHeavyAttack)
-                    this.isHeavyAttackEnabled = ship.isStateHeavyAttack
+                    this@ShipContainerMenu.isHeavyAttackEnabled = ship.isStateHeavyAttack
                     this.broadcastFullState()
                 }
                 return true
@@ -720,7 +720,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
             TOGGLE_BUTTON_LIGHT_AIRCRAFT -> {
                 if (ship.isStateGuiBtn3()) {
                     ship.setStateLightAircraftAttack(!ship.isStateLightAircraftAttack)
-                    this.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack
+                    this@ShipContainerMenu.isLightAircraftAttackEnabled = ship.isStateLightAircraftAttack
                     this.broadcastFullState()
                 }
                 return true
@@ -729,7 +729,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
             TOGGLE_BUTTON_HEAVY_AIRCRAFT -> {
                 if (ship.isStateGuiBtn4()) {
                     ship.setStateHeavyAircraftAttack(!ship.isStateHeavyAircraftAttack)
-                    this.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack
+                    this@ShipContainerMenu.isHeavyAircraftAttackEnabled = ship.isStateHeavyAircraftAttack
                     this.broadcastFullState()
                 }
                 return true
@@ -737,70 +737,70 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
             TOGGLE_BUTTON_RING_EFFECT -> {
                 ship.setStateRingEffect(!ship.isStateRingEffect)
-                this.isRingEffectEnabled = ship.isStateRingEffect
+                this@ShipContainerMenu.isRingEffectEnabled = ship.isStateRingEffect
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_PASSIVE_ATTACK -> {
                 ship.setStateFlag(STATE_FLAG_PASSIVE_ATTACK, !ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK))
-                this.isPassiveAttackEnabled = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK)
+                this@ShipContainerMenu.isPassiveAttackEnabled = ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_ON_SIGHT -> {
                 ship.setStateFlag(STATE_FLAG_ON_SIGHT, !ship.getStateFlag(STATE_FLAG_ON_SIGHT))
-                this.isOnSightEnabled = ship.getStateFlag(STATE_FLAG_ON_SIGHT)
+                this@ShipContainerMenu.isOnSightEnabled = ship.getStateFlag(STATE_FLAG_ON_SIGHT)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_PVP -> {
                 ship.setStateFlag(STATE_FLAG_PVP, !ship.getStateFlag(STATE_FLAG_PVP))
-                this.isPvpEnabled = ship.getStateFlag(STATE_FLAG_PVP)
+                this@ShipContainerMenu.isPvpEnabled = ship.getStateFlag(STATE_FLAG_PVP)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_ANTI_AIR -> {
                 ship.setStateFlag(STATE_FLAG_ANTI_AIR, !ship.getStateFlag(STATE_FLAG_ANTI_AIR))
-                this.isAntiAirEnabled = ship.getStateFlag(STATE_FLAG_ANTI_AIR)
+                this@ShipContainerMenu.isAntiAirEnabled = ship.getStateFlag(STATE_FLAG_ANTI_AIR)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_ANTI_SUB -> {
                 ship.setStateFlag(STATE_FLAG_ANTI_SUB, !ship.getStateFlag(STATE_FLAG_ANTI_SUB))
-                this.isAntiSubEnabled = ship.getStateFlag(STATE_FLAG_ANTI_SUB)
+                this@ShipContainerMenu.isAntiSubEnabled = ship.getStateFlag(STATE_FLAG_ANTI_SUB)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_TIMEKEEP -> {
                 ship.setStateFlag(STATE_FLAG_TIMEKEEP, !ship.getStateFlag(STATE_FLAG_TIMEKEEP))
-                this.isTimeKeepingEnabled = ship.getStateFlag(STATE_FLAG_TIMEKEEP)
+                this@ShipContainerMenu.isTimeKeepingEnabled = ship.getStateFlag(STATE_FLAG_TIMEKEEP)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_PICK_ITEM -> {
                 ship.setStateFlag(STATE_FLAG_PICK_ITEM, !ship.getStateFlag(STATE_FLAG_PICK_ITEM))
-                this.isPickItemEnabled = ship.getStateFlag(STATE_FLAG_PICK_ITEM)
+                this@ShipContainerMenu.isPickItemEnabled = ship.getStateFlag(STATE_FLAG_PICK_ITEM)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_AUTO_PUMP -> {
                 ship.setStateFlag(STATE_FLAG_AUTO_PUMP, !ship.getStateFlag(STATE_FLAG_AUTO_PUMP))
-                this.isAutoPumpEnabled = ship.getStateFlag(STATE_FLAG_AUTO_PUMP)
+                this@ShipContainerMenu.isAutoPumpEnabled = ship.getStateFlag(STATE_FLAG_AUTO_PUMP)
                 this.broadcastFullState()
                 return true
             }
 
             TOGGLE_BUTTON_SHOW_HELD -> {
                 ship.setStateAppearance(!ship.isStateAppearance)
-                this.isAppearanceEnabled = ship.isStateAppearance
+                this@ShipContainerMenu.isAppearanceEnabled = ship.isStateAppearance
                 this.broadcastFullState()
                 return true
             }
@@ -808,7 +808,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
             TOGGLE_BUTTON_MOUNT -> {
                 val current = ship.getStateEmotion(0)
                 ship.setStateEmotion(0, current xor 1, true)
-                this.isMountEnabled = (ship.getStateEmotion(0) and 1) != 0
+                this@ShipContainerMenu.isMountEnabled = (ship.getStateEmotion(0) and 1) != 0
                 this.broadcastFullState()
                 return true
             }
@@ -818,38 +818,38 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
         if (id >= SLIDER_FOLLOW_MIN_BASE && id <= SLIDER_FOLLOW_MIN_BASE + FOLLOW_MIN_MAX) {
             val requested: Int = id - SLIDER_FOLLOW_MIN_BASE
-            this.followMinDistance = clampFollowMin(requested)
-            this.followMaxDistance = clampFollowMax(this.followMaxDistance, this.followMinDistance)
-            ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this.followMinDistance)
-            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxDistance)
+            this@ShipContainerMenu.followMinDistance = clampFollowMin(requested)
+            this@ShipContainerMenu.followMaxDistance = clampFollowMax(this@ShipContainerMenu.followMaxDistance, this@ShipContainerMenu.followMinDistance)
+            ship.setStateMinor(STATE_MINOR_FOLLOW_MIN, this@ShipContainerMenu.followMinDistance)
+            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this@ShipContainerMenu.followMaxDistance)
             return true
         }
 
         if (id >= SLIDER_FOLLOW_MAX_BASE && id <= SLIDER_FOLLOW_MAX_BASE + FOLLOW_MAX_MAX) {
             val requested: Int = id - SLIDER_FOLLOW_MAX_BASE
-            this.followMaxDistance = clampFollowMax(requested, this.followMinDistance)
-            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this.followMaxDistance)
+            this@ShipContainerMenu.followMaxDistance = clampFollowMax(requested, this@ShipContainerMenu.followMinDistance)
+            ship.setStateMinor(STATE_MINOR_FOLLOW_MAX, this@ShipContainerMenu.followMaxDistance)
             return true
         }
 
         if (id >= SLIDER_FLEE_HP_BASE && id <= SLIDER_FLEE_HP_BASE + FLEE_HP_MAX) {
             val requested: Int = id - SLIDER_FLEE_HP_BASE
-            this.fleeHpPercent = clampFleeHp(requested)
-            ship.setStateMinor(STATE_MINOR_FLEE_HP, this.fleeHpPercent)
+            this@ShipContainerMenu.fleeHpPercent = clampFleeHp(requested)
+            ship.setStateMinor(STATE_MINOR_FLEE_HP, this@ShipContainerMenu.fleeHpPercent)
             return true
         }
 
         if (id >= SLIDER_WP_STAY_BASE && id <= SLIDER_WP_STAY_BASE + WP_STAY_MAX) {
             val requested: Int = id - SLIDER_WP_STAY_BASE
-            this.wpStaySetting = clampWpStay(requested)
-            ship.setStateMinor(STATE_MINOR_WP_STAY, this.wpStaySetting)
+            this@ShipContainerMenu.wpStaySetting = clampWpStay(requested)
+            ship.setStateMinor(STATE_MINOR_WP_STAY, this@ShipContainerMenu.wpStaySetting)
             return true
         }
 
         if (id >= SLIDER_RATION_MORALE_BASE && id <= SLIDER_RATION_MORALE_BASE + RATION_MORALE_MAX) {
             val requested: Int = id - SLIDER_RATION_MORALE_BASE
-            this.rationMoraleThreshold = clampRationMorale(requested)
-            ship.setStateMinor(STATE_MINOR_RATION_MORALE, this.rationMoraleThreshold)
+            this@ShipContainerMenu.rationMoraleThreshold = clampRationMorale(requested)
+            ship.setStateMinor(STATE_MINOR_RATION_MORALE, this@ShipContainerMenu.rationMoraleThreshold)
             return true
         }
 
@@ -865,30 +865,30 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
             val newTask: Int = id - ACTION_TASK_SELECT_BASE
             val curTask = ship.getStateMinor(STATE_MINOR_TASK_ID)
             ship.setStateMinor(STATE_MINOR_TASK_ID, if (curTask != newTask) newTask else 0)
-            this.taskId = ship.getStateMinor(STATE_MINOR_TASK_ID)
+            this@ShipContainerMenu.taskId = ship.getStateMinor(STATE_MINOR_TASK_ID)
             return true
         }
 
         if (id == ACTION_TASK_META_TOGGLE) {
             ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) xor (1 shl 18))
-            this.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
+            this@ShipContainerMenu.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
             return true
         }
         if (id == ACTION_TASK_ORE_TOGGLE) {
             ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) xor (1 shl 19))
-            this.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
+            this@ShipContainerMenu.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
             return true
         }
         if (id == ACTION_TASK_NBT_TOGGLE) {
             ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) xor (1 shl 20))
-            this.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
+            this@ShipContainerMenu.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
             return true
         }
 
         if (id >= ACTION_SIDE_TOGGLE_BASE && id < ACTION_SIDE_TOGGLE_BASE + 18) {
             val bit: Int = id - ACTION_SIDE_TOGGLE_BASE
             ship.setStateMinor(STATE_MINOR_TASK_SIDE, ship.getStateMinor(STATE_MINOR_TASK_SIDE) xor (1 shl bit))
-            this.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
+            this@ShipContainerMenu.taskSideFlags = ship.getStateMinor(STATE_MINOR_TASK_SIDE)
             return true
         }
 
