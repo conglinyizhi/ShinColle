@@ -39,9 +39,10 @@ object ShipTeleportHelper {
         if (entity.level() !is ServerLevel) {
             return false
         }
+        val serverLevel = entity.level() as ServerLevel
 
-        val basePos = Vec3(anchor.getX(), anchor.getY() + verticalOffset, anchor.getZ())
-        val facing = anchor.getLookAngle()
+        val basePos = Vec3(anchor.x, anchor.y + verticalOffset, anchor.z)
+        val facing = anchor.lookAngle
         var horizontalFacing = Vec3(facing.x, 0.0, facing.z)
         if (horizontalFacing.lengthSqr() < 1.0E-4) {
             horizontalFacing = Vec3(0.0, 0.0, 1.0)
@@ -73,6 +74,7 @@ object ShipTeleportHelper {
         if (entity.level() !is ServerLevel) {
             return false
         }
+        val serverLevel = entity.level() as ServerLevel
 
         val candidate = findPointCandidate(serverLevel, entity, anchor.add(0.0, verticalOffset, 0.0))
         if (candidate == null) {
@@ -114,8 +116,8 @@ object ShipTeleportHelper {
         facing: Vec3,
         rejectFront: Boolean
     ): Vec3? {
-        val dx = candidate.x - anchor.getX()
-        val dz = candidate.z - anchor.getZ()
+        val dx = candidate.x - anchor.x
+        val dz = candidate.z - anchor.z
         val horizontalDistSq = dx * dx + dz * dz
         if (horizontalDistSq < MIN_PLAYER_DISTANCE_SQ) {
             return null
@@ -138,7 +140,7 @@ object ShipTeleportHelper {
             if (!canStandAt(level, entity, testPos)) {
                 continue
             }
-            return Vec3(testPos.getX() + 0.5, testPos.getY().toDouble(), testPos.getZ() + 0.5)
+            return Vec3(testPos.x + 0.5, testPos.y.toDouble(), testPos.z + 0.5)
         }
         return null
     }
@@ -156,7 +158,7 @@ object ShipTeleportHelper {
             if (!canStandAt(level, entity, testPos)) {
                 continue
             }
-            return Vec3(testPos.getX() + 0.5, testPos.getY().toDouble(), testPos.getZ() + 0.5)
+            return Vec3(testPos.x + 0.5, testPos.y.toDouble(), testPos.z + 0.5)
         }
         return null
     }
@@ -169,7 +171,7 @@ object ShipTeleportHelper {
                 if (!canStandAt(level, entity, testPos)) {
                     continue
                 }
-                return Vec3(testPos.getX() + 0.5, testPos.getY().toDouble(), testPos.getZ() + 0.5)
+                return Vec3(testPos.x + 0.5, testPos.y.toDouble(), testPos.z + 0.5)
             }
         }
         return null
@@ -186,38 +188,39 @@ object ShipTeleportHelper {
             return false
         }
 
-        val x = pos.getX() + 0.5
-        val y = pos.getY().toDouble()
-        val z = pos.getZ() + 0.5
+        val x = pos.x + 0.5
+        val y = pos.y.toDouble()
+        val z = pos.z + 0.5
         return level.noCollision(
-            entity, entity.getBoundingBox().move(
-                x - entity.getX(),
-                y - entity.getY(),
-                z - entity.getZ()
+            entity, entity.boundingBox.move(
+                x - entity.x,
+                y - entity.y,
+                z - entity.z
             )
         )
     }
 
     private fun notifyOwnerIfDebugging(entity: Entity?) {
         if (entity !is TamableAnimal) return
-        val ownerId = entity.getOwnerUUID()
+        val ownerId = entity.ownerUUID
         if (ownerId == null) return
         if (entity.level() !is ServerLevel) return
-        val player: ServerPlayer? = sl.getServer().getPlayerList().getPlayer(ownerId)
+        val sl = entity.level() as ServerLevel
+        val player: ServerPlayer? = sl.server.playerList.getPlayer(ownerId)
         if (player == null) return
         if (!hasDebugInspectorEquipped(player)) return
-        val pos = String.format("(%.2f, %.2f, %.2f)", entity.getX(), entity.getY(), entity.getZ())
+        val pos = String.format("(%.2f, %.2f, %.2f)", entity.x, entity.y, entity.z)
         player.sendSystemMessage(
             Component.literal(
-                "[DebugInspector] Ship " + entity.getUUID().toString().substring(0, 8) + "... teleported to " + pos
+                "[DebugInspector] Ship " + entity.uuid.toString().substring(0, 8) + "... teleported to " + pos
             ), false
         )
     }
 
     private fun hasDebugInspectorEquipped(player: Player): Boolean {
-        if (player.getOffhandItem().getItem() is DebugInspectorItem) return true
-        for (stack in player.getArmorSlots()) {
-            if (stack.getItem() is DebugInspectorItem) return true
+        if (player.offhandItem.item is DebugInspectorItem) return true
+        for (stack in player.armorSlots) {
+            if (stack.item is DebugInspectorItem) return true
         }
         return false
     }
