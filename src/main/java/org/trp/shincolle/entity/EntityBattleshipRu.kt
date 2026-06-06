@@ -70,7 +70,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) :
             return (this.getBbHeight() * 0.45f).toDouble()
         }
 
-    protected override fun performHeavyAttack(target: Entity?): Boolean {
+    override fun performHeavyAttack(target: Entity?): Boolean {
         if (target == null || !target.isAlive) {
             return false
         }

@@ -56,7 +56,7 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal?>?, level: Level?) :
         return list
     }
 
-    protected override fun performLightAttack(target: Entity?) {
+    override fun performLightAttack(target: Entity?) {
         if (this.level() !is ServerLevel) {
             return
         }

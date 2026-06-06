@@ -82,7 +82,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level
         return list
     }
 
-    protected override fun performHeavyAttack(target: Entity?): Boolean {
+    override fun performHeavyAttack(target: Entity?): Boolean {
         if (this.level() !is ServerLevel) {
             return false
         }

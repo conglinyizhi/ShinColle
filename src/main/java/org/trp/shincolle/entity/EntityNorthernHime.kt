@@ -51,7 +51,7 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         return ModItems.NORTHERN_HIME_SPAWN_EGG.get()
     }
 
-    protected override fun migrateLegacyStateFlags(stateFlags: Int) {
+    override fun migrateLegacyStateFlags(stateFlags: Int) {
         setEquipFlag(EQUIP_CANNON, (stateFlags and (1 shl 0)) != 0)
         val santa = (stateFlags and (1 shl 1)) != 0
         setEquipFlag(EQUIP_SANTA_CLOTH, santa)
@@ -60,7 +60,7 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         setEquipFlag(EQUIP_SHOES, (stateFlags and (1 shl 3)) != 0)
     }
 
-    protected override fun setFaceNormal() {
+    override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN
         val tick = this.tickCount and EMOTION_TICK_MASK_8BIT
         if (this.getEmotionSecondary() == EMOTION_BORED && tick > 200) {
@@ -70,7 +70,7 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
     }
 
-    protected override fun setFaceCry() {
+    override fun setFaceCry() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
         if (tick < 128) {
             this.faceId = FACE_DOT_EYES_TEAR
@@ -100,12 +100,12 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         this.mouthId = mapLegacyMouth(3)
     }
 
-    protected override fun setFaceHungry() {
+    override fun setFaceHungry() {
         this.faceId = FACE_DESPAIR
         this.mouthId = mapLegacyMouth(3)
     }
 
-    protected override fun setFaceAngry() {
+    override fun setFaceAngry() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
         if (tick < 128) {
             this.faceId = FACE_EYES_CLOSED
@@ -116,7 +116,7 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
     }
 
-    protected override fun setFaceBored() {
+    override fun setFaceBored() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_9BIT
         if (tick < 170) {
             this.faceId = FACE_EYES_CLOSED
@@ -130,13 +130,13 @@ class EntityNorthernHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
     }
 
-    protected override fun setFaceShy() {
+    override fun setFaceShy() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
         this.faceId = FACE_EYES_OPEN
         this.mouthId = mapLegacyMouth(if (tick < 150) 3 else 2)
     }
 
-    protected override fun setFaceHappy() {
+    override fun setFaceHappy() {
         val tick = getFaceElapsed() and EMOTION_TICK_MASK_8BIT
         if (tick < 140) {
             this.faceId = FACE_TENSION

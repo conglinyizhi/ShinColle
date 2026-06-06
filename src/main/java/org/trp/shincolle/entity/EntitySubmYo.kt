@@ -91,7 +91,7 @@ class EntitySubmYo(type: EntityType<out TamableAnimal?>?, level: Level?) : Entit
         }
     }
 
-    protected override fun performHeavyAttack(target: Entity?): Boolean {
+    override fun performHeavyAttack(target: Entity?): Boolean {
         if (target == null || this.level().isClientSide) {
             return false
         }

@@ -166,7 +166,7 @@ class ShipTankItem(properties: Properties) : Item(properties.stacksTo(1)) {
         @JvmStatic
         fun getCapacity(stack: ItemStack): Int {
             if (stack.getItem() is ShipTankItem) {
-                return Companion.getCapacity(shipTankItem.getVariant(stack))
+                return Companion.getCapacity((stack.item as ShipTankItem).getVariant(stack))
             }
             return CAPACITY_BY_VARIANT[0]
         }

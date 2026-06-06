@@ -56,7 +56,7 @@ class EntitySubmRo500(type: EntityType<out TamableAnimal?>?, level: Level?) : En
         return list
     }
 
-    protected override fun performHeavyAttack(target: Entity?): Boolean {
+    override fun performHeavyAttack(target: Entity?): Boolean {
         if (target == null || this.level().isClientSide) {
             return false
         }

@@ -26,7 +26,7 @@ class EntityIsolatedHime(type: EntityType<out TamableAnimal?>?, level: Level?) :
         this.isStateCanRide = true
     }
 
-    protected override fun performHeavyAttack(target: Entity?): Boolean {
+    override fun performHeavyAttack(target: Entity?): Boolean {
         if (target == null || this.level().isClientSide) {
             return false
         }

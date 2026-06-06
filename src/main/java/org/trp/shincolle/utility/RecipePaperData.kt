@@ -50,7 +50,7 @@ object RecipePaperData {
     fun saveRecipeGrid(
         hostStack: ItemStack,
         registries: HolderLookup.Provider,
-        grid: MutableList<ItemStack>,
+        grid: MutableList<ItemStack?>,
         result: ItemStack
     ) {
         val list = ListTag()

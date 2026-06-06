@@ -62,11 +62,11 @@ class EntityDestroyerNi(type: EntityType<out TamableAnimal?>?, level: Level?) : 
         }
     }
 
-    protected override fun setFaceNormal() {
+    override fun setFaceNormal() {
         setSimpleFace(FACE_EYES_OPEN)
     }
 
-    protected override fun setFaceCry() {
+    override fun setFaceCry() {
         setSimpleFace(FACE_EYES_HALF)
     }
 
@@ -78,23 +78,23 @@ class EntityDestroyerNi(type: EntityType<out TamableAnimal?>?, level: Level?) : 
         setSimpleFace(FACE_EYES_HALF)
     }
 
-    protected override fun setFaceHungry() {
+    override fun setFaceHungry() {
         setSimpleFace(FACE_EYES_HALF)
     }
 
-    protected override fun setFaceAngry() {
+    override fun setFaceAngry() {
         setSimpleFace(FACE_EYES_OPEN)
     }
 
-    protected override fun setFaceBored() {
+    override fun setFaceBored() {
         setSimpleFace(FACE_EYES_CLOSED)
     }
 
-    protected override fun setFaceShy() {
+    override fun setFaceShy() {
         setSimpleFace(FACE_EYES_OPEN)
     }
 
-    protected override fun setFaceHappy() {
+    override fun setFaceHappy() {
         setSimpleFace(FACE_EYES_OPEN)
     }
 

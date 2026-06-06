@@ -60,7 +60,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
             return (this.getBbHeight() * 0.55f).toDouble()
         }
 
-    protected override fun performLightAttack(target: Entity?) {
+    override fun performLightAttack(target: Entity?) {
         if (this.level() !is ServerLevel) {
             return
         }
@@ -106,7 +106,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
     }
 
-    protected override fun setFaceNormal() {
+    override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN
         val tick = this.tickCount and EMOTION_TICK_MASK_8BIT
         if (this.getStateEmotion(7) == 4 && tick > 200) {
@@ -116,7 +116,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
     }
 
-    protected override fun setFaceCry() {
+    override fun setFaceCry() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
             this.faceId = FACE_DOT_EYES_TEAR
@@ -146,12 +146,12 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         this.mouthId = mapLegacyMouth(1)
     }
 
-    protected override fun setFaceHungry() {
+    override fun setFaceHungry() {
         this.faceId = FACE_DESPAIR
         this.mouthId = mapLegacyMouth(5)
     }
 
-    protected override fun setFaceAngry() {
+    override fun setFaceAngry() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
             this.faceId = FACE_EYES_CLOSED
@@ -162,7 +162,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
     }
 
-    protected override fun setFaceBored() {
+    override fun setFaceBored() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT)
         if (tick < 170) {
             this.faceId = FACE_EYES_CLOSED
@@ -176,13 +176,13 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal?>?, level: Level?) :
         }
     }
 
-    protected override fun setFaceShy() {
+    override fun setFaceShy() {
         this.faceId = FACE_EYES_OPEN
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         this.mouthId = mapLegacyMouth(if (tick < 150) 2 else 4)
     }
 
-    protected override fun setFaceHappy() {
+    override fun setFaceHappy() {
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 140) {
             this.faceId = FACE_TENSION
