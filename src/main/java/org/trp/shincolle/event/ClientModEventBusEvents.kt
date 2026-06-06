@@ -49,7 +49,7 @@ import org.trp.shincolle.entity.projectile.EntityProjectileBeam
 import org.trp.shincolle.init.ModBlockEntities
 import org.trp.shincolle.init.ModEntities
 import org.trp.shincolle.init.ModItems
-import org.trp.shincolle.init.ModMenus
+import org.trp.shincolle.menu.ModMenus
 import org.trp.shincolle.init.ModParticles
 import org.trp.shincolle.item.*
 import org.trp.shincolle.menu.*

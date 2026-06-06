@@ -15,15 +15,13 @@ import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import org.trp.shincolle.Config
 import org.trp.shincolle.client.model.ShipModelBaseAdv
-import org.trp.shincolle.client.model.ShipModelBaseAdv.getHeldItemOffset
-import org.trp.shincolle.client.model.ShipModelBaseAdv.getHeldItemRotate
-import org.trp.shincolle.client.model.ShipModelBaseAdv.getScale
-import org.trp.shincolle.client.model.ShipModelBaseAdv.poseTranslateY
-import org.trp.shincolle.client.model.ShipModelBaseAdv.translateToHand
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ShipHeldItemLayer<T : EntityShipBase?, M : EntityModel<T?>?>(renderer: RenderLayerParent<T?, M?>) :
-    RenderLayer<T?, M?>(renderer) {
+@Suppress("UNCHECKED_CAST")
+class ShipHeldItemLayer<T : EntityShipBase, M : EntityModel<T>>(renderer: RenderLayerParent<T, M>) :
+    RenderLayer<T, M>(renderer) {
+    private val shipModel: ShipModelBaseAdv<T>
+        get() = this.getParentModel() as ShipModelBaseAdv<T>
     override fun render(
         poseStack: PoseStack, bufferSource: MultiBufferSource, packedLight: Int, entity: T?,
         limbSwing: Float, limbSwingAmount: Float, partialTick: Float, ageInTicks: Float,

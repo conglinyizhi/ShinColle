@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component
 import org.trp.shincolle.item.ScaledTextTooltipData
 
 class ScaledTextClientTooltip(data: ScaledTextTooltipData) : ClientTooltipComponent {
-    private val lines: MutableList<Component>?
+    private val lines: MutableList<Component?>?
     private val scale: Float
 
     init {

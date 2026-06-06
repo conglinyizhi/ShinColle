@@ -75,7 +75,7 @@ object BookRenderer {
             return
         }
         // Collect picture ranges per side: {picTop, picBottom}
-        val pics: Array<MutableList<IntArray>?> = arrayOf<MutableList<*>>(ArrayList<Any?>(), ArrayList<Any?>())
+        val pics: Array<MutableList<IntArray>?> = arrayOf<MutableList<IntArray>?>(ArrayList<IntArray>(), ArrayList<IntArray>())
         for (data in content) {
             if (data != null) {
                 if (data[0] == 1 && data.size >= 9) { // picture
@@ -182,7 +182,7 @@ object BookRenderer {
                     Component.literal(line).withStyle(UnaryOperator { s: Style? -> s!!.withFont(FONT_MISANS) }),
                     ww
                 )
-                    .stream().map<FormattedCharSequence?> { obj: FormattedCharSequence? -> BookRenderer.forceFont() }
+                    .stream().map<FormattedCharSequence?> { obj: FormattedCharSequence? -> BookRenderer.forceFont(obj!!) }
                     .collect(Collectors.toList())
             else
                 font.split(Component.literal(line), ww)
