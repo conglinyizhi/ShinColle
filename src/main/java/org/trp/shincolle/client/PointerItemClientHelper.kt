@@ -12,6 +12,7 @@ import org.trp.shincolle.server.PlayerStateService
 import java.util.*
 
 object PointerItemClientHelper {
+    @JvmStatic
     fun appendHoverText(item: PointerItem, stack: ItemStack, tooltipComponents: MutableList<Component?>) {
         val mc = Minecraft.getInstance()
         if (mc.player == null) {
