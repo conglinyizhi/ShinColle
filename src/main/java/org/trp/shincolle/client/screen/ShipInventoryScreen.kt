@@ -30,28 +30,10 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     private var activeSettingsTab = SETTINGS_TAB_1
     private val settingsTabButtons = mutableListOf<IconButton>()
 
-    private var canMelee = false
-    private var lightAttack = false
-    private var heavyAttack = false
-    private var lightAircraftAttack = false
-    private var heavyAircraftAttack = false
-    private var ringEffect = false
     private var followMinDistance = 0
     private var followMaxDistance = 0
     private var fleeHpPercent = 0
-    private var passiveAttack = false
-    private var onSight = false
-    private var pvpMode = false
-    private var antiAir = false
-    private var antiSub = false
-    private var timeKeeping = false
-    private var pickItem = false
-    private var autoPump = false
     private var rationMorale = 0
-    private var appearance = false
-    private var mount = false
-    private var taskId = 0
-    private var taskSideFlags = 0
     private var activeSlider = SLIDER_NONE
     private var sliderBarPos = 0
     private val pageButtons = mutableListOf<IconButton>()
@@ -93,25 +75,25 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
 
         for (tab in SETTINGS_TAB_1..SETTINGS_TAB_12) addSettingsTab(tab)
 
-        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y, { this.canMelee }, ShipContainerMenu.TOGGLE_BUTTON_CAN_MELEE) { true }
-        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, { this.lightAttack }, ShipContainerMenu.TOGGLE_BUTTON_LIGHT_ATTACK) { menu.ship.isStateGuiBtn1 }
-        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, { this.heavyAttack }, ShipContainerMenu.TOGGLE_BUTTON_HEAVY_ATTACK) { menu.ship.isStateGuiBtn2 }
-        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, { this.lightAircraftAttack }, ShipContainerMenu.TOGGLE_BUTTON_LIGHT_AIRCRAFT) { menu.ship.isStateGuiBtn3 }
-        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, { this.heavyAircraftAttack }, ShipContainerMenu.TOGGLE_BUTTON_HEAVY_AIRCRAFT) { menu.ship.isStateGuiBtn4 }
-        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, { this.ringEffect }, ShipContainerMenu.TOGGLE_BUTTON_RING_EFFECT) { true }
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y, { menu.isCanMeleeEnabled }, ShipContainerMenu.TOGGLE_BUTTON_CAN_MELEE) { true }
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, { menu.isLightAttackEnabled }, ShipContainerMenu.TOGGLE_BUTTON_LIGHT_ATTACK) { menu.ship.isStateGuiBtn1 }
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, { menu.isHeavyAttackEnabled }, ShipContainerMenu.TOGGLE_BUTTON_HEAVY_ATTACK) { menu.ship.isStateGuiBtn2 }
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, { menu.isLightAircraftAttackEnabled }, ShipContainerMenu.TOGGLE_BUTTON_LIGHT_AIRCRAFT) { menu.ship.isStateGuiBtn3 }
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, { menu.isHeavyAircraftAttackEnabled }, ShipContainerMenu.TOGGLE_BUTTON_HEAVY_AIRCRAFT) { menu.ship.isStateGuiBtn4 }
+        addToggle(SETTINGS_TAB_1, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, { menu.isRingEffectEnabled }, ShipContainerMenu.TOGGLE_BUTTON_RING_EFFECT) { true }
 
-        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y, { this.passiveAttack }, ShipContainerMenu.TOGGLE_BUTTON_PASSIVE_ATTACK) { true }
-        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, { this.onSight }, ShipContainerMenu.TOGGLE_BUTTON_ON_SIGHT) { true }
-        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, { this.pvpMode }, ShipContainerMenu.TOGGLE_BUTTON_PVP) { true }
-        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, { this.antiAir }, ShipContainerMenu.TOGGLE_BUTTON_ANTI_AIR) { true }
-        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, { this.antiSub }, ShipContainerMenu.TOGGLE_BUTTON_ANTI_SUB) { true }
-        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, { this.timeKeeping }, ShipContainerMenu.TOGGLE_BUTTON_TIMEKEEP) { true }
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y, { menu.isPassiveAttackEnabled }, ShipContainerMenu.TOGGLE_BUTTON_PASSIVE_ATTACK) { true }
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, { menu.isOnSightEnabled }, ShipContainerMenu.TOGGLE_BUTTON_ON_SIGHT) { true }
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, { menu.isPvpEnabled }, ShipContainerMenu.TOGGLE_BUTTON_PVP) { true }
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, { menu.isAntiAirEnabled }, ShipContainerMenu.TOGGLE_BUTTON_ANTI_AIR) { true }
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, { menu.isAntiSubEnabled }, ShipContainerMenu.TOGGLE_BUTTON_ANTI_SUB) { true }
+        addToggle(SETTINGS_TAB_3, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, { menu.isTimeKeepingEnabled }, ShipContainerMenu.TOGGLE_BUTTON_TIMEKEEP) { true }
 
-        addToggle(SETTINGS_TAB_4, TOGGLE_X, TOGGLE_ROW_1_Y, { this.pickItem }, ShipContainerMenu.TOGGLE_BUTTON_PICK_ITEM) { menu.ship.supportsItemPickup() }
-        addToggle(SETTINGS_TAB_4, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, { this.autoPump }, ShipContainerMenu.TOGGLE_BUTTON_AUTO_PUMP) { true }
+        addToggle(SETTINGS_TAB_4, TOGGLE_X, TOGGLE_ROW_1_Y, { menu.isPickItemEnabled }, ShipContainerMenu.TOGGLE_BUTTON_PICK_ITEM) { menu.ship.supportsItemPickup() }
+        addToggle(SETTINGS_TAB_4, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, { menu.isAutoPumpEnabled }, ShipContainerMenu.TOGGLE_BUTTON_AUTO_PUMP) { true }
 
-        addToggle(SETTINGS_TAB_6, TOGGLE_X, TOGGLE_ROW_1_Y, { this.appearance }, ShipContainerMenu.TOGGLE_BUTTON_SHOW_HELD) { true }
-        addToggle(SETTINGS_TAB_6, TOGGLE_X, TOGGLE_ROW_2_Y, { this.mount }, ShipContainerMenu.TOGGLE_BUTTON_MOUNT) { true }
+        addToggle(SETTINGS_TAB_6, TOGGLE_X, TOGGLE_ROW_1_Y, { menu.isAppearanceEnabled }, ShipContainerMenu.TOGGLE_BUTTON_SHOW_HELD) { true }
+        addToggle(SETTINGS_TAB_6, TOGGLE_X, TOGGLE_ROW_2_Y, { menu.isMountEnabled }, ShipContainerMenu.TOGGLE_BUTTON_MOUNT) { true }
     }
 
     private fun addDetailTab(tabId: Int, y: Int) {
@@ -334,16 +316,10 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     }
 
     private fun syncStateFromMenu() {
-        this.canMelee = menu.isCanMeleeEnabled; this.lightAttack = menu.isLightAttackEnabled
-        this.heavyAttack = menu.isHeavyAttackEnabled; this.lightAircraftAttack = menu.isLightAircraftAttackEnabled
-        this.heavyAircraftAttack = menu.isHeavyAircraftAttackEnabled; this.ringEffect = menu.isRingEffectEnabled
-        this.followMinDistance = menu.followMinDistance; this.followMaxDistance = menu.followMaxDistance
-        this.fleeHpPercent = menu.fleeHpPercent; this.passiveAttack = menu.isPassiveAttackEnabled
-        this.onSight = menu.isOnSightEnabled; this.pvpMode = menu.isPvpEnabled; this.antiAir = menu.isAntiAirEnabled
-        this.antiSub = menu.isAntiSubEnabled; this.timeKeeping = menu.isTimeKeepingEnabled
-        this.pickItem = menu.isPickItemEnabled; this.autoPump = menu.isAutoPumpEnabled
-        this.rationMorale = menu.rationMoraleThreshold; this.appearance = menu.isAppearanceEnabled
-        this.mount = menu.isMountEnabled; this.taskId = menu.taskId; this.taskSideFlags = menu.taskSideFlags
+        this.followMinDistance = menu.followMinDistance
+        this.followMaxDistance = menu.followMaxDistance
+        this.fleeHpPercent = menu.fleeHpPercent
+        this.rationMorale = menu.rationMoraleThreshold
     }
 
     private fun sendMenuButton(id: Int) {
@@ -396,23 +372,23 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     }
 
     private fun drawAiPage1ToggleMarks(g: GuiGraphics) {
-        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, this.canMelee)
-        if (menu.ship.isStateGuiBtn1) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, this.lightAttack)
-        if (menu.ship.isStateGuiBtn2) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, this.heavyAttack)
-        if (menu.ship.isStateGuiBtn3) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, this.lightAircraftAttack)
-        if (menu.ship.isStateGuiBtn4) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, this.heavyAircraftAttack)
-        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, this.ringEffect)
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, menu.isCanMeleeEnabled)
+        if (menu.ship.isStateGuiBtn1) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, menu.isLightAttackEnabled)
+        if (menu.ship.isStateGuiBtn2) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, menu.isHeavyAttackEnabled)
+        if (menu.ship.isStateGuiBtn3) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, menu.isLightAircraftAttackEnabled)
+        if (menu.ship.isStateGuiBtn4) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, menu.isHeavyAircraftAttackEnabled)
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, menu.isRingEffectEnabled)
     }
 
     private fun drawAiPage3ToggleMarks(g: GuiGraphics) {
-        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, this.passiveAttack); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, this.onSight)
-        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, this.pvpMode); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, this.antiAir)
-        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, this.antiSub); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, this.timeKeeping)
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, menu.isPassiveAttackEnabled); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, menu.isOnSightEnabled)
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 2, menu.isPvpEnabled); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 3, menu.isAntiAirEnabled)
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP * 4, menu.isAntiSubEnabled); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y + TOGGLE_ROW_STEP * 4, menu.isTimeKeepingEnabled)
     }
 
     private fun drawAiPage4ToggleMarks(g: GuiGraphics) {
-        if (menu.ship.supportsItemPickup()) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, this.pickItem)
-        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, this.autoPump)
+        if (menu.ship.supportsItemPickup()) drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, menu.isPickItemEnabled)
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y + TOGGLE_ROW_STEP, menu.isAutoPumpEnabled)
     }
 
     private fun drawFollowSliderTab(g: GuiGraphics) {
@@ -439,7 +415,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     }
 
     private fun drawAppearanceToggleMarks(g: GuiGraphics) {
-        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, this.appearance); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y, this.mount)
+        drawOnOff(g, TOGGLE_X, TOGGLE_ROW_1_Y, menu.isAppearanceEnabled); drawOnOff(g, TOGGLE_X, TOGGLE_ROW_2_Y, menu.isMountEnabled)
         val count = menu.equipOptionCount
         for (i in 0 until minOf(count, APPEARANCE_MAX_ITEMS)) {
             val col = i % APPEARANCE_COLS; val row = i / APPEARANCE_COLS
@@ -448,14 +424,14 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     }
 
     private fun drawAIPage7Background(g: GuiGraphics) {
-        val tside = this.taskSideFlags
+        val tside = menu.taskSideFlags
         g.blit(TEXTURE_BG, this.leftPos + 174, this.topPos + 136,
             Sprites.SHIP_INV_TASK_BG_U.toFloat(), Sprites.SHIP_INV_TASK_BG_V.toFloat(),
             Sprites.SHIP_INV_TASK_BG_W, Sprites.SHIP_INV_TASK_BG_H, 256, 256)
         g.blit(TEXTURE_BG, this.leftPos + 174, this.topPos + 138,
             Sprites.SHIP_INV_TASK_BG2_U.toFloat(), Sprites.SHIP_INV_TASK_BG2_V.toFloat(),
             Sprites.SHIP_INV_TASK_BG2_W, Sprites.SHIP_INV_TASK_BG2_H, 256, 256)
-        val taskType = this.taskId
+        val taskType = menu.taskId
         if (taskType in 1..4) g.blit(TEXTURE_BG, this.leftPos + 174 + (taskType - 1) * 16, this.topPos + 136,
             (87 + (taskType - 1) * 16).toFloat(), 230f, 16, 16, 256, 256)
         g.blit(TEXTURE_BG, this.leftPos + 177, this.topPos + 157, 0f, if (tside and (1 shl 18) != 0) 236f else 225f, 11, 11, 256, 256)
@@ -464,7 +440,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     }
 
     private fun drawAIPage8Background(g: GuiGraphics) {
-        val tside = this.taskSideFlags
+        val tside = menu.taskSideFlags
         for (y in intArrayOf(144, 170, 196)) g.blit(TEXTURE_BG, this.leftPos + 173, this.topPos + y,
             Sprites.SHIP_INV_SIDE_ROW_BG_U.toFloat(), Sprites.SHIP_INV_SIDE_ROW_BG_V.toFloat(),
             Sprites.SHIP_INV_SIDE_ROW_BG_W, Sprites.SHIP_INV_SIDE_ROW_BG_H, 256, 256)
@@ -600,7 +576,8 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
 
     private fun drawTaskIcons(g: GuiGraphics) {
         if (menu.getInventoryPage() != 0) return
-        val (u, v) = when (this.taskId) { 1 -> 151 to 236; 2 -> 167 to 236; 3 -> 183 to 236; 4 -> 199 to 236; else -> return }
+        val taskId = menu.taskId
+        val (u, v) = when (taskId) { 1 -> 151 to 236; 2 -> 167 to 236; 3 -> 183 to 236; 4 -> 199 to 236; else -> return }
         g.blit(TEXTURE_BG, this.leftPos + 25, this.topPos + 107,
             Sprites.SHIP_INV_SLOT_OVERLAY_U.toFloat(), Sprites.SHIP_INV_SLOT_OVERLAY_V.toFloat(),
             Sprites.SHIP_INV_SLOT_OVERLAY_W, Sprites.SHIP_INV_SLOT_OVERLAY_H, 256, 256)
