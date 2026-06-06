@@ -22,12 +22,12 @@ object MarriageRingService {
         val marriedCount = PlayerStateService.getOwnedMarriedShipCount(player)
 
         if (Config.ringAbilityWaterBreathing >= 0 && marriedCount >= Config.ringAbilityWaterBreathing && player.isInWaterOrBubble()
-            && player.getAirSupply() < player.getMaxAirSupply()
+            && player.airSupply < player.maxAirSupply
         ) {
-            player.setAirSupply(player.getMaxAirSupply())
+            player.setAirSupply(player.maxAirSupply)
         }
 
-        if (Config.ringAbilityFireImmunity >= 0 && marriedCount >= Config.ringAbilityFireImmunity && (player.isOnFire() || player.getRemainingFireTicks() > 0)) {
+        if (Config.ringAbilityFireImmunity >= 0 && marriedCount >= Config.ringAbilityFireImmunity && (player.isOnFire() || player.remainingFireTicks > 0)) {
             player.clearFire()
         }
 
@@ -133,7 +133,7 @@ object MarriageRingService {
     }
 
     private fun isActiveMarriageRingStack(stack: ItemStack): Boolean {
-        val item = stack.getItem()
+        val item = stack.item
         return !stack.isEmpty() && item === ModItems.MARRIAGE_RING.get() && item is MarriageRingItem
                 && MarriageRingItem.isActive(stack)
     }
@@ -142,15 +142,15 @@ object MarriageRingService {
         if (player !is ServerPlayer) {
             return
         }
-        if (player.getAbilities().instabuild || player.getAbilities().flying || PlayerStateService.isRingFlightActive(
+        if (player.abilities.instabuild || player.abilities.flying || PlayerStateService.isRingFlightActive(
                 player
             )
         ) {
             return
         }
 
-        player.getAbilities().mayfly = true
-        player.getAbilities().flying = true
+        player.abilities.mayfly = true
+        player.abilities.flying = true
         PlayerStateService.setRingFlightActive(player, true)
         player.onUpdateAbilities()
     }
@@ -160,9 +160,9 @@ object MarriageRingService {
             return
         }
 
-        if (!player.getAbilities().instabuild) {
-            player.getAbilities().flying = false
-            player.getAbilities().mayfly = false
+        if (!player.abilities.instabuild) {
+            player.abilities.flying = false
+            player.abilities.mayfly = false
         }
         PlayerStateService.setRingFlightActive(player, false)
         player.onUpdateAbilities()

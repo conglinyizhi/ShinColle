@@ -27,7 +27,7 @@ object HostileDropService {
             return
         }
 
-        if (!target.level().getGameRules().getBoolean(GameRules.RULE_DOMOBLOOT)) {
+        if (!target.level().gameRules.getBoolean(GameRules.RULE_DOMOBLOOT)) {
             return
         }
 
@@ -48,19 +48,19 @@ object HostileDropService {
 
         val fixedDrop = dropRate.toInt()
         if (fixedDrop > 0) {
-            event.getDrops().add(
+            event.drops.add(
                 ItemEntity(
                     target.level(),
-                    target.getX(), target.getY(), target.getZ(), ItemStack(ModItems.GRUDGE.get(), fixedDrop)
+                    target.x, target.y, target.z, ItemStack(ModItems.GRUDGE.get(), fixedDrop)
                 )
             )
         }
 
-        if (target.getRandom().nextFloat() < (dropRate - fixedDrop)) {
-            event.getDrops().add(
+        if (target.random.nextFloat() < (dropRate - fixedDrop)) {
+            event.drops.add(
                 ItemEntity(
                     target.level(),
-                    target.getX(), target.getY(), target.getZ(), ItemStack(ModItems.GRUDGE.get())
+                    target.x, target.y, target.z, ItemStack(ModItems.GRUDGE.get())
                 )
             )
         }

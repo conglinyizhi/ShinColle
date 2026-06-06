@@ -43,7 +43,7 @@ object ClientShipTrailParticles {
             return
         }
 
-        val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
+        val searchArea = player.boundingBox.inflate(SEARCH_RADIUS)
         val ships = level.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, searchArea)
         if (ships.isEmpty()) {
             return
@@ -75,21 +75,21 @@ object ClientShipTrailParticles {
             return
         }
 
-        val delta = ship.getDeltaMovement()
+        val delta = ship.deltaMovement
         val motX = Mth.clamp(delta.x, -WATER_TRAIL_SPEED_CLAMP, WATER_TRAIL_SPEED_CLAMP)
         val motZ = Mth.clamp(delta.z, -WATER_TRAIL_SPEED_CLAMP, WATER_TRAIL_SPEED_CLAMP)
         if (motX * motX + motZ * motZ <= WATER_TRAIL_MIN_SPEED_SQR) {
             return
         }
 
-        val px = ship.getX() + motX * WATER_TRAIL_DISTANCE_MULT
-        val py = ship.getY() + WATER_TRAIL_OFFSET_Y
-        val pz = ship.getZ() + motZ * WATER_TRAIL_DISTANCE_MULT
+        val px = ship.x + motX * WATER_TRAIL_DISTANCE_MULT
+        val py = ship.y + WATER_TRAIL_OFFSET_Y
+        val pz = ship.z + motZ * WATER_TRAIL_DISTANCE_MULT
 
         val width = ship.getBbWidth().toDouble()
         val velX = Mth.clamp(-motX * WATER_TRAIL_MOTION_SCALE, -WATER_TRAIL_SPEED_CLAMP, WATER_TRAIL_SPEED_CLAMP)
         val velZ = Mth.clamp(-motZ * WATER_TRAIL_MOTION_SCALE, -WATER_TRAIL_SPEED_CLAMP, WATER_TRAIL_SPEED_CLAMP)
-        val random = ship.getRandom()
+        val random = ship.random
 
         for (i in 0..<maxParticles) {
             val ox = (random.nextDouble() - 0.5) * width
@@ -104,16 +104,16 @@ object ClientShipTrailParticles {
             return
         }
 
-        val healthRatio = ship.getHealth() / ship.getMaxHealth()
+        val healthRatio = ship.health / ship.maxHealth
         if (healthRatio > 0.75f) {
             return
         }
 
-        val baseX = ship.getX()
-        val baseY = ship.getY() + HEALTH_PARTICLE_OFFSET_Y
-        val baseZ = ship.getZ()
+        val baseX = ship.x
+        val baseY = ship.y + HEALTH_PARTICLE_OFFSET_Y
+        val baseZ = ship.z
         val spread = ship.getBbWidth().toDouble()
-        val random = ship.getRandom()
+        val random = ship.random
 
         if (healthRatio > 0.5f) {
             spawnSmokeNormal(level, random, baseX, baseY, baseZ, spread, 3, false)

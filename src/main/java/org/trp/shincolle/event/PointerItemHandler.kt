@@ -20,7 +20,7 @@ object PointerItemHandler {
     @JvmStatic
     @SubscribeEvent
     fun onLeftClickBlock(event: LeftClickBlock) {
-        if (event.getLevel().isClientSide) {
+        if (event.level.isClientSide) {
             handleLeftClick(event.getEntity())
             if (event.getEntity().isShiftKeyDown()) {
                 event.setCanceled(true)
@@ -32,13 +32,13 @@ object PointerItemHandler {
         if (!player.isShiftKeyDown()) {
             return
         }
-        var stack = player.getMainHandItem()
-        if (stack.`is`(ModItems.POINTER_ITEM.get()) && stack.getItem() is PointerItem) {
-            (stack.getItem() as PointerItem).onSwingMiss(player, stack)
+        var stack = player.mainHandItem
+        if (stack.`is`(ModItems.POINTER_ITEM.get()) && stack.item is PointerItem) {
+            (stack.item as PointerItem).onSwingMiss(player, stack)
         } else {
-            stack = player.getOffhandItem()
-            if (stack.`is`(ModItems.POINTER_ITEM.get()) && stack.getItem() is PointerItem) {
-                (stack.getItem() as PointerItem).onSwingMiss(player, stack)
+            stack = player.offhandItem
+            if (stack.`is`(ModItems.POINTER_ITEM.get()) && stack.item is PointerItem) {
+                (stack.item as PointerItem).onSwingMiss(player, stack)
             }
         }
     }

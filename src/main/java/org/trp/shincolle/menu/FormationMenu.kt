@@ -46,7 +46,7 @@ class FormationMenu(containerId: Int, playerInventory: Inventory) :
         if (player.isRemoved || !player.isAlive) {
             return false
         }
-        return player.getMainHandItem().getItem() is PointerItem
-                || player.getOffhandItem().getItem() is PointerItem
+        return player.mainHandItem.item is PointerItem
+                || player.offhandItem.item is PointerItem
     }
 }

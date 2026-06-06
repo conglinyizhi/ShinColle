@@ -617,7 +617,7 @@ object ModCommands {
             Component.literal(
                 String.format(
                     "Ship %s type=%s uuid=%s owner=%s lv=%d hp=%.1f/%.1f morale=%d team=%d slot=%d married=%s hostile=%s",
-                    ship.getName().getString(),
+                    ship.getName().string,
                     BuiltInRegistries.ENTITY_TYPE.getKey(ship.getType()),
                     ship.getUUID(),
                     ship.ownerUUID,
@@ -684,7 +684,7 @@ object ModCommands {
                         entry.typeId,
                         owner,
                         entry.dimension!!.location(),
-                        entry.pos!!.getX(),
+                        entry.pos!!.x,
                         entry.pos.getY(),
                         entry.pos.getZ(),
                         flags
@@ -738,7 +738,7 @@ object ModCommands {
 
         source.sendSuccess(Supplier {
             Component.literal(
-                "Recalled ship " + entityByUuid.getName().getString() + " (" + shipUuid + ")."
+                "Recalled ship " + entityByUuid.getName().string + " (" + shipUuid + ")."
             )
         }, true)
         return 1
@@ -949,9 +949,9 @@ object ModCommands {
             Component.literal(
                 String.format(
                     "Changed ship owner: %s %s -> %s",
-                    ship.getName().getString(),
+                    ship.getName().string,
                     oldOwner,
-                    newOwner.getGameProfile().getName()
+                    newOwner.getGameProfile().name
                 )
             )
         }, true)
@@ -1031,7 +1031,7 @@ object ModCommands {
         source.sendSuccess(Supplier {
             Component.literal(
                 ("shipupdateowneruid: owner "
-                        + refreshedPlayer!!.getGameProfile().getName()
+                        + refreshedPlayer!!.getGameProfile().name
                         + " " + ownerUuid
                         + ", refreshed " + refreshedCount + " loaded ships.")
             )
@@ -1162,7 +1162,7 @@ object ModCommands {
         ship.applyParticleEmotion(resolved)
         source.sendSuccess(Supplier {
             Component.literal(
-                "Triggered emote " + resolved + " on " + ship.getName().getString() + "."
+                "Triggered emote " + resolved + " on " + ship.getName().string + "."
             )
         }, true)
         return 1
@@ -1282,7 +1282,7 @@ object ModCommands {
                 String.format(
                     Locale.ROOT,
                     "Updated ship attrs: %s lv=%d fuel=%d ammoLight=%d ammoHeavy=%d morale=%d bonus=[%d,%d,%d,%d,%d,%d]",
-                    ship.getName().getString(),
+                    ship.getName().string,
                     ship.level,
                     ship.fuel,
                     ship.ammoLight,
