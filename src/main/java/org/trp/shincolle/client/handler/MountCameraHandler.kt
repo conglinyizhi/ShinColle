@@ -16,6 +16,7 @@ import org.trp.shincolle.entity.base.EntityMountBase
 object MountCameraHandler {
     private var isCameraHijacked = false
 
+    @JvmStatic
     @SubscribeEvent
     fun onRenderFrame(event: RenderFrameEvent.Pre?) {
         val mc = Minecraft.getInstance()
@@ -50,6 +51,7 @@ object MountCameraHandler {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onRenderPlayerPre(event: RenderPlayerEvent.Pre) {
         if (isCameraHijacked && event.getEntity() === Minecraft.getInstance().player) {

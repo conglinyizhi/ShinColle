@@ -27,6 +27,7 @@ object ClientShipTrailParticles {
     private const val HEALTH_PARTICLE_OFFSET_Y = 0.7
     private const val HEALTH_PARTICLE_UP_SPEED = 0.05
 
+    @JvmStatic
     @SubscribeEvent
     fun onClientTick(event: ClientTickEvent.Post?) {
         val minecraft = Minecraft.getInstance()

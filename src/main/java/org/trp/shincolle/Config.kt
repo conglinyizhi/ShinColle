@@ -732,6 +732,7 @@ object Config {
         CLIENT_SPEC = CLIENT_BUILDER.build()
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onLoad(event: ModConfigEvent) {
         if (event.getConfig().getSpec() === SPEC) {

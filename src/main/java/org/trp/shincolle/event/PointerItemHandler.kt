@@ -11,11 +11,13 @@ import org.trp.shincolle.item.PointerItem
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 object PointerItemHandler {
+    @JvmStatic
     @SubscribeEvent
     fun onLeftClickEmpty(event: LeftClickEmpty) {
         handleLeftClick(event.getEntity())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onLeftClickBlock(event: LeftClickBlock) {
         if (event.getLevel().isClientSide) {

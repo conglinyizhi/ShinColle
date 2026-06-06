@@ -33,6 +33,7 @@ object ClientPointerItemParticles {
     private const val PARTICLE_INTERVAL_TICKS = 10
     private const val SEARCH_RADIUS = 100.0
 
+    @JvmStatic
     @SubscribeEvent
     fun onClientTick(event: ClientTickEvent.Post?) {
         val minecraft = Minecraft.getInstance()
@@ -92,16 +93,19 @@ object ClientPointerItemParticles {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPointerItemUse(event: RightClickItem) {
         handlePointerTargetMarker(event.getLevel(), event.getEntity())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPointerItemUse(event: RightClickBlock) {
         handlePointerTargetMarker(event.getLevel(), event.getEntity())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPointerItemUse(event: EntityInteract) {
         handlePointerEntityMarker(event.getLevel(), event.getEntity(), event.getTarget())

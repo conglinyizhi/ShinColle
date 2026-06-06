@@ -31,6 +31,7 @@ object ModNetwork {
         PacketDistributor.sendToServer(payload)
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun register(event: RegisterPayloadHandlersEvent) {
         val registrar = event.registrar(Shincolle.MODID)

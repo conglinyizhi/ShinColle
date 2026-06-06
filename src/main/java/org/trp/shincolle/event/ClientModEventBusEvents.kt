@@ -70,6 +70,7 @@ object ClientModEventBusEvents {
         return ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "textures/entity/$name.png")
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onClientSetup(event: FMLClientSetupEvent) {
         event.enqueueWork {
@@ -111,6 +112,7 @@ object ClientModEventBusEvents {
         )
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun registerRenderers(event: RegisterRenderers) {
         event.registerEntityRenderer(ModEntities.DESTROYER_I.get()!!) { context -> RendererDestroyerI(context) }
@@ -219,6 +221,7 @@ object ClientModEventBusEvents {
         event.registerBlockEntityRenderer(ModBlockEntities.DESK.get()!!) { context: BlockEntityRendererProvider.Context -> RenderDesk(context) }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun addRenderLayers(event: AddLayers) {
         for (entry in ModEntities.ENTITY_TYPES.entries) {
@@ -241,6 +244,7 @@ object ClientModEventBusEvents {
         castRenderer.addLayer(ShipHeldItemLayer(castRenderer))
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun registerLayerDefinitions(event: RegisterLayerDefinitions) {
         event.registerLayerDefinition(ModelDestroyerI.LAYER_LOCATION) { ModelDestroyerI.createBodyLayer() }
@@ -312,6 +316,7 @@ object ClientModEventBusEvents {
         event.registerLayerDefinition(ModelBlockDeskLarge.LAYER_LOCATION) { ModelBlockDeskLarge.createBodyLayer() }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun registerScreens(event: RegisterMenuScreensEvent) {
         event.register(ModMenus.SHIP_MENU.get()!!, ScreenConstructor { menu, playerInv, title ->
@@ -340,6 +345,7 @@ object ClientModEventBusEvents {
         })
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun registerParticles(event: RegisterParticleProvidersEvent) {
         event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get()!!) { sprites -> ParticleEmotion.Provider(sprites) }
@@ -377,6 +383,7 @@ object ClientModEventBusEvents {
         event.registerSpecial(ModParticles.PARTICLE_BEAM.get()!!, ParticleBeam.Provider())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun registerTooltipComponents(event: RegisterClientTooltipComponentFactoriesEvent) {
         event.register(ScaledTextTooltipData::class.java) { data -> ScaledTextClientTooltip(data) }

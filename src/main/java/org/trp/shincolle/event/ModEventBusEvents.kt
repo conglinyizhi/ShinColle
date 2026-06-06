@@ -38,21 +38,25 @@ import org.trp.shincolle.utility.PerformanceTrace.endServerTick
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 object ModEventBusEvents {
+    @JvmStatic
     @SubscribeEvent
     fun onRegisterCommands(event: RegisterCommandsEvent) {
         ModCommands.register(event.getDispatcher())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onServerTickPre(event: ServerTickEvent.Pre) {
         beginServerTick(event.getServer().getTickCount())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onServerTickPost(event: ServerTickEvent.Post?) {
         endServerTick()
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun registerAttributes(event: EntityAttributeCreationEvent) {
         event.put(ModEntities.NORTHERN_HIME.get(), EntityNorthernHime.createAttributes().build())
@@ -118,6 +122,7 @@ object ModEventBusEvents {
         event.put(ModEntities.TAKOYAKI.get(), EntityAircraftBase.createAttributes().build())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPlayerTick(event: PlayerTickEvent.Post) {
         val player = event.getEntity()
@@ -130,6 +135,7 @@ object ModEventBusEvents {
         applyTickAbilities(player)
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPlayerBreakSpeed(event: BreakSpeed) {
         val multiplier = getUnderwaterBreakSpeedMultiplier(event.getEntity())
@@ -138,6 +144,7 @@ object ModEventBusEvents {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPlayerIncomingDamage(event: LivingIncomingDamageEvent) {
         val player = event.getEntity()
@@ -148,6 +155,7 @@ object ModEventBusEvents {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPlayerLogin(event: PlayerLoggedInEvent) {
         val serverPlayer = event.getEntity()
@@ -157,6 +165,7 @@ object ModEventBusEvents {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPlayerRespawn(event: PlayerRespawnEvent) {
         val serverPlayer = event.getEntity()
@@ -165,6 +174,7 @@ object ModEventBusEvents {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPlayerChangedDimension(event: PlayerChangedDimensionEvent) {
         val serverPlayer = event.getEntity()
@@ -173,11 +183,13 @@ object ModEventBusEvents {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPlayerClone(event: PlayerEvent.Clone) {
         copyPersistentPlayerState(event.getOriginal(), event.getEntity())
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPointerItemAttack(event: AttackEntityEvent) {
         if (handlePointerAttack(event.getEntity(), event.getTarget())) {
@@ -185,11 +197,13 @@ object ModEventBusEvents {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPointerItemLeftClickBlock(event: LeftClickBlock) {
         handleLeftClickBlock(event.getEntity(), event)
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPointerItemRightClickItem(event: RightClickItem) {
         if (handleRightClickItem(event.getEntity(), event)) {
@@ -197,6 +211,7 @@ object ModEventBusEvents {
         }
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onPointerItemRightClickBlock(event: RightClickBlock) {
         if (handleRightClickBlock(event.getEntity(), event)) {
@@ -205,11 +220,13 @@ object ModEventBusEvents {
     }
 
 
+    @JvmStatic
     @SubscribeEvent
     fun onHostileEntityDropsGrudge(event: LivingDropsEvent?) {
         handleLivingDrops(event)
     }
 
+    @JvmStatic
     @SubscribeEvent
     fun onEntityInteract(event: EntityInteract) {
         handleItemFrameInteract(event)

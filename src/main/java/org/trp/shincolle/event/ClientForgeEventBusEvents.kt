@@ -11,6 +11,7 @@ import org.trp.shincolle.server.MarriageRingService.getUnderwaterFogDistanceMult
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = [Dist.CLIENT])
 object ClientForgeEventBusEvents {
+    @JvmStatic
     @SubscribeEvent
     fun onRenderFog(event: RenderFog) {
         if (event.getType() != FogType.WATER) {
