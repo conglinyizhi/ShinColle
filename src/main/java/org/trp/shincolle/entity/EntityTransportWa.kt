@@ -196,9 +196,8 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.TRANSPORT_WA_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.TRANSPORT_WA_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_BASE: String = "equip_base"

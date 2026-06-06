@@ -193,9 +193,8 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
         serverLevel.addFreshEntity(missile)
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.BATTLESHIP_RU_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.BATTLESHIP_RU_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_WEAPON: String = "equip_weapon"

@@ -121,9 +121,8 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal>, level: Level) : 
         }
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.HEAVY_CRUISER_NE_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.HEAVY_CRUISER_NE_SPAWN_EGG.get()
 
     companion object {
         private const val PUSH_MAX_TICKS = 200

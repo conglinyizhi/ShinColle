@@ -98,9 +98,8 @@ class EntitySubmU511(type: EntityType<out TamableAnimal>, level: Level) : Entity
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.SUBM_U511_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.SUBM_U511_SPAWN_EGG.get()
 
     override fun isSubmarine(): Boolean {
         return true

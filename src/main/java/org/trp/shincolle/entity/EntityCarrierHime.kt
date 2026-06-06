@@ -79,9 +79,8 @@ class EntityCarrierHime(type: EntityType<out TamableAnimal>, level: Level) : Ent
         return this.getBbHeight() * 0.9
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.CARRIER_HIME_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.CARRIER_HIME_SPAWN_EGG.get()
 
     override fun hasShipMounts(): Boolean {
         return true

@@ -98,9 +98,8 @@ class EntityBBHiei(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         }
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.BB_HIEI_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.BB_HIEI_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_RIGGING: String = "equip_rigging"

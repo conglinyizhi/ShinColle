@@ -126,9 +126,8 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.DESTROYER_IKAZUCHI_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.DESTROYER_IKAZUCHI_SPAWN_EGG.get()
 
     override fun migrateLegacyStateFlags(stateFlags: Int) {
     }
@@ -328,7 +327,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
     override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN
         val tick = this.tickCount and EMOTION_TICK_MASK_8BIT
-        if (this.getEmotionSecondary() == EMOTION_BORED && tick > 160) {
+        if (this.emotionSecondary == EMOTION_BORED && tick > 160) {
             this.mouthId = mapLegacyMouth(4)
         } else {
             this.mouthId = mapLegacyMouth(0)

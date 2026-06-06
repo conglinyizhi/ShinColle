@@ -59,9 +59,8 @@ class EntityHeavyCruiserRi(type: EntityType<out TamableAnimal>, level: Level) : 
         return list
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.HEAVY_CRUISER_RI_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.HEAVY_CRUISER_RI_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_LEFT: String = "equip_left"

@@ -125,9 +125,8 @@ class EntityCAHime(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         }
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.CA_HIME_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.CA_HIME_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_TAIL_1: String = "equip_tail_1"

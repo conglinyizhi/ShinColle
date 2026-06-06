@@ -105,9 +105,8 @@ class EntityDestroyerRo(type: EntityType<out TamableAnimal>, level: Level) : Ent
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.DESTROYER_RO_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.DESTROYER_RO_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_HEAD_ORNAMENT: String = "equip_head_ornament"

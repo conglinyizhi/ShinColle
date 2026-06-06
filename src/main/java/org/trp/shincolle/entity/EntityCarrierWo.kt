@@ -127,9 +127,8 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
         return 0.15f
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.CARRIER_WO_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.CARRIER_WO_SPAWN_EGG.get()
 
     override val equipOptions: MutableList<EquipOption>
         get() {

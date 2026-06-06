@@ -344,9 +344,8 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         )
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.BATTLESHIP_NAGATO_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.BATTLESHIP_NAGATO_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_HEAD: String = "equip_head"

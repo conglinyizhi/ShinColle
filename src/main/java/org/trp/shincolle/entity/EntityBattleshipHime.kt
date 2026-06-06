@@ -67,9 +67,8 @@ class EntityBattleshipHime(type: EntityType<out TamableAnimal>, level: Level) : 
         }
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.BATTLESHIP_HIME_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.BATTLESHIP_HIME_SPAWN_EGG.get()
 
     override fun hasShipMounts(): Boolean {
         return true

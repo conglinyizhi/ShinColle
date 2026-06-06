@@ -92,9 +92,8 @@ class EntityCarrierAkagi(type: EntityType<out TamableAnimal>, level: Level) : En
         return 0.18f
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.CARRIER_AKAGI_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.CARRIER_AKAGI_SPAWN_EGG.get()
 
     override val equipOptions: MutableList<EquipOption>
         get() {

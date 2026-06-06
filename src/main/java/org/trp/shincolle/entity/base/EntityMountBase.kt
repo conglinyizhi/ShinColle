@@ -71,16 +71,16 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
         super.defineSynchedData(builder)
-        builder.define<Optional<UUID?>?>(HOST_UUID, Optional.empty<UUID?>())
-        builder.define<Int?>(STATE_EMOTION, 0)
+        builder.define<Optional<UUID>>(HOST_UUID, Optional.empty())
+        builder.define<Int>(STATE_EMOTION, 0)
     }
 
     var hostUUID: UUID?
-        get() = this.entityData.get<Optional<UUID?>?>(HOST_UUID).orElse(null)
+        get() = this.entityData.get<Optional<UUID>>(HOST_UUID).orElse(null)
         set(uuid) {
-            this.entityData.set<Optional<UUID?>?>(
+            this.entityData.set<Optional<UUID>>(
                 HOST_UUID,
-                Optional.ofNullable<UUID?>(uuid)
+                Optional.ofNullable(uuid)
             )
         }
 
@@ -106,7 +106,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         }
 
     override fun tick() {
-        if (!this.level().isClientSide && ModCommands.isStopShipAi()) {
+        if (!this.level().isClientSide && ModCommands.isStopShipAi) {
             if (!checkHostExistence()) return
             this.setDeltaMovement(Vec3.ZERO)
             this.setSpeed(0.0f)
@@ -125,7 +125,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         }
 
         if (this.isInWater() && !this.isPassenger() && !this.isSubmarineMode) {
-            if (this.isVehicle() || this.followMovement.isNavigationDone()) {
+            if (this.isVehicle() || this.followMovement.isNavigationDone) {
                 applyWaterBuoyancy()
             }
         }
@@ -325,6 +325,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
                 if (this.isInWaterOrBubble() && (forward != 0f || strafe != 0f)
                     && this.tickCount % 2 == 0 && this.level() is ServerLevel
                 ) {
+                    val serverLevel = this.level() as ServerLevel
                     var motX = this.getX() - this.xo
                     var motZ = this.getZ() - this.zo
                     val limit = 0.25
@@ -338,7 +339,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
                         val pz = this.getZ() + motZ * 3.0 + (this.random.nextDouble() - 0.5) * width
                         val vx = -motX * 1.5
                         val vz = -motZ * 1.5
-                        sl.sendParticles<SimpleParticleType?>(ParticleTypes.CLOUD, px, py, pz, 0, vx, 0.0, vz, 1.0)
+                        serverLevel.sendParticles<SimpleParticleType?>(ParticleTypes.CLOUD, px, py, pz, 0, vx, 0.0, vz, 1.0)
                     }
                 }
 
@@ -401,11 +402,12 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
 
     public override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {
         val heldStack = player.getItemInHand(hand)
-        if (this.host != null && this.host!!.isOwnedBy(player) && ShipHostInteractionRouter.shouldForwardToHost(
+        val host = this.host
+        if (host != null && host.isOwnedBy(player) && ShipHostInteractionRouter.shouldForwardToHost(
                 heldStack
             )
         ) {
-            val hostInteractionResult = ShipHostInteractionRouter.forwardToHost(this.host, player, hand, heldStack)
+            val hostInteractionResult = ShipHostInteractionRouter.forwardToHost(host, player, hand, heldStack)
             if (hostInteractionResult != InteractionResult.PASS) {
                 return hostInteractionResult
             }
@@ -452,7 +454,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             return false
         }
 
-        val mountArmor = this.host!!.legacyShipStats.getArmor() * 0.5f
+        val mountArmor = this.host!!.legacyShipStats.armor * 0.5f
         var reduced = amount * (1.0f - mountArmor + (this.random.nextFloat() * 0.5f - 0.25f))
 
         if (reduced > 0.0f && reduced < 1.0f) {
@@ -500,8 +502,8 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         this.stateEmotion = compound.getInt("StateEmotion")
     }
 
-    override fun brainProvider(): Brain.Provider<EntityMountBase?> {
-        return Brain.provider<EntityMountBase?>(EntityMountBrainAi.MEMORY_TYPES, EntityMountBrainAi.SENSOR_TYPES)
+    override fun brainProvider(): Brain.Provider<EntityMountBase> {
+        return Brain.provider<EntityMountBase>(EntityMountBrainAi.MEMORY_TYPES, EntityMountBrainAi.SENSOR_TYPES)
     }
 
     override fun makeBrain(dynamic: Dynamic<*>): Brain<*> {
@@ -533,12 +535,12 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
     }
 
     companion object {
-        private val HOST_UUID: EntityDataAccessor<Optional<UUID?>?> = SynchedEntityData.defineId<Optional<UUID?>?>(
+        private val HOST_UUID: EntityDataAccessor<Optional<UUID>> = SynchedEntityData.defineId<Optional<UUID>>(
             EntityMountBase::class.java,
             EntityDataSerializers.OPTIONAL_UUID
         )
-        private val STATE_EMOTION: EntityDataAccessor<Int?> =
-            SynchedEntityData.defineId<Int?>(EntityMountBase::class.java, EntityDataSerializers.INT)
+        private val STATE_EMOTION: EntityDataAccessor<Int> =
+            SynchedEntityData.defineId<Int>(EntityMountBase::class.java, EntityDataSerializers.INT)
 
         fun createAttributes(): AttributeSupplier.Builder {
             return createMobAttributes()

@@ -192,9 +192,8 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
         serverLevel.addFreshEntity(beam)
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.BATTLESHIP_YAMATO_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_BELT: String = "equip_belt"

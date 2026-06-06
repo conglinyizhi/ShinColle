@@ -75,9 +75,8 @@ class EntityCarrierWDemon(type: EntityType<out TamableAnimal>, level: Level) : E
         return this.getBbHeight() * 1.2
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.CARRIER_W_DEMON_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.CARRIER_W_DEMON_SPAWN_EGG.get()
 
     override fun hasShipMounts(): Boolean {
         return true

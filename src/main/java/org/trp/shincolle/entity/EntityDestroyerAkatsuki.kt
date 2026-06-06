@@ -501,9 +501,8 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.DESTROYER_AKATSUKI_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.DESTROYER_AKATSUKI_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_RIGGING: String = "equip_rigging"

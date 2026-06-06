@@ -99,9 +99,8 @@ class EntitySubmHime(type: EntityType<out TamableAnimal>, level: Level) : Entity
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.SUBM_HIME_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.SUBM_HIME_SPAWN_EGG.get()
 
     override fun hasShipMounts(): Boolean {
         return true

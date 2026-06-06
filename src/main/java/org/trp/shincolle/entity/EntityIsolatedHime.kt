@@ -75,9 +75,8 @@ class EntityIsolatedHime(type: EntityType<out TamableAnimal>, level: Level) : En
         return list
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.ISOLATED_HIME_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.ISOLATED_HIME_SPAWN_EGG.get()
 
     override fun hasShipMounts(): Boolean {
         return true

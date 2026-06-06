@@ -131,9 +131,8 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal>, level: Level) : En
         )
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.AIRFIELD_HIME_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.AIRFIELD_HIME_SPAWN_EGG.get()
 
     override fun hasShipMounts(): Boolean {
         return true

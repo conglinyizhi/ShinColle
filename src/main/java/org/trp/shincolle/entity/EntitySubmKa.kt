@@ -55,9 +55,8 @@ class EntitySubmKa(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.SUBM_KA_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.SUBM_KA_SPAWN_EGG.get()
 
     override fun isSubmarine(): Boolean {
         return true

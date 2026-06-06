@@ -168,9 +168,8 @@ class EntityDestroyerHime(type: EntityType<out TamableAnimal>, level: Level) : E
         return true
     }
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.DESTROYER_HIME_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.DESTROYER_HIME_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_RIGGING: String = "equip_rigging"

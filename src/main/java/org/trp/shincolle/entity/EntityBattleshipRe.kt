@@ -305,9 +305,8 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
     }
 
 
-    override fun getShipSpawnEggItem(): Item {
-        return ModItems.BATTLESHIP_RE_SPAWN_EGG.get()
-    }
+    override val shipSpawnEggItem: Item?
+        get() = ModItems.BATTLESHIP_RE_SPAWN_EGG.get()
 
     companion object {
         const val EQUIP_HAIR: String = "equip_hair"
