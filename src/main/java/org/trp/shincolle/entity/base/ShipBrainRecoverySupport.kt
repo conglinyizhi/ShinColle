@@ -7,7 +7,7 @@ import org.trp.shincolle.entity.base.ShipBrainMemory.RecoveryStateMemory
 
 internal object ShipBrainRecoverySupport {
     fun clearWalkAndLookMemory(ship: EntityShipBase) {
-        val brain = ship.getBrain()
+        val brain = ship.brain
         brain.eraseMemory<WalkTarget?>(MemoryModuleType.WALK_TARGET)
         brain.eraseMemory<PositionTracker?>(MemoryModuleType.LOOK_TARGET)
         brain.eraseMemory<Long?>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
@@ -20,7 +20,7 @@ internal object ShipBrainRecoverySupport {
         movement: ShipMovementCoordinator
     ) {
         recovery.clear()
-        ship.getBrain().eraseMemory<RecoveryStateMemory?>(recoveryMemoryType)
+        ship.brain.eraseMemory<RecoveryStateMemory?>(recoveryMemoryType)
         clearWalkAndLookMemory(ship)
         movement.stop()
     }
@@ -33,7 +33,7 @@ internal object ShipBrainRecoverySupport {
         stuckLimit: Int
     ) {
         recovery.reset(ship.position())
-        ship.getBrain().setMemory<RecoveryStateMemory?>(
+        ship.brain.setMemory<RecoveryStateMemory?>(
             recoveryMemoryType,
             ShipBrainMemory.recoveryState(recovery, recovery.isStuckLongerThan(stuckLimit))
         )
@@ -59,7 +59,7 @@ internal object ShipBrainRecoverySupport {
         stuckLimit: Int
     ): Int {
         val failCount = recovery.recordMoveFailure()
-        ship.getBrain().setMemory<RecoveryStateMemory?>(
+        ship.brain.setMemory<RecoveryStateMemory?>(
             recoveryMemoryType,
             ShipBrainMemory.recoveryState(recovery, recovery.isStuckLongerThan(stuckLimit))
         )
@@ -73,7 +73,7 @@ internal object ShipBrainRecoverySupport {
         stuckLimit: Int
     ) {
         recovery.clearMoveFailures()
-        ship.getBrain().setMemory<RecoveryStateMemory?>(
+        ship.brain.setMemory<RecoveryStateMemory?>(
             recoveryMemoryType,
             ShipBrainMemory.recoveryState(recovery, recovery.isStuckLongerThan(stuckLimit))
         )
@@ -84,7 +84,7 @@ internal object ShipBrainRecoverySupport {
         memoryType: MemoryModuleType<RecoveryStateMemory?>,
         recovery: ShipMovementRecoveryState, stuckLimit: Int
     ) {
-        ship.getBrain().setMemory<RecoveryStateMemory?>(
+        ship.brain.setMemory<RecoveryStateMemory?>(
             memoryType,
             ShipBrainMemory.recoveryState(recovery, recovery.isStuckLongerThan(stuckLimit))
         )

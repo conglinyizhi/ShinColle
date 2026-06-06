@@ -82,7 +82,7 @@ internal object EntityShipBrainAi {
     }
 
     fun tick(level: ServerLevel, ship: EntityShipBase) {
-        val brain = ship.getBrain() as Brain<EntityShipBase>
+        val brain = ship.brain as Brain<EntityShipBase>
         syncShipStateMemory(ship, brain)
         logServerBrainTickIfNeeded(ship, brain)
         syncAttackTargetMemory(ship, brain)
@@ -131,7 +131,7 @@ internal object EntityShipBrainAi {
     }
 
     private fun typedBrain(ship: EntityShipBase): Brain<EntityShipBase> {
-        val brain = ship.getBrain() as Brain<EntityShipBase>
+        val brain = ship.brain as Brain<EntityShipBase>
         return brain
     }
 
@@ -502,14 +502,14 @@ internal object EntityShipBrainAi {
 
         override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
             var state = ship.updatePassiveCombatStateBrain()
-            ship.getBrain()
+            ship.brain
                 .setMemory<PassiveCombatStateMemory?>(ModMemoryModules.SHIP_PASSIVE_COMBAT_STATE.get(), state)
             state = passiveCombatStateMemory(ship)
             val target = ship.target
             if (target != null && target.isAlive) {
-                ship.getBrain().setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
+                ship.brain.setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
             } else {
-                ship.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
+                ship.brain.eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
                 clearCombatMoveState(ship)
                 return
             }
@@ -535,8 +535,8 @@ internal object EntityShipBrainAi {
             if (ship.target == null || !ship.target!!.isAlive) {
                 ship.clearPassiveCombatTargetBrain(true)
             }
-            ship.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
-            ship.getBrain().eraseMemory<PassiveCombatStateMemory?>(ModMemoryModules.SHIP_PASSIVE_COMBAT_STATE.get())
+            ship.brain.eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
+            ship.brain.eraseMemory<PassiveCombatStateMemory?>(ModMemoryModules.SHIP_PASSIVE_COMBAT_STATE.get())
             clearCombatMoveState(ship)
         }
 

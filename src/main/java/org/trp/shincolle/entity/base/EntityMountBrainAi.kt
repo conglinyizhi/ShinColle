@@ -58,14 +58,14 @@ internal object EntityMountBrainAi {
     }
 
     fun tick(level: ServerLevel, mount: EntityMountBase) {
-        val brain = mount.getBrain() as Brain<EntityMountBase>
+        val brain = mount.brain as Brain<EntityMountBase>
         syncAttackTargetMemory(mount, brain)
         brain.tick(level, mount)
         brain.setActiveActivityToFirstValid(ImmutableList.of<Activity>(Activity.CORE))
     }
 
     private fun syncAttackTargetMemory(mount: EntityMountBase, brain: Brain<EntityMountBase>) {
-        val target = mount.getTarget()
+        val target = mount.target
         if (target != null && target.isAlive) {
             brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
@@ -95,7 +95,7 @@ internal object EntityMountBrainAi {
     }
 
     private fun clearWalkAndLookMemory(mount: EntityMountBase) {
-        val brain = mount.getBrain()
+        val brain = mount.brain
         brain.eraseMemory<WalkTarget>(MemoryModuleType.WALK_TARGET)
         brain.eraseMemory<PositionTracker>(MemoryModuleType.LOOK_TARGET)
         brain.eraseMemory<Long>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
@@ -109,8 +109,8 @@ internal object EntityMountBrainAi {
         mount: EntityMountBase, host: EntityShipBase?,
         aimTick: Int = 0, lightDelay: Int = 0, heavyDelay: Int = 0
     ): MountBrainDecisionResolver.State {
-        val owner = host?.getOwner()
-        val attackTarget = mount.getTarget()
+        val owner = host?.owner
+        val attackTarget = mount.target
         val aimRequiredTicks = if (host == null) Int.MAX_VALUE else
             ((MountAiNumbers.AIM_SCALE_TICKS * (MountAiNumbers.LEVEL_CAP - host.level) / MountAiNumbers.LEVEL_CAP).toInt() + MountAiNumbers.AIM_BASE_TICKS)
         val attackRangeSq = if (host == null)
@@ -125,11 +125,11 @@ internal object EntityMountBrainAi {
             host != null && hasGuardTarget(host),
             owner != null,
             if (owner == null) -1.0 else mount.distanceToSqr(owner),
-            mount.getBbWidth().toDouble(),
+            mount.bbWidth.toDouble(),
             if (host == null) 0 else host.getStateMinor(11),
             attackTarget != null,
             attackTarget != null && attackTarget.isAlive,
-            mount.getRandom().nextInt(MountAiNumbers.RANDOM_STROLL_CHANCE) == 0,
+            mount.random.nextInt(MountAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             aimTick,
             aimRequiredTicks,
             if (attackTarget == null) -1.0 else mount.distanceToSqr(attackTarget),
@@ -198,10 +198,10 @@ internal object EntityMountBrainAi {
                 return
             }
 
-            val owner = h.getOwner()
+            val owner = h.owner
             if (owner == null) return
 
-            mount.getLookControl().setLookAt(owner, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
+            mount.lookControl.setLookAt(owner, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
             setEntityWalkAndLookMemory(mount, owner, MountAiNumbers.FOLLOW_MOVE_SPEED, 1)
             setEntityLookMemory(mount, owner)
             resetRecoveryIfTargetChanged(mount, FollowRecoveryTargetKey.entity("owner", owner))
@@ -217,7 +217,7 @@ internal object EntityMountBrainAi {
                     return false
                 }
 
-                mount.getLookControl().setLookAt(guarded, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
+                mount.lookControl.setLookAt(guarded, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
                 setEntityWalkAndLookMemory(mount, guarded, MountAiNumbers.FOLLOW_MOVE_SPEED, 1)
                 resetRecoveryIfTargetChanged(mount, FollowRecoveryTargetKey.entity("guardEntity", guarded))
                 mount.followMovementCoordinator().moveTo(guarded, MountAiNumbers.FOLLOW_MOVE_SPEED)
@@ -227,7 +227,7 @@ internal object EntityMountBrainAi {
 
             if (guardTarget.isBlock && guardTarget.isIn(host.level())) {
                 val guardPos = guardTarget.blockCenter()
-                mount.getLookControl()
+                mount.lookControl
                     .setLookAt(guardPos.x, guardPos.y, guardPos.z, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
                 setPointWalkAndLookMemory(mount, guardPos, MountAiNumbers.FOLLOW_MOVE_SPEED, 1)
                 resetRecoveryIfTargetChanged(mount, FollowRecoveryTargetKey.guardBlock(guardTarget))
@@ -288,13 +288,13 @@ internal object EntityMountBrainAi {
             ) {
                 return
             }
-            if (!teleport.getAsBoolean()) {
+            if (!teleport.asBoolean) {
                 return
             }
 
             debugLog(
                 "[SCMoveDiag] MountFollow teleportRecovery mount={} host={} reason={} target={} force={} distSq={}",
-                mount.getUUID(), mount.hostUUID, reason, target, force, distSq
+                mount.uuid, mount.hostUUID, reason, target, force, distSq
             )
             this.recovery.reset(mount.position())
         }
@@ -318,7 +318,7 @@ internal object EntityMountBrainAi {
 
         override fun checkExtraStartConditions(level: ServerLevel, mount: EntityMountBase): Boolean {
             val h = mount.host
-            this.target = mount.getTarget()
+            this.target = mount.target
             return MountBrainDecisionResolver.shouldRangeAttack(decisionState(mount, h))
         }
 
@@ -327,13 +327,13 @@ internal object EntityMountBrainAi {
             this.lightDelay = 0
             this.heavyDelay = 0
             if (this.target != null && this.target!!.isAlive) {
-                mount.getBrain().setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, this.target)
+                mount.brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, this.target)
             }
         }
 
         override fun stop(level: ServerLevel, mount: EntityMountBase, gameTime: Long) {
             this.target = null
-            mount.getBrain().eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
+            mount.brain.eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
         }
 
         override fun tick(level: ServerLevel, mount: EntityMountBase, gameTime: Long) {
@@ -341,8 +341,8 @@ internal object EntityMountBrainAi {
             val h = mount.host
             if (h == null) return
 
-            mount.getLookControl().setLookAt(this.target, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
-            mount.getBrain().setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, this.target)
+            mount.lookControl.setLookAt(this.target, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
+            mount.brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, this.target)
             EntityMountBrainAi.setEntityLookMemory(mount, this.target!!)
             ++this.aimTick
             if (this.lightDelay > 0) --this.lightDelay
@@ -389,7 +389,7 @@ internal object EntityMountBrainAi {
         companion object {
             fun entity(reason: String?, target: Entity): FollowRecoveryTargetKey {
                 return FollowRecoveryTargetKey(
-                    reason, target.getUUID(), 0, 0, 0,
+                    reason, target.uuid, 0, 0, 0,
                     EntityShipBase.Companion.getLegacyDimensionId(target.level())
                 )
             }

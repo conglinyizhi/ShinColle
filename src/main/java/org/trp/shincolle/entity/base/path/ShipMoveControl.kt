@@ -11,7 +11,7 @@ import kotlin.math.sqrt
 
 class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host) {
     override fun tick() {
-        this.mob.setZza(0.0f)
+        this.mob.zza = 0.0f
 
         if (this.operation != Operation.MOVE_TO) {
             applyIdleLiquidStabilization()
@@ -20,17 +20,17 @@ class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host)
 
         this.operation = Operation.WAIT
 
-        val dx = this.wantedX - this.mob.getX()
-        val dy = this.wantedY - this.mob.getY()
-        val dz = this.wantedZ - this.mob.getZ()
+        val dx = this.wantedX - this.mob.x
+        val dy = this.wantedY - this.mob.y
+        val dz = this.wantedZ - this.mob.z
         val horizontalSq = dx * dx + dz * dz
         val distSq = horizontalSq + dy * dy
 
         if (distSq < ARRIVAL_STOP_DISTANCE_SQR) {
             this.mob.setSpeed(0.0f)
-            this.mob.setZza(0.0f)
+            this.mob.zza = 0.0f
 
-            val motion = this.mob.getDeltaMovement()
+            val motion = this.mob.deltaMovement
 
             if (this.isInLiquid) {
                 val motionY = Mth.clamp(motion.y * 0.45 + computeFluidSurfaceCorrection(0.08), -0.04, 0.04)
@@ -43,9 +43,9 @@ class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host)
         }
 
         val targetYaw = (Mth.atan2(dz, dx) * (180.0 / Math.PI)).toFloat() - 90.0f
-        this.mob.setYRot(this.rotlerp(this.mob.getYRot(), targetYaw, this.maxTurn))
-        this.mob.yBodyRot = this.mob.getYRot()
-        this.mob.yHeadRot = this.mob.getYRot()
+        this.mob.yRot = this.rotlerp(this.mob.yRot, targetYaw, this.maxTurn)
+        this.mob.yBodyRot = this.mob.yRot
+        this.mob.yHeadRot = this.mob.yRot
 
         val baseMoveSpeed = (this.speedModifier * this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)).toFloat()
         val dist = sqrt(distSq)
@@ -58,7 +58,7 @@ class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host)
         var moveSpeed = baseMoveSpeed * distanceScale
 
         if (this.isInLiquid) {
-            val motion = this.mob.getDeltaMovement()
+            val motion = this.mob.deltaMovement
             var verticalBoost = 0.0
 
             if (dy > 1.5) {
@@ -120,13 +120,13 @@ class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host)
         val blockedOnLedge = this.mob.horizontalCollision && dy > STEP_ASSIST_MIN_DY && horizontalSq < 3.0
 
         if (needsStepJump || blockedOnLedge) {
-            this.mob.getJumpControl().jump()
+            this.mob.jumpControl.jump()
         }
 
         this.mob.setSpeed(moveSpeed)
-        this.mob.setZza(1.0f)
+        this.mob.zza = 1.0f
 
-        val motion = this.mob.getDeltaMovement()
+        val motion = this.mob.deltaMovement
         this.mob.setDeltaMovement(motion.x * 0.95, motion.y, motion.z * 0.95)
     }
 
@@ -135,10 +135,10 @@ class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host)
             return
         }
 
-        val motion = this.mob.getDeltaMovement()
+        val motion = this.mob.deltaMovement
         val motionY = Mth.clamp(motion.y * 0.55 + computeFluidSurfaceCorrection(0.08), -0.05, 0.05)
 
-        if (this.mob.isVehicle() && this.mob.getControllingPassenger() != null) {
+        if (this.mob.isVehicle() && this.mob.controllingPassenger != null) {
             this.mob.setDeltaMovement(motion.x, motionY, motion.z)
             return
         }
@@ -164,13 +164,13 @@ class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host)
         }
 
         val targetY: Double = surfaceY - LIQUID_HOVER_OFFSET
-        return Mth.clamp((targetY - this.mob.getY()) * strength, -0.03, 0.03)
+        return Mth.clamp((targetY - this.mob.y) * strength, -0.03, 0.03)
     }
 
     private val fluidSurfaceY: Double
         get() {
             val level = this.mob.level()
-            var pos = BlockPos.containing(this.mob.getX(), this.mob.getY(), this.mob.getZ())
+            var pos = BlockPos.containing(this.mob.x, this.mob.y, this.mob.z)
             var fluid = level.getFluidState(pos)
 
             if (fluid.isEmpty()) {
@@ -184,7 +184,7 @@ class ShipMoveControl(host: Mob, private val maxTurn: Float) : MoveControl(host)
                 pos = below
             }
 
-            return (pos.getY() + fluid.getHeight(level, pos)).toDouble()
+            return (pos.y + fluid.getHeight(level, pos)).toDouble()
         }
 
     private val isInLiquid: Boolean

@@ -43,12 +43,12 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         val pointerTarget = if (targetEntity is LivingEntity) targetEntity else null
 
         if (pointerTarget != null && canAttackTarget(pointerTarget, false, true)) {
-            if (this.ship.getTarget() !== pointerTarget) {
+            if (this.ship.target !== pointerTarget) {
                 setPassiveCombatTarget(pointerTarget, true)
             }
         }
 
-        val currentTarget = this.ship.getTarget()
+        val currentTarget = this.ship.target
         if (currentTarget != null) {
             val maxLostDistance: Double = this.passiveAcquireRangeSqr * PASSIVE_TARGET_LOST_DISTANCE_MULTIPLIER
             if (!isValidPassiveTarget(currentTarget) || this.ship.distanceToSqr(currentTarget) > maxLostDistance) {
@@ -58,7 +58,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
 
         tryAcquireRevengeTargets()
 
-        if (this.ship.getTarget() != null) {
+        if (this.ship.target != null) {
             return
         }
 
@@ -75,15 +75,15 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
     }
 
     fun updateActionState(): PassiveCombatStateMemory {
-        val target = this.ship.getTarget()
+        val target = this.ship.target
         if (target == null) {
             return ShipBrainMemory.noPassiveCombatState()
         }
 
-        var isRevenge = (target === this.ship.getLastHurtByMob())
-        if (!isRevenge && this.ship.getOwner() != null) {
-            isRevenge = (target === this.ship.getOwner()!!.getLastHurtByMob() || target === this.ship.getOwner()!!
-                .getLastHurtMob())
+        var isRevenge = (target === this.ship.lastHurtByMob)
+        if (!isRevenge && this.ship.owner != null) {
+            isRevenge = (target === this.ship.owner!!.lastHurtByMob || target === this.ship.owner!!
+                .lastHurtMob)
         }
 
         val isCommanded = (target === this.ship.pointerTargetEntity)
@@ -137,7 +137,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
 
         val needsMovement = needsCloser || cannotSee
         return PassiveCombatStateMemory(
-            target.getUUID(),
+            target.uuid,
             target.isAlive,
             target.position(),
             distanceSqr,
@@ -155,14 +155,14 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
     }
 
     fun tickAttacks(state: PassiveCombatStateMemory) {
-        val target = this.ship.getTarget()
+        val target = this.ship.target
         if (target == null || !state.hasTarget() || state.needsMovement) {
             return
         }
 
         if (!this.ship.shouldFollowOwner() && !this.ship.hasPointerTarget()) {
-            this.ship.getMoveControl().setWantedPosition(
-                this.ship.getX(), this.ship.getY(), this.ship.getZ(), 0.0
+            this.ship.moveControl.setWantedPosition(
+                this.ship.x, this.ship.y, this.ship.z, 0.0
             )
         }
 
@@ -208,12 +208,12 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return
         }
         this.nextCombatDiagTick = this.ship.tickCount + 40
-        val owner = this.ship.getOwner()
+        val owner = this.ship.owner
         val ownerDistSq = if (owner == null) -1.0 else this.ship.distanceToSqr(owner)
         diagnosticLog(
             "[SCCombatDiag] tickActions ship={} target={} distanceSqr={} preferredRangeSqr={} stopRangeSqr={} needsCloser={} cannotSee={} hasAttackMeans={} ownerPresent={} ownerDistSq={} shouldFollow={} followReason={} pointer={}",
-            this.ship.getUUID(),
-            target.getUUID(),
+            this.ship.uuid,
+            target.uuid,
             distanceSqr,
             preferredRangeSqr,
             stopRangeSqr,
@@ -229,8 +229,8 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
     }
 
     fun clearTarget() {
-        if (this.ship.getTarget() != null) {
-            this.ship.setTarget(null)
+        if (this.ship.target != null) {
+            this.ship.target = null
         }
         this.passiveTargetSightTick = 0
         this.isFirstEngagementWaiting = false
@@ -242,8 +242,8 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
     }
 
     private fun tryAcquireSelfRevengeTarget() {
-        val attacker = this.ship.getLastHurtByMob()
-        val timestamp = this.ship.getLastHurtByMobTimestamp()
+        val attacker = this.ship.lastHurtByMob
+        val timestamp = this.ship.lastHurtByMobTimestamp
         if (attacker != null && timestamp != this.passiveLastHurtByMobTimestamp) {
             this.passiveLastHurtByMobTimestamp = timestamp
             tryPromoteRevengeTarget(attacker)
@@ -251,20 +251,20 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
     }
 
     private fun tryAcquireOwnerRevengeTarget() {
-        val owner = this.ship.getOwner()
+        val owner = this.ship.owner
         if (owner == null || this.ship.distanceToSqr(owner) > PASSIVE_OWNER_REVENGE_DISTANCE_SQR) {
             return
         }
 
-        val ownerAttacker = owner.getLastHurtByMob()
-        val ownerAttackerTimestamp = owner.getLastHurtByMobTimestamp()
+        val ownerAttacker = owner.lastHurtByMob
+        val ownerAttackerTimestamp = owner.lastHurtByMobTimestamp
         if (ownerAttacker != null && ownerAttackerTimestamp != this.passiveLastOwnerHurtByTimestamp) {
             this.passiveLastOwnerHurtByTimestamp = ownerAttackerTimestamp
             tryPromoteRevengeTarget(ownerAttacker)
         }
 
-        val ownerTarget = owner.getLastHurtMob()
-        val ownerTargetTimestamp = owner.getLastHurtMobTimestamp()
+        val ownerTarget = owner.lastHurtMob
+        val ownerTargetTimestamp = owner.lastHurtMobTimestamp
         if (ownerTarget != null && ownerTargetTimestamp != this.passiveLastOwnerHurtMobTimestamp) {
             this.passiveLastOwnerHurtMobTimestamp = ownerTargetTimestamp
             tryPromoteRevengeTarget(ownerTarget)
@@ -276,7 +276,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return
         }
 
-        val currentTarget = this.ship.getTarget()
+        val currentTarget = this.ship.target
         if (currentTarget == null || !isValidPassiveTarget(currentTarget)) {
             setPassiveCombatTarget(candidate, true)
             return
@@ -292,7 +292,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         val rangeY: Double = range * PASSIVE_TARGET_VERTICAL_RANGE_FACTOR
         val candidates = this.ship.level().getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java,
-            this.ship.getBoundingBox().inflate(range, rangeY, range),
+            this.ship.boundingBox.inflate(range, rangeY, range),
             Predicate { target: LivingEntity? -> canAttackTarget(target, false, false) })
         if (candidates.isEmpty()) {
             return
@@ -308,7 +308,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         val selected: LivingEntity?
         if (prioritized.size > 2) {
             val pickBound = min(PASSIVE_TARGET_CHOICE_RANDOM_TOP, prioritized.size)
-            selected = prioritized.get(this.ship.getRandom().nextInt(pickBound))
+            selected = prioritized.get(this.ship.random.nextInt(pickBound))
         } else {
             selected = prioritized.get(0)
         }
@@ -367,7 +367,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return
         }
 
-        this.ship.setTarget(target)
+        this.ship.target = target
         this.passiveTargetSightTick = 0
         this.isFirstEngagementWaiting = false
 
@@ -398,13 +398,13 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         if (fleeHp <= 0) {
             return false
         }
-        return this.ship.getHealth() <= this.ship.getMaxHealth() * (fleeHp / 100.0f)
+        return this.ship.health <= this.ship.maxHealth * (fleeHp / 100.0f)
     }
 
     private fun isValidPassiveTarget(target: LivingEntity?): Boolean {
         if (target == null) return false
 
-        val isRevenge = (target === this.ship.getLastHurtByMob())
+        val isRevenge = (target === this.ship.lastHurtByMob)
         val isCommanded = (target === this.ship.pointerTargetEntity)
         return canAttackTarget(target, isRevenge, isCommanded)
     }
@@ -425,7 +425,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return false
         }
 
-        if (target is Player && target.getAbilities().invulnerable) {
+        if (target is Player && target.abilities.invulnerable) {
             return false
         }
 
@@ -521,7 +521,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         }
 
         if (target is Player) {
-            return this.ship.ownerUUID == target.getUUID()
+            return this.ship.ownerUUID == target.uuid
         }
 
         if (target is TamableAnimal) {
@@ -570,8 +570,8 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         }
 
     private fun getPassiveAttackRangeSqr(target: Entity): Double {
-        val width = (this.ship.getBbWidth() * 2.0f).toDouble()
-        val reach = width * width + target.getBbWidth()
+        val width = (this.ship.bbWidth * 2.0f).toDouble()
+        val reach = width * width + target.bbWidth
         return max(reach, 4.0)
     }
 

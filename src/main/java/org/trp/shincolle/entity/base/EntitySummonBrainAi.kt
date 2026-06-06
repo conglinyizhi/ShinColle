@@ -63,14 +63,14 @@ internal object EntitySummonBrainAi {
     }
 
     fun tick(level: ServerLevel, summon: EntitySummonBase) {
-        val brain = summon.getBrain() as Brain<EntitySummonBase>
+        val brain = summon.brain as Brain<EntitySummonBase>
         syncAttackTargetMemory(summon, brain)
         brain.tick(level, summon)
         brain.setActiveActivityToFirstValid(ImmutableList.of<Activity>(Activity.IDLE))
     }
 
     private fun syncAttackTargetMemory(summon: EntitySummonBase, brain: Brain<EntitySummonBase>) {
-        val target = summon.getTarget()
+        val target = summon.target
         if (target != null && target.isAlive) {
             brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
@@ -101,14 +101,14 @@ internal object EntitySummonBrainAi {
     }
 
     private fun clearWalkAndLookMemory(summon: EntitySummonBase) {
-        val brain = summon.getBrain()
+        val brain = summon.brain
         brain.eraseMemory<WalkTarget>(MemoryModuleType.WALK_TARGET)
         brain.eraseMemory<PositionTracker>(MemoryModuleType.LOOK_TARGET)
         brain.eraseMemory<Long>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
     }
 
     private fun clearWalkMemory(summon: EntitySummonBase) {
-        val brain = summon.getBrain()
+        val brain = summon.brain
         brain.eraseMemory<WalkTarget>(MemoryModuleType.WALK_TARGET)
         brain.eraseMemory<Long>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
     }
@@ -119,14 +119,14 @@ internal object EntitySummonBrainAi {
     }
 
     private fun decisionState(summon: EntitySummonBase, carrier: EntityShipBase?): SummonBrainDecisionResolver.State {
-        val attackTarget = summon.getTarget()
+        val attackTarget = summon.target
         return SummonBrainDecisionResolver.State(
             carrier != null,
             carrier != null && carrier.isAlive,
             if (carrier == null) -1.0 else summon.distanceToSqr(carrier),
             attackTarget != null,
             attackTarget != null && attackTarget.isAlive,
-            summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
+            summon.random.nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             if (attackTarget == null) -1.0 else summon.distanceToSqr(attackTarget),
             summon.attackRangeSq.toDouble(),
             0
@@ -138,14 +138,14 @@ internal object EntitySummonBrainAi {
         carrier: EntityShipBase?,
         attackDelay: Int
     ): SummonBrainDecisionResolver.State {
-        val attackTarget = summon.getTarget()
+        val attackTarget = summon.target
         return SummonBrainDecisionResolver.State(
             carrier != null,
             carrier != null && carrier.isAlive,
             if (carrier == null) -1.0 else summon.distanceToSqr(carrier),
             attackTarget != null,
             attackTarget != null && attackTarget.isAlive,
-            summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
+            summon.random.nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             if (attackTarget == null) -1.0 else summon.distanceToSqr(attackTarget),
             summon.attackRangeSq.toDouble(),
             attackDelay
@@ -162,30 +162,30 @@ internal object EntitySummonBrainAi {
 
         override fun start(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
             summon.attackMovementCoordinator().reset()
-            val target = summon.getTarget()
+            val target = summon.target
             if (target != null && target.isAlive) {
-                summon.getBrain().setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
+                summon.brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
             }
         }
 
         override fun stop(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
             clearWalkAndLookMemory(summon)
-            summon.getBrain().eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
+            summon.brain.eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
             summon.attackMovementCoordinator().stop()
         }
 
         override fun tick(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
-            val target = summon.getTarget()
+            val target = summon.target
             if (target == null) {
                 clearWalkAndLookMemory(summon)
-                summon.getBrain().eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
+                summon.brain.eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
                 summon.attackMovementCoordinator().stop()
                 return
             }
 
-            summon.getLookControl()
+            summon.lookControl
                 .setLookAt(target, SummonAiNumbers.ATTACK_LOOK_YAW, SummonAiNumbers.ATTACK_LOOK_PITCH)
-            summon.getBrain().setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
+            summon.brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
             setEntityLookMemory(summon, target)
             val state = decisionState(summon, summon.carrier, this.attackDelay)
             if (SummonBrainDecisionResolver.shouldChaseAttackTarget(state)) {
@@ -226,7 +226,7 @@ internal object EntitySummonBrainAi {
                 summon.followMovementCoordinator().stop()
                 return
             }
-            summon.getLookControl()
+            summon.lookControl
                 .setLookAt(carrier, SummonAiNumbers.ATTACK_LOOK_YAW, SummonAiNumbers.ATTACK_LOOK_PITCH)
             setEntityWalkAndLookMemory(summon, carrier, SummonAiNumbers.FOLLOW_CARRIER_SPEED, 1)
             setEntityLookMemory(summon, carrier)
@@ -245,13 +245,13 @@ internal object EntitySummonBrainAi {
     private class SummonLookAtPlayerBehavior :
         Behavior<EntitySummonBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, summon: EntitySummonBase): Boolean {
-            return summon.getTarget() == null
+            return summon.target == null
         }
 
         override fun tick(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
             val player = level.getNearestPlayer(summon, SummonAiNumbers.LOOK_AT_PLAYER_DISTANCE.toDouble())
             if (player != null) {
-                summon.getLookControl()
+                summon.lookControl
                     .setLookAt(player, SummonAiNumbers.ATTACK_LOOK_YAW, SummonAiNumbers.ATTACK_LOOK_PITCH)
                 setEntityLookMemory(summon, player)
             }
@@ -261,7 +261,7 @@ internal object EntitySummonBrainAi {
     private class SummonRandomLookBehavior :
         Behavior<EntitySummonBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, summon: EntitySummonBase): Boolean {
-            return summon.getTarget() == null && summon.getRandom().nextInt(SummonAiNumbers.RANDOM_LOOK_CHANCE) == 0
+            return summon.target == null && summon.random.nextInt(SummonAiNumbers.RANDOM_LOOK_CHANCE) == 0
         }
     }
 

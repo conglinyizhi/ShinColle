@@ -83,8 +83,8 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         if (carrier == null) {
             return
         }
-        this.carrierId = carrier.getUUID()
-        this.targetId = if (target == null) null else target.getUUID()
+        this.carrierId = carrier.uuid
+        this.targetId = if (target == null) null else target.uuid
         this.missionTick = 0
         this.resourcesReturned = false
         resetReturnState()
@@ -94,7 +94,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             (this.random.nextDouble() * SummonAiNumbers.INIT_SUMMON_OFFSET_RANGE - SummonAiNumbers.INIT_SUMMON_OFFSET_CENTER)
         val offsetZ =
             (this.random.nextDouble() * SummonAiNumbers.INIT_SUMMON_OFFSET_RANGE - SummonAiNumbers.INIT_SUMMON_OFFSET_CENTER)
-        this.moveTo(this.getX() + offsetX, this.getY(), this.getZ() + offsetZ, this.getYRot(), this.getXRot())
+        this.moveTo(this.x + offsetX, this.y, this.z + offsetZ, this.yRot, this.xRot)
 
         this.setOwnerUUID(carrier.ownerUUID)
         this.setTame(true, false)
@@ -102,7 +102,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         val maxHealth = SummonAiNumbers.HEALTH_BASE + carrier.legacyShipStats
             .maxHealth * SummonAiNumbers.HEALTH_SCALE_FACTOR
         this.getAttribute(Attributes.MAX_HEALTH)!!.setBaseValue(maxHealth.toDouble())
-        this.setHealth(maxHealth)
+        this.health = maxHealth
 
         val speed = SummonAiNumbers.SPEED_BASE + carrier.legacyShipStats
             .moveSpeed * SummonAiNumbers.SPEED_SCALE_FACTOR
@@ -118,7 +118,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         this.attackRangeSq = SummonAiNumbers.DEFAULT_ATTACK_RANGE_SQ * SummonAiNumbers.DEFAULT_ATTACK_RANGE_SQ
 
         if (target is LivingEntity) {
-            this.setTarget(target)
+            this.target = target
         }
     }
 
@@ -176,19 +176,19 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             return
         }
 
-        if (this.getTarget() == null || !this.getTarget()!!.isAlive) {
+        if (this.target == null || !this.target!!.isAlive) {
             val currentTarget = this.missionTarget
             if (currentTarget is LivingEntity && currentTarget.isAlive) {
-                this.setTarget(currentTarget)
+                this.target = currentTarget
                 resetReturnState()
             } else {
-                val carrierTarget: Entity? = carrier.getTarget()
+                val carrierTarget: Entity? = carrier.target
                 if (carrierTarget is LivingEntity && carrierTarget.isAlive) {
-                    this.setTarget(carrierTarget)
-                    this.targetId = carrierTarget.getUUID()
+                    this.target = carrierTarget
+                    this.targetId = carrierTarget.uuid
                     resetReturnState()
                 } else {
-                    this.setTarget(null)
+                    this.target = null
                     handleReturnToCarrier(carrier)
                     return
                 }
@@ -223,7 +223,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             ) {
                 debugLog(
                     "[SCMoveDiag] SummonReturn failsafeDiscard summon={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
-                    this.getUUID(), carrier.getUUID(), distSq, this.returnTicks, this.returnRecovery.stuckTicks()
+                    this.uuid, carrier.uuid, distSq, this.returnTicks, this.returnRecovery.stuckTicks()
                 )
                 returnSummonResourcesOnce(carrier)
                 this.discard()
@@ -251,7 +251,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
 
         debugLog(
             "[SCMoveDiag] SummonReturn teleportRecovery summon={} carrier={} force={} distanceSqr={} stuckTicks={}",
-            this.getUUID(), carrier.getUUID(), force, distanceSqr, this.returnRecovery.stuckTicks()
+            this.uuid, carrier.uuid, force, distanceSqr, this.returnRecovery.stuckTicks()
         )
         this.returnRecovery.reset(this.position())
         this.returnTicks = 0

@@ -34,40 +34,40 @@ class ShipMovementCoordinator @JvmOverloads constructor(
         }
         debugLog(
             "[SCMoveDiag] MovementCoordinator stop mob={} priority={} owner={}",
-            this.mob.getUUID(), this.priority, this.ownerToken.hashCode()
+            this.mob.uuid, this.priority, this.ownerToken.hashCode()
         )
         clearAnyNavigationOwner()
-        mob.getNavigation().stop()
+        mob.navigation.stop()
     }
 
     fun stopAny() {
         reset()
         debugLog(
             "[SCMoveDiag] MovementCoordinator stopAny mob={} priority={} owner={}",
-            this.mob.getUUID(), this.priority, this.ownerToken.hashCode()
+            this.mob.uuid, this.priority, this.ownerToken.hashCode()
         )
         clearAnyNavigationOwner()
-        mob.getNavigation().stop()
+        mob.navigation.stop()
     }
 
     fun moveTo(target: Vec3, speed: Double): Boolean {
         if (shouldSuppressSameTargetMove(target, SAME_POINT_MOVE_TARGET_SQR)) {
             debugLog(
                 "[SCMoveDiag] MovementCoordinator suppressPoint mob={} priority={} target={} speed={}",
-                this.mob.getUUID(), this.priority, target, speed
+                this.mob.uuid, this.priority, target, speed
             )
             return true
         }
         if (shouldYieldToHigherPriorityOwner()) {
             debugLog(
                 "[SCMoveDiag] MovementCoordinator yieldPoint mob={} priority={} target={} speed={}",
-                this.mob.getUUID(), this.priority, target, speed
+                this.mob.uuid, this.priority, target, speed
             )
             return true
         }
 
         preserveForeignNavigationOnMoveFailure()
-        return recordMoveRequest(target, mob.getNavigation().moveTo(target.x, target.y, target.z, speed))
+        return recordMoveRequest(target, mob.navigation.moveTo(target.x, target.y, target.z, speed))
     }
 
     fun moveTo(target: Entity, speed: Double): Boolean {
@@ -75,27 +75,27 @@ class ShipMovementCoordinator @JvmOverloads constructor(
         if (shouldSuppressSameTargetMove(targetPos, SAME_ENTITY_MOVE_TARGET_SQR)) {
             debugLog(
                 "[SCMoveDiag] MovementCoordinator suppressEntity mob={} priority={} target={} speed={}",
-                this.mob.getUUID(), this.priority, target.getUUID(), speed
+                this.mob.uuid, this.priority, target.uuid, speed
             )
             return true
         }
         if (shouldYieldToHigherPriorityOwner()) {
             debugLog(
                 "[SCMoveDiag] MovementCoordinator yieldEntity mob={} priority={} target={} speed={}",
-                this.mob.getUUID(), this.priority, target.getUUID(), speed
+                this.mob.uuid, this.priority, target.uuid, speed
             )
             return true
         }
 
         preserveForeignNavigationOnMoveFailure()
-        return recordMoveRequest(targetPos, mob.getNavigation().moveTo(target, speed))
+        return recordMoveRequest(targetPos, mob.navigation.moveTo(target, speed))
     }
 
     val isNavigationDone: Boolean
-        get() = mob.getNavigation().isDone()
+        get() = mob.navigation.isDone()
 
     private fun shouldSuppressSameTargetMove(target: Vec3, sameTargetSqr: Double): Boolean {
-        return !mob.getNavigation().isDone() && ownsNavigation()
+        return !mob.navigation.isDone() && ownsNavigation()
                 && this.lastMoveTarget != null && this.lastMoveTarget!!.distanceToSqr(target) < sameTargetSqr && this.mob.tickCount - this.lastMoveTick < SAME_MOVE_REFRESH_INTERVAL_TICKS
     }
 
@@ -103,7 +103,7 @@ class ShipMovementCoordinator @JvmOverloads constructor(
         if (!moved) {
             diagnosticLog(
                 "[SCMoveDiag] moveFailed mob={} priority={} target={}",
-                this.mob.getUUID(), this.priority, target
+                this.mob.uuid, this.priority, target
             )
             stopAfterFailedMove()
             return false
@@ -114,7 +114,7 @@ class ShipMovementCoordinator @JvmOverloads constructor(
         this.lastMoveTick = this.mob.tickCount
         diagnosticLog(
             "[SCMoveDiag] moveOk mob={} priority={} target={} tick={}",
-            this.mob.getUUID(), this.priority, target, this.lastMoveTick
+            this.mob.uuid, this.priority, target, this.lastMoveTick
         )
         return true
     }
@@ -127,7 +127,7 @@ class ShipMovementCoordinator @JvmOverloads constructor(
         }
 
         reset()
-        if (mob.getNavigation().isDone()) {
+        if (mob.navigation.isDone()) {
             clearAnyNavigationOwner()
         }
     }
@@ -136,8 +136,8 @@ class ShipMovementCoordinator @JvmOverloads constructor(
         if (!hasForeignHigherPriorityNavigationOwner()) {
             return
         }
-        if (mob.getNavigation() is ShipLegacyNavigation) {
-            (mob.getNavigation() as ShipLegacyNavigation).preserveCurrentPathOnNextFailure()
+        if (mob.navigation is ShipLegacyNavigation) {
+            (mob.navigation as ShipLegacyNavigation).preserveCurrentPathOnNextFailure()
         }
     }
 
@@ -181,7 +181,7 @@ class ShipMovementCoordinator @JvmOverloads constructor(
     }
 
     private fun hasForeignHigherPriorityNavigationOwner(): Boolean {
-        if (mob.getNavigation().isDone()) {
+        if (mob.navigation.isDone()) {
             return false
         }
         val owner = activeNavigationOwner()

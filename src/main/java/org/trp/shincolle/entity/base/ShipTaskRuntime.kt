@@ -64,7 +64,7 @@ class ShipTaskRuntime internal constructor(private val ship: EntityShipBase) {
         if (this.recovery.shouldLogMoveFailure(this.ship.tickCount, TASK_MOVE_FAIL_LOG_INTERVAL)) {
             debugLog(
                 "[SCMoveDiag] TaskMove moveFail ship={} task={} target={} failCount={} distanceSqr={}",
-                this.ship.getUUID(), this.lastTaskId, target, failCount, distanceSqr
+                this.ship.uuid, this.lastTaskId, target, failCount, distanceSqr
             )
         }
         if (failCount > TASK_MOVE_FAIL_LIMIT && tryTeleportRecovery(target, distanceSqr, true)) {
@@ -92,7 +92,7 @@ class ShipTaskRuntime internal constructor(private val ship: EntityShipBase) {
 
         debugLog(
             "[SCMoveDiag] TaskMove teleportRecovery ship={} task={} target={} force={} distanceSqr={} stuckTicks={}",
-            this.ship.getUUID(), this.lastTaskId, target, force, distanceSqr, this.recovery.stuckTicks()
+            this.ship.uuid, this.lastTaskId, target, force, distanceSqr, this.recovery.stuckTicks()
         )
         this.recovery.reset(this.ship.position())
         return true

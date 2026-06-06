@@ -22,10 +22,10 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
         val maxAngle = Companion.headTiltMaxAngle
         var partTick = ageInTicks - ageInTicks.toInt() + cooldown
 
-        if (cooldown > Companion.headTiltResetBaseTicks + this.ship.getRandom().nextInt(Companion.headTiltResetRandomTicks)) {
+        if (cooldown > Companion.headTiltResetBaseTicks + this.ship.random.nextInt(Companion.headTiltResetRandomTicks)) {
             this.headTiltTick = this.ship.tickCount
             partTick = ageInTicks - ageInTicks.toInt()
-            this.headTiltActive = this.ship.getRandom().nextInt(10) > 4
+            this.headTiltActive = this.ship.random.nextInt(10) > 4
         }
 
         if (this.headTiltActive) {
@@ -74,7 +74,7 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
             return
         }
 
-        val healthRatio = this.ship.getHealth() / this.ship.getMaxHealth()
+        val healthRatio = this.ship.health / this.ship.maxHealth
         if (healthRatio <= 0.25f) {
             this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_CRY
             this.faceTick = -1
@@ -99,18 +99,18 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
         }
 
         if (this.ship.emotionPrimary == EntityShipBase.Companion.EMOTION_NORMAL) {
-            if (this.ship.getRandom().nextInt(3) == 0) {
+            if (this.ship.random.nextInt(3) == 0) {
                 this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_BORED
             }
-        } else if (this.ship.getRandom().nextInt(4) == 0) {
+        } else if (this.ship.random.nextInt(4) == 0) {
             this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_NORMAL
         }
 
         if (this.ship.emotionSecondary == EntityShipBase.Companion.EMOTION_NORMAL) {
-            if (this.ship.getRandom().nextInt(3) == 0) {
+            if (this.ship.random.nextInt(3) == 0) {
                 this.ship.emotionSecondary = EntityShipBase.Companion.EMOTION_BORED
             }
-        } else if (this.ship.getRandom().nextInt(3) == 0) {
+        } else if (this.ship.random.nextInt(3) == 0) {
             this.ship.emotionSecondary = EntityShipBase.Companion.EMOTION_NORMAL
         }
     }
@@ -155,7 +155,7 @@ internal class EntityShipBaseEmotions(private val ship: EntityShipBase) {
             else -> this.ship.setFaceNormal()
         }
 
-        if (emotion == EntityShipBase.Companion.EMOTION_NORMAL && this.ship.getRandom()
+        if (emotion == EntityShipBase.Companion.EMOTION_NORMAL && this.ship.random
                 .nextInt(BLINK_RANDOM_INTERVAL) == 0
         ) {
             this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_BLINK

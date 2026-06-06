@@ -50,7 +50,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
                 field = null
             }
             if (field == null) {
-                for (p in this.getPassengers()) {
+                for (p in this.passengers) {
                     if (p is EntityShipBase && p.isAlive && !p.isRemoved) {
                         field = p
                         break
@@ -78,7 +78,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         if (depth > MountAiNumbers.BUOY_MIN_DEPTH) {
             upward = MountAiNumbers.BUOY_COEFF * depth.pow(MountAiNumbers.BUOY_EXPONENT) - MountAiNumbers.BUOY_OFFSET
         }
-        val dm = this.getDeltaMovement()
+        val dm = this.deltaMovement
         var newY = (dm.y + upward) * MountAiNumbers.BUOY_DAMP
         newY = Mth.clamp(newY, -MountAiNumbers.BUOY_MAX_MOTION, MountAiNumbers.BUOY_MAX_MOTION)
         this.setDeltaMovement(dm.x, newY, dm.z)
@@ -108,7 +108,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
     override fun tick() {
         if (!this.level().isClientSide && ModCommands.isStopShipAi) {
             if (!checkHostExistence()) return
-            this.setDeltaMovement(Vec3.ZERO)
+            this.deltaMovement = Vec3.ZERO
             this.setSpeed(0.0f)
             this.followMovement.stopAny()
             return
@@ -136,7 +136,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             this.clearFire()
         }
 
-        if ((this.tickCount and MountAiNumbers.AIR_SUPPLY_INTERVAL_MASK) == 0) this.setAirSupply(MountAiNumbers.STOP_SHIP_AI_AIR_SUPPLY)
+        if ((this.tickCount and MountAiNumbers.AIR_SUPPLY_INTERVAL_MASK) == 0) this.airSupply = MountAiNumbers.STOP_SHIP_AI_AIR_SUPPLY
 
         if (this.level().isClientSide) {
             updateClientLogic()
@@ -163,18 +163,18 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
 
     private fun spawnMovingParticle() {
         if (this.shipDepth <= 0.0) return
-        var motX = this.getX() - this.xo
-        var motZ = this.getZ() - this.zo
+        var motX = this.x - this.xo
+        var motZ = this.z - this.zo
         val limit = 0.25
         motX = Mth.clamp(motX, -limit, limit)
         motZ = Mth.clamp(motZ, -limit, limit)
         if (motX != 0.0 || motZ != 0.0) {
-            val width = this.getBbWidth().toDouble()
+            val width = this.bbWidth.toDouble()
             val amount = 2 + this.random.nextInt(3)
             for (i in 0..<amount) {
-                val px = this.getX() + motX * 3.0 + (this.random.nextDouble() - 0.5) * width
-                val py = this.getY() + 0.6 + (this.random.nextDouble() - 0.5) * width * 0.15
-                val pz = this.getZ() + motZ * 3.0 + (this.random.nextDouble() - 0.5) * width
+                val px = this.x + motX * 3.0 + (this.random.nextDouble() - 0.5) * width
+                val py = this.y + 0.6 + (this.random.nextDouble() - 0.5) * width * 0.15
+                val pz = this.z + motZ * 3.0 + (this.random.nextDouble() - 0.5) * width
                 val vx = -motX * 1.5
                 val vz = -motZ * 1.5
                 this.level().addParticle(ParticleTypes.CLOUD, px, py, pz, vx, 0.0, vz)
@@ -210,7 +210,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             }
         }
 
-        if (this.host!!.getVehicle() !== this) {
+        if (this.host!!.vehicle !== this) {
             this.discard()
             return false
         }
@@ -220,7 +220,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
     protected fun syncWithHost() {
         val host = this.host ?: return
 
-        val hostMaxHP = host.getMaxHealth()
+        val hostMaxHP = host.maxHealth
         this.getAttribute(Attributes.MAX_HEALTH)
             ?.setBaseValue(hostMaxHP * MountAiNumbers.HOST_MAX_HEALTH_SCALE)
 
@@ -239,17 +239,17 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             --this.keyTick
             val rider = getControllingPassenger()
             if (rider != null) {
-                this.setYRot(rider.getYRot())
+                this.yRot = rider.yRot
                 this.yRotO = rider.yRotO
-                this.setXRot(rider.getXRot())
+                this.xRot = rider.xRot
                 this.xRotO = rider.xRotO
                 this.yBodyRot = rider.yBodyRot
                 this.yBodyRotO = rider.yBodyRotO
-                this.yHeadRot = rider.getYHeadRot()
+                this.yHeadRot = rider.yHeadRot
                 this.yHeadRotO = rider.yHeadRotO
             }
-        } else if (abs(this.getX() - this.xo) > MountAiNumbers.ROTATION_EPSILON
-            || abs(this.getZ() - this.zo) > MountAiNumbers.ROTATION_EPSILON
+        } else if (abs(this.x - this.xo) > MountAiNumbers.ROTATION_EPSILON
+            || abs(this.z - this.zo) > MountAiNumbers.ROTATION_EPSILON
         ) {
             handleAIMovementRotation()
         } else {
@@ -258,10 +258,10 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
     }
 
     protected fun handleAIMovementRotation() {
-        val dx = this.getX() - this.xo
-        val dz = this.getZ() - this.zo
+        val dx = this.x - this.xo
+        val dz = this.z - this.zo
         val yaw = (Mth.atan2(dz, dx) * (180.0 / Math.PI)).toFloat() - 90.0f
-        this.setYRot(yaw)
+        this.yRot = yaw
         this.yRotO = yaw
         this.yBodyRot = yaw
         this.yHeadRot = yaw
@@ -298,7 +298,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
 
     override fun travel(travelVector: Vec3) {
         if (this.host != null && (this.host!!.isOrderedToSit() || this.host!!.isInSittingPose()) && getControllingPassenger() == null) {
-            this.setDeltaMovement(Vec3.ZERO)
+            this.deltaMovement = Vec3.ZERO
             this.setSpeed(0.0f)
             super.travel(Vec3.ZERO)
             return
@@ -307,11 +307,11 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         if (this.isAlive) {
             val rider = getControllingPassenger()
             if (rider != null) {
-                this.setYRot(rider.getYRot())
-                this.yRotO = this.getYRot()
-                val visualPitch = rider.getXRot()
+                this.yRot = rider.yRot
+                this.yRotO = this.yRot
+                val visualPitch = rider.xRot
                 this.yBodyRot = rider.yBodyRot
-                this.yHeadRot = rider.getYHeadRot()
+                this.yHeadRot = rider.yHeadRot
 
                 val strafe = rider.xxa * 0.5f
                 var forward = rider.zza
@@ -319,7 +319,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
 
                 this.setSpeed(this.getAttributeValue(Attributes.MOVEMENT_SPEED).toFloat())
 
-                if (rider.getXRot() > 60.0f && forward > 0.0f) {
+                if (rider.xRot > 60.0f && forward > 0.0f) {
                     this.isSubmarineMode = true
                 }
 
@@ -327,17 +327,17 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
                     && this.tickCount % 2 == 0 && this.level() is ServerLevel
                 ) {
                     val serverLevel = this.level() as ServerLevel
-                    var motX = this.getX() - this.xo
-                    var motZ = this.getZ() - this.zo
+                    var motX = this.x - this.xo
+                    var motZ = this.z - this.zo
                     val limit = 0.25
                     motX = Mth.clamp(motX, -limit, limit)
                     motZ = Mth.clamp(motZ, -limit, limit)
-                    val width = this.getBbWidth().toDouble()
+                    val width = this.bbWidth.toDouble()
                     val amount = 2 + this.random.nextInt(3)
                     for (i in 0..<amount) {
-                        val px = this.getX() + motX * 3.0 + (this.random.nextDouble() - 0.5) * width
-                        val py = this.getY() + 0.6 + (this.random.nextDouble() - 0.5) * width * 0.15
-                        val pz = this.getZ() + motZ * 3.0 + (this.random.nextDouble() - 0.5) * width
+                        val px = this.x + motX * 3.0 + (this.random.nextDouble() - 0.5) * width
+                        val py = this.y + 0.6 + (this.random.nextDouble() - 0.5) * width * 0.15
+                        val pz = this.z + motZ * 3.0 + (this.random.nextDouble() - 0.5) * width
                         val vx = -motX * 1.5
                         val vz = -motZ * 1.5
                         serverLevel.sendParticles<SimpleParticleType?>(ParticleTypes.CLOUD, px, py, pz, 0, vx, 0.0, vz, 1.0)
@@ -345,19 +345,19 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
                 }
 
                 var travelPitch = 0.0f
-                if (rider.getXRot() > 60.0f || rider.getXRot() < -60.0f) {
+                if (rider.xRot > 60.0f || rider.xRot < -60.0f) {
                     travelPitch = visualPitch
                 }
-                this.setXRot(travelPitch)
-                this.setRot(this.getYRot(), this.getXRot())
+                this.xRot = travelPitch
+                this.setRot(this.yRot, this.xRot)
 
                 super.travel(Vec3(strafe.toDouble(), travelVector.y, forward.toDouble()))
 
                 if (this.isSubmarineMode) {
-                    val currentMotion = this.getDeltaMovement()
+                    val currentMotion = this.deltaMovement
 
                     if (forward > 0.0f) {
-                        val pitchRadians = Math.toRadians(rider.getXRot().toDouble())
+                        val pitchRadians = Math.toRadians(rider.xRot.toDouble())
                         val speed = this.getAttributeValue(Attributes.MOVEMENT_SPEED)
                         val verticalSpeed = -sin(pitchRadians) * speed
 
@@ -367,8 +367,8 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
                     }
                 }
 
-                this.setXRot(visualPitch)
-                this.setRot(this.getYRot(), this.getXRot())
+                this.xRot = visualPitch
+                this.setRot(this.yRot, this.xRot)
                 this.calculateEntityAnimation(false)
                 return
             }
@@ -377,7 +377,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
     }
 
     override fun getControllingPassenger(): LivingEntity? {
-        for (p in this.getPassengers()) {
+        for (p in this.passengers) {
             if (p is Player) return p
         }
         return null
@@ -449,7 +449,7 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
             return false
         }
 
-        val attacker = source.getEntity()
+        val attacker = source.entity
         if (attacker != null && attacker == this) {
             this.host!!.setOrderedToSit(false)
             return false
@@ -475,9 +475,9 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
         val hurtResult = super.hurt(source, reduced)
         // Retaliate: if an external entity attacked us, notify the host
         if (hurtResult && reduced > 0.0f && attacker is LivingEntity
-            && attacker !== this.host && !attacker.isAlliedTo(this.host) && this.host!!.getTarget() == null
+            && attacker !== this.host && !attacker.isAlliedTo(this.host) && this.host!!.target == null
         ) {
-            this.host!!.setTarget(attacker)
+            this.host!!.target = attacker
         }
         return hurtResult
     }

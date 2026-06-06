@@ -164,19 +164,19 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         }
         var light = 0
         var heavy = 0
-        for (i in 0..<this.ship.inventory!!.getSlots()) {
+        for (i in 0..<this.ship.inventory!!.slots) {
             val stack = this.ship.inventory!!.getStackInSlot(i)
             if (stack.isEmpty()) {
                 continue
             }
             if (isLightAmmo(stack)) {
-                light += stack.getCount() * AMMO_LIGHT_VALUE
+                light += stack.count * AMMO_LIGHT_VALUE
             } else if (isLightAmmoContainer(stack)) {
-                light += stack.getCount() * AMMO_LIGHT_CONTAINER_VALUE
+                light += stack.count * AMMO_LIGHT_CONTAINER_VALUE
             } else if (isHeavyAmmo(stack)) {
-                heavy += stack.getCount() * AMMO_HEAVY_VALUE
+                heavy += stack.count * AMMO_HEAVY_VALUE
             } else if (isHeavyAmmoContainer(stack)) {
-                heavy += stack.getCount() * AMMO_HEAVY_CONTAINER_VALUE
+                heavy += stack.count * AMMO_HEAVY_CONTAINER_VALUE
             }
         }
         this.ship.ammoLight = light
@@ -210,7 +210,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         this.ship.spawnLightAttackMuzzleParticles(serverLevel, target)
         this.ship.playSound(
             ModSounds.SHIP_FIRELIGHT.get(), max(0.0f, Config.volumeAttack),
-            this.ship.getRandom().nextFloat() * 0.12f + 0.98f
+            this.ship.random.nextFloat() * 0.12f + 0.98f
         )
         this.ship.attackTick = 50
         this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionLight
@@ -248,7 +248,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         serverLevel.addFreshEntity(missile)
         this.ship.playSound(
             ModSounds.SHIP_FIREHEAVY.get(), max(0.0f, Config.volumeAttack),
-            this.ship.getRandom().nextFloat() * 0.12f + 0.83f
+            this.ship.random.nextFloat() * 0.12f + 0.83f
         )
         this.ship.attackTick = 50
         this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionHeavy
@@ -301,12 +301,12 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
     }
 
     private fun configureAmmoEffects(missile: EntityAbyssMissile) {
-        for (i in 0..<this.ship.inventory!!.getSlots()) {
+        for (i in 0..<this.ship.inventory!!.slots) {
             val stack = this.ship.inventory!!.getStackInSlot(i)
-            if (stack.isEmpty() || stack.getItem() !is LegacyEquipItem) {
+            if (stack.isEmpty() || stack.item !is LegacyEquipItem) {
                 continue
             }
-            val equipItem = stack.getItem() as LegacyEquipItem
+            val equipItem = stack.item as LegacyEquipItem
             if (equipItem.getEquipTypeId(stack) != 29) {
                 continue
             }
@@ -360,20 +360,20 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         }
         var remaining = amount
         var i = 0
-        while (i < this.ship.inventory!!.getSlots() && remaining > 0) {
+        while (i < this.ship.inventory!!.slots && remaining > 0) {
             val stack = this.ship.inventory!!.getStackInSlot(i)
             if (stack.isEmpty()) {
                 i++
                 continue
             }
             if (isHeavyAmmo(stack)) {
-                val take = min(stack.getCount(), remaining)
+                val take = min(stack.count, remaining)
                 val updated = stack.copy()
                 updated.shrink(take)
                 this.ship.inventory.setStackInSlot(i, updated)
                 remaining -= take
             } else if (isHeavyAmmoContainer(stack)) {
-                if (stack.getCount() <= 0) {
+                if (stack.count <= 0) {
                     i++
                     continue
                 }
@@ -403,20 +403,20 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         }
         var remaining = amount
         var i = 0
-        while (i < this.ship.inventory!!.getSlots() && remaining > 0) {
+        while (i < this.ship.inventory!!.slots && remaining > 0) {
             val stack = this.ship.inventory!!.getStackInSlot(i)
             if (stack.isEmpty()) {
                 i++
                 continue
             }
             if (isLightAmmo(stack)) {
-                val take = min(stack.getCount(), remaining)
+                val take = min(stack.count, remaining)
                 val updated = stack.copy()
                 updated.shrink(take)
                 this.ship.inventory.setStackInSlot(i, updated)
                 remaining -= take
             } else if (isLightAmmoContainer(stack)) {
-                if (stack.getCount() <= 0) {
+                if (stack.count <= 0) {
                     i++
                     continue
                 }
@@ -475,12 +475,12 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             return
         }
         var remaining = count
-        val maxStackSize = item.getDefaultInstance().getMaxStackSize()
+        val maxStackSize = item.defaultInstance.maxStackSize
         while (remaining > 0) {
             val stack = ItemStack(item, min(remaining, maxStackSize))
             var leftover = stack
             var i = 0
-            while (i < this.ship.inventory!!.getSlots() && !leftover.isEmpty()) {
+            while (i < this.ship.inventory!!.slots && !leftover.isEmpty()) {
                 if (i == avoidSlot) {
                     i++
                     continue
@@ -488,7 +488,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 leftover = this.ship.inventory.insertItem(i, leftover, false)
                 i++
             }
-            val inserted = stack.getCount() - leftover.getCount()
+            val inserted = stack.count - leftover.count
             remaining -= inserted
             if (!leftover.isEmpty()) {
                 val level = this.ship.level()
@@ -496,14 +496,14 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                     level.addFreshEntity(
                         ItemEntity(
                             level,
-                            this.ship.getX(),
-                            this.ship.getY(),
-                            this.ship.getZ(),
+                            this.ship.x,
+                            this.ship.y,
+                            this.ship.z,
                             leftover
                         )
                     )
                 }
-                remaining -= leftover.getCount()
+                remaining -= leftover.count
             }
         }
     }
@@ -554,8 +554,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionHeavyAircraft
         }
 
-        val launchY = this.ship.getY() + this.ship.aircraftLaunchHeight
-        spawned.moveTo(this.ship.getX(), launchY, this.ship.getZ(), this.ship.getYRot(), this.ship.getXRot())
+        val launchY = this.ship.y + this.ship.aircraftLaunchHeight
+        spawned.moveTo(this.ship.x, launchY, this.ship.z, this.ship.yRot, this.ship.xRot)
         spawned.initCarrierMission(this.ship, target, lightAircraft)
         serverLevel.addFreshEntity(spawned)
 
@@ -577,8 +577,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
      */
     private fun hasClearFiringLine(target: Entity): Boolean {
         val level = this.ship.level()
-        val start = this.ship.getEyePosition()
-        val end = target.getEyePosition()
+        val start = this.ship.eyePosition
+        val end = target.eyePosition
         val dir = end.subtract(start)
         val dist = dir.length()
         if (dist <= MIN_FIRE_CLEAR_DISTANCE) {
@@ -587,8 +587,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         // Raycast from ship toward target, check for blocks
         val ctx = ClipContext(start, end, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, this.ship)
         val hit = level.clip(ctx) as BlockHitResult
-        if (hit.getType() == HitResult.Type.BLOCK) {
-            val blockDist = start.distanceTo(hit.getLocation())
+        if (hit.type == HitResult.Type.BLOCK) {
+            val blockDist = start.distanceTo(hit.location)
             if (blockDist < MIN_FIRE_CLEAR_DISTANCE) {
                 return false // Block too close, skip firing
             }
@@ -604,7 +604,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         if (shipOwnerId == null) return false
 
         if (target is Player) {
-            return shipOwnerId == target.getUUID()
+            return shipOwnerId == target.uuid
         }
         if (target is EntityShipBase) {
             return shipOwnerId == target.ownerUUID

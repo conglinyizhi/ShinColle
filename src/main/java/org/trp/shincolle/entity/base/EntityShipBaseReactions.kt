@@ -28,14 +28,14 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
         }
         when (type) {
             0 -> {
-                if (this.ship.getRandom().nextInt(7) == 0) {
+                if (this.ship.random.nextInt(7) == 0) {
                     setEmotesTick(50)
                     reactionNormal()
                 }
             }
 
             1 -> {
-                if (this.ship.getRandom().nextInt(9) == 0) {
+                if (this.ship.random.nextInt(9) == 0) {
                     setEmotesTick(60)
                     reactionStranger()
                 }
@@ -47,21 +47,21 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
             }
 
             3 -> {
-                if (this.ship.getRandom().nextInt(6) == 0) {
+                if (this.ship.random.nextInt(6) == 0) {
                     setEmotesTick(60)
                     reactionAttack()
                 }
             }
 
             4 -> {
-                if (this.ship.getRandom().nextInt(3) == 0) {
+                if (this.ship.random.nextInt(3) == 0) {
                     setEmotesTick(20)
                     reactionIdle()
                 }
             }
 
             5 -> {
-                if (this.ship.getRandom().nextInt(3) == 0) {
+                if (this.ship.random.nextInt(3) == 0) {
                     setEmotesTick(25)
                     reactionCommand()
                 }
@@ -129,7 +129,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.HEART,
                     EmotionParticleType.MUSIC_NOTE
                 )
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+                applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
             }
 
             1 -> {
@@ -139,7 +139,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.LAUGH,
                     EmotionParticleType.MUSIC_NOTE
                 )
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+                applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
             }
 
             2 -> {
@@ -151,7 +151,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.HAPPY_GLANCE,
                     EmotionParticleType.BLINK
                 )
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+                applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
             }
 
             3 -> {
@@ -161,7 +161,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.QUESTION,
                     EmotionParticleType.SWEAT_DROP_BIG
                 )
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+                applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
             }
 
             else -> {
@@ -172,16 +172,16 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.SILENCE,
                     EmotionParticleType.GLOOM
                 )
-                applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+                applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
             }
         }
     }
 
     private fun reactionStranger() {
         this.ship.emotionPrimary = EntityShipBase.Companion.EMOTION_ANGRY
-        if (this.ship.getRandom().nextBoolean()) {
+        if (this.ship.random.nextBoolean()) {
             applyParticleEmotion(
-                if (this.ship.getRandom().nextBoolean())
+                if (this.ship.random.nextBoolean())
                     EmotionParticleType.ANGER
                 else
                     EmotionParticleType.CROSS
@@ -195,7 +195,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                 EmotionParticleType.SWEAT_DROP_BIG,
                 EmotionParticleType.GLOOM
             )
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+            applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
         }
     }
 
@@ -209,7 +209,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                 EmotionParticleType.LAUGH,
                 EmotionParticleType.MUSIC_NOTE
             )
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+            applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
         } else {
             val emotes = arrayOf<EmotionParticleType?>(
                 EmotionParticleType.SPARKLE_EYES,
@@ -219,7 +219,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                 EmotionParticleType.MUSIC_NOTE,
                 EmotionParticleType.ANGER
             )
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+            applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
         }
     }
 
@@ -232,7 +232,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                 EmotionParticleType.QUESTION,
                 EmotionParticleType.TEARS
             )
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+            applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
         } else {
             val emotes = arrayOf<EmotionParticleType?>(
                 EmotionParticleType.SIGH,
@@ -242,7 +242,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                 EmotionParticleType.SWEAT_DROP_BIG,
                 EmotionParticleType.TEARS
             )
-            applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+            applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
         }
     }
 
@@ -260,7 +260,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.SPARKLE_EYES,
                     EmotionParticleType.MUSIC_NOTE
                 )
-                applyParticleEmotion(emotesSparkling[this.ship.getRandom().nextInt(emotesSparkling.size)]!!)
+                applyParticleEmotion(emotesSparkling[this.ship.random.nextInt(emotesSparkling.size)]!!)
             }
 
             2 -> {
@@ -273,7 +273,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.LAUGH,
                     EmotionParticleType.BLINK
                 )
-                applyParticleEmotion(emotesNormal[this.ship.getRandom().nextInt(emotesNormal.size)]!!)
+                applyParticleEmotion(emotesNormal[this.ship.random.nextInt(emotesNormal.size)]!!)
             }
 
             else -> {
@@ -286,7 +286,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.ORZ,
                     EmotionParticleType.SCRATCH_HEAD
                 )
-                applyParticleEmotion(emotesTired[this.ship.getRandom().nextInt(emotesTired.size)]!!)
+                applyParticleEmotion(emotesTired[this.ship.random.nextInt(emotesTired.size)]!!)
             }
         }
     }
@@ -301,7 +301,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.HAPPY_GLANCE,
                     EmotionParticleType.HAPPY_BOB
                 )
-                applyParticleEmotion(emotesOk[this.ship.getRandom().nextInt(emotesOk.size)]!!)
+                applyParticleEmotion(emotesOk[this.ship.random.nextInt(emotesOk.size)]!!)
             }
 
             else -> {
@@ -313,7 +313,7 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
                     EmotionParticleType.HAPPY_BOB,
                     EmotionParticleType.SCRATCH_HEAD
                 )
-                applyParticleEmotion(emotesTired[this.ship.getRandom().nextInt(emotesTired.size)]!!)
+                applyParticleEmotion(emotesTired[this.ship.random.nextInt(emotesTired.size)]!!)
             }
         }
     }
@@ -325,6 +325,6 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
             EmotionParticleType.EXCLAMATION,
             EmotionParticleType.SHOCK
         )
-        applyParticleEmotion(emotes[this.ship.getRandom().nextInt(emotes.size)]!!)
+        applyParticleEmotion(emotes[this.ship.random.nextInt(emotes.size)]!!)
     }
 }

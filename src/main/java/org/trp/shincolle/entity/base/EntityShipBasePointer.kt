@@ -24,7 +24,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
     fun saveToNbt(compound: CompoundTag) {
         val target = this.pointerTarget
         if (target != null) {
-            val remaining = max(0L, this.pointerTargetUntil - this.ship.level().getGameTime())
+            val remaining = max(0L, this.pointerTargetUntil - this.ship.level().gameTime)
             if (remaining > 0L) {
                 val targetTag = CompoundTag()
                 targetTag.putDouble("X", target.x)
@@ -37,7 +37,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             }
         }
         if (this.pointerTargetEntityId != null) {
-            val remaining = max(0L, this.pointerTargetEntityUntil - this.ship.level().getGameTime())
+            val remaining = max(0L, this.pointerTargetEntityUntil - this.ship.level().gameTime)
             if (remaining > 0L) {
                 val targetTag = CompoundTag()
                 targetTag.putUUID("Id", this.pointerTargetEntityId)
@@ -56,7 +56,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             val remaining = targetTag.getLong("Remaining")
             if (remaining > 0L) {
                 this.pointerTarget = Vec3(x, y, z)
-                this.pointerTargetUntil = this.ship.level().getGameTime() + remaining
+                this.pointerTargetUntil = this.ship.level().gameTime + remaining
                 this.pointerAlongX = targetTag.getBoolean("AlongX")
                 this.pointerFaceP = targetTag.getBoolean("FaceP")
             } else {
@@ -73,7 +73,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             val remaining = targetTag.getLong("Remaining")
             if (id != null && remaining > 0L) {
                 this.pointerTargetEntityId = id
-                this.pointerTargetEntityUntil = this.ship.level().getGameTime() + remaining
+                this.pointerTargetEntityUntil = this.ship.level().gameTime + remaining
             } else {
                 this.pointerTargetEntityId = null
                 this.pointerTargetEntityUntil = 0L
@@ -86,9 +86,9 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
 
     fun setPointerTarget(target: Vec3, durationTicks: Long) {
         this.pointerTarget = target
-        this.pointerTargetUntil = this.ship.level().getGameTime() + max(0L, durationTicks)
+        this.pointerTargetUntil = this.ship.level().gameTime + max(0L, durationTicks)
 
-        val ownerRaw = this.ship.getOwner()
+        val ownerRaw = this.ship.owner
         if (ownerRaw is Player) {
             var refPos = this.ship.position()
             val teamId = this.ship.formationTeam
@@ -112,7 +112,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         if (this.ship.level().isClientSide) {
             readSynchedData()
         }
-        return this.pointerTarget != null && this.ship.level().getGameTime() <= this.pointerTargetUntil
+        return this.pointerTarget != null && this.ship.level().gameTime <= this.pointerTargetUntil
     }
 
     fun getPointerTarget(): Vec3? {
@@ -125,7 +125,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         val slotId = this.ship.formationSlot
 
         if (teamId >= 0 && slotId > 0) {
-            val ownerRaw = this.ship.getOwner()
+            val ownerRaw = this.ship.owner
             if (ownerRaw is Player) {
                 val data = admiralData(ownerRaw)
                 val formationId = data.getFormationID(teamId)
@@ -158,7 +158,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             }
             return if (this.pointerTarget == null) 0L else max(
                 0L,
-                this.pointerTargetUntil - this.ship.level().getGameTime()
+                this.pointerTargetUntil - this.ship.level().gameTime
             )
         }
 
@@ -175,8 +175,8 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         }
         this.pointerTarget = null
         this.pointerTargetUntil = 0L
-        this.pointerTargetEntityId = target.getUUID()
-        this.pointerTargetEntityUntil = this.ship.level().getGameTime() + max(0L, durationTicks)
+        this.pointerTargetEntityId = target.uuid
+        this.pointerTargetEntityUntil = this.ship.level().gameTime + max(0L, durationTicks)
 
         this.ship.combat.resetAircraftLaunchDelay()
         updateSynchedData()
@@ -186,7 +186,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         if (this.ship.level().isClientSide) {
             readSynchedData()
         }
-        return this.pointerTargetEntityId != null && this.ship.level().getGameTime() <= this.pointerTargetEntityUntil
+        return this.pointerTargetEntityId != null && this.ship.level().gameTime <= this.pointerTargetEntityUntil
     }
 
     val pointerTargetEntity: Entity?
@@ -223,7 +223,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             }
             return if (this.pointerTargetEntityId == null)
                 0L
-            else max(0L, this.pointerTargetEntityUntil - this.ship.level().getGameTime())
+            else max(0L, this.pointerTargetEntityUntil - this.ship.level().gameTime)
         }
 
     fun clearPointerTargetEntity() {

@@ -267,7 +267,7 @@ internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
             if (minor.contains("tagName")) {
                 val customName = minor.getString("tagName")
                 if (!customName.isEmpty()) {
-                    this.ship.setCustomName(Component.literal(customName))
+                    this.ship.customName = Component.literal(customName)
                 }
             }
         }

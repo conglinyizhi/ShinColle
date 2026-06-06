@@ -12,7 +12,7 @@ internal object ShipHostInteractionRouter {
         return stack.`is`(ModItems.MODERN_KIT.get())
                 || stack.`is`(ModItems.TRAINING_BOOK.get())
                 || stack.`is`(ModItems.BUCKET_REPAIR.get())
-                || stack.getItem() is CombatRationItem
+                || stack.item is CombatRationItem
                 || stack.`is`(ModItems.TOY_AIRPLANE.get())
                 || stack.`is`(ModItems.GRUDGE.get())
                 || stack.`is`(ModItems.MARRIAGE_RING.get())
@@ -26,7 +26,7 @@ internal object ShipHostInteractionRouter {
         stack: ItemStack
     ): InteractionResult {
         if (stack.`is`(ModItems.MODERN_KIT.get()) || stack.`is`(ModItems.TRAINING_BOOK.get())) {
-            return stack.getItem().interactLivingEntity(stack, player, host, hand)
+            return stack.item.interactLivingEntity(stack, player, host, hand)
         }
         return host.mobInteract(player, hand)
     }
