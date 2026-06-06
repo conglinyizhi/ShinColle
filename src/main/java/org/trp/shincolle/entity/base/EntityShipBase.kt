@@ -3246,13 +3246,13 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         )
 
         if (this.level() != null && !this.level().isClientSide) {
-            this.getAttribute(Attributes.MAX_HEALTH)!!.setBaseValue(this.legacyShipStats.maxHealth.toDouble())
-            this.getAttribute(Attributes.ATTACK_DAMAGE)!!
-                .setBaseValue((this.legacyShipStats.firepower * LEGACY_MELEE_DAMAGE_FACTOR).toDouble())
-            this.getAttribute(Attributes.MOVEMENT_SPEED)!!
-                .setBaseValue((this.legacyShipStats.moveSpeed * Config.cruiseSpeedFactor.toFloat()).toDouble())
-            this.getAttribute(Attributes.FOLLOW_RANGE)!!
-                .setBaseValue(max(24.0, this.legacyShipStats.attackRange.toDouble()))
+            this.getAttribute(Attributes.MAX_HEALTH)?.setBaseValue(this.legacyShipStats.maxHealth.toDouble())
+            this.getAttribute(Attributes.ATTACK_DAMAGE)
+                ?.setBaseValue((this.legacyShipStats.firepower * LEGACY_MELEE_DAMAGE_FACTOR).toDouble())
+            this.getAttribute(Attributes.MOVEMENT_SPEED)
+                ?.setBaseValue((this.legacyShipStats.moveSpeed * Config.cruiseSpeedFactor.toFloat()).toDouble())
+            this.getAttribute(Attributes.FOLLOW_RANGE)
+                ?.setBaseValue(max(24.0, this.legacyShipStats.attackRange.toDouble()))
             if (this.getHealth() > this.getMaxHealth()) {
                 this.setHealth(this.getMaxHealth())
             }
@@ -3694,8 +3694,9 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             val customMessage: Component =
                 Component.translatable("chat.shincolle.entity_fainted", this.getDisplayName())
 
-            if (this is TamableAnimal && this.getOwner() is ServerPlayer) {
-                owner!!.sendSystemMessage(customMessage)
+            val owner = if (this is TamableAnimal) this.getOwner() else null
+            if (owner is ServerPlayer) {
+                owner.sendSystemMessage(customMessage)
             } else if (this.isTame || this.hasCustomName()) {
                 val server = this.level().getServer()
                 if (server != null) {

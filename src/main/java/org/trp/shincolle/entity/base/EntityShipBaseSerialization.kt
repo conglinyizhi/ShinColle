@@ -7,7 +7,9 @@ import org.trp.shincolle.menu.ShipContainerMenu
 
 internal class EntityShipBaseSerialization(private val ship: EntityShipBase) {
     fun addAdditionalSaveData(compound: CompoundTag) {
-        compound.put("ShipInventory", this.ship.inventory!!.serializeNBT(this.ship.registryAccess()))
+        this.ship.inventory?.let {
+            compound.put("ShipInventory", it.serializeNBT(this.ship.registryAccess()))
+        }
 
         compound.putInt("ShipLevel", this.ship.level)
         compound.putInt("ShipExp", this.ship.exp)

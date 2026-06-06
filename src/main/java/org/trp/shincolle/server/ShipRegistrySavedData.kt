@@ -127,10 +127,11 @@ class ShipRegistrySavedData : SavedData() {
             tag.putUUID("ShipUuid", this.shipUuid)
             tag.putString("DisplayName", this.displayName)
             tag.putString("TypeId", this.typeId.toString())
-            tag.putString("Dimension", this.dimension!!.location().toString())
-            tag.putInt("PosX", this.pos!!.x)
-            tag.putInt("PosY", this.pos.y)
-            tag.putInt("PosZ", this.pos.z)
+            tag.putString("Dimension", (this.dimension ?: Level.OVERWORLD).location().toString())
+            val safePos = this.pos ?: BlockPos.ZERO
+            tag.putInt("PosX", safePos.x)
+            tag.putInt("PosY", safePos.y)
+            tag.putInt("PosZ", safePos.z)
             if (this.ownerUuid != null) {
                 tag.putUUID("OwnerUuid", this.ownerUuid)
             }

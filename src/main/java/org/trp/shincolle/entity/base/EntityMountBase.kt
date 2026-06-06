@@ -218,19 +218,20 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
     }
 
     protected fun syncWithHost() {
-        if (this.host == null) return
+        val host = this.host ?: return
 
-        val hostMaxHP = this.host!!.getMaxHealth()
-        this.getAttribute(Attributes.MAX_HEALTH)!!
-            .setBaseValue(hostMaxHP * MountAiNumbers.HOST_MAX_HEALTH_SCALE)
+        val hostMaxHP = host.getMaxHealth()
+        this.getAttribute(Attributes.MAX_HEALTH)
+            ?.setBaseValue(hostMaxHP * MountAiNumbers.HOST_MAX_HEALTH_SCALE)
 
-        val hostSpeed = this.host!!.getAttributeValue(Attributes.MOVEMENT_SPEED)
-        this.getAttribute(Attributes.MOVEMENT_SPEED)!!.setBaseValue(hostSpeed)
+        val hostSpeed = host.getAttributeValue(Attributes.MOVEMENT_SPEED)
+        this.getAttribute(Attributes.MOVEMENT_SPEED)?.setBaseValue(hostSpeed)
 
-        val kr = this.host!!.legacyShipStats.getBuffedAttr(20)
-        this.getAttribute(Attributes.KNOCKBACK_RESISTANCE)!!.setBaseValue(Mth.clamp(kr, 0.0f, 1.0f).toDouble())
+        val kr = host.legacyShipStats.getBuffedAttr(20)
+        this.getAttribute(Attributes.KNOCKBACK_RESISTANCE)
+            ?.setBaseValue(Mth.clamp(kr, 0.0f, 1.0f).toDouble())
 
-        this.getAttribute(Attributes.FOLLOW_RANGE)!!.setBaseValue(MountAiNumbers.FOLLOW_RANGE_ATTR)
+        this.getAttribute(Attributes.FOLLOW_RANGE)?.setBaseValue(MountAiNumbers.FOLLOW_RANGE_ATTR)
     }
 
     protected fun handleMovement() {

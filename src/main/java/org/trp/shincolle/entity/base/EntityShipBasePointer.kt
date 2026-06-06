@@ -22,13 +22,14 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
     private var pointerTargetEntityUntil: Long = 0
 
     fun saveToNbt(compound: CompoundTag) {
-        if (this.pointerTarget != null) {
+        val target = this.pointerTarget
+        if (target != null) {
             val remaining = max(0L, this.pointerTargetUntil - this.ship.level().getGameTime())
             if (remaining > 0L) {
                 val targetTag = CompoundTag()
-                targetTag.putDouble("X", this.pointerTarget!!.x)
-                targetTag.putDouble("Y", this.pointerTarget!!.y)
-                targetTag.putDouble("Z", this.pointerTarget!!.z)
+                targetTag.putDouble("X", target.x)
+                targetTag.putDouble("Y", target.y)
+                targetTag.putDouble("Z", target.z)
                 targetTag.putLong("Remaining", remaining)
                 targetTag.putBoolean("AlongX", this.pointerAlongX)
                 targetTag.putBoolean("FaceP", this.pointerFaceP)
@@ -248,10 +249,11 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         if (this.ship.level().isClientSide) return
 
         val tag = CompoundTag()
-        if (this.pointerTarget != null) {
-            tag.putDouble("PX", this.pointerTarget!!.x)
-            tag.putDouble("PY", this.pointerTarget!!.y)
-            tag.putDouble("PZ", this.pointerTarget!!.z)
+        val target = this.pointerTarget
+        if (target != null) {
+            tag.putDouble("PX", target.x)
+            tag.putDouble("PY", target.y)
+            tag.putDouble("PZ", target.z)
             tag.putLong("PUntil", this.pointerTargetUntil)
             tag.putBoolean("PAX", this.pointerAlongX)
             tag.putBoolean("PFP", this.pointerFaceP)
