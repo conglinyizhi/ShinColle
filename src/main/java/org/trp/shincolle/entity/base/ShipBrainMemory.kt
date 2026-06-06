@@ -7,12 +7,12 @@ import java.util.*
 
 object ShipBrainMemory {
     fun pointerTarget(ship: EntityShipBase): PointerTargetMemory {
-        val rawTarget = ship.getRawPointerTarget()
-        val target = ship.getPointerTarget()
-        val targetEntity = ship.getPointerTargetEntity()
+        val rawTarget = ship.rawPointerTarget
+        val target = ship.pointerTarget
+        val targetEntity = ship.pointerTargetEntity
         val hasEntityTargetCommand = ship.hasPointerTargetEntity()
         val entityDistanceSqr = if (targetEntity == null) -1.0 else ship.distanceToSqr(targetEntity)
-        val combat = ship.getCombat()
+        val combat = ship.combat
         val entityDecision = ShipPointerEntityDecisionResolver.resolve(
             ShipPointerEntityDecisionResolver.State(
                 targetEntity != null,
@@ -22,21 +22,21 @@ object ShipBrainMemory {
                 combat.canUseHeavyAmmo(),
                 combat.hasAircraftAttackEnabled(),
                 combat.canUseMeleeAttack(),
-                ship.legacyShipStats.getAttackRange().toDouble(),
-                ship.getBbWidth().toDouble(),
-                if (targetEntity == null) 0.0 else targetEntity.getBbWidth().toDouble()
+                ship.legacyShipStats.attackRange.toDouble(),
+                ship.bbWidth.toDouble(),
+                if (targetEntity == null) 0.0 else targetEntity.bbWidth.toDouble()
             )
         )
         return PointerTargetMemory(
             ship.hasPointerTarget(),
             rawTarget,
             target,
-            ship.getPointerTargetRemainingTicks(),
+            ship.pointerTargetRemainingTicks,
             hasEntityTargetCommand,
-            if (targetEntity != null) targetEntity.getUUID() else null,
+            if (targetEntity != null) targetEntity.uuid else null,
             targetEntity != null && targetEntity.isAlive,
             if (targetEntity != null) targetEntity.position() else null,
-            ship.getPointerTargetEntityRemainingTicks(),
+            ship.pointerTargetEntityRemainingTicks,
             entityDistanceSqr,
             entityDecision.preferredRangeSqr,
             entityDecision.stopRangeSqr,
@@ -50,35 +50,35 @@ object ShipBrainMemory {
     }
 
     fun guardTarget(ship: EntityShipBase): GuardTargetMemory {
-        val target = ship.getGuardTarget()
-        val guarded = ship.getGuardedEntity()
-        val disabled = ship.getStateFlag(EntityShipBase.Companion.STATE_FLAG_DISABLE_GUARD_POS)
-        val canGuard = target.isActive()
-                && !disabled && (target.isBlock() && target.isIn(ship.level())
-                || target.isEntity() && guarded != null && guarded.isAlive)
+        val target = ship.guardTarget
+        val guarded = ship.guardedEntity
+        val disabled = ship.getStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS)
+        val canGuard = target.isActive
+                && !disabled && (target.isBlock && target.isIn(ship.level())
+                || target.isEntity && guarded != null && guarded.isAlive)
         return GuardTargetMemory(
             target,
             canGuard,
             disabled,
-            if (guarded != null) guarded.getUUID() else null,
+            if (guarded != null) guarded.uuid else null,
             guarded != null && guarded.isAlive,
             if (guarded != null) guarded.position() else null,
-            if (target.isBlock()) target.blockCenter() else null,
+            if (target.isBlock) target.blockCenter() else null,
             target.dimensionId
         )
     }
 
     fun followState(ship: EntityShipBase): FollowStateMemory {
-        val owner = ship.getOwner()
+        val owner = ship.owner
         val ownerHasCombatRation = owner is Player && ship.playerHasCombatRation(owner)
         return FollowStateMemory(
             ship.shouldFollowOwner(),
             ship.explainFollowBlockReason(),
             owner != null,
-            if (owner != null) owner.getUUID() else null,
+            if (owner != null) owner.uuid else null,
             if (owner != null) owner.position() else null,
-            if (owner != null) owner.getEyeY() else 0.0,
-            if (owner != null) EntityShipBase.Companion.getLegacyDimensionId(owner.level()) else 0,
+            if (owner != null) owner.eyeY else 0.0,
+            if (owner != null) EntityShipBase.getLegacyDimensionId(owner.level()) else 0,
             ownerHasCombatRation,
             if (owner == null) -1.0 else ship.distanceToSqr(owner),
             ship.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN),
@@ -151,11 +151,11 @@ object ShipBrainMemory {
         val dimensionId: Int
     ) {
         fun hasBlockTarget(): Boolean {
-            return this.target!!.isBlock() && this.blockCenter != null
+            return this.target!!.isBlock && this.blockCenter != null
         }
 
         fun hasLiveEntityTarget(): Boolean {
-            return this.target!!.isEntity() && this.guardedEntityAlive && this.guardedEntityPos != null
+            return this.target!!.isEntity && this.guardedEntityAlive && this.guardedEntityPos != null
         }
     }
 

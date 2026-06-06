@@ -22,7 +22,11 @@ import net.minecraft.world.phys.Vec3
 import org.trp.shincolle.Shincolle.Companion.debugLog
 import org.trp.shincolle.Shincolle.Companion.diagnosticLog
 import org.trp.shincolle.entity.base.ShipBrainActivityResolver.FollowState
-import org.trp.shincolle.entity.base.ShipBrainMemory.*
+import org.trp.shincolle.entity.base.ShipBrainMemory.PointerTargetMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.GuardTargetMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.FollowStateMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.RecoveryStateMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.PassiveCombatStateMemory
 import org.trp.shincolle.entity.base.ShipPointerEntityDecisionResolver.AttackState
 import org.trp.shincolle.init.ModMemoryModules
 import org.trp.shincolle.server.PlayerStateService.admiralData
@@ -37,7 +41,7 @@ import kotlin.math.sin
 import kotlin.math.sqrt
 
 internal object EntityShipBrainAi {
-    val MEMORY_TYPES: MutableList<MemoryModuleType<*>?> = ImmutableList.of<MemoryModuleType<*>?>(
+    val MEMORY_TYPES: MutableList<MemoryModuleType<*>> = ImmutableList.of<MemoryModuleType<*>>(
         MemoryModuleType.WALK_TARGET,
         MemoryModuleType.LOOK_TARGET,
         MemoryModuleType.ATTACK_TARGET,
@@ -46,16 +50,16 @@ internal object EntityShipBrainAi {
         ModMemoryModules.SHIP_GUARD_TARGET.get(),
         ModMemoryModules.SHIP_FOLLOW_STATE.get(),
         ModMemoryModules.SHIP_PASSIVE_COMBAT_STATE.get(),
-        ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
-        ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
-        ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
-        ModMemoryModules.SHIP_COMBAT_RECOVERY.get()
+        ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!,
+        ModMemoryModules.SHIP_GUARD_RECOVERY.get()!!,
+        ModMemoryModules.SHIP_FOLLOW_RECOVERY.get()!!,
+        ModMemoryModules.SHIP_COMBAT_RECOVERY.get()!!
     )
-    val SENSOR_TYPES: MutableList<SensorType<out Sensor<in EntityShipBase?>?>?> =
-        ImmutableList.of<SensorType<out Sensor<in EntityShipBase?>?>?>()
-    private val MODE_ACTIVITIES: MutableMap<ShipBrainActivityResolver.Mode?, Activity?> =
-        EnumMap<ShipBrainActivityResolver.Mode?, Activity?>(
-            Map.of<ShipBrainActivityResolver.Mode?, Activity?>(
+    val SENSOR_TYPES: MutableList<SensorType<out Sensor<in EntityShipBase>>?> =
+        ImmutableList.of<SensorType<out Sensor<in EntityShipBase>>?>()
+    private val MODE_ACTIVITIES: MutableMap<ShipBrainActivityResolver.Mode, Activity> =
+        EnumMap<ShipBrainActivityResolver.Mode, Activity>(
+            Map.of<ShipBrainActivityResolver.Mode, Activity>(
                 ShipBrainActivityResolver.Mode.COMMAND, Activity.WORK,
                 ShipBrainActivityResolver.Mode.GUARD, Activity.MEET,
                 ShipBrainActivityResolver.Mode.FOLLOW, Activity.PLAY,
@@ -64,21 +68,21 @@ internal object EntityShipBrainAi {
             )
         )
 
-    fun makeBrain(ship: EntityShipBase?, brain: Brain<EntityShipBase?>): Brain<*> {
+    fun makeBrain(ship: EntityShipBase, brain: Brain<EntityShipBase>): Brain<*> {
         initCoreActivity(brain)
         initCommandActivity(brain)
         initGuardActivity(brain)
         initFollowActivity(brain)
         initCombatActivity(brain)
         initIdleActivity(brain)
-        brain.setCoreActivities(Set.of<Activity?>(Activity.CORE))
+        brain.setCoreActivities(Set.of<Activity>(Activity.CORE))
         brain.setDefaultActivity(Activity.IDLE)
         brain.useDefaultActivity()
         return brain
     }
 
     fun tick(level: ServerLevel, ship: EntityShipBase) {
-        val brain = ship.getBrain() as Brain<EntityShipBase?>
+        val brain = ship.getBrain() as Brain<EntityShipBase>
         syncShipStateMemory(ship, brain)
         logServerBrainTickIfNeeded(ship, brain)
         syncAttackTargetMemory(ship, brain)
@@ -93,21 +97,21 @@ internal object EntityShipBrainAi {
     private fun resolveActiveActivities(
         state: ShipBrainActivityResolver.State,
         following: Boolean
-    ): ImmutableList<Activity?> {
-        val activities = ImmutableList.builder<Activity?>()
+    ): ImmutableList<Activity> {
+        val activities = ImmutableList.builder<Activity>()
         for (mode in ShipBrainActivityResolver.resolveActiveModes(state, following)) {
-            activities.add(activityFor(mode))
+            activities.add(activityFor(mode!!))
         }
         return activities.build()
     }
 
-    private fun activityFor(mode: ShipBrainActivityResolver.Mode?): Activity? {
-        return MODE_ACTIVITIES.get(mode)
+    private fun activityFor(mode: ShipBrainActivityResolver.Mode): Activity {
+        return MODE_ACTIVITIES.get(mode)!!
     }
 
     private fun activityState(
         ship: EntityShipBase,
-        brain: Brain<EntityShipBase?> = typedBrain(ship)
+        brain: Brain<EntityShipBase> = typedBrain(ship)
     ): ShipBrainActivityResolver.State {
         val pointerMemory = pointerTargetMemory(brain)
         val guardMemory = guardTargetMemory(brain)
@@ -115,7 +119,7 @@ internal object EntityShipBrainAi {
         return ShipBrainActivityResolver.State(
             canMove(ship),
             pointerMemory.hasAnyTarget(),
-            ship.getTarget() != null,
+            ship.target != null,
             guardMemory.canGuard,
             followMemory.shouldFollow,
             followMemory.ownerPresent,
@@ -126,12 +130,12 @@ internal object EntityShipBrainAi {
         )
     }
 
-    private fun typedBrain(ship: EntityShipBase): Brain<EntityShipBase?> {
-        val brain = ship.getBrain() as Brain<EntityShipBase?>
+    private fun typedBrain(ship: EntityShipBase): Brain<EntityShipBase> {
+        val brain = ship.getBrain() as Brain<EntityShipBase>
         return brain
     }
 
-    private fun syncShipStateMemory(ship: EntityShipBase, brain: Brain<EntityShipBase?>) {
+    private fun syncShipStateMemory(ship: EntityShipBase, brain: Brain<EntityShipBase>) {
         brain.setMemory<PointerTargetMemory?>(
             ModMemoryModules.SHIP_POINTER_TARGET.get(),
             ShipBrainMemory.pointerTarget(ship)
@@ -144,7 +148,7 @@ internal object EntityShipBrainAi {
         return pointerTargetMemory(typedBrain(ship))
     }
 
-    private fun pointerTargetMemory(brain: Brain<EntityShipBase?>): PointerTargetMemory {
+    private fun pointerTargetMemory(brain: Brain<EntityShipBase>): PointerTargetMemory {
         return brain.getMemory<PointerTargetMemory?>(ModMemoryModules.SHIP_POINTER_TARGET.get())
             .orElse(
                 PointerTargetMemory(
@@ -158,16 +162,16 @@ internal object EntityShipBrainAi {
         return guardTargetMemory(typedBrain(ship))
     }
 
-    private fun guardTargetMemory(brain: Brain<EntityShipBase?>): GuardTargetMemory {
+    private fun guardTargetMemory(brain: Brain<EntityShipBase>): GuardTargetMemory {
         return brain.getMemory<GuardTargetMemory?>(ModMemoryModules.SHIP_GUARD_TARGET.get())
-            .orElse(GuardTargetMemory(ShipGuardTarget.Companion.NONE, false, false, null, false, null, null, 0))
+            .orElse(GuardTargetMemory(ShipGuardTarget.NONE, false, false, null, false, null, null, 0))
     }
 
     private fun followStateMemory(ship: EntityShipBase): FollowStateMemory {
         return followStateMemory(typedBrain(ship))
     }
 
-    private fun followStateMemory(brain: Brain<EntityShipBase?>): FollowStateMemory {
+    private fun followStateMemory(brain: Brain<EntityShipBase>): FollowStateMemory {
         return brain.getMemory<FollowStateMemory?>(ModMemoryModules.SHIP_FOLLOW_STATE.get())
             .orElse(FollowStateMemory(false, "memoryMissing", false, null, null, 0.0, 0, false, -1.0, 0, 0))
     }
@@ -176,13 +180,13 @@ internal object EntityShipBrainAi {
         return passiveCombatStateMemory(typedBrain(ship))
     }
 
-    private fun passiveCombatStateMemory(brain: Brain<EntityShipBase?>): PassiveCombatStateMemory {
+    private fun passiveCombatStateMemory(brain: Brain<EntityShipBase>): PassiveCombatStateMemory {
         return brain.getMemory<PassiveCombatStateMemory?>(ModMemoryModules.SHIP_PASSIVE_COMBAT_STATE.get())
             .orElse(ShipBrainMemory.noPassiveCombatState())
     }
 
-    private fun syncAttackTargetMemory(ship: EntityShipBase, brain: Brain<EntityShipBase?>) {
-        val target = ship.getTarget()
+    private fun syncAttackTargetMemory(ship: EntityShipBase, brain: Brain<EntityShipBase>) {
+        val target = ship.target
         if (target != null && target.isAlive) {
             brain.setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
@@ -191,21 +195,21 @@ internal object EntityShipBrainAi {
     }
 
 
-    private fun logServerBrainTickIfNeeded(ship: EntityShipBase, brain: Brain<EntityShipBase?>) {
+    private fun logServerBrainTickIfNeeded(ship: EntityShipBase, brain: Brain<EntityShipBase>) {
         if (ship.tickCount % 40 != 0) {
             return
         }
         val pointerMemory = pointerTargetMemory(brain)
         val guardMemory = guardTargetMemory(brain)
         val followMemory = followStateMemory(brain)
-        if (ship.getOwnerUUID() == null && ship.getTarget() == null && !pointerMemory.hasAnyTarget() && !guardMemory.target.isActive) {
+        if (ship.ownerUUID == null && ship.target == null && !pointerMemory.hasAnyTarget() && guardMemory.target?.isActive != true) {
             return
         }
         diagnosticLog(
             "[SCBrainDiag] serverTick ship={} activity={} ownerUuid={} ownerPresent={} tame={} deadPose={} noFuel={} shouldFollow={} reason={} distSq={} target={} pointer={} guard={}",
-            ship.getUUID(),
+            ship.uuid,
             describeDesiredActivity(ship, brain),
-            ship.getOwnerUUID(),
+            ship.ownerUUID,
             followMemory.ownerPresent,
             ship.isTame,
             ship.isInDeadPose,
@@ -213,22 +217,22 @@ internal object EntityShipBrainAi {
             followMemory.shouldFollow,
             followMemory.blockReason,
             followMemory.ownerDistanceSq,
-            ship.getTarget() != null,
+            ship.target != null,
             pointerMemory.hasAnyTarget(),
-            guardMemory.target.isActive
+            guardMemory.target?.isActive == true
         )
     }
 
     private fun describeDesiredActivity(
         ship: EntityShipBase,
-        brain: Brain<EntityShipBase?> = typedBrain(ship)
+        brain: Brain<EntityShipBase> = typedBrain(ship)
     ): String {
         return ShipBrainActivityResolver.describeDesiredActivity(activityState(ship, brain))
     }
 
-    private fun initCoreActivity(brain: Brain<EntityShipBase?>) {
+    private fun initCoreActivity(brain: Brain<EntityShipBase>) {
         brain.addActivity(
-            Activity.CORE, ImmutableList.of<Pair<Int?, out Behavior<EntityShipBase?>?>?>(
+            Activity.CORE, ImmutableList.of<Pair<Int?, out Behavior<EntityShipBase>?>?>(
                 Pair.of<Int?, ShipBrainDiagnosticBehavior?>(
                     ShipAiNumbers.CORE_DIAGNOSTIC_PRIORITY,
                     ShipBrainDiagnosticBehavior()
@@ -249,10 +253,10 @@ internal object EntityShipBrainAi {
         )
     }
 
-    private fun initCommandActivity(brain: Brain<EntityShipBase?>) {
+    private fun initCommandActivity(brain: Brain<EntityShipBase>) {
         brain.addActivity(
             activityFor(ShipBrainActivityResolver.Mode.COMMAND),
-            ImmutableList.of<Pair<Int?, ShipPointerMoveBehavior?>?>(
+            ImmutableList.of<Pair<Int, ShipPointerMoveBehavior>?>(
                 Pair.of<Int?, ShipPointerMoveBehavior?>(
                     ShipAiNumbers.COMMAND_POINTER_PRIORITY,
                     ShipPointerMoveBehavior()
@@ -261,26 +265,26 @@ internal object EntityShipBrainAi {
         )
     }
 
-    private fun initGuardActivity(brain: Brain<EntityShipBase?>) {
+    private fun initGuardActivity(brain: Brain<EntityShipBase>) {
         brain.addActivity(
-            activityFor(ShipBrainActivityResolver.Mode.GUARD), ImmutableList.of<Pair<Int?, ShipGuardMoveBehavior?>?>(
+            activityFor(ShipBrainActivityResolver.Mode.GUARD), ImmutableList.of<Pair<Int, ShipGuardMoveBehavior>?>(
                 Pair.of<Int?, ShipGuardMoveBehavior?>(ShipAiNumbers.GUARD_MOVE_PRIORITY, ShipGuardMoveBehavior())
             )
         )
     }
 
-    private fun initFollowActivity(brain: Brain<EntityShipBase?>) {
+    private fun initFollowActivity(brain: Brain<EntityShipBase>) {
         brain.addActivity(
-            activityFor(ShipBrainActivityResolver.Mode.FOLLOW), ImmutableList.of<Pair<Int?, ShipFollowOwnerBehavior?>?>(
+            activityFor(ShipBrainActivityResolver.Mode.FOLLOW), ImmutableList.of<Pair<Int, ShipFollowOwnerBehavior>?>(
                 Pair.of<Int?, ShipFollowOwnerBehavior?>(ShipAiNumbers.FOLLOW_OWNER_PRIORITY, ShipFollowOwnerBehavior())
             )
         )
     }
 
-    private fun initCombatActivity(brain: Brain<EntityShipBase?>) {
+    private fun initCombatActivity(brain: Brain<EntityShipBase>) {
         brain.addActivity(
             activityFor(ShipBrainActivityResolver.Mode.COMBAT),
-            ImmutableList.of<Pair<Int?, ShipCombatMemoryBehavior?>?>(
+            ImmutableList.of<Pair<Int, ShipCombatMemoryBehavior>?>(
                 Pair.of<Int?, ShipCombatMemoryBehavior?>(
                     ShipAiNumbers.COMBAT_MEMORY_PRIORITY,
                     ShipCombatMemoryBehavior()
@@ -289,9 +293,9 @@ internal object EntityShipBrainAi {
         )
     }
 
-    private fun initIdleActivity(brain: Brain<EntityShipBase?>) {
+    private fun initIdleActivity(brain: Brain<EntityShipBase>) {
         brain.addActivity(
-            Activity.IDLE, ImmutableList.of<Pair<Int?, ShipRandomStrollBehavior?>?>(
+            Activity.IDLE, ImmutableList.of<Pair<Int, ShipRandomStrollBehavior>?>(
                 Pair.of<Int?, ShipRandomStrollBehavior?>(
                     ShipAiNumbers.RANDOM_STROLL_PRIORITY,
                     ShipRandomStrollBehavior()
@@ -301,14 +305,14 @@ internal object EntityShipBrainAi {
     }
 
     private fun canMove(ship: EntityShipBase): Boolean {
-        return !ship.isOrderedToSit() && !ship.isInSittingPose() && !ship.isInDeadPose && !ship.isVehicle() && !isPassengerOfLivingVehicle(
+        return !ship.isOrderedToSit && !ship.isInSittingPose && !ship.isInDeadPose && !ship.isVehicle && !isPassengerOfLivingVehicle(
             ship
         )
     }
 
     private fun isPassengerOfLivingVehicle(ship: EntityShipBase): Boolean {
-        if (!ship.isPassenger()) return false
-        val vehicle = ship.getVehicle()
+        if (!ship.isPassenger) return false
+        val vehicle = ship.vehicle
         return vehicle != null && vehicle.isAlive
     }
 
@@ -330,7 +334,7 @@ internal object EntityShipBrainAi {
 
     private fun hasSameDimensionOwnerPosition(level: ServerLevel, followMemory: FollowStateMemory): Boolean {
         return followMemory.ownerPresent
-                && followMemory.ownerPos != null && followMemory.ownerDimensionId == EntityShipBase.Companion.getLegacyDimensionId(
+                && followMemory.ownerPos != null && followMemory.ownerDimensionId == EntityShipBase.getLegacyDimensionId(
             level
         )
     }
@@ -350,7 +354,7 @@ internal object EntityShipBrainAi {
             distanceSqr,
             summoning,
             guardMemory.dimensionId,
-            if (guardedEntity == null) Int.MIN_VALUE else EntityShipBase.Companion.getLegacyDimensionId(guardedEntity.level())
+            if (guardedEntity == null) Int.MIN_VALUE else EntityShipBase.getLegacyDimensionId(guardedEntity.level())
         )
     }
 
@@ -391,7 +395,7 @@ internal object EntityShipBrainAi {
     }
 
     private class ShipBrainDiagnosticBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private var nextBrainLogTick = 0
         private var nextCanStillUseLogTick = 0
 
@@ -403,11 +407,11 @@ internal object EntityShipBrainAi {
             val followMemory = followStateMemory(ship)
             diagnosticLog(
                 "[SCBrainDiag] brainStart ship={} gameTime={} tick={} activity={} ownerUuid={} tame={} deadPose={} shouldFollow={} reason={}",
-                ship.getUUID(),
+                ship.uuid,
                 gameTime,
                 ship.tickCount,
                 describeDesiredActivity(ship),
-                ship.getOwnerUUID(),
+                ship.ownerUUID,
                 ship.isTame,
                 ship.isInDeadPose,
                 followMemory.shouldFollow,
@@ -422,13 +426,13 @@ internal object EntityShipBrainAi {
                 val followMemory = followStateMemory(ship)
                 diagnosticLog(
                     "[SCBrainDiag] brainCanStillUse ship={} canStillUse={} gameTime={} tick={} activity={} deadPose={} ownerUuid={} shouldFollow={} reason={}",
-                    ship.getUUID(),
+                    ship.uuid,
                     canStillUse,
                     gameTime,
                     ship.tickCount,
                     describeDesiredActivity(ship),
                     ship.isInDeadPose,
-                    ship.getOwnerUUID(),
+                    ship.ownerUUID,
                     followMemory.shouldFollow,
                     followMemory.blockReason
                 )
@@ -450,9 +454,9 @@ internal object EntityShipBrainAi {
             val followMemory = followStateMemory(ship)
             diagnosticLog(
                 "[SCBrainDiag] brainTick ship={} activity={} ownerUuid={} ownerPresent={} tame={} canMove={} shouldFollow={} reason={} distSq={} pointer={} guard={} target={}",
-                ship.getUUID(),
+                ship.uuid,
                 describeDesiredActivity(ship),
-                ship.getOwnerUUID(),
+                ship.ownerUUID,
                 followMemory.ownerPresent,
                 ship.isTame,
                 canMove(ship),
@@ -460,8 +464,8 @@ internal object EntityShipBrainAi {
                 followMemory.blockReason,
                 followMemory.ownerDistanceSq,
                 pointerMemory.hasAnyTarget(),
-                guardMemory.target.isActive,
-                ship.getTarget() != null
+                guardMemory.target?.isActive == true,
+                ship.target != null
             )
         }
 
@@ -469,11 +473,11 @@ internal object EntityShipBrainAi {
             val followMemory = followStateMemory(ship)
             diagnosticLog(
                 "[SCBrainDiag] brainStop ship={} gameTime={} tick={} activity={} ownerUuid={} tame={} deadPose={} shouldFollow={} reason={}",
-                ship.getUUID(),
+                ship.uuid,
                 gameTime,
                 ship.tickCount,
                 describeDesiredActivity(ship),
-                ship.getOwnerUUID(),
+                ship.ownerUUID,
                 ship.isTame,
                 ship.isInDeadPose,
                 followMemory.shouldFollow,
@@ -483,17 +487,17 @@ internal object EntityShipBrainAi {
     }
 
     private class ShipCombatMemoryBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private val combatRecovery = ShipMovementRecoveryState()
         private var nextCombatPathTick = 0
         private var lastCombatTargetId: UUID? = null
 
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return ship.getTarget() != null && !ship.isInDeadPose
+            return ship.target != null && !ship.isInDeadPose
         }
 
         override fun canStillUse(level: ServerLevel, ship: EntityShipBase, gameTime: Long): Boolean {
-            return ship.getTarget() != null && !ship.isInDeadPose
+            return ship.target != null && !ship.isInDeadPose
         }
 
         override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
@@ -501,7 +505,7 @@ internal object EntityShipBrainAi {
             ship.getBrain()
                 .setMemory<PassiveCombatStateMemory?>(ModMemoryModules.SHIP_PASSIVE_COMBAT_STATE.get(), state)
             state = passiveCombatStateMemory(ship)
-            val target = ship.getTarget()
+            val target = ship.target
             if (target != null && target.isAlive) {
                 ship.getBrain().setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
             } else {
@@ -528,7 +532,7 @@ internal object EntityShipBrainAi {
         }
 
         override fun stop(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
-            if (ship.getTarget() == null || !ship.getTarget()!!.isAlive) {
+            if (ship.target == null || !ship.target!!.isAlive) {
                 ship.clearPassiveCombatTargetBrain(true)
             }
             ship.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
@@ -547,7 +551,7 @@ internal object EntityShipBrainAi {
                 ship.combatMovementCoordinator().reset()
                 debugLog(
                     "[SCMoveDiag] PassiveCombat targetChanged ship={} target={}",
-                    ship.getUUID(), state.targetId
+                    ship.uuid, state.targetId
                 )
             }
 
@@ -560,7 +564,7 @@ internal object EntityShipBrainAi {
                 }
                 debugLog(
                     "[SCMoveDiag] PassiveCombat stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
-                    ship.getUUID(), target.getUUID(), this.combatRecovery.stuckTicks(), state.distanceSqr
+                    ship.uuid, target.uuid, this.combatRecovery.stuckTicks(), state.distanceSqr
                 )
                 ship.clearPassiveCombatTargetBrain(true)
                 clearCombatMoveState(ship)
@@ -576,7 +580,7 @@ internal object EntityShipBrainAi {
                 if (!movement.moveTo(target, state.moveSpeed)) {
                     val failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(
                         ship, this.combatRecovery,
-                        ModMemoryModules.SHIP_COMBAT_RECOVERY.get(), ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_COMBAT_RECOVERY.get()!!, ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT
                     )
                     if (this.combatRecovery.shouldLogMoveFailure(
                             ship.tickCount,
@@ -585,7 +589,7 @@ internal object EntityShipBrainAi {
                     ) {
                         debugLog(
                             "[SCMoveDiag] PassiveCombat moveFail ship={} target={} failCount={} distanceSqr={}",
-                            ship.getUUID(), target.getUUID(), failCount, state.distanceSqr
+                            ship.uuid, target.uuid, failCount, state.distanceSqr
                         )
                     }
                     if (ShipCombatDecisionResolver.shouldClearAfterMoveFailures(failCount)) {
@@ -594,7 +598,7 @@ internal object EntityShipBrainAi {
                         }
                         debugLog(
                             "[SCMoveDiag] PassiveCombat failClear ship={} target={} failCount={}",
-                            ship.getUUID(), target.getUUID(), this.combatRecovery.moveFailCount()
+                            ship.uuid, target.uuid, this.combatRecovery.moveFailCount()
                         )
                         ship.clearPassiveCombatTargetBrain(true)
                         clearCombatMoveState(ship)
@@ -603,7 +607,7 @@ internal object EntityShipBrainAi {
                 } else {
                     ShipBrainRecoverySupport.clearMoveFailuresAndSync(
                         ship, this.combatRecovery,
-                        ModMemoryModules.SHIP_COMBAT_RECOVERY.get(), ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_COMBAT_RECOVERY.get()!!, ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT
                     )
                 }
             }
@@ -632,7 +636,7 @@ internal object EntityShipBrainAi {
 
             debugLog(
                 "[SCMoveDiag] PassiveCombat teleportRecovery ship={} target={} force={} distanceSqr={}",
-                ship.getUUID(), target.getUUID(), force, distanceSqr
+                ship.uuid, target.uuid, force, distanceSqr
             )
             this.nextCombatPathTick = 0
             this.combatRecovery.reset(ship.position())
@@ -644,21 +648,21 @@ internal object EntityShipBrainAi {
             this.nextCombatPathTick = 0
             this.lastCombatTargetId = null
             ShipBrainRecoverySupport.clearMovementRuntime(
-                ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),
+                ship, this.combatRecovery, ModMemoryModules.SHIP_COMBAT_RECOVERY.get()!!,
                 ship.combatMovementCoordinator()
             )
         }
 
         fun syncCombatRecoveryMemory(ship: EntityShipBase) {
             ShipBrainRecoverySupport.syncRecoveryMemory(
-                ship, ModMemoryModules.SHIP_COMBAT_RECOVERY.get(),
+                ship, ModMemoryModules.SHIP_COMBAT_RECOVERY.get()!!,
                 this.combatRecovery, ShipAiNumbers.PASSIVE_COMBAT_STUCK_TICK_LIMIT
             )
         }
     }
 
     private class ShipPassiveCombatTargetingBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
             return !ship.isNoFuel && !ship.hasPointerTargetEntity() && !ship.isInDeadPose
         }
@@ -683,7 +687,7 @@ internal object EntityShipBrainAi {
     }
 
     private class ShipPointerMoveBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private val pointerRecovery = ShipMovementRecoveryState()
         private var nextPointerPathTick = 0
         private var pointerEntityMeleeAttackTick = 0
@@ -724,7 +728,7 @@ internal object EntityShipBrainAi {
                 this.lastPointerEntityTargetId = null
                 this.pointerRecovery.reset(ship.position())
                 ship.pointerMovementCoordinator().reset()
-                debugLog("ShipBrain pointerTargetChanged ship={} target={}", ship.getUUID(), target)
+                debugLog("ShipBrain pointerTargetChanged ship={} target={}", ship.uuid, target)
             }
 
             if (ship.distanceToSqr(target) <= ShipAiNumbers.POINTER_MOVE_REACH_SQR) {
@@ -745,7 +749,7 @@ internal object EntityShipBrainAi {
                 }
                 debugLog(
                     "[SCMoveDiag] PointerGoal stuckClear ship={} target={} stuckTicks={}",
-                    ship.getUUID(), target, this.pointerRecovery.stuckTicks()
+                    ship.uuid, target, this.pointerRecovery.stuckTicks()
                 )
                 ship.clearPointerTarget()
                 clearPointerMoveState(ship)
@@ -761,7 +765,7 @@ internal object EntityShipBrainAi {
                 if (!movement.moveTo(target, ShipAiNumbers.POINTER_MOVE_SPEED)) {
                     val failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(
                         ship, this.pointerRecovery,
-                        ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
                     )
                     if (this.pointerRecovery.shouldLogMoveFailure(
                             ship.tickCount,
@@ -770,7 +774,7 @@ internal object EntityShipBrainAi {
                     ) {
                         debugLog(
                             "[SCMoveDiag] PointerGoal moveFail ship={} target={} failCount={}",
-                            ship.getUUID(), target, failCount
+                            ship.uuid, target, failCount
                         )
                     }
                     if (failCount > ShipAiNumbers.MOVE_FAIL_LIMIT) {
@@ -779,7 +783,7 @@ internal object EntityShipBrainAi {
                         }
                         debugLog(
                             "[SCMoveDiag] PointerGoal failClear ship={} target={} failCount={}",
-                            ship.getUUID(), target, this.pointerRecovery.moveFailCount()
+                            ship.uuid, target, this.pointerRecovery.moveFailCount()
                         )
                         ship.clearPointerTarget()
                         clearPointerMoveState(ship)
@@ -787,9 +791,9 @@ internal object EntityShipBrainAi {
                 } else {
                     ShipBrainRecoverySupport.clearMoveFailuresAndSync(
                         ship, this.pointerRecovery,
-                        ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
                     )
-                    debugLog("ShipBrain pointerMoveOk ship={} target={}", ship.getUUID(), target)
+                    debugLog("ShipBrain pointerMoveOk ship={} target={}", ship.uuid, target)
                 }
             }
         }
@@ -799,7 +803,7 @@ internal object EntityShipBrainAi {
         }
 
         fun tickPointerEntityMove(ship: EntityShipBase, pointerMemory: PointerTargetMemory) {
-            val target = ship.getPointerTargetEntity()
+            val target: Entity? = ship.pointerTargetEntity
             if (target == null || !target.isAlive) {
                 ship.clearPointerTargetEntity()
                 clearPointerMoveState(ship)
@@ -814,22 +818,22 @@ internal object EntityShipBrainAi {
                 ship.pointerMovementCoordinator().reset()
                 debugLog(
                     "[SCMoveDiag] PointerEntity targetChanged ship={} target={}",
-                    ship.getUUID(), pointerMemory.entityTargetId
+                    ship.uuid, pointerMemory.entityTargetId
                 )
             }
 
             if (!pointerMemory.entityShouldChase) {
                 this.nextPointerPathTick = 0
                 ShipBrainRecoverySupport.resetMovementRuntime(
-                    ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+                    ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!,
                     ship.pointerMovementCoordinator(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT
                 )
                 ShipBrainRecoverySupport.clearWalkAndLookMemory(ship)
                 if (target is LivingEntity) {
                     setEntityLookMemory(ship, target)
                 } else {
-                    ship.getLookControl().setLookAt(
-                        target.getX(), target.getY(), target.getZ(),
+                    ship.lookControl.setLookAt(
+                        target.x, target.y, target.z,
                         ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH
                     )
                 }
@@ -847,7 +851,7 @@ internal object EntityShipBrainAi {
                 }
                 debugLog(
                     "[SCMoveDiag] PointerEntity stuckClear ship={} target={} stuckTicks={} distanceSqr={}",
-                    ship.getUUID(), target.getUUID(), this.pointerRecovery.stuckTicks(), distanceSqr
+                    ship.uuid, target.uuid, this.pointerRecovery.stuckTicks(), distanceSqr
                 )
                 ship.clearPointerTargetEntity()
                 clearPointerMoveState(ship)
@@ -862,7 +866,7 @@ internal object EntityShipBrainAi {
                 if (!movement.moveTo(target, ShipAiNumbers.POINTER_ENTITY_MOVE_SPEED)) {
                     val failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(
                         ship, this.pointerRecovery,
-                        ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!, ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT
                     )
                     if (this.pointerRecovery.shouldLogMoveFailure(
                             ship.tickCount,
@@ -871,7 +875,7 @@ internal object EntityShipBrainAi {
                     ) {
                         debugLog(
                             "[SCMoveDiag] PointerEntity moveFail ship={} target={} failCount={} distanceSqr={}",
-                            ship.getUUID(), target.getUUID(), failCount, distanceSqr
+                            ship.uuid, target.uuid, failCount, distanceSqr
                         )
                     }
                     if (ShipPointerEntityDecisionResolver.shouldClearAfterMoveFailures(failCount)) {
@@ -880,7 +884,7 @@ internal object EntityShipBrainAi {
                         }
                         debugLog(
                             "[SCMoveDiag] PointerEntity failClear ship={} target={} failCount={}",
-                            ship.getUUID(), target.getUUID(), this.pointerRecovery.moveFailCount()
+                            ship.uuid, target.uuid, this.pointerRecovery.moveFailCount()
                         )
                         ship.clearPointerTargetEntity()
                         clearPointerMoveState(ship)
@@ -889,7 +893,7 @@ internal object EntityShipBrainAi {
                 } else {
                     ShipBrainRecoverySupport.clearMoveFailuresAndSync(
                         ship, this.pointerRecovery,
-                        ModMemoryModules.SHIP_POINTER_RECOVERY.get(), ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!, ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT
                     )
                 }
             }
@@ -914,7 +918,7 @@ internal object EntityShipBrainAi {
             }
             debugLog(
                 "[SCMoveDiag] PointerGoal teleportRecovery ship={} target={} force={}",
-                ship.getUUID(), target, force
+                ship.uuid, target, force
             )
             this.nextPointerPathTick = 0
             this.pointerRecovery.reset(ship.position())
@@ -951,7 +955,7 @@ internal object EntityShipBrainAi {
             }
             debugLog(
                 "[SCMoveDiag] PointerEntity teleportRecovery ship={} target={} force={}",
-                ship.getUUID(), target.getUUID(), force
+                ship.uuid, target.uuid, force
             )
             this.nextPointerPathTick = 0
             this.pointerRecovery.reset(ship.position())
@@ -967,7 +971,7 @@ internal object EntityShipBrainAi {
             this.pointerEntityLightShotTick = 0
             this.pointerEntityHeavyShotTick = 0
             ShipBrainRecoverySupport.clearMovementRuntime(
-                ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+                ship, this.pointerRecovery, ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!,
                 ship.pointerMovementCoordinator()
             )
         }
@@ -977,15 +981,15 @@ internal object EntityShipBrainAi {
             this.pointerEntityMeleeAttackTick = ship.tickCount + aimDelay
             this.pointerEntityLightShotTick = ship.tickCount + aimDelay
             this.pointerEntityHeavyShotTick = ship.tickCount + aimDelay
-            ship.getCombat().resetAircraftLaunchDelay()
+            ship.combat.resetAircraftLaunchDelay()
         }
 
         fun tickPointerEntityAttacks(
             ship: EntityShipBase, target: Entity,
             pointerMemory: PointerTargetMemory
         ) {
-            ship.getMoveControl().setWantedPosition(ship.getX(), ship.getY(), ship.getZ(), 0.0)
-            val combat = ship.getCombat()
+            ship.moveControl.setWantedPosition(ship.x, ship.y, ship.z, 0.0)
+            val combat = ship.combat
             if (combat.hasAircraftAttackEnabled()) {
                 combat.tryPerformAircraftCycle(target)
             }
@@ -993,15 +997,15 @@ internal object EntityShipBrainAi {
             val attackState = AttackState(
                 ship.tickCount,
                 combat.canUseLightAmmo(),
-                ship.legacyShipStats.getLightDelay(),
+                ship.legacyShipStats.lightDelay,
                 this.pointerEntityLightShotTick,
                 combat.canUseHeavyAmmo(),
-                ship.legacyShipStats.getHeavyDelay(),
+                ship.legacyShipStats.heavyDelay,
                 this.pointerEntityHeavyShotTick,
                 pointerMemory.entityCanMeleeAttack,
                 pointerMemory.entityDistanceSqr,
                 pointerMemory.entityAttackRangeSqr,
-                ship.legacyShipStats.getMeleeDelay(),
+                ship.legacyShipStats.meleeDelay,
                 this.pointerEntityMeleeAttackTick
             )
 
@@ -1024,21 +1028,21 @@ internal object EntityShipBrainAi {
 
         fun syncPointerRecoveryMemory(ship: EntityShipBase) {
             ShipBrainRecoverySupport.syncRecoveryMemory(
-                ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+                ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!,
                 this.pointerRecovery, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
             )
         }
 
         fun syncPointerEntityRecoveryMemory(ship: EntityShipBase) {
             ShipBrainRecoverySupport.syncRecoveryMemory(
-                ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get(),
+                ship, ModMemoryModules.SHIP_POINTER_RECOVERY.get()!!,
                 this.pointerRecovery, ShipAiNumbers.POINTER_ENTITY_STUCK_TICK_LIMIT
             )
         }
     }
 
     private class ShipGuardMoveBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private val guardRecovery = ShipMovementRecoveryState()
         private var nextGuardPathTick = 0
         private var lastGuardRecoveryTargetKey: GuardRecoveryTargetKey? = null
@@ -1057,8 +1061,8 @@ internal object EntityShipBrainAi {
 
         override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
             val guardMemory = guardTargetMemory(ship)
-            val guardedEntity = ship.getGuardedEntity()
-            val guardTarget = guardMemory.target
+            val guardedEntity = ship.guardedEntity
+            val guardTarget = guardMemory.target ?: return
 
             val timer = ship.getStateTimer(ShipAiNumbers.GUARD_SUMMON_TIMER_ID)
             val isSummoning = timer > 0
@@ -1073,13 +1077,13 @@ internal object EntityShipBrainAi {
             if (guardMemory.hasLiveEntityTarget()) {
                 if (ShipGuardDecisionResolver.shouldSyncEntityDimension(unresolvedGuardState)) {
                     ship.setGuardedPos(
-                        -1, -1, -1, EntityShipBase.Companion.getLegacyDimensionId(guardedEntity!!.level()),
+                        -1, -1, -1, EntityShipBase.getLegacyDimensionId(guardedEntity!!.level()),
                         ShipGuardTarget.Type.ENTITY.legacyId()
                     )
                 }
-                target = guardMemory.guardedEntityPos
+                target = guardMemory.guardedEntityPos!!
             } else if (guardMemory.hasBlockTarget()) {
-                target = guardMemory.blockCenter
+                target = guardMemory.blockCenter!!
             } else {
                 clearGuardMoveState(ship)
                 return
@@ -1115,7 +1119,7 @@ internal object EntityShipBrainAi {
                     }
                     debugLog(
                         "[SCMoveDiag] GuardGoal stuckDisable ship={} target={} stuckTicks={}",
-                        ship.getUUID(), target, this.guardRecovery.stuckTicks()
+                        ship.uuid, target, this.guardRecovery.stuckTicks()
                     )
                     disableGuardState(ship)
                     return
@@ -1125,7 +1129,7 @@ internal object EntityShipBrainAi {
                     if (!ship.guardMovementCoordinator().moveTo(target, ShipAiNumbers.GUARD_MOVE_SPEED)) {
                         val failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(
                             ship, this.guardRecovery,
-                            ModMemoryModules.SHIP_GUARD_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
+                            ModMemoryModules.SHIP_GUARD_RECOVERY.get()!!, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
                         )
                         if (this.guardRecovery.shouldLogMoveFailure(
                                 ship.tickCount,
@@ -1134,7 +1138,7 @@ internal object EntityShipBrainAi {
                         ) {
                             debugLog(
                                 "[SCMoveDiag] GuardGoal moveFail ship={} target={} failCount={}",
-                                ship.getUUID(), target, failCount
+                                ship.uuid, target, failCount
                             )
                         }
                         if (ShipGuardDecisionResolver.shouldClearAfterMoveFailures(failCount)) {
@@ -1143,7 +1147,7 @@ internal object EntityShipBrainAi {
                             }
                             debugLog(
                                 "[SCMoveDiag] GuardGoal failDisable ship={} target={} failCount={}",
-                                ship.getUUID(), target, this.guardRecovery.moveFailCount()
+                                ship.uuid, target, this.guardRecovery.moveFailCount()
                             )
                             disableGuardState(ship)
                             return
@@ -1151,15 +1155,15 @@ internal object EntityShipBrainAi {
                     } else {
                         ShipBrainRecoverySupport.clearMoveFailuresAndSync(
                             ship, this.guardRecovery,
-                            ModMemoryModules.SHIP_GUARD_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
+                            ModMemoryModules.SHIP_GUARD_RECOVERY.get()!!, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
                         )
-                        debugLog("ShipBrain guardMoveOk ship={} target={} distSq={}", ship.getUUID(), target, distSq)
+                        debugLog("ShipBrain guardMoveOk ship={} target={} distSq={}", ship.uuid, target, distSq)
                     }
                 }
             } else {
                 this.nextGuardPathTick = 0
                 ShipBrainRecoverySupport.resetMovementRuntime(
-                    ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                    ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get()!!,
                     ship.guardMovementCoordinator(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
                 )
             }
@@ -1176,7 +1180,7 @@ internal object EntityShipBrainAi {
             guardTarget: ShipGuardTarget,
             guardedEntity: Entity?
         ) {
-            val targetKey = GuardRecoveryTargetKey.Companion.from(guardTarget, guardedEntity)
+            val targetKey = GuardRecoveryTargetKey.from(guardTarget, guardedEntity)
             if (this.lastGuardRecoveryTargetKey == targetKey) {
                 return
             }
@@ -1189,7 +1193,7 @@ internal object EntityShipBrainAi {
 
         fun tryGuardTeleportRecovery(
             ship: EntityShipBase,
-            target: Vec3?,
+            target: Vec3,
             guardedEntity: Entity?,
             distSq: Double,
             force: Boolean
@@ -1217,7 +1221,7 @@ internal object EntityShipBrainAi {
             }
             debugLog(
                 "[SCMoveDiag] GuardGoal teleportRecovery ship={} target={} force={} distSq={}",
-                ship.getUUID(), target, force, distSq
+                ship.uuid, target, force, distSq
             )
             this.nextGuardPathTick = 0
             this.guardRecovery.reset(ship.position())
@@ -1229,10 +1233,10 @@ internal object EntityShipBrainAi {
             this.nextGuardPathTick = 0
             this.lastGuardRecoveryTargetKey = null
             ShipBrainRecoverySupport.clearMovementRuntime(
-                ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get()!!,
                 ship.guardMovementCoordinator()
             )
-            ship.setStateFlag(EntityShipBase.Companion.STATE_FLAG_DISABLE_GUARD_POS, true)
+            ship.setStateFlag(EntityShipBase.STATE_FLAG_DISABLE_GUARD_POS, true)
             ship.clearGuardTarget()
         }
 
@@ -1240,14 +1244,14 @@ internal object EntityShipBrainAi {
             this.nextGuardPathTick = 0
             this.lastGuardRecoveryTargetKey = null
             ShipBrainRecoverySupport.clearMovementRuntime(
-                ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                ship, this.guardRecovery, ModMemoryModules.SHIP_GUARD_RECOVERY.get()!!,
                 ship.guardMovementCoordinator()
             )
         }
 
         fun syncGuardRecoveryMemory(ship: EntityShipBase) {
             ShipBrainRecoverySupport.syncRecoveryMemory(
-                ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get(),
+                ship, ModMemoryModules.SHIP_GUARD_RECOVERY.get()!!,
                 this.guardRecovery, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
             )
         }
@@ -1260,13 +1264,13 @@ internal object EntityShipBrainAi {
             isSummoning: Boolean
         ) {
             if (guardedEntity is LivingEntity) {
-                ship.getLookControl().setLookAt(
-                    guardedEntity.getX(), guardedEntity.getEyeY(), guardedEntity.getZ(),
+                ship.lookControl.setLookAt(
+                    guardedEntity.x, guardedEntity.eyeY, guardedEntity.z,
                     ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH
                 )
             } else if (guardedEntity != null) {
-                ship.getLookControl().setLookAt(
-                    guardedEntity.getX(), guardedEntity.getY(), guardedEntity.getZ(),
+                ship.lookControl.setLookAt(
+                    guardedEntity.x, guardedEntity.y, guardedEntity.z,
                     ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH
                 )
             } else if (ShipGuardDecisionResolver.shouldLookAtOwnerOrPlayer(
@@ -1284,37 +1288,37 @@ internal object EntityShipBrainAi {
             ) {
                 lookAtOwnerOrNearestPlayer(ship)
             } else {
-                ship.getLookControl().setLookAt(
-                    target.x, target.y + ship.getEyeHeight(), target.z,
+                ship.lookControl.setLookAt(
+                    target.x, target.y + ship.eyeHeight, target.z,
                     ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH
                 )
             }
         }
 
         fun lookAtOwnerOrNearestPlayer(ship: EntityShipBase) {
-            var lookTarget = ship.getOwner()
+            var lookTarget = ship.owner
             if (lookTarget == null || ship.distanceToSqr(lookTarget) > ShipAiNumbers.GUARD_OWNER_LOOK_MAX_DISTANCE_SQ) {
                 lookTarget = ship.level().getNearestPlayer(ship, ShipAiNumbers.GUARD_NEAREST_PLAYER_LOOK_DISTANCE)
             }
             if (lookTarget != null) {
-                ship.getLookControl().setLookAt(
-                    lookTarget.getX(), lookTarget.getEyeY(), lookTarget.getZ(),
+                ship.lookControl.setLookAt(
+                    lookTarget.x, lookTarget.eyeY, lookTarget.z,
                     ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH
                 )
                 return
             }
 
-            val yaw = ship.getYRot()
+            val yaw = ship.yRot
             val rad = -yaw * ShipAiNumbers.DEGREES_TO_RADIANS
-            val tx = ship.getX() + sin(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
-            val ty = ship.getEyeY()
-            val tz = ship.getZ() + cos(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
-            ship.getLookControl().setLookAt(tx, ty, tz, ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH)
+            val tx = ship.x + sin(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
+            val ty = ship.eyeY
+            val tz = ship.z + cos(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
+            ship.lookControl.setLookAt(tx, ty, tz, ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH)
         }
     }
 
     private class ShipFollowOwnerBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private val followRecovery = ShipMovementRecoveryState()
         private var lastOwnerX = 0.0
         private var lastOwnerY = 0.0
@@ -1339,16 +1343,16 @@ internal object EntityShipBrainAi {
 
         override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
             val followMemory = followStateMemory(ship)
-            val owner = ship.getOwner()
+            val owner = ship.owner
             val ownerPos = followMemory.ownerPos
-            if (owner == null || !hasSameDimensionOwnerPosition(level, followMemory)) {
+            if (owner == null || !hasSameDimensionOwnerPosition(level, followMemory) || ownerPos == null) {
                 clearFollowMoveState(ship)
                 return
             }
 
             ship.resetInteractionEmotionState()
             if (followMemory.ownerHasCombatRation) {
-                ship.emotionPrimary = EntityShipBase.Companion.EMOTION_HAPPY
+                ship.emotionPrimary = EntityShipBase.EMOTION_HAPPY
                 if (ship.tickCount % ShipAiNumbers.FOLLOW_POSITIVE_EMOTE_INTERVAL == 0) {
                     val positiveEmotes = arrayOf<EmotionParticleType>(
                         EmotionParticleType.HEART,
@@ -1361,15 +1365,15 @@ internal object EntityShipBrainAi {
                         EmotionParticleType.BLINK,
                         EmotionParticleType.BLUSH
                     )
-                    val selected = positiveEmotes[ship.getRandom().nextInt(positiveEmotes.size)]
+                    val selected = positiveEmotes[ship.random.nextInt(positiveEmotes.size)]
                     ship.applyParticleEmotion(selected)
                 }
             }
 
-            ship.getLookControl().setLookAt(owner, ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH)
+            ship.lookControl.setLookAt(owner, ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH)
 
-            val teamId = ship.getFormationTeam()
-            val slotId = ship.getFormationSlot()
+            val teamId = ship.formationTeam
+            val slotId = ship.formationSlot
             var moveTarget = ownerPos
             if (teamId >= 0 && slotId >= 0 && owner is Player) {
                 val data = admiralData(owner)
@@ -1391,7 +1395,7 @@ internal object EntityShipBrainAi {
                 diagnosticLog(
                     "{} start ship={} owner={} distSq={} minDist={} maxDist={}",
                     FOLLOW_DEBUG_PREFIX,
-                    ship.getUUID(),
+                    ship.uuid,
                     followMemory.ownerId,
                     followMemory.ownerDistanceSq,
                     minDist,
@@ -1407,12 +1411,12 @@ internal object EntityShipBrainAi {
                 val moved = movement.moveTo(moveTarget, ShipAiNumbers.FOLLOW_OWNER_SPEED)
                 diagnosticLog(
                     "{} move ship={} owner={} target={} moved={}",
-                    FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), moveTarget, moved
+                    FOLLOW_DEBUG_PREFIX, ship.uuid, owner.uuid, moveTarget, moved
                 )
                 if (!moved) {
                     val failCount = ShipBrainRecoverySupport.recordMoveFailureAndSync(
                         ship, this.followRecovery,
-                        ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_FOLLOW_RECOVERY.get()!!, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
                     )
                     if (this.followRecovery.shouldLogMoveFailure(
                             ship.tickCount,
@@ -1421,13 +1425,13 @@ internal object EntityShipBrainAi {
                     ) {
                         diagnosticLog(
                             "{} moveFail ship={} owner={} target={} failCount={}",
-                            FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), moveTarget, failCount
+                            FOLLOW_DEBUG_PREFIX, ship.uuid, owner.uuid, moveTarget, failCount
                         )
                     }
                     if (failCount > ShipAiNumbers.FOLLOW_MOVE_FAIL_LIMIT) {
                         diagnosticLog(
                             "{} failClear ship={} owner={} failCount={}",
-                            FOLLOW_DEBUG_PREFIX, ship.getUUID(), owner.getUUID(), this.followRecovery.moveFailCount()
+                            FOLLOW_DEBUG_PREFIX, ship.uuid, owner.uuid, this.followRecovery.moveFailCount()
                         )
                         clearFollowMoveState(ship)
                         return
@@ -1436,7 +1440,7 @@ internal object EntityShipBrainAi {
                 } else {
                     ShipBrainRecoverySupport.clearMoveFailuresAndSync(
                         ship, this.followRecovery,
-                        ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(), ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
+                        ModMemoryModules.SHIP_FOLLOW_RECOVERY.get()!!, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
                     )
                 }
             }
@@ -1460,7 +1464,7 @@ internal object EntityShipBrainAi {
             diagnosticLog(
                 "{} teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
                 FOLLOW_DEBUG_PREFIX,
-                ship.getUUID(), owner.getUUID(), force, distSq, this.followRecovery.stuckTicks()
+                ship.uuid, owner.uuid, force, distSq, this.followRecovery.stuckTicks()
             )
             this.followRecovery.reset(ship.position())
             syncFollowRecoveryMemory(ship)
@@ -1478,7 +1482,7 @@ internal object EntityShipBrainAi {
                 diagnosticLog(
                     "{} stop ship={} owner={} distSq={} minDist={} maxDist={}",
                     FOLLOW_DEBUG_PREFIX,
-                    ship.getUUID(),
+                    ship.uuid,
                     followMemory.ownerId,
                     followMemory.ownerDistanceSq,
                     minDist,
@@ -1488,22 +1492,22 @@ internal object EntityShipBrainAi {
             this.hasOwnerPos = false
             this.followOwnerActive = false
             ShipBrainRecoverySupport.clearMovementRuntime(
-                ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
+                ship, this.followRecovery, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get()!!,
                 ship.followOwnerMovementCoordinator()
             )
         }
 
         fun syncFollowRecoveryMemory(ship: EntityShipBase) {
             ShipBrainRecoverySupport.syncRecoveryMemory(
-                ship, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get(),
+                ship, ModMemoryModules.SHIP_FOLLOW_RECOVERY.get()!!,
                 this.followRecovery, ShipAiNumbers.MOVE_STUCK_TICK_LIMIT
             )
         }
 
         fun updateFormationDirection(owner: LivingEntity) {
-            val ox = owner.getX()
-            val oy = owner.getY()
-            val oz = owner.getZ()
+            val ox = owner.x
+            val oy = owner.y
+            val oz = owner.z
             if (!this.hasOwnerPos) {
                 this.lastOwnerX = ox
                 this.lastOwnerY = oy
@@ -1532,7 +1536,7 @@ internal object EntityShipBrainAi {
     }
 
     private class ShipLookAtPlayerBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
             return !ship.isInDeadPose
         }
@@ -1544,49 +1548,49 @@ internal object EntityShipBrainAi {
         override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
             val guardMemory = guardTargetMemory(ship)
             val pointerMemory = pointerTargetMemory(ship)
-            val guardedEntity = ship.getGuardedEntity()
+            val guardedEntity = ship.guardedEntity
             if (guardedEntity is LivingEntity) {
-                ship.getLookControl().setLookAt(
-                    guardedEntity.getX(), guardedEntity.getEyeY(), guardedEntity.getZ(),
+                ship.lookControl.setLookAt(
+                    guardedEntity.x, guardedEntity.eyeY, guardedEntity.z,
                     ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH
                 )
                 return
             }
             if (guardedEntity != null) {
-                ship.getLookControl().setLookAt(
-                    guardedEntity.getX(), guardedEntity.getY(), guardedEntity.getZ(),
+                ship.lookControl.setLookAt(
+                    guardedEntity.x, guardedEntity.y, guardedEntity.z,
                     ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH
                 )
                 return
             }
             if (pointerMemory.entityTargetAlive && pointerMemory.entityTargetPos != null) {
-                val target = pointerMemory.entityTargetPos
-                ship.getLookControl().setLookAt(
-                    target.x, target.y + ship.getEyeHeight(), target.z,
+                val target = pointerMemory.entityTargetPos!!
+                ship.lookControl.setLookAt(
+                    target.x, target.y + ship.eyeHeight, target.z,
                     ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH
                 )
                 return
             }
             val followMemory = followStateMemory(ship)
             if (shouldFollowOwnerLook(ship, followMemory)) {
-                val target = followMemory.ownerPos
-                ship.getLookControl().setLookAt(
+                val target = followMemory.ownerPos!!
+                ship.lookControl.setLookAt(
                     target.x, followMemory.ownerEyeY, target.z,
                     ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH
                 )
                 return
             }
             if (guardMemory.hasBlockTarget()) {
-                val target = guardMemory.blockCenter
-                ship.getLookControl().setLookAt(
-                    target.x, target.y + ship.getEyeHeight(), target.z,
+                val target = guardMemory.blockCenter!!
+                ship.lookControl.setLookAt(
+                    target.x, target.y + ship.eyeHeight, target.z,
                     ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH
                 )
                 return
             }
             val player = level.getNearestPlayer(ship, ShipAiNumbers.LOOK_AT_PLAYER_DISTANCE.toDouble())
             if (player != null) {
-                ship.getLookControl().setLookAt(player, ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH)
+                ship.lookControl.setLookAt(player, ShipAiNumbers.LOOK_YAW, ShipAiNumbers.LOOK_PITCH)
             }
         }
 
@@ -1598,34 +1602,34 @@ internal object EntityShipBrainAi {
                 return true
             }
             return followMemory.ownerDistanceSq <= ShipAiNumbers.GUARD_OWNER_LOOK_MAX_DISTANCE_SQ
-                    && guardTargetMemory(ship).target.isActive
+                    && guardTargetMemory(ship).target?.isActive == true
         }
     }
 
     private class ShipRandomLookAroundBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isInDeadPose && ship.getRandom().nextInt(ShipAiNumbers.RANDOM_LOOK_CHANCE) == 0
+            return !ship.isInDeadPose && ship.random.nextInt(ShipAiNumbers.RANDOM_LOOK_CHANCE) == 0
         }
 
         override fun start(level: ServerLevel, ship: EntityShipBase, gameTime: Long) {
-            val yaw = ship.getYRot()
+            val yaw = ship.yRot
             val rad = -yaw * ShipAiNumbers.DEGREES_TO_RADIANS
-            val tx = ship.getX() + sin(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
-            val ty = ship.getEyeY()
-            val tz = ship.getZ() + cos(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
-            ship.getLookControl().setLookAt(tx, ty, tz, ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH)
+            val tx = ship.x + sin(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
+            val ty = ship.eyeY
+            val tz = ship.z + cos(rad) * ShipAiNumbers.GUARD_FALLBACK_LOOK_DISTANCE
+            ship.lookControl.setLookAt(tx, ty, tz, ShipAiNumbers.FOCUS_LOOK_YAW, ShipAiNumbers.FOCUS_LOOK_PITCH)
         }
     }
 
     private class ShipRandomStrollBehavior :
-        Behavior<EntityShipBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityShipBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, ship: EntityShipBase): Boolean {
-            return !ship.isOrderedToSit() && !ship.isInSittingPose() && !ship.isInDeadPose && !isPassengerOfLivingVehicle(
+            return !ship.isOrderedToSit && !ship.isInSittingPose && !ship.isInDeadPose && !isPassengerOfLivingVehicle(
                 ship
-            ) && !ship.isVehicle() && !pointerTargetMemory(ship).hasAnyTarget() && ship.getTarget() == null && !followStateMemory(
+            ) && !ship.isVehicle && !pointerTargetMemory(ship).hasAnyTarget() && ship.target == null && !followStateMemory(
                 ship
-            ).shouldFollow && !guardTargetMemory(ship).target.isActive && ship.getRandom()
+            ).shouldFollow && guardTargetMemory(ship).target?.isActive != true && ship.random
                 .nextInt(ShipAiNumbers.RANDOM_STROLL_CHANCE) == 0
         }
 
@@ -1634,7 +1638,7 @@ internal object EntityShipBrainAi {
                 ship, ShipAiNumbers.RANDOM_STROLL_HORIZONTAL_RANGE, ShipAiNumbers.RANDOM_STROLL_VERTICAL_RANGE
             )
             if (target != null) {
-                diagnosticLog("[SCIdleDiag] randomStroll ship={} target={}", ship.getUUID(), target)
+                diagnosticLog("[SCIdleDiag] randomStroll ship={} target={}", ship.uuid, target)
                 setPointWalkAndLookMemory(ship, target, ShipAiNumbers.RANDOM_STROLL_SPEED, 1)
                 ship.idleMovementCoordinator().moveTo(target, ShipAiNumbers.RANDOM_STROLL_SPEED)
             }
@@ -1651,11 +1655,11 @@ internal object EntityShipBrainAi {
         val dimensionId: Int
     ) {
         companion object {
-            private fun from(guardTarget: ShipGuardTarget, guardedEntity: Entity?): GuardRecoveryTargetKey {
+            fun from(guardTarget: ShipGuardTarget, guardedEntity: Entity?): GuardRecoveryTargetKey {
                 if (guardTarget.isEntity && guardedEntity != null) {
                     return GuardRecoveryTargetKey(
-                        guardTarget.type, guardedEntity.getUUID(), 0, 0, 0,
-                        EntityShipBase.Companion.getLegacyDimensionId(guardedEntity.level())
+                        guardTarget.type, guardedEntity.uuid, 0, 0, 0,
+                        EntityShipBase.getLegacyDimensionId(guardedEntity.level())
                     )
                 }
                 return GuardRecoveryTargetKey(
