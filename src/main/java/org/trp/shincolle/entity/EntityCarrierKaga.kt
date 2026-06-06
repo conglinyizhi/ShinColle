@@ -52,7 +52,7 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal>, level: Level) : Ent
             if (ship === this) {
                 continue
             }
-            if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+            if (ship.ownerUUID != this.ownerUUID) {
                 continue
             }
             ship.addEffect(MobEffectInstance(MobEffects.JUMP, duration, amp, false, false))

@@ -225,7 +225,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         if (!ship.isAlive) {
             return false
         }
-        if (this.getOwnerUUID() != ship.getOwnerUUID()) {
+        if (this.ownerUUID != ship.ownerUUID) {
             return false
         }
         if (ship.isInSittingPose) {
@@ -288,7 +288,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
             }
         }
 
-        if (this.riderType == RIDER_TYPE_NONE {
+        if (this.riderType == RIDER_TYPE_NONE) {
             if (hibiki != null) {
                 hibiki.startRiding(this, true)
                 if (inazuma != null) {

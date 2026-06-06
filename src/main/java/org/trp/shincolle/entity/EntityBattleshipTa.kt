@@ -126,7 +126,7 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
             if (ship === this) {
                 continue
             }
-            if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+            if (ship.ownerUUID != this.ownerUUID) {
                 continue
             }
             ship.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, amp, false, false))

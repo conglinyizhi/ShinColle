@@ -93,13 +93,13 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal>, level: Level) : En
 
             var healed = false
             if (target is Player) {
-                if (target.getUUID() != this.getOwnerUUID()) {
+                if (target.getUUID() != this.ownerUUID) {
                     continue
                 }
                 target.heal(1.0f + target.getMaxHealth() * 0.04f + this.level * 0.04f)
                 healed = true
             } else if (target is EntityShipBase) {
-                if (target.getOwnerUUID() != this.getOwnerUUID()) {
+                if (target.ownerUUID != this.ownerUUID) {
                     continue
                 }
                 target.heal(1.0f + target.getMaxHealth() * 0.04f + this.level * 0.1f)

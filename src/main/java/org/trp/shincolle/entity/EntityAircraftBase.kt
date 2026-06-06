@@ -110,7 +110,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         this.attackRangeSq = range * range
 
         this.setNoGravity(true)
-        this.setOwnerUUID(carrier.getOwnerUUID())
+        this.setOwnerUUID(carrier.ownerUUID)
         this.setTame(true, false)
 
         if (target != null) {
@@ -711,18 +711,18 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         if (target === carrier) {
             return true
         }
-        if (target is Player && target.getUUID() == carrier.getOwnerUUID()) {
+        if (target is Player && target.getUUID() == carrier.ownerUUID) {
             return true
         }
-        if (target is TamableAnimal && target.getOwnerUUID() == carrier.getOwnerUUID()) {
+        if (target is TamableAnimal && target.ownerUUID == carrier.ownerUUID) {
             return true
         }
-        if (target is EntityShipBase && target.getOwnerUUID() == carrier.getOwnerUUID()) {
+        if (target is EntityShipBase && target.ownerUUID == carrier.ownerUUID) {
             return true
         }
         if (target is EntityAircraftBase) {
             val otherCarrier = target.carrier
-            return otherCarrier != null && otherCarrier.getOwnerUUID() == carrier.getOwnerUUID()
+            return otherCarrier != null && otherCarrier.ownerUUID == carrier.ownerUUID
         }
         return false
     }

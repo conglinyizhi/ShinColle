@@ -48,7 +48,7 @@ class EntityMidwayHime(type: EntityType<out TamableAnimal>, level: Level) : Enti
             if (ship === this) {
                 continue
             }
-            if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+            if (ship.ownerUUID != this.ownerUUID) {
                 continue
             }
             ship.addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))

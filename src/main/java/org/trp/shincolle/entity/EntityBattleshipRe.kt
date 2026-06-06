@@ -291,7 +291,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
                 continue
             }
             if (entity is EntityShipBase
-                && entity.getOwnerUUID() == this.getOwnerUUID()
+                && entity.ownerUUID == this.ownerUUID
             ) {
                 continue
             }

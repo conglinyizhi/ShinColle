@@ -303,7 +303,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         if (ikazuchi == null || !ikazuchi.isAlive) {
             return false
         }
-        if (this.getOwnerUUID() != ikazuchi.getOwnerUUID()) {
+        if (this.ownerUUID != ikazuchi.ownerUUID) {
             return false
         }
         return ikazuchi.riderType == 0 && !ikazuchi.isRaiden && !ikazuchi.isStateNoEquip && ikazuchi.getStateMinor(

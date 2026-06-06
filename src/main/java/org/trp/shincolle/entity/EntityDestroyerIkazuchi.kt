@@ -256,7 +256,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
         if (partner == null || !partner.isAlive) {
             return false
         }
-        if (this.getOwnerUUID() != partner.getOwnerUUID()) {
+        if (this.ownerUUID != partner.ownerUUID) {
             return false
         }
         return partner.riderType == 0 && !partner.isRaiden && !partner.isStateNoEquip && partner.getStateMinor(

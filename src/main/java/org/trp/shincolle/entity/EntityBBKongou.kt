@@ -102,7 +102,7 @@ class EntityBBKongou(type: EntityType<out TamableAnimal>, level: Level) : Entity
             if (ship === this) {
                 continue
             }
-            if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+            if (ship.ownerUUID != this.ownerUUID) {
                 continue
             }
             ship.addEffect(MobEffectInstance(MobEffects.HEALTH_BOOST, duration, amp, false, false))

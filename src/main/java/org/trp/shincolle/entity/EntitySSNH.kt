@@ -93,10 +93,10 @@ class EntitySSNH(type: EntityType<out TamableAnimal>, level: Level) : EntityShip
             return false
         }
         if (target is EntityShipBase) {
-            return target.getOwnerUUID() == this.getOwnerUUID()
+            return target.ownerUUID == this.ownerUUID
         }
         if (target is Player) {
-            return target.getUUID() == this.getOwnerUUID()
+            return target.getUUID() == this.ownerUUID
         }
         return false
     }

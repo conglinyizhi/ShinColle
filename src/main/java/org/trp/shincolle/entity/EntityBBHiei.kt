@@ -91,7 +91,7 @@ class EntityBBHiei(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
             if (ship === this) {
                 continue
             }
-            if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+            if (ship.ownerUUID != this.ownerUUID) {
                 continue
             }
             ship.addEffect(MobEffectInstance(MobEffects.SATURATION, duration, amp, false, false))

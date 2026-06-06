@@ -45,7 +45,7 @@ class EntityCarrierWDemon(type: EntityType<out TamableAnimal>, level: Level) : E
                     if (ship === this) {
                         continue
                     }
-                    if (ship.getOwnerUUID() != this.getOwnerUUID()) {
+                    if (ship.ownerUUID != this.ownerUUID) {
                         continue
                     }
                     ship.addEffect(MobEffectInstance(MobEffects.DIG_SPEED, duration, amp, false, false))
