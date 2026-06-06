@@ -59,7 +59,7 @@ object BookRenderer {
     fun drawBookBase(g: GuiGraphics, x: Int, y: Int, chapId: Int, pageId: Int) {
         g.blit(GUI_BOOK, x, y, 0, 0, 256, 192)
         if ((chapId == 4 || chapId == 5) && pageId > 0) {
-            g.blit(GUI_BOOK2, x + 20, y + 48, if (chapId == 4) 0 else 105, 0, 87, 130)
+            g.blit(GUI_BOOK2, x + 20, y + 48, if (chapId == 4) 0 else 105, 0, 87, 100)
         }
     }
 
