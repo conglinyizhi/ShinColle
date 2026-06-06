@@ -2,14 +2,18 @@ package org.trp.shincolle.integration.jade
 
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.item.ItemStack
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityShipBase
+import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.item.DebugInspectorItem
 import org.trp.shincolle.menu.ShipContainerMenu
 import snownee.jade.api.EntityAccessor
 import snownee.jade.api.IEntityComponentProvider
 import snownee.jade.api.ITooltip
 import snownee.jade.api.config.IPluginConfig
+import snownee.jade.api.ui.IElement
+import snownee.jade.api.ui.IElementHelper
 
 enum class ShipJadeProvider : IEntityComponentProvider {
     INSTANCE;
@@ -17,47 +21,55 @@ enum class ShipJadeProvider : IEntityComponentProvider {
     override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig) {
         val ship = accessor.entity as? EntityShipBase ?: return
         val creativeInfinite = ship.hasCreativeDebugger()
+        val helper = IElementHelper.get()
 
+        // Line 1: Level | Status
+        val levelText = Component.translatable("gui.shincolle.level")
+            .append(": ${ship.level}")
+        val statusText = Component.translatable("tooltip.shincolle.jade.ship.status", runningState(ship))
         tooltip.add(
-            Component.translatable("gui.shincolle.level")
-                .append(": ${ship.level}")
+            listOf(
+                helper.text(levelText),
+                helper.text(Component.literal(" | ")),
+                helper.text(statusText)
+            )
         )
-        tooltip.add(
-            Component.translatable("gui.shincolle.hp")
-                .append(": ${Math.round(ship.health)} / ${Math.round(ship.maxHealth)}")
-                .append(
-                    if (creativeInfinite) Component.literal(" " )
-                        .append(DebugInspectorItem.creativeInfiniteLabel()) else Component.empty()
-                )
+
+        // Line 2: Resource icons (ammo light / ammo heavy / grudge)
+        val resourceLine = mutableListOf<IElement>()
+
+        // Light ammo
+        resourceLine.add(helper.smallItem(ItemStack(ModItems.AMMO_LIGHT.get()!!)))
+        resourceLine.add(
+            helper.text(
+                if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel()
+                else Component.literal(" ${ship.ammoLight}")
+            )
         )
-        tooltip.add(
-            Component.translatable("gui.shincolle.ammolight")
-                .append(": ")
-                .append(
-                    if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel() else Component.literal(
-                        ship.ammoLight.toString()
-                    )
-                )
+
+        resourceLine.add(helper.spacer(6, 0))
+
+        // Heavy ammo
+        resourceLine.add(helper.smallItem(ItemStack(ModItems.AMMO_HEAVY.get()!!)))
+        resourceLine.add(
+            helper.text(
+                if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel()
+                else Component.literal(" ${ship.ammoHeavy}")
+            )
         )
-        tooltip.add(
-            Component.translatable("gui.shincolle.ammoheavy")
-                .append(": ")
-                .append(
-                    if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel() else Component.literal(
-                        ship.ammoHeavy.toString()
-                    )
-                )
+
+        resourceLine.add(helper.spacer(6, 0))
+
+        // Grudge
+        resourceLine.add(helper.smallItem(ItemStack(ModItems.GRUDGE.get())))
+        resourceLine.add(
+            helper.text(
+                if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel()
+                else Component.literal(" ${ship.fuel}")
+            )
         )
-        tooltip.add(Component.translatable("tooltip.shincolle.jade.ship.status", runningState(ship)))
-        tooltip.add(
-            Component.translatable("gui.shincolle.grudge")
-                .append(": ")
-                .append(
-                    if (creativeInfinite) DebugInspectorItem.creativeInfiniteLabel() else Component.literal(
-                        ship.fuel.toString()
-                    )
-                )
-        )
+
+        tooltip.add(resourceLine)
     }
 
     override fun getUid(): ResourceLocation = UID
