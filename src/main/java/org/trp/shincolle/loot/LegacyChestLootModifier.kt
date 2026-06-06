@@ -32,7 +32,7 @@ class LegacyChestLootModifier(conditions: Array<LootItemCondition?>, private val
         var totalWeight = 0
         for (entry in Config.lootEntries) {
             if (!matchesCategory(entry!!.chestId, this.category)) continue
-            if (context.getRandom().nextFloat() > entry.chance) continue
+            if (context.random.nextFloat() > entry.chance) continue
             candidates.add(entry)
             totalWeight += entry.weight
         }
@@ -42,7 +42,7 @@ class LegacyChestLootModifier(conditions: Array<LootItemCondition?>, private val
         }
 
         val rolls = max(1, candidates.size / 2 + 1)
-        val random = context.getRandom()
+        val random = context.random
         for (i in 0..<rolls) {
             val chosen: LootEntry = chooseWeighted(candidates, totalWeight, random.nextInt(totalWeight))
             val stack: ItemStack = createStack(chosen, random)
@@ -96,8 +96,8 @@ class LegacyChestLootModifier(conditions: Array<LootItemCondition?>, private val
             }
 
             var stack = ItemStack(entry.item, count)
-            if (entry.itemMeta == -1 && stack.getItem() is LegacyEquipItem) {
-                val equipItem = stack.getItem() as LegacyEquipItem
+            if (entry.itemMeta == -1 && stack.item is LegacyEquipItem) {
+                val equipItem = stack.item as LegacyEquipItem
                 val variant = random.nextInt(equipItem.variantCount)
                 stack = equipItem.createVariantStack(variant)
                 stack.setCount(count)

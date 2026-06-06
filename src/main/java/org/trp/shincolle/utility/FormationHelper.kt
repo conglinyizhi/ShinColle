@@ -56,16 +56,16 @@ object FormationHelper {
             }
 
             var spawnBlock = refPos.relative(rightDir, col * horizontalSpacing).relative(spawnDir, row * depthSpacing)
-            var spawnX = spawnBlock.getX() + 0.5
-            val spawnY = deskPos.getY() + 1.0
-            var spawnZ = spawnBlock.getZ() + 0.5
+            var spawnX = spawnBlock.x + 0.5
+            val spawnY = deskPos.y + 1.0
+            var spawnZ = spawnBlock.z + 0.5
 
             if (!world.isEmptyBlock(BlockPos(spawnX.toInt(), spawnY.toInt(), spawnZ.toInt()))) {
                 row++
                 col = 0
                 spawnBlock = refPos.relative(rightDir, col * horizontalSpacing).relative(spawnDir, row * depthSpacing)
-                spawnX = spawnBlock.getX() + 0.5
-                spawnZ = spawnBlock.getZ() + 0.5
+                spawnX = spawnBlock.x + 0.5
+                spawnZ = spawnBlock.z + 0.5
             }
 
             if (entity.distanceToSqr(spawnX, spawnY, spawnZ) > 1024.0) {
@@ -73,7 +73,7 @@ object FormationHelper {
                 if (!movement.teleportNearLiving(player, 0.75)) {
                     debugLog(
                         "Formation summon teleportFailed ship={} desk={} target={},{},{}",
-                        entity.getUUID(), deskPos, spawnX, spawnY, spawnZ
+                        entity.uuid, deskPos, spawnX, spawnY, spawnZ
                     )
                     continue
                 }

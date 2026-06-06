@@ -46,14 +46,14 @@ internal object HostileSpawnManager {
             return
         }
 
-        val blockX = Mth.floor(player.getX())
-        val blockZ = Mth.floor(player.getZ())
+        val blockX = Mth.floor(player.x)
+        val blockZ = Mth.floor(player.z)
         val playerPos = BlockPos(blockX, player.getBlockY(), blockZ)
         if (!isWaterOrBeachBiome(level, playerPos)) {
             return
         }
 
-        val random = player.getRandom()
+        val random = player.random
         if (countHostileMinions(level) > Config.hostileMobSpawnMax) {
             return
         }
@@ -122,7 +122,7 @@ internal object HostileSpawnManager {
     }
 
     private fun spawnBossShips(level: ServerLevel, player: Player) {
-        val playerId = player.getUUID()
+        val playerId = player.uuid
         var cooldown = BOSS_COOLDOWNS.getOrDefault(playerId, 0)!!
 
         val playerPos = player.blockPosition()
@@ -133,7 +133,7 @@ internal object HostileSpawnManager {
         }
 
         if (cooldown <= 0 && canTickCooldown) {
-            val random = player.getRandom()
+            val random = player.random
             cooldown = Config.hostileBossCooldownTicks
 
             if (random.nextInt(4) == 0) {
@@ -145,8 +145,8 @@ internal object HostileSpawnManager {
     }
 
     private fun trySpawnBossFleet(level: ServerLevel, player: Player, random: RandomSource) {
-        val baseX = Mth.floor(player.getX())
-        val baseZ = Mth.floor(player.getZ())
+        val baseX = Mth.floor(player.x)
+        val baseZ = Mth.floor(player.z)
 
         for (i in 0..19) {
             val offX = random.nextInt(32) + 32
@@ -242,7 +242,7 @@ internal object HostileSpawnManager {
 
         ship.initializeHostileSpawnState(scaleLevel)
         ship.moveTo(x, y, z, random.nextFloat() * 360.0f, 0.0f)
-        if (!level.noCollision(ship, ship.getBoundingBox())) {
+        if (!level.noCollision(ship, ship.boundingBox)) {
             return false
         }
 

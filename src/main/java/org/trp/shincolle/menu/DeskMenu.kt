@@ -100,13 +100,13 @@ class DeskMenu @JvmOverloads constructor(
 
     override fun stillValid(player: Player): Boolean {
         if (blockEntity != null) {
-            if (blockEntity.getLevel() == null || player.level()
-                    .getBlockEntity(blockEntity.getBlockPos()) !== blockEntity
+            if (blockEntity.level == null || player.level()
+                    .getBlockEntity(blockEntity.blockPos) !== blockEntity
             ) {
                 return false
             }
             return stillValid(
-                ContainerLevelAccess.create(blockEntity.getLevel()!!, blockEntity.getBlockPos()),
+                ContainerLevelAccess.create(blockEntity.level!!, blockEntity.blockPos),
                 player,
                 blockEntity.getBlockState().getBlock()
             )
@@ -115,11 +115,11 @@ class DeskMenu @JvmOverloads constructor(
             return false
         }
         return when (this.deskType) {
-            1 -> player.getMainHandItem().getItem() is DeskItemRadar
-                    || player.getOffhandItem().getItem() is DeskItemRadar
+            1 -> player.mainHandItem.item is DeskItemRadar
+                    || player.offhandItem.item is DeskItemRadar
 
-            2 -> player.getMainHandItem().getItem() is DeskItemBook
-                    || player.getOffhandItem().getItem() is DeskItemBook
+            2 -> player.mainHandItem.item is DeskItemBook
+                    || player.offhandItem.item is DeskItemBook
 
             else -> true
         }

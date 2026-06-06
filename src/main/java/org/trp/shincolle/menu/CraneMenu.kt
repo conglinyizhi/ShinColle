@@ -165,16 +165,16 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
     }
 
     override fun stillValid(player: Player): Boolean {
-        if (this.blockEntity.getLevel() == null) {
+        if (this.blockEntity.level == null) {
             return false
         }
-        if (player.level().getBlockEntity(this.blockEntity.getBlockPos()) !== this.blockEntity) {
+        if (player.level().getBlockEntity(this.blockEntity.blockPos) !== this.blockEntity) {
             return false
         }
         return player.distanceToSqr(
-            blockEntity.getBlockPos().getX() + 0.5,
-            blockEntity.getBlockPos().getY() + 0.5,
-            blockEntity.getBlockPos().getZ() + 0.5
+            blockEntity.blockPos.x + 0.5,
+            blockEntity.blockPos.y + 0.5,
+            blockEntity.blockPos.z + 0.5
         ) <= 64.0
     }
 
@@ -200,7 +200,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
                     slot.set(ghost)
                     blockEntity.setItemMode(slotId, true)
                 } else {
-                    val old = slot.getItem()
+                    val old = slot.item
                     if (ItemStack.isSameItem(ghost, old)) {
                         ghost.setCount(min(ghost.getMaxStackSize(), ghost.getCount() + old.getCount()))
                     }

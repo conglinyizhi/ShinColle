@@ -73,16 +73,16 @@ class VolCoreMenu(containerId: Int, playerInventory: Inventory, private val bloc
         get() = (if (clientSide) activeSynced else (if (blockEntity.isBtnActive()) 1 else 0)) != 0
 
     override fun stillValid(player: Player): Boolean {
-        if (this.blockEntity.getLevel() == null) {
+        if (this.blockEntity.level == null) {
             return false
         }
-        if (player.level().getBlockEntity(this.blockEntity.getBlockPos()) !== this.blockEntity) {
+        if (player.level().getBlockEntity(this.blockEntity.blockPos) !== this.blockEntity) {
             return false
         }
         return player.distanceToSqr(
-            blockEntity.getBlockPos().getX() + 0.5,
-            blockEntity.getBlockPos().getY() + 0.5,
-            blockEntity.getBlockPos().getZ() + 0.5
+            blockEntity.blockPos.x + 0.5,
+            blockEntity.blockPos.y + 0.5,
+            blockEntity.blockPos.z + 0.5
         ) <= 64.0
     }
 
@@ -90,7 +90,7 @@ class VolCoreMenu(containerId: Int, playerInventory: Inventory, private val bloc
         var copied = ItemStack.EMPTY
         val slot = this.slots.get(index)
         if (slot != null && slot.hasItem()) {
-            val stack = slot.getItem()
+            val stack = slot.item
             copied = stack.copy()
 
             if (index < TILE_SLOT_COUNT) {

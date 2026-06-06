@@ -14,7 +14,7 @@ object ClientForgeEventBusEvents {
     @JvmStatic
     @SubscribeEvent
     fun onRenderFog(event: RenderFog) {
-        if (event.getType() != FogType.WATER) {
+        if (event.type != FogType.WATER) {
             return
         }
 

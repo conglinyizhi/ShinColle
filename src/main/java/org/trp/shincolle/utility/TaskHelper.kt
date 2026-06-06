@@ -171,14 +171,14 @@ object TaskHelper {
         val wpbe = level.getBlockEntity(wpPos)
         if (wpbe is WayPointBlockEntity) {
             val chestPos: BlockPos = wpbe.chestPos ?: BlockPos.ZERO
-            if (chestPos.getY() <= 0) {
+            if (chestPos.y <= 0) {
                 invalidateTask(runtime)
                 return
             }
             if (host.distanceToSqr(
-                    chestPos.getX().toDouble(),
-                    chestPos.getY().toDouble(),
-                    chestPos.getZ().toDouble()
+                    chestPos.x.toDouble(),
+                    chestPos.y.toDouble(),
+                    chestPos.z.toDouble()
                 ) > 25.0
             ) {
                 runtime.moveToTaskPoint(Vec3(gx + 0.5, gy.toDouble(), gz + 0.5), 1.0)
@@ -306,12 +306,12 @@ object TaskHelper {
 
                             val failChance =
                                 (Config.shipMaxLevelNormal - host.level) / Config.shipMaxLevelNormal.toFloat() * 0.2f + 0.05f
-                            if (host.getRandom().nextFloat() < failChance) {
+                            if (host.random.nextFloat() < failChance) {
                                 val entity = ItemEntity(
                                     level,
-                                    chestPos.getX() + 0.5,
-                                    chestPos.getY() + 1.0,
-                                    chestPos.getZ() + 0.5,
+                                    chestPos.x + 0.5,
+                                    chestPos.y + 1.0,
+                                    chestPos.z + 0.5,
                                     ItemStack(
                                         Items.CHARCOAL
                                     )
@@ -330,8 +330,8 @@ object TaskHelper {
 
             if (swing) {
                 host.startCustomSwing()
-                if (host.getRandom().nextInt(5) == 0) {
-                    host.applyParticleEmotion(host.getRandom().nextInt(5))
+                if (host.random.nextInt(5) == 0) {
+                    host.applyParticleEmotion(host.random.nextInt(5))
                 }
             }
             return
@@ -349,7 +349,7 @@ object TaskHelper {
         if (host == null) return
         val level = host.level()
         val rod = host.heldItemMainhandSlot
-        if (rod.isEmpty() || rod.getItem() !== Items.FISHING_ROD) {
+        if (rod.isEmpty() || rod.item !== Items.FISHING_ROD) {
             invalidateTask(runtime)
             return
         }
@@ -368,7 +368,7 @@ object TaskHelper {
             return
         }
 
-        if (abs(host.getDeltaMovement().x) > 0.1 || abs(host.getDeltaMovement().z) > 0.1 || host.getDeltaMovement().y > 0.1) return
+        if (abs(host.deltaMovement.x) > 0.1 || abs(host.deltaMovement.z) > 0.1 || host.deltaMovement.y > 0.1) return
 
 
         var stageStart = if (enabled()) now() else 0L
@@ -390,19 +390,19 @@ object TaskHelper {
             if (!level.isClientSide) {
                 val hook = EntityShipFishingHook(level, host)
                 hook.setPos(
-                    waterPos.getX() + 0.1 + host.getRandom().nextDouble() * 0.8,
-                    waterPos.getY() + 1.0,
-                    waterPos.getZ() + 0.1 + host.getRandom().nextDouble() * 0.8
+                    waterPos.x + 0.1 + host.random.nextDouble() * 0.8,
+                    waterPos.y + 1.0,
+                    waterPos.z + 0.1 + host.random.nextDouble() * 0.8
                 )
                 level.addFreshEntity(hook)
-                host.applyParticleEmotion(host.getRandom().nextInt(4) + 1)
+                host.applyParticleEmotion(host.random.nextInt(4) + 1)
             }
             return
         }
 
         if (level is ServerLevel) {
         val serverLevel = level as ServerLevel
-            if (fishHook.tickCount > Config.tickFishingMin + host.getRandom()
+            if (fishHook.tickCount > Config.tickFishingMin + host.random
                     .nextInt(Config.tickFishingMax)
             ) {
                 host.startCustomSwing()
@@ -425,7 +425,7 @@ object TaskHelper {
                 for (stack in items) {
                     val remainder = ItemHandlerHelper.insertItemStacked(host.inventory!!, stack, false)
                     if (!remainder.isEmpty()) {
-                        val entity = ItemEntity(level, host.getX(), host.getY(), host.getZ(), remainder)
+                        val entity = ItemEntity(level, host.x, host.y, host.z, remainder)
                         level.addFreshEntity(entity)
                     }
                 }
@@ -434,7 +434,7 @@ object TaskHelper {
                 host.addShipExp(Config.expGainTask[1])
                 host.fuel -= Config.consumeGrudgeTask[1]
                 host.addMorale(300)
-                host.applyParticleEmotion(host.getRandom().nextInt(5))
+                host.applyParticleEmotion(host.random.nextInt(5))
             } else if (fishHook.tickCount > Config.tickFishingMin + Config.tickFishingMax) {
                 fishHook.discard()
             }
@@ -455,34 +455,34 @@ object TaskHelper {
             return
         }
 
-        if (abs(host.getDeltaMovement().x) > 0.1 || abs(host.getDeltaMovement().z) > 0.1 || host.getDeltaMovement().y > 0.1) return
+        if (abs(host.deltaMovement.x) > 0.1 || abs(host.deltaMovement.z) > 0.1 || host.deltaMovement.y > 0.1) return
 
         if ((host.tickCount and 63) == 0) {
             runtime.moveTo(
                 Vec3(
-                    host.getX() + host.getRandom().nextInt(9) - 4.0,
-                    host.getY() + host.getRandom().nextInt(5) - 2.0,
-                    host.getZ() + host.getRandom().nextInt(9) - 4.0
+                    host.x + host.random.nextInt(9) - 4.0,
+                    host.y + host.random.nextInt(5) - 2.0,
+                    host.z + host.random.nextInt(9) - 4.0
                 ), 1.0
             )
             return
         }
 
-        if (host.getRandom().nextInt(5) > 2) {
+        if (host.random.nextInt(5) > 2) {
             host.startCustomSwing()
-            if (!level.isClientSide && host.getRandom().nextInt(10) > 8) {
-                host.applyParticleEmotion(host.getRandom().nextInt(5))
+            if (!level.isClientSide && host.random.nextInt(10) > 8) {
+                host.applyParticleEmotion(host.random.nextInt(5))
             }
         }
 
-        if (!level.isClientSide && (host.tickCount and 31) == 0 && host.tickCount - host.getStateTimer(15) > Config.tickMiningMin + host.getRandom()
+        if (!level.isClientSide && (host.tickCount and 31) == 0 && host.tickCount - host.getStateTimer(15) > Config.tickMiningMin + host.random
                 .nextInt(
                     Config.tickMiningMax
                 )
         ) {
-            val xl = host.getX().toInt()
-            val yl = host.getY().toInt()
-            val zl = host.getZ().toInt()
+            val xl = host.x.toInt()
+            val yl = host.y.toInt()
+            val zl = host.z.toInt()
             var stoneCount = 0
             var canMine = false
             val mutPos = MutableBlockPos()
@@ -524,14 +524,14 @@ object TaskHelper {
                 if (!result.isEmpty()) {
                     val remainder = ItemHandlerHelper.insertItemStacked(host.inventory!!, result, false)
                     if (!remainder.isEmpty()) {
-                        level.addFreshEntity(ItemEntity(level, host.getX(), host.getY(), host.getZ(), remainder))
+                        level.addFreshEntity(ItemEntity(level, host.x, host.y, host.z, remainder))
                     }
                 }
 
                 host.addShipExp(Config.expGainTask[2])
                 host.fuel -= Config.consumeGrudgeTask[2]
                 host.addMorale(-200)
-                host.applyParticleEmotion(host.getRandom().nextInt(5))
+                host.applyParticleEmotion(host.random.nextInt(5))
                 host.startCustomSwing()
                 host.setStateTimer(15, host.tickCount)
             }
@@ -545,7 +545,7 @@ object TaskHelper {
 
         val level = host.level()
         val shipLevel = host.level
-        val y = host.blockPosition().getY()
+        val y = host.blockPosition().y
         val toolLevel = getToolLevel(host.heldItemMainhandSlot)
         val biomeId = getLegacyBiomeId(level, host.blockPosition())
         val biomePath = level.getBiome(host.blockPosition())
@@ -570,7 +570,7 @@ object TaskHelper {
             return MiningDropResult.createFallback(candidates.size, totalWeight)
         }
 
-        var roll = host.getRandom().nextInt(totalWeight)
+        var roll = host.random.nextInt(totalWeight)
         var chosen = candidates.get(0)
         for (entry in candidates) {
             roll -= entry.weight
@@ -582,7 +582,7 @@ object TaskHelper {
 
         var amount = chosen.min
         if (chosen.max > chosen.min) {
-            amount += host.getRandom().nextInt(chosen.max - chosen.min + 1)
+            amount += host.random.nextInt(chosen.max - chosen.min + 1)
         }
 
         val fortuneLevel = getFortuneLevel(host.heldItemMainhandSlot, level)
@@ -750,7 +750,7 @@ object TaskHelper {
         }
 
         val variant = if (itemMeta <= 0)
-            host.getRandom().nextInt(variantCount)
+            host.random.nextInt(variantCount)
         else min(itemMeta, variantCount - 1)
         return stackFactory.apply(variant)
     }
@@ -759,8 +759,8 @@ object TaskHelper {
         if (pickaxe.isEmpty()) {
             return 0
         }
-        if (pickaxe.getItem() is TieredItem) {
-            val tieredItem = pickaxe.getItem() as TieredItem
+        if (pickaxe.item is TieredItem) {
+            val tieredItem = pickaxe.item as TieredItem
             val tier: Tier = tieredItem.tier
             if (tier === Tiers.STONE) {
                 return 1
@@ -819,7 +819,7 @@ object TaskHelper {
                     if (dx == 0 && dz == 0) {
                         continue
                     }
-                    pos.set(host.getX() + dx, host.getY() + dy, host.getZ() + dz)
+                    pos.set(host.x + dx, host.y + dy, host.z + dz)
                     if (isWaterWithDepth(level, pos, depth)) {
                         return pos.immutable()
                     }
@@ -927,14 +927,14 @@ object TaskHelper {
             return
         }
         val chestPos: BlockPos = wpbe.chestPos ?: BlockPos.ZERO
-        if (chestPos.getY() <= 0) {
+        if (chestPos.y <= 0) {
             invalidateTask(runtime)
             return
         }
         if (host.distanceToSqr(
-                chestPos.getX().toDouble(),
-                chestPos.getY().toDouble(),
-                chestPos.getZ().toDouble()
+                chestPos.x.toDouble(),
+                chestPos.y.toDouble(),
+                chestPos.z.toDouble()
             ) > 25.0
         ) {
             runtime.moveToTaskPoint(Vec3(gx + 0.5, gy.toDouble(), gz + 0.5), 1.0)
@@ -1032,9 +1032,9 @@ object TaskHelper {
                 level.addFreshEntity(
                     ItemEntity(
                         level,
-                        chestPos.getX() + 0.5,
-                        chestPos.getY() + 1.0,
-                        chestPos.getZ() + 0.5,
+                        chestPos.x + 0.5,
+                        chestPos.y + 1.0,
+                        chestPos.z + 0.5,
                         finalResult
                     )
                 )
@@ -1053,9 +1053,9 @@ object TaskHelper {
                     level.addFreshEntity(
                         ItemEntity(
                             level,
-                            chestPos.getX() + 0.5,
-                            chestPos.getY() + 1.0,
-                            chestPos.getZ() + 0.5,
+                            chestPos.x + 0.5,
+                            chestPos.y + 1.0,
+                            chestPos.z + 0.5,
                             remaining
                         )
                     )
@@ -1077,8 +1077,8 @@ object TaskHelper {
             host.addShipExp(Config.expGainTask[3])
             host.fuel -= Config.consumeGrudgeTask[3]
             host.addMorale(-10)
-            if (host.getRandom().nextInt(5) == 0) {
-                host.applyParticleEmotion(host.getRandom().nextInt(5))
+            if (host.random.nextInt(5) == 0) {
+                host.applyParticleEmotion(host.random.nextInt(5))
             }
         }
     }

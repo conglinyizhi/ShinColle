@@ -530,10 +530,10 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         get() = ship.legacyShipStats.attackRange
 
     val shipHealth: Float
-        get() = ship.getHealth()
+        get() = ship.health
 
     val shipMaxHealth: Float
-        get() = ship.getMaxHealth()
+        get() = ship.maxHealth
 
     val aircraftLight: Int
         get() = ship.numAircraftLight
@@ -593,9 +593,9 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         var copied = ItemStack.EMPTY
         val slot = this.slots.get(index)
         if (slot != null && slot.hasItem()) {
-            val stack = slot.getItem()
+            val stack = slot.item
             copied = stack.copy()
-            val shipEquipCandidate = stack.getItem() is LegacyEquipItem
+            val shipEquipCandidate = stack.item is LegacyEquipItem
                     || stack.`is`(ShipInventoryHandler.equipItemsTag)
 
             if (index < VISIBLE_SHIP_SLOTS) {
@@ -979,7 +979,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         val slotCount = this.ship.accessibleInventorySlotCount
         for (i in ShipInventoryHandler.equipSlotCount..<slotCount) {
             val stack = this.ship.inventory!!.getStackInSlot(i)
-            if (stack.isEmpty() || stack.getItem() !is ShipTankItem) {
+            if (stack.isEmpty() || stack.item !is ShipTankItem) {
                 continue
             }
 

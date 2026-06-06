@@ -51,7 +51,7 @@ object PointerInteractionService {
         if (target.isSpectator()) {
             return false
         }
-        if (target is Player && target.getAbilities().invulnerable) {
+        if (target is Player && target.abilities.invulnerable) {
             return false
         }
         if (target is EntityShipBase && target.isOwnedBy(player)) {
@@ -72,13 +72,13 @@ object PointerInteractionService {
             return ItemStack.EMPTY
         }
 
-        val main = player.getMainHandItem()
-        if (main.getItem() is PointerItem) {
+        val main = player.mainHandItem
+        if (main.item is PointerItem) {
             return main
         }
 
-        val off = player.getOffhandItem()
-        if (off.getItem() is PointerItem) {
+        val off = player.offhandItem
+        if (off.item is PointerItem) {
             return off
         }
 
@@ -92,11 +92,11 @@ object PointerInteractionService {
         if (player == null || player.level().isClientSide) {
             return
         }
-        if (pointerStack.getItem() !is PointerItem) {
+        if (pointerStack.item !is PointerItem) {
             return
         }
 
-        val pointerItem = pointerStack.getItem() as PointerItem
+        val pointerItem = pointerStack.item as PointerItem
         if (action == 0) {
             cyclePointerMode(player, pointerItem, pointerStack)
         } else if (action == 1 || action == 2) {
@@ -144,8 +144,8 @@ object PointerInteractionService {
             return
         }
         if (player.isShiftKeyDown()) {
-            if (pointerStack.getItem() is PointerItem) {
-                cyclePointerMode(player, pointerStack.getItem() as PointerItem, pointerStack)
+            if (pointerStack.item is PointerItem) {
+                cyclePointerMode(player, pointerStack.item as PointerItem, pointerStack)
             }
             return
         }
@@ -155,7 +155,7 @@ object PointerInteractionService {
             return
         }
 
-        val mode = if (pointerStack.getItem() is PointerItem) (pointerStack.getItem() as PointerItem).getMode(pointerStack) else PointerItem.MODE_SINGLE
+        val mode = if (pointerStack.item is PointerItem) (pointerStack.item as PointerItem).getMode(pointerStack) else PointerItem.MODE_SINGLE
         if (mode == PointerItem.MODE_GROUP || mode == PointerItem.MODE_FORMATION) {
             toggleGroupedSelection(player, ship, mode)
             return
@@ -171,15 +171,15 @@ object PointerInteractionService {
             return
         }
 
-        val searchArea = player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS)
+        val searchArea = player.boundingBox.inflate(POINTER_SEARCH_RADIUS)
         var ships = player.level().getEntitiesOfClass<EntityShipBase>(
             EntityShipBase::class.java, searchArea,
             Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
-        if (ships.isEmpty() || pointerStack.getItem() !is PointerItem) {
+        if (ships.isEmpty() || pointerStack.item !is PointerItem) {
             return
         }
 
-        val pointerItem = pointerStack.getItem() as PointerItem
+        val pointerItem = pointerStack.item as PointerItem
         val mode: Int = pointerItem.getMode(pointerStack)
         if (mode == PointerItem.MODE_SINGLE && ships.size > 1) {
             ships.sortWith(compareBy { it.distanceToSqr(player) })
@@ -240,7 +240,7 @@ object PointerInteractionService {
         if (nextMode == PointerItem.MODE_SINGLE) {
             val ships = player.level().getEntitiesOfClass<EntityShipBase>(
                 EntityShipBase::class.java,
-                player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS),
+                player.boundingBox.inflate(POINTER_SEARCH_RADIUS),
                 Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
             if (ships.size > 1) {
                 ships.sortWith(compareBy { it.distanceToSqr(player) })
@@ -253,7 +253,7 @@ object PointerInteractionService {
             val teamId = data.getCurrentTeamID()
             val ships = player.level().getEntitiesOfClass<EntityShipBase>(
                 EntityShipBase::class.java,
-                player.getBoundingBox().inflate(POINTER_SEARCH_RADIUS),
+                player.boundingBox.inflate(POINTER_SEARCH_RADIUS),
                 Predicate { ship -> ship.isOwnedBy(player) && !ship.isInDeadPose })
             for (ship in ships) {
                 ship.isPointerSelected = ship.formationTeam == teamId
@@ -267,7 +267,7 @@ object PointerInteractionService {
         }
         val ships = player.level().getEntitiesOfClass<EntityShipBase>(
             EntityShipBase::class.java,
-            player.getBoundingBox().inflate(radius),
+            player.boundingBox.inflate(radius),
             Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
         for (ship in ships) {
             if (ship === keepSelected) {
@@ -343,14 +343,14 @@ object PointerInteractionService {
     private fun toggleGroupedSelection(player: Player, ship: EntityShipBase, mode: Int) {
         val data = PlayerStateService.admiralData(player)
         val teamId = data.getCurrentTeamID()
-        val existingTeam = data.findShipTeam(ship.getUUID())
-        val existingSlot = if (existingTeam >= 0) data.findShipSlot(existingTeam, ship.getUUID()) else -1
+        val existingTeam = data.findShipTeam(ship.uuid)
+        val existingSlot = if (existingTeam >= 0) data.findShipSlot(existingTeam, ship.uuid) else -1
         var shouldSync = false
 
         if (existingTeam != -1) {
             if (existingTeam == teamId) {
                 if (mode == PointerItem.MODE_FORMATION) {
-                    if (PlayerStateService.removeShipFromTeams(player, ship.getUUID())) {
+                    if (PlayerStateService.removeShipFromTeams(player, ship.uuid)) {
                         FormationService.clearFormationState(ship)
                         shouldSync = true
                     }
@@ -362,7 +362,7 @@ object PointerInteractionService {
                     }
                 }
             } else if (mode == PointerItem.MODE_FORMATION) {
-                val assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID())
+                val assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.uuid)
                 if (assignedSlot != -1) {
                     FormationService.applyFormationState(ship, teamId, assignedSlot, true)
                     shouldSync = true
@@ -376,7 +376,7 @@ object PointerInteractionService {
                 sendAdmiralStateIfServerPlayer(player)
             }
         } else if (mode == PointerItem.MODE_FORMATION) {
-            val assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID())
+            val assignedSlot = PlayerStateService.assignShipToCurrentTeam(player, ship.uuid)
             if (assignedSlot != -1) {
                 FormationService.applyFormationState(ship, teamId, assignedSlot, true)
                 sendAdmiralStateIfServerPlayer(player)
@@ -469,7 +469,7 @@ object PointerInteractionService {
             return false
         }
         if (target is Player) {
-            return ownerId == target.getUUID()
+            return ownerId == target.uuid
         }
         if (target is TamableAnimal) {
             return ownerId == target.ownerUUID
@@ -486,7 +486,7 @@ object PointerInteractionService {
 
     fun getTargetOwnerUUID(target: Entity?): UUID? {
         if (target is Player) {
-            return target.getUUID()
+            return target.uuid
         }
         if (target is EntityShipBase) {
             return target.ownerUUID

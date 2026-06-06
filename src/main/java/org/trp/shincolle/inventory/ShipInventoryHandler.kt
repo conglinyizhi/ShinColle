@@ -39,7 +39,7 @@ class ShipInventoryHandler(private val ship: EntityShipBase, size: Int) : ItemSt
             return false
         }
         if (slot < equipSlotCount) {
-            return stack.`is`(equipItemsTag) || stack.getItem() is LegacyEquipItem
+            return stack.`is`(equipItemsTag) || stack.item is LegacyEquipItem
         }
         return true
     }

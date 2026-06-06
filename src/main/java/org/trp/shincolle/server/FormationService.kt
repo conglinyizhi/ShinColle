@@ -44,7 +44,7 @@ object FormationService {
         val teamId = data.getCurrentTeamID()
         val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            player.getBoundingBox().inflate(NEARBY_SHIP_SYNC_RADIUS),
+            player.boundingBox.inflate(NEARBY_SHIP_SYNC_RADIUS),
             Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose })
 
         for (ship in ships) {
@@ -233,16 +233,16 @@ object FormationService {
         val serverLevel = player.level() as ServerLevel
         val nearbySelected: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            player.getBoundingBox().inflate(NEARBY_SELECTED_IMPORT_RADIUS),
-            Predicate { ship: EntityShipBase? -> ship!!.isPointerSelected && player.getUUID() == ship.ownerUUID })
+            player.boundingBox.inflate(NEARBY_SELECTED_IMPORT_RADIUS),
+            Predicate { ship: EntityShipBase? -> ship!!.isPointerSelected && player.uuid == ship.ownerUUID })
         val nearbyOwned: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            player.getBoundingBox().inflate(NEARBY_SHIP_SYNC_RADIUS),
-            Predicate { ship: EntityShipBase? -> player.getUUID() == ship!!.ownerUUID && !ship.isInDeadPose })
+            player.boundingBox.inflate(NEARBY_SHIP_SYNC_RADIUS),
+            Predicate { ship: EntityShipBase? -> player.uuid == ship!!.ownerUUID && !ship.isInDeadPose })
 
         for (ship in nearbySelected) {
-            if (!data.isShipInTeam(teamId, ship.getUUID())) {
-                if (PlayerStateService.assignShipToCurrentTeam(player, ship.getUUID()) == -1) {
+            if (!data.isShipInTeam(teamId, ship.uuid)) {
+                if (PlayerStateService.assignShipToCurrentTeam(player, ship.uuid) == -1) {
                     teamFilledDuringSync = true
                 } else {
                     changed = true
@@ -251,7 +251,7 @@ object FormationService {
         }
 
         for (ship in nearbyOwned) {
-            if (ship.formationTeam == teamId && !data.isShipInTeam(teamId, ship.getUUID())) {
+            if (ship.formationTeam == teamId && !data.isShipInTeam(teamId, ship.uuid)) {
                 clearFormationState(ship)
                 changed = true
             }

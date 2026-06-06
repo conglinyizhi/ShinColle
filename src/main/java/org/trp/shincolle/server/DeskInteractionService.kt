@@ -28,12 +28,12 @@ object DeskInteractionService {
             }
         }
 
-        var stack = player.getMainHandItem()
-        if (stack.getItem() !is DeskItemBook) {
-            stack = player.getOffhandItem()
+        var stack = player.mainHandItem
+        if (stack.item !is DeskItemBook) {
+            stack = player.offhandItem
         }
 
-        if (stack.getItem() is DeskItemBook) {
+        if (stack.item is DeskItemBook) {
             stack.set<Int?>(ModDataComponents.BOOK_CHAPTER, chapter)
             stack.set<Int?>(ModDataComponents.BOOK_PAGE, page)
         }
@@ -102,7 +102,7 @@ object DeskInteractionService {
         }
 
         if (!ownedShips.isEmpty()) {
-            FormationHelper.applySummonShipsToDesk(player, containerMenu.blockEntity!!.getBlockPos(), ownedShips)
+            FormationHelper.applySummonShipsToDesk(player, containerMenu.blockEntity!!.blockPos, ownedShips)
         }
     }
 }

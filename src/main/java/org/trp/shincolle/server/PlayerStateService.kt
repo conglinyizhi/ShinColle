@@ -50,17 +50,17 @@ object PlayerStateService {
 
         var mode = PointerItem.MODE_SINGLE
         var pointerStack = ItemStack.EMPTY
-        val main = player.getMainHandItem()
+        val main = player.mainHandItem
         if (main.`is`(ModItems.POINTER_ITEM.get())) {
             pointerStack = main
         } else {
-            val off = player.getOffhandItem()
+            val off = player.offhandItem
             if (off.`is`(ModItems.POINTER_ITEM.get())) {
                 pointerStack = off
             }
         }
-        if (!pointerStack.isEmpty() && pointerStack.getItem() is PointerItem) {
-            mode = (pointerStack.getItem() as PointerItem).getMode(pointerStack)
+        if (!pointerStack.isEmpty() && pointerStack.item is PointerItem) {
+            mode = (pointerStack.item as PointerItem).getMode(pointerStack)
         }
 
         if (mode == PointerItem.MODE_FORMATION) {
@@ -68,7 +68,7 @@ object PlayerStateService {
             val teamId = data.getCurrentTeamID()
             val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
                 EntityShipBase::class.java,
-                player.getBoundingBox().inflate(100.0),
+                player.boundingBox.inflate(100.0),
                 Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose })
             for (ship in ships) {
                 if (ship.formationTeam == teamId) {
@@ -147,8 +147,8 @@ object PlayerStateService {
             return stored
         }
 
-        val ownerId = player.getUUID()
-        val search = player.getBoundingBox().inflate(256.0, 128.0, 256.0)
+        val ownerId = player.uuid
+        val search = player.boundingBox.inflate(256.0, 128.0, 256.0)
         val scanned = player.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java, search,
             Predicate { ship: EntityShipBase? ->

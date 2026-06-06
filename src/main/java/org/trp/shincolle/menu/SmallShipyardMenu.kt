@@ -172,15 +172,15 @@ class SmallShipyardMenu(
         }
 
     override fun stillValid(player: Player): Boolean {
-        if (this.blockEntity.getLevel() == null) {
+        if (this.blockEntity.level == null) {
             return false
         }
-        if (player.level().getBlockEntity(this.blockEntity.getBlockPos()) !== this.blockEntity) {
+        if (player.level().getBlockEntity(this.blockEntity.blockPos) !== this.blockEntity) {
             return false
         }
-        val x = this.blockEntity.getBlockPos().getX() + 0.5
-        val y = this.blockEntity.getBlockPos().getY() + 0.5
-        val z = this.blockEntity.getBlockPos().getZ() + 0.5
+        val x = this.blockEntity.blockPos.x + 0.5
+        val y = this.blockEntity.blockPos.y + 0.5
+        val z = this.blockEntity.blockPos.z + 0.5
         return player.distanceToSqr(x, y, z) <= 64.0
     }
 
@@ -188,7 +188,7 @@ class SmallShipyardMenu(
         var copied = ItemStack.EMPTY
         val slot = this.slots.get(index)
         if (slot != null && slot.hasItem()) {
-            val stack = slot.getItem()
+            val stack = slot.item
             copied = stack.copy()
 
             if (index == SLOT_OUTPUT) {
