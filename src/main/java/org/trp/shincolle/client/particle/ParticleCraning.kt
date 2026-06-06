@@ -206,7 +206,7 @@ class ParticleCraning(
         }
     }
 
-    class Provider(private val sprites: SpriteSet?) : ParticleProvider<SimpleParticleType?> {
+    class Provider(private val sprites: SpriteSet?) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel, x: Double, y: Double, z: Double,
             xSpeed: Double, ySpeed: Double, zSpeed: Double

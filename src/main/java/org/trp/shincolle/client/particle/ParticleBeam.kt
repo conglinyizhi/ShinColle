@@ -226,7 +226,7 @@ class ParticleBeam protected constructor(
         return UNTEXTURED_RENDER
     }
 
-    class Provider : ParticleProvider<SimpleParticleType?> {
+    class Provider : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel,
             x: Double, y: Double, z: Double,

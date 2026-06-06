@@ -68,7 +68,7 @@ class ParticleWaypointLine protected constructor(
         return LightTexture.FULL_BRIGHT
     }
 
-    class ProviderRed(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType?> {
+    class ProviderRed(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel,
             x: Double, y: Double, z: Double,
@@ -78,7 +78,7 @@ class ParticleWaypointLine protected constructor(
         }
     }
 
-    class ProviderPurple(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType?> {
+    class ProviderPurple(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel,
             x: Double, y: Double, z: Double,

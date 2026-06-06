@@ -7,7 +7,7 @@ import net.minecraft.core.particles.SimpleParticleType
 import kotlin.math.max
 
 class ParticleGoddess protected constructor(
-    level: ClientLevel?, x: Double, y: Double, z: Double,
+    level: ClientLevel, x: Double, y: Double, z: Double,
     beamFad: Double, beamRiseSpeed: Double, beamHeight: Double
 ) : ParticleHealSparkle(level, x, y, z, beamFad, beamRiseSpeed, beamHeight) {
     init {
@@ -16,7 +16,7 @@ class ParticleGoddess protected constructor(
 
         val setting = getParticleSetting(level)
         val numBeam = max(1, (3 - setting) * 30)
-        this.beams = Array<FloatArray?>(numBeam) { FloatArray(8) }
+        this.beams = Array<FloatArray>(numBeam) { FloatArray(8) }
         for (i in 0..<numBeam) {
             this.beams[i][7] = this.maxBeamAge.toFloat()
         }
@@ -41,7 +41,7 @@ class ParticleGoddess protected constructor(
         this.beamCurrent = (this.beamCurrent + 1) % this.beams.size
     }
 
-    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType?> {
+    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel, x: Double, y: Double,
             z: Double, xSpeed: Double, ySpeed: Double, zSpeed: Double

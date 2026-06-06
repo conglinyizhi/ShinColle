@@ -112,7 +112,7 @@ class Particle91Type protected constructor(level: ClientLevel, x: Double, y: Dou
         return TEXTURED_RENDER
     }
 
-    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType?> {
+    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType,
             level: ClientLevel,

@@ -43,6 +43,7 @@ import org.trp.shincolle.client.renderer.RendererSimpleMob
 import org.trp.shincolle.client.renderer.block.RenderDesk
 import org.trp.shincolle.client.renderer.layer.ShipHeldItemLayer
 import org.trp.shincolle.client.screen.*
+import org.trp.shincolle.client.tooltip.ScaledTextClientTooltip
 import org.trp.shincolle.entity.*
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile
 import org.trp.shincolle.entity.projectile.EntityProjectileBeam
@@ -156,7 +157,7 @@ object ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.SUBM_RO500.get()) { context -> RendererSubmRo500(context) }
 
         event.registerEntityRenderer(ModEntities.AIRPLANE.get()) { context ->
-            RendererSimpleMob(
+            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelAirplane<net.minecraft.world.entity.Mob>>(
                 context,
                 ModelAirplane(context.bakeLayer(ModelAirplane.LAYER_LOCATION)),
                 0.5f,
@@ -165,7 +166,7 @@ object ClientModEventBusEvents {
             )
         }
         event.registerEntityRenderer(ModEntities.AIRPLANE_T.get()) { context ->
-            RendererSimpleMob(
+            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelAirplaneT<net.minecraft.world.entity.Mob>>(
                 context,
                 ModelAirplaneT(context.bakeLayer(ModelAirplaneT.LAYER_LOCATION)),
                 0.5f,
@@ -174,7 +175,7 @@ object ClientModEventBusEvents {
             )
         }
         event.registerEntityRenderer(ModEntities.AIRPLANE_ZERO.get()) { context ->
-            RendererSimpleMob(
+            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelAirplaneZero<net.minecraft.world.entity.Mob>>(
                 context,
                 ModelAirplaneZero(context.bakeLayer(ModelAirplaneZero.LAYER_LOCATION)),
                 0.5f,
@@ -191,7 +192,7 @@ object ClientModEventBusEvents {
         event.registerEntityRenderer(ModEntities.MOUNT_BA_H.get()) { context -> RendererMountBaH(context) }
         event.registerEntityRenderer(ModEntities.MOUNT_CA_H.get()) { context -> RendererMountCaH(context) }
         event.registerEntityRenderer(ModEntities.RENSOUHOU.get()) { context ->
-            RendererSimpleMob(
+            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelRensouhou<net.minecraft.world.entity.Mob>>(
                 context,
                 ModelRensouhou(context.bakeLayer(ModelRensouhou.LAYER_LOCATION)),
                 0.5f,
@@ -225,10 +226,11 @@ object ClientModEventBusEvents {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun <E : LivingEntity, M : net.minecraft.client.model.EntityModel<E>> addHeldItemLayerUnchecked(
         renderer: LivingEntityRenderer<E, M>
     ) {
-        renderer.addLayer(ShipHeldItemLayer(renderer))
+        renderer.addLayer(ShipHeldItemLayer(renderer as net.minecraft.client.renderer.entity.RenderLayerParent<E, net.minecraft.client.model.EntityModel<E>>) as net.minecraft.client.renderer.entity.layers.RenderLayer<E, M>)
     }
 
     @SubscribeEvent

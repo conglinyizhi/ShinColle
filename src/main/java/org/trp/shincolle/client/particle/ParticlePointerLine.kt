@@ -243,7 +243,7 @@ class ParticlePointerLine protected constructor(
         return if (this.particleType == 1) TEXTURED_RENDER else UNTEXTURED_RENDER
     }
 
-    class Provider(private val type: Int, ignored: FloatArray?) : ParticleProvider<SimpleParticleType?> {
+    class Provider(private val type: Int, ignored: FloatArray?) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel,
             x: Double, y: Double, z: Double,

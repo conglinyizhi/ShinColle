@@ -84,7 +84,7 @@ class ParticleWaypoint protected constructor(
             .setLight(light)
     }
 
-    class Provider(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType?> {
+    class Provider(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel,
             x: Double, y: Double, z: Double,

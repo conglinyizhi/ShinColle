@@ -142,7 +142,7 @@ class ParticleChi protected constructor(level: ClientLevel, scale: Double, hostE
         return LightTexture.FULL_BRIGHT
     }
 
-    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType?> {
+    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType,
             level: ClientLevel,

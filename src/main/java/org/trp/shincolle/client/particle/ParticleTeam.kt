@@ -160,7 +160,7 @@ class ParticleTeam protected constructor(
             .setLight(light)
     }
 
-    class Provider : ParticleProvider<SimpleParticleType?> {
+    class Provider : ParticleProvider<SimpleParticleType> {
         private val sprites: SpriteSet
         private val renderStyle: RenderStyle
 

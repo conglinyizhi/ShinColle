@@ -78,7 +78,7 @@ class ParticleTexts protected constructor(
         val light = this.getLightColor(partialTicks)
 
         val rotation = camera.rotation()
-        val corners: Array<Vector3f?> = arrayOf<Vector3f>(
+        val corners: Array<Vector3f> = arrayOf<Vector3f>(
             Vector3f(-1.0f, -TEXT_ASPECT_Y, 0.0f),
             Vector3f(-1.0f, TEXT_ASPECT_Y, 0.0f),
             Vector3f(1.0f, TEXT_ASPECT_Y, 0.0f),
@@ -117,7 +117,7 @@ class ParticleTexts protected constructor(
             .setLight(light)
     }
 
-    class Provider(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType?> {
+    class Provider(private val sprites: SpriteSet) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel, x: Double, y: Double, z: Double,
             xSpeed: Double, ySpeed: Double, zSpeed: Double

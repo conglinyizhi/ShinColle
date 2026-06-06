@@ -99,7 +99,7 @@ open class ParticleHealSparkle protected constructor(
             val py = baseY + beam[1]
             val pz = baseZ + beam[2]
 
-            val corners: Array<Vector3f?> = arrayOf<Vector3f>(
+            val corners: Array<Vector3f> = arrayOf<Vector3f>(
                 Vector3f(-1.0f, -1.0f, 0.0f),
                 Vector3f(-1.0f, 1.0f, 0.0f),
                 Vector3f(1.0f, 1.0f, 0.0f),
@@ -162,7 +162,7 @@ open class ParticleHealSparkle protected constructor(
         return Minecraft.getInstance().options.particles().get().getId()
     }
 
-    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType?> {
+    class Provider(sprites: SpriteSet?) : ParticleProvider<SimpleParticleType> {
         override fun createParticle(
             type: SimpleParticleType, level: ClientLevel, x: Double, y: Double,
             z: Double, xSpeed: Double, ySpeed: Double, zSpeed: Double
