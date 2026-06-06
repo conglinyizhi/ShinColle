@@ -68,6 +68,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
 
     override fun init() {
         super.init()
+        pageButtons.clear(); settingsTabButtons.clear(); toggleButtons.clear(); toggleParentTabs.clear(); toggleVisibilitySuppliers.clear()
 
         for (page in 0 until 3) {
             val pageBtn = IconButton.builder(TEXTURE_BG)
