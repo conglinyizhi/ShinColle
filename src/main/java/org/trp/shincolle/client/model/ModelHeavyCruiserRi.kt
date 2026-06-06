@@ -176,7 +176,7 @@ class ModelHeavyCruiserRi<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         }
 
         this.Head.zRot = entity.getHeadTiltAngle(ageInTicks)
-        if (entity.isCrouching()) {
+        if (entity.isCrouching) {
             this.poseTranslateY += 0.05f
             this.ArmLeft.xRot = 0.7f
             this.ArmRight.xRot = 0.7f
@@ -185,7 +185,7 @@ class ModelHeavyCruiserRi<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
             addk2 -= 0.6f
         }
 
-        val isSitting = entity.isInSittingPose || entity.isPassenger()
+        val isSitting = entity.isInSittingPose || entity.isPassenger
         if (isSitting) {
             if (entity.getStateEmotion(1) == 4) {
                 this.poseTranslateY += 0.44f * 3

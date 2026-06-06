@@ -319,7 +319,7 @@ class ModelMountMiH<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableMo
         this.TopCannon01b_5.xRot = headX - 0.1f
 
         if (entity is EntityMountBase && entity.host != null) {
-            if (entity.host!!.isOrderedToSit() || entity.host!!.isInSittingPose()) {
+            if (entity.host!!.isOrderedToSit || entity.host!!.isInSittingPose) {
                 this.TongueBase1.xRot = angleX2 * 0.025f - 0.41f
                 this.TongueBase2.xRot = -angleX3 * 0.04f + 0.41f
                 this.TongueBase3.xRot = -angleX4 * 0.025f + 0.71f

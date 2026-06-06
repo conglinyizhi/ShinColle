@@ -422,9 +422,9 @@ class ModelCarrierHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         var addk2 = angleAdd2 * 0.5f - 0.1745f
 
         val isSprinting = entity != null && entity.isSprinting
-        val isCrouching = entity != null && entity.isCrouching()
-        val isPassenger = entity != null && entity.isPassenger()
-        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger())
+        val isCrouching = entity != null && entity.isCrouching
+        val isPassenger = entity != null && entity.isPassenger
+        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger)
 
         if (isSprinting || limbSwingAmount > 0.95f) {
             this.poseTranslateY += 0.05f
@@ -462,7 +462,7 @@ class ModelCarrierHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
             addk2 -= 0.4f
         }
 
-        if (isPassenger && entity.getVehicle() is EntityMountBase) {
+        if (isPassenger && entity.vehicle is EntityMountBase) {
             this.isSittingPose = true
             if (isSitting) {
                 if (hasLegacyState(entity, 1, 4)) {

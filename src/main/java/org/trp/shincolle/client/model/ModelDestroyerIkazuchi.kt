@@ -385,8 +385,8 @@ class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHum
     private fun applySpecialPoseAdjustments(entity: T?, ctx: PoseContext, ageInTicks: Float) {
         var legLeftX = ctx.angleAdd1 * 0.5f - 0.14f
         var legRightX = ctx.angleAdd2 * 0.5f - 0.03f
-        val isPassenger = entity != null && entity.isPassenger()
-        val isCrouching = entity != null && entity.isCrouching()
+        val isPassenger = entity != null && entity.isPassenger
+        val isCrouching = entity != null && entity.isCrouching
         val useAltSit = entity != null && entity.emotionSecondary == EntityShipBase.EMOTION_BORED
 
         if (isCrouching) {
@@ -408,7 +408,7 @@ class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHum
 
         if (ctx.isSitting || isPassenger) {
             this.isSittingPose = ctx.isSitting
-            val mount = if (entity != null) entity.getVehicle() else null
+            val mount = if (entity != null) entity.vehicle else null
             if (mount is EntityShipBase) {
                 this.poseTranslateY = 0.0f
             } else {

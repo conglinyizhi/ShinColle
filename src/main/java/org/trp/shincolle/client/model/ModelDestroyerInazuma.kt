@@ -332,8 +332,8 @@ class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShipModelHuma
     private fun applySpecialPoseAdjustments(entity: T?, ctx: PoseContext, ageInTicks: Float) {
         var legLeftX = ctx.angleAdd1 * 0.5f - 0.1222f
         var legRightX = ctx.angleAdd2 * 0.5f - 0.0698f
-        val isPassenger = entity != null && entity.isPassenger()
-        val isCrouching = entity != null && entity.isCrouching()
+        val isPassenger = entity != null && entity.isPassenger
+        val isCrouching = entity != null && entity.isCrouching
         val isSprinting = entity != null && entity.isSprinting
 
         if (isSprinting) {
@@ -436,7 +436,7 @@ class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShipModelHuma
                 LegRight02.zRot = -0.0175f
             }
         } else if (ctx.isSitting || isPassenger) {
-            val mount = if (entity != null) entity.getVehicle() else null
+            val mount = if (entity != null) entity.vehicle else null
             val ridingShip = mount is EntityShipBase
             if (entity != null && hasLegacyState(entity, 1, 4)) {
                 this.poseTranslateY = if (ridingShip) 0.0f else 0.375f * 3.2f

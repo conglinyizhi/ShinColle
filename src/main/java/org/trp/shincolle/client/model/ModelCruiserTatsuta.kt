@@ -415,9 +415,9 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
             }
         }
 
-        val isCrouching = entity != null && entity.isCrouching()
+        val isCrouching = entity != null && entity.isCrouching
         val isSitting =
-            ctx.isSitting || (entity != null && entity.isPassenger() && (entity.getVehicle() !is EntityMountBase))
+            ctx.isSitting || (entity != null && entity.isPassenger && (entity.vehicle !is EntityMountBase))
         val isSprinting = entity != null && entity.isSprinting || limbSwingAmount > 0.9f
 
         if (isSprinting) {

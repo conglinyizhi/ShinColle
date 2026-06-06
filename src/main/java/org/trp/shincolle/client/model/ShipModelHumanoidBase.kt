@@ -23,7 +23,7 @@ abstract class ShipModelHumanoidBase<T : EntityShipBase> : ShipModelBaseAdv<T>()
         val angleAdd2 = cos((limbSwing * 0.7f + Math.PI.toFloat()).toDouble()).toFloat() * limbSwingAmount
         val addk1 = angleAdd1 - legBaseXRotOffset
         val addk2 = angleAdd2 - legBaseXRotOffset
-        val isSitting = entity != null && entity.isInSittingPose && (entity.getVehicle() !is EntityMountBase)
+        val isSitting = entity != null && entity.isInSittingPose && (entity.vehicle !is EntityMountBase)
 
         return PoseContext(angleX, angleAdd1, angleAdd2, addk1, addk2, isSitting)
     }

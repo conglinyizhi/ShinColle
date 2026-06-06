@@ -474,9 +474,9 @@ class ModelCarrierKaga<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         var addk2 = angleAdd2 * 0.5f - 0.1396f
 
         val isSprinting = entity != null && entity.isSprinting
-        val isCrouching = entity != null && entity.isCrouching()
-        val isPassenger = entity != null && entity.isPassenger()
-        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger())
+        val isCrouching = entity != null && entity.isCrouching
+        val isPassenger = entity != null && entity.isPassenger
+        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger)
 
         if (isSprinting || limbSwingAmount > 0.1f) {
             this.Hair01.xRot += angleAdd1 * 0.1f + limbSwingAmount * 0.75f

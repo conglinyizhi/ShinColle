@@ -448,8 +448,8 @@ class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHuman
         var legLeftX = ctx.legAddLeft
         var legRightX = ctx.legAddRight
 
-        val isPassenger = entity != null && entity.isPassenger()
-        val isCrouching = entity != null && entity.isCrouching()
+        val isPassenger = entity != null && entity.isPassenger
+        val isCrouching = entity != null && entity.isCrouching
         val isSprinting = entity != null && entity.isSprinting
 
         if (entity != null && !entity.getEquipFlag(EntityDestroyerHibiki.EQUIP_RIGGING)) {
@@ -581,7 +581,7 @@ class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHuman
                 }
             }
         } else if (ctx.isSitting || isPassenger) {
-            val mount = if (entity != null) entity.getVehicle() else null
+            val mount = if (entity != null) entity.vehicle else null
             val ridingShip = mount is EntityShipBase
             if (entity != null && hasLegacyState(entity, 1, 4)) {
                 this.poseTranslateY = if (ridingShip) 0.0f else 0.52f * 3.2f

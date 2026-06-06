@@ -140,7 +140,7 @@ class ModelMountHbH<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableMo
             if (entity.shipDepth > 0.0) {
                 offsetY += angleX * 0.025f + 0.025f
             }
-            if (entity.host != null && entity.host!!.isOrderedToSit()) {
+            if (entity.host != null && entity.host!!.isOrderedToSit) {
                 offsetY += 0.12f
             }
         }

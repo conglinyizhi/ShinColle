@@ -635,9 +635,9 @@ class ModelBBKirishima<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         val addCA032 = 0.0f
         var spcStand = true
 
-        val isPassenger = entity.isPassenger()
-        val isCrouching = entity.isCrouching()
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isPassenger = entity.isPassenger
+        val isCrouching = entity.isCrouching
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
 
         if (entity.shipDepth > 0.0) {
             this.poseTranslateY += (Mth.cos(ageInTicks * 0.08f + limbSwing * 0.25f) * 0.05f + 0.025f)

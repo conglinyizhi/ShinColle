@@ -327,10 +327,10 @@ class ModelSubmRo500<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBas
     }
 
     private fun applySpecialPoseAdjustments(entity: T?, limbSwing: Float, limbSwingAmount: Float, ageInTicks: Float) {
-        val isPassenger = entity!!.isPassenger()
-        val isCrouching = entity.isCrouching()
+        val isPassenger = entity!!.isPassenger
+        val isCrouching = entity.isCrouching
         val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.9f
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
 
         if (isSprinting) {
             this.BodyMain.xRot = 0.1745f

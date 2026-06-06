@@ -325,13 +325,13 @@ class ModelAirfieldHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         limbSwingAmount: Float,
         ageInTicks: Float
     ) {
-        val isCrouching = entity!!.isCrouching()
-        val isPassenger = entity.isPassenger()
+        val isCrouching = entity!!.isCrouching
+        val isPassenger = entity.isPassenger
         var isSitting = ctx.isSitting
         if (entity != null) {
-            isSitting = isSitting || entity.isInSittingPose()
+            isSitting = isSitting || entity.isInSittingPose
 
-            if (entity.isPassenger() && entity.getVehicle() !is EntityMountBase) {
+            if (entity.isPassenger && entity.vehicle !is EntityMountBase) {
                 isSitting = true
             }
         }
@@ -353,7 +353,7 @@ class ModelAirfieldHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
             this.Hair03.xRot -= 0.1f
         }
 
-        if (isPassenger && entity.getVehicle() is EntityMountBase) {
+        if (isPassenger && entity.vehicle is EntityMountBase) {
             this.isSittingPose = true
             if (isSitting) {
                 this.poseTranslateY += RIDING_TRANSLATE_Y

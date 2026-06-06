@@ -634,10 +634,10 @@ class ModelBBHiei<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T
 
         if (entity == null) return
 
-        val isPassenger = entity.isPassenger()
-        val isCrouching = entity.isCrouching()
+        val isPassenger = entity.isPassenger
+        val isCrouching = entity.isCrouching
         val isSprinting = entity.isSprinting
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
 
         if (entity.shipDepth > 0.0) {
             this.poseTranslateY += (Mth.cos(ageInTicks * 0.08f + limbSwing * 0.25f) * 0.05f + 0.025f)

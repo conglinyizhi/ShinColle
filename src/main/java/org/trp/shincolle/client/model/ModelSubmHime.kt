@@ -572,10 +572,10 @@ class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         var addHR1 = 0.0f
         var addHL2 = 0.0f
         var addHR2 = 0.0f
-        val isPassenger = entity!!.isPassenger()
-        val isCrouching = entity.isCrouching()
+        val isPassenger = entity!!.isPassenger
+        val isCrouching = entity.isCrouching
         val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.9f
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
         val showTails = entity.getEquipFlag(EntitySubmHime.EQUIP_TAILS)
 
         if (isSprinting) {
@@ -776,7 +776,7 @@ class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
                 this.LegRight02.xRot = 2.1816616f
                 this.LegRight02.z = this.legRight02DefaultZ + (0.37f * OFFSET_SCALE)
             }
-        } else if (isPassenger && entity.getVehicle() is EntityMountBase) {
+        } else if (isPassenger && entity.vehicle is EntityMountBase) {
             this.isSittingPose = true
             if (isSitting) {
                 this.poseTranslateY += 0.4f
