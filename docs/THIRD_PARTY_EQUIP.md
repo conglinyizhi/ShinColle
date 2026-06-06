@@ -169,6 +169,7 @@ ShipEquipRegistry.register(object : ShipEquipSpecialEffect {
 2. **状态持久化**：`IShipEquip` 的属性值是**实时计算**的（通过 `getMainAttributes(stack)` 调用），因此你可以根据 NBT、耐久度等动态变化属性。
 3. **客户端同步**：`ShipEquipSpecialEffect.tick()` 在**服务端和客户端**都会调用。如果你的效果只需要在服务端执行（如区块加载、生成实体），请检查 `!ship.level().isClientSide`。
 4. **性能**：`collectCount()` 每 40 tick 调用一次；`tick()` 每 tick 调用。请避免在 `tick()` 中进行重型计算。
+5. **异常安全**：所有回调（`tick`、`collectCount`、`applyToMissile`、`onLightAttack`、`onHeavyAttack`）均被 ShinColle 内部的 `ApiCallSafety` 层包裹。第三方实现中抛出的异常会被捕获并记录到日志（`[ShipApiSafety]` 前缀），不会导致舰娘卡死或游戏崩溃。但仍建议保持回调的健壮性。
 
 ## 版本历史
 

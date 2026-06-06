@@ -25,6 +25,7 @@ import org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModSounds
 // import org.trp.shincolle.item.CombatRationItem.getVariant
+import org.trp.shincolle.api.ApiCallSafety
 import org.trp.shincolle.api.consumable.IShipConsumable
 import org.trp.shincolle.api.equip.IShipEquip
 import org.trp.shincolle.api.equip.ShipEquipRegistry
@@ -180,11 +181,23 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 heavy += stack.count * AMMO_HEAVY_CONTAINER_VALUE
             } else if (stack.item is IShipConsumable) {
                 val consumable = stack.item as IShipConsumable
-                if (consumable.isLightAmmo(stack, this.ship)) {
-                    light += stack.count * consumable.getLightAmmoValue(stack, this.ship)
+                val isLight = ApiCallSafety.runWithDefault(
+                    "IShipConsumable.isLightAmmo", false
+                ) { consumable.isLightAmmo(stack, this.ship) }
+                if (isLight) {
+                    val value = ApiCallSafety.runWithDefault(
+                        "IShipConsumable.getLightAmmoValue", 0
+                    ) { consumable.getLightAmmoValue(stack, this.ship) }
+                    light += stack.count * value
                 }
-                if (consumable.isHeavyAmmo(stack, this.ship)) {
-                    heavy += stack.count * consumable.getHeavyAmmoValue(stack, this.ship)
+                val isHeavy = ApiCallSafety.runWithDefault(
+                    "IShipConsumable.isHeavyAmmo", false
+                ) { consumable.isHeavyAmmo(stack, this.ship) }
+                if (isHeavy) {
+                    val value = ApiCallSafety.runWithDefault(
+                        "IShipConsumable.getHeavyAmmoValue", 0
+                    ) { consumable.getHeavyAmmoValue(stack, this.ship) }
+                    heavy += stack.count * value
                 }
             }
         }
@@ -331,8 +344,16 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                     }
                 }
                 is IShipEquip -> {
-                    val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
-                    effect?.applyToMissile(this.ship, missile, stack)
+                    val typeId = ApiCallSafety.runWithDefault(
+                        "IShipEquip.getEquipTypeId", -1
+                    ) { item.getEquipTypeId(stack) }
+                    if (typeId < 0) continue
+                    val effect = ShipEquipRegistry.getEffect(typeId)
+                    if (effect != null) {
+                        ApiCallSafety.run("ShipEquipSpecialEffect.applyToMissile") {
+                            effect.applyToMissile(this.ship, missile, stack)
+                        }
+                    }
                 }
             }
         }
@@ -375,8 +396,16 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             if (stack.isEmpty()) continue
             val item = stack.item
             if (item is IShipEquip) {
-                val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
-                effect?.onLightAttack(this.ship, stack, target)
+                val typeId = ApiCallSafety.runWithDefault(
+                    "IShipEquip.getEquipTypeId", -1
+                ) { item.getEquipTypeId(stack) }
+                if (typeId < 0) continue
+                val effect = ShipEquipRegistry.getEffect(typeId)
+                if (effect != null) {
+                    ApiCallSafety.runWithDefault(
+                        "ShipEquipSpecialEffect.onLightAttack", false
+                    ) { effect.onLightAttack(this.ship, stack, target) }
+                }
             }
         }
     }
@@ -391,8 +420,16 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             if (stack.isEmpty()) continue
             val item = stack.item
             if (item is IShipEquip) {
-                val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
-                effect?.onHeavyAttack(this.ship, stack, target, missile)
+                val typeId = ApiCallSafety.runWithDefault(
+                    "IShipEquip.getEquipTypeId", -1
+                ) { item.getEquipTypeId(stack) }
+                if (typeId < 0) continue
+                val effect = ShipEquipRegistry.getEffect(typeId)
+                if (effect != null) {
+                    ApiCallSafety.runWithDefault(
+                        "ShipEquipSpecialEffect.onHeavyAttack", false
+                    ) { effect.onHeavyAttack(this.ship, stack, target, missile) }
+                }
             }
         }
     }
@@ -436,7 +473,10 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 }
             } else if (stack.item is IShipConsumable) {
                 val consumable = stack.item as IShipConsumable
-                if (consumable.isHeavyAmmo(stack, this.ship)) {
+                val isHeavy = ApiCallSafety.runWithDefault(
+                    "IShipConsumable.isHeavyAmmo", false
+                ) { consumable.isHeavyAmmo(stack, this.ship) }
+                if (isHeavy) {
                     val take = min(stack.count, remaining)
                     val updated = stack.copy()
                     updated.shrink(take)
@@ -488,7 +528,10 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 }
             } else if (stack.item is IShipConsumable) {
                 val consumable = stack.item as IShipConsumable
-                if (consumable.isLightAmmo(stack, this.ship)) {
+                val isLight = ApiCallSafety.runWithDefault(
+                    "IShipConsumable.isLightAmmo", false
+                ) { consumable.isLightAmmo(stack, this.ship) }
+                if (isLight) {
                     val take = min(stack.count, remaining)
                     val updated = stack.copy()
                     updated.shrink(take)

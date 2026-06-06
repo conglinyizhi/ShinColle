@@ -71,6 +71,7 @@ import org.trp.shincolle.item.CombatRationItem.Companion.getMoraleValue
 
 import org.trp.shincolle.item.CombatRationItem.Companion.rollFuelGain
 import org.trp.shincolle.item.DebugInspectorItem.Companion.markBucketRepairTriggered
+import org.trp.shincolle.api.ApiCallSafety
 import org.trp.shincolle.api.consumable.IShipConsumable
 import org.trp.shincolle.api.equip.IShipEquip
 import org.trp.shincolle.api.equip.ShipEquipRegistry
@@ -2124,8 +2125,16 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             if (stack.isEmpty()) continue
             val item = stack.item
             if (item is IShipEquip) {
-                val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
-                effect?.tick(this, stack)
+                val effect = ShipEquipRegistry.getEffect(
+                    ApiCallSafety.runWithDefault(
+                        "IShipEquip.getEquipTypeId", -1
+                    ) { item.getEquipTypeId(stack) }
+                )
+                if (effect != null) {
+                    ApiCallSafety.run("ShipEquipSpecialEffect.tick") {
+                        effect.tick(this, stack)
+                    }
+                }
             }
         }
     }
@@ -2982,10 +2991,18 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
             if (stack.item is IShipConsumable) {
                 val consumable = stack.item as IShipConsumable
-                if (consumable.canInteractWithShip(stack, this, player)) {
-                    val success = consumable.onInteractWithShip(stack, this, player)
+                val canInteract = ApiCallSafety.runWithDefault(
+                    "IShipConsumable.canInteractWithShip", false
+                ) { consumable.canInteractWithShip(stack, this, player) }
+                if (canInteract) {
+                    val success = ApiCallSafety.runWithDefault(
+                        "IShipConsumable.onInteractWithShip", false
+                    ) { consumable.onInteractWithShip(stack, this, player) }
                     if (success) {
-                        if (consumable.consumeItemOnInteract(stack, this, player) && !player.abilities.instabuild) {
+                        val shouldConsume = ApiCallSafety.runWithDefault(
+                            "IShipConsumable.consumeItemOnInteract", true
+                        ) { consumable.consumeItemOnInteract(stack, this, player) }
+                        if (shouldConsume && !player.abilities.instabuild) {
                             stack.shrink(1)
                         }
                         this.focusOnPlayer(player)
@@ -3186,8 +3203,14 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             val stack = inv.getStackInSlot(i)
             if (stack.isEmpty()) continue
             val item = stack.item
-            if (item is IShipConsumable && item.canPreventDeath(stack, this, source)) {
-                val prevented = item.onPreventDeath(stack, this, source)
+            if (item !is IShipConsumable) continue
+            val canPrevent = ApiCallSafety.runWithDefault(
+                "IShipConsumable.canPreventDeath", false
+            ) { item.canPreventDeath(stack, this, source) }
+            if (canPrevent) {
+                val prevented = ApiCallSafety.runWithDefault(
+                    "IShipConsumable.onPreventDeath", false
+                ) { item.onPreventDeath(stack, this, source) }
                 if (prevented) {
                     this.customHurtTime = 120
                     return true
@@ -3203,8 +3226,14 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             val stack = inv.getStackInSlot(i)
             if (stack.isEmpty()) continue
             val item = stack.item
-            if (item is IShipConsumable && item.canAutoSupplyGrudge(stack, this)) {
-                val amount = item.getAutoSupplyGrudgeAmount(stack, this)
+            if (item !is IShipConsumable) continue
+            val canSupply = ApiCallSafety.runWithDefault(
+                "IShipConsumable.canAutoSupplyGrudge", false
+            ) { item.canAutoSupplyGrudge(stack, this) }
+            if (canSupply) {
+                val amount = ApiCallSafety.runWithDefault(
+                    "IShipConsumable.getAutoSupplyGrudgeAmount", 0
+                ) { item.getAutoSupplyGrudgeAmount(stack, this) }
                 if (amount > 0) {
                     this.fuel = (amount * modFuel).toInt()
                     val updated = stack.copy()
@@ -3391,18 +3420,26 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                     stats = getMainAttrs(item.getEquipId(stack))
                 }
                 is IShipEquip -> {
-                    equipTypeId = item.getEquipTypeId(stack)
-                    val effect = ShipEquipRegistry.getEffect(equipTypeId)
-                    if (effect != null) {
-                        val count = effect.collectCount(this, stack)
-                        when (equipTypeId) {
-                            EQUIP_TYPE_DRUM -> drumCount += count
-                            EQUIP_TYPE_COMPASS -> compassCount += count
-                            EQUIP_TYPE_FLARE -> flareCount += count
-                            EQUIP_TYPE_SEARCHLIGHT -> searchlightCount += count
+                    equipTypeId = ApiCallSafety.runWithDefault(
+                        "IShipEquip.getEquipTypeId", -1
+                    ) { item.getEquipTypeId(stack) }
+                    if (equipTypeId >= 0) {
+                        val effect = ShipEquipRegistry.getEffect(equipTypeId)
+                        if (effect != null) {
+                            val count = ApiCallSafety.runWithDefault(
+                                "ShipEquipSpecialEffect.collectCount", 0
+                            ) { effect.collectCount(this, stack) }
+                            when (equipTypeId) {
+                                EQUIP_TYPE_DRUM -> drumCount += count
+                                EQUIP_TYPE_COMPASS -> compassCount += count
+                                EQUIP_TYPE_FLARE -> flareCount += count
+                                EQUIP_TYPE_SEARCHLIGHT -> searchlightCount += count
+                            }
                         }
                     }
-                    stats = item.getMainAttributes(stack)
+                    stats = ApiCallSafety.runNullable(
+                        "IShipEquip.getMainAttributes"
+                    ) { item.getMainAttributes(stack) }
                 }
                 else -> continue
             }

@@ -162,6 +162,7 @@ class UniversalAmmoBox(properties: Properties) : Item(properties), IShipConsumab
 4. **自动补给优先级**：内置 `GRUDGE` / `GRUDGE_BLOCK` 优先于 `IShipConsumable` 自动补给。
 5. **弹药消耗**：`IShipConsumable` 弹药消耗方式和内置弹药一致，每次攻击按物品数量消耗（不是按弹药点数）。
 6. **客户端同步**：`onInteractWithShip` 和 `onPreventDeath` 在服务端执行。若需要粒子/音效，请使用服务端 API。
+7. **异常安全**：所有回调均被 ShinColle 内部的 `ApiCallSafety` 层包裹。第三方实现中抛出的异常会被捕获并记录到日志（`[ShipApiSafety]` 前缀），不会导致舰娘卡死或游戏崩溃。但仍建议保持回调的健壮性。
 
 ## 版本历史
 
