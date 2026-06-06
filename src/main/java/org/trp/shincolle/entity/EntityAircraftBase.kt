@@ -37,7 +37,7 @@ import java.util.*
 import java.util.function.Predicate
 import kotlin.math.*
 
-abstract class EntityAircraftBase protected constructor(type: EntityType<out TamableAnimal?>?, level: Level?) :
+abstract class EntityAircraftBase protected constructor(type: EntityType<out TamableAnimal>, level: Level) :
     EntityShincolleSimpleMob(type, level) {
     private var carrierId: UUID? = null
     private var targetId: UUID? = null
@@ -101,7 +101,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
             this.numAmmoHeavy = AircraftAiNumbers.INITIAL_AMMO_HEAVY
         }
 
-        val attackSpeed = carrier.legacyShipStats.getReloadSpeed()
+        val attackSpeed = carrier.legacyShipStats.reloadSpeed
         this.maxAttackDelay =
             (AircraftAiNumbers.BASE_ATTACK_SPEED_AIRCRAFT / attackSpeed).toInt() + AircraftAiNumbers.FIXED_ATTACK_DELAY_AIRCRAFT
         this.attackDelay = 0
@@ -402,7 +402,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         }
         this.attackDelay = this.maxAttackDelay
         this.playSound(ModSounds.SHIP_MACHINEGUN.get(), 1.0f, 1.0f)
-        val atk = max(2.0f, carrier.legacyShipStats.getFirepower() * 0.35f)
+        val atk = max(2.0f, carrier.legacyShipStats.firepower * 0.35f)
         target.hurt(this.damageSources().mobProjectile(this, carrier), atk)
     }
 
@@ -413,9 +413,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
             this.numAmmoHeavy--
         }
         this.attackDelay = this.maxAttackDelay
-        val atk = max(4.0f, carrier.legacyShipStats.getFirepower() * 0.55f)
+        val atk = max(4.0f, carrier.legacyShipStats.firepower * 0.55f)
         if (this.level() is ServerLevel) {
-            val serverLevel = this.level() as ServerLevel
             val serverLevel = this.level() as ServerLevel
             val missileDamage = atk * 1.4f
             var targetPos = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
@@ -510,7 +509,6 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
-            val serverLevel = this.level() as ServerLevel
             if (this.deathAnimTick % 2 == 0) {
                 val range = this.getBbWidth() * 0.5
                 for (i in 0..2) {
@@ -568,8 +566,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         return super.isOnFire()
     }
 
-    override fun brainProvider(): Brain.Provider<EntityAircraftBase?> {
-        return Brain.provider<EntityAircraftBase?>(AircraftBrainAi.MEMORY_TYPES, AircraftBrainAi.SENSOR_TYPES)
+    override fun brainProvider(): Brain.Provider<EntityAircraftBase> {
+        return Brain.provider<EntityAircraftBase>(AircraftBrainAi.MEMORY_TYPES, AircraftBrainAi.SENSOR_TYPES)
     }
 
     override fun makeBrain(dynamic: Dynamic<*>): Brain<*> {
@@ -578,7 +576,6 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     override fun customServerAiStep() {
         if (this.level() is ServerLevel) {
-            val serverLevel = this.level() as ServerLevel
             val serverLevel = this.level() as ServerLevel
             AircraftBrainAi.tick(serverLevel, this)
         }
@@ -637,7 +634,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
             if (this.carrierId == null || this.level() !is ServerLevel) {
                 return null
             }
-            val entity: Entity? = serverLevel.getEntity(this.carrierId)
+            val entity: Entity? = (this.level() as ServerLevel).getEntity(this.carrierId)
             if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) {
                 return entity
             }
@@ -649,7 +646,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
             if (this.targetId == null || this.level() !is ServerLevel) {
                 return null
             }
-            val entity: Entity? = serverLevel.getEntity(this.targetId)
+            val entity: Entity? = (this.level() as ServerLevel).getEntity(this.targetId)
             if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }
@@ -660,10 +657,10 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         val range =
             if (carrier.isStateAntiAir) AircraftAiNumbers.TARGETING_RANGE_AIR_ONLY else AircraftAiNumbers.TARGETING_RANGE_NORMAL
         val box = this.getBoundingBox().inflate(range, range, range)
-        val entities = this.level().getEntities(this, box, Predicate { entity: Entity? ->
+        val entities = this.level().getEntities(this, box) { entity: Entity? ->
             if (entity == null || !entity.isAlive || entity === this) return@getEntities false
             entity is LivingEntity
-        })
+        }
 
         var nearest: Entity? = null
         var nearestDistance = Double.MAX_VALUE

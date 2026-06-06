@@ -30,7 +30,7 @@ class Shincolle(modEventBus: IEventBus, modContainer: ModContainer) {
         ModSounds.SOUND_EVENTS.register(modEventBus)
         ModDataAttachments.ATTACHMENT_TYPES.register(modEventBus)
         ModLootModifiers.LOOT_MODIFIERS.register(modEventBus)
-        modEventBus.addListener<RegisterCapabilitiesEvent?>(Consumer { event: RegisterCapabilitiesEvent? ->
+        modEventBus.addListener<RegisterCapabilitiesEvent>(Consumer { event: RegisterCapabilitiesEvent ->
             ModCapabilityEvents.registerCapabilities(
                 event
             )
