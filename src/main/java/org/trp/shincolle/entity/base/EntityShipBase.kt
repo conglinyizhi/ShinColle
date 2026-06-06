@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
+import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
@@ -947,12 +948,12 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                 return null
             }
 
-            for (entity in this.level().getEntities(
-                this,
-                this.getBoundingBox().inflate(128.0),
-                Predicate { candidate: Entity? -> candidate!!.getUUID() == this.guardedEntityIdInternal })) {
-                if (entity.getUUID() == this.guardedEntityIdInternal && entity.isAlive && !entity.isRemoved) {
-                    return entity
+            if (this.level() is ClientLevel) {
+                val clientLevel = this.level() as ClientLevel
+                for (entity in clientLevel.entitiesForRendering()) {
+                    if (entity.uuid == this.guardedEntityIdInternal && entity.isAlive && !entity.isRemoved) {
+                        return entity
+                    }
                 }
             }
             return null

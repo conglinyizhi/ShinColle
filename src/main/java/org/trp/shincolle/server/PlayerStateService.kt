@@ -4,7 +4,6 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.phys.AABB
 import net.neoforged.neoforge.network.PacketDistributor
 import org.trp.shincolle.attachment.AdmiralData
 import org.trp.shincolle.entity.base.EntityShipBase
@@ -179,23 +178,7 @@ object PlayerStateService {
     }
 
     fun reconcileOwnedMarriedShipCount(player: ServerPlayer): Int {
-        val ownerId = player.getUUID()
-        var marriedCount = 0
-        for (level in player.server.getAllLevels()) {
-            marriedCount += level.getEntitiesOfClass<EntityShipBase?>(
-                EntityShipBase::class.java,
-                AABB.INFINITE,
-                Predicate { ship: EntityShipBase? ->
-                    ship!!.isAlive
-                            && !ship.isRemoved && ship.isTame
-                            && ship.isStateMarried
-                            && ship.ownerUUID == ownerId
-                }
-            ).size
-        }
-
-        admiralData(player).setMarriedShipCount(marriedCount)
-        return marriedCount
+        return admiralData(player).getMarriedShipCount()
     }
 
     @JvmStatic
