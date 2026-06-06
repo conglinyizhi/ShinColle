@@ -13,7 +13,7 @@ import org.trp.shincolle.entity.EntityDestroyerAkatsuki
 class RendererDestroyerAkatsuki(context: EntityRendererProvider.Context) :
     MobRenderer<EntityDestroyerAkatsuki?, ModelDestroyerAkatsuki<EntityDestroyerAkatsuki?>?>(
         context,
-        ModelDestroyerAkatsuki<EntityDestroyerAkatsuki?>(context.bakeLayer(ModelDestroyerAkatsuki.LAYER_LOCATION)),
+        ModelDestroyerAkatsuki<EntityDestroyerAkatsuki>(context.bakeLayer(ModelDestroyerAkatsuki.LAYER_LOCATION)),
         0.5f
     ) {
     init {

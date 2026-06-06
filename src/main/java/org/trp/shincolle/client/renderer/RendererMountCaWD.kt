@@ -9,7 +9,7 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 
 class RendererMountCaWD<T : Mob?>(context: EntityRendererProvider.Context) : RendererSimpleMob<T?, ModelMountCaWD<T?>?>(
     context,
-    ModelMountCaWD<T?>(context.bakeLayer(ModelMountCaWD.LAYER_LOCATION)),
+    ModelMountCaWD<T>(context.bakeLayer(ModelMountCaWD.LAYER_LOCATION)),
     1.1f,
     1.1f,
     TEXTURE

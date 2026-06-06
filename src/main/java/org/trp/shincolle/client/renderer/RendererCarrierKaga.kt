@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCarrierKaga
 class RendererCarrierKaga(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCarrierKaga?, ModelCarrierKaga<EntityCarrierKaga?>?>(
         context,
-        ModelCarrierKaga<EntityCarrierKaga?>(context.bakeLayer(ModelCarrierKaga.LAYER_LOCATION)),
+        ModelCarrierKaga<EntityCarrierKaga>(context.bakeLayer(ModelCarrierKaga.LAYER_LOCATION)),
         0.5f
     ) {
     init {

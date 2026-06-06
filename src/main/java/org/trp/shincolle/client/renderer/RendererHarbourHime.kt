@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityHarbourHime
 class RendererHarbourHime(context: EntityRendererProvider.Context) :
     MobRenderer<EntityHarbourHime?, ModelHarbourHime<EntityHarbourHime?>?>(
         context,
-        ModelHarbourHime<EntityHarbourHime?>(context.bakeLayer(ModelHarbourHime.LAYER_LOCATION)),
+        ModelHarbourHime<EntityHarbourHime>(context.bakeLayer(ModelHarbourHime.LAYER_LOCATION)),
         0.5f
     ) {
     init {

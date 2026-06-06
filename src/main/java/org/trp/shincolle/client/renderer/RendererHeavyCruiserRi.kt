@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityHeavyCruiserRi
 class RendererHeavyCruiserRi(context: EntityRendererProvider.Context) :
     MobRenderer<EntityHeavyCruiserRi?, ModelHeavyCruiserRi<EntityHeavyCruiserRi?>?>(
         context,
-        ModelHeavyCruiserRi<EntityHeavyCruiserRi?>(context.bakeLayer(ModelHeavyCruiserRi.LAYER_LOCATION)),
+        ModelHeavyCruiserRi<EntityHeavyCruiserRi>(context.bakeLayer(ModelHeavyCruiserRi.LAYER_LOCATION)),
         0.5f
     ) {
     init {

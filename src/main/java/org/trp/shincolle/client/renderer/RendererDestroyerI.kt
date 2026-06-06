@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityDestroyerI
 class RendererDestroyerI(context: EntityRendererProvider.Context) :
     MobRenderer<EntityDestroyerI?, ModelDestroyerI<EntityDestroyerI?>?>(
         context,
-        ModelDestroyerI<EntityDestroyerI?>(context.bakeLayer(ModelDestroyerI.LAYER_LOCATION)),
+        ModelDestroyerI<EntityDestroyerI>(context.bakeLayer(ModelDestroyerI.LAYER_LOCATION)),
         0.5f
     ) {
     init {

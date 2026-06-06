@@ -11,7 +11,7 @@ import org.trp.shincolle.entity.EntityCAHime
 
 class RendererCAHime(context: EntityRendererProvider.Context) : MobRenderer<EntityCAHime?, ModelCAHime<EntityCAHime?>?>(
     context,
-    ModelCAHime<EntityCAHime?>(context.bakeLayer(ModelCAHime.LAYER_LOCATION)),
+    ModelCAHime<EntityCAHime>(context.bakeLayer(ModelCAHime.LAYER_LOCATION)),
     0.5f
 ) {
     init {

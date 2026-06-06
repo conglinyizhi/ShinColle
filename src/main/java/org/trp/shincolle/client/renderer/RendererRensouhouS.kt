@@ -10,7 +10,7 @@ import org.trp.shincolle.entity.base.EntityShincolleSimpleMob
 class RendererRensouhouS<T : EntityShincolleSimpleMob?>(context: EntityRendererProvider.Context) :
     RendererSimpleMob<T?, ModelRensouhouS<T?>?>(
         context,
-        ModelRensouhouS<T?>(context.bakeLayer(ModelRensouhouS.LAYER_LOCATION)),
+        ModelRensouhouS<T>(context.bakeLayer(ModelRensouhouS.LAYER_LOCATION)),
         0.5f,
         0.34f,
         TEXTURE

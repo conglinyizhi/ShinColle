@@ -11,7 +11,7 @@ import org.trp.shincolle.entity.EntitySSNH
 
 class RendererSSNH(context: EntityRendererProvider.Context) : MobRenderer<EntitySSNH?, ModelSSNH<EntitySSNH?>?>(
     context,
-    ModelSSNH<EntitySSNH?>(context.bakeLayer(ModelSSNH.LAYER_LOCATION)),
+    ModelSSNH<EntitySSNH>(context.bakeLayer(ModelSSNH.LAYER_LOCATION)),
     0.5f
 ) {
     init {

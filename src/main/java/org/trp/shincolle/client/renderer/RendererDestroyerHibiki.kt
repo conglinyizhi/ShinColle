@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityDestroyerHibiki
 class RendererDestroyerHibiki(context: EntityRendererProvider.Context) :
     MobRenderer<EntityDestroyerHibiki?, ModelDestroyerHibiki<EntityDestroyerHibiki?>?>(
         context,
-        ModelDestroyerHibiki<EntityDestroyerHibiki?>(context.bakeLayer(ModelDestroyerHibiki.LAYER_LOCATION)),
+        ModelDestroyerHibiki<EntityDestroyerHibiki>(context.bakeLayer(ModelDestroyerHibiki.LAYER_LOCATION)),
         0.5f
     ) {
     init {

@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityBattleshipHime
 class RendererBattleshipHime(context: EntityRendererProvider.Context) :
     MobRenderer<EntityBattleshipHime?, ModelBattleshipHime<EntityBattleshipHime?>?>(
         context,
-        ModelBattleshipHime<EntityBattleshipHime?>(context.bakeLayer(ModelBattleshipHime.LAYER_LOCATION)),
+        ModelBattleshipHime<EntityBattleshipHime>(context.bakeLayer(ModelBattleshipHime.LAYER_LOCATION)),
         0.5f
     ) {
     init {

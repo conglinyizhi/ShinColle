@@ -11,7 +11,7 @@ import org.trp.shincolle.entity.EntitySubmSo
 
 class RendererSubmSo(context: EntityRendererProvider.Context) : MobRenderer<EntitySubmSo?, ModelSubmSo<EntitySubmSo?>?>(
     context,
-    ModelSubmSo<EntitySubmSo?>(context.bakeLayer(ModelSubmSo.LAYER_LOCATION)),
+    ModelSubmSo<EntitySubmSo>(context.bakeLayer(ModelSubmSo.LAYER_LOCATION)),
     0.5f
 ) {
     init {

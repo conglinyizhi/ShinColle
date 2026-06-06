@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntitySubmU511
 class RendererSubmU511(context: EntityRendererProvider.Context) :
     MobRenderer<EntitySubmU511?, ModelSubmU511<EntitySubmU511?>?>(
         context,
-        ModelSubmU511<EntitySubmU511?>(context.bakeLayer(ModelSubmU511.LAYER_LOCATION)),
+        ModelSubmU511<EntitySubmU511>(context.bakeLayer(ModelSubmU511.LAYER_LOCATION)),
         0.5f
     ) {
     init {

@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCruiserAtago
 class RendererCruiserAtago(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCruiserAtago?, ModelCruiserAtago<EntityCruiserAtago?>?>(
         context,
-        ModelCruiserAtago<EntityCruiserAtago?>(context.bakeLayer(ModelCruiserAtago.LAYER_LOCATION)),
+        ModelCruiserAtago<EntityCruiserAtago>(context.bakeLayer(ModelCruiserAtago.LAYER_LOCATION)),
         0.5f
     ) {
     init {

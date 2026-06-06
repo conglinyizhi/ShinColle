@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityDestroyerShimakaze
 class RendererDestroyerShimakaze(context: EntityRendererProvider.Context) :
     MobRenderer<EntityDestroyerShimakaze?, ModelDestroyerShimakaze<EntityDestroyerShimakaze?>?>(
         context,
-        ModelDestroyerShimakaze<EntityDestroyerShimakaze?>(context.bakeLayer(ModelDestroyerShimakaze.LAYER_LOCATION)),
+        ModelDestroyerShimakaze<EntityDestroyerShimakaze>(context.bakeLayer(ModelDestroyerShimakaze.LAYER_LOCATION)),
         0.5f
     ) {
     init {

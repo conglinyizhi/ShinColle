@@ -11,7 +11,7 @@ import org.trp.shincolle.entity.EntitySubmKa
 
 class RendererSubmKa(context: EntityRendererProvider.Context) : MobRenderer<EntitySubmKa?, ModelSubmKa<EntitySubmKa?>?>(
     context,
-    ModelSubmKa<EntitySubmKa?>(context.bakeLayer(ModelSubmKa.LAYER_LOCATION)),
+    ModelSubmKa<EntitySubmKa>(context.bakeLayer(ModelSubmKa.LAYER_LOCATION)),
     0.5f
 ) {
     init {

@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityBBKirishima
 class RendererBBKirishima(context: EntityRendererProvider.Context) :
     MobRenderer<EntityBBKirishima?, ModelBBKirishima<EntityBBKirishima?>?>(
         context,
-        ModelBBKirishima<EntityBBKirishima?>(context.bakeLayer(ModelBBKirishima.LAYER_LOCATION)),
+        ModelBBKirishima<EntityBBKirishima>(context.bakeLayer(ModelBBKirishima.LAYER_LOCATION)),
         0.5f
     ) {
     init {

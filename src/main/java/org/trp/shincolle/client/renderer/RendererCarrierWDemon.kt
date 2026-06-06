@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCarrierWDemon
 class RendererCarrierWDemon(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCarrierWDemon?, ModelCarrierWDemon<EntityCarrierWDemon?>?>(
         context,
-        ModelCarrierWDemon<EntityCarrierWDemon?>(context.bakeLayer(ModelCarrierWDemon.LAYER_LOCATION)),
+        ModelCarrierWDemon<EntityCarrierWDemon>(context.bakeLayer(ModelCarrierWDemon.LAYER_LOCATION)),
         0.5f
     ) {
     init {

@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCruiserTakao
 class RendererCruiserTakao(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCruiserTakao?, ModelCruiserTakao<EntityCruiserTakao?>?>(
         context,
-        ModelCruiserTakao<EntityCruiserTakao?>(context.bakeLayer(ModelCruiserTakao.LAYER_LOCATION)),
+        ModelCruiserTakao<EntityCruiserTakao>(context.bakeLayer(ModelCruiserTakao.LAYER_LOCATION)),
         0.5f
     ) {
     init {

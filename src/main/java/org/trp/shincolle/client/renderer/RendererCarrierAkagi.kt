@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCarrierAkagi
 class RendererCarrierAkagi(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCarrierAkagi?, ModelCarrierAkagi<EntityCarrierAkagi?>?>(
         context,
-        ModelCarrierAkagi<EntityCarrierAkagi?>(context.bakeLayer(ModelCarrierAkagi.LAYER_LOCATION)),
+        ModelCarrierAkagi<EntityCarrierAkagi>(context.bakeLayer(ModelCarrierAkagi.LAYER_LOCATION)),
         0.5f
     ) {
     init {

@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityBBHaruna
 class RendererBBHaruna(context: EntityRendererProvider.Context) :
     MobRenderer<EntityBBHaruna?, ModelBBHaruna<EntityBBHaruna?>?>(
         context,
-        ModelBBHaruna<EntityBBHaruna?>(context.bakeLayer(ModelBBHaruna.LAYER_LOCATION)),
+        ModelBBHaruna<EntityBBHaruna>(context.bakeLayer(ModelBBHaruna.LAYER_LOCATION)),
         0.5f
     ) {
     init {

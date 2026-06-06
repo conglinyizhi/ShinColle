@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCarrierHime
 class RendererCarrierHime(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCarrierHime?, ModelCarrierHime<EntityCarrierHime?>?>(
         context,
-        ModelCarrierHime<EntityCarrierHime?>(context.bakeLayer(ModelCarrierHime.LAYER_LOCATION)),
+        ModelCarrierHime<EntityCarrierHime>(context.bakeLayer(ModelCarrierHime.LAYER_LOCATION)),
         0.5f
     ) {
     init {

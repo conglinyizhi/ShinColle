@@ -16,7 +16,7 @@ class RendererShipGrudge(context: EntityRendererProvider.Context) : EntityRender
     private val model: ModelShipGrudge<EntityShipGrudge?>
 
     init {
-        this.model = ModelShipGrudge<EntityShipGrudge?>(context.bakeLayer(ModelShipGrudge.LAYER_LOCATION))
+        this.model = ModelShipGrudge<EntityShipGrudge>(context.bakeLayer(ModelShipGrudge.LAYER_LOCATION))
     }
 
     override fun render(

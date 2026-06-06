@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCruiserTenryuu
 class RendererCruiserTenryuu(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCruiserTenryuu?, ModelCruiserTenryuu<EntityCruiserTenryuu?>?>(
         context,
-        ModelCruiserTenryuu<EntityCruiserTenryuu?>(context.bakeLayer(ModelCruiserTenryuu.LAYER_LOCATION)),
+        ModelCruiserTenryuu<EntityCruiserTenryuu>(context.bakeLayer(ModelCruiserTenryuu.LAYER_LOCATION)),
         0.5f
     ) {
     init {

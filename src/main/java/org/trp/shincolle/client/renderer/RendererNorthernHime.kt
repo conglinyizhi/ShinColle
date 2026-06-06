@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityNorthernHime
 class RendererNorthernHime(context: EntityRendererProvider.Context) :
     MobRenderer<EntityNorthernHime?, ModelNorthernHime<EntityNorthernHime?>?>(
         context,
-        ModelNorthernHime<EntityNorthernHime?>(context.bakeLayer(ModelNorthernHime.LAYER_LOCATION)),
+        ModelNorthernHime<EntityNorthernHime>(context.bakeLayer(ModelNorthernHime.LAYER_LOCATION)),
         0.5f
     ) {
     init {

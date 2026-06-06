@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityBBKongou
 class RendererBBKongou(context: EntityRendererProvider.Context) :
     MobRenderer<EntityBBKongou?, ModelBBKongou<EntityBBKongou?>?>(
         context,
-        ModelBBKongou<EntityBBKongou?>(context.bakeLayer(ModelBBKongou.LAYER_LOCATION)),
+        ModelBBKongou<EntityBBKongou>(context.bakeLayer(ModelBBKongou.LAYER_LOCATION)),
         0.5f
     ) {
     init {

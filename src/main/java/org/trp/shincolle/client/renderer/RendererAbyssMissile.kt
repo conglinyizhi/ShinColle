@@ -16,7 +16,7 @@ class RendererAbyssMissile(context: EntityRendererProvider.Context) : EntityRend
     private val model: ModelAbyssMissile<EntityAbyssMissile?>
 
     init {
-        this.model = ModelAbyssMissile<EntityAbyssMissile?>(context.bakeLayer(ModelAbyssMissile.LAYER_LOCATION))
+        this.model = ModelAbyssMissile<EntityAbyssMissile>(context.bakeLayer(ModelAbyssMissile.LAYER_LOCATION))
     }
 
     override fun render(

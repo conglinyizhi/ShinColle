@@ -11,7 +11,7 @@ import org.trp.shincolle.entity.EntityBBHiei
 
 class RendererBBHiei(context: EntityRendererProvider.Context) : MobRenderer<EntityBBHiei?, ModelBBHiei<EntityBBHiei?>?>(
     context,
-    ModelBBHiei<EntityBBHiei?>(context.bakeLayer(ModelBBHiei.LAYER_LOCATION)),
+    ModelBBHiei<EntityBBHiei>(context.bakeLayer(ModelBBHiei.LAYER_LOCATION)),
     0.5f
 ) {
     init {

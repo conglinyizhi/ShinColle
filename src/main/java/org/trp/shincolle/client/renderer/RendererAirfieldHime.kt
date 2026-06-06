@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityAirfieldHime
 class RendererAirfieldHime(context: EntityRendererProvider.Context) :
     MobRenderer<EntityAirfieldHime?, ModelAirfieldHime<EntityAirfieldHime?>?>(
         context,
-        ModelAirfieldHime<EntityAirfieldHime?>(context.bakeLayer(ModelAirfieldHime.LAYER_LOCATION)),
+        ModelAirfieldHime<EntityAirfieldHime>(context.bakeLayer(ModelAirfieldHime.LAYER_LOCATION)),
         0.5f
     ) {
     init {

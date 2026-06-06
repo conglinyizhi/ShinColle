@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityBattleshipRe
 class RendererBattleshipRe(context: EntityRendererProvider.Context) :
     MobRenderer<EntityBattleshipRe?, ModelBattleshipRe<EntityBattleshipRe?>?>(
         context,
-        ModelBattleshipRe<EntityBattleshipRe?>(context.bakeLayer(ModelBattleshipRe.LAYER_LOCATION)),
+        ModelBattleshipRe<EntityBattleshipRe>(context.bakeLayer(ModelBattleshipRe.LAYER_LOCATION)),
         0.5f
     ) {
     init {

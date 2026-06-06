@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityDestroyerIkazuchi
 class RendererDestroyerIkazuchi(context: EntityRendererProvider.Context) :
     MobRenderer<EntityDestroyerIkazuchi?, ModelDestroyerIkazuchi<EntityDestroyerIkazuchi?>?>(
         context,
-        ModelDestroyerIkazuchi<EntityDestroyerIkazuchi?>(context.bakeLayer(ModelDestroyerIkazuchi.LAYER_LOCATION)),
+        ModelDestroyerIkazuchi<EntityDestroyerIkazuchi>(context.bakeLayer(ModelDestroyerIkazuchi.LAYER_LOCATION)),
         0.5f
     ) {
     init {

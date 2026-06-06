@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityTransportWa
 class RendererTransportWa(context: EntityRendererProvider.Context) :
     MobRenderer<EntityTransportWa?, ModelTransportWa<EntityTransportWa?>?>(
         context,
-        ModelTransportWa<EntityTransportWa?>(context.bakeLayer(ModelTransportWa.LAYER_LOCATION)),
+        ModelTransportWa<EntityTransportWa>(context.bakeLayer(ModelTransportWa.LAYER_LOCATION)),
         0.5f
     ) {
     init {

@@ -13,7 +13,7 @@ import org.trp.shincolle.entity.EntityIsolatedHime
 class RendererIsolatedHime(context: EntityRendererProvider.Context) :
     MobRenderer<EntityIsolatedHime?, ModelIsolatedHime<EntityIsolatedHime?>?>(
         context,
-        ModelIsolatedHime<EntityIsolatedHime?>(context.bakeLayer(ModelIsolatedHime.LAYER_LOCATION)),
+        ModelIsolatedHime<EntityIsolatedHime>(context.bakeLayer(ModelIsolatedHime.LAYER_LOCATION)),
         0.5f
     ) {
     init {

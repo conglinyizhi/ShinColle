@@ -12,7 +12,7 @@ import org.trp.shincolle.entity.EntityCruiserTatsuta
 class RendererCruiserTatsuta(context: EntityRendererProvider.Context) :
     MobRenderer<EntityCruiserTatsuta?, ModelCruiserTatsuta<EntityCruiserTatsuta?>?>(
         context,
-        ModelCruiserTatsuta<EntityCruiserTatsuta?>(context.bakeLayer(ModelCruiserTatsuta.LAYER_LOCATION)),
+        ModelCruiserTatsuta<EntityCruiserTatsuta>(context.bakeLayer(ModelCruiserTatsuta.LAYER_LOCATION)),
         0.5f
     ) {
     init {

@@ -9,7 +9,7 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 
 class RendererTakoyaki<T : Mob?>(context: EntityRendererProvider.Context) : RendererSimpleMob<T?, ModelTakoyaki<T?>?>(
     context,
-    ModelTakoyaki<T?>(context.bakeLayer(ModelTakoyaki.LAYER_LOCATION)),
+    ModelTakoyaki<T>(context.bakeLayer(ModelTakoyaki.LAYER_LOCATION)),
     0.5f,
     0.34f,
     TEXTURE

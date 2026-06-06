@@ -9,7 +9,7 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 
 class RendererMountHbH<T : Mob?>(context: EntityRendererProvider.Context) : RendererSimpleMob<T?, ModelMountHbH<T?>?>(
     context,
-    ModelMountHbH<T?>(context.bakeLayer(ModelMountHbH.LAYER_LOCATION)),
+    ModelMountHbH<T>(context.bakeLayer(ModelMountHbH.LAYER_LOCATION)),
     0.8f,
     0.8f,
     TEXTURE
