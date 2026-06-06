@@ -305,7 +305,7 @@ class SmallShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
 
     private val currentMaterialAmount: IntArray
         get() {
-            val mats: Array<ItemStack?> = arrayOf<ItemStack>(
+            val mats: Array<ItemStack?> = arrayOf<ItemStack?>(
                 this.inventory.getStackInSlot(SLOT_GRUDGE),
                 this.inventory.getStackInSlot(SLOT_ABYSSIUM),
                 this.inventory.getStackInSlot(SLOT_AMMO),

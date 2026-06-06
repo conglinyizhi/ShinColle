@@ -122,16 +122,17 @@ class LargeShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
     }
 
     private fun collapseStructure() {
-        if (this.level == null) {
+        val level = this.level
+        if (level == null) {
             return
         }
 
         dropInventoryContents()
-        Block.popResource(this.level, this.worldPosition, createStoredHeavyGrudgeStack())
-        GrudgeHeavyBlock.Companion.setLargeShipyardSupportFormed(this.level, this.worldPosition, false)
-        this.level!!.setBlock(
+        Block.popResource(level, this.worldPosition, createStoredHeavyGrudgeStack())
+        GrudgeHeavyBlock.Companion.setLargeShipyardSupportFormed(level, this.worldPosition, false)
+        level.setBlock(
             this.worldPosition,
-            ModBlocks.GRUDGE_HEAVY_BLOCK.get().defaultBlockState(),
+            ModBlocks.GRUDGE_HEAVY_BLOCK.get()!!.defaultBlockState(),
             Block.UPDATE_ALL
         )
     }

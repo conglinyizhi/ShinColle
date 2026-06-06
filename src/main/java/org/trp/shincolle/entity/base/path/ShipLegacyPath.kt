@@ -6,25 +6,24 @@ import kotlin.math.max
 import kotlin.math.min
 
 internal class ShipLegacyPath(private val points: Array<ShipLegacyPathPoint>) {
-    private var currentPathIndex = 0
+    private var pathIndex = 0
 
     val currentPathLength: Int
         get() = this.points.size
 
-    fun getCurrentPathIndex(): Int {
-        return this.currentPathIndex
-    }
+    val currentPathIndex: Int
+        get() = this.pathIndex
 
     fun setCurrentPathIndex(currentPathIndex: Int) {
-        this.currentPathIndex = max(0, min(currentPathIndex, this.points.size))
+        this.pathIndex = max(0, min(currentPathIndex, this.points.size))
     }
 
     fun incrementPathIndex() {
-        setCurrentPathIndex(this.currentPathIndex + 1)
+        setCurrentPathIndex(this.pathIndex + 1)
     }
 
     val isFinished: Boolean
-        get() = this.currentPathIndex >= this.points.size
+        get() = this.pathIndex >= this.points.size
 
     val finalPathPoint: ShipLegacyPathPoint?
         get() = if (this.points.size > 0) this.points[this.points.size - 1] else null
@@ -43,8 +42,8 @@ internal class ShipLegacyPath(private val points: Array<ShipLegacyPathPoint>) {
                 return null
             }
 
-            val point = this.points[this.currentPathIndex]
-            return Vec3(point.getX().toDouble(), point.getY().toDouble(), point.getZ().toDouble())
+            val point = this.points[this.pathIndex]
+            return Vec3(point.x.toDouble(), point.y.toDouble(), point.z.toDouble())
         }
 
     fun getVectorFromIndex(entity: Entity, index: Int): Vec3? {
@@ -53,13 +52,13 @@ internal class ShipLegacyPath(private val points: Array<ShipLegacyPathPoint>) {
         }
 
         val point = this.points[index]
-        val x = point.getX() + ((entity.getBbWidth() + 1.0f).toInt()).toDouble() * 0.5
-        val y = point.getY().toDouble()
-        val z = point.getZ() + ((entity.getBbWidth() + 1.0f).toInt()).toDouble() * 0.5
+        val x = point.x + ((entity.bbWidth + 1.0f).toInt()).toDouble() * 0.5
+        val y = point.y.toDouble()
+        val z = point.z + ((entity.bbWidth + 1.0f).toInt()).toDouble() * 0.5
         return Vec3(x, y, z)
     }
 
     fun getPosition(entity: Entity): Vec3? {
-        return getVectorFromIndex(entity, this.currentPathIndex)
+        return getVectorFromIndex(entity, this.pathIndex)
     }
 }

@@ -18,11 +18,11 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
     }
 
     private val openSet = ShipLegacyPathHeap()
-    private val pointMap: MutableMap<Long?, ShipLegacyPathPoint?> = HashMap<Long?, ShipLegacyPathPoint?>()
-    private val pathOptions: Array<ShipLegacyPathPoint> = arrayOfNulls<ShipLegacyPathPoint>(MAX_PATH_OPTIONS)
+    private val pointMap: MutableMap<Long, ShipLegacyPathPoint> = HashMap()
+    private val pathOptions: Array<ShipLegacyPathPoint?> = arrayOfNulls(MAX_PATH_OPTIONS)
 
     fun findPath(host: Entity, target: Entity, range: Float): ShipLegacyPath? {
-        return findPath(host, target.getX(), target.getY(), target.getZ(), range)
+        return findPath(host, target.x, target.y, target.z, range)
     }
 
     fun findPath(host: Entity, x: Int, y: Int, z: Int, range: Float): ShipLegacyPath? {
@@ -37,30 +37,30 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
         val hostPos = host.blockPosition()
 
         if (isInLiquid(host)) {
-            startY = hostPos.getY()
+            startY = hostPos.y
 
-            val cursor = MutableBlockPos(hostPos.getX(), startY, hostPos.getZ())
+            val cursor = MutableBlockPos(hostPos.x, startY, hostPos.z)
 
-            while (startY < this.level.getMaxBuildHeight()
-                && !this.level.getFluidState(cursor).isEmpty()
+            while (startY < this.level.maxBuildHeight
+                && !this.level.getFluidState(cursor).isEmpty
             ) {
                 startY++
                 cursor.setY(startY)
             }
         } else {
-            startY = Mth.floor(host.getBoundingBox().minY + 0.5)
+            startY = Mth.floor(host.boundingBox.minY + 0.5)
         }
 
         val start = openPoint(
-            Mth.floor(host.getBoundingBox().minX),
+            Mth.floor(host.boundingBox.minX),
             startY,
-            Mth.floor(host.getBoundingBox().minZ)
+            Mth.floor(host.boundingBox.minZ)
         )
         val end = openPoint(Mth.floor(tx), Mth.floor(ty), Mth.floor(tz))
 
-        val sizeX = Mth.floor(host.getBbWidth() + 1.0f)
-        val sizeY = Mth.floor(host.getBbHeight() + 1.0f)
-        val sizeZ = Mth.floor(host.getBbWidth() + 1.0f)
+        val sizeX = Mth.floor(host.bbWidth + 1.0f)
+        val sizeY = Mth.floor(host.bbHeight + 1.0f)
+        val sizeZ = Mth.floor(host.bbWidth + 1.0f)
 
         return addToPath(host, start, end, range, sizeX, sizeY, sizeZ)
     }
@@ -81,10 +81,10 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
         var nearest = start
         var loops = 0
 
-        while (!this.openSet.isPathEmpty() && loops++ < MAX_SEARCH_ITERS) {
+        while (!this.openSet.isPathEmpty && loops++ < MAX_SEARCH_ITERS) {
             val current = this.openSet.dequeue()
 
-            if (current.getKey() == end.getKey()) {
+            if (current.key == end.key) {
                 return createEntityPath(start, end)
             }
 
@@ -92,19 +92,19 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
                 nearest = current
             }
 
-            current.setClosed(true)
+            current.isClosed = true
             val optionCount = findPathOptions(host, current, end, range, sizeX, sizeY, sizeZ)
 
             for (i in 0..<optionCount) {
-                val next = this.pathOptions[i]
+                val next = this.pathOptions[i]!!
 
                 if (next.initPathParameters(current, end, range)) {
-                    val score = next.getTotalPathDistance() + next.getDistanceToNext()
+                    val score = next.totalPathDistance + next.distanceToNext
 
-                    if (next.isAssigned()) {
+                    if (next.isAssigned) {
                         this.openSet.changeDistance(next, score)
                     } else {
-                        next.setDistanceToTarget(score)
+                        next.distanceToTarget = score
                         this.openSet.addPoint(next)
                     }
                 }
@@ -124,25 +124,25 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
         sizeZ: Int
     ): Int {
         var yOffset = 0
-        val above = BlockPos(current.getX(), current.getY() + 1, current.getZ())
+        val above = BlockPos(current.x, current.y + 1, current.z)
 
-        val aboveType = getPathType(above.getX(), above.getY(), above.getZ(), sizeX, sizeY, sizeZ)
+        val aboveType = getPathType(above.x, above.y, above.z, sizeX, sizeY, sizeZ)
         if (aboveType == LegacyPathType.OPEN || aboveType == LegacyPathType.FLUID || aboveType == LegacyPathType.OPENABLE) {
             yOffset = 1
         }
 
         var found = 0
         val candidates = arrayOf<ShipLegacyPathPoint?>(
-            getSafePoint(host, current.getX(), current.getY(), current.getZ() + 1, yOffset, sizeX, sizeY, sizeZ),
-            getSafePoint(host, current.getX() - 1, current.getY(), current.getZ(), yOffset, sizeX, sizeY, sizeZ),
-            getSafePoint(host, current.getX() + 1, current.getY(), current.getZ(), yOffset, sizeX, sizeY, sizeZ),
-            getSafePoint(host, current.getX(), current.getY(), current.getZ() - 1, yOffset, sizeX, sizeY, sizeZ),
-            getSafePoint(host, current.getX(), current.getY() + 1, current.getZ(), 0, sizeX, sizeY, sizeZ),
-            getSafePoint(host, current.getX(), current.getY() - 1, current.getZ(), 0, sizeX, sizeY, sizeZ)
+            getSafePoint(host, current.x, current.y, current.z + 1, yOffset, sizeX, sizeY, sizeZ),
+            getSafePoint(host, current.x - 1, current.y, current.z, yOffset, sizeX, sizeY, sizeZ),
+            getSafePoint(host, current.x + 1, current.y, current.z, yOffset, sizeX, sizeY, sizeZ),
+            getSafePoint(host, current.x, current.y, current.z - 1, yOffset, sizeX, sizeY, sizeZ),
+            getSafePoint(host, current.x, current.y + 1, current.z, 0, sizeX, sizeY, sizeZ),
+            getSafePoint(host, current.x, current.y - 1, current.z, 0, sizeX, sizeY, sizeZ)
         )
 
         for (candidate in candidates) {
-            if (candidate != null && !candidate.isClosed() && candidate.distanceTo(target) < maxRange) {
+            if (candidate != null && !candidate.isClosed && candidate.distanceTo(target) < maxRange) {
                 this.pathOptions[found++] = candidate
             }
         }
@@ -177,10 +177,10 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
         }
 
         if (result != null && !this.canEntityFly && !isInLiquid(host)) {
-            var scanY = result.getY()
+            var scanY = result.y
             var scanCount = 0
 
-            while (scanY > this.level.getMinBuildHeight()) {
+            while (scanY > this.level.minBuildHeight) {
                 val below = getPathType(x, scanY - 1, z, sizeX, sizeY, sizeZ)
 
                 if (below == LegacyPathType.FLUID) {
@@ -216,25 +216,25 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
                     pos.set(ix, iy, iz)
                     val state = this.level.getBlockState(pos)
 
-                    if (state.isAir()) {
+                    if (state.isAir) {
                         sawOpen = true
                         continue
                     }
 
-                    if (state.getBlock() is StairBlock
-                        || state.getBlock() is LadderBlock
+                    if (state.block is StairBlock
+                        || state.block is LadderBlock
                         || state.`is`(BlockTags.CLIMBABLE)
                     ) {
                         sawOpenable = true
                         continue
                     }
 
-                    if (state.getBlock() is FenceBlock || state.getBlock() is WallBlock) {
+                    if (state.block is FenceBlock || state.block is WallBlock) {
                         return LegacyPathType.FENCE
                     }
 
-                    if (state.getBlock() is DoorBlock || state.getBlock() is FenceGateBlock) {
-                        if (state.getCollisionShape(this.level, pos).isEmpty()) {
+                    if (state.block is DoorBlock || state.block is FenceGateBlock) {
+                        if (state.getCollisionShape(this.level, pos).isEmpty) {
                             sawOpen = true
                         } else {
                             sawOpenable = true
@@ -242,12 +242,12 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
                         continue
                     }
 
-                    if (!state.getFluidState().isEmpty()) {
+                    if (!state.fluidState.isEmpty) {
                         sawFluid = true
                         continue
                     }
 
-                    if (!state.getCollisionShape(this.level, pos).isEmpty()) {
+                    if (!state.getCollisionShape(this.level, pos).isEmpty) {
                         return LegacyPathType.BLOCKED
                     }
 
@@ -269,28 +269,28 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
 
     private fun openPoint(x: Int, y: Int, z: Int): ShipLegacyPathPoint {
         val key = BlockPos.asLong(x, y, z)
-        var point = this.pointMap.get(key)
+        var point = this.pointMap[key]
 
         if (point == null) {
             point = ShipLegacyPathPoint(x, y, z, key)
-            this.pointMap.put(key, point)
+            this.pointMap[key] = point
         }
 
         return point
     }
 
     private fun createEntityPath(start: ShipLegacyPathPoint?, end: ShipLegacyPathPoint): ShipLegacyPath {
-        val path: MutableList<ShipLegacyPathPoint?> = ArrayList<ShipLegacyPathPoint?>()
+        val path: MutableList<ShipLegacyPathPoint> = ArrayList()
         var node = end
 
         path.add(end)
 
-        while (node.getPrevious() != null && node != start) {
-            node = node.getPrevious()
+        while (node.previous != null && node != start) {
+            node = node.previous!!
             path.add(0, node)
         }
 
-        return ShipLegacyPath(path.toTypedArray<ShipLegacyPathPoint?>())
+        return ShipLegacyPath(path.toTypedArray())
     }
 
     companion object {
@@ -299,7 +299,7 @@ internal class ShipLegacyPathFinder(private val level: LevelReader, private val 
         private const val MAX_PATH_OPTIONS = 32
 
         private fun isInLiquid(entity: Entity): Boolean {
-            return entity.isInWaterOrBubble() || entity.isInLava()
+            return entity.isInWaterOrBubble || entity.isInLava
         }
     }
 }

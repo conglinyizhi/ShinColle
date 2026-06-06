@@ -21,60 +21,60 @@ import net.minecraft.world.phys.Vec3
 import java.util.Set
 
 internal object EntitySummonBrainAi {
-    val MEMORY_TYPES: MutableList<MemoryModuleType<*>?> = ImmutableList.of<MemoryModuleType<*>?>(
+    val MEMORY_TYPES: MutableList<MemoryModuleType<*>> = ImmutableList.of<MemoryModuleType<*>>(
         MemoryModuleType.WALK_TARGET,
         MemoryModuleType.LOOK_TARGET,
         MemoryModuleType.ATTACK_TARGET,
         MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE
     )
-    val SENSOR_TYPES: MutableList<SensorType<out Sensor<in EntitySummonBase?>?>?> =
-        ImmutableList.of<SensorType<out Sensor<in EntitySummonBase?>?>?>()
+    val SENSOR_TYPES: MutableList<SensorType<out Sensor<in EntitySummonBase>>> =
+        ImmutableList.of<SensorType<out Sensor<in EntitySummonBase>>>()
 
-    fun makeBrain(summon: EntitySummonBase?, brain: Brain<EntitySummonBase?>): Brain<*> {
+    fun makeBrain(summon: EntitySummonBase?, brain: Brain<EntitySummonBase>): Brain<*> {
         brain.addActivity(
-            Activity.CORE, ImmutableList.of<Pair<Int?, out Behavior<EntitySummonBase?>?>?>(
-                Pair.of<Int?, SummonAttackBehavior?>(SummonAiNumbers.ATTACK_BEHAVIOR_PRIORITY, SummonAttackBehavior()),
-                Pair.of<Int?, SummonFollowCarrierBehavior?>(
+            Activity.CORE, ImmutableList.of<Pair<Int, out Behavior<in EntitySummonBase>>>(
+                Pair.of<Int, SummonAttackBehavior>(SummonAiNumbers.ATTACK_BEHAVIOR_PRIORITY, SummonAttackBehavior()),
+                Pair.of<Int, SummonFollowCarrierBehavior>(
                     SummonAiNumbers.FOLLOW_BEHAVIOR_PRIORITY,
                     SummonFollowCarrierBehavior()
                 ),
-                Pair.of<Int?, SummonLookAtPlayerBehavior?>(
+                Pair.of<Int, SummonLookAtPlayerBehavior>(
                     SummonAiNumbers.LOOK_AT_PLAYER_PRIORITY,
                     SummonLookAtPlayerBehavior()
                 ),
-                Pair.of<Int?, SummonRandomLookBehavior?>(
+                Pair.of<Int, SummonRandomLookBehavior>(
                     SummonAiNumbers.RANDOM_LOOK_PRIORITY,
                     SummonRandomLookBehavior()
                 )
             )
         )
         brain.addActivity(
-            Activity.IDLE, ImmutableList.of<Pair<Int?, SummonRandomStrollBehavior?>?>(
-                Pair.of<Int?, SummonRandomStrollBehavior?>(
+            Activity.IDLE, ImmutableList.of<Pair<Int, SummonRandomStrollBehavior>>(
+                Pair.of<Int, SummonRandomStrollBehavior>(
                     SummonAiNumbers.RANDOM_STROLL_PRIORITY,
                     SummonRandomStrollBehavior()
                 )
             )
         )
-        brain.setCoreActivities(Set.of<Activity?>(Activity.CORE))
+        brain.setCoreActivities(Set.of<Activity>(Activity.CORE))
         brain.setDefaultActivity(Activity.IDLE)
         brain.useDefaultActivity()
         return brain
     }
 
     fun tick(level: ServerLevel, summon: EntitySummonBase) {
-        val brain = summon.getBrain() as Brain<EntitySummonBase?>
+        val brain = summon.getBrain() as Brain<EntitySummonBase>
         syncAttackTargetMemory(summon, brain)
         brain.tick(level, summon)
-        brain.setActiveActivityToFirstValid(ImmutableList.of<Activity?>(Activity.IDLE))
+        brain.setActiveActivityToFirstValid(ImmutableList.of<Activity>(Activity.IDLE))
     }
 
-    private fun syncAttackTargetMemory(summon: EntitySummonBase, brain: Brain<EntitySummonBase?>) {
+    private fun syncAttackTargetMemory(summon: EntitySummonBase, brain: Brain<EntitySummonBase>) {
         val target = summon.getTarget()
         if (target != null && target.isAlive) {
-            brain.setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
+            brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
-            brain.eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
+            brain.eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
         }
     }
 
@@ -102,19 +102,19 @@ internal object EntitySummonBrainAi {
 
     private fun clearWalkAndLookMemory(summon: EntitySummonBase) {
         val brain = summon.getBrain()
-        brain.eraseMemory<WalkTarget?>(MemoryModuleType.WALK_TARGET)
-        brain.eraseMemory<PositionTracker?>(MemoryModuleType.LOOK_TARGET)
-        brain.eraseMemory<Long?>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
+        brain.eraseMemory<WalkTarget>(MemoryModuleType.WALK_TARGET)
+        brain.eraseMemory<PositionTracker>(MemoryModuleType.LOOK_TARGET)
+        brain.eraseMemory<Long>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
     }
 
     private fun clearWalkMemory(summon: EntitySummonBase) {
         val brain = summon.getBrain()
-        brain.eraseMemory<WalkTarget?>(MemoryModuleType.WALK_TARGET)
-        brain.eraseMemory<Long?>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
+        brain.eraseMemory<WalkTarget>(MemoryModuleType.WALK_TARGET)
+        brain.eraseMemory<Long>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
     }
 
     private fun shouldFollowCarrier(summon: EntitySummonBase): Boolean {
-        val carrier = summon.getCarrier()
+        val carrier = summon.carrier
         return SummonBrainDecisionResolver.shouldFollowCarrier(decisionState(summon, carrier))
     }
 
@@ -128,7 +128,7 @@ internal object EntitySummonBrainAi {
             attackTarget != null && attackTarget.isAlive,
             summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             if (attackTarget == null) -1.0 else summon.distanceToSqr(attackTarget),
-            summon.getAttackRangeSq().toDouble(),
+            summon.attackRangeSq.toDouble(),
             0
         )
     }
@@ -147,30 +147,30 @@ internal object EntitySummonBrainAi {
             attackTarget != null && attackTarget.isAlive,
             summon.getRandom().nextInt(SummonAiNumbers.RANDOM_STROLL_CHANCE) == 0,
             if (attackTarget == null) -1.0 else summon.distanceToSqr(attackTarget),
-            summon.getAttackRangeSq().toDouble(),
+            summon.attackRangeSq.toDouble(),
             attackDelay
         )
     }
 
     private class SummonAttackBehavior :
-        Behavior<EntitySummonBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntitySummonBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private var attackDelay = 0
 
         override fun checkExtraStartConditions(level: ServerLevel, summon: EntitySummonBase): Boolean {
-            return SummonBrainDecisionResolver.shouldAttack(decisionState(summon, summon.getCarrier()))
+            return SummonBrainDecisionResolver.shouldAttack(decisionState(summon, summon.carrier))
         }
 
         override fun start(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
             summon.attackMovementCoordinator().reset()
             val target = summon.getTarget()
             if (target != null && target.isAlive) {
-                summon.getBrain().setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
+                summon.getBrain().setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
             }
         }
 
         override fun stop(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
             clearWalkAndLookMemory(summon)
-            summon.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
+            summon.getBrain().eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
             summon.attackMovementCoordinator().stop()
         }
 
@@ -178,16 +178,16 @@ internal object EntitySummonBrainAi {
             val target = summon.getTarget()
             if (target == null) {
                 clearWalkAndLookMemory(summon)
-                summon.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
+                summon.getBrain().eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
                 summon.attackMovementCoordinator().stop()
                 return
             }
 
             summon.getLookControl()
                 .setLookAt(target, SummonAiNumbers.ATTACK_LOOK_YAW, SummonAiNumbers.ATTACK_LOOK_PITCH)
-            summon.getBrain().setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
+            summon.getBrain().setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
             setEntityLookMemory(summon, target)
-            val state = decisionState(summon, summon.getCarrier(), this.attackDelay)
+            val state = decisionState(summon, summon.carrier, this.attackDelay)
             if (SummonBrainDecisionResolver.shouldChaseAttackTarget(state)) {
                 setEntityWalkAndLookMemory(summon, target, SummonAiNumbers.ATTACK_MOVE_SPEED, 1)
                 summon.attackMovementCoordinator().moveTo(target, SummonAiNumbers.ATTACK_MOVE_SPEED)
@@ -207,7 +207,7 @@ internal object EntitySummonBrainAi {
     }
 
     private class SummonFollowCarrierBehavior :
-        Behavior<EntitySummonBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntitySummonBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private var timeToRecalcPath = 0
 
         override fun checkExtraStartConditions(level: ServerLevel, summon: EntitySummonBase): Boolean {
@@ -220,7 +220,7 @@ internal object EntitySummonBrainAi {
         }
 
         override fun tick(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {
-            val carrier = summon.getCarrier()
+            val carrier = summon.carrier
             if (carrier == null) {
                 clearWalkAndLookMemory(summon)
                 summon.followMovementCoordinator().stop()
@@ -243,7 +243,7 @@ internal object EntitySummonBrainAi {
     }
 
     private class SummonLookAtPlayerBehavior :
-        Behavior<EntitySummonBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntitySummonBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, summon: EntitySummonBase): Boolean {
             return summon.getTarget() == null
         }
@@ -259,16 +259,16 @@ internal object EntitySummonBrainAi {
     }
 
     private class SummonRandomLookBehavior :
-        Behavior<EntitySummonBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntitySummonBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, summon: EntitySummonBase): Boolean {
             return summon.getTarget() == null && summon.getRandom().nextInt(SummonAiNumbers.RANDOM_LOOK_CHANCE) == 0
         }
     }
 
     private class SummonRandomStrollBehavior :
-        Behavior<EntitySummonBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntitySummonBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, summon: EntitySummonBase): Boolean {
-            return SummonBrainDecisionResolver.shouldRandomStroll(decisionState(summon, summon.getCarrier()))
+            return SummonBrainDecisionResolver.shouldRandomStroll(decisionState(summon, summon.carrier))
         }
 
         override fun start(level: ServerLevel, summon: EntitySummonBase, gameTime: Long) {

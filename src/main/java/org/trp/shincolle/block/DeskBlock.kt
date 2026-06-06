@@ -21,7 +21,7 @@ import java.util.function.Consumer
 import java.util.function.Function
 
 class DeskBlock : BaseEntityBlock(
-    Block.Properties.of()
+    Properties.of()
         .strength(1.0f)
         .explosionResistance(60.0f)
         .noOcclusion()

@@ -16,11 +16,6 @@ import net.minecraft.world.phys.Vec3
 import org.trp.shincolle.Config
 import org.trp.shincolle.Shincolle.Companion.diagnosticLog
 import org.trp.shincolle.entity.base.EntityShipBase
-import java.lang.Double
-import kotlin.Boolean
-import kotlin.Float
-import kotlin.Int
-import kotlin.Long
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
@@ -69,11 +64,11 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     // ========================================================================
     init {
         this.pathFinder = ShipLegacyPathFinder(level, false)
-        this.hostCeilWidth = Mth.floor(mob.getBbWidth() + 1.0f)
-        this.hostCeilHeight = Mth.floor(mob.getBbHeight() + 1.0f)
+        this.hostCeilWidth = Mth.floor(mob.bbWidth + 1.0f)
+        this.hostCeilHeight = Mth.floor(mob.bbHeight + 1.0f)
         this.hostCeilDepth = this.hostCeilWidth
         this.maxDistanceToWaypoint =
-            if (mob.getBbWidth() > 0.75f) mob.getBbWidth() * 0.5f else 0.75f - mob.getBbWidth() * 0.5f
+            if (mob.bbWidth > 0.75f) mob.bbWidth * 0.5f else 0.75f - mob.bbWidth * 0.5f
     }
 
     // ========================================================================
@@ -106,7 +101,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     }
 
     fun noPath(): Boolean {
-        return this.currentPath == null || this.currentPath!!.isFinished()
+        return this.currentPath == null || this.currentPath!!.isFinished
     }
 
     fun preserveCurrentPathOnNextFailure() {
@@ -145,7 +140,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         }
 
         val wantedY = resolveTargetY(target)
-        this.mob.getMoveControl().setWantedPosition(target.x, wantedY, target.z, this.speedModifier)
+        this.mob.moveControl.setWantedPosition(target.x, wantedY, target.z, this.speedModifier)
         logNavigationTick(target, wantedY)
     }
 
@@ -154,7 +149,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     // ========================================================================
     private fun pathFollow() {
         val hostPos = this.entityPosition
-        val nextPos = this.currentPath!!.getCurrentPos()
+        val nextPos = this.currentPath!!.currentPos
         if (nextPos == null) {
             stop()
             return
@@ -162,8 +157,8 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         val centerX = nextPos.x + 0.5
         val centerZ = nextPos.z + 0.5
         val reach = this.maxDistanceToWaypoint + min(1.25, this.speedModifier * 0.35)
-        val dx = this.mob.getX() - centerX
-        val dz = this.mob.getZ() - centerZ
+        val dx = this.mob.x - centerX
+        val dz = this.mob.z - centerZ
 
         if (dx * dx + dz * dz <= reach * reach) {
             this.currentPath!!.incrementPathIndex()
@@ -188,14 +183,15 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     }
 
     private fun canNavigate(): Boolean {
-        return !this.mob.isPassenger()
-                && (this.mob.onGround() || this.isInLiquid || this.mob.isNoGravity()
+        return !this.mob.isPassenger
+                && (this.mob.onGround() || this.isInLiquid || this.mob.isNoGravity
                 || this.mob.fallDistance < 2.0f)
     }
 
     private fun frozenByGui(): Boolean {
         if (!Config.SHIP_FREEZE_WHEN_GUI_OPEN.get()) return false
-        return this.mob is EntityShipBase && mob.isGuiOpen()
+        val ship = this.mob as? EntityShipBase ?: return false
+        return ship.isGuiOpen
     }
 
     // ========================================================================
@@ -205,7 +201,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         if (this.targetPos != null && this.inertiaTicks < INERTIA_TICKS) {
             this.inertiaTicks++
             val lastTarget = Vec3.atCenterOf(this.targetPos)
-            this.mob.getMoveControl().setWantedPosition(
+            this.mob.moveControl.setWantedPosition(
                 lastTarget.x, lastTarget.y, lastTarget.z, this.speedModifier
             )
         }
@@ -250,20 +246,20 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         if (lengthSq < 1.0E-6) return
 
         val length = sqrt(lengthSq)
-        val motion = this.mob.getDeltaMovement()
-        this.mob.setDeltaMovement(
+        val motion = this.mob.deltaMovement
+        this.mob.deltaMovement = Vec3(
             dx / length * UNSTUCK_DIRECTION_FACTOR * this.speedModifier,
             motion.y,
             dz / length * UNSTUCK_DIRECTION_FACTOR * this.speedModifier
         )
 
-        if (this.mob.getRandom().nextBoolean()) {
-            this.mob.getJumpControl().jump()
-            val bonus: Float = this.mob.getSpeed() * JUMP_SPRINT_FACTOR
-            this.mob.setDeltaMovement(
-                this.mob.getDeltaMovement().x + dx / length * bonus,
-                this.mob.getDeltaMovement().y,
-                this.mob.getDeltaMovement().z + dz / length * bonus
+        if (this.mob.random.nextBoolean()) {
+            this.mob.jumpControl.jump()
+            val bonus: Float = this.mob.speed * JUMP_SPRINT_FACTOR
+            this.mob.deltaMovement = Vec3(
+                this.mob.deltaMovement.x + dx / length * bonus,
+                this.mob.deltaMovement.y,
+                this.mob.deltaMovement.z + dz / length * bonus
             )
         }
     }
@@ -272,20 +268,20 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     // Path timeout — retry when stuck on same node too long
     // ========================================================================
     private fun checkPathTimeout(hostPos: Vec3) {
-        if (this.currentPath == null || this.currentPath!!.isFinished()) {
+        if (this.currentPath == null || this.currentPath!!.isFinished) {
             this.timeoutTimer = 0L
             return
         }
 
         if (hostPos.distanceToSqr(this.lastPosCheck) < POSITION_TIMEOUT_MOVED_SQR) {
-            if (this.timeoutCachedNode == this.currentPath!!.getCurrentPathIndex().toLong()) {
+            if (this.timeoutCachedNode == this.currentPath!!.currentPathIndex.toLong()) {
                 this.timeoutTimer++
                 if (this.timeoutLimit <= 0.0) {
                     val pathPos = this.currentPath!!.getPosition(this.mob)
                     if (pathPos != null) {
                         val dist = hostPos.distanceTo(pathPos)
                         this.timeoutLimit =
-                            ShipLegacyNavigationPolicy.calculateTimeoutLimit(dist, this.mob.getSpeed().toDouble())
+                            ShipLegacyNavigationPolicy.calculateTimeoutLimit(dist, this.mob.speed.toDouble())
                     }
                 }
                 if (ShipLegacyNavigationPolicy.shouldRetryTimedOutPath(this.timeoutTimer, this.timeoutLimit)) {
@@ -296,10 +292,10 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
                     resetPathTimeoutState()
                 }
             } else {
-                resetPathTimeoutStateTo(this.currentPath!!.getCurrentPathIndex().toLong())
+                resetPathTimeoutStateTo(this.currentPath!!.currentPathIndex.toLong())
             }
         } else {
-            resetPathTimeoutStateTo(this.currentPath!!.getCurrentPathIndex().toLong())
+            resetPathTimeoutStateTo(this.currentPath!!.currentPathIndex.toLong())
         }
         this.lastPosCheck = hostPos
     }
@@ -308,11 +304,11 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     // Path resolution
     // ========================================================================
     private fun getPathToEntity(target: Entity): ShipLegacyPath? {
-        if (this.currentPath != null && !this.currentPath!!.isFinished()) {
-            val finalPoint = this.currentPath!!.getFinalPathPoint()
-            if (finalPoint != null && finalPoint.getX() == target.blockPosition()
-                    .getX() && finalPoint.getY() == target.blockPosition()
-                    .getY() && finalPoint.getZ() == target.blockPosition().getZ()
+        if (this.currentPath != null && !this.currentPath!!.isFinished) {
+            val finalPoint = this.currentPath!!.finalPathPoint
+            if (finalPoint != null && finalPoint.x == target.blockPosition()
+                    .x && finalPoint.y == target.blockPosition()
+                    .y && finalPoint.z == target.blockPosition().z
             ) {
                 return this.currentPath
             }
@@ -322,11 +318,11 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     }
 
     private fun getPathToPos(pos: BlockPos): ShipLegacyPath? {
-        if (this.currentPath != null && !this.currentPath!!.isFinished() && pos == this.targetPos) {
+        if (this.currentPath != null && !this.currentPath!!.isFinished && pos == this.targetPos) {
             return this.currentPath
         }
         val range = this.pathSearchRange
-        return this.pathFinder.findPath(this.mob, pos.getX(), pos.getY(), pos.getZ(), range)
+        return this.pathFinder.findPath(this.mob, pos.x, pos.y, pos.z, range)
     }
 
     private fun recalculatePathToCurrentTarget(): ShipLegacyPath? {
@@ -334,9 +330,9 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         val range = this.pathSearchRange
         return this.pathFinder.findPath(
             this.mob,
-            this.targetPos!!.getX(),
-            this.targetPos!!.getY(),
-            this.targetPos!!.getZ(),
+            this.targetPos!!.x,
+            this.targetPos!!.y,
+            this.targetPos!!.z,
             range
         )
     }
@@ -357,7 +353,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         sameNavigationTarget: Boolean,
         nextTarget: BlockPos?
     ): Boolean {
-        val hadActivePath = this.currentPath != null && !this.currentPath!!.isFinished()
+        val hadActivePath = this.currentPath != null && !this.currentPath!!.isFinished
 
         if (path == null) {
             if (shouldLogSetPath(-1, true, nextTarget)) {
@@ -388,56 +384,56 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
             resetStuckProgressState(hostPos)
         }
         resetPathTimeoutState()
-        logSetPath(nextTarget, false, path.getCurrentPathLength())
+        logSetPath(nextTarget, false, path.currentPathLength)
         return true
     }
 
     private val entityPosition: Vec3
         // ========================================================================
-        get() = Vec3(this.mob.getX(), this.pathableYPos.toDouble(), this.mob.getZ())
+        get() = Vec3(this.mob.x, this.pathableYPos.toDouble(), this.mob.z)
 
     private val pathableYPos: Int
         get() {
-            if (this.mob.isInWater() || this.mob.isInLava()) {
+            if (this.mob.isInWater || this.mob.isInLava) {
                 val pos = this.mob.blockPosition().mutable()
-                var y = pos.getY()
+                var y = pos.y
                 var scan = 0
-                while (scan++ < 16 && y < this.level.getMaxBuildHeight() && !this.level.getFluidState(pos).isEmpty()) {
+                while (scan++ < 16 && y < this.level.maxBuildHeight && !this.level.getFluidState(pos).isEmpty) {
                     y++
                     pos.setY(y)
                 }
                 return y
             }
-            return Mth.floor(this.mob.getY() + 0.5)
+            return Mth.floor(this.mob.y + 0.5)
         }
 
     private fun resolveTargetY(target: Vec3): Double {
         if (this.isInLiquid) {
-            return Mth.lerp(0.4, this.mob.getY(), getLiquidHoverY(target))
+            return Mth.lerp(0.4, this.mob.y, getLiquidHoverY(target))
         }
         val pos = BlockPos.containing(target.x, target.y - 0.5, target.z)
         val state = this.level.getBlockState(pos)
         val maxY = state.getCollisionShape(this.level, pos).max(Direction.Axis.Y)
-        if (!Double.isInfinite(maxY) && !Double.isNaN(maxY)) {
-            return pos.getY() + maxY + 0.1
+        if (!java.lang.Double.isInfinite(maxY) && !java.lang.Double.isNaN(maxY)) {
+            return pos.y + maxY + 0.1
         }
         return target.y
     }
 
-    private fun getLiquidHoverY(target: Vec3): kotlin.Double {
+    private fun getLiquidHoverY(target: Vec3): Double {
         var pos = BlockPos.containing(target.x, target.y, target.z)
         var fluid = this.level.getFluidState(pos)
-        if (fluid.isEmpty()) {
+        if (fluid.isEmpty) {
             val below = pos.below()
             fluid = this.level.getFluidState(below)
-            if (fluid.isEmpty()) return target.y
+            if (fluid.isEmpty) return target.y
             pos = below
         }
-        return pos.getY() + fluid.getHeight(this.level, pos) - LIQUID_HOVER_OFFSET
+        return pos.y + fluid.getHeight(this.level, pos) - LIQUID_HOVER_OFFSET
     }
 
     private val isInLiquid: Boolean
-        get() = this.mob.isInWaterOrBubble() || this.mob.isInLava()
+        get() = this.mob.isInWaterOrBubble || this.mob.isInLava
 
     // ========================================================================
     // Direct path check
@@ -508,8 +504,8 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         ySize: Int,
         zSize: Int,
         orgPos: Vec3,
-        vecX: kotlin.Double,
-        vecZ: kotlin.Double
+        vecX: Double,
+        vecZ: Double
     ): Boolean {
         val xSize2 = xOffset - xSize / 2
         val zSize2 = zOffset - zSize / 2
@@ -523,7 +519,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
                 val z2 = z1 + 0.5 - orgPos.z
                 if (x2 * vecX + z2 * vecZ < 0.0) continue
                 pos.set(x1, yOffset - 1, z1)
-                if (this.level.getBlockState(pos).isAir()) return false
+                if (this.level.getBlockState(pos).isAir) return false
             }
         }
         return true
@@ -537,8 +533,8 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         sizeY: Int,
         sizeZ: Int,
         from: Vec3,
-        dirX: kotlin.Double,
-        dirZ: kotlin.Double
+        dirX: Double,
+        dirZ: Double
     ): Boolean {
         val pos = MutableBlockPos()
         for (ix in x..<x + sizeX) {
@@ -549,11 +545,11 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
                     if (deltaX * dirX + deltaZ * dirZ < 0.0) continue
                     pos.set(ix, iy, iz)
                     val state = this.level.getBlockState(pos)
-                    if (state.getBlock() is StairBlock
-                        || state.getBlock() is LadderBlock
+                    if (state.block is StairBlock
+                        || state.block is LadderBlock
                         || state.`is`(BlockTags.CLIMBABLE)
                     ) return false
-                    if (!state.getCollisionShape(this.level, pos).isEmpty()) return false
+                    if (!state.getCollisionShape(this.level, pos).isEmpty) return false
                 }
             }
         }
@@ -613,25 +609,25 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     // ========================================================================
     // Logging
     // ========================================================================
-    private fun logNavigationTick(target: Vec3, wantedY: kotlin.Double) {
+    private fun logNavigationTick(target: Vec3, wantedY: Double) {
         if (this.totalTicks % 20 != 0) return
         val pos = this.mob.position()
         val distToTarget = pos.distanceTo(Vec3(target.x, wantedY, target.z))
         val speed = this.mob.getAttributeValue(Attributes.MOVEMENT_SPEED)
         diagnosticLog(
             "[SCNaviTick] mob={} speedMod={} movSpeedAttr={} distToNode={} pathIdx={}/{}",
-            this.mob.getUUID(), this.speedModifier, speed, distToTarget,
-            this.currentPath!!.getCurrentPathIndex(), this.currentPath!!.getCurrentPathLength()
+            this.mob.uuid, this.speedModifier, speed, distToTarget,
+            this.currentPath!!.currentPathIndex, this.currentPath!!.currentPathLength
         )
     }
 
     private fun logSetPath(nextTarget: BlockPos?, failure: Boolean, pathLength: Int) {
         if (failure) {
-            diagnosticLog("[SCNavDiag] setPath failed mob={} targetPos={}", this.mob.getUUID(), nextTarget)
+            diagnosticLog("[SCNavDiag] setPath failed mob={} targetPos={}", this.mob.uuid, nextTarget)
         } else {
             diagnosticLog(
                 "[SCNavDiag] setPath success mob={} targetPos={} speed={} pathLength={}",
-                this.mob.getUUID(), nextTarget, this.speedModifier, pathLength
+                this.mob.uuid, nextTarget, this.speedModifier, pathLength
             )
         }
         this.loggedTargetPos = nextTarget
@@ -643,7 +639,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
     private fun logExceededCheck(hostPos: Vec3?) {
         diagnosticLog(
             "[SCNavDiag] exceededCheck mob={} pos={} targetPos={}",
-            this.mob.getUUID(), hostPos, this.targetPos
+            this.mob.uuid, hostPos, this.targetPos
         )
         this.lastExceededLogTarget = this.targetPos
         this.lastExceededLogTick = this.totalTicks
@@ -653,7 +649,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
         if (!shouldLogStuckApply()) return
         diagnosticLog(
             "[SCNavDiag] stuckApply mob={} pos={} targetPos={}",
-            this.mob.getUUID(), hostPos, this.targetPos
+            this.mob.uuid, hostPos, this.targetPos
         )
         this.lastStuckApplyLogTarget = this.targetPos
         this.lastStuckApplyLogTick = this.totalTicks
@@ -672,7 +668,7 @@ class ShipLegacyNavigation(mob: Mob, level: Level) : GroundPathNavigation(mob, l
 
         private fun policyTarget(target: BlockPos?): ShipLegacyNavigationPolicy.Target? {
             if (target == null) return null
-            return ShipLegacyNavigationPolicy.Target(target.getX(), target.getY(), target.getZ())
+            return ShipLegacyNavigationPolicy.Target(target.x, target.y, target.z)
         }
     }
 }

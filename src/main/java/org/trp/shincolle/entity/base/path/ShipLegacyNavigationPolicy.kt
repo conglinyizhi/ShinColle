@@ -50,7 +50,7 @@ internal object ShipLegacyNavigationPolicy {
 
     @JvmRecord
     internal data class Target(val x: Int, val y: Int, val z: Int) {
-        private fun distanceToSqr(other: Target): Double {
+        internal fun distanceToSqr(other: Target): Double {
             val dx = (this.x - other.x).toDouble()
             val dy = (this.y - other.y).toDouble()
             val dz = (this.z - other.z).toDouble()

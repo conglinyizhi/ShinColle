@@ -41,9 +41,9 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         this.clientSide = playerInventory.player.level().isClientSide
         this.level = playerInventory.player.level()
 
-        if (!this.clientSide && blockEntity.getOwnerUUID() == null) {
-            blockEntity.setOwnerUUID(playerInventory.player.getUUID())
-            blockEntity.setOwnerName(playerInventory.player.getName().getString())
+        if (!this.clientSide && blockEntity.ownerUUID == null) {
+            blockEntity.ownerUUID = playerInventory.player.uuid
+            blockEntity.ownerName = playerInventory.player.name.string
         }
 
 
@@ -128,7 +128,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getCraningShipId()
+                return blockEntity.craningShipId
             }
 
             override fun set(value: Int) {
@@ -137,7 +137,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getCraningShipTimer()
+                return blockEntity.craningShipTimer
             }
 
             override fun set(value: Int) {
@@ -228,14 +228,14 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
             }
 
             1 -> {
-                val m = blockEntity.getCraneMode() + 1
+                var m = blockEntity.getCraneMode() + 1
                 if (m > 24) m = 24
                 blockEntity.setCraneMode(m)
                 return true
             }
 
             11 -> {
-                val m2 = blockEntity.getCraneMode() - 1
+                var m2 = blockEntity.getCraneMode() - 1
                 if (m2 < 0) m2 = 0
                 blockEntity.setCraneMode(m2)
                 return true

@@ -10,9 +10,15 @@ import net.neoforged.neoforge.registries.DeferredBlock
 import net.neoforged.neoforge.registries.DeferredRegister
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.block.AbyssiumBlock
+import org.trp.shincolle.block.CraneBlock
+import org.trp.shincolle.block.DeskBlock
+import org.trp.shincolle.block.FrameBlock
 import org.trp.shincolle.block.GrudgeHeavyBlock
+import org.trp.shincolle.block.LargeShipyardBlock
 import org.trp.shincolle.block.PolymetalBlock
+import org.trp.shincolle.block.SmallShipyardBlock
 import org.trp.shincolle.block.VolCoreBlock
+import org.trp.shincolle.block.WayPointBlock
 import java.util.function.Supplier
 import java.util.function.ToIntFunction
 

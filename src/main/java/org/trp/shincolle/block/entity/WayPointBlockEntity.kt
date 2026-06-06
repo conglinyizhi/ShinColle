@@ -24,52 +24,13 @@ import java.util.*
 class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlockEntities.WAYPOINT.get(), pos, state),
     IWaypoint {
     private var tickCount = 0
-    private var lastPos: BlockPos = BlockPos.ZERO
-    private var nextPos: BlockPos = BlockPos.ZERO
-    private var chestPos: BlockPos = BlockPos.ZERO
+    override var lastPos: BlockPos? = BlockPos.ZERO
+    override var nextPos: BlockPos? = BlockPos.ZERO
+    override var chestPos: BlockPos? = BlockPos.ZERO
     var wpStayTime: Int = 0
         private set
-    private var ownerUUID: UUID? = null
-    private var ownerName = ""
-
-    override fun getLastPos(): BlockPos {
-        return lastPos
-    }
-
-    override fun setLastPos(pos: BlockPos?) {
-        val next = if (pos == null) BlockPos.ZERO else pos
-        if (this.lastPos == next) {
-            return
-        }
-        this.lastPos = next
-        markForSync()
-    }
-
-    override fun getNextPos(): BlockPos {
-        return nextPos
-    }
-
-    override fun setNextPos(pos: BlockPos?) {
-        val next = if (pos == null) BlockPos.ZERO else pos
-        if (this.nextPos == next) {
-            return
-        }
-        this.nextPos = next
-        markForSync()
-    }
-
-    override fun getChestPos(): BlockPos {
-        return chestPos
-    }
-
-    override fun setChestPos(pos: BlockPos?) {
-        val next = if (pos == null) BlockPos.ZERO else pos
-        if (this.chestPos == next) {
-            return
-        }
-        this.chestPos = next
-        markForSync()
-    }
+    override var ownerUUID: UUID? = null
+    override var ownerName = ""
 
     val stayTimeTicks: Int
         get() {
@@ -79,13 +40,14 @@ class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlo
             return 0
         }
 
-    override fun getStayTimeDisplay(): String {
-        val ticks = this.stayTimeTicks
-        if (ticks == 0) return "0s"
-        val totalSec = ticks / 20
-        if (totalSec < 60) return totalSec.toString() + "s"
-        return (totalSec / 60).toString() + "m"
-    }
+    override val stayTimeDisplay: String
+        get() {
+            val ticks = this.stayTimeTicks
+            if (ticks == 0) return "0s"
+            val totalSec = ticks / 20
+            if (totalSec < 60) return totalSec.toString() + "s"
+            return (totalSec / 60).toString() + "m"
+        }
 
     fun nextWpStayTime() {
         val next = (wpStayTime + 1) % 17
@@ -96,20 +58,12 @@ class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlo
         markForSync()
     }
 
-    override fun getOwnerUUID(): UUID? {
-        return ownerUUID
-    }
-
     fun setOwnerUUID(uuid: UUID?) {
         if (this.ownerUUID == uuid) {
             return
         }
         this.ownerUUID = uuid
         markForSync()
-    }
-
-    override fun getOwnerName(): String {
-        return ownerName
     }
 
     fun setOwnerName(name: String?) {

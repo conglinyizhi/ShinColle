@@ -200,7 +200,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
                 this.riderType = this.riderType or RIDER_TYPE_IKAZUCHI
             }
         }
-        this.ridingState = if (hasHibiki 1 else 0)
+        this.ridingState = if (hasHibiki) 1 else 0
     }
 
     private fun addMoraleToRider() {

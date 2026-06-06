@@ -21,25 +21,25 @@ import net.minecraft.world.phys.Vec3
 import java.util.Set
 
 internal object AircraftBrainAi {
-    val MEMORY_TYPES: MutableList<MemoryModuleType<*>?> = ImmutableList.of<MemoryModuleType<*>?>(
+    val MEMORY_TYPES: MutableList<MemoryModuleType<*>> = ImmutableList.of<MemoryModuleType<*>>(
         MemoryModuleType.WALK_TARGET,
         MemoryModuleType.LOOK_TARGET,
         MemoryModuleType.ATTACK_TARGET,
         MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE
     )
-    val SENSOR_TYPES: MutableList<SensorType<out Sensor<in EntityAircraftBase?>?>?> =
-        ImmutableList.of<SensorType<out Sensor<in EntityAircraftBase?>?>?>()
+    val SENSOR_TYPES: MutableList<SensorType<out Sensor<in EntityAircraftBase>>> =
+        ImmutableList.of<SensorType<out Sensor<in EntityAircraftBase>>>()
 
-    fun makeBrain(aircraft: EntityAircraftBase?, brain: Brain<EntityAircraftBase?>): Brain<*> {
+    fun makeBrain(aircraft: EntityAircraftBase?, brain: Brain<EntityAircraftBase>): Brain<*> {
         brain.addActivity(
-            Activity.CORE, ImmutableList.of<Pair<Int?, AircraftAttackBehavior?>?>(
-                Pair.of<Int?, AircraftAttackBehavior?>(
+            Activity.CORE, ImmutableList.of<Pair<Int, out Behavior<in EntityAircraftBase>>>(
+                Pair.of<Int, AircraftAttackBehavior>(
                     AircraftAiNumbers.ATTACK_BEHAVIOR_PRIORITY,
                     AircraftAttackBehavior()
                 )
             )
         )
-        brain.setCoreActivities(Set.of<Activity?>(Activity.CORE))
+        brain.setCoreActivities(Set.of<Activity>(Activity.CORE))
         brain.setDefaultActivity(Activity.CORE)
         brain.useDefaultActivity()
         return brain
@@ -49,22 +49,22 @@ internal object AircraftBrainAi {
         val brain = brain(aircraft)
         syncAttackTargetMemory(aircraft)
         brain.tick(level, aircraft)
-        brain.setActiveActivityToFirstValid(ImmutableList.of<Activity?>(Activity.CORE))
+        brain.setActiveActivityToFirstValid(ImmutableList.of<Activity>(Activity.CORE))
     }
 
-    private fun brain(aircraft: EntityAircraftBase): Brain<EntityAircraftBase?> {
-        return aircraft.getBrain() as Brain<EntityAircraftBase?>
+    private fun brain(aircraft: EntityAircraftBase): Brain<EntityAircraftBase> {
+        return aircraft.getBrain() as Brain<EntityAircraftBase>
     }
 
     private fun syncAttackTargetMemory(aircraft: EntityAircraftBase) {
         val brain = aircraft.getBrain()
-        val target = aircraft.getMissionTarget()
+        val target = aircraft.missionTarget
         if (AircraftBrainDecisionResolver.canAttackMissionTarget(decisionState(aircraft, target))
             && target is LivingEntity
         ) {
-            brain.setMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET, target)
+            brain.setMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET, target)
         } else {
-            brain.eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
+            brain.eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
         }
     }
 
@@ -90,20 +90,20 @@ internal object AircraftBrainAi {
 
     private fun clearWalkAndLookMemory(aircraft: EntityAircraftBase) {
         val brain = aircraft.getBrain()
-        brain.eraseMemory<WalkTarget?>(MemoryModuleType.WALK_TARGET)
-        brain.eraseMemory<PositionTracker?>(MemoryModuleType.LOOK_TARGET)
-        brain.eraseMemory<Long?>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
+        brain.eraseMemory<WalkTarget>(MemoryModuleType.WALK_TARGET)
+        brain.eraseMemory<PositionTracker>(MemoryModuleType.LOOK_TARGET)
+        brain.eraseMemory<Long>(MemoryModuleType.CANT_REACH_WALK_TARGET_SINCE)
     }
 
     private fun decisionState(host: EntityAircraftBase, targetEntity: Entity?): AircraftBrainDecisionResolver.State {
         return AircraftBrainDecisionResolver.State(
             targetEntity != null,
             targetEntity != null && targetEntity.isAlive,
-            host.isMissionLightAircraft(),
+            host.isMissionLightAircraft,
             host.hasAmmoLight(),
             host.hasAmmoHeavy(),
-            host.getMissionTick(),
-            host.getAttackDelay(),
+            host.missionTick,
+            host.attackDelay,
             targetEntity != null && host.hasLineOfSight(targetEntity),
             if (targetEntity == null) -1.0 else host.distanceToSqr(
                 targetEntity.getX(),
@@ -113,12 +113,12 @@ internal object AircraftBrainAi {
     }
 
     private class AircraftAttackBehavior :
-        Behavior<EntityAircraftBase?>(ImmutableMap.of<MemoryModuleType<*>?, MemoryStatus?>()) {
+        Behavior<EntityAircraftBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         private var target: Entity? = null
         private var randPos: Vec3? = null
 
         override fun checkExtraStartConditions(level: ServerLevel, host: EntityAircraftBase): Boolean {
-            val targetEntity = host.getMissionTarget()
+            val targetEntity = host.missionTarget
             if (AircraftBrainDecisionResolver.shouldStartAttack(decisionState(host, targetEntity))) {
                 this.target = targetEntity
                 return true
@@ -133,7 +133,7 @@ internal object AircraftBrainAi {
         }
 
         override fun canStillUse(level: ServerLevel, host: EntityAircraftBase, gameTime: Long): Boolean {
-            val targetEntity = host.getMissionTarget()
+            val targetEntity = host.missionTarget
             if (!AircraftBrainDecisionResolver.canAttackMissionTarget(decisionState(host, targetEntity))) {
                 return false
             }
@@ -145,7 +145,7 @@ internal object AircraftBrainAi {
             this.target = null
             this.randPos = null
             clearWalkAndLookMemory(host)
-            host.getBrain().eraseMemory<LivingEntity?>(MemoryModuleType.ATTACK_TARGET)
+            host.getBrain().eraseMemory<LivingEntity>(MemoryModuleType.ATTACK_TARGET)
             host.attackMovementCoordinator().stop()
         }
 
@@ -157,7 +157,7 @@ internal object AircraftBrainAi {
             setEntityLookMemory(host, this.target)
 
             if ((host.tickCount and AircraftAiNumbers.ATTACK_RECALC_INTERVAL_MASK) == 0 || this.randPos == null || host.attackMovementCoordinator()
-                    .isNavigationDone()
+                    .isNavigationDone
             ) {
                 updateRandomPos(host)
             }
@@ -168,20 +168,22 @@ internal object AircraftBrainAi {
             }
 
             val speed = AircraftBrainDecisionResolver.attackMoveSpeed(state)
-            AircraftBrainAi.setPointWalkAndLookMemory(host, this.randPos!!, speed, 1)
-            host.attackMovementCoordinator().moveTo(this.randPos, speed)
+            val localRandPos = this.randPos!!
+            AircraftBrainAi.setPointWalkAndLookMemory(host, localRandPos, speed, 1)
+            host.attackMovementCoordinator().moveTo(localRandPos, speed)
 
             if (AircraftBrainDecisionResolver.shouldFire(state)) {
-                if (host.isMissionLightAircraft() && host.hasAmmoLight()) {
-                    host.attackWithLightAmmo(this.target)
-                } else if (!host.isMissionLightAircraft() && host.hasAmmoHeavy()) {
-                    host.attackWithHeavyAmmo(this.target)
+                val localTarget = this.target
+                if (host.isMissionLightAircraft && host.hasAmmoLight()) {
+                    if (localTarget != null) host.attackWithLightAmmo(localTarget)
+                } else if (!host.isMissionLightAircraft && host.hasAmmoHeavy()) {
+                    if (localTarget != null) host.attackWithHeavyAmmo(localTarget)
                 }
             }
         }
 
         fun updateRandomPos(host: EntityAircraftBase) {
-            val ref = if (this.target != null) this.target else host
+            val ref = this.target ?: host
             this.randPos = host.getRandomCruisePos(ref)
         }
     }

@@ -25,7 +25,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModParticles
 import org.trp.shincolle.item.PointerItem
-import org.trp.shincolle.item.PointerItem.getMode
+// getMode is an instance method on PointerItem, not a top-level import
 import java.util.function.Predicate
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = [Dist.CLIENT])
@@ -72,13 +72,13 @@ object ClientPointerItemParticles {
                 RenderStyle.SELECTED_RED
             else
                 (if (formationMode) RenderStyle.SELECTED_YELLOW else RenderStyle.DEFAULT_BLUE)
-            val desiredStyle = if (ship.isPointerSelected())
+            val desiredStyle = if (ship.isPointerSelected)
                 selectedStyle
             else
                 RenderStyle.DEFAULT_GREEN
             val existing = ParticleTeam.getFollowParticle(ParticleTeam.FollowKind.SHIP_MARKER, ship.getId())
             val styleMismatch =
-                existing == null || !existing.isAliveParticle() || existing.renderStyle != desiredStyle
+                existing == null || !existing.isAliveParticle || existing.renderStyle != desiredStyle
 
             if (isIntervalTick || styleMismatch) {
                 spawnShipMarker(level, ship, pointerMode)
@@ -128,8 +128,9 @@ object ClientPointerItemParticles {
     }
 
     private fun getPointerMode(stack: ItemStack): Int {
-        if (stack.getItem() is PointerItem) {
-            return pointerItem.getMode(stack)
+        val item = stack.getItem()
+        if (item is PointerItem) {
+            return item.getMode(stack)
         }
         return PointerItem.MODE_SINGLE
     }
@@ -145,39 +146,39 @@ object ClientPointerItemParticles {
             RenderStyle.SELECTED_RED
         else
             (if (formationMode) RenderStyle.SELECTED_YELLOW else RenderStyle.DEFAULT_BLUE)
-        val desiredStyle = if (ship.isPointerSelected())
+        val desiredStyle = if (ship.isPointerSelected)
             selectedStyle
         else
             RenderStyle.DEFAULT_GREEN
         val existing = ParticleTeam.getFollowParticle(ParticleTeam.FollowKind.SHIP_MARKER, ship.getId())
         if (existing != null) {
-            if (existing.isAliveParticle() && existing.renderStyle == desiredStyle) {
+            if (existing.isAliveParticle && existing.renderStyle == desiredStyle) {
                 return
             }
             ParticleTeam.removeFollowParticle(ParticleTeam.FollowKind.SHIP_MARKER, ship.getId())
         }
 
-        if (ship.isPointerSelected()) {
-            var type: SimpleParticleType = ModParticles.PARTICLE_TEAM_SELECTED.get()
-            if (groupMode) type = ModParticles.PARTICLE_TEAM_SELECTED_RED.get()
-            else if (formationMode) type = ModParticles.PARTICLE_TEAM_SELECTED_YELLOW.get()
+        if (ship.isPointerSelected) {
+            var type: SimpleParticleType = ModParticles.PARTICLE_TEAM_SELECTED.get()!!
+            if (groupMode) type = ModParticles.PARTICLE_TEAM_SELECTED_RED.get()!!
+            else if (formationMode) type = ModParticles.PARTICLE_TEAM_SELECTED_YELLOW.get()!!
 
             level.addParticle(
                 type,
                 baseX,
                 baseY,
                 baseZ,
-                ship.getBbHeight().toDouble(),
+                ship.bbHeight.toDouble(),
                 ship.getId().toDouble(),
                 ParticleTeam.FollowKind.SHIP_MARKER.markerId.toDouble()
             )
         } else {
             level.addParticle(
-                ModParticles.PARTICLE_TEAM.get(),
+                ModParticles.PARTICLE_TEAM.get()!!,
                 baseX,
                 baseY,
                 baseZ,
-                ship.getBbHeight().toDouble(),
+                ship.bbHeight.toDouble(),
                 ship.getId().toDouble(),
                 ParticleTeam.FollowKind.SHIP_MARKER.markerId.toDouble()
             )
@@ -189,13 +190,13 @@ object ClientPointerItemParticles {
         var isEntity = false
 
         if (ship.hasPointerTargetEntity()) {
-            val target = ship.getPointerTargetEntity()
+            val target = ship.pointerTargetEntity
             if (target != null) {
-                targetPos = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
+                targetPos = target.position().add(0.0, target.bbHeight * 0.5, 0.0)
                 isEntity = true
             }
         } else if (ship.hasPointerTarget()) {
-            targetPos = ship.getPointerTarget()
+            targetPos = ship.pointerTarget
         }
 
         if (targetPos != null) {
@@ -208,17 +209,17 @@ object ClientPointerItemParticles {
                     ClientPointerItemParticles.spawnTargetMarker(
                         level,
                         targetPos,
-                        ModParticles.PARTICLE_TEAM_TARGET.get(),
+                        ModParticles.PARTICLE_TEAM_TARGET.get()!!,
                         1.5
                     )
                 }
 
-                val start = ship.position().add(0.0, ship.getBbHeight() * 0.5, 0.0)
+                val start = ship.position().add(0.0, ship.bbHeight * 0.5, 0.0)
                 val dir = targetPos.subtract(start)
                 val dist = dir.length()
                 if (dist > 1.0) {
                     val particle: ParticleType<*> =
-                        (if (isEntity) ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get() else ModParticles.PARTICLE_WAYPOINT_LINE.get())
+                        (if (isEntity) ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get()!! else ModParticles.PARTICLE_WAYPOINT_LINE.get()!!)
                     level.addParticle(
                         particle as SimpleParticleType,
                         start.x, start.y, start.z,
@@ -239,7 +240,7 @@ object ClientPointerItemParticles {
 
     private fun spawnEntityTargetMarker(level: Level, target: Vec3) {
         level.addParticle(
-            ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get(),
+            ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get()!!,
             target.x, target.y, target.z,
             1.5, -1.0, ParticleTeam.FollowKind.NONE.markerId.toDouble()
         )
@@ -252,11 +253,11 @@ object ClientPointerItemParticles {
         }
         val pos = target.position()
         level.addParticle(
-            ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get(),
+            ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get()!!,
             pos.x,
             pos.y,
             pos.z,
-            target.getBbHeight().toDouble(),
+            target.bbHeight.toDouble(),
             target.getId().toDouble(),
             ParticleTeam.FollowKind.TARGET_ENTITY.markerId.toDouble()
         )
@@ -274,7 +275,7 @@ object ClientPointerItemParticles {
         val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
         val ships = level.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose })
+            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
         if (ships.isEmpty()) {
             return
         }
@@ -292,7 +293,7 @@ object ClientPointerItemParticles {
         if (target == null) {
             return
         }
-        ClientPointerItemParticles.spawnTargetMarker(level, target, ModParticles.PARTICLE_TEAM.get(), 1.5)
+        ClientPointerItemParticles.spawnTargetMarker(level, target, ModParticles.PARTICLE_TEAM.get()!!, 1.5)
     }
 
     private fun handlePointerEntityMarker(level: Level?, player: Player?, target: Entity?) {
@@ -319,7 +320,7 @@ object ClientPointerItemParticles {
         val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
         val ships = level.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected() && !ship.isInDeadPose })
+            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
         if (ships.isEmpty()) {
             return
         }

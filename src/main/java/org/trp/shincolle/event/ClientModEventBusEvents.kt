@@ -39,6 +39,7 @@ import org.trp.shincolle.client.gui.ShincolleConfigScreen
 import org.trp.shincolle.client.model.*
 import org.trp.shincolle.client.particle.*
 import org.trp.shincolle.client.particle.ParticleTeam.RenderStyle
+import org.trp.shincolle.client.renderer.*
 import org.trp.shincolle.client.renderer.RendererSimpleMob
 import org.trp.shincolle.client.renderer.block.RenderDesk
 import org.trp.shincolle.client.renderer.layer.ShipHeldItemLayer
@@ -78,14 +79,14 @@ object ClientModEventBusEvents {
                     }
                 )
             }
-            registerLegacyVariantProperty(ModItems.EQUIP_AIRPLANE.get()!!)
-            registerLegacyVariantProperty(ModItems.EQUIP_CANNON.get()!!)
-            registerLegacyVariantProperty(ModItems.EQUIP_DRUM.get()!!)
-            registerLegacyVariantProperty(ModItems.SHIP_TANK.get()!!)
-            registerLegacyVariantProperty(ModItems.COMBAT_RATION.get()!!)
-            registerLegacyVariantProperty(ModItems.POINTER_ITEM.get()!!)
-            registerLegacyVariantProperty(ModItems.GRUDGE.get()!!)
-            registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get()!!)
+            registerLegacyVariantProperty(ModItems.EQUIP_AIRPLANE.get() ?: return@enqueueWork)
+            registerLegacyVariantProperty(ModItems.EQUIP_CANNON.get() ?: return@enqueueWork)
+            registerLegacyVariantProperty(ModItems.EQUIP_DRUM.get() ?: return@enqueueWork)
+            registerLegacyVariantProperty(ModItems.SHIP_TANK.get() ?: return@enqueueWork)
+            registerLegacyVariantProperty(ModItems.COMBAT_RATION.get() ?: return@enqueueWork)
+            registerLegacyVariantProperty(ModItems.POINTER_ITEM.get() ?: return@enqueueWork)
+            registerLegacyVariantProperty(ModItems.GRUDGE.get() ?: return@enqueueWork)
+            registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get() ?: return@enqueueWork)
         }
     }
 
@@ -110,112 +111,116 @@ object ClientModEventBusEvents {
 
     @SubscribeEvent
     fun registerRenderers(event: RegisterRenderers) {
-        event.registerEntityRenderer(ModEntities.DESTROYER_I.get()) { context -> RendererDestroyerI(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_RO.get()) { context -> RendererDestroyerRo(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_HA.get()) { context -> RendererDestroyerHa(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_NI.get()) { context -> RendererDestroyerNi(context) }
-        event.registerEntityRenderer(ModEntities.HEAVY_CRUISER_RI.get()) { context -> RendererHeavyCruiserRi(context) }
-        event.registerEntityRenderer(ModEntities.HEAVY_CRUISER_NE.get()) { context -> RendererHeavyCruiserNe(context) }
-        event.registerEntityRenderer(ModEntities.CARRIER_WO.get()) { context -> RendererCarrierWo(context) }
-        event.registerEntityRenderer(ModEntities.BATTLESHIP_RU.get()) { context -> RendererBattleshipRu(context) }
-        event.registerEntityRenderer(ModEntities.BATTLESHIP_TA.get()) { context -> RendererBattleshipTa(context) }
-        event.registerEntityRenderer(ModEntities.BATTLESHIP_RE.get()) { context -> RendererBattleshipRe(context) }
-        event.registerEntityRenderer(ModEntities.TRANSPORT_WA.get()) { context -> RendererTransportWa(context) }
-        event.registerEntityRenderer(ModEntities.SUBM_KA.get()) { context -> RendererSubmKa(context) }
-        event.registerEntityRenderer(ModEntities.SUBM_YO.get()) { context -> RendererSubmYo(context) }
-        event.registerEntityRenderer(ModEntities.SUBM_SO.get()) { context -> RendererSubmSo(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_HIME.get()) { context -> RendererDestroyerHime(context) }
-        event.registerEntityRenderer(ModEntities.CA_HIME.get()) { context -> RendererCAHime(context) }
-        event.registerEntityRenderer(ModEntities.AIRFIELD_HIME.get()) { context -> RendererAirfieldHime(context) }
-        event.registerEntityRenderer(ModEntities.BATTLESHIP_HIME.get()) { context -> RendererBattleshipHime(context) }
-        event.registerEntityRenderer(ModEntities.CARRIER_HIME.get()) { context -> RendererCarrierHime(context) }
-        event.registerEntityRenderer(ModEntities.HARBOUR_HIME.get()) { context -> RendererHarbourHime(context) }
-        event.registerEntityRenderer(ModEntities.ISOLATED_HIME.get()) { context -> RendererIsolatedHime(context) }
-        event.registerEntityRenderer(ModEntities.MIDWAY_HIME.get()) { context -> RendererMidwayHime(context) }
-        event.registerEntityRenderer(ModEntities.NORTHERN_HIME.get()) { context -> RendererNorthernHime(context) }
-        event.registerEntityRenderer(ModEntities.SUBM_HIME.get()) { context -> RendererSubmHime(context) }
-        event.registerEntityRenderer(ModEntities.SSNH.get()) { context -> RendererSSNH(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_AKATSUKI.get()) { context -> RendererDestroyerAkatsuki(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_HIBIKI.get()) { context -> RendererDestroyerHibiki(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_IKAZUCHI.get()) { context -> RendererDestroyerIkazuchi(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_INAZUMA.get()) { context -> RendererDestroyerInazuma(context) }
-        event.registerEntityRenderer(ModEntities.DESTROYER_SHIMAKAZE.get()) { context -> RendererDestroyerShimakaze(context) }
-        event.registerEntityRenderer(ModEntities.CARRIER_W_DEMON.get()) { context -> RendererCarrierWDemon(context) }
-        event.registerEntityRenderer(ModEntities.CRUISER_TENRYUU.get()) { context -> RendererCruiserTenryuu(context) }
-        event.registerEntityRenderer(ModEntities.CRUISER_TATSUTA.get()) { context -> RendererCruiserTatsuta(context) }
-        event.registerEntityRenderer(ModEntities.CRUISER_TAKAO.get()) { context -> RendererCruiserTakao(context) }
-        event.registerEntityRenderer(ModEntities.CRUISER_ATAGO.get()) { context -> RendererCruiserAtago(context) }
-        event.registerEntityRenderer(ModEntities.CARRIER_KAGA.get()) { context -> RendererCarrierKaga(context) }
-        event.registerEntityRenderer(ModEntities.CARRIER_AKAGI.get()) { context -> RendererCarrierAkagi(context) }
-        event.registerEntityRenderer(ModEntities.BB_KONGOU.get()) { context -> RendererBBKongou(context) }
-        event.registerEntityRenderer(ModEntities.BB_HIEI.get()) { context -> RendererBBHiei(context) }
-        event.registerEntityRenderer(ModEntities.BB_HARUNA.get()) { context -> RendererBBHaruna(context) }
-        event.registerEntityRenderer(ModEntities.BB_KIRISHIMA.get()) { context -> RendererBBKirishima(context) }
-        event.registerEntityRenderer(ModEntities.BATTLESHIP_NAGATO.get()) { context -> RendererBattleshipNagato(context) }
-        event.registerEntityRenderer(ModEntities.BATTLESHIP_YAMATO.get()) { context -> RendererBattleshipYamato(context) }
-        event.registerEntityRenderer(ModEntities.SUBM_U511.get()) { context -> RendererSubmU511(context) }
-        event.registerEntityRenderer(ModEntities.SUBM_RO500.get()) { context -> RendererSubmRo500(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_I.get()!!) { context -> RendererDestroyerI(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_RO.get()!!) { context -> RendererDestroyerRo(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_HA.get()!!) { context -> RendererDestroyerHa(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_NI.get()!!) { context -> RendererDestroyerNi(context) }
+        event.registerEntityRenderer(ModEntities.HEAVY_CRUISER_RI.get()!!) { context -> RendererHeavyCruiserRi(context) }
+        event.registerEntityRenderer(ModEntities.HEAVY_CRUISER_NE.get()!!) { context -> RendererHeavyCruiserNe(context) }
+        event.registerEntityRenderer(ModEntities.CARRIER_WO.get()!!) { context -> RendererCarrierWo(context) }
+        event.registerEntityRenderer(ModEntities.BATTLESHIP_RU.get()!!) { context -> RendererBattleshipRu(context) }
+        event.registerEntityRenderer(ModEntities.BATTLESHIP_TA.get()!!) { context -> RendererBattleshipTa(context) }
+        event.registerEntityRenderer(ModEntities.BATTLESHIP_RE.get()!!) { context -> RendererBattleshipRe(context) }
+        event.registerEntityRenderer(ModEntities.TRANSPORT_WA.get()!!) { context -> RendererTransportWa(context) }
+        event.registerEntityRenderer(ModEntities.SUBM_KA.get()!!) { context -> RendererSubmKa(context) }
+        event.registerEntityRenderer(ModEntities.SUBM_YO.get()!!) { context -> RendererSubmYo(context) }
+        event.registerEntityRenderer(ModEntities.SUBM_SO.get()!!) { context -> RendererSubmSo(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_HIME.get()!!) { context -> RendererDestroyerHime(context) }
+        event.registerEntityRenderer(ModEntities.CA_HIME.get()!!) { context -> RendererCAHime(context) }
+        event.registerEntityRenderer(ModEntities.AIRFIELD_HIME.get()!!) { context -> RendererAirfieldHime(context) }
+        event.registerEntityRenderer(ModEntities.BATTLESHIP_HIME.get()!!) { context -> RendererBattleshipHime(context) }
+        event.registerEntityRenderer(ModEntities.CARRIER_HIME.get()!!) { context -> RendererCarrierHime(context) }
+        event.registerEntityRenderer(ModEntities.HARBOUR_HIME.get()!!) { context -> RendererHarbourHime(context) }
+        event.registerEntityRenderer(ModEntities.ISOLATED_HIME.get()!!) { context -> RendererIsolatedHime(context) }
+        event.registerEntityRenderer(ModEntities.MIDWAY_HIME.get()!!) { context -> RendererMidwayHime(context) }
+        event.registerEntityRenderer(ModEntities.NORTHERN_HIME.get()!!) { context -> RendererNorthernHime(context) }
+        event.registerEntityRenderer(ModEntities.SUBM_HIME.get()!!) { context -> RendererSubmHime(context) }
+        event.registerEntityRenderer(ModEntities.SSNH.get()!!) { context -> RendererSSNH(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_AKATSUKI.get()!!) { context -> RendererDestroyerAkatsuki(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_HIBIKI.get()!!) { context -> RendererDestroyerHibiki(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_IKAZUCHI.get()!!) { context -> RendererDestroyerIkazuchi(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_INAZUMA.get()!!) { context -> RendererDestroyerInazuma(context) }
+        event.registerEntityRenderer(ModEntities.DESTROYER_SHIMAKAZE.get()!!) { context -> RendererDestroyerShimakaze(context) }
+        event.registerEntityRenderer(ModEntities.CARRIER_W_DEMON.get()!!) { context -> RendererCarrierWDemon(context) }
+        event.registerEntityRenderer(ModEntities.CRUISER_TENRYUU.get()!!) { context -> RendererCruiserTenryuu(context) }
+        event.registerEntityRenderer(ModEntities.CRUISER_TATSUTA.get()!!) { context -> RendererCruiserTatsuta(context) }
+        event.registerEntityRenderer(ModEntities.CRUISER_TAKAO.get()!!) { context -> RendererCruiserTakao(context) }
+        event.registerEntityRenderer(ModEntities.CRUISER_ATAGO.get()!!) { context -> RendererCruiserAtago(context) }
+        event.registerEntityRenderer(ModEntities.CARRIER_KAGA.get()!!) { context -> RendererCarrierKaga(context) }
+        event.registerEntityRenderer(ModEntities.CARRIER_AKAGI.get()!!) { context -> RendererCarrierAkagi(context) }
+        event.registerEntityRenderer(ModEntities.BB_KONGOU.get()!!) { context -> RendererBBKongou(context) }
+        event.registerEntityRenderer(ModEntities.BB_HIEI.get()!!) { context -> RendererBBHiei(context) }
+        event.registerEntityRenderer(ModEntities.BB_HARUNA.get()!!) { context -> RendererBBHaruna(context) }
+        event.registerEntityRenderer(ModEntities.BB_KIRISHIMA.get()!!) { context -> RendererBBKirishima(context) }
+        event.registerEntityRenderer(ModEntities.BATTLESHIP_NAGATO.get()!!) { context -> RendererBattleshipNagato(context) }
+        event.registerEntityRenderer(ModEntities.BATTLESHIP_YAMATO.get()!!) { context -> RendererBattleshipYamato(context) }
+        event.registerEntityRenderer(ModEntities.SUBM_U511.get()!!) { context -> RendererSubmU511(context) }
+        event.registerEntityRenderer(ModEntities.SUBM_RO500.get()!!) { context -> RendererSubmRo500(context) }
 
-        event.registerEntityRenderer(ModEntities.AIRPLANE.get()) { context ->
-            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelAirplane<net.minecraft.world.entity.Mob>>(
+        event.registerEntityRenderer(ModEntities.AIRPLANE.get()!!) { context ->
+            @Suppress("UNCHECKED_CAST")
+            RendererSimpleMob(
                 context,
                 ModelAirplane(context.bakeLayer(ModelAirplane.LAYER_LOCATION)),
                 0.5f,
                 DEFAULT_MODEL_SCALE,
                 entityTexture("airplane")
-            )
+            ) as net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.Entity>
         }
-        event.registerEntityRenderer(ModEntities.AIRPLANE_T.get()) { context ->
-            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelAirplaneT<net.minecraft.world.entity.Mob>>(
+        event.registerEntityRenderer(ModEntities.AIRPLANE_T.get()!!) { context ->
+            @Suppress("UNCHECKED_CAST")
+            RendererSimpleMob(
                 context,
                 ModelAirplaneT(context.bakeLayer(ModelAirplaneT.LAYER_LOCATION)),
                 0.5f,
                 DEFAULT_MODEL_SCALE,
                 entityTexture("airplane_t")
-            )
+            ) as net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.Entity>
         }
-        event.registerEntityRenderer(ModEntities.AIRPLANE_ZERO.get()) { context ->
-            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelAirplaneZero<net.minecraft.world.entity.Mob>>(
+        event.registerEntityRenderer(ModEntities.AIRPLANE_ZERO.get()!!) { context ->
+            @Suppress("UNCHECKED_CAST")
+            RendererSimpleMob(
                 context,
                 ModelAirplaneZero(context.bakeLayer(ModelAirplaneZero.LAYER_LOCATION)),
                 0.5f,
                 DEFAULT_MODEL_SCALE,
                 entityTexture("airplane_zero")
-            )
+            ) as net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.Entity>
         }
-        event.registerEntityRenderer(ModEntities.MOUNT_SU_H.get()) { context -> RendererMountSuH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_MI_H.get()) { context -> RendererMountMiH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_IS_H.get()) { context -> RendererMountIsH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_HB_H.get()) { context -> RendererMountHbH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_CA_WD.get()) { context -> RendererMountCaWD(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_AF_H.get()) { context -> RendererMountAfH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_BA_H.get()) { context -> RendererMountBaH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_CA_H.get()) { context -> RendererMountCaH(context) }
-        event.registerEntityRenderer(ModEntities.RENSOUHOU.get()) { context ->
-            RendererSimpleMob<net.minecraft.world.entity.Mob, org.trp.shincolle.client.model.ModelRensouhou<net.minecraft.world.entity.Mob>>(
+        event.registerEntityRenderer(ModEntities.MOUNT_SU_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountSuH(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_MI_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountMiH(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_IS_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountIsH(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_HB_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountHbH(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_CA_WD.get()!!) { context: EntityRendererProvider.Context -> RendererMountCaWD(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_AF_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountAfH(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_BA_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountBaH(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_CA_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountCaH(context) }
+        event.registerEntityRenderer(ModEntities.RENSOUHOU.get()!!) { context ->
+            @Suppress("UNCHECKED_CAST")
+            RendererSimpleMob(
                 context,
                 ModelRensouhou(context.bakeLayer(ModelRensouhou.LAYER_LOCATION)),
                 0.5f,
                 DEFAULT_MODEL_SCALE,
                 entityTexture("rensouhou")
-            )
+            ) as net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.Entity>
         }
-        event.registerEntityRenderer(ModEntities.RENSOUHOU_S.get()) { context -> RendererRensouhouS(context) }
-        event.registerEntityRenderer(ModEntities.TAKOYAKI.get()) { context -> RendererTakoyaki(context) }
-        event.registerEntityRenderer(ModEntities.ABYSS_MISSILE.get()) { context -> RendererAbyssMissile(context) }
-        event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get()) { context -> RendererProjectileBeam(context) }
-        event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get()) { context -> RendererShipGrudge(context) }
-        event.registerEntityRenderer(ModEntities.SHIP_FISHING_HOOK.get()) { context -> RendererShipFishingHook(context) }
+        event.registerEntityRenderer(ModEntities.RENSOUHOU_S.get()!!) { context: EntityRendererProvider.Context -> RendererRensouhouS(context) }
+        event.registerEntityRenderer(ModEntities.TAKOYAKI.get()!!) { context: EntityRendererProvider.Context -> RendererTakoyaki(context) }
+        event.registerEntityRenderer(ModEntities.ABYSS_MISSILE.get()!!) { context -> RendererAbyssMissile(context) }
+        event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get()!!) { context -> RendererProjectileBeam(context) }
+        event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get()!!) { context -> RendererShipGrudge(context) }
+        event.registerEntityRenderer(ModEntities.SHIP_FISHING_HOOK.get()!!) { context -> RendererShipFishingHook(context) }
 
-        event.registerBlockEntityRenderer(ModBlockEntities.SMALL_SHIPYARD.get()) { context -> RenderSmallShipyard(context) }
-        event.registerBlockEntityRenderer(ModBlockEntities.LARGE_SHIPYARD.get()) { context -> RenderLargeShipyard(context) }
-        event.registerBlockEntityRenderer(ModBlockEntities.DESK.get()) { context -> RenderDesk(context) }
+        event.registerBlockEntityRenderer(ModBlockEntities.SMALL_SHIPYARD.get()!!) { context: BlockEntityRendererProvider.Context -> org.trp.shincolle.client.renderer.block.RenderSmallShipyard(context) }
+        event.registerBlockEntityRenderer(ModBlockEntities.LARGE_SHIPYARD.get()!!) { context: BlockEntityRendererProvider.Context -> org.trp.shincolle.client.renderer.block.RenderLargeShipyard(context) }
+        event.registerBlockEntityRenderer(ModBlockEntities.DESK.get()!!) { context: BlockEntityRendererProvider.Context -> RenderDesk(context) }
     }
 
     @SubscribeEvent
     fun addRenderLayers(event: AddLayers) {
         for (entry in ModEntities.ENTITY_TYPES.entries) {
-            val type: EntityType<*> = entry.get()
+            val type: EntityType<*> = entry.get() ?: continue
             val renderer: EntityRenderer<*>? = event.getRenderer(type)
             if (renderer is LivingEntityRenderer<*, *>
                 && renderer.model is ShipModelBaseAdv<*>
@@ -230,7 +235,9 @@ object ClientModEventBusEvents {
     private fun <E : LivingEntity, M : net.minecraft.client.model.EntityModel<E>> addHeldItemLayerUnchecked(
         renderer: LivingEntityRenderer<E, M>
     ) {
-        renderer.addLayer(ShipHeldItemLayer(renderer as net.minecraft.client.renderer.entity.RenderLayerParent<E, net.minecraft.client.model.EntityModel<E>>) as net.minecraft.client.renderer.entity.layers.RenderLayer<E, M>)
+        if (renderer is net.minecraft.client.renderer.entity.RenderLayerParent<*, *>) {
+            renderer.addLayer(ShipHeldItemLayer(renderer as net.minecraft.client.renderer.entity.RenderLayerParent<E, M>))
+        }
     }
 
     @SubscribeEvent
@@ -306,71 +313,71 @@ object ClientModEventBusEvents {
 
     @SubscribeEvent
     fun registerScreens(event: RegisterMenuScreensEvent) {
-        event.register(ModMenus.SHIP_MENU.get(), ScreenConstructor { menu, playerInv, title ->
-            ShipInventoryScreen(menu, playerInv, title)
+        event.register(ModMenus.SHIP_MENU.get()!!, ScreenConstructor { menu, playerInv, title ->
+            ShipInventoryScreen(menu!!, playerInv, title)
         })
-        event.register(ModMenus.SMALL_SHIPYARD_MENU.get(), ScreenConstructor { menu, playerInventory, title ->
-            SmallShipyardScreen(menu, playerInventory, title)
+        event.register(ModMenus.SMALL_SHIPYARD_MENU.get()!!, ScreenConstructor { menu, playerInventory, title ->
+            SmallShipyardScreen(menu!!, playerInventory, title)
         })
-        event.register(ModMenus.LARGE_SHIPYARD_MENU.get(), ScreenConstructor { menu, playerInventory, title ->
-            LargeShipyardScreen(menu, playerInventory, title)
+        event.register(ModMenus.LARGE_SHIPYARD_MENU.get()!!, ScreenConstructor { menu, playerInventory, title ->
+            LargeShipyardScreen(menu!!, playerInventory, title)
         })
-        event.register(ModMenus.DESK_MENU.get(), ScreenConstructor { menu, inventory, title ->
-            DeskScreen(menu, inventory, title)
+        event.register(ModMenus.DESK_MENU.get()!!, ScreenConstructor { menu, inventory, title ->
+            DeskScreen(menu!!, inventory, title)
         })
-        event.register(ModMenus.VOL_CORE_MENU.get(), ScreenConstructor { menu, inventory, title ->
-            VolCoreScreen(menu, inventory, title)
+        event.register(ModMenus.VOL_CORE_MENU.get()!!, ScreenConstructor { menu, inventory, title ->
+            VolCoreScreen(menu!!, inventory, title)
         })
-        event.register(ModMenus.CRANE_MENU.get(), ScreenConstructor { menu, playerInventory, title ->
-            CraneScreen(menu, playerInventory, title)
+        event.register(ModMenus.CRANE_MENU.get()!!, ScreenConstructor { menu, playerInventory, title ->
+            CraneScreen(menu!!, playerInventory, title)
         })
-        event.register(ModMenus.FORMATION.get(), ScreenConstructor { menu, playerInventory, title ->
-            FormationScreen(menu, playerInventory, title)
+        event.register(ModMenus.FORMATION.get()!!, ScreenConstructor { menu, playerInventory, title ->
+            FormationScreen(menu!!, playerInventory, title)
         })
-        event.register(ModMenus.RECIPE_PAPER_MENU.get(), ScreenConstructor { menu, inventory, title ->
-            RecipePaperScreen(menu, inventory, title)
+        event.register(ModMenus.RECIPE_PAPER_MENU.get()!!, ScreenConstructor { menu, inventory, title ->
+            RecipePaperScreen(menu!!, inventory, title)
         })
     }
 
     @SubscribeEvent
     fun registerParticles(event: RegisterParticleProvidersEvent) {
-        event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get()) { sprites -> ParticleEmotion.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_HEAL_SPARKLE.get()) { sprites -> ParticleHealSparkle.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_GODDESS.get()) { sprites -> ParticleGoddess.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_TEXTS.get()) { sprites -> ParticleTexts.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_LIGHTNING.get()) { sprites -> ParticleLightning.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_RED.get()) { sprites -> ParticleSprayRed.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY.get()) { sprites -> ParticleSpray.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_CRANING.get()) { sprites -> ParticleCraning.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_TEAM.get()) { sprites -> ParticleTeam.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED.get()) { sprites ->
+        event.registerSpriteSet(ModParticles.PARTICLE_EMOTION.get()!!) { sprites -> ParticleEmotion.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_HEAL_SPARKLE.get()!!) { sprites -> ParticleHealSparkle.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_GODDESS.get()!!) { sprites -> ParticleGoddess.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_TEXTS.get()!!) { sprites -> ParticleTexts.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_LIGHTNING.get()!!) { sprites -> ParticleLightning.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY_RED.get()!!) { sprites -> ParticleSprayRed.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_SPRAY.get()!!) { sprites -> ParticleSpray.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_CRANING.get()!!) { sprites -> ParticleCraning.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM.get()!!) { sprites -> ParticleTeam.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED.get()!!) { sprites ->
             ParticleTeam.Provider(sprites, RenderStyle.DEFAULT_BLUE)
         }
-        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED_RED.get()) { sprites ->
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED_RED.get()!!) { sprites ->
             ParticleTeam.Provider(sprites, RenderStyle.SELECTED_RED)
         }
-        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED_YELLOW.get()) { sprites ->
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_SELECTED_YELLOW.get()!!) { sprites ->
             ParticleTeam.Provider(sprites, RenderStyle.SELECTED_YELLOW)
         }
-        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET.get()) { sprites ->
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET.get()!!) { sprites ->
             ParticleTeam.Provider(sprites, RenderStyle.TARGET_WHITE)
         }
-        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get()) { sprites ->
+        event.registerSpriteSet(ModParticles.PARTICLE_TEAM_TARGET_ENTITY.get()!!) { sprites ->
             ParticleTeam.Provider(sprites, RenderStyle.TARGET_RED)
         }
-        event.registerSpriteSet(ModParticles.PARTICLE_SPARKLE.get()) { sprites -> ParticleSparkle.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT.get()) { sprites -> ParticleWaypoint.Provider(sprites) }
-        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE.get(), ParticlePointerLine.Provider(0, null))
-        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get(), ParticlePointerLine.Provider(1, null))
-        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(), ParticlePointerLine.Provider(2, null))
-        event.registerSpriteSet(ModParticles.PARTICLE_CHI.get()) { sprites -> ParticleChi.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_91TYPE.get()) { sprites -> Particle91Type.Provider(sprites) }
-        event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get()) { sprites -> ParticleCube.Provider(sprites) }
-        event.registerSpecial(ModParticles.PARTICLE_BEAM.get(), ParticleBeam.Provider())
+        event.registerSpriteSet(ModParticles.PARTICLE_SPARKLE.get()!!) { sprites -> ParticleSparkle.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT.get()!!) { sprites -> ParticleWaypoint.Provider(sprites) }
+        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE.get()!!, ParticlePointerLine.Provider(0, null))
+        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get()!!, ParticlePointerLine.Provider(1, null))
+        event.registerSpecial(ModParticles.PARTICLE_WAYPOINT_LINE_RED.get()!!, ParticlePointerLine.Provider(2, null))
+        event.registerSpriteSet(ModParticles.PARTICLE_CHI.get()!!) { sprites -> ParticleChi.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_91TYPE.get()!!) { sprites -> Particle91Type.Provider(sprites) }
+        event.registerSpriteSet(ModParticles.PARTICLE_CUBE.get()!!) { sprites -> ParticleCube.Provider(sprites) }
+        event.registerSpecial(ModParticles.PARTICLE_BEAM.get()!!, ParticleBeam.Provider())
     }
 
     @SubscribeEvent
     fun registerTooltipComponents(event: RegisterClientTooltipComponentFactoriesEvent) {
-        event.register(ScaledTextTooltipData::class.java) { data -> ScaledTextClientTooltip(data!!) }
+        event.register(ScaledTextTooltipData::class.java) { data -> ScaledTextClientTooltip(data) }
     }
 }

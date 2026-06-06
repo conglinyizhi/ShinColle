@@ -30,7 +30,7 @@ import java.util.function.Function
 import java.util.function.ToIntFunction
 
 class LargeShipyardBlock : BaseEntityBlock(
-    Block.Properties.of()
+    Properties.of()
         .strength(1.5f)
         .lightLevel(ToIntFunction { state: BlockState? -> if (state!!.getValue<Boolean?>(ACTIVE)) 12 else 4 })
         .noOcclusion()
@@ -138,12 +138,14 @@ class LargeShipyardBlock : BaseEntityBlock(
             blockEntityType,
             ModBlockEntities.LARGE_SHIPYARD.get(),
             BlockEntityTicker { level: Level?, pos: BlockPos?, state: BlockState?, blockEntity: LargeShipyardBlockEntity? ->
-                LargeShipyardBlockEntity.Companion.serverTick(
-                    level,
-                    pos,
-                    state,
-                    blockEntity
-                )
+                if (level != null && pos != null && state != null && blockEntity != null) {
+                    LargeShipyardBlockEntity.Companion.serverTick(
+                        level,
+                        pos,
+                        state,
+                        blockEntity
+                    )
+                }
             })
     }
 

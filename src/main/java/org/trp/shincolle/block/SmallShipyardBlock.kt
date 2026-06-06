@@ -26,7 +26,7 @@ import java.util.function.Function
 import java.util.function.ToIntFunction
 
 class SmallShipyardBlock : BaseEntityBlock(
-    Block.Properties.of()
+    Properties.of()
         .strength(10.0f)
         .lightLevel(ToIntFunction { state: BlockState? -> if (state!!.getValue<Boolean?>(ACTIVE)) 8 else 4 })
         .noOcclusion()
@@ -100,12 +100,14 @@ class SmallShipyardBlock : BaseEntityBlock(
             blockEntityType,
             ModBlockEntities.SMALL_SHIPYARD.get(),
             BlockEntityTicker { level: Level?, pos: BlockPos?, state: BlockState?, blockEntity: SmallShipyardBlockEntity? ->
-                SmallShipyardBlockEntity.Companion.serverTick(
-                    level,
-                    pos,
-                    state,
-                    blockEntity
-                )
+                if (level != null && pos != null && state != null && blockEntity != null) {
+                    SmallShipyardBlockEntity.Companion.serverTick(
+                        level,
+                        pos,
+                        state,
+                        blockEntity
+                    )
+                }
             })
     }
 

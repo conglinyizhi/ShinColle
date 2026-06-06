@@ -36,8 +36,7 @@ import org.trp.shincolle.init.ModBlockEntities
 import org.trp.shincolle.init.ModParticles
 import org.trp.shincolle.init.ModSounds
 import org.trp.shincolle.item.LegacyEquipItem
-import org.trp.shincolle.item.LegacyEquipItem.getEquipTypeId
-import org.trp.shincolle.item.LegacyEquipItem.getVariant
+// getEquipTypeId and getVariant are instance methods on LegacyEquipItem, not top-level imports
 import org.trp.shincolle.menu.CraneMenu
 import org.trp.shincolle.utility.InventoryHelper.calcItemStackAmount
 import org.trp.shincolle.utility.InventoryHelper.checkInventoryFluidContainer
@@ -87,12 +86,12 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private var modeLiquid = 0
     private var modeEnergy = 0
 
-    private var lastPos: BlockPos = BlockPos.ZERO
-    private var nextPos: BlockPos = BlockPos.ZERO
-    private var chestPos: BlockPos? = BlockPos.ZERO
+    override var lastPos: BlockPos? = BlockPos.ZERO
+    override var nextPos: BlockPos? = BlockPos.ZERO
+    override var chestPos: BlockPos? = BlockPos.ZERO
     private var isPaired = false
-    private var ownerUUID: UUID? = null
-    private var ownerName = ""
+    override var ownerUUID: UUID? = null
+    override var ownerName = ""
 
     private var tickCount = 0
     private var tickRedstone = 0
@@ -112,7 +111,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             if (this.isActive && this.partDelay <= 0) {
                 var targetShip: EntityShipBase? = null
                 if (this.level!!.getEntity(this.syncedShipId) is EntityShipBase) {
-                    targetShip = ship
+                    targetShip = this.level!!.getEntity(this.syncedShipId) as EntityShipBase
                 }
 
                 if (targetShip != null) {
@@ -392,11 +391,11 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
     private fun canMoveItem(isLoading: Boolean, temp: ItemStack): Boolean {
         if (this.craneMode == 3) {
-            val targetInv: IItemHandler = (if (isLoading) this.craningShip.inventory else this.combinedChestHandler)!!
+            val targetInv: IItemHandler = (if (isLoading) this.craningShip!!.inventory else this.combinedChestHandler)!!
             val current = calcItemStackAmount(targetInv, temp, this.checkMetadata, this.checkNbt, this.checkOredict)
             return current < temp.getCount()
         } else if (this.craneMode == 4) {
-            val sourceInv: IItemHandler = (if (isLoading) this.combinedChestHandler else this.craningShip.inventory)!!
+            val sourceInv: IItemHandler = (if (isLoading) this.combinedChestHandler else this.craningShip!!.inventory)!!
             val current = calcItemStackAmount(sourceInv, temp, this.checkMetadata, this.checkNbt, this.checkOredict)
             return current > temp.getCount()
         }
@@ -628,16 +627,17 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private fun returnRemainderToSourceOrDrop(invFrom: IItemHandler?, remainder: ItemStack) {
         if (remainder.isEmpty()) return
         moveItemstackToInv(invFrom, remainder, null)
-        if (!remainder.isEmpty() && this.level is ServerLevel) {
+        val lvl = this.level
+        if (!remainder.isEmpty() && lvl is ServerLevel) {
             val drop = ItemEntity(
-                level,
+                lvl,
                 this.worldPosition.getX() + 0.5,
                 this.worldPosition.getY() + 1.0,
                 this.worldPosition.getZ() + 0.5,
                 remainder.copy()
             )
             drop.setDefaultPickUpDelay()
-            level.addFreshEntity(drop)
+            lvl.addFreshEntity(drop)
             remainder.setCount(0)
         }
     }
@@ -925,8 +925,8 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         tag.putInt("ModeRedstone", modeRedstone)
         tag.putInt("ModeLiquid", modeLiquid)
         tag.putInt("ModeEnergy", modeEnergy)
-        tag.putLong("LastPos", lastPos.asLong())
-        tag.putLong("NextPos", nextPos.asLong())
+        tag.putLong("LastPos", lastPos!!.asLong())
+        tag.putLong("NextPos", nextPos!!.asLong())
         tag.putLong("ChestPos", chestPos!!.asLong())
         tag.putBoolean("IsPaired", isPaired)
         if (ownerUUID != null) tag.putUUID("OwnerUUID", ownerUUID)
@@ -985,6 +985,10 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
     val craningShipTimer: Int
         get() = if (this.craningShip == null) 0 else this.craningShip!!.getStateTimer(1)
+
+    fun getPowerMax(): Int {
+        return powerMax
+    }
 
     fun getRemainedPower(): Int {
         return remainedPower
@@ -1143,61 +1147,12 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         markForSync()
     }
 
-    override fun getLastPos(): BlockPos {
-        return lastPos
-    }
-
-    override fun setLastPos(pos: BlockPos?) {
-        val next = if (pos == null) BlockPos.ZERO else pos
-        if (this.lastPos == next) {
-            return
-        }
-        this.lastPos = next
-        markForSync()
-    }
-
-    override fun getNextPos(): BlockPos {
-        return nextPos
-    }
-
-    override fun setNextPos(pos: BlockPos?) {
-        val next = if (pos == null) BlockPos.ZERO else pos
-        if (this.nextPos == next) {
-            return
-        }
-        this.nextPos = next
-        markForSync()
-    }
-
-    override fun getChestPos(): BlockPos? {
-        return chestPos
-    }
-
-    override fun setChestPos(pos: BlockPos?) {
-        val next = if (pos == null) BlockPos.ZERO else pos
-        val nextPaired = next !== BlockPos.ZERO
-        if (this.chestPos == next && this.isPaired == nextPaired) {
-            return
-        }
-        this.chestPos = next
-        this.isPaired = nextPaired
-        markForSync()
-    }
-
-    override fun getOwnerUUID(): UUID? {
-        return ownerUUID
-    }
-
     fun setOwnerUUID(uuid: UUID?) {
         if (this.ownerUUID == uuid) {
             return
         }
         this.ownerUUID = uuid
         markForSync()
-    }
-
-    override fun getOwnerName(): String {
-        return ownerName
     }
 
     fun setOwnerName(name: String?) {

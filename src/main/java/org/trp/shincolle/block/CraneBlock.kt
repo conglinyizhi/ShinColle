@@ -65,9 +65,9 @@ class CraneBlock : BaseEntityBlock(
 
         val blockEntity = level.getBlockEntity(pos)
         if (blockEntity is CraneBlockEntity && player is ServerPlayer) {
-            if (blockEntity.getOwnerUUID() == null) {
-                blockEntity.setOwnerUUID(player.getUUID())
-                blockEntity.setOwnerName(player.getName().getString())
+            if (blockEntity.ownerUUID == null) {
+                blockEntity.ownerUUID = player.uuid
+                blockEntity.ownerName = player.name.string
             }
             player.openMenu(blockEntity, pos)
             return InteractionResult.CONSUME
@@ -101,21 +101,24 @@ class CraneBlock : BaseEntityBlock(
             type,
             ModBlockEntities.CRANE.get(),
             BlockEntityTicker { level: Level?, pos: BlockPos?, state: BlockState?, be: CraneBlockEntity? ->
-                CraneBlockEntity.Companion.tick(
-                    level,
-                    pos,
-                    state,
-                    be
-                )
+                if (level != null && pos != null && state != null && be != null) {
+                    CraneBlockEntity.Companion.tick(
+                        level,
+                        pos,
+                        state,
+                        be
+                    )
+                }
             })
     }
 
     override fun setPlacedBy(level: Level, pos: BlockPos, state: BlockState, placer: LivingEntity?, stack: ItemStack) {
         super.setPlacedBy(level, pos, state, placer, stack)
         if (!level.isClientSide && placer is Player) {
-            if (level.getBlockEntity(pos) is CraneBlockEntity) {
-                crane.setOwnerUUID(placer.getUUID())
-                crane.setOwnerName(placer.getName().getString())
+            val crane = level.getBlockEntity(pos)
+            if (crane is CraneBlockEntity) {
+                crane.ownerUUID = placer.uuid
+                crane.ownerName = placer.name.string
             }
         }
     }

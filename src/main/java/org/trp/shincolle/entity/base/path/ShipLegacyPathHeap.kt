@@ -1,7 +1,7 @@
 package org.trp.shincolle.entity.base.path
 
 internal class ShipLegacyPathHeap {
-    private var points: Array<ShipLegacyPathPoint> = arrayOfNulls<ShipLegacyPathPoint>(1024)
+    private var points: Array<ShipLegacyPathPoint?> = arrayOfNulls(1024)
     private var count = 0
 
     fun clearPath() {
@@ -19,10 +19,10 @@ internal class ShipLegacyPathHeap {
         get() = this.count == 0
 
     fun addPoint(point: ShipLegacyPathPoint): ShipLegacyPathPoint {
-        check(!point.isAssigned()) { "Point already assigned to heap" }
+        check(!point.isAssigned) { "Point already assigned to heap" }
 
         if (this.count == this.points.size) {
-            this.points = this.points.copyOf<ShipLegacyPathPoint?>(this.points.size * 2)
+            this.points = this.points.copyOf(this.points.size * 2)
         }
 
         this.points[this.count] = point
@@ -34,12 +34,12 @@ internal class ShipLegacyPathHeap {
     fun dequeue(): ShipLegacyPathPoint {
         check(this.count != 0) { "Cannot dequeue from an empty path heap" }
 
-        val result = this.points[0]
+        val result = this.points[0]!!
         this.points[0] = this.points[--this.count]
         this.points[this.count] = null
 
         if (this.count > 0) {
-            this.points[0].heapIndex = 0
+            this.points[0]!!.heapIndex = 0
             this.sortForward(0)
         }
 
@@ -51,8 +51,8 @@ internal class ShipLegacyPathHeap {
         val heapIndex = point.heapIndex
         check(!(heapIndex < 0 || heapIndex >= this.count || this.points[heapIndex] != point)) { "Point is not assigned to this heap" }
 
-        val prev = point.getDistanceToTarget()
-        point.setDistanceToTarget(distance)
+        val prev = point.distanceToTarget
+        point.distanceToTarget = distance
 
         if (distance < prev) {
             this.sortBack(heapIndex)
@@ -63,13 +63,13 @@ internal class ShipLegacyPathHeap {
 
     private fun sortBack(index: Int) {
         var index = index
-        val current = this.points[index]
+        val current = this.points[index]!!
 
         while (index > 0) {
             val parentIndex = (index - 1) shr 1
-            val parent = this.points[parentIndex]
+            val parent = this.points[parentIndex]!!
 
-            if (current.getDistanceToTarget() >= parent.getDistanceToTarget()) {
+            if (current.distanceToTarget >= parent.distanceToTarget) {
                 break
             }
 
@@ -84,8 +84,8 @@ internal class ShipLegacyPathHeap {
 
     private fun sortForward(index: Int) {
         var index = index
-        val current = this.points[index]
-        val currentDist = current.getDistanceToTarget()
+        val current = this.points[index]!!
+        val currentDist = current.distanceToTarget
 
         while (true) {
             val left = 1 + (index shl 1)
@@ -95,14 +95,14 @@ internal class ShipLegacyPathHeap {
                 break
             }
 
-            val leftPoint = this.points[left]
-            val leftDist = leftPoint.getDistanceToTarget()
+            val leftPoint = this.points[left]!!
+            val leftDist = leftPoint.distanceToTarget
             var rightDist = Float.POSITIVE_INFINITY
             var rightPoint: ShipLegacyPathPoint? = null
 
             if (right < this.count) {
                 rightPoint = this.points[right]
-                rightDist = rightPoint.getDistanceToTarget()
+                rightDist = rightPoint!!.distanceToTarget
             }
 
             if (leftDist < rightDist) {

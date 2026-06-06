@@ -159,8 +159,9 @@ class VolCoreMenu(containerId: Int, playerInventory: Inventory, private val bloc
         private fun getBlockEntity(playerInventory: Inventory, buffer: RegistryFriendlyByteBuf): VolCoreBlockEntity {
             checkNotNull(buffer) { "Missing VolCore menu data." }
             val pos = buffer.readBlockPos()
-            if (playerInventory.player.level().getBlockEntity(pos) is VolCoreBlockEntity) {
-                return volCore
+            val be = playerInventory.player.level().getBlockEntity(pos)
+            if (be is VolCoreBlockEntity) {
+                return be
             }
             throw IllegalStateException("VolCore block entity not found.")
         }

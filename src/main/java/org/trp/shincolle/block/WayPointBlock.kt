@@ -59,16 +59,17 @@ class WayPointBlock : BaseEntityBlock(
     ): InteractionResult {
         val stack = player.getItemInHand(player.getUsedItemHand())
 
-        if (stack.getItem() is TargetWrenchItem && !player.isShiftKeyDown()) {
+        if (stack.item is TargetWrenchItem && !player.isShiftKeyDown) {
             if (!level.isClientSide) {
-                if (level.getBlockEntity(pos) is WayPointBlockEntity) {
-                    if (wp.getOwnerUUID() != null && wp.getOwnerUUID() != player.getUUID()) {
+                val wp = level.getBlockEntity(pos)
+                if (wp is WayPointBlockEntity) {
+                    if (wp.ownerUUID != null && wp.ownerUUID != player.uuid) {
                         player.displayClientMessage(Component.translatable("chat.shincolle.wrongowner"), true)
                         return InteractionResult.FAIL
                     }
                     wp.nextWpStayTime()
                     player.displayClientMessage(
-                        Component.translatable("chat.shincolle.waypoint.setstaytime", wp.getStayTimeDisplay()),
+                        Component.translatable("chat.shincolle.waypoint.setstaytime", wp.stayTimeDisplay),
                         true
                     )
                 }
@@ -85,18 +86,20 @@ class WayPointBlock : BaseEntityBlock(
     ) {
         super.setPlacedBy(level, pos, state, placer, stack)
         if (!level.isClientSide && placer is Player) {
-            if (level.getBlockEntity(pos) is WayPointBlockEntity) {
-                wp.setOwnerUUID(placer.getUUID())
-                wp.setOwnerName(placer.getName().getString())
+            val wp = level.getBlockEntity(pos)
+            if (wp is WayPointBlockEntity) {
+                wp.ownerUUID = placer.uuid
+                wp.ownerName = placer.name.string
             }
         }
     }
 
     override fun canHarvestBlock(state: BlockState, level: BlockGetter, pos: BlockPos, player: Player): Boolean {
         if (player.hasPermissions(2)) return true
-        if (level.getBlockEntity(pos) is WayPointBlockEntity) {
-            if (wp.getOwnerUUID() == null) return true
-            return wp.getOwnerUUID() == player.getUUID()
+        val wp = level.getBlockEntity(pos)
+        if (wp is WayPointBlockEntity) {
+            if (wp.ownerUUID == null) return true
+            return wp.ownerUUID == player.uuid
         }
         return false
     }
@@ -120,12 +123,14 @@ class WayPointBlock : BaseEntityBlock(
             type,
             ModBlockEntities.WAYPOINT.get(),
             BlockEntityTicker { level: Level?, pos: BlockPos?, state: BlockState?, be: WayPointBlockEntity? ->
-                WayPointBlockEntity.Companion.tick(
-                    level,
-                    pos,
-                    state,
-                    be
-                )
+                if (level != null && pos != null && state != null && be != null) {
+                    WayPointBlockEntity.Companion.tick(
+                        level,
+                        pos,
+                        state,
+                        be
+                    )
+                }
             })
     }
 

@@ -42,7 +42,7 @@ class SmallShipyardMenu(
         this.powerScaleSynced = blockEntity.getPowerRemainingScaled(31)
         this.hasMaterialSynced = if (blockEntity.powerGoal > 0) 1 else 0
         this.hasPowerSynced = if (blockEntity.hasRemainedPower()) 1 else 0
-        this.remainingSecondsSynced = blockEntity.getRemainingTimeSeconds()
+        this.remainingSecondsSynced = blockEntity.remainingTimeSeconds
         this.powerRemainedSynced = blockEntity.powerRemained
         this.powerRemainedLowSynced = this.powerRemainedSynced and 0xFFFF
         this.powerRemainedHighSynced = (this.powerRemainedSynced ushr 16) and 0xFFFF
@@ -89,7 +89,7 @@ class SmallShipyardMenu(
 
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return min(Short.MAX_VALUE.toInt(), this@SmallShipyardMenu.blockEntity.getRemainingTimeSeconds())
+                return min(Short.MAX_VALUE.toInt(), this@SmallShipyardMenu.blockEntity.remainingTimeSeconds)
             }
 
             override fun set(value: Int) {
@@ -125,12 +125,12 @@ class SmallShipyardMenu(
             }
         })
 
-        this.addSlot(MaterialSlot(SLOT_GRUDGE, 33, 29))
-        this.addSlot(MaterialSlot(SLOT_ABYSSIUM, 53, 29))
-        this.addSlot(MaterialSlot(SLOT_AMMO, 73, 29))
-        this.addSlot(MaterialSlot(SLOT_POLYMETAL, 93, 29))
-        this.addSlot(MaterialSlot(SLOT_FUEL, 8, 53))
-        this.addSlot(SmallShipyardMenu.OutputSlot(SLOT_OUTPUT, 134, 44))
+        this.addSlot(this.MaterialSlot(SLOT_GRUDGE, 33, 29))
+        this.addSlot(this.MaterialSlot(SLOT_ABYSSIUM, 53, 29))
+        this.addSlot(this.MaterialSlot(SLOT_AMMO, 73, 29))
+        this.addSlot(this.MaterialSlot(SLOT_POLYMETAL, 93, 29))
+        this.addSlot(this.MaterialSlot(SLOT_FUEL, 8, 53))
+        this.addSlot(this.OutputSlot(SLOT_OUTPUT, 134, 44))
 
         for (row in 0..2) {
             for (col in 0..8) {
@@ -164,7 +164,7 @@ class SmallShipyardMenu(
     val buildTimeString: String
         get() {
             val seconds =
-                if (this.clientSide) this.remainingSecondsSynced else this.blockEntity.getRemainingTimeSeconds()
+                if (this.clientSide) this.remainingSecondsSynced else this.blockEntity.remainingTimeSeconds
             val hours = seconds / 3600
             val minutes = (seconds % 3600) / 60
             val secs = seconds % 60
@@ -313,8 +313,9 @@ class SmallShipyardMenu(
             checkNotNull(buffer) { "Missing small shipyard menu data." }
 
             val pos = buffer.readBlockPos()
-            if (playerInventory.player.level().getBlockEntity(pos) is SmallShipyardBlockEntity) {
-                return shipyard
+            val be = playerInventory.player.level().getBlockEntity(pos)
+            if (be is SmallShipyardBlockEntity) {
+                return be
             }
 
             throw IllegalStateException("Small shipyard block entity not found.")

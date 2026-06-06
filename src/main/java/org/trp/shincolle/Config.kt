@@ -378,8 +378,8 @@ object Config {
     @JvmField
     var volumeAttack: Float = 0.7f
     @JvmField
-    var customSoundRates: MutableMap<Int?, EnumMap<ShipCustomSoundType?, Float?>?> =
-        mutableMapOf<Int?, EnumMap<ShipCustomSoundType?, Float?>?>()
+    var customSoundRates: MutableMap<Int?, EnumMap<ShipCustomSoundType, Float?>?> =
+        mutableMapOf<Int?, EnumMap<ShipCustomSoundType, Float?>?>()
 
     @JvmField
     var scaleHeldItem: Float = 1.0f
@@ -809,8 +809,8 @@ object Config {
             volCorePowerMax = VOLCORE_POWER_MAX.get()
             volCoreConsumeSpeed = VOLCORE_CONSUME_SPEED.get()
             volCoreFuelMagnitude = VOLCORE_FUEL_MAGNITUDE.get()
-            miningEntries = Config.parseMiningEntries(MINING_ENTRIES.get())
-            lootEntries = Config.parseLootEntries(LOOT_ENTRIES.get())
+            miningEntries = Config.parseMiningEntries(MINING_ENTRIES.get() as List<out String?>?)
+            lootEntries = Config.parseLootEntries(LOOT_ENTRIES.get() as List<out String?>?)
             for (i in 0..3) {
                 expGainTask[i] = EXP_GAIN_TASK[i]!!.get()
                 consumeGrudgeTask[i] = CONSUME_GRUDGE_TASK[i]!!.get()
@@ -938,14 +938,14 @@ object Config {
         }
     }
 
-    private fun parseCustomSoundRates(rawEntries: MutableList<out String?>?): MutableMap<Int?, EnumMap<ShipCustomSoundType?, Float?>?> {
+    private fun parseCustomSoundRates(rawEntries: MutableList<out String?>?): MutableMap<Int?, EnumMap<ShipCustomSoundType, Float?>?> {
         if (rawEntries == null || rawEntries.isEmpty()) {
-            return mutableMapOf<Int?, EnumMap<ShipCustomSoundType?, Float?>?>()
+            return mutableMapOf<Int?, EnumMap<ShipCustomSoundType, Float?>?>()
         }
 
-        val parsed: MutableMap<Int?, EnumMap<ShipCustomSoundType?, Float?>?> =
-            HashMap<Int?, EnumMap<ShipCustomSoundType?, Float?>?>()
-        val soundTypes: Array<ShipCustomSoundType?> = ShipCustomSoundType.entries.toTypedArray()
+        val parsed: MutableMap<Int?, EnumMap<ShipCustomSoundType, Float?>?> =
+            HashMap<Int?, EnumMap<ShipCustomSoundType, Float?>?>()
+        val soundTypes: Array<ShipCustomSoundType> = ShipCustomSoundType.entries.toTypedArray()
 
         for (rawEntry in rawEntries) {
             if (rawEntry == null || rawEntry.isBlank()) {
@@ -960,7 +960,7 @@ object Config {
 
             try {
                 val shipClass = parts[0].toInt()
-                val rates = EnumMap<ShipCustomSoundType?, Float?>(ShipCustomSoundType::class.java)
+                val rates = EnumMap<ShipCustomSoundType, Float?>(ShipCustomSoundType::class.java)
                 for (i in soundTypes.indices) {
                     val percent = parts[i + 1].toInt()
                     if (percent > 0) {
@@ -974,7 +974,7 @@ object Config {
             }
         }
 
-        return Collections.unmodifiableMap<Int?, EnumMap<ShipCustomSoundType?, Float?>?>(parsed)
+        return Collections.unmodifiableMap<Int?, EnumMap<ShipCustomSoundType, Float?>?>(parsed)
     }
 
     private fun defaultLootEntries(): MutableList<String?> {
@@ -1080,9 +1080,11 @@ object Config {
         }
     }
 
-    private fun parseMiningEntries(rawEntries: MutableList<out String>): MutableList<MiningEntry?> {
+    private fun parseMiningEntries(rawEntries: List<out String?>?): MutableList<MiningEntry?> {
         val parsed: MutableList<MiningEntry?> = ArrayList<MiningEntry?>()
+        if (rawEntries == null) return parsed
         for (raw in rawEntries) {
+            if (raw == null) continue
             val parts = raw.replace(" ", "").split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (parts.size != 11) continue
             val dimensionId = parseDimensionId(parts[0])
@@ -1116,9 +1118,11 @@ object Config {
         return List.copyOf<MiningEntry?>(parsed)
     }
 
-    private fun parseLootEntries(rawEntries: MutableList<out String>): MutableList<LootEntry?> {
+    private fun parseLootEntries(rawEntries: List<out String?>?): MutableList<LootEntry?> {
         val parsed: MutableList<LootEntry?> = ArrayList<LootEntry?>()
+        if (rawEntries == null) return parsed
         for (raw in rawEntries) {
+            if (raw == null) continue
             val parts = raw.replace(" ", "").split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
             if (parts.size != 7) continue
             try {
