@@ -43,7 +43,22 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
 
     var isSubmarineMode: Boolean = false
 
-    protected var host: EntityShipBase? = null
+    var host: EntityShipBase? = null
+        protected set
+        get() {
+            if (field != null && (!field!!.isAlive || field!!.isRemoved)) {
+                field = null
+            }
+            if (field == null) {
+                for (p in this.getPassengers()) {
+                    if (p is EntityShipBase && p.isAlive && !p.isRemoved) {
+                        field = p
+                        break
+                    }
+                }
+            }
+            return field
+        }
 
     private var lightAttackCooldown = 0
     private var heavyAttackCooldown = 0
@@ -83,21 +98,6 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
                 Optional.ofNullable(uuid)
             )
         }
-
-    fun getHost(): EntityShipBase? {
-        if (this.host != null && (!this.host!!.isAlive || this.host!!.isRemoved)) {
-            this.host = null
-        }
-        if (this.host == null) {
-            for (p in this.getPassengers()) {
-                if (p is EntityShipBase && p.isAlive && !p.isRemoved) {
-                    this.host = p
-                    break
-                }
-            }
-        }
-        return this.host
-    }
 
     var stateEmotion: Int
         get() = this.entityData.get<Int?>(STATE_EMOTION)
@@ -268,29 +268,29 @@ abstract class EntityMountBase protected constructor(type: EntityType<out Pathfi
     }
 
     protected fun syncRotationWithHost() {
-        val h = getHost()
+        val h = this.host
         if (h != null) {
-            this.setYRot(h.getYRot())
+            this.yRot = h.yRot
             this.yRotO = h.yRotO
             this.yBodyRot = h.yBodyRot
             this.yBodyRotO = h.yBodyRotO
-            this.yHeadRot = h.getYHeadRot()
+            this.yHeadRot = h.yHeadRot
             this.yHeadRotO = h.yHeadRotO
-            this.setXRot(h.getXRot())
+            this.xRot = h.xRot
             this.xRotO = h.xRotO
         }
     }
 
     protected fun syncHostToMount() {
-        val h = getHost()
+        val h = this.host
         if (h != null) {
-            h.setYRot(this.getYRot())
+            h.yRot = this.yRot
             h.yRotO = this.yRotO
             h.yBodyRot = this.yBodyRot
             h.yBodyRotO = this.yBodyRotO
             h.yHeadRot = this.yHeadRot
             h.yHeadRotO = this.yHeadRotO
-            h.setXRot(this.getXRot())
+            h.xRot = this.xRot
             h.xRotO = this.xRotO
         }
     }

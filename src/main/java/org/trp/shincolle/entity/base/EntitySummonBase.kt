@@ -96,7 +96,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             (this.random.nextDouble() * SummonAiNumbers.INIT_SUMMON_OFFSET_RANGE - SummonAiNumbers.INIT_SUMMON_OFFSET_CENTER)
         this.moveTo(this.getX() + offsetX, this.getY(), this.getZ() + offsetZ, this.getYRot(), this.getXRot())
 
-        this.setOwnerUUID(carrier.getOwnerUUID())
+        this.setOwnerUUID(carrier.ownerUUID)
         this.setTame(true, false)
 
         val maxHealth = SummonAiNumbers.HEALTH_BASE + carrier.legacyShipStats

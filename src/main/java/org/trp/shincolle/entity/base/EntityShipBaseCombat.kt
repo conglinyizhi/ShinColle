@@ -600,27 +600,27 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
      * Check if the target is a ship (TamableAnimal) owned by the same player.
      */
     private fun isSameOwner(target: Entity?): Boolean {
-        val shipOwnerId = this.ship.getOwnerUUID()
+        val shipOwnerId = this.ship.ownerUUID
         if (shipOwnerId == null) return false
 
         if (target is Player) {
             return shipOwnerId == target.getUUID()
         }
         if (target is EntityShipBase) {
-            return shipOwnerId == target.getOwnerUUID()
+            return shipOwnerId == target.ownerUUID
         }
         if (target is TamableAnimal) {
-            return shipOwnerId == target.getOwnerUUID()
+            return shipOwnerId == target.ownerUUID
         }
         if (target is EntityMountBase) {
-            val host = target.getHost()
+            val host = target.host
             if (host != null) {
-                return shipOwnerId == host.getOwnerUUID()
+                return shipOwnerId == host.ownerUUID
             }
             return shipOwnerId == target.hostUUID
         }
         if (target is EntityAircraftBase) {
-            return shipOwnerId == target.getOwnerUUID()
+            return shipOwnerId == target.ownerUUID
         }
         return false
     }

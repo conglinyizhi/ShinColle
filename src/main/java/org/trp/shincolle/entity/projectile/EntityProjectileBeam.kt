@@ -210,20 +210,20 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
             return entity.getUUID()
         }
         if (entity is EntityShipBase) {
-            return entity.getOwnerUUID()
+            return entity.ownerUUID
         }
         if (entity is TamableAnimal) {
-            return entity.getOwnerUUID()
+            return entity.ownerUUID
         }
         if (entity is EntityMountBase) {
-            val host = entity.getHost()
+            val host = entity.host
             if (host != null) {
-                return host.getOwnerUUID()
+                return host.ownerUUID
             }
             return entity.hostUUID
         }
         if (entity is EntityAircraftBase) {
-            return entity.getOwnerUUID()
+            return entity.ownerUUID
         }
         return null
     }

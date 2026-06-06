@@ -3,7 +3,7 @@ package org.trp.shincolle.entity.base
 internal object ShipFollowDecisionResolver {
     fun shouldTryTeleport(state: State): Boolean {
         return ShipBrainRecoverySupport.shouldTryTeleportRecovery(
-            state.recovery,
+            state.recovery!!,
             ShipRecoveryDecisionResolver.State(
                 state.forceRecovery,
                 state.ownerDistanceSqr,

@@ -10,7 +10,6 @@ import org.trp.shincolle.Config
 import org.trp.shincolle.Shincolle.Companion.debugLog
 import org.trp.shincolle.Shincolle.Companion.diagnosticLog
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation
-import org.trp.shincolle.entity.base.path.ShipLegacyNavigation.preserveCurrentPathOnNextFailure
 import org.trp.shincolle.utility.ShipTeleportHelper.teleportNearLiving
 import org.trp.shincolle.utility.ShipTeleportHelper.teleportNearPoint
 import java.util.*
@@ -138,7 +137,7 @@ class ShipMovementCoordinator @JvmOverloads constructor(
             return
         }
         if (mob.getNavigation() is ShipLegacyNavigation) {
-            navigation.preserveCurrentPathOnNextFailure()
+            (mob.getNavigation() as ShipLegacyNavigation).preserveCurrentPathOnNextFailure()
         }
     }
 
@@ -217,7 +216,7 @@ class ShipMovementCoordinator @JvmOverloads constructor(
 
         val cx = Mth.floor(anchor.x) shr 4
         val cz = Mth.floor(anchor.z) shr 4
-        return (this.level() as ServerLevel).hasChunk(cx, cz)
+        return (this.mob.level() as ServerLevel).hasChunk(cx, cz)
     }
 
     companion object {

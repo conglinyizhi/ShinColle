@@ -34,6 +34,7 @@ class ShipTaskRuntime internal constructor(private val ship: EntityShipBase) {
     }
 
     fun moveTo(target: Vec3?, speed: Double): Boolean {
+        if (target == null) return false
         return this.movement.moveTo(target, speed)
     }
 
@@ -77,6 +78,7 @@ class ShipTaskRuntime internal constructor(private val ship: EntityShipBase) {
     }
 
     private fun tryTeleportRecovery(target: Vec3?, distanceSqr: Double, force: Boolean): Boolean {
+        if (target == null) return false
         if (!this.recovery.shouldTryTeleportThrottled(
                 force, distanceSqr,
                 TASK_TELEPORT_DISTANCE_SQ, TASK_TELEPORT_COOLDOWN_TICKS

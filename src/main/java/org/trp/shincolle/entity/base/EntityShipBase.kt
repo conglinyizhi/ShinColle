@@ -180,7 +180,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                     "[SCBrainDiag] customServerAiStep ship={} type={} ownerUuid={} tame={} noFuel={} deadPose={} navigation={} brain={}",
                     this.getUUID(),
                     BuiltInRegistries.ENTITY_TYPE.getKey(this.getType()),
-                    this.getOwnerUUID(),
+                    this.ownerUUID,
                     this.isTame,
                     this.isNoFuel,
                     this.isInDeadPose,
@@ -220,7 +220,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             diagnosticLog(
                 "[SCLoadDiag] readShip ship={} ownerUuid={} tame={} spawnEgg={} noFuel={} fuel={} orderedToSit={} sittingPose={}",
                 this.getUUID(),
-                this.getOwnerUUID(),
+                this.ownerUUID,
                 this.isTame,
                 compound.getBoolean(spawnEggTagName),
                 this.isNoFuel,
@@ -656,8 +656,9 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     val isSitting: Boolean
         get() = this.isOrderedToSit() || this.isInSittingPose()
 
-    val isSprinting: Boolean
-        get() = this.isSprinting() || this.walkAnimation.speed() > 0.9f
+    override fun isSprinting(): Boolean {
+        return super.isSprinting() || this.walkAnimation.speed() > 0.9f
+    }
 
     protected val ownerPlayer: Player?
         get() {
@@ -720,7 +721,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         if (this.isNoFuel) return "noFuel"
         val owner = this.getOwner()
         if (owner == null) {
-            val ownerUuid = this.getOwnerUUID()
+            val ownerUuid = this.ownerUUID
             return if (ownerUuid == null) "noOwnerUuid" else "ownerEntityMissing"
         }
         if (this.hasBlockGuardTarget()) return "blockGuardTarget"
@@ -1425,7 +1426,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         get() = this.inventory!!.accessibleSlotCount
 
     val isHostileShipMob: Boolean
-        get() = !this.isTame && this.getOwnerUUID() == null
+        get() = !this.isTame && this.ownerUUID == null
 
     fun initializeHostileSpawnState(scaleLevel: Int) {
         val clampedScale = Mth.clamp(scaleLevel, 0, 3)
@@ -1922,7 +1923,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             return
         }
 
-        val ownerId = this.getOwnerUUID()
+        val ownerId = this.ownerUUID
         if (ownerId == null || this.level() !is ServerLevel) {
             return
         }
@@ -1946,7 +1947,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         val spawnEgg = createShipSpawnEggStack()
         val grudge = EntityShipGrudge(
             this.level(), this.getX(), this.getY() + 0.5,
-            this.getZ(), spawnEgg, this.getOwnerUUID()
+            this.getZ(), spawnEgg, this.ownerUUID
         )
         this.level().addFreshEntity(grudge)
     }
@@ -3108,7 +3109,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             )
         ) {
             val attacker = source.getEntity()
-            val isOwnerAttack = attacker is Player && attacker.getUUID() == this.getOwnerUUID()
+            val isOwnerAttack = attacker is Player && attacker.getUUID() == this.ownerUUID
 
             if (!isOwnerAttack && this.consumeItemInInventory(ModItems.REPAIR_GODDESS.get())) {
                 this.setHealth(this.getMaxHealth())
@@ -3713,7 +3714,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
         var backupOwner: UUID? = null
         if (this is TamableAnimal) {
-            backupOwner = this.getOwnerUUID()
+            backupOwner = this.ownerUUID
             this.setOwnerUUID(null)
         }
 
@@ -3755,6 +3756,10 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     override fun causeFallDamage(fallDistance: Float, damageMultiplier: Float, source: DamageSource): Boolean {
         return false
     }
+
+    protected fun checkModelState(id: Int, state: Int): Boolean = Companion.checkModelState(id, state)
+
+    protected fun rotateXZByAxis(z: Float, x: Float, radians: Float, scale: Float): FloatArray = Companion.rotateXZByAxis(z, x, radians, scale)
 
     companion object {
         const val EMOTION_NORMAL: Int = 0
@@ -3969,7 +3974,6 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         private const val SHIP_BUOY_DAMP = 0.80
         private const val SHIP_BUOY_MAX_MOTION = 0.1
 
-        @JvmStatic
         protected fun checkModelState(id: Int, state: Int): Boolean {
             if (id < 0 || id >= 31) {
                 return false
@@ -3977,7 +3981,6 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             return (state and (1 shl id)) != 0
         }
 
-        @JvmStatic
         protected fun rotateXZByAxis(z: Float, x: Float, radians: Float, scale: Float): FloatArray {
             val cosD = Mth.cos(radians)
             val sinD = Mth.sin(radians)

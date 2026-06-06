@@ -455,11 +455,11 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return false
         }
 
-        if (this.ship.getOwnerUUID() != null) {
+        if (this.ship.ownerUUID != null) {
             if (target is Enemy) {
                 return true
             }
-            if (target is EntityShipBase && target.getOwnerUUID() == null) {
+            if (target is EntityShipBase && target.ownerUUID == null) {
                 return true
             }
             if (isPlayerConfiguredTargetClass(target)) {
@@ -471,7 +471,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             return isPlayerOrShip(target) && pvpEnabled
         }
 
-        if (target is EntityShipBase && target.getOwnerUUID() == null) {
+        if (target is EntityShipBase && target.ownerUUID == null) {
             return false
         }
 
@@ -484,7 +484,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         }
 
         if (target is TamableAnimal) {
-            return target.getOwnerUUID() != null
+            return target.ownerUUID != null
         }
 
         return revengeContext
@@ -504,28 +504,28 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         }
 
         if (target is EntityMountBase) {
-            val host = target.getHost()
+            val host = target.host
             if (host != null) {
-                return host.getOwnerUUID() == this.ship.getOwnerUUID()
+                return host.ownerUUID == this.ship.ownerUUID
             }
-            return target.hostUUID == this.ship.getOwnerUUID()
+            return target.hostUUID == this.ship.ownerUUID
         }
 
         return target is EntityShipBase
-                && this.ship.getOwnerUUID() == null && target.getOwnerUUID() == null
+                && this.ship.ownerUUID == null && target.ownerUUID == null
     }
 
     private fun sharesOwner(target: Entity?): Boolean {
-        if (this.ship.getOwnerUUID() == null) {
+        if (this.ship.ownerUUID == null) {
             return false
         }
 
         if (target is Player) {
-            return this.ship.getOwnerUUID() == target.getUUID()
+            return this.ship.ownerUUID == target.getUUID()
         }
 
         if (target is TamableAnimal) {
-            return this.ship.getOwnerUUID() == target.getOwnerUUID()
+            return this.ship.ownerUUID == target.ownerUUID
         }
 
         return false

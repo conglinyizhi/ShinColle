@@ -158,7 +158,7 @@ internal object EntityMountBrainAi {
         private var lastRecoveryTargetKey: FollowRecoveryTargetKey? = null
 
         override fun checkExtraStartConditions(level: ServerLevel, mount: EntityMountBase): Boolean {
-            return shouldFollowHostState(mount, mount.getHost())
+            return shouldFollowHostState(mount, mount.host)
         }
 
         override fun start(level: ServerLevel, mount: EntityMountBase, gameTime: Long) {
@@ -175,7 +175,7 @@ internal object EntityMountBrainAi {
         }
 
         override fun tick(level: ServerLevel, mount: EntityMountBase, gameTime: Long) {
-            val h = mount.getHost()
+            val h = mount.host
             if (h == null) return
 
             if (h.hasPointerTarget()) {
@@ -317,7 +317,7 @@ internal object EntityMountBrainAi {
         private var heavyDelay = 0
 
         override fun checkExtraStartConditions(level: ServerLevel, mount: EntityMountBase): Boolean {
-            val h = mount.getHost()
+            val h = mount.host
             this.target = mount.getTarget()
             return MountBrainDecisionResolver.shouldRangeAttack(decisionState(mount, h))
         }
@@ -338,7 +338,7 @@ internal object EntityMountBrainAi {
 
         override fun tick(level: ServerLevel, mount: EntityMountBase, gameTime: Long) {
             if (this.target == null || !this.target!!.isAlive) return
-            val h = mount.getHost()
+            val h = mount.host
             if (h == null) return
 
             mount.getLookControl().setLookAt(this.target, MountAiNumbers.LOOK_YAW, MountAiNumbers.LOOK_PITCH)
@@ -362,7 +362,7 @@ internal object EntityMountBrainAi {
     private class MountRandomStrollBehavior :
         Behavior<EntityMountBase>(ImmutableMap.of<MemoryModuleType<*>, MemoryStatus>()) {
         override fun checkExtraStartConditions(level: ServerLevel, mount: EntityMountBase): Boolean {
-            val h = mount.getHost()
+            val h = mount.host
             return MountBrainDecisionResolver.shouldRandomStroll(decisionState(mount, h))
         }
 

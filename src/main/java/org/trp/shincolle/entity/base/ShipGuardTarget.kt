@@ -28,7 +28,7 @@ data class ShipGuardTarget(val x: Int, val y: Int, val z: Int, val dimensionId: 
     }
 
     fun legacyType(): Int {
-        return this.type.legacyId
+        return this.type!!.legacyId()
     }
 
     enum class Type(private val legacyId: Int) {
