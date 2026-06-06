@@ -2508,7 +2508,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         }
 
         val threshold = Mth.clamp(this.getStateMinor(ShipContainerMenu.STATE_MINOR_RATION_MORALE), 1, 4)
-        if (getMoraleLevelLegacy(this.morale) < threshold) {
+        if (this.getMoraleLevel() < threshold) {
             return
         }
 
@@ -2519,20 +2519,15 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         consumeOneCombatRation()
     }
 
-    private fun getMoraleLevelLegacy(morale: Int): Int {
-        if (morale > 5100) {
-            return 0
+    fun getMoraleLevel(): Int {
+        val m = this.morale
+        return when {
+            m > 5100 -> 0
+            m > 3900 -> 1
+            m > 2100 -> 2
+            m > 900  -> 3
+            else     -> 4
         }
-        if (morale > 3900) {
-            return 1
-        }
-        if (morale > 2100) {
-            return 2
-        }
-        if (morale > 900) {
-            return 3
-        }
-        return 4
     }
 
     private fun consumeOneCombatRation(): Boolean {

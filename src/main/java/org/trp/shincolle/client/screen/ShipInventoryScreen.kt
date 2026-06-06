@@ -535,7 +535,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
 
     private fun renderMoraleTooltip(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int) {
         val ship = menu.ship; val b = getLegacyMoraleBuffs(ship.morale)
-        val tip = TooltipBuilder.create().addColored("gui.shincolle.morale${getMoraleLevel(ship.morale)}", ChatFormatting.GOLD)
+        val tip = TooltipBuilder.create().addColored("gui.shincolle.morale${ship.getMoraleLevel()}", ChatFormatting.GOLD)
         addMoraleStat(tip, ChatFormatting.RED, Component.translatable("gui.shincolle.firepower1").string, "x %.0f %% / %.0f %%", b[1] * 100, b[2] * 100)
         addMoraleStat(tip, ChatFormatting.RED, Component.translatable("gui.shincolle.firepower2").string, "x %.0f %% / %.0f %%", b[3] * 100, b[4] * 100)
         addMoraleStat(tip, ChatFormatting.WHITE, Component.translatable("gui.shincolle.attackspeed").string, "x %.0f %%", b[6] * 100)
@@ -578,7 +578,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
         g.blit(TEXTURE_ICON0, this.leftPos + 165, this.topPos + 18, 0f, if (isGod) 0f else 43f, frameW, frameH, 256, 256)
         g.blit(TEXTURE_ICON0, this.leftPos + 167, this.topPos + 22, typeUv[0].toFloat(), typeUv[1].toFloat(), Sprites.SHIP_INV_TYPE_ICON_W, Sprites.SHIP_INV_TYPE_ICON_H, 256, 256)
         g.blit(TEXTURE_ICON0, this.leftPos + 239, this.topPos + 18,
-            (getMoraleLevel(ship.morale) * Sprites.SHIP_INV_MORALE_ICON_W).toFloat(), Sprites.SHIP_INV_MORALE_ICON_V.toFloat(),
+            (ship.getMoraleLevel() * Sprites.SHIP_INV_MORALE_ICON_W).toFloat(), Sprites.SHIP_INV_MORALE_ICON_V.toFloat(),
             Sprites.SHIP_INV_MORALE_ICON_W, Sprites.SHIP_INV_MORALE_ICON_H, 256, 256)
         val tex = if (nameData[0] < 100) TEXTURE_ICON1 else TEXTURE_ICON2
         var offY = if (nameData[0] == 4 || nameData[0] == 6) -10 else 0
@@ -688,7 +688,6 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
 
     private fun getResourceDisplay(fallback: String) = if (menu.isCreativeDebuggerActive) DebugInspectorItem.creativeInfiniteLabel().string else fallback
     private fun getResourceDisplayColor() = if (menu.isCreativeDebuggerActive) 0xFFD700 else 0xFFFFFF
-    private fun getMoraleLevel(morale: Int): Int = when { morale > 5100 -> 0; morale > 3900 -> 1; morale > 2100 -> 2; morale > 900 -> 3; else -> 4 }
 
     companion object {
         val TEXTURE_BG: ResourceLocation = Sprites.T_SHIP_INVENTORY
