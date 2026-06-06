@@ -90,8 +90,8 @@ class ParticleCube(
         if (this.particleType == 1) {
             val look = host.getViewVector(1.0f)
             val lookDeg = getLookDegree(look.x, look.y, look.z, false)
-            val posOffset = rotateXYZByYawPitch(0.0f, 0.0f, host.getBbWidth() * 2.0f, lookDeg[0], lookDeg[1], 1.0f)
-            this.setPos(host.getX() + posOffset[0], host.getY() + host.getBbHeight() * 0.6, host.getZ() + posOffset[2])
+            val posOffset = rotateXYZByYawPitch(0.0f, 0.0f, host.bbWidth * 2.0f, lookDeg[0], lookDeg[1], 1.0f)
+            this.setPos(host.x + posOffset[0], host.y + host.bbHeight * 0.6, host.z + posOffset[2])
             this.shotYaw = lookDeg[0]
             this.shotPitch = lookDeg[1]
             this.alphaIn =
@@ -110,10 +110,10 @@ class ParticleCube(
             this.scaleOut += this.random.nextFloat() * 0.04f - 0.01f
             this.scaleIn += this.random.nextFloat() * 0.04f - 0.005f
         } else {
-            val yaw = if (host is LivingEntity) host.yBodyRot else host.getYRot()
-            val pitch = host.getXRot()
-            val posOffset = rotateXZByAxis(host.getBbWidth() * 2.0f, 0.0f, yaw * Mth.DEG_TO_RAD, 1.0f)
-            this.setPos(host.getX() + posOffset[1], host.getY() + host.getBbHeight() * 0.6, host.getZ() + posOffset[0])
+            val yaw = if (host is LivingEntity) host.yBodyRot else host.yRot
+            val pitch = host.xRot
+            val posOffset = rotateXZByAxis(host.bbWidth * 2.0f, 0.0f, yaw * Mth.DEG_TO_RAD, 1.0f)
+            this.setPos(host.x + posOffset[1], host.y + host.bbHeight * 0.6, host.z + posOffset[0])
             this.shotYaw = yaw * Mth.DEG_TO_RAD
             this.shotPitch = pitch * Mth.DEG_TO_RAD
             this.alphaIn =
@@ -149,7 +149,7 @@ class ParticleCube(
         val t7 = rotateXYZByYawPitch(1.0f, 1.0f, 1.0f, this.shotYaw, this.shotPitch, this.scaleIn)
         val t8 = rotateXYZByYawPitch(1.0f, -1.0f, 1.0f, this.shotYaw, this.shotPitch, this.scaleIn)
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val hx = Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()
         val hy = Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()
         val hz = Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()

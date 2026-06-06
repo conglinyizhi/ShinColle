@@ -52,9 +52,9 @@ class ParticleBeam protected constructor(
             return
         }
 
-        val dx = target.getX() - host.getX()
-        val dy = (target.getY() + target.getBbHeight() * 0.5) - (host.getY() + host.getBbHeight() * 0.6)
-        val dz = target.getZ() - host.getZ()
+        val dx = target.x - host.x
+        val dy = (target.y + target.bbHeight * 0.5) - (host.y + host.bbHeight * 0.6)
+        val dz = target.z - host.z
 
         val d1 = sqrt(dx * dx + dy * dy + dz * dz)
         var motX = dx
@@ -69,15 +69,15 @@ class ParticleBeam protected constructor(
         this.shotPitch = -atan2(motY, f1).toFloat()
         this.shotYaw = -atan2(motX, motZ).toFloat()
 
-        val posOffset = rotateXYZByYawPitch(0.0f, 0.0f, host.getBbWidth() * 2.0f, this.shotYaw, this.shotPitch, 1.0f)
+        val posOffset = rotateXYZByYawPitch(0.0f, 0.0f, host.bbWidth * 2.0f, this.shotYaw, this.shotPitch, 1.0f)
 
-        this.x = host.getX() + posOffset[0]
-        this.y = host.getY() + host.getBbHeight() * 0.6 + posOffset[1]
-        this.z = host.getZ() + posOffset[2]
+        this.x = host.x + posOffset[0]
+        this.y = host.y + host.bbHeight * 0.6 + posOffset[1]
+        this.z = host.z + posOffset[2]
 
-        this.tarX = target.getX()
-        this.tarY = target.getY() + target.getBbHeight() * 0.5
-        this.tarZ = target.getZ()
+        this.tarX = target.x
+        this.tarY = target.y + target.bbHeight * 0.5
+        this.tarZ = target.z
     }
 
     override fun tick() {
@@ -147,7 +147,7 @@ class ParticleBeam protected constructor(
             return
         }
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val hx = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val hy = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val hz = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()

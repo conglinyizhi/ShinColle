@@ -64,10 +64,10 @@ object PointerItemClientHelper {
     ): Component {
         if (mc.level != null) {
             for (entity in mc.level!!.entitiesForRendering()) {
-                if (entity.getUUID() == uuid && entity is EntityShipBase) {
+                if (entity.uuid == uuid && entity is EntityShipBase) {
                     val name =
-                        if (entity.hasCustomName()) entity.getCustomName()!!.getString() else entity.getDisplayName()!!
-                            .getString()
+                        if (entity.hasCustomName()) entity.customName!!.string else entity.displayName!!
+                            .string
                     val color = if (data.isSelected(teamId, slotId)) ChatFormatting.WHITE else ChatFormatting.GRAY
                     return Component.literal(displayedCount.toString() + ": " + name + " - Lv " + entity.level)
                         .withStyle(color)

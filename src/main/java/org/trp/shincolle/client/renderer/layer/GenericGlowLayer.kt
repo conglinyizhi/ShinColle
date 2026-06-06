@@ -41,7 +41,7 @@ class GenericGlowLayer<T : LivingEntity, M : EntityModel<T>>(
             color = 0x26FFFFFF
         }
 
-        val parentModel = this.getParentModel()
+        val parentModel = this.parentModel
         if (parentModel is IGlowableModel) {
             parentModel.renderGlow(
                 poseStack,

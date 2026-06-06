@@ -30,21 +30,21 @@ class RenderDesk(context: BlockEntityRendererProvider.Context) : BlockEntityRend
         blockEntity: DeskBlockEntity, partialTick: Float, poseStack: PoseStack, bufferSource: MultiBufferSource,
         packedLight: Int, packedOverlay: Int
     ) {
-        val level = blockEntity.getLevel()
+        val level = blockEntity.level
         if (level == null) {
             renderSingle(poseStack, bufferSource, packedLight, packedOverlay, 90.0f)
             return
         }
 
-        val pos = blockEntity.getBlockPos()
-        val state = blockEntity.getBlockState()
+        val pos = blockEntity.blockPos
+        val state = blockEntity.blockState
         if (!state.hasProperty<Direction?>(DeskBlock.FACING)) return
 
         val facing = state.getValue<Direction>(DeskBlock.FACING)
         val angle: Float = getYaw(facing)
 
-        val dirRight = facing.getClockWise()
-        val dirLeft = facing.getCounterClockWise()
+        val dirRight = facing.clockWise
+        val dirLeft = facing.counterClockWise
 
         val rightPos = pos.relative(dirRight)
         val isRightAlreadyChained = this.canConnectTo(level, rightPos, dirRight, state)
@@ -91,7 +91,7 @@ class RenderDesk(context: BlockEntityRendererProvider.Context) : BlockEntityRend
     private fun canConnectTo(level: Level, pos: BlockPos, direction: Direction, requiredState: BlockState): Boolean {
         val neighborPos = pos.relative(direction)
         val neighborState = level.getBlockState(neighborPos)
-        if (neighborState.`is`(requiredState.getBlock())) {
+        if (neighborState.`is`(requiredState.block)) {
             if (neighborState.hasProperty<Direction?>(DeskBlock.FACING) && requiredState.hasProperty<Direction?>(
                     DeskBlock.FACING
                 )

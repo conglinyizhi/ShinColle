@@ -51,7 +51,7 @@ class ParticleCraning(
     }
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTick: Float) {
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
 
         val sizeHead = this.quadSize
         val sizeChain = this.quadSize * 0.25f

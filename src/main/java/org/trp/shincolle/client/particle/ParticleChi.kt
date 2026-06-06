@@ -35,7 +35,7 @@ class ParticleChi protected constructor(level: ClientLevel, scale: Double, hostE
 
         val host = this.level.getEntity(this.hostEntityId)
         if (host != null) {
-            this.setPos(host.getX(), host.getY() + host.getBbHeight() * 0.55, host.getZ())
+            this.setPos(host.x, host.y + host.bbHeight * 0.55, host.z)
         }
         this.xo = this.x
         this.yo = this.y
@@ -81,7 +81,7 @@ class ParticleChi protected constructor(level: ClientLevel, scale: Double, hostE
         val offsetX = this.radChi * cos
         val offsetZ = this.radChi * sin
 
-        this.setPos(host.getX() + offsetX, host.getY() + host.getBbHeight() * 0.55, host.getZ() + offsetZ)
+        this.setPos(host.x + offsetX, host.y + host.bbHeight * 0.55, host.z + offsetZ)
     }
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTicks: Float) {
@@ -89,7 +89,7 @@ class ParticleChi protected constructor(level: ClientLevel, scale: Double, hostE
             return
         }
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val px = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val py = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val pz = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()

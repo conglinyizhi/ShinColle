@@ -28,8 +28,8 @@ class RendererAbyssMissile(context: EntityRendererProvider.Context) : EntityRend
         packedLight: Int
     ) {
         poseStack.pushPose()
-        val yaw = Mth.lerp(partialTicks, entity.yRotO, entity.getYRot())
-        val pitch = Mth.lerp(partialTicks, entity.xRotO, entity.getXRot())
+        val yaw = Mth.lerp(partialTicks, entity.yRotO, entity.yRot)
+        val pitch = Mth.lerp(partialTicks, entity.xRotO, entity.xRot)
         poseStack.mulPose(Axis.YP.rotationDegrees(yaw + 180.0f))
         poseStack.mulPose(Axis.XP.rotationDegrees(-pitch))
         poseStack.scale(0.6f, 0.6f, 0.6f)

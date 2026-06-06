@@ -80,7 +80,7 @@ class ShipSlot(
 
         // ---- Name label ----
         val name = if (ship!!.hasCustomName())
-            ship.getCustomName()
+            ship.customName
         else
             Component.translatable(ship.getType().getDescriptionId())
         val nameWidth = Minecraft.getInstance().font.width(name)
@@ -112,18 +112,18 @@ class ShipSlot(
 
         // Save entity rotation
         val prevYBodyRot = ship!!.yBodyRotO
-        val prevYRot = ship.getYRot()
-        val prevXRot = ship.getXRot()
+        val prevYRot = ship.yRot
+        val prevXRot = ship.xRot
         val prevYHeadRotO = ship.yHeadRotO
         val prevYHeadRot = ship.yHeadRot
         val prevYBodyRotO = ship.yBodyRotO
 
         ship.yBodyRotO = 180.0f + lookX * 20.0f
         ship.yBodyRot = 180.0f + lookX * 20.0f
-        ship.setYRot(180.0f + lookX * 40.0f)
-        ship.yHeadRotO = ship.getYRot()
-        ship.yHeadRot = ship.getYRot()
-        ship.setXRot(-lookY * 20.0f)
+        ship.yRot = 180.0f + lookX * 40.0f
+        ship.yHeadRotO = ship.yRot
+        ship.yHeadRot = ship.yRot
+        ship.xRot = -lookY * 20.0f
 
         val dispatcher = Minecraft.getInstance().getEntityRenderDispatcher()
         pitch.conjugate()
@@ -148,8 +148,8 @@ class ShipSlot(
         // Restore entity rotation
         ship.yBodyRotO = prevYBodyRotO
         ship.yBodyRot = prevYBodyRot
-        ship.setYRot(prevYRot)
-        ship.setXRot(prevXRot)
+        ship.yRot = prevYRot
+        ship.xRot = prevXRot
         ship.yHeadRotO = prevYHeadRotO
         ship.yHeadRot = prevYHeadRot
 

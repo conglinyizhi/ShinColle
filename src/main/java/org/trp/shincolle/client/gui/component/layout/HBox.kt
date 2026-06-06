@@ -37,7 +37,7 @@ class HBox
         nextX += child.getWidth() + spacing
 
         // Expand panel bounds
-        val rightEdge = child.getX() + child.getWidth()
+        val rightEdge = child.x + child.getWidth()
         if (rightEdge > getX() + width) {
             this.width = rightEdge - getX()
         }

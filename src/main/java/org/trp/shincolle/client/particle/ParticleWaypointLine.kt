@@ -29,7 +29,7 @@ class ParticleWaypointLine protected constructor(
         }
         this.alpha = 0.5f
 
-        this.quadSize = this.quadSize * 3.0f
+        this.quadSize *= 3.0f
         this.pScale = this.quadSize
         this.lifetime = 100
 

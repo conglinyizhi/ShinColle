@@ -50,8 +50,8 @@ class ParticleLightning protected constructor(
         this.scale(scale.toFloat())
 
         val host = level.getEntity(hostEntityId)
-        val hostWidth = if (host != null) host.getBbWidth() else 1.0f
-        val hostHeight = if (host != null) host.getBbHeight() else 2.0f
+        val hostWidth = if (host != null) host.bbWidth else 1.0f
+        val hostHeight = if (host != null) host.bbHeight else 2.0f
 
         if (scale <= 0.0) {
             scale = 1.0
@@ -161,23 +161,23 @@ class ParticleLightning protected constructor(
             } else if (this.particleType == 1 || this.particleType == 4 || this.particleType == 5) {
                 val sc = if (this.particleType == 1) scale.toFloat() else 0.25f
                 this.setPos(
-                    host.getX() + (this.random.nextFloat() * sc * 2.0f) - sc,
-                    host.getY() + hostHeight * 0.5 + (this.random.nextFloat() * sc * 2.0f) - sc,
-                    host.getZ() + (this.random.nextFloat() * sc * 2.0f) - sc
+                    host.x + (this.random.nextFloat() * sc * 2.0f) - sc,
+                    host.y + hostHeight * 0.5 + (this.random.nextFloat() * sc * 2.0f) - sc,
+                    host.z + (this.random.nextFloat() * sc * 2.0f) - sc
                 )
             } else if (this.particleType == 2) {
-                val yaw = if (host is LivingEntity) host.yBodyRot else host.getYRot()
+                val yaw = if (host is LivingEntity) host.yBodyRot else host.yRot
                 val partPos = rotateXZByAxis(1.0f, 0.0f, -yaw * Mth.DEG_TO_RAD)
                 this.setPos(
-                    host.getX() + partPos[0],
-                    host.getY() + hostHeight * 0.8,
-                    host.getZ() + partPos[1]
+                    host.x + partPos[0],
+                    host.y + hostHeight * 0.8,
+                    host.z + partPos[1]
                 )
             } else if (this.particleType == 6) {
                 this.setPos(
-                    host.getX() + (this.random.nextFloat() * 2.0f) - 1.0f,
-                    host.getY() + hostHeight * 0.5 + (this.random.nextFloat() * 2.0f) - 1.0f,
-                    host.getZ() + (this.random.nextFloat() * 2.0f) - 1.0f
+                    host.x + (this.random.nextFloat() * 2.0f) - 1.0f,
+                    host.y + hostHeight * 0.5 + (this.random.nextFloat() * 2.0f) - 1.0f,
+                    host.z + (this.random.nextFloat() * 2.0f) - 1.0f
                 )
             } else {
                 updatePosition(true)
@@ -267,12 +267,12 @@ class ParticleLightning protected constructor(
             this.remove()
             return
         }
-        val yaw = if (host is LivingEntity) host.yBodyRot else host.getYRot()
-        val posOffset = rotateXZByAxis(host.getBbWidth() * 2.0f, 0.0f, yaw * Mth.DEG_TO_RAD, 1.0f)
+        val yaw = if (host is LivingEntity) host.yBodyRot else host.yRot
+        val posOffset = rotateXZByAxis(host.bbWidth * 2.0f, 0.0f, yaw * Mth.DEG_TO_RAD, 1.0f)
         this.setPos(
-            host.getX() + posOffset[1],
-            host.getY() + host.getBbHeight() * 0.6,
-            host.getZ() + posOffset[0]
+            host.x + posOffset[1],
+            host.y + host.bbHeight * 0.6,
+            host.z + posOffset[0]
         )
     }
 
@@ -284,12 +284,12 @@ class ParticleLightning protected constructor(
         }
 
         val randx = this.random.nextFloat() + 0.1f
-        val yaw = if (host is LivingEntity) host.yBodyRot else host.getYRot()
+        val yaw = if (host is LivingEntity) host.yBodyRot else host.yRot
         val newPos = rotateXZByAxis(0.8f + this.random.nextFloat() * 0.2f, randx, -yaw * Mth.DEG_TO_RAD)
 
-        this.x = host.getX() + newPos[0]
-        this.y = host.getY() + (if (initial) 1.53 else 1.76) + randx * 0.25
-        this.z = host.getZ() + newPos[1]
+        this.x = host.x + newPos[0]
+        this.y = host.y + (if (initial) 1.53 else 1.76) + randx * 0.25
+        this.z = host.z + newPos[1]
 
         if (host is EntityMountBase) {
             if (host.shipDepth > 0.0) {
@@ -311,7 +311,7 @@ class ParticleLightning protected constructor(
     }
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTicks: Float) {
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val px = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val py = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val pz = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()
@@ -322,7 +322,7 @@ class ParticleLightning protected constructor(
         right.normalize()
 
         if (this.particleType == 0) {
-            val cosPitch = Mth.cos(camera.getXRot() * Mth.DEG_TO_RAD)
+            val cosPitch = Mth.cos(camera.xRot * Mth.DEG_TO_RAD)
 
             for (i in this.numStem - 1 downTo 0) {
                 val offx = (this.random.nextFloat() - 0.5f) * 0.1f * (i + 1)

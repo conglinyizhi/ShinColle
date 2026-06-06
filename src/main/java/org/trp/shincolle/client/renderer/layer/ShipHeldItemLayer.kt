@@ -21,7 +21,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 class ShipHeldItemLayer<T : EntityShipBase, M : EntityModel<T>>(renderer: RenderLayerParent<T, M>) :
     RenderLayer<T, M>(renderer) {
     private val shipModel: ShipModelBaseAdv<T>
-        get() = this.getParentModel() as ShipModelBaseAdv<T>
+        get() = this.parentModel as ShipModelBaseAdv<T>
     override fun render(
         poseStack: PoseStack, bufferSource: MultiBufferSource, packedLight: Int, entity: T?,
         limbSwing: Float, limbSwingAmount: Float, partialTick: Float, ageInTicks: Float,
@@ -54,7 +54,7 @@ class ShipHeldItemLayer<T : EntityShipBase, M : EntityModel<T>>(renderer: Render
         if (stack.isEmpty()) {
             return
         }
-        if (this.getParentModel() !is ShipModelBaseAdv<*>) {
+        if (this.parentModel !is ShipModelBaseAdv<*>) {
             return
         }
 
@@ -70,7 +70,7 @@ class ShipHeldItemLayer<T : EntityShipBase, M : EntityModel<T>>(renderer: Render
             poseStack.translate(0.0f, poseTranslateY, 0.0f)
         }
 
-        val isBlock = stack.getItem() is BlockItem
+        val isBlock = stack.item is BlockItem
         val offset: FloatArray? = shipModel.getHeldItemOffset(entity, side, isBlock)
         val rotate: FloatArray? = shipModel.getHeldItemRotate(entity, side, isBlock)
         val modelScale: Float = shipModel.getScale(entity)
@@ -105,7 +105,7 @@ class ShipHeldItemLayer<T : EntityShipBase, M : EntityModel<T>>(renderer: Render
             poseStack.scale(itemScale, itemScale, itemScale)
         }
 
-        Minecraft.getInstance().getItemRenderer().renderStatic(
+        Minecraft.getInstance().itemRenderer.renderStatic(
             entity,
             stack,
             displayContext,
@@ -115,7 +115,7 @@ class ShipHeldItemLayer<T : EntityShipBase, M : EntityModel<T>>(renderer: Render
             entity.level(),
             packedLight,
             OverlayTexture.NO_OVERLAY,
-            entity.getId()
+            entity.id
         )
 
         poseStack.popPose()

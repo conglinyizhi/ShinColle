@@ -23,28 +23,28 @@ object MountCameraHandler {
         val player: Player? = mc.player
         if (player == null) return
 
-        if (player.getVehicle() is EntityMountBase) {
-            val mount = player.getVehicle() as EntityMountBase
+        if (player.vehicle is EntityMountBase) {
+            val mount = player.vehicle as EntityMountBase
             val host: Entity? = mount.host
             if (host != null) {
-                if (mc.getCameraEntity() !== host) {
+                if (mc.cameraEntity !== host) {
                     mc.setCameraEntity(host)
                     isCameraHijacked = true
                 }
 
                 if (host is LivingEntity) {
-                    host.setXRot(player.getXRot())
-                    host.setYRot(player.getYRot())
+                    host.xRot = player.xRot
+                    host.yRot = player.yRot
                     host.xRotO = player.xRotO
                     host.yRotO = player.yRotO
-                    host.yHeadRot = player.getYHeadRot()
+                    host.yHeadRot = player.yHeadRot
                     host.yHeadRotO = player.yHeadRotO
                     host.yBodyRot = player.yBodyRot
                     host.yBodyRotO = player.yBodyRotO
                 }
             }
         } else if (isCameraHijacked) {
-            if (mc.getCameraEntity() !== player) {
+            if (mc.cameraEntity !== player) {
                 mc.setCameraEntity(player)
             }
             isCameraHijacked = false
@@ -54,11 +54,11 @@ object MountCameraHandler {
     @JvmStatic
     @SubscribeEvent
     fun onRenderPlayerPre(event: RenderPlayerEvent.Pre) {
-        if (isCameraHijacked && event.getEntity() === Minecraft.getInstance().player) {
-            if (Minecraft.getInstance().options.getCameraType().isFirstPerson()) {
+        if (isCameraHijacked && event.entity === Minecraft.getInstance().player) {
+            if (Minecraft.getInstance().options.cameraType.isFirstPerson()) {
                 return
             }
-            event.setCanceled(true)
+            event.isCanceled = true
         }
     }
 }
