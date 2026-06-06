@@ -15,3 +15,8 @@
 
 - `ModernKit` 满改无效果时应给玩家明确反馈，默认使用轻提示。
 - 相关配置项为 `modernKitNotifyWhenMaxed` 和 `modernKitNotifyWhenMaxedActionBar`，位于 `common` 配置的 `ship_interaction` 分组。
+
+## API 文档约定
+
+- `org.trp.shincolle.api` 包下的公共接口（如 `IShipEquip`、`ShipEquipSpecialEffect`）属于第三方扩展 API，变更时必须同步更新 `docs/THIRD_PARTY_EQUIP.md`。
+- 新增回调、修改方法签名、删除接口均视为破坏性变更，需在文档中标注版本历史。

@@ -205,6 +205,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             damage = 2.0f
         }
         val serverLevel = this.ship.level() as ServerLevel
+        notifyEquipOnLightAttack(target)
         target.hurt(this.ship.damageSources().mobAttack(this.ship), damage)
         this.ship.spawnLightAttackTargetParticles(serverLevel, target)
         this.ship.spawnLightAttackMuzzleParticles(serverLevel, target)
@@ -245,6 +246,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         val serverLevel = this.ship.level() as ServerLevel
 
         val missile = createHeavyMissile(serverLevel, target, missileDamage)
+        notifyEquipOnHeavyAttack(target, missile)
         serverLevel.addFreshEntity(missile)
         this.ship.playSound(
             ModSounds.SHIP_FIREHEAVY.get(), max(0.0f, Config.volumeAttack),
@@ -351,6 +353,38 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 effectTag.getInt(TAG_POTION_TIME),
                 effectTag.getInt(TAG_POTION_CHANCE)
             )
+        }
+    }
+
+    /**
+     * 通知所有已注册的第三方装备：舰娘执行了轻攻击。
+     */
+    private fun notifyEquipOnLightAttack(target: Entity?) {
+        val inv = this.ship.inventory ?: return
+        for (i in 0..<inv.slots) {
+            val stack = inv.getStackInSlot(i)
+            if (stack.isEmpty()) continue
+            val item = stack.item
+            if (item is IShipEquip) {
+                val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
+                effect?.onLightAttack(this.ship, stack, target)
+            }
+        }
+    }
+
+    /**
+     * 通知所有已注册的第三方装备：舰娘执行了重攻击（导弹已创建）。
+     */
+    private fun notifyEquipOnHeavyAttack(target: Entity?, missile: EntityAbyssMissile) {
+        val inv = this.ship.inventory ?: return
+        for (i in 0..<inv.slots) {
+            val stack = inv.getStackInSlot(i)
+            if (stack.isEmpty()) continue
+            val item = stack.item
+            if (item is IShipEquip) {
+                val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
+                effect?.onHeavyAttack(this.ship, stack, target, missile)
+            }
         }
     }
 

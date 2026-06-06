@@ -1,5 +1,6 @@
 package org.trp.shincolle.api.equip
 
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile
@@ -42,6 +43,30 @@ interface ShipEquipSpecialEffect {
      * 创建重攻击导弹时调用，允许修改导弹参数或附加效果。
      */
     fun applyToMissile(ship: EntityShipBase, missile: EntityAbyssMissile, stack: ItemStack) {}
+
+    /**
+     * 舰娘执行轻攻击时调用。
+     *
+     * 可在此回调中消耗装备耐久、触发额外效果等。
+     *
+     * @param target 被攻击目标，可能为 null
+     * @return 若返回 `true`，表示该装备已"处理"此次攻击（可用于拦截或替代默认行为）
+     */
+    fun onLightAttack(ship: EntityShipBase, stack: ItemStack, target: Entity?): Boolean = false
+
+    /**
+     * 舰娘执行重攻击（发射导弹）时调用。
+     *
+     * @param target 被攻击目标，可能为 null
+     * @param missile 已创建但尚未加入世界的导弹实体
+     * @return 若返回 `true`，表示该装备已"处理"此次攻击
+     */
+    fun onHeavyAttack(
+        ship: EntityShipBase,
+        stack: ItemStack,
+        target: Entity?,
+        missile: EntityAbyssMissile?
+    ): Boolean = false
 
     /**
      * 每 tick 调用（如果装备在装备槽中且舰娘存活）。
