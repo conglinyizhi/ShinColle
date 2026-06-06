@@ -20,6 +20,12 @@ Related upstream references:
 - Update history: [updates.MD](https://github.com/reiwa/Shincolle-1.21.1/blob/main/updates.MD)
 - Upstream jar archive: [Shincolle-1.12.2-1.21.1alpha](https://github.com/reiwa/Shincolle-1.12.2-1.21.1alpha)
 
+## Dependencies
+
+- **NeoForge** `21.1.x` or later
+- **Kotlin for Forge** (NeoForge edition) `5.10.0` or later  
+  ⚠️ Make sure to install the **NeoForge** edition of Kotlin for Forge, not the legacy Forge edition.
+
 ## Font Driver
 
 This project uses the free commercial-license [MiSans](https://hyperos.mi.com/font) as its font driver for legacy deep-sea log books (the desk book and the held-item book when Patchouli is not installed).

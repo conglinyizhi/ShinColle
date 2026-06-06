@@ -23,6 +23,12 @@
 - 更新记录：[updates.MD](https://github.com/reiwa/Shincolle-1.21.1/blob/main/updates.MD)
 - 上游 jar 归档：[Shincolle-1.12.2-1.21.1alpha](https://github.com/reiwa/Shincolle-1.12.2-1.21.1alpha)
 
+## 依赖
+
+- **NeoForge** `21.1.x` 或更高版本
+- **Kotlin for Forge**（NeoForge 版）`5.10.0` 或更高版本  
+  ⚠️ 请务必安装 **NeoForge 版** Kotlin for Forge，而非旧版 Forge 专用版本。
+
 ## 字体驱动
 
 本项目使用免费商用许可的 [MiSans](https://hyperos.mi.com/font) 作为字体驱动，用于旧版本深海日志的渲染（即办公桌内嵌的书籍与玩家手持物品在无帕秋莉手册时的显示）。
