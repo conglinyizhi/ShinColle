@@ -48,9 +48,10 @@ class EntityDestroyerI(type: EntityType<out TamableAnimal>, level: Level) : Enti
 
     private fun applyBuffToOwner() {
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+            val owner = this.ownerPlayer
+            if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 45
-                this.ownerPlayer.addEffect(
+                owner.addEffect(
                     MobEffectInstance(
                         MobEffects.MOVEMENT_SPEED,
                         80 + this.getStateMinor(0), amp, false, false

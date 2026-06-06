@@ -54,17 +54,18 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         if (carrier != null) {
             damage = max(
                 SummonAiNumbers.DAMAGE_MIN,
-                carrier.legacyShipStats.getFirepower() * SummonAiNumbers.ATTACK_DAMAGE_CARRIER_FACTOR
+                carrier.legacyShipStats.firepower * SummonAiNumbers.ATTACK_DAMAGE_CARRIER_FACTOR
             )
         }
 
         target.hurt(this.damageSources().mobAttack(this), damage)
 
+        val serverLevel = this.level() as ServerLevel
         serverLevel.sendParticles<SimpleParticleType?>(
             ParticleTypes.CRIT,
-            target.getX(),
-            target.getY() + target.getBbHeight() * 0.5,
-            target.getZ(),
+            target.x,
+            target.y + target.bbHeight * 0.5,
+            target.z,
             SummonAiNumbers.CRIT_PARTICLE_COUNT,
             SummonAiNumbers.CRIT_PARTICLE_OFFSET,
             SummonAiNumbers.CRIT_PARTICLE_OFFSET,
@@ -87,7 +88,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         this.missionTick = 0
         this.resourcesReturned = false
         resetReturnState()
-        this.setScaleLevel(scaleLevel)
+        this.scaleLevel = scaleLevel
 
         val offsetX =
             (this.random.nextDouble() * SummonAiNumbers.INIT_SUMMON_OFFSET_RANGE - SummonAiNumbers.INIT_SUMMON_OFFSET_CENTER)
@@ -99,17 +100,17 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         this.setTame(true, false)
 
         val maxHealth = SummonAiNumbers.HEALTH_BASE + carrier.legacyShipStats
-            .getMaxHealth() * SummonAiNumbers.HEALTH_SCALE_FACTOR
+            .maxHealth * SummonAiNumbers.HEALTH_SCALE_FACTOR
         this.getAttribute(Attributes.MAX_HEALTH)!!.setBaseValue(maxHealth.toDouble())
         this.setHealth(maxHealth)
 
         val speed = SummonAiNumbers.SPEED_BASE + carrier.legacyShipStats
-            .getMoveSpeed() * SummonAiNumbers.SPEED_SCALE_FACTOR
+            .moveSpeed * SummonAiNumbers.SPEED_SCALE_FACTOR
         this.getAttribute(Attributes.MOVEMENT_SPEED)!!.setBaseValue(speed.toDouble())
 
         val damage = max(
             SummonAiNumbers.DAMAGE_MIN,
-            carrier.legacyShipStats.getFirepower() * SummonAiNumbers.DAMAGE_SCALE_FACTOR
+            carrier.legacyShipStats.firepower * SummonAiNumbers.DAMAGE_SCALE_FACTOR
         )
         this.getAttribute(Attributes.ATTACK_DAMAGE)!!.setBaseValue(damage.toDouble())
         this.getAttribute(Attributes.FOLLOW_RANGE)!!.setBaseValue(SummonAiNumbers.FOLLOW_RANGE_ATTR)
@@ -262,8 +263,8 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
         this.returnTicks = 0
     }
 
-    override fun brainProvider(): Brain.Provider<EntitySummonBase?> {
-        return Brain.provider<EntitySummonBase?>(EntitySummonBrainAi.MEMORY_TYPES, EntitySummonBrainAi.SENSOR_TYPES)
+    override fun brainProvider(): Brain.Provider<EntitySummonBase> {
+        return Brain.provider(EntitySummonBrainAi.MEMORY_TYPES, EntitySummonBrainAi.SENSOR_TYPES)
     }
 
     override fun makeBrain(dynamic: Dynamic<*>): Brain<*> {
@@ -310,6 +311,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             if (this.carrierId == null || this.level() !is ServerLevel) {
                 return null
             }
+            val serverLevel = this.level() as ServerLevel
             val entity: Entity? = serverLevel.getEntity(this.carrierId)
             if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) {
                 return entity
@@ -322,6 +324,7 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             if (this.targetId == null || this.level() !is ServerLevel) {
                 return null
             }
+            val serverLevel = this.level() as ServerLevel
             val entity: Entity? = serverLevel.getEntity(this.targetId)
             if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null

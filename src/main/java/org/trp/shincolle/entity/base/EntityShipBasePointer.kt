@@ -90,11 +90,11 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         val ownerRaw = this.ship.getOwner()
         if (ownerRaw is Player) {
             var refPos = this.ship.position()
-            val teamId = this.ship.getFormationTeam()
-            if (teamId >= 0 && this.ship.getFormationSlot() > 0) {
+            val teamId = this.ship.formationTeam
+            if (teamId >= 0 && this.ship.formationSlot > 0) {
                 for (e in this.ship.level().getEntities(this.ship, this.ship.getBoundingBox().inflate(64.0))) {
                     if (e is EntityShipBase && e.isOwnedBy(ownerRaw)
-                        && e.getFormationTeam() == teamId && e.getFormationSlot() == 0
+                        && e.formationTeam == teamId && e.formationSlot == 0
                     ) {
                         refPos = e.position()
                         break
@@ -124,8 +124,8 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         }
         if (this.pointerTarget == null) return null
 
-        val teamId = this.ship.getFormationTeam()
-        val slotId = this.ship.getFormationSlot()
+        val teamId = this.ship.formationTeam
+        val slotId = this.ship.formationSlot
 
         if (teamId >= 0 && slotId > 0) {
             val ownerRaw = this.ship.getOwner()
@@ -136,7 +136,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
                 var refPos = this.ship.position()
                 for (e in this.ship.level().getEntities(this.ship, this.ship.getBoundingBox().inflate(64.0))) {
                     if (e is EntityShipBase && e.isOwnedBy(ownerRaw)
-                        && e.getFormationTeam() == teamId && e.getFormationSlot() == 0
+                        && e.formationTeam == teamId && e.formationSlot == 0
                     ) {
                         refPos = e.position()
                         break
@@ -190,7 +190,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         this.pointerTargetEntityId = target.getUUID()
         this.pointerTargetEntityUntil = this.ship.level().getGameTime() + max(0L, durationTicks)
 
-        this.ship.getCombat().resetAircraftLaunchDelay()
+        this.ship.combat.resetAircraftLaunchDelay()
         updateSynchedData()
     }
 
@@ -210,6 +210,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
                 return null
             }
             if (this.ship.level() is ServerLevel) {
+                val serverLevel = this.ship.level() as ServerLevel
                 val entity: Entity? = serverLevel.getEntity(this.pointerTargetEntityId)
                 if (entity == null || !entity.isAlive || entity.isRemoved) {
                     return null
@@ -217,8 +218,9 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
                 return entity
             }
             if (this.ship.level().isClientSide && this.ship.level() is ClientLevel) {
+                val clientLevel = this.ship.level() as ClientLevel
                 for (e in clientLevel.entitiesForRendering()) {
-                    if (e.getUUID() == this.pointerTargetEntityId && e.isAlive && !e.isRemoved) {
+                    if (e.uuid == this.pointerTargetEntityId && e.isAlive && !e.isRemoved) {
                         return e
                     }
                 }
@@ -258,13 +260,13 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             tag.putUUID("PEId", this.pointerTargetEntityId)
             tag.putLong("PEUntil", this.pointerTargetEntityUntil)
         }
-        this.ship.getEntityData().set<CompoundTag?>(EntityShipBase.Companion.POINTER_TARGET_DATA, tag)
+        this.ship.entityData.set(EntityShipBase.Companion.POINTER_TARGET_DATA, tag)
     }
 
     private fun readSynchedData() {
         if (!this.ship.level().isClientSide) return
 
-        val tag = this.ship.getEntityData().get<CompoundTag>(EntityShipBase.Companion.POINTER_TARGET_DATA)
+        val tag = this.ship.entityData.get(EntityShipBase.Companion.POINTER_TARGET_DATA) ?: return
         if (tag.isEmpty()) {
             this.pointerTarget = null
             this.pointerTargetUntil = 0L

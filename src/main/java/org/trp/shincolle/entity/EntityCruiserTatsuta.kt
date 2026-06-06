@@ -32,8 +32,9 @@ class EntityCruiserTatsuta(type: EntityType<out TamableAnimal>, level: Level) : 
 
     private fun updateServerLogic() {
         if (!this.level().isDay() && this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
-                this.ownerPlayer.addEffect(
+            val owner = this.ownerPlayer
+            if (owner != null && this.distanceToSqr(owner) < 256.0) {
+                owner.addEffect(
                     MobEffectInstance(
                         MobEffects.NIGHT_VISION,
                         Config.SHIP_BUFF_DURATION.get(),
