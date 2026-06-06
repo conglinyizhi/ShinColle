@@ -49,13 +49,13 @@ class Particle91Type protected constructor(level: ClientLevel, x: Double, y: Dou
     }
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTicks: Float) {
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val f11 = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val f12 = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val f13 = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()
 
-        val yawRad = camera.getYRot() * Mth.DEG_TO_RAD
-        val pitchRad = camera.getXRot() * Mth.DEG_TO_RAD
+        val yawRad = camera.yRot * Mth.DEG_TO_RAD
+        val pitchRad = camera.xRot * Mth.DEG_TO_RAD
         val cosYaw = Mth.cos(yawRad)
         val sinYaw = Mth.sin(yawRad)
         val cosPitch = Mth.cos(pitchRad)

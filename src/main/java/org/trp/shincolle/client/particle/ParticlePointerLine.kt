@@ -108,7 +108,7 @@ class ParticlePointerLine protected constructor(
             return
         }
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val hx = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val hy = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val hz = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()

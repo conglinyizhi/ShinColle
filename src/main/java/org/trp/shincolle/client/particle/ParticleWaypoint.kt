@@ -45,12 +45,12 @@ class ParticleWaypoint protected constructor(
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTick: Float) {
         val sprite = this.sprite
-        val u0 = sprite.getU0()
-        val u1 = sprite.getU1()
-        val v0 = Mth.lerp(0.5f, sprite.getV0(), sprite.getV1())
-        val v1 = sprite.getV1()
+        val u0 = sprite.u0
+        val u1 = sprite.u1
+        val v0 = Mth.lerp(0.5f, sprite.v0, sprite.v1)
+        val v1 = sprite.v1
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val bx = (Mth.lerp(partialTick.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val by: Float = (Mth.lerp(partialTick.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat() + BASE_Y_OFFSET
         val bz = (Mth.lerp(partialTick.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()

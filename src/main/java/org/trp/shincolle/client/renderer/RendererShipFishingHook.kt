@@ -42,13 +42,13 @@ class RendererShipFishingHook(context: EntityRendererProvider.Context) :
 
         val host = entity.getHost()
         if (host != null) {
-            val hostX = Mth.lerp(partialTicks.toDouble(), host.xo, host.getX())
-            val hostY = Mth.lerp(partialTicks.toDouble(), host.yo, host.getY())
-            val hostZ = Mth.lerp(partialTicks.toDouble(), host.zo, host.getZ())
+            val hostX = Mth.lerp(partialTicks.toDouble(), host.xo, host.x)
+            val hostY = Mth.lerp(partialTicks.toDouble(), host.yo, host.y)
+            val hostZ = Mth.lerp(partialTicks.toDouble(), host.zo, host.z)
 
-            val hookBaseX = Mth.lerp(partialTicks.toDouble(), entity.xo, entity.getX())
-            val hookBaseY = Mth.lerp(partialTicks.toDouble(), entity.yo, entity.getY())
-            val hookBaseZ = Mth.lerp(partialTicks.toDouble(), entity.zo, entity.getZ())
+            val hookBaseX = Mth.lerp(partialTicks.toDouble(), entity.xo, entity.x)
+            val hookBaseY = Mth.lerp(partialTicks.toDouble(), entity.yo, entity.y)
+            val hookBaseZ = Mth.lerp(partialTicks.toDouble(), entity.zo, entity.z)
 
 
             val bodyRot = Mth.lerp(partialTicks, host.yBodyRotO, host.yBodyRot) * (Mth.PI / 180.0f)
@@ -56,19 +56,19 @@ class RendererShipFishingHook(context: EntityRendererProvider.Context) :
             val cos = Mth.cos(bodyRot).toDouble()
 
 
-            val sideOffset = (if (host.getMainArm() == HumanoidArm.RIGHT) 1.0 else -1.0) * 0.35
+            val sideOffset = (if (host.mainArm == HumanoidArm.RIGHT) 1.0 else -1.0) * 0.35
 
             val forwardOffset = 0.3
 
 
             val tipX = hostX - cos * sideOffset - sin * forwardOffset
 
-            var tipY = hostY + (host.getBbHeight() * 0.45)
+            var tipY = hostY + (host.bbHeight * 0.45)
             val tipZ = hostZ - sin * sideOffset + cos * forwardOffset
 
 
             if (host.isCrouching()) tipY -= 0.15
-            if (host.isInSittingPose) tipY -= host.getBbHeight() * 0.3
+            if (host.isInSittingPose) tipY -= host.bbHeight * 0.3
 
 
             val actualHookLocalY = bobbing + 0.25

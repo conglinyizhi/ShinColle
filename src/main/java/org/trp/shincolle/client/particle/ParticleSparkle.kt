@@ -80,7 +80,7 @@ class ParticleSparkle protected constructor(
     }
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTicks: Float) {
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val baseX = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val baseY = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val baseZ = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()
@@ -213,7 +213,7 @@ class ParticleSparkle protected constructor(
         if (Minecraft.getInstance().level !== level) {
             return 0
         }
-        return Minecraft.getInstance().options.particles().get().getId()
+        return Minecraft.getInstance().options.particles().get().id
     }
 
     class Provider(private val sprites: SpriteSet?) : ParticleProvider<SimpleParticleType> {

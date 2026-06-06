@@ -109,13 +109,13 @@ class ScrollPanel
 
         for (child in children) {
             if (!child.visible) continue
-            val childAbsY = child.getY()
+            val childAbsY = child.y
             val childBottom = childAbsY + child.getHeight()
 
             // Transform child position for scroll offset
-            child.setY(child.getY() - scrollOffset) // will be restored below
+            child.setY(child.y - scrollOffset) // will be restored below
             // Only render if visible in the scissor rect
-            if (child.getY() + child.getHeight() > getY() && child.getY() < getY() + height) {
+            if (child.y + child.getHeight() > getY() && child.y < getY() + height) {
                 child.render(graphics, mouseX, mouseY, partialTick)
             }
             child.setY(childAbsY) // restore
@@ -162,7 +162,7 @@ class ScrollPanel
         // Try children (reverse order for topmost priority)
         for (i in children.indices.reversed()) {
             val child = children.get(i)
-            val origY = child.getY()
+            val origY = child.y
             child.setY(origY - scrollOffset)
             val handled = child.mouseClicked(mouseX, mouseY, button)
             child.setY(origY)
@@ -178,7 +178,7 @@ class ScrollPanel
             return true
         }
         for (child in children) {
-            val origY = child.getY()
+            val origY = child.y
             child.setY(origY - scrollOffset)
             child.mouseReleased(mouseX, mouseY, button)
             child.setY(origY)

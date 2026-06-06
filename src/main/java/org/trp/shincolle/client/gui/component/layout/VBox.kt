@@ -39,7 +39,7 @@ class VBox
         nextY += child.getHeight() + spacing
 
         // Expand panel bounds
-        val bottomEdge = child.getY() + child.getHeight()
+        val bottomEdge = child.y + child.getHeight()
         if (bottomEdge > getY() + height) {
             this.height = bottomEdge - getY()
         }

@@ -20,14 +20,14 @@ object WaypointClientHelper {
         if (localPlayer == null) return
 
         val playerWatching =
-            isWatchingItem(localPlayer.getMainHandItem()) || isWatchingItem(localPlayer.getOffhandItem())
+            isWatchingItem(localPlayer.mainHandItem) || isWatchingItem(localPlayer.offhandItem)
         if (!playerWatching) return
 
         if ((tickCount and 7) == 0) {
             if (be.showBaseParticle()) {
                 level.addParticle(
                     ModParticles.PARTICLE_WAYPOINT.get(),
-                    pos.getX() + 0.5, pos.getY() - 0.25, pos.getZ() + 0.5,
+                    pos.x + 0.5, pos.y - 0.25, pos.z + 0.5,
                     0.2, 0.0, 0.0
                 )
             }
@@ -35,23 +35,23 @@ object WaypointClientHelper {
             if ((tickCount and 15) == 0) {
                 val next = be.nextPos
                 if (next != null && next != BlockPos.ZERO) {
-                    val dx = (next.getX() - pos.getX()) * 0.01
-                    val dy = (next.getY() - pos.getY()) * 0.01
-                    val dz = (next.getZ() - pos.getZ()) * 0.01
+                    val dx = (next.x - pos.x) * 0.01
+                    val dy = (next.y - pos.y) * 0.01
+                    val dz = (next.z - pos.z) * 0.01
                     level.addParticle(
                         ModParticles.PARTICLE_WAYPOINT_LINE.get(),
-                        pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                        pos.x + 0.5, pos.y + 0.5, pos.z + 0.5,
                         dx, dy, dz
                     )
                 }
                 val chest = be.chestPos
                 if (chest != null && chest != BlockPos.ZERO) {
-                    val dx = (chest.getX() - pos.getX()) * 0.01
-                    val dy = (chest.getY() - pos.getY()) * 0.01
-                    val dz = (chest.getZ() - pos.getZ()) * 0.01
+                    val dx = (chest.x - pos.x) * 0.01
+                    val dy = (chest.y - pos.y) * 0.01
+                    val dz = (chest.z - pos.z) * 0.01
                     level.addParticle(
                         ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get(),
-                        pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5,
+                        pos.x + 0.5, pos.y + 0.5, pos.z + 0.5,
                         dx, dy, dz
                     )
                 }
@@ -60,7 +60,7 @@ object WaypointClientHelper {
                     if (be.showBaseParticle()) {
                         level.addParticle(
                             ModParticles.PARTICLE_WAYPOINT.get(),
-                            pos.getX() + 0.5, pos.getY() - 0.25, pos.getZ() + 0.5,
+                            pos.x + 0.5, pos.y - 0.25, pos.z + 0.5,
                             0.2, 0.0, 0.0
                         )
                     }
@@ -100,9 +100,9 @@ object WaypointClientHelper {
 
     private fun isWatchingItem(stack: ItemStack): Boolean {
         if (stack.isEmpty()) return false
-        if (stack.getItem() is TargetWrenchItem) return true
-        if (stack.getItem() === ModItems.WAYPOINT.get()) return true
-        if (stack.getItem() === ModItems.CRANE.get()) return true
+        if (stack.item is TargetWrenchItem) return true
+        if (stack.item === ModItems.WAYPOINT.get()) return true
+        if (stack.item === ModItems.CRANE.get()) return true
         if (stack.item is PointerItem) {
             val mode: Int = (stack.item as PointerItem).getMode(stack)
             return mode < 3

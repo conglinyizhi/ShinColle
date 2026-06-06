@@ -131,13 +131,13 @@ class ParticleEmotion protected constructor(
             return
         }
         val sprite = this.sprite
-        val u0 = Mth.lerp(this.iconU, sprite.getU0(), sprite.getU1())
-        val u1 = Mth.lerp(this.iconU + ICON_SIZE, sprite.getU0(), sprite.getU1())
+        val u0 = Mth.lerp(this.iconU, sprite.u0, sprite.u1)
+        val u1 = Mth.lerp(this.iconU + ICON_SIZE, sprite.u0, sprite.u1)
         val frameV: Float = this.iconV + (this.frameIndex * ICON_SIZE)
-        val v0 = Mth.lerp(frameV, sprite.getV0(), sprite.getV1())
-        val v1 = Mth.lerp(frameV + (ICON_SIZE * this.frameSize), sprite.getV0(), sprite.getV1())
+        val v0 = Mth.lerp(frameV, sprite.v0, sprite.v1)
+        val v1 = Mth.lerp(frameV + (ICON_SIZE * this.frameSize), sprite.v0, sprite.v1)
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val px = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val py = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val pz = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()
@@ -195,9 +195,9 @@ class ParticleEmotion protected constructor(
             this.remove()
             return
         }
-        this.x = host.getX() + this.addX
-        this.y = host.getY() + this.addY
-        this.z = host.getZ() + this.addZ
+        this.x = host.x + this.addX
+        this.y = host.y + this.addY
+        this.z = host.z + this.addZ
     }
 
     private fun configureForType(type: Int) {
@@ -434,7 +434,7 @@ class ParticleEmotion protected constructor(
         val player: Player? = Minecraft.getInstance().player
         var angle = 0.0f
         if (player != null) {
-            angle = player.getYRot() * Math.PI.toFloat() / 180.0f
+            angle = player.yRot * Math.PI.toFloat() / 180.0f
         }
 
         var baseX = 0.0
@@ -497,7 +497,7 @@ class ParticleEmotion protected constructor(
                     angle
                 )
                 baseX += rotated[1]
-                baseY = baseY + this.random.nextDouble() * this.addHeight * 0.2 + this.addHeight * 1.8 + addY2
+                baseY += this.random.nextDouble() * this.addHeight * 0.2 + this.addHeight * 1.8 + addY2
                 baseZ += rotated[0]
             }
 
@@ -507,14 +507,14 @@ class ParticleEmotion protected constructor(
                     this.random.nextFloat() * 0.1f + 0.2f + addZ2.toFloat(), angle
                 )
                 baseX += rotated[1]
-                baseY = baseY + this.random.nextDouble() * this.addHeight * 0.2 + this.addHeight * 1.6 + addY2
+                baseY += this.random.nextDouble() * this.addHeight * 0.2 + this.addHeight * 1.6 + addY2
                 baseZ += rotated[0]
             }
 
             34 -> {
                 rotated = rotateXZ(0.15f, 0.0f, angle)
                 baseX += rotated[1]
-                baseY = baseY + this.random.nextDouble() * this.addHeight * 0.15 + this.addHeight * 1.9 + addY2
+                baseY += this.random.nextDouble() * this.addHeight * 0.15 + this.addHeight * 1.9 + addY2
                 baseZ += rotated[0]
             }
 
@@ -524,7 +524,7 @@ class ParticleEmotion protected constructor(
                     angle
                 )
                 baseX += rotated[1]
-                baseY = baseY + this.random.nextDouble() * this.addHeight * 0.5 + this.addHeight * 1.5 + addY2
+                baseY += this.random.nextDouble() * this.addHeight * 0.5 + this.addHeight * 1.5 + addY2
                 baseZ += rotated[0]
             }
         }

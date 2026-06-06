@@ -51,20 +51,20 @@ class ParticleTeam protected constructor(
             this.x = Mth.lerp(FOLLOW_SMOOTH_FACTOR.toDouble(), this.x, pos.x)
             this.y = Mth.lerp(FOLLOW_SMOOTH_FACTOR.toDouble(), this.y, pos.y)
             this.z = Mth.lerp(FOLLOW_SMOOTH_FACTOR.toDouble(), this.z, pos.z)
-            this.markerHeight = if (followEntity.getBbHeight() > 0.0f) followEntity.getBbHeight() else DEFAULT_HEIGHT
+            this.markerHeight = if (followEntity.bbHeight > 0.0f) followEntity.bbHeight else DEFAULT_HEIGHT
         }
         this.setSpriteFromAge(this.sprites)
     }
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTicks: Float) {
         val sprite = this.sprite
-        val u0 = sprite.getU0()
-        val u1 = sprite.getU1()
-        val v0 = sprite.getV0()
-        val v1 = sprite.getV1()
+        val u0 = sprite.u0
+        val u1 = sprite.u1
+        val v0 = sprite.v0
+        val v1 = sprite.v1
         val vMid = Mth.lerp(0.5f, v0, v1)
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val x = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val y = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val z = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()

@@ -61,15 +61,15 @@ class ParticleTexts protected constructor(
 
     override fun render(buffer: VertexConsumer, camera: Camera, partialTicks: Float) {
         val sprite = this.sprite
-        val u0 = sprite.getU0()
-        val u1 = sprite.getU1()
+        val u0 = sprite.u0
+        val u1 = sprite.u1
 
         val rowMin: Float = this.textType * TYPE_ROW_HEIGHT
         val rowMax: Float = rowMin + TYPE_ROW_HEIGHT
-        val v0 = Mth.lerp(rowMin, sprite.getV0(), sprite.getV1())
-        val v1 = Mth.lerp(rowMax, sprite.getV0(), sprite.getV1())
+        val v0 = Mth.lerp(rowMin, sprite.v0, sprite.v1)
+        val v1 = Mth.lerp(rowMax, sprite.v0, sprite.v1)
 
-        val cameraPos = camera.getPosition()
+        val cameraPos = camera.position
         val px = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - cameraPos.x()).toFloat()
         val py = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - cameraPos.y()).toFloat()
         val pz = (Mth.lerp(partialTicks.toDouble(), this.zo, this.z) - cameraPos.z()).toFloat()

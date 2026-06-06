@@ -81,16 +81,16 @@ class ShipPreview
             pose.mulPose(q1)
             val byo = entity.yBodyRotO
             val by = entity.yBodyRot
-            val yr = entity.getYRot()
-            val xr = entity.getXRot()
+            val yr = entity.yRot
+            val xr = entity.xRot
             val yho = entity.yHeadRotO
             val yh = entity.yHeadRot
             entity.yBodyRotO = 180f + f * 20f
             entity.yBodyRot = 180f + f * 20f
-            entity.setYRot(180f + f * 40f)
-            entity.yHeadRotO = entity.getYRot()
-            entity.yHeadRot = entity.getYRot()
-            entity.setXRot(-f1 * 20f)
+            entity.yRot = 180f + f * 40f
+            entity.yHeadRotO = entity.yRot
+            entity.yHeadRot = entity.yRot
+            entity.xRot = -f1 * 20f
             val d = Minecraft.getInstance().getEntityRenderDispatcher()
             q2.conjugate()
             d.overrideCameraOrientation(q2)
@@ -107,24 +107,24 @@ class ShipPreview
                     if (pass is LivingEntity) {
                         pbyo = pass.yBodyRotO
                         pby = pass.yBodyRot
-                        pyr = pass.getYRot()
-                        pxr = pass.getXRot()
+                        pyr = pass.yRot
+                        pxr = pass.xRot
                         pyho = pass.yHeadRotO
                         pyh = pass.yHeadRot
                         pass.yBodyRotO = entity.yBodyRotO
                         pass.yBodyRot = entity.yBodyRot
-                        pass.setYRot(entity.getYRot())
+                        pass.yRot = entity.yRot
                         pass.yHeadRotO = entity.yHeadRotO
                         pass.yHeadRot = entity.yHeadRot
-                        pass.setXRot(entity.getXRot())
+                        pass.xRot = entity.xRot
                     }
                     pose.pushPose()
                     val rp = entity.getPassengerRidingPosition(pass)
                     val inv = 1.0 / scale
                     pose.translate(
-                        (rp.x - entity.getX()) * inv,
-                        (rp.y - entity.getY()) * inv + 0.09,
-                        (rp.z - entity.getZ()) * inv
+                        (rp.x - entity.x) * inv,
+                        (rp.y - entity.y) * inv + 0.09,
+                        (rp.z - entity.z) * inv
                     )
                     pose.translate(0.0, 0.0, 0.2)
                     d.render<Entity?>(pass, 0.0, 0.0, 0.0, 0f, 1f, pose, g.bufferSource(), 15728880)
@@ -132,8 +132,8 @@ class ShipPreview
                     if (pass is LivingEntity) {
                         pass.yBodyRotO = pbyo
                         pass.yBodyRot = pby
-                        pass.setYRot(pyr)
-                        pass.setXRot(pxr)
+                        pass.yRot = pyr
+                        pass.xRot = pxr
                         pass.yHeadRotO = pyho
                         pass.yHeadRot = pyh
                     }
@@ -143,8 +143,8 @@ class ShipPreview
             d.setRenderShadow(true)
             entity.yBodyRotO = byo
             entity.yBodyRot = by
-            entity.setYRot(yr)
-            entity.setXRot(xr)
+            entity.yRot = yr
+            entity.xRot = xr
             entity.yHeadRotO = yho
             entity.yHeadRot = yh
             pose.popPose()

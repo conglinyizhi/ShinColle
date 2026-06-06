@@ -29,7 +29,7 @@ class RenderSmallShipyard(context: BlockEntityRendererProvider.Context) :
         packedLight: Int,
         packedOverlay: Int
     ) {
-        val state = blockEntity.getBlockState()
+        val state = blockEntity.blockState
         val facing = if (state.hasProperty<Direction?>(SmallShipyardBlock.FACING))
             state.getValue<Direction>(SmallShipyardBlock.FACING)
         else

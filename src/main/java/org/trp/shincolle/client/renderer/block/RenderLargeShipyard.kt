@@ -38,7 +38,7 @@ class RenderLargeShipyard(context: BlockEntityRendererProvider.Context) :
         packedLight: Int,
         packedOverlay: Int
     ) {
-        val state = blockEntity.getBlockState()
+        val state = blockEntity.blockState
         val isActive =
             state.hasProperty<Boolean?>(LargeShipyardBlock.ACTIVE) && state.getValue<Boolean?>(LargeShipyardBlock.ACTIVE)
 
@@ -46,10 +46,10 @@ class RenderLargeShipyard(context: BlockEntityRendererProvider.Context) :
         var pitch = 90.0f
         val player = Minecraft.getInstance().player
         if (player != null) {
-            val pos = blockEntity.getBlockPos()
-            val distX = pos.getX() + 0.5 - player.getX()
-            val distY = pos.getY() - 0.75 - player.getY()
-            val distZ = pos.getZ() + 0.5 - player.getZ()
+            val pos = blockEntity.blockPos
+            val distX = pos.x + 0.5 - player.x
+            val distY = pos.y - 0.75 - player.y
+            val distZ = pos.z + 0.5 - player.z
             val horizontalDistance = sqrt(distX * distX + distZ * distZ).toFloat()
 
             val currentYawDeg = atan2(distX, distZ).toFloat() * Mth.RAD_TO_DEG
