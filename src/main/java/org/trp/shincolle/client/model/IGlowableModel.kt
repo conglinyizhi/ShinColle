@@ -5,8 +5,8 @@ import com.mojang.blaze3d.vertex.VertexConsumer
 
 interface IGlowableModel {
     fun renderGlow(
-        poseStack: PoseStack?,
-        vertexConsumer: VertexConsumer?,
+        poseStack: PoseStack,
+        vertexConsumer: VertexConsumer,
         packedLight: Int,
         packedOverlay: Int,
         color: Int

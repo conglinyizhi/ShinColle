@@ -15,8 +15,8 @@ import net.minecraft.util.Mth
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelHeavyCruiserNe<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
-    private var poseTranslateY = 0f
+class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
+    override val poseTranslateY = 0f
     private val headDefaultY: Float
     private val glowHeadDefaultY: Float
     private val armLeft01DefaultZ: Float

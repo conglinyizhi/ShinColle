@@ -15,7 +15,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import org.trp.shincolle.Shincolle
 
-class ModelTakoyaki<T : Entity?>(root: ModelPart) : EntityModel<T?>(), IGlowableModel {
+class ModelTakoyaki<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableModel {
     private val BodyMain: ModelPart
     private val JawMain: ModelPart
     private val EyeL: ModelPart

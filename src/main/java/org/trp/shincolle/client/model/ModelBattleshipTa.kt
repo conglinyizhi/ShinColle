@@ -20,10 +20,10 @@ import org.trp.shincolle.entity.EntityBattleshipTa
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelBattleshipTa<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
+class ModelBattleshipTa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
     private var isSittingPose = false
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val NeckCloth: ModelPart

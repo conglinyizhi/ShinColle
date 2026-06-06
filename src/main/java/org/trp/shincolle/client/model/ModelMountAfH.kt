@@ -16,7 +16,7 @@ import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityMountBase
 import kotlin.math.cos
 
-class ModelMountAfH<T : Entity?>(root: ModelPart) : EntityModel<T?>(), IGlowableModel {
+class ModelMountAfH<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableModel {
     private val BodyMain: ModelPart
     private val ChestCannon01a: ModelPart
     private val ChestCannon02a: ModelPart

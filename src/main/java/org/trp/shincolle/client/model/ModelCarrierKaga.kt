@@ -21,10 +21,10 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import kotlin.math.max
 import kotlin.math.min
 
-class ModelCarrierKaga<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
+class ModelCarrierKaga<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
     private var isSittingPose = false
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val BoobR: ModelPart

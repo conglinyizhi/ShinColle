@@ -21,10 +21,10 @@ import org.trp.shincolle.entity.EntityCruiserTenryuu
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCruiserTenryuu<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
+class ModelCruiserTenryuu<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isSittingPose = false
     private var isDeadPose = false
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart

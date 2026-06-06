@@ -19,9 +19,9 @@ import org.trp.shincolle.entity.EntityCarrierWDemon
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCarrierWDemon<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
+class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
     private var poseTranslateZ = 0f
     private var isSittingPose = false
 

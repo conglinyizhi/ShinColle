@@ -17,9 +17,9 @@ import org.trp.shincolle.client.model.LegacyPoseOffsets.deadY
 import org.trp.shincolle.client.model.LegacyPoseOffsets.sneakY
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCarrierWo<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
+class ModelCarrierWo<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
     private var isSittingPose = false
 
     private val BodyMain: ModelPart

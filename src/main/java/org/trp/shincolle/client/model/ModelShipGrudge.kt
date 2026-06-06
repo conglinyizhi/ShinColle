@@ -13,7 +13,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import org.trp.shincolle.Shincolle
 
-class ModelShipGrudge<T : Entity?>(root: ModelPart) : EntityModel<T?>() {
+class ModelShipGrudge<T : Entity>(root: ModelPart) : EntityModel<T>() {
     private val cube: ModelPart
 
     init {

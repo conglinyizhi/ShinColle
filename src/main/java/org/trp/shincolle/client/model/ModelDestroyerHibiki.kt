@@ -20,9 +20,9 @@ import org.trp.shincolle.entity.IShipRiderType
 import org.trp.shincolle.entity.base.EntityShipBase
 import kotlin.math.min
 
-class ModelDestroyerHibiki<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
+class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Butt: ModelPart

@@ -22,7 +22,7 @@ import org.trp.shincolle.entity.EntityDestroyerIkazuchi
 import org.trp.shincolle.entity.EntityDestroyerInazuma
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelDestroyerIkazuchi<T : EntityShipBase?>(root: ModelPart) : ShipModelHumanoidBase<T?>(), IGlowableModel {
+class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private val BodyMain: ModelPart
     private val ArmRight01: ModelPart
     private val ArmRight02: ModelPart
@@ -102,7 +102,7 @@ class ModelDestroyerIkazuchi<T : EntityShipBase?>(root: ModelPart) : ShipModelHu
     private val armRight02DefaultY: Float
     private val armRight02DefaultZ: Float
     private var isDeadPose = false
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
     private var isSittingPose = false
 
     init {

@@ -15,7 +15,7 @@ import net.minecraft.world.entity.Entity
 import org.trp.shincolle.Shincolle
 
 
-class ModelAbyssMissile<T : Entity?>(root: ModelPart) : EntityModel<T?>() {
+class ModelAbyssMissile<T : Entity>(root: ModelPart) : EntityModel<T>() {
     private val Body: ModelPart
     private val Head: ModelPart
     private val Tail: ModelPart

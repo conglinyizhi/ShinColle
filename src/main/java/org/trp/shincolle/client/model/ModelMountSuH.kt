@@ -16,7 +16,7 @@ import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityMountBase
 import kotlin.math.cos
 
-class ModelMountSuH<T : Entity?>(root: ModelPart) : EntityModel<T?>(), IGlowableModel {
+class ModelMountSuH<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableModel {
     private val BodyMain: ModelPart
     private val Neck: ModelPart
     private val Head01: ModelPart

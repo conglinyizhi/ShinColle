@@ -19,7 +19,7 @@ import org.trp.shincolle.client.model.LegacyPoseOffsets.sittingY
 import org.trp.shincolle.entity.EntityDestroyerRo
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelDestroyerRo<T : Entity?>(root: ModelPart) : EntityModel<T?>(), IGlowableModel {
+class ModelDestroyerRo<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableModel {
     private val Back: ModelPart
     private val NeckBack: ModelPart
     private val Body: ModelPart
@@ -57,7 +57,7 @@ class ModelDestroyerRo<T : Entity?>(root: ModelPart) : EntityModel<T?>(), IGlowa
     private val GlowBack: ModelPart
     private val GlowNeckBack: ModelPart
     private val GlowHead: ModelPart
-    private var poseTranslateY = 0f
+    override val poseTranslateY = 0f
 
     init {
         this.Back = root.getChild("Back")

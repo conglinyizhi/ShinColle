@@ -14,7 +14,7 @@ import org.trp.shincolle.block.entity.SmallShipyardBlockEntity
 import org.trp.shincolle.client.model.ModelSmallShipyard
 
 class RenderSmallShipyard(context: BlockEntityRendererProvider.Context) :
-    BlockEntityRenderer<SmallShipyardBlockEntity?> {
+    BlockEntityRenderer<SmallShipyardBlockEntity> {
     private val model: ModelSmallShipyard
 
     init {

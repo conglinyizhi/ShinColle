@@ -9,13 +9,14 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 
 class RendererTakoyaki<T : Mob>(context: EntityRendererProvider.Context) : RendererSimpleMob<T, ModelTakoyaki<T>>(
     context,
-    ModelTakoyaki<T>(context.bakeLayer(ModelTakoyaki.LAYER_LOCATION)),
+    ModelTakoyaki(context.bakeLayer(ModelTakoyaki.LAYER_LOCATION)),
     0.5f,
     0.34f,
     TEXTURE
 ) {
     init {
-        this.addLayer(GenericGlowLayer<T, ModelTakoyaki<T>>(this, TEXTURE))
+        @Suppress("UNCHECKED_CAST")
+        this.addLayer(GenericGlowLayer(this as net.minecraft.client.renderer.entity.RenderLayerParent<T, net.minecraft.client.model.EntityModel<T>>, TEXTURE))
     }
 
     companion object {

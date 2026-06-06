@@ -21,7 +21,7 @@ import kotlin.math.atan2
 import kotlin.math.sqrt
 
 class RenderLargeShipyard(context: BlockEntityRendererProvider.Context) :
-    BlockEntityRenderer<LargeShipyardBlockEntity?> {
+    BlockEntityRenderer<LargeShipyardBlockEntity> {
     private val modelBase: ModelLargeShipyard
     private val modelVortex: ModelVortex
 
@@ -62,9 +62,9 @@ class RenderLargeShipyard(context: BlockEntityRendererProvider.Context) :
 
             val interpFactor = 0.15f
             yaw =
-                blockEntity.getRenderYaw() + Mth.wrapDegrees(currentYawDeg - blockEntity.getRenderYaw()) * interpFactor
+                blockEntity.renderYaw + Mth.wrapDegrees(currentYawDeg - blockEntity.renderYaw) * interpFactor
             pitch =
-                blockEntity.getRenderPitch() + Mth.wrapDegrees(currentPitchDeg - blockEntity.getRenderPitch()) * interpFactor
+                blockEntity.renderPitch + Mth.wrapDegrees(currentPitchDeg - blockEntity.renderPitch) * interpFactor
             blockEntity.setRenderAngles(yaw, pitch)
         }
 

@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import org.trp.shincolle.Shincolle
 
-class ModelVortex(private val root: ModelPart) : EntityModel<Entity?>() {
+class ModelVortex(private val root: ModelPart) : EntityModel<Entity>() {
     override fun setupAnim(
         entity: Entity,
         limbSwing: Float,

@@ -17,7 +17,7 @@ import org.trp.shincolle.block.entity.DeskBlockEntity
 import org.trp.shincolle.client.model.ModelBlockDesk
 import org.trp.shincolle.client.model.ModelBlockDeskLarge
 
-class RenderDesk(context: BlockEntityRendererProvider.Context) : BlockEntityRenderer<DeskBlockEntity?> {
+class RenderDesk(context: BlockEntityRendererProvider.Context) : BlockEntityRenderer<DeskBlockEntity> {
     private val modelSingle: ModelBlockDesk
     private val modelDouble: ModelBlockDeskLarge
 

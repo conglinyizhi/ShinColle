@@ -14,7 +14,7 @@ import net.minecraft.resources.ResourceLocation
 import net.minecraft.world.entity.Entity
 import org.trp.shincolle.Shincolle
 
-class ModelAirplaneT<T : Entity?>(root: ModelPart) : EntityModel<T?>(), IGlowableModel {
+class ModelAirplaneT<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableModel {
     private val BodyMain: ModelPart
     private val Tail01: ModelPart
     private val Wing01: ModelPart

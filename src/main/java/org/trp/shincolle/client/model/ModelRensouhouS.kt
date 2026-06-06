@@ -15,7 +15,7 @@ import net.minecraft.util.Mth
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityShincolleSimpleMob
 
-class ModelRensouhouS<T : EntityShincolleSimpleMob?>(root: ModelPart) : EntityModel<T?>(), IGlowableModel {
+class ModelRensouhouS<T : EntityShincolleSimpleMob?>(root: ModelPart) : EntityModel<T>(), IGlowableModel {
     private val BodyMain: ModelPart
     private val HeadBase: ModelPart
     private val TailJaw1: ModelPart
