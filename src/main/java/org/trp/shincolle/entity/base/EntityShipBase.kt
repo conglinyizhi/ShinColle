@@ -163,8 +163,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         return this.idleMovement
     }
 
-    override fun brainProvider(): Brain.Provider<EntityShipBase?> {
-        return Brain.provider<EntityShipBase?>(EntityShipBrainAi.MEMORY_TYPES, EntityShipBrainAi.SENSOR_TYPES)
+    override fun brainProvider(): Brain.Provider<EntityShipBase> {
+        return Brain.provider<EntityShipBase>(EntityShipBrainAi.MEMORY_TYPES, EntityShipBrainAi.SENSOR_TYPES)
     }
 
     override fun makeBrain(dynamic: Dynamic<*>): Brain<*> {

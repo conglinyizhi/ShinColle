@@ -14,7 +14,7 @@ import org.trp.shincolle.init.ModItems
 
 class EntityDestroyerHibiki(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
     IShipRiderType {
-    private var riderType: Int
+    override var riderType: Int
 
     init {
         this.modelPos = floatArrayOf(0f, 25f, 0f, 50f)

@@ -6,8 +6,8 @@ internal class EntityShipBaseFaceExpressions(
 ) {
     fun setFaceNormal() {
         this.ship.faceId = EntityShipBase.Companion.FACE_EYES_OPEN
-        if (this.ship.getEmotionSecondary() == EntityShipBase.Companion.EMOTION_BORED
-            && (this.ship.tickCount and this.emotions.getNormalMouthTickMask()) > this.emotions.getNormalMouthTickThreshold()
+        if (this.ship.emotionSecondary == EntityShipBase.Companion.EMOTION_BORED
+            && (this.ship.tickCount and EntityShipBaseEmotions.normalMouthTickMask) > EntityShipBaseEmotions.normalMouthTickThreshold
         ) {
             this.ship.mouthId = this.ship.resolveMouthId(EntityShipBase.Companion.MOUTH_FLIP_0)
         } else {
@@ -16,7 +16,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceCry() {
-        val tick = this.ship.faceElapsed and this.emotions.getCryMask()
+        val tick = this.ship.faceElapsed and EntityShipBaseEmotions.cryMask
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(64, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FLIP_2),
             FaceStep(128, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FRONT_2),
@@ -26,7 +26,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceScornOrDamaged() {
-        if ((this.ship.tickCount and this.emotions.getScornToggleMask()) > this.emotions.getScornToggleThreshold()) {
+        if ((this.ship.tickCount and EntityShipBaseEmotions.scornToggleMask) > EntityShipBaseEmotions.scornToggleThreshold) {
             setFaceDamaged()
         } else {
             setFaceScorn()
@@ -39,7 +39,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceDamaged() {
-        val tick = this.ship.faceElapsed and this.emotions.getDamagedMask()
+        val tick = this.ship.faceElapsed and EntityShipBaseEmotions.damagedMask
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(60, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FLIP_2),
             FaceStep(200, EntityShipBase.Companion.FACE_DOT_EYES_TEAR, EntityShipBase.Companion.MOUTH_FRONT_2),
@@ -56,7 +56,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceAngry() {
-        val tick = this.ship.faceElapsed and this.emotions.getAngryMask()
+        val tick = this.ship.faceElapsed and EntityShipBaseEmotions.angryMask
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(64, EntityShipBase.Companion.FACE_EYES_CLOSED, EntityShipBase.Companion.MOUTH_FRONT_0),
             FaceStep(128, EntityShipBase.Companion.FACE_EYES_CLOSED, EntityShipBase.Companion.MOUTH_FRONT_1),
@@ -66,7 +66,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceBored() {
-        val tick = this.ship.faceElapsed and this.emotions.getBoredMask()
+        val tick = this.ship.faceElapsed and EntityShipBaseEmotions.boredMask
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(80, EntityShipBase.Companion.FACE_DOT_EYES, EntityShipBase.Companion.MOUTH_FRONT_0),
             FaceStep(170, EntityShipBase.Companion.FACE_DOT_EYES, EntityShipBase.Companion.MOUTH_FLIP_1),
@@ -76,7 +76,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceShy() {
-        val tick = this.ship.faceElapsed and this.emotions.getShyMask()
+        val tick = this.ship.faceElapsed and EntityShipBaseEmotions.shyMask
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(80, EntityShipBase.Companion.FACE_EYES_OPEN, EntityShipBase.Companion.MOUTH_FLIP_0),
             FaceStep(140, EntityShipBase.Companion.FACE_EYES_OPEN, EntityShipBase.Companion.MOUTH_FRONT_2)
@@ -85,7 +85,7 @@ internal class EntityShipBaseFaceExpressions(
     }
 
     fun setFaceHappy() {
-        val tick = this.ship.faceElapsed and this.emotions.getHappyMask()
+        val tick = this.ship.faceElapsed and EntityShipBaseEmotions.happyMask
         val steps: Array<FaceStep> = arrayOf<FaceStep>(
             FaceStep(80, EntityShipBase.Companion.FACE_TENSION, EntityShipBase.Companion.MOUTH_FRONT_0),
             FaceStep(140, EntityShipBase.Companion.FACE_TENSION, EntityShipBase.Companion.MOUTH_FLIP_1)

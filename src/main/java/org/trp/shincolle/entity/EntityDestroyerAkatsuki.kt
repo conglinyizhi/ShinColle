@@ -20,7 +20,7 @@ import kotlin.math.max
 
 class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
     IShipRiderType {
-    private var riderType: Int = RIDER_TYPE_NONE
+    override var riderType: Int = RIDER_TYPE_NONE
     private var akatsukiGattaiExpireTick = 0L
     private var akatsukiGattaiCooldownUntilTick = 0L
 

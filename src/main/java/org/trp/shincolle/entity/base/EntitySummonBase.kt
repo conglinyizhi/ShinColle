@@ -18,7 +18,7 @@ import org.trp.shincolle.init.ModSounds
 import java.util.*
 import kotlin.math.max
 
-abstract class EntitySummonBase protected constructor(type: EntityType<out TamableAnimal?>?, level: Level?) :
+abstract class EntitySummonBase protected constructor(type: EntityType<out TamableAnimal?>, level: Level) :
     EntityShincolleSimpleMob(type, level) {
     protected var carrierId: UUID? = null
     protected var targetId: UUID? = null

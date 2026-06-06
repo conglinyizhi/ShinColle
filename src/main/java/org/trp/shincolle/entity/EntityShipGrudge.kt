@@ -29,7 +29,7 @@ class EntityShipGrudge(type: EntityType<out EntityShipGrudge?>, level: Level) : 
         z: Double,
         stack: ItemStack,
         ownerId: UUID?
-    ) : this(ModEntities.SHIP_GRUDGE.get(), level) {
+    ) : this(ModEntities.SHIP_GRUDGE.get()!!, level) {
         this.setPos(x, y, z)
         this.storedItem = stack.copy()
         this.ownerId = ownerId

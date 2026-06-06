@@ -21,7 +21,7 @@ import kotlin.math.max
 
 class EntityDestroyerInazuma(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
     IShipRiderType {
-    private var riderType: Int
+    override var riderType: Int
     var isRaiden: Boolean
     private var raidenGattaiExpireTick: Long
     private var raidenGattaiCooldownUntilTick: Long
