@@ -23,7 +23,7 @@ import org.trp.shincolle.init.ModSounds
 import java.util.function.Predicate
 import kotlin.math.max
 
-class EntityBattleshipNagato(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     private val eventMovement: ShipMovementCoordinator
     private var loveEventMoveTarget: LivingEntity? = null
     private var loveEventMoveTicks = 0

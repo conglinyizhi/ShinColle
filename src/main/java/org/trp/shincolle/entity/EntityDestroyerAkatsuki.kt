@@ -18,7 +18,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 
-class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
+class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipRiderType {
     override var riderType: Int = RIDER_TYPE_NONE
     private var akatsukiGattaiExpireTick = 0L

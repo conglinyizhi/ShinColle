@@ -10,7 +10,7 @@ import org.trp.shincolle.Config
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 
-class EntitySubmSo(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntitySubmSo(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     init {
         this.modelPos = floatArrayOf(0f, 25f, 0f, 45f)
         setStateMinor(STATE_MINOR_FACTION_ID, 8)

@@ -17,7 +17,7 @@ import org.trp.shincolle.entity.projectile.EntityAbyssMissile
 import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 
-class EntitySubmYo(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     init {
         this.modelPos = floatArrayOf(0f, 25f, 0f, 45f)
         setStateMinor(STATE_MINOR_FACTION_ID, 8)

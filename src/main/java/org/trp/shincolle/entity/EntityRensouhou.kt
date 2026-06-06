@@ -8,7 +8,7 @@ import org.trp.shincolle.entity.base.EntitySummonBase
 import kotlin.math.max
 import kotlin.math.min
 
-class EntityRensouhou(type: EntityType<out TamableAnimal?>?, level: Level?) : EntitySummonBase(type, level) {
+class EntityRensouhou(type: EntityType<out TamableAnimal>, level: Level) : EntitySummonBase(type, level) {
     override fun returnSummonResources(carrier: EntityShipBase) {
         if (carrier is IShipSummonAttack) {
             carrier.setNumServant(min(MAX_RENSOUHOU, carrier.getNumServant() + 1))

@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 
-class EntityDestroyerNi(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityDestroyerNi(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     private val maxUpStep: Float
 
     init {

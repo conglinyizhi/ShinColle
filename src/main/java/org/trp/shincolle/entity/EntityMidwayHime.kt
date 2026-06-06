@@ -12,7 +12,7 @@ import org.trp.shincolle.init.ModEntities
 import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 
-class EntityMidwayHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityMidwayHime(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     init {
         this.modelPos = floatArrayOf(-6f, 30f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)

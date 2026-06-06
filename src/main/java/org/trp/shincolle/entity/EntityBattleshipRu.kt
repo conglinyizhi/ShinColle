@@ -23,7 +23,7 @@ import org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType
 import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 
-class EntityBattleshipRu(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     private var remainAttack = 0
     private var skillTarget: Vec3 = Vec3.ZERO
 

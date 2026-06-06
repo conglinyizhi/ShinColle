@@ -9,7 +9,7 @@ import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 
-abstract class EntityShipBaseSimple protected constructor(type: EntityType<out TamableAnimal?>?, level: Level?) :
+abstract class EntityShipBaseSimple protected constructor(type: EntityType<out TamableAnimal>, level: Level) :
     EntityShipBase(type, level) {
     override fun getBreedOffspring(level: ServerLevel, otherParent: AgeableMob): AgeableMob? {
         return null

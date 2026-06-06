@@ -10,7 +10,7 @@ import org.trp.shincolle.Config
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 
-class EntityCruiserTenryuu(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityCruiserTenryuu(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     init {
         this.modelPos = floatArrayOf(0f, 22f, 0f, 42f)
         setStateMinor(STATE_MINOR_FACTION_ID, 1)

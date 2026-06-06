@@ -5,7 +5,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.level.Level
 
-class EntityTakoyaki(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityAircraftBase(type, level) {
+class EntityTakoyaki(type: EntityType<out TamableAnimal>, level: Level) : EntityAircraftBase(type, level) {
     override fun isDefaultLightAircraft(): Boolean {
         return false
     }

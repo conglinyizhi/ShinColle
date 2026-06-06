@@ -21,7 +21,7 @@ import org.trp.shincolle.init.ModSounds
 import java.util.List
 import kotlin.math.max
 
-class EntityBattleshipYamato(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     init {
         this.modelPos = floatArrayOf(0f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)

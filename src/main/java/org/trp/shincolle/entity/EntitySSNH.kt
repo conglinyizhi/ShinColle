@@ -14,7 +14,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 import java.util.function.Predicate
 
-class EntitySSNH(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntitySSNH(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     init {
         this.modelPos = floatArrayOf(-6f, 8f, 0f, 50f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)

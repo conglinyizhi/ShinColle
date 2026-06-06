@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 
-class EntityDestroyerHime(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityDestroyerHime(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     init {
         this.modelPos = floatArrayOf(0f, 25f, 0f, 50f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)

@@ -18,7 +18,7 @@ import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 import kotlin.math.min
 
-class EntityBattleshipTa(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
+class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipSummonAttack {
     private var numRensouhou = 0
 

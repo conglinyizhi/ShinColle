@@ -5,7 +5,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.level.Level
 
-class EntityAirplane(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityAircraftBase(type, level) {
+class EntityAirplane(type: EntityType<out TamableAnimal>, level: Level) : EntityAircraftBase(type, level) {
     override fun applyFlyParticle() {
         val motion = this.getDeltaMovement()
         val trailX = this.getX() - motion.x * 1.5

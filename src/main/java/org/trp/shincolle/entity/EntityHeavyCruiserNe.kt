@@ -20,7 +20,7 @@ import org.trp.shincolle.init.ModItems
 import java.util.function.Predicate
 import kotlin.math.max
 
-class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level) {
+class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
     private var isPushing = false
     private var tickPush = 0
     private var targetPush: LivingEntity? = null

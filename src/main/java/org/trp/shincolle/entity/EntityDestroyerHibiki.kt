@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 
-class EntityDestroyerHibiki(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
+class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipRiderType {
     override var riderType: Int
 

@@ -19,7 +19,7 @@ import org.trp.shincolle.entity.base.ShipMovementRecoveryState
 import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 
-class EntityDestroyerInazuma(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
+class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipRiderType {
     override var riderType: Int
     var isRaiden: Boolean

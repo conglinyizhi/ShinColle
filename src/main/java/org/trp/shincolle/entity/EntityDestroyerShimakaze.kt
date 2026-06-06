@@ -24,7 +24,7 @@ import org.trp.shincolle.init.ModItems
 import java.util.List
 import kotlin.math.max
 
-class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal?>?, level: Level?) : EntityShipBase(type, level),
+class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipSummonAttack {
     private var numRensouhou: Int = MAX_RENSOUHOU
 
