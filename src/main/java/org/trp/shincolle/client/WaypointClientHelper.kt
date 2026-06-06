@@ -11,7 +11,6 @@ import org.trp.shincolle.block.entity.IWaypoint
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModParticles
 import org.trp.shincolle.item.PointerItem
-import org.trp.shincolle.item.PointerItem.getMode
 import org.trp.shincolle.item.TargetWrenchItem
 
 object WaypointClientHelper {
@@ -67,26 +66,29 @@ object WaypointClientHelper {
                     }
 
                     val sb = StringBuilder()
-                    val stayTime = be.getStayTimeDisplay()
-                    if (stayTime != null && !stayTime.isEmpty()) {
+                    val stayTime = be.stayTimeDisplay
+                    if (stayTime != null && stayTime.isNotEmpty()) {
                         sb.append(ChatFormatting.GOLD).append(stayTime)
                     }
-                    val ownerName = be.getOwnerName()
-                    if (ownerName != null && !ownerName.isEmpty()) {
+                    val ownerName = be.ownerName
+                    if (ownerName != null && ownerName.isNotEmpty()) {
                         if (sb.length > 0) sb.append(" | ")
                         sb.append(ChatFormatting.GREEN).append(ownerName)
                     }
-                    if (be.lastPos != BlockPos.ZERO) {
+                    val lastPos = be.lastPos
+                    if (lastPos != null && lastPos != BlockPos.ZERO) {
                         if (sb.length > 0) sb.append(" | ")
-                        sb.append(ChatFormatting.LIGHT_PURPLE).append("F: ").append(be.lastPos.toShortString())
+                        sb.append(ChatFormatting.LIGHT_PURPLE).append("F: ").append(lastPos.toShortString())
                     }
-                    if (be.nextPos != BlockPos.ZERO) {
+                    val nextPos = be.nextPos
+                    if (nextPos != null && nextPos != BlockPos.ZERO) {
                         if (sb.length > 0) sb.append(" | ")
-                        sb.append(ChatFormatting.AQUA).append("T: ").append(be.nextPos.toShortString())
+                        sb.append(ChatFormatting.AQUA).append("T: ").append(nextPos.toShortString())
                     }
-                    if (be.chestPos != BlockPos.ZERO) {
+                    val chestPos = be.chestPos
+                    if (chestPos != null && chestPos != BlockPos.ZERO) {
                         if (sb.length > 0) sb.append(" | ")
-                        sb.append(ChatFormatting.YELLOW).append("C: ").append(be.chestPos.toShortString())
+                        sb.append(ChatFormatting.YELLOW).append("C: ").append(chestPos.toShortString())
                     }
                     if (sb.length > 0) {
                         localPlayer.displayClientMessage(Component.literal(sb.toString()), true)
@@ -101,8 +103,8 @@ object WaypointClientHelper {
         if (stack.getItem() is TargetWrenchItem) return true
         if (stack.getItem() === ModItems.WAYPOINT.get()) return true
         if (stack.getItem() === ModItems.CRANE.get()) return true
-        if (stack.getItem() is PointerItem) {
-            val mode: Int = pointer.getMode(stack)
+        if (stack.item is PointerItem) {
+            val mode: Int = (stack.item as PointerItem).getMode(stack)
             return mode < 3
         }
         return false

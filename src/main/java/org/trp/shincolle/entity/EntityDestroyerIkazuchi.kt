@@ -58,6 +58,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
     }
 
     override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {
+        // mobInteract
         if (this.isRaiden && this.getVehicle() is EntityShipBase) {
             return vehicle.mobInteract(player, hand)
         }
@@ -92,7 +93,8 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
     override fun hurt(source: DamageSource, amount: Float): Boolean {
         val damaged = super.hurt(source, amount)
         if (damaged && !this.level().isClientSide) {
-            if (this.getVehicle() is EntityDestroyerAkatsuki) {
+            val akatsuki = this.getVehicle() as? EntityDestroyerAkatsuki
+            if (akatsuki != null) {
                 akatsuki.dismountAllRider()
             }
             if (this.isRaiden) {
@@ -104,7 +106,8 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
 
     override fun updateFuelState(nofuel: Boolean) {
         if (nofuel) {
-            if (this.getVehicle() is EntityDestroyerAkatsuki) {
+            val akatsuki = this.getVehicle() as? EntityDestroyerAkatsuki
+            if (akatsuki != null) {
                 akatsuki.dismountAllRider()
             }
             if (this.isRaiden) {
@@ -162,7 +165,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
         if (this.isRaiden && (this.isInSittingPose || this.isInDeadPose || this.isRaidenGattaiDurationExpired)) {
             dismountRaiden()
         }
-        if (this.riderType == 0 && this.isRaiden && this.getMorale() < 7650) {
+        if (this.riderType == 0 && this.isRaiden && this.morale < 7650) {
             this.addMorale(100)
         }
         if ((this.tickCount % 128) == 0) {
@@ -179,9 +182,10 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
 
     private fun applyBuffToPlayer() {
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+            val ownerPlayer = this.ownerPlayer
+            if (ownerPlayer != null && this.distanceToSqr(ownerPlayer) < 256.0) {
                 val amp = this.getStateMinor(0) / 50
-                this.ownerPlayer.addEffect(
+                ownerPlayer.addEffect(
                     MobEffectInstance(
                         MobEffects.DAMAGE_BOOST,
                         80 + this.getStateMinor(0), amp, false, false
@@ -192,10 +196,12 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
     }
 
     private fun updateRiderRotation() {
-        if (this.getVehicle() is EntityDestroyerAkatsuki) {
-            akatsuki.syncRotateToRider()
+        val akatsuki = this.getVehicle() as? EntityDestroyerAkatsuki
+            if (akatsuki != null) {
+                akatsuki.syncRotateToRider()
         } else if (this.getVehicle() is EntityDestroyerInazuma) {
-            this.yBodyRot = inazuma.yBodyRot
+                val inazuma = this.getVehicle() as EntityDestroyerInazuma
+                this.yBodyRot = inazuma.yBodyRot
             this.yBodyRotO = inazuma.yBodyRotO
             this.yHeadRot = inazuma.yBodyRot
             this.yHeadRotO = inazuma.yBodyRotO
@@ -237,11 +243,11 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
 
     private fun beginRaidenGattai(inazuma: EntityDestroyerInazuma) {
         this.isRaiden = true
-        inazuma.setRaiden(true)
+        inazuma.isRaiden = true
 
         val expireTick: Long = this.level().getGameTime() + RAIDEN_GATTAI_DURATION_TICKS
         this.setRaidenGattaiExpireTick(expireTick)
-        inazuma.setRaidenGattaiExpireTick(expireTick)
+        inazuma.raidenGattaiExpireTick = expireTick
     }
 
     private fun canGattaiWith(partner: EntityDestroyerInazuma?): Boolean {
@@ -251,15 +257,16 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
         if (this.getOwnerUUID() != partner.getOwnerUUID()) {
             return false
         }
-        return partner.getRiderType() == 0 && !partner.isRaiden() && !partner.isStateNoEquip && partner.getStateMinor(
+        return partner.getRiderType() == 0 && !partner.isRaiden && !partner.isStateNoEquip && partner.getStateMinor(
             43
-        ) == 0 && !partner.isRaidenGattaiCooldownActive()
+        ) == 0 && !partner.isRaidenGattaiCooldownActive
     }
 
     private fun checkRiderType() {
         this.riderType = 0
-        if (this.getVehicle() is EntityDestroyerAkatsuki) {
-            this.riderType = akatsuki.getRiderType()
+        val akatsuki = this.getVehicle() as? EntityDestroyerAkatsuki
+            if (akatsuki != null) {
+                this.riderType = akatsuki.riderType
         }
     }
 
@@ -276,11 +283,12 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
     }
 
     private fun dismountRaiden() {
-        if (this.getVehicle() is EntityDestroyerInazuma) {
-            this.startRaidenGattaiCooldown()
-            inazuma.startRaidenGattaiCooldown()
+        val inazuma = this.getVehicle() as? EntityDestroyerInazuma
+            if (inazuma != null) {
+                this.startRaidenGattaiCooldown()
+                inazuma.startRaidenGattaiCooldown()
             this.isRaiden = false
-            inazuma.setRaiden(false)
+            inazuma.isRaiden = false
             this.stopRiding()
             inazuma.placeIkazuchiAfterRaidenDismount(this)
         }
@@ -316,13 +324,12 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
         this.raidenGattaiCooldownUntilTick = compound.getLong("RaidenGattaiCooldownUntilTick")
     }
 
-    override fun getRiderType(): Int {
-        return this.riderType
-    }
+    override val riderType: Int
+        get() =
+this.riderType
 
-    override fun setRiderType(type: Int) {
-        this.riderType = type
-    }
+    override fun setRiderType(type: Int) =
+run { this.riderType = type }
 
     override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN
