@@ -388,11 +388,11 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
     }
 
     fun getShipEntityId(): Int {
-        return if (clientSide) shipEntityId else blockEntity.getCraningShipId()
+        return if (clientSide) shipEntityId else blockEntity.craningShipId
     }
 
     fun getShipTimer(): Int {
-        return if (clientSide) shipTimer else blockEntity.getCraningShipTimer()
+        return if (clientSide) shipTimer else blockEntity.craningShipTimer
     }
 
     val shipEntity: EntityShipBase?
@@ -401,7 +401,8 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
             if (id <= 0) {
                 return null
             }
-            if (level.getEntity(id) is EntityShipBase
+            val ship = level.getEntity(id)
+            if (ship is EntityShipBase
                 && ship.isAlive
                 && !ship.isRemoved
             ) {
@@ -414,7 +415,8 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         private fun getBlockEntity(playerInventory: Inventory, buffer: RegistryFriendlyByteBuf): CraneBlockEntity {
             checkNotNull(buffer) { "Missing crane menu data." }
             val pos = buffer.readBlockPos()
-            if (playerInventory.player.level().getBlockEntity(pos) is CraneBlockEntity) {
+            val crane = playerInventory.player.level().getBlockEntity(pos)
+            if (crane is CraneBlockEntity) {
                 return crane
             }
             throw IllegalStateException("Crane block entity not found.")

@@ -13,6 +13,7 @@ import net.minecraft.client.renderer.item.ItemPropertyFunction
 import net.minecraft.core.particles.SimpleParticleType
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.inventory.MenuType
@@ -46,6 +47,7 @@ import org.trp.shincolle.client.renderer.layer.ShipHeldItemLayer
 import org.trp.shincolle.client.screen.*
 import org.trp.shincolle.client.tooltip.ScaledTextClientTooltip
 import org.trp.shincolle.entity.*
+import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile
 import org.trp.shincolle.entity.projectile.EntityProjectileBeam
 import org.trp.shincolle.init.ModBlockEntities
@@ -187,14 +189,14 @@ object ClientModEventBusEvents {
                 entityTexture("airplane_zero")
             ) as net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.Entity>
         }
-        event.registerEntityRenderer(ModEntities.MOUNT_SU_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountSuH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_MI_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountMiH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_IS_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountIsH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_HB_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountHbH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_CA_WD.get()!!) { context: EntityRendererProvider.Context -> RendererMountCaWD(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_AF_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountAfH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_BA_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountBaH(context) }
-        event.registerEntityRenderer(ModEntities.MOUNT_CA_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountCaH(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_SU_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountSuH<EntityMountSuH>(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_MI_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountMiH<EntityMountMiH>(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_IS_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountIsH<EntityMountIsH>(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_HB_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountHbH<EntityMountHbH>(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_CA_WD.get()!!) { context: EntityRendererProvider.Context -> RendererMountCaWD<EntityMountCaWD>(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_AF_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountAfH<EntityMountAfH>(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_BA_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountBaH<EntityMountBaH>(context) }
+        event.registerEntityRenderer(ModEntities.MOUNT_CA_H.get()!!) { context: EntityRendererProvider.Context -> RendererMountCaH<EntityMountCaH>(context) }
         event.registerEntityRenderer(ModEntities.RENSOUHOU.get()!!) { context ->
             @Suppress("UNCHECKED_CAST")
             RendererSimpleMob(
@@ -205,8 +207,8 @@ object ClientModEventBusEvents {
                 entityTexture("rensouhou")
             ) as net.minecraft.client.renderer.entity.EntityRenderer<net.minecraft.world.entity.Entity>
         }
-        event.registerEntityRenderer(ModEntities.RENSOUHOU_S.get()!!) { context: EntityRendererProvider.Context -> RendererRensouhouS(context) }
-        event.registerEntityRenderer(ModEntities.TAKOYAKI.get()!!) { context: EntityRendererProvider.Context -> RendererTakoyaki(context) }
+        event.registerEntityRenderer(ModEntities.RENSOUHOU_S.get()!!) { context: EntityRendererProvider.Context -> RendererRensouhouS<EntityRensouhouS>(context) }
+        event.registerEntityRenderer(ModEntities.TAKOYAKI.get()!!) { context: EntityRendererProvider.Context -> RendererTakoyaki<EntityTakoyaki>(context) }
         event.registerEntityRenderer(ModEntities.ABYSS_MISSILE.get()!!) { context -> RendererAbyssMissile(context) }
         event.registerEntityRenderer(ModEntities.PROJECTILE_BEAM.get()!!) { context -> RendererProjectileBeam(context) }
         event.registerEntityRenderer(ModEntities.SHIP_GRUDGE.get()!!) { context -> RendererShipGrudge(context) }
@@ -232,12 +234,11 @@ object ClientModEventBusEvents {
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun <E : LivingEntity, M : net.minecraft.client.model.EntityModel<E>> addHeldItemLayerUnchecked(
-        renderer: LivingEntityRenderer<E, M>
+    private fun addHeldItemLayerUnchecked(
+        renderer: LivingEntityRenderer<out LivingEntity, out net.minecraft.client.model.EntityModel<out LivingEntity>>
     ) {
-        if (renderer is net.minecraft.client.renderer.entity.RenderLayerParent<*, *>) {
-            renderer.addLayer(ShipHeldItemLayer(renderer as net.minecraft.client.renderer.entity.RenderLayerParent<E, M>))
-        }
+        val castRenderer = renderer as LivingEntityRenderer<EntityShipBase, net.minecraft.client.model.EntityModel<EntityShipBase>>
+        castRenderer.addLayer(ShipHeldItemLayer(castRenderer))
     }
 
     @SubscribeEvent
