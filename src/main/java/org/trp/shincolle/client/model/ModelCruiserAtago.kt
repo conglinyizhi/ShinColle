@@ -418,8 +418,8 @@ class ModelCruiserAtago<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         var legLeftX = ctx.legAddLeft
         var legRightX = ctx.legAddRight
 
-        val isPassenger = entity != null && entity.isPassenger()
-        val isCrouching = entity != null && entity.isCrouching()
+        val isPassenger = entity != null && entity.isPassenger
+        val isCrouching = entity != null && entity.isCrouching
         val isSprinting = entity != null && entity.isSprinting
         val isLegacyEmote1 = entity != null && hasLegacyState(entity, 1, 4)
         val isLegacyEmote6 = entity != null && hasLegacyState(entity, 6, 1)

@@ -405,9 +405,9 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
         var addk2 = angleAdd2 * 0.6f - 0.07f
 
         val isSprinting = entity != null && entity.isSprinting
-        val isCrouching = entity != null && entity.isCrouching()
-        val isPassenger = entity != null && entity.isPassenger()
-        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger())
+        val isCrouching = entity != null && entity.isCrouching
+        val isPassenger = entity != null && entity.isPassenger
+        val isSitting = entity != null && (entity.isInSittingPose || entity.isPassenger)
 
         if (isSprinting || limbSwingAmount > 0.9f) {
             this.Hair01.xRot += 0.09f
@@ -448,7 +448,7 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
             this.Hair03.xRot -= 0.1f
         }
 
-        if (isPassenger && entity.getVehicle() is EntityMountBase) {
+        if (isPassenger && entity.vehicle is EntityMountBase) {
             this.isSittingPose = true
             this.EquipBase.visible = true
             if (isSitting) {

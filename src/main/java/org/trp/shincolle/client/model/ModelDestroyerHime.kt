@@ -448,9 +448,9 @@ class ModelDestroyerHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
         val angleAdd2 = cos(limbSwing * 0.7f + Math.PI).toFloat() * limbSwingAmount
 
         val isSprinting = entity!!.isSprinting || limbSwingAmount > 0.9f
-        val isCrouching = entity.isCrouching()
-        val isPassenger = entity.isPassenger()
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isCrouching = entity.isCrouching
+        val isPassenger = entity.isPassenger
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
 
         if (isSprinting) {
             this.Head.xRot -= 0.5f

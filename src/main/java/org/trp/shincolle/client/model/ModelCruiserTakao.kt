@@ -417,9 +417,9 @@ class ModelCruiserTakao<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
             }
         }
 
-        val isCrouching = entity != null && entity.isCrouching()
+        val isCrouching = entity != null && entity.isCrouching
         val isSitting =
-            ctx.isSitting || (entity != null && entity.isPassenger() && (entity.getVehicle() !is EntityMountBase))
+            ctx.isSitting || (entity != null && entity.isPassenger && (entity.vehicle !is EntityMountBase))
         val isSprinting = entity != null && entity.isSprinting
 
         if (isSprinting && entity != null && hasLegacyState(entity, 1, 4)) {

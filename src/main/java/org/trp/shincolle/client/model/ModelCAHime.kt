@@ -523,9 +523,9 @@ class ModelCAHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T
     }
 
     private fun applySpecialPoseAdjustments(entity: T?, limbSwing: Float, limbSwingAmount: Float, ageInTicks: Float) {
-        val isCrouching = entity!!.isCrouching()
-        val isPassenger = entity.isPassenger()
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isCrouching = entity!!.isCrouching
+        val isPassenger = entity.isPassenger
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
         val hat1 = entity.getEquipFlag(EntityCAHime.EQUIP_HAT_1)
         val hat2 = entity.getEquipFlag(EntityCAHime.EQUIP_HAT_2)
         val hat3 = entity.getEquipFlag(EntityCAHime.EQUIP_HAT_3)

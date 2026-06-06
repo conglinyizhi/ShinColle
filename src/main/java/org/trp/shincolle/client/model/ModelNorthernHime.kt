@@ -477,8 +477,8 @@ class ModelNorthernHime<T : EntityNorthernHime>(root: ModelPart) : ShipModelHuma
         var legLeftX = ctx.legAddLeft
         var legRightX = ctx.legAddRight
         val showUmbrella = entity != null && entity.getEquipFlag(EntityNorthernHime.EQUIP_UMBRELLA)
-        val isPassenger = entity != null && entity.isPassenger()
-        val isCrouching = entity != null && entity.isCrouching()
+        val isPassenger = entity != null && entity.isPassenger
+        val isCrouching = entity != null && entity.isCrouching
         val useAltSit = entity != null && entity.emotionSecondary == EntityShipBase.EMOTION_BORED
 
         if (isCrouching) {

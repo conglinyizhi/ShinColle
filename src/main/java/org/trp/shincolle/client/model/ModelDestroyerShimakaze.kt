@@ -220,8 +220,8 @@ class ModelDestroyerShimakaze<T : EntityShipBase>(root: ModelPart) : ShipModelHu
         var legLeftX = ctx.angleAdd1 - 0.21f
         var legRightX = ctx.angleAdd2 - 0.11f
 
-        val isPassenger = entity != null && entity.isPassenger()
-        val isCrouching = entity != null && entity.isCrouching()
+        val isPassenger = entity != null && entity.isPassenger
+        val isCrouching = entity != null && entity.isCrouching
         val isSprinting = entity != null && entity.isSprinting
 
         if (isSprinting || limbSwingAmount > 0.6f) {

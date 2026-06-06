@@ -242,12 +242,12 @@ class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         }
 
         this.Head.zRot = entity.getHeadTiltAngle(ageInTicks)
-        if (entity.isCrouching()) {
+        if (entity.isCrouching) {
             this.Head.y = this.headDefaultY + (0.2f * OFFSET_SCALE)
             this.GlowHead.y = this.glowHeadDefaultY + (0.2f * OFFSET_SCALE)
         }
 
-        if (entity.isInSittingPose || entity.isPassenger()) {
+        if (entity.isInSittingPose || entity.isPassenger) {
             if (entity.getStateEmotion(1) == 4) {
                 this.poseTranslateY += 0.22f * 5
                 this.Head.xRot = 1.5359f

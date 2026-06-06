@@ -328,9 +328,9 @@ class ModelBattleshipHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         val angleAdd2 = ctx.angleAdd2
         var legAddLeft = angleAdd1 - 0.122f
         var legAddRight = angleAdd2 - 0.174f
-        val isCrouching = entity != null && entity.isCrouching()
-        val isPassenger = entity != null && entity.isPassenger()
-        val isSitting = ctx.isSitting || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isCrouching = entity != null && entity.isCrouching
+        val isPassenger = entity != null && entity.isPassenger
+        val isSitting = ctx.isSitting || (isPassenger && entity.vehicle !is EntityMountBase)
 
         if (isCrouching) {
             this.poseTranslateY = SNEAK_TRANSLATE_Y
@@ -401,7 +401,7 @@ class ModelBattleshipHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
             }
         }
 
-        if (isPassenger && entity.getVehicle() is EntityMountBase) {
+        if (isPassenger && entity.vehicle is EntityMountBase) {
             this.isSittingPose = true
             if (isSitting) {
                 if (entity != null && hasLegacyState(entity, 1, 4)) {

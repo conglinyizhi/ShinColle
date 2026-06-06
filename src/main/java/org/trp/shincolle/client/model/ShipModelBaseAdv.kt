@@ -203,7 +203,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
         while (type != null) {
             try {
                 val field = type.getDeclaredField(fieldName)
-                field.setAccessible(true)
+                field.isAccessible = true
                 val value = field.get(this)
                 if (value is ModelPart) {
                     return value
@@ -212,7 +212,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
             } catch (ignored: IllegalAccessException) {
                 return null
             }
-            type = type.getSuperclass()
+            type = type.superclass
         }
         return null
     }
@@ -247,7 +247,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
 
 
     fun getLegacyScale(entity: EntityShipBase?): Float {
-        val base = when (this.javaClass.getSimpleName()) {
+        val base = when (this.javaClass.simpleName) {
             "ModelBattleshipRe", "ModelDestroyerAkatsuki", "ModelDestroyerHa", "ModelDestroyerHibiki", "ModelDestroyerHime", "ModelDestroyerI", "ModelDestroyerIkazuchi", "ModelDestroyerInazuma", "ModelDestroyerNi", "ModelDestroyerRo", "ModelDestroyerShimakaze" -> 0.4f
             "ModelCruiserAtago", "ModelCruiserTakao", "ModelCruiserTatsuta", "ModelCruiserTenryuu" -> 0.43f
             "ModelBattleshipHime", "ModelBattleshipTa", "ModelBattleshipNagato", "ModelBattleshipRu", "ModelBattleshipYamato" -> 0.5f
@@ -505,10 +505,10 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
             while (current != null) {
                 try {
                     val field = current.getDeclaredField("poseTranslateY")
-                    field.setAccessible(true)
+                    field.isAccessible = true
                     return field
                 } catch (ignored: NoSuchFieldException) {
-                    current = current.getSuperclass()
+                    current = current.superclass
                 }
             }
             return null

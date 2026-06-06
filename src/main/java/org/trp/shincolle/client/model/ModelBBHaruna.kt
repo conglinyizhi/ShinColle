@@ -657,7 +657,7 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
             addk2 = angleAdd2 * 0.35f - 0.41f
         }
 
-        if (entity != null && entity.isCrouching()) {
+        if (entity != null && entity.isCrouching) {
             spcStand = false
             this.poseTranslateY = SNEAK_TRANSLATE_Y
             Head.xRot -= 0.6283f
@@ -682,7 +682,7 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
             Hair02.xRot = Hair02.xRot * 0.75f + 0.25f
         }
 
-        if (entity != null && ((entity.isPassenger() && entity.getVehicle() !is EntityMountBase) || entity.isInSittingPose())) {
+        if (entity != null && ((entity.isPassenger && entity.vehicle !is EntityMountBase) || entity.isInSittingPose)) {
             spcStand = false
             this.isSittingPose = true
             val sitTick = entity.tickCount % 512

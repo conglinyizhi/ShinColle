@@ -202,8 +202,8 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         netHeadYaw: Float,
         headPitch: Float
     ) {
-        this.BodyMain.getAllParts().forEach { obj: ModelPart? -> obj!!.resetPose() }
-        this.GlowBodyMain!!.getAllParts().forEach { obj: ModelPart? -> obj!!.resetPose() }
+        this.BodyMain.allParts.forEach { obj: ModelPart? -> obj!!.resetPose() }
+        this.GlowBodyMain!!.allParts.forEach { obj: ModelPart? -> obj!!.resetPose() }
 
         val ctx = computePoseContext(entity, limbSwing, limbSwingAmount, ageInTicks, 0.0f)
         resetPoseState()
@@ -401,9 +401,9 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
 
         val tickPhase = if (entity != null) entity.tickCount else 0
 
-        val isCrouching = entity != null && entity.isCrouching()
+        val isCrouching = entity != null && entity.isCrouching
         val isSitting =
-            ctx.isSitting || (entity != null && entity.isPassenger() && (entity.getVehicle() !is EntityMountBase))
+            ctx.isSitting || (entity != null && entity.isPassenger && (entity.vehicle !is EntityMountBase))
         val isSprinting = entity != null && entity.isSprinting || limbSwingAmount > 0.9f
 
         if (isSprinting) {

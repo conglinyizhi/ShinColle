@@ -391,10 +391,10 @@ class ModelTransportWa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
 
     private fun applySpecialPoseAdjustments(entity: T?, limbSwing: Float, limbSwingAmount: Float, ageInTicks: Float) {
         val hideLeg = entity != null && !entity.getEquipFlag(EntityTransportWa.EQUIP_LEG)
-        val isPassenger = entity!!.isPassenger()
-        val isCrouching = entity.isCrouching()
+        val isPassenger = entity!!.isPassenger
+        val isCrouching = entity.isCrouching
         val isSprinting = if (entity != null) entity.isSprinting else limbSwingAmount > 0.9f
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
         val sitSwing = Mth.cos(ageInTicks * 0.5f) * 0.5f
 
         if (hideLeg) {

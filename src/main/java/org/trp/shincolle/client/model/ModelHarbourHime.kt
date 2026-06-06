@@ -326,10 +326,10 @@ class ModelHarbourHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         limbSwingAmount: Float,
         ageInTicks: Float
     ) {
-        val isCrouching = entity!!.isCrouching()
-        val isPassenger = entity.isPassenger()
+        val isCrouching = entity!!.isCrouching
+        val isPassenger = entity.isPassenger
         val isSitting =
-            (entity != null && entity.isInSittingPose) || (entity != null && entity.isPassenger() && (entity.getVehicle() !is EntityMountBase))
+            (entity != null && entity.isInSittingPose) || (entity != null && entity.isPassenger && (entity.vehicle !is EntityMountBase))
 
         if (isCrouching) {
             this.poseTranslateY += SNEAK_TRANSLATE_Y
@@ -354,7 +354,7 @@ class ModelHarbourHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
             this.Hair03.xRot -= 0.1f
         }
 
-        if (isPassenger && entity.getVehicle() is EntityMountBase) {
+        if (isPassenger && entity.vehicle is EntityMountBase) {
             this.isSittingPose = true
             if (isSitting) {
                 if (hasLegacyState(entity, 1, 4)) {

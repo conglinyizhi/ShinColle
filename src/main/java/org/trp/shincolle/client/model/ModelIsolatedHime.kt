@@ -473,9 +473,9 @@ class ModelIsolatedHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         val headX = this.Head.xRot * -0.5f
 
         val isSprinting = entity!!.isSprinting || limbSwingAmount > 0.9f
-        val isCrouching = entity.isCrouching()
-        val isPassenger = entity.isPassenger()
-        val isSitting = entity.isInSittingPose || (isPassenger && entity.getVehicle() !is EntityMountBase)
+        val isCrouching = entity.isCrouching
+        val isPassenger = entity.isPassenger
+        val isSitting = entity.isInSittingPose || (isPassenger && entity.vehicle !is EntityMountBase)
 
         if (isSprinting) {
             this.Hair01.xRot = angleAdd1 * 0.1f + limbSwingAmount * 0.4f + headX
@@ -502,7 +502,7 @@ class ModelIsolatedHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
             this.Hair03.xRot -= 0.1f
         }
 
-        if (isPassenger && entity.getVehicle() is EntityMountBase) {
+        if (isPassenger && entity.vehicle is EntityMountBase) {
             this.isSittingPose = true
             this.BodyMain.yRot += -40.0f * (Math.PI.toFloat() / 180f)
             if (isSitting) {

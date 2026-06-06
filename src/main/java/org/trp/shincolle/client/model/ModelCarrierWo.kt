@@ -420,8 +420,8 @@ class ModelCarrierWo<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBas
         var addk2 = this.LegRight01.xRot
 
         val isSprinting = entity != null && entity.isSprinting
-        val isCrouching = entity != null && entity.isCrouching()
-        val isPassenger = entity != null && entity.isPassenger()
+        val isCrouching = entity != null && entity.isCrouching
+        val isPassenger = entity != null && entity.isPassenger
         val isSitting = entity != null && (entity.isInSittingPose || isPassenger)
 
         if (isSprinting || limbSwingAmount > 0.9f) {

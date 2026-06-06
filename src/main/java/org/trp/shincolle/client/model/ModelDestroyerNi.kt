@@ -118,7 +118,7 @@ class ModelDestroyerNi<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowabl
         applyEquipVisibility(entity)
         applyLook(netHeadYaw, headPitch)
         applyTailPose(angleX)
-        if (entity.isInSittingPose()) {
+        if (entity.isInSittingPose) {
             applySittingPose(entity, angleX)
         } else {
             applyLegPose(limbSwing, limbSwingAmount)

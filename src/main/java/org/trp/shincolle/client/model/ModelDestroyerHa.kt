@@ -116,7 +116,7 @@ class ModelDestroyerHa<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowabl
         applyFaceFromEntity(entity)
         applyEquipVisibility(entity)
         applyLook(netHeadYaw, headPitch, angleX)
-        if (entity.isInSittingPose()) {
+        if (entity.isInSittingPose) {
             applySittingPose(entity, ageInTicks)
         } else {
             applyTailPose(angleX)

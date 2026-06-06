@@ -531,8 +531,8 @@ class ModelDestroyerAkatsuki<T : EntityShipBase>(root: ModelPart) : ShipModelHum
         var legLeftX = ctx.legAddLeft
         var legRightX = ctx.legAddRight
 
-        val isPassenger = entity != null && entity.isPassenger()
-        val isCrouching = entity != null && entity.isCrouching()
+        val isPassenger = entity != null && entity.isPassenger
+        val isCrouching = entity != null && entity.isCrouching
         val isSprinting = entity != null && entity.isSprinting
         val isLegacyEmote1 = hasLegacyState(entity, 1, 4)
         val isLegacyEmote6 = hasLegacyState(entity, 6, 1)
