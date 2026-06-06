@@ -49,7 +49,7 @@ class ParticleSparkle protected constructor(
 
         val setting = getParticleSetting(level)
         val numBeam = max(1, (3 - setting) * 15)
-        this.beams = Array<FloatArray?>(numBeam) { FloatArray(8) }
+        this.beams = Array<FloatArray>(numBeam) { FloatArray(8) }
         for (i in 0..<numBeam) {
             this.beams[i][7] = this.maxBeamAge.toFloat()
         }

@@ -35,7 +35,7 @@ class ParticleLightning protected constructor(
     private var scaleY = 0.12f
     private var scaleZ = 0.1f
     private var stemWidth = 0.01f
-    private var prevShape: Array<DoubleArray?>
+    private var prevShape: Array<DoubleArray> = arrayOf()
 
     init {
         var scale = scale
@@ -151,7 +151,7 @@ class ParticleLightning protected constructor(
         }
 
         if (this.particleType != 0) {
-            this.prevShape = Array<DoubleArray?>(this.numStem) { DoubleArray(6) }
+            this.prevShape = Array<DoubleArray>(this.numStem) { DoubleArray(6) }
             updateShape()
         }
 

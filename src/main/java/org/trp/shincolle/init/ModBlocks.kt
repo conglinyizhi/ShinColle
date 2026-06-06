@@ -17,6 +17,7 @@ import org.trp.shincolle.block.GrudgeHeavyBlock
 import org.trp.shincolle.block.LargeShipyardBlock
 import org.trp.shincolle.block.PolymetalBlock
 import org.trp.shincolle.block.SmallShipyardBlock
+import org.trp.shincolle.block.VolBlock
 import org.trp.shincolle.block.VolCoreBlock
 import org.trp.shincolle.block.WayPointBlock
 import java.util.function.Supplier
