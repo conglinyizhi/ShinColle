@@ -93,13 +93,9 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             var refPos = this.ship.position()
             val teamId = this.ship.formationTeam
             if (teamId >= 0 && this.ship.formationSlot > 0) {
-                for (e in this.ship.level().getEntities(this.ship, this.ship.getBoundingBox().inflate(64.0))) {
-                    if (e is EntityShipBase && e.isOwnedBy(ownerRaw)
-                        && e.formationTeam == teamId && e.formationSlot == 0
-                    ) {
-                        refPos = e.position()
-                        break
-                    }
+                val leader = findFormationLeader(ownerRaw, teamId)
+                if (leader != null) {
+                    refPos = leader.position()
                 }
             }
             val dir = getFormationDirection(
@@ -134,15 +130,6 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
                 val data = admiralData(ownerRaw)
                 val formationId = data.getFormationID(teamId)
 
-                var refPos = this.ship.position()
-                for (e in this.ship.level().getEntities(this.ship, this.ship.getBoundingBox().inflate(64.0))) {
-                    if (e is EntityShipBase && e.isOwnedBy(ownerRaw)
-                        && e.formationTeam == teamId && e.formationSlot == 0
-                    ) {
-                        refPos = e.position()
-                        break
-                    }
-                }
                 return FormationHelper.getFormationPos(
                     formationId,
                     slotId,
@@ -243,6 +230,19 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         this.pointerTargetEntityId = null
         this.pointerTargetEntityUntil = 0L
         updateSynchedData()
+    }
+
+    private fun findFormationLeader(owner: Player, teamId: Int): EntityShipBase? {
+        if (teamId < 0) return null
+        val data = admiralData(owner)
+        val leaderUuid = data.getShipUUID(teamId, 0) ?: return null
+        val level = this.ship.level()
+        val entity = when (level) {
+            is ServerLevel -> level.getEntity(leaderUuid)
+            is ClientLevel -> level.entitiesForRendering().find { it.uuid == leaderUuid }
+            else -> null
+        }
+        return if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) entity else null
     }
 
     private fun updateSynchedData() {
