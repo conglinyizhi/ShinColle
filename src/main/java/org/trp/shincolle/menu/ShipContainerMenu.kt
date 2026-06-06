@@ -1148,7 +1148,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
 
     }
 
-    companion object {
+    public companion object {
         const val EQUIP_BUTTON_BASE: Int = 100
         const val PAGE_BUTTON_0: Int = 15
         const val PAGE_BUTTON_1: Int = 16
