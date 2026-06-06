@@ -96,7 +96,7 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
 
         @JvmStatic
         fun creativeInfiniteLabel(): Component {
-            return Component.translatable("gui.shincolle.creative_infinite").withStyle(ChatFormatting.GOLD)
+            return Component.literal("∞").withStyle(ChatFormatting.GOLD)
         }
 
         @JvmStatic

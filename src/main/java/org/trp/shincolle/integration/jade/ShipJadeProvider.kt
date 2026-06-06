@@ -23,12 +23,15 @@ enum class ShipJadeProvider : IEntityComponentProvider {
         val creativeInfinite = ship.hasCreativeDebugger()
         val helper = IElementHelper.get()
 
-        // Line 1: Level | Status
-        val levelText = Component.translatable("gui.shincolle.level")
-            .append(": ${ship.level}")
-        val statusText = Component.translatable("tooltip.shincolle.jade.ship.status", runningState(ship))
+        // Line 1: Owner | Level | Status
+        val ownerName = ship.getOwner()?.name?.string ?: "?"
+        val ownerText = Component.translatable("gui.shincolle.owner").append(": $ownerName")
+        val levelText = Component.literal("Lv.${ship.level}")
+        val statusText = runningState(ship)
         tooltip.add(
             listOf(
+                helper.text(ownerText),
+                helper.text(Component.literal(" | ")),
                 helper.text(levelText),
                 helper.text(Component.literal(" | ")),
                 helper.text(statusText)
