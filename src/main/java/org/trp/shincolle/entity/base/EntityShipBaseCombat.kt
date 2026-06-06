@@ -25,9 +25,9 @@ import org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModSounds
 // import org.trp.shincolle.item.CombatRationItem.getVariant
+import org.trp.shincolle.api.equip.IShipEquip
+import org.trp.shincolle.api.equip.ShipEquipRegistry
 import org.trp.shincolle.item.LegacyEquipItem
-// import org.trp.shincolle.item.LegacyEquipItem.getEquipTypeId
-// import org.trp.shincolle.item.LegacyEquipItem.getVariant
 import kotlin.math.max
 import kotlin.math.min
 
@@ -303,23 +303,26 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
     private fun configureAmmoEffects(missile: EntityAbyssMissile) {
         for (i in 0..<this.ship.inventory!!.slots) {
             val stack = this.ship.inventory!!.getStackInSlot(i)
-            if (stack.isEmpty() || stack.item !is LegacyEquipItem) {
-                continue
-            }
-            val equipItem = stack.item as LegacyEquipItem
-            if (equipItem.getEquipTypeId(stack) != 29) {
-                continue
-            }
+            if (stack.isEmpty()) continue
 
-            val variant: Int = equipItem.getVariant(stack)
-            when (variant) {
-                0 -> missile.addImpactEffect(MobEffects.POISON, 0, 120, 50)
-                1 -> missile.addImpactEffect(MobEffects.POISON, 1, 120, 70)
-                3 -> missile.addImpactEffect(MobEffects.CONFUSION, 0, 120, 50)
-                4 -> missile.addImpactEffect(MobEffects.WITHER, 0, 100, 25)
-                6 -> missile.addImpactEffect(MobEffects.LEVITATION, 0, 100, 50)
-                7 -> addEnchantShellEffects(missile, stack)
-                else -> {}
+            when (val item = stack.item) {
+                is LegacyEquipItem -> {
+                    if (item.getEquipTypeId(stack) != 29) continue
+                    val variant: Int = item.getVariant(stack)
+                    when (variant) {
+                        0 -> missile.addImpactEffect(MobEffects.POISON, 0, 120, 50)
+                        1 -> missile.addImpactEffect(MobEffects.POISON, 1, 120, 70)
+                        3 -> missile.addImpactEffect(MobEffects.CONFUSION, 0, 120, 50)
+                        4 -> missile.addImpactEffect(MobEffects.WITHER, 0, 100, 25)
+                        6 -> missile.addImpactEffect(MobEffects.LEVITATION, 0, 100, 50)
+                        7 -> addEnchantShellEffects(missile, stack)
+                        else -> {}
+                    }
+                }
+                is IShipEquip -> {
+                    val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
+                    effect?.applyToMissile(this.ship, missile, stack)
+                }
             }
         }
     }

@@ -71,6 +71,8 @@ import org.trp.shincolle.item.CombatRationItem.Companion.getMoraleValue
 
 import org.trp.shincolle.item.CombatRationItem.Companion.rollFuelGain
 import org.trp.shincolle.item.DebugInspectorItem.Companion.markBucketRepairTriggered
+import org.trp.shincolle.api.equip.IShipEquip
+import org.trp.shincolle.api.equip.ShipEquipRegistry
 import org.trp.shincolle.item.LegacyEquipItem
 import org.trp.shincolle.item.LegacyEquipStats
 import org.trp.shincolle.item.LegacyEquipStats.getMainAttrs
@@ -1765,6 +1767,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             val serverLevel = this.level() as ServerLevel
             get(serverLevel).updateShip(this)
         }
+        tickEquipEffects()
         this.perfShipPeriodicNanos += finishPerfSegment(tracing, segmentStart)
     }
 
@@ -2111,6 +2114,19 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             this.x, this.y + 1.2, this.z,
             3, 0.25, 0.35, 0.25, 0.01
         )
+    }
+
+    private fun tickEquipEffects() {
+        val inv = this.inventory ?: return
+        for (slot in 0..<inv.slots) {
+            val stack = inv.getStackInSlot(slot)
+            if (stack.isEmpty()) continue
+            val item = stack.item
+            if (item is IShipEquip) {
+                val effect = ShipEquipRegistry.getEffect(item.getEquipTypeId(stack))
+                effect?.tick(this, stack)
+            }
+        }
     }
 
     private fun tickCompassChunkLoading() {
@@ -3272,45 +3288,66 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
         for (slot in 0..<equipSlots) {
             val stack = this.inventory.getStackInSlot(slot)
-            if (stack.isEmpty() || stack.item !is LegacyEquipItem) {
+            if (stack.isEmpty()) {
                 continue
             }
 
-            val equipTypeId: Int = (stack.item as LegacyEquipItem).getEquipTypeId(stack)
-            when (equipTypeId) {
-                EQUIP_TYPE_DRUM -> drumCount++
-                EQUIP_TYPE_COMPASS -> compassCount++
-                EQUIP_TYPE_FLARE -> flareCount++
-                EQUIP_TYPE_SEARCHLIGHT -> searchlightCount++
-                else -> {}
-            }
+            val item = stack.item
+            val equipTypeId: Int
+            val stats: FloatArray?
 
-            if ((stack.item as LegacyEquipItem).getEquipTypeId(stack) == 29) {
-                val variant: Int = (stack.item as LegacyEquipItem).getVariant(stack)
-                if (variant == 5 || variant == 6 || variant == 8) {
-                    specialAmmoVariant = max(specialAmmoVariant, variant)
-                }
-            } else if ((stack.item as LegacyEquipItem).getEquipTypeId(stack) == 5) {
-                val variant: Int = (stack.item as LegacyEquipItem).getVariant(stack)
-                if (variant >= 3) {
-                    val speed = when (variant) {
-                        3, 4 -> 1
-                        5 -> 2
-                        6 -> 3
-                        else -> 0
+            when (item) {
+                is LegacyEquipItem -> {
+                    equipTypeId = item.getEquipTypeId(stack)
+                    when (equipTypeId) {
+                        EQUIP_TYPE_DRUM -> drumCount++
+                        EQUIP_TYPE_COMPASS -> compassCount++
+                        EQUIP_TYPE_FLARE -> flareCount++
+                        EQUIP_TYPE_SEARCHLIGHT -> searchlightCount++
                     }
-                    torpedoSpeedLevel = max(torpedoSpeedLevel, speed)
+
+                    if (equipTypeId == 29) {
+                        val variant = item.getVariant(stack)
+                        if (variant == 5 || variant == 6 || variant == 8) {
+                            specialAmmoVariant = max(specialAmmoVariant, variant)
+                        }
+                    } else if (equipTypeId == 5) {
+                        val variant = item.getVariant(stack)
+                        if (variant >= 3) {
+                            val speed = when (variant) {
+                                3, 4 -> 1
+                                5 -> 2
+                                6 -> 3
+                                else -> 0
+                            }
+                            torpedoSpeedLevel = max(torpedoSpeedLevel, speed)
+                        }
+                    }
+
+                    stats = getMainAttrs(item.getEquipId(stack))
                 }
+                is IShipEquip -> {
+                    equipTypeId = item.getEquipTypeId(stack)
+                    val effect = ShipEquipRegistry.getEffect(equipTypeId)
+                    if (effect != null) {
+                        val count = effect.collectCount(this, stack)
+                        when (equipTypeId) {
+                            EQUIP_TYPE_DRUM -> drumCount += count
+                            EQUIP_TYPE_COMPASS -> compassCount += count
+                            EQUIP_TYPE_FLARE -> flareCount += count
+                            EQUIP_TYPE_SEARCHLIGHT -> searchlightCount += count
+                        }
+                    }
+                    stats = item.getMainAttributes(stack)
+                }
+                else -> continue
             }
 
-            val stats = getMainAttrs((stack.item as LegacyEquipItem).getEquipId(stack))
-            if (stats == null) {
-                continue
-            }
-
-            val len = min(equipBonuses.size, stats.size)
-            for (i in 0..<len) {
-                equipBonuses[i] += stats[i]
+            if (stats != null) {
+                val len = min(equipBonuses.size, stats.size)
+                for (i in 0..<len) {
+                    equipBonuses[i] += stats[i]
+                }
             }
         }
 

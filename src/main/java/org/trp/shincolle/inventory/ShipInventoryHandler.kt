@@ -8,6 +8,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.neoforged.neoforge.items.ItemStackHandler
 import org.trp.shincolle.Shincolle
+import org.trp.shincolle.api.equip.IShipEquip
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.item.LegacyEquipItem
 
@@ -39,7 +40,7 @@ class ShipInventoryHandler(private val ship: EntityShipBase, size: Int) : ItemSt
             return false
         }
         if (slot < equipSlotCount) {
-            return stack.`is`(equipItemsTag) || stack.item is LegacyEquipItem
+            return stack.`is`(equipItemsTag) || stack.item is LegacyEquipItem || stack.item is IShipEquip
         }
         return true
     }
