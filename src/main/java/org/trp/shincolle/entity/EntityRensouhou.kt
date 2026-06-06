@@ -9,13 +9,13 @@ import kotlin.math.max
 import kotlin.math.min
 
 class EntityRensouhou(type: EntityType<out TamableAnimal>, level: Level) : EntitySummonBase(type, level) {
-    override fun returnSummonResources(carrier: EntityShipBase) {
+    override fun returnSummonResources(carrier: EntityShipBase?) {
         if (carrier is IShipSummonAttack) {
-            carrier.setNumServant(min(MAX_RENSOUHOU, carrier.getNumServant() + 1))
+            carrier.numServant = min(MAX_RENSOUHOU, carrier.numServant + 1)
         }
 
         val returnLight = max(0, this.numAmmoLight - AMMO_RETURN_PENALTY_LIGHT)
-        if (returnLight > 0) {
+        if (returnLight > 0 && carrier != null) {
             carrier.ammoLight = carrier.ammoLight + returnLight
         }
     }

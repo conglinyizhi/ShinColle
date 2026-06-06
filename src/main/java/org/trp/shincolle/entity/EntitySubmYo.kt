@@ -83,7 +83,7 @@ class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
 
     private fun updateServerLogic() {
         if (this.isStateRingEffect) {
-            val duration = 40 + this.level
+            val duration = 40 + this.level()
             this.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
             val owner = this.ownerPlayer
 

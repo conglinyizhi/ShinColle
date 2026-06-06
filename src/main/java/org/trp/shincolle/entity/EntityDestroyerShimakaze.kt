@@ -76,9 +76,10 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
             this.numRensouhou++
         }
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+            val owner = this.ownerPlayer
+            if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 35 + 1
-                this.ownerPlayer.addEffect(
+                owner.addEffect(
                     MobEffectInstance(
                         MobEffects.MOVEMENT_SPEED,
                         80 + this.getStateMinor(0), amp, false, false
@@ -238,13 +239,11 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
         }
     }
 
-    override fun getNumServant(): Int {
-        return this.numRensouhou
-    }
-
-    override fun setNumServant(num: Int) {
-        this.numRensouhou = Mth.clamp(num, 0, MAX_RENSOUHOU)
-    }
+    override var numServant: Int
+        get() = this.numRensouhou
+        set(num) {
+            this.numRensouhou = Mth.clamp(num, 0, MAX_RENSOUHOU)
+        }
 
     override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN

@@ -175,9 +175,10 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
 
     private fun applyPlayerBuff() {
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+            val owner = this.ownerPlayer
+            if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 30
-                this.ownerPlayer.addEffect(
+                owner.addEffect(
                     MobEffectInstance(
                         MobEffects.DIG_SPEED,
                         80 + this.getStateMinor(0), amp, false, false
@@ -209,7 +210,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
                 rider.addMorale(100)
             }
             if (rider is IShipRiderType) {
-                rider.riderType = this.riderType)
+                rider.riderType = this.riderType
             }
         }
     }
@@ -287,7 +288,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
             }
         }
 
-        if (this.riderType == RIDER_TYPE_NONE) {
+        if (this.riderType == RIDER_TYPE_NONE {
             if (hibiki != null) {
                 hibiki.startRiding(this, true)
                 if (inazuma != null) {
@@ -330,7 +331,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         this.ridingState = 0
         for (rider in this.getPassengers()) {
             if (rider is IShipRiderType) {
-                rider.riderType = RIDER_TYPE_NONE)
+                rider.riderType = RIDER_TYPE_NONE
             }
             if (rider is EntityShipBase) {
                 rider.ridingState = 0

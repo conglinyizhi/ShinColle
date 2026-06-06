@@ -70,12 +70,12 @@ class VolCoreBlock : BaseEntityBlock(
         return createTickerHelper<VolCoreBlockEntity?, T?>(
             type,
             ModBlockEntities.VOL_CORE.get(),
-            BlockEntityTicker { level: Level?, pos: BlockPos?, state: BlockState?, blockEntity: VolCoreBlockEntity? ->
+            BlockEntityTicker { level: Level, pos: BlockPos?, state: BlockState?, blockEntity: VolCoreBlockEntity? ->
                 VolCoreBlockEntity.Companion.serverTick(
                     level,
-                    pos,
-                    state,
-                    blockEntity
+                    pos!!,
+                    state!!,
+                    blockEntity!!
                 )
             })
     }

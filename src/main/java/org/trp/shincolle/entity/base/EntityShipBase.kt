@@ -3969,6 +3969,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         private const val SHIP_BUOY_DAMP = 0.80
         private const val SHIP_BUOY_MAX_MOTION = 0.1
 
+        @JvmStatic
         protected fun checkModelState(id: Int, state: Int): Boolean {
             if (id < 0 || id >= 31) {
                 return false
@@ -3976,6 +3977,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             return (state and (1 shl id)) != 0
         }
 
+        @JvmStatic
         protected fun rotateXZByAxis(z: Float, x: Float, radians: Float, scale: Float): FloatArray {
             val cosD = Mth.cos(radians)
             val sinD = Mth.sin(radians)

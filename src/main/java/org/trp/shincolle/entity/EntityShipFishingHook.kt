@@ -8,6 +8,7 @@ import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.Level
 import org.trp.shincolle.Config
@@ -63,9 +64,9 @@ class EntityShipFishingHook(type: EntityType<*>, level: Level) : Entity(type, le
                 this.discard()
                 return
             }
-            var rod = this.host!!.getHeldItemMainhandSlot()
+            var rod = this.host!!.getItemBySlot(EquipmentSlot.MAINHAND)
             if (rod.isEmpty() || rod.getItem() !== Items.FISHING_ROD) {
-                rod = this.host!!.getHeldItemOffhandSlot()
+                rod = this.host!!.getItemBySlot(EquipmentSlot.OFFHAND)
             }
             if (rod.isEmpty() || rod.getItem() !== Items.FISHING_ROD || this.distanceToSqr(this.host) > 1024.0) {
                 this.discard()

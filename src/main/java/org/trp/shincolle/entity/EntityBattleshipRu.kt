@@ -58,7 +58,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
             if (!this.isInSittingPose) {
                 return (this.getBbHeight() * 0.72f).toDouble()
             }
-            if (checkModelState(0, this.getStateEmotion(0))) {
+            if ((this.getStateEmotion(0) and (1 shl 0)) != 0) {
                 if (this.getStateEmotion(1) == 4) {
                     return (this.getBbHeight() * 0.51f).toDouble()
                 }
@@ -133,7 +133,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
             return
         }
         if ((this.tickCount and 0x3F) == 0) {
-            if (this.getStateEmotion(1) == 4 && checkModelState(0, this.getStateEmotion(0))
+            if (this.getStateEmotion(1) == 4 && (this.getStateEmotion(0) and (1 shl 0)) != 0
                 && (this.tickCount and 0x1FF) > 400
             ) {
                 this.level().addParticle(

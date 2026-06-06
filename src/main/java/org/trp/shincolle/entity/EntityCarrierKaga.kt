@@ -70,13 +70,11 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal>, level: Level) : Ent
     override val aircraftLaunchHeight: Double
         get() = this.getBbHeight() * 0.65
 
-    override fun getAircraftLightLevelBonus(): Float {
-        return 0.4f
-    }
+    override val aircraftLightLevelBonus: Float
+        get() = 0.4f
 
-    override fun getAircraftHeavyLevelBonus(): Float {
-        return 0.2f
-    }
+    override val aircraftHeavyLevelBonus: Float
+        get() = 0.2f
 
     override val shipSpawnEggItem: Item?
         get() = ModItems.CARRIER_KAGA_SPAWN_EGG.get()

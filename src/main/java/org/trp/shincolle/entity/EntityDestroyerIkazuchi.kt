@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
+import org.trp.shincolle.utility.CalcHelper
 import kotlin.math.max
 
 class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
@@ -59,7 +60,8 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
 
     override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {
         // mobInteract
-        if (this.isRaiden && this.getVehicle() is EntityShipBase) {
+        val vehicle = this.getVehicle()
+        if (this.isRaiden && vehicle is EntityShipBase) {
             return vehicle.mobInteract(player, hand)
         }
         return super.mobInteract(player, hand)
@@ -137,7 +139,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
 
     private fun updateClientLogic() {
         if ((this.tickCount % 4) == 0 && !this.isInSittingPose && !this.isInDeadPose && this.getEquipFlag(EQUIP_RIGGING)) {
-            val partPos = rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
+            val partPos = CalcHelper.rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             this.level().addParticle(
                 ParticleTypes.SMOKE,
                 this.getX() + partPos[1], this.getY() + 1.4, this.getZ() + partPos[0],
@@ -247,7 +249,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
 
         val expireTick: Long = this.level().getGameTime() + RAIDEN_GATTAI_DURATION_TICKS
         this.setRaidenGattaiExpireTick(expireTick)
-        inazuma.raidenGattaiExpireTick = expireTick
+        inazuma.setRaidenGattaiExpireTick(expireTick)
     }
 
     private fun canGattaiWith(partner: EntityDestroyerInazuma?): Boolean {

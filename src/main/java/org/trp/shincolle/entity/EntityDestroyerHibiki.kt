@@ -11,6 +11,7 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.level.Level
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
+import org.trp.shincolle.utility.CalcHelper
 
 class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipRiderType {
@@ -96,9 +97,10 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
 
     private fun applyBuffToOwner() {
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+            val owner = this.ownerPlayer
+            if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 45 + 1
-                this.ownerPlayer.addEffect(
+                owner.addEffect(
                     MobEffectInstance(
                         MobEffects.JUMP,
                         80 + this.getStateMinor(0), amp, false, false
@@ -111,7 +113,7 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
     private fun spawnEngineParticles() {
         val canSpawn = !this.isInSittingPose && this.getEquipFlag(EQUIP_RIGGING) && this.riderType < 2
         if (canSpawn) {
-            val partPos = rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
+            val partPos = CalcHelper.rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             this.level().addParticle(
                 ParticleTypes.SMOKE,
                 this.getX() + partPos[1], this.getY() + 1.4, this.getZ() + partPos[0],
@@ -140,8 +142,9 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
 
     private val akatsukiRiding: EntityDestroyerAkatsuki?
         get() {
-            if (this.getVehicle() is EntityDestroyerAkatsuki) {
-                return akatsuki
+            val vehicle = this.getVehicle()
+            if (vehicle is EntityDestroyerAkatsuki) {
+                return vehicle
             }
             return null
         }

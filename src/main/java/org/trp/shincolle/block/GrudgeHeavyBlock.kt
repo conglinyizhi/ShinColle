@@ -34,7 +34,7 @@ class GrudgeHeavyBlock(properties: Properties) : Block(properties) {
 
         setLargeShipyardSupportFormed(level, pos, true)
 
-        val activatedState = ModBlocks.LARGE_SHIPYARD.get().defaultBlockState()
+        val activatedState = ModBlocks.LARGE_SHIPYARD.get()!!.defaultBlockState()
             .setValue<Direction?, Direction?>(LargeShipyardBlock.Companion.FACING, player.getDirection().getOpposite())
             .setValue<Boolean?, Boolean?>(LargeShipyardBlock.Companion.ACTIVE, false)
         level.setBlock(pos, activatedState, UPDATE_ALL)
@@ -50,7 +50,7 @@ class GrudgeHeavyBlock(properties: Properties) : Block(properties) {
         private const val TYPE_POLYMETAL: Byte = 1
         private const val TYPE_GRUDGE_HEAVY: Byte = 2
 
-        private val LARGE_SHIPYARD_PATTERN: Array<Array<ByteArray?>> = arrayOf<Array<ByteArray?>?>(
+        private val LARGE_SHIPYARD_PATTERN: Array<Array<ByteArray?>> = arrayOf<Array<ByteArray?>>(
             arrayOf<ByteArray?>(
                 byteArrayOf(TYPE_POLYMETAL, TYPE_POLYMETAL, TYPE_POLYMETAL),
                 byteArrayOf(TYPE_POLYMETAL, TYPE_POLYMETAL, TYPE_POLYMETAL),

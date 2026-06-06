@@ -6,7 +6,7 @@ import net.minecraft.world.entity.PathfinderMob
 import net.minecraft.world.level.Level
 import org.trp.shincolle.entity.base.EntityMountBase
 
-class EntityMountBaH(type: EntityType<out PathfinderMob?>?, level: Level?) : EntityMountBase(type, level) {
+class EntityMountBaH(type: EntityType<out PathfinderMob>, level: Level) : EntityMountBase(type, level) {
     init {
         this.setSeatPos(1.05f, 3.0f, 0.0f)
         this.setSeatPos2(1.2f, 0.7f, -1.3f)

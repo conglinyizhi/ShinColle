@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level
 import org.trp.shincolle.Config
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
+import org.trp.shincolle.utility.CalcHelper
 import kotlin.math.max
 
 class EntityBBHaruna(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
@@ -44,7 +45,7 @@ class EntityBBHaruna(type: EntityType<out TamableAnimal>, level: Level) : Entity
             if (!this.isInSittingPose) {
                 return (this.getBbHeight() * 0.75f).toDouble()
             }
-            if (checkModelState(1, this.getStateEmotion(0))) {
+            if ((this.getStateEmotion(0) and (1 shl 1)) != 0) {
                 return (this.getBbHeight() * 0.42f).toDouble()
             }
             if (this.getStateEmotion(1) == 4) {
@@ -63,7 +64,7 @@ class EntityBBHaruna(type: EntityType<out TamableAnimal>, level: Level) : Entity
 
     private fun updateClientParticles() {
         if (this.tickCount % 4 == 0 && !this.isInSittingPose && this.getEquipFlag(EQUIP_RIGGING) && !this.isInDeadPose) {
-            val partPos = rotateXZByAxis(-0.6f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f)
+            val partPos = CalcHelper.rotateXZByAxis(-0.6f, 0.0f, this.yBodyRot * Mth.DEG_TO_RAD, 1.0f)
             for (i in 0..2) {
                 this.level().addParticle(
                     ParticleTypes.SMOKE,

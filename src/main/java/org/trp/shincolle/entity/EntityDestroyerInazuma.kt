@@ -102,8 +102,9 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
         val damaged = super.hurt(source, amount)
         if (damaged && !this.level().isClientSide) {
-            if (this.getVehicle() is EntityDestroyerAkatsuki) {
-                akatsuki.dismountAllRider()
+            val vehicle = this.getVehicle()
+            if (vehicle is EntityDestroyerAkatsuki) {
+                vehicle.dismountAllRider()
             }
             if (this.isRaiden) {
                 dismountRaiden()
@@ -114,8 +115,9 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
 
     override fun updateFuelState(nofuel: Boolean) {
         if (nofuel) {
-            if (this.getVehicle() is EntityDestroyerAkatsuki) {
-                akatsuki.dismountAllRider()
+            val vehicle = this.getVehicle()
+            if (vehicle is EntityDestroyerAkatsuki) {
+                vehicle.dismountAllRider()
                 this.stopRiding()
             }
             if (this.isRaiden) {
@@ -177,9 +179,10 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
 
     private fun applyBuffToPlayer() {
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
+            val owner = this.ownerPlayer
+            if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 45
-                this.ownerPlayer.addEffect(
+                owner.addEffect(
                     MobEffectInstance(
                         MobEffects.MOVEMENT_SPEED,
                         80 + this.getStateMinor(0), amp, false, false
@@ -190,8 +193,9 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
     }
 
     private fun updateRiderRotation() {
-        if (this.getVehicle() is EntityDestroyerAkatsuki) {
-            akatsuki.syncRotateToRider()
+        val vehicle = this.getVehicle()
+        if (vehicle is EntityDestroyerAkatsuki) {
+            vehicle.syncRotateToRider()
         } else if (this.isRaiden) {
             for (rider in this.getPassengers()) {
                 if (rider is LivingEntity && rider is EntityDestroyerIkazuchi) {
@@ -288,7 +292,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
     private fun beginRaidenGattai(ikazuchi: EntityDestroyerIkazuchi) {
         this.isRaiden = true
         this.raidenRecovery.reset(this.position())
-        ikazuchi.isRaiden = true)
+        ikazuchi.isRaiden = true
 
         val expireTick: Long = this.level().getGameTime() + RAIDEN_GATTAI_DURATION_TICKS
         this.setRaidenGattaiExpireTick(expireTick)
@@ -309,8 +313,9 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
 
     private fun checkRiderType() {
         this.riderType = 0
-        if (this.getVehicle() is EntityDestroyerAkatsuki) {
-            this.riderType = akatsuki.riderType
+        val vehicle = this.getVehicle()
+        if (vehicle is EntityDestroyerAkatsuki) {
+            this.riderType = vehicle.riderType
         }
     }
 
@@ -338,7 +343,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         for (rider in this.getPassengers()) {
             if (rider is EntityDestroyerIkazuchi) {
                 hadRaiden = true
-                rider.isRaiden = false)
+                rider.isRaiden = false
                 rider.startRaidenGattaiCooldown()
                 rider.stopRiding()
                 placeIkazuchiAfterRaidenDismount(rider)

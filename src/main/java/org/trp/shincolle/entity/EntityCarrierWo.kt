@@ -24,8 +24,8 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeCV)
         this.isStateGuiBtn1 = false
         this.isStateGuiBtn2 = false
-        setStateLightAircraftAttack(true)
-        setStateHeavyAircraftAttack(true)
+        this.isStateLightAircraftAttack = true
+        this.isStateHeavyAircraftAttack = true
     }
 
     override fun aiStep() {
@@ -118,13 +118,11 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
     override val aircraftLaunchHeight: Double
         get() = this.getBbHeight() * 0.9
 
-    override fun getAircraftLightLevelBonus(): Float {
-        return 0.25f
-    }
+    override val aircraftLightLevelBonus: Float
+        get() = 0.25f
 
-    override fun getAircraftHeavyLevelBonus(): Float {
-        return 0.15f
-    }
+    override val aircraftHeavyLevelBonus: Float
+        get() = 0.15f
 
     override val shipSpawnEggItem: Item?
         get() = ModItems.CARRIER_WO_SPAWN_EGG.get()

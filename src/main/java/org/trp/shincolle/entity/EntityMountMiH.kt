@@ -8,7 +8,7 @@ import org.trp.shincolle.entity.base.EntityMountBase
 import kotlin.math.cos
 import kotlin.math.sin
 
-class EntityMountMiH(type: EntityType<out PathfinderMob?>?, level: Level?) : EntityMountBase(type, level) {
+class EntityMountMiH(type: EntityType<out PathfinderMob>, level: Level) : EntityMountBase(type, level) {
     init {
         this.setSeatPos(0.0f, 2.7f, 0.0f)
         this.setSeatPos2(-0.3f, 0.5f, 0.0f)

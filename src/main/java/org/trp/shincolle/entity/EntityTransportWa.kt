@@ -144,7 +144,7 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
             0 -> {
                 if (consumeItemInInventory(ModItems.GRUDGE.get())) {
                     addGrudge(3000)
-                    break
+                    return
                 }
                 if (consumeItemInInventory(ModItems.GRUDGE_HEAVY_BLOCK.get())) {
                     addGrudge(27000)
@@ -154,7 +154,7 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
             1 -> {
                 if (consumeItemInInventory(ModItems.AMMO_LIGHT.get())) {
                     addAmmoLight(30)
-                    break
+                    return
                 }
                 if (consumeItemInInventory(ModItems.AMMO_LIGHT_CONTAINER.get())) {
                     addAmmoLight(270)
@@ -164,7 +164,7 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
             2 -> {
                 if (consumeItemInInventory(ModItems.AMMO_HEAVY.get())) {
                     addAmmoHeavy(15)
-                    break
+                    return
                 }
                 if (consumeItemInInventory(ModItems.AMMO_HEAVY_CONTAINER.get())) {
                     addAmmoHeavy(135)

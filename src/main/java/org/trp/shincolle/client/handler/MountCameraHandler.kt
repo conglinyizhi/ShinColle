@@ -11,7 +11,6 @@ import net.neoforged.neoforge.client.event.RenderFrameEvent
 import net.neoforged.neoforge.client.event.RenderPlayerEvent
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityMountBase
-import org.trp.shincolle.entity.base.EntityMountBase.getHost
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = [Dist.CLIENT])
 object MountCameraHandler {
@@ -24,6 +23,7 @@ object MountCameraHandler {
         if (player == null) return
 
         if (player.getVehicle() is EntityMountBase) {
+            val mount = player.getVehicle() as EntityMountBase
             val host: Entity? = mount.getHost()
             if (host != null) {
                 if (mc.getCameraEntity() !== host) {

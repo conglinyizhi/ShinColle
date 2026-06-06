@@ -8,7 +8,7 @@ import org.trp.shincolle.init.ModParticles
 import kotlin.math.cos
 import kotlin.math.sin
 
-class EntityMountAfH(type: EntityType<out PathfinderMob?>?, level: Level?) : EntityMountBase(type, level) {
+class EntityMountAfH(type: EntityType<out PathfinderMob>, level: Level) : EntityMountBase(type, level) {
     init {
         this.setSeatPos(0.59f, -0.25f, 0.0f)
         this.setSeatPos2(-0.85f, 1.0f, -1.12f)

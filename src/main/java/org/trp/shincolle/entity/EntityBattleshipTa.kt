@@ -97,13 +97,11 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
         }
     }
 
-    override fun getNumServant(): Int {
-        return this.numRensouhou
-    }
-
-    override fun setNumServant(num: Int) {
-        this.numRensouhou = max(0, min(MAX_RENSOUHOU, num))
-    }
+    override var numServant: Int
+        get() = this.numRensouhou
+        set(num) {
+            this.numRensouhou = max(0, min(MAX_RENSOUHOU, num))
+        }
 
     private fun updateServerLogic() {
         if (this.numRensouhou < MAX_RENSOUHOU) {

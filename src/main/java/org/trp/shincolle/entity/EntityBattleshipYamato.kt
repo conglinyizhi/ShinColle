@@ -48,7 +48,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
         }
 
         if (!this.level().isClientSide && this.getStateEmotion(EMOTION_ATTACK_PHASE) > 0) {
-            if (!this.isStateGuiBtn2() || !this.isStateHeavyAttack || this.ammoHeavy <= 0) {
+            if (!this.isStateGuiBtn2 || !this.isStateHeavyAttack || this.ammoHeavy <= 0) {
                 this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
             }
         }
