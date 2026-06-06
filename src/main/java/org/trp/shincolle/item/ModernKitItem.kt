@@ -56,7 +56,7 @@ class ModernKitItem(properties: Properties) : Item(properties.stacksTo(1)) {
             debugLog("ModernKit noEffect ship={} bonusesMaxed=true", interactionTarget.getUUID())
             if (Config.modernKitNotifyWhenMaxed) {
                 val feedback: MaxedFeedback = maxedFeedback()
-                player.displayClientMessage(feedback.message, feedback.actionBar)
+                player.displayClientMessage(feedback.message ?: Component.empty(), feedback.actionBar)
             }
             return InteractionResult.FAIL
         }

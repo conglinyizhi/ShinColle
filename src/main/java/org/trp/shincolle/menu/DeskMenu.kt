@@ -106,7 +106,7 @@ class DeskMenu @JvmOverloads constructor(
                 return false
             }
             return stillValid(
-                ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos()),
+                ContainerLevelAccess.create(blockEntity.getLevel()!!, blockEntity.getBlockPos()),
                 player,
                 blockEntity.getBlockState().getBlock()
             )

@@ -77,7 +77,7 @@ class RecipePaperMenu(
         val recipeGrid = loadRecipeGrid(this.hostStack, this.level.registryAccess())
         for (i in recipeGrid.indices) {
             if (!recipeGrid[i]!!.isEmpty()) {
-                this.craftMatrix.setItem(i, recipeGrid[i])
+                this.craftMatrix.setItem(i, recipeGrid[i]!!)
             }
         }
         updateResult()

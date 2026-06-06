@@ -9,6 +9,7 @@ import org.trp.shincolle.client.renderer.item.DeskItemRenderer
 import java.util.function.Consumer
 
 class DeskBlockItem(block: Block, properties: Properties) : BlockItem(block, properties) {
+    @Deprecated("Overrides deprecated NeoForge client API")
     override fun initializeClient(consumer: Consumer<IClientItemExtensions?>) {
         consumer.accept(object : IClientItemExtensions {
             private var renderer: BlockEntityWithoutLevelRenderer? = null

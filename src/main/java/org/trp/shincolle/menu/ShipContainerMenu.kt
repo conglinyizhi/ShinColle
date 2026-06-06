@@ -575,7 +575,7 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
         if (index < 0 || index >= ship.equipOptions.size) {
             return Component.empty()
         }
-        return Component.translatable(ship.equipOptions.get(index).labelKey)
+        return Component.translatable(ship.equipOptions.get(index).labelKey!!)
     }
 
     fun isEquipOptionEnabled(index: Int): Boolean {
