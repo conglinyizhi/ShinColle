@@ -71,6 +71,7 @@ import org.trp.shincolle.item.CombatRationItem.Companion.getMoraleValue
 
 import org.trp.shincolle.item.CombatRationItem.Companion.rollFuelGain
 import org.trp.shincolle.item.DebugInspectorItem.Companion.markBucketRepairTriggered
+import org.trp.shincolle.api.consumable.IShipConsumable
 import org.trp.shincolle.api.equip.IShipEquip
 import org.trp.shincolle.api.equip.ShipEquipRegistry
 import org.trp.shincolle.item.LegacyEquipItem
@@ -2775,6 +2776,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             } else if (this.consumeItemInInventory(ModItems.GRUDGE_BLOCK.get())) {
                 this.fuel = (2700 * modFuel).toInt()
                 this.applyAutoSupplyEffects()
+            } else {
+                val supplied = tryConsumableAutoSupply(modFuel)
+                if (supplied) {
+                    this.applyAutoSupplyEffects()
+                }
             }
         }
 
@@ -2974,6 +2980,20 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                 }
             }
 
+            if (stack.item is IShipConsumable) {
+                val consumable = stack.item as IShipConsumable
+                if (consumable.canInteractWithShip(stack, this, player)) {
+                    val success = consumable.onInteractWithShip(stack, this, player)
+                    if (success) {
+                        if (consumable.consumeItemOnInteract(stack, this, player) && !player.abilities.instabuild) {
+                            stack.shrink(1)
+                        }
+                        this.focusOnPlayer(player)
+                        return InteractionResult.sidedSuccess(this.level().isClientSide)
+                    }
+                }
+            }
+
             if (player.isShiftKeyDown()) {
                 this.openShipMenu(player)
                 this.resetInteractionEmotionState()
@@ -3137,6 +3157,13 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                 )
                 return false
             }
+
+            if (!isOwnerAttack) {
+                val protected = tryConsumableDeathProtection(source)
+                if (protected) {
+                    return false
+                }
+            }
         }
 
         val result = super.hurt(source, reduced)
@@ -3151,6 +3178,43 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             }
         }
         return result
+    }
+
+    private fun tryConsumableDeathProtection(source: DamageSource): Boolean {
+        val inv = this.inventory ?: return false
+        for (i in 0..<inv.slots) {
+            val stack = inv.getStackInSlot(i)
+            if (stack.isEmpty()) continue
+            val item = stack.item
+            if (item is IShipConsumable && item.canPreventDeath(stack, this, source)) {
+                val prevented = item.onPreventDeath(stack, this, source)
+                if (prevented) {
+                    this.customHurtTime = 120
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun tryConsumableAutoSupply(modFuel: Float): Boolean {
+        val inv = this.inventory ?: return false
+        for (i in 0..<inv.slots) {
+            val stack = inv.getStackInSlot(i)
+            if (stack.isEmpty()) continue
+            val item = stack.item
+            if (item is IShipConsumable && item.canAutoSupplyGrudge(stack, this)) {
+                val amount = item.getAutoSupplyGrudgeAmount(stack, this)
+                if (amount > 0) {
+                    this.fuel = (amount * modFuel).toInt()
+                    val updated = stack.copy()
+                    updated.shrink(1)
+                    inv.setStackInSlot(i, updated)
+                    return true
+                }
+            }
+        }
+        return false
     }
 
     private fun tryLegacyDodge(source: DamageSource): Boolean {

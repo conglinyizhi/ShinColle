@@ -25,6 +25,7 @@ import org.trp.shincolle.entity.projectile.EntityAbyssMissile.MoveType
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModSounds
 // import org.trp.shincolle.item.CombatRationItem.getVariant
+import org.trp.shincolle.api.consumable.IShipConsumable
 import org.trp.shincolle.api.equip.IShipEquip
 import org.trp.shincolle.api.equip.ShipEquipRegistry
 import org.trp.shincolle.item.LegacyEquipItem
@@ -177,6 +178,14 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 heavy += stack.count * AMMO_HEAVY_VALUE
             } else if (isHeavyAmmoContainer(stack)) {
                 heavy += stack.count * AMMO_HEAVY_CONTAINER_VALUE
+            } else if (stack.item is IShipConsumable) {
+                val consumable = stack.item as IShipConsumable
+                if (consumable.isLightAmmo(stack, this.ship)) {
+                    light += stack.count * consumable.getLightAmmoValue(stack, this.ship)
+                }
+                if (consumable.isHeavyAmmo(stack, this.ship)) {
+                    heavy += stack.count * consumable.getHeavyAmmoValue(stack, this.ship)
+                }
             }
         }
         this.ship.ammoLight = light
@@ -425,6 +434,15 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 if (leftover > 0) {
                     insertAmmoRemainder(ModItems.AMMO_HEAVY.get()!!, leftover, i)
                 }
+            } else if (stack.item is IShipConsumable) {
+                val consumable = stack.item as IShipConsumable
+                if (consumable.isHeavyAmmo(stack, this.ship)) {
+                    val take = min(stack.count, remaining)
+                    val updated = stack.copy()
+                    updated.shrink(take)
+                    this.ship.inventory.setStackInSlot(i, updated)
+                    remaining -= take
+                }
             }
             i++
         }
@@ -467,6 +485,15 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
 
                 if (leftover > 0) {
                     insertAmmoRemainder(ModItems.AMMO_LIGHT.get()!!, leftover, i)
+                }
+            } else if (stack.item is IShipConsumable) {
+                val consumable = stack.item as IShipConsumable
+                if (consumable.isLightAmmo(stack, this.ship)) {
+                    val take = min(stack.count, remaining)
+                    val updated = stack.copy()
+                    updated.shrink(take)
+                    this.ship.inventory.setStackInSlot(i, updated)
+                    remaining -= take
                 }
             }
             i++
