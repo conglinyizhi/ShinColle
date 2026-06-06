@@ -70,15 +70,17 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
         super.init()
         pageButtons.clear(); settingsTabButtons.clear(); toggleButtons.clear(); toggleParentTabs.clear(); toggleVisibilitySuppliers.clear()
 
+        val pageYs = intArrayOf(18, 54, 90)
         for (page in 0 until 3) {
             val pageBtn = IconButton.builder(TEXTURE_BG)
-                .pos(this.leftPos + 44, this.topPos + 18 + page * 36)
-                .size(18, 36).uv(34, 192).hoverUv(52, 192)
-                .activeState { page == 0 || menu.unlockedStoragePages >= page }
+                .pos(this.leftPos + 62, this.topPos + pageYs[page])
+                .size(6, 34).uv(-1, -1)
+                .hoverUv(Sprites.SHIP_INV_PAGE_INDICATOR_U, Sprites.SHIP_INV_PAGE_INDICATOR_V)
+                .activeState { menu.getInventoryPage() == page }
                 .onPress {
-                    Minecraft.getInstance().gameMode?.handleInventoryButtonClick(
-                        menu.containerId, ShipContainerMenu.PAGE_BUTTON_0 + page
-                    )
+                    if (page == 0 || menu.unlockedStoragePages >= page) {
+                        sendMenuButton(ShipContainerMenu.PAGE_BUTTON_0 + page)
+                    }
                 }.build()
             if (page > 0) pageBtn.active = false
             this.addRenderableWidget(pageBtn)
