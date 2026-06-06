@@ -682,14 +682,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     }
 
     private fun drawOutlinedText(g: GuiGraphics, text: String, x: Int, y: Int, color: Int) {
-        if (color == LEGACY_LABEL_OUTLINE_COLOR) {
-            g.drawString(this.font, text, x, y, color, false)
-            return
-        }
-        g.drawString(this.font, text, x - 1, y, LEGACY_LABEL_OUTLINE_COLOR, false)
-        g.drawString(this.font, text, x + 1, y, LEGACY_LABEL_OUTLINE_COLOR, false)
-        g.drawString(this.font, text, x, y - 1, LEGACY_LABEL_OUTLINE_COLOR, false)
-        g.drawString(this.font, text, x, y + 1, LEGACY_LABEL_OUTLINE_COLOR, false)
+        g.drawString(this.font, text, x + 1, y + 1, 0x301010, false)
         g.drawString(this.font, text, x, y, color, false)
     }
 
