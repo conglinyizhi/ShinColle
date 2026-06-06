@@ -27,7 +27,8 @@ class HBox
      * Add a child, automatically positioning it at the next horizontal slot.
      * The panel's width grows to accommodate the child; height adjusts if necessary.
      */
-    override fun addChild(child: AbstractWidget): HBox {
+    override fun addChild(child: AbstractWidget?): HBox {
+        child ?: return this
         // Position child at the current slot
         child.setX(nextX)
         child.setY(getY())

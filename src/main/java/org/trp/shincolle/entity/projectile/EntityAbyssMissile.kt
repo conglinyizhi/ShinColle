@@ -45,7 +45,7 @@ import kotlin.math.floor
 import kotlin.math.max
 import kotlin.math.sqrt
 
-class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : Entity(type, level),
+class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level) : Entity(type, level),
     IEntityWithComplexSpawn {
     enum class MoveType {
         DIRECT,
@@ -56,7 +56,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
 
         companion object {
             fun fromId(id: Int): MoveType {
-                if (id < 0 || id >= MoveType.entries.toTypedArray().length) {
+                if (id < 0 || id >= MoveType.entries.size) {
                     return MoveType.DIRECT
                 }
                 return MoveType.entries[id]
@@ -93,7 +93,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         speed: Float,
         life: Int,
         explosionRadius: Float
-    ) : this(ModEntities.ABYSS_MISSILE.get(), level) {
+    ) : this(ModEntities.ABYSS_MISSILE.get()!!, level) {
         if (owner != null) {
             this.setOwner(owner)
             this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.6, owner.getZ())
@@ -113,7 +113,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         level: Level, owner: Entity?, target: Entity?, damage: Float, moveType: MoveType?,
         vel0: Float, accY1: Float, accY2: Float, presetVelocity: Vec3?,
         life: Int, explosionRadius: Float
-    ) : this(ModEntities.ABYSS_MISSILE.get(), level) {
+    ) : this(ModEntities.ABYSS_MISSILE.get()!!, level) {
         if (owner != null) {
             this.setOwner(owner)
             this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.6, owner.getZ())
@@ -133,7 +133,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         level: Level, owner: Entity?, target: Entity?, targetPos: Vec3?, damage: Float, moveType: MoveType?,
         vel0: Float, accY1: Float, accY2: Float, presetVelocity: Vec3?,
         life: Int, explosionRadius: Float
-    ) : this(ModEntities.ABYSS_MISSILE.get(), level) {
+    ) : this(ModEntities.ABYSS_MISSILE.get()!!, level) {
         if (owner != null) {
             this.setOwner(owner)
             this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.6, owner.getZ())
@@ -150,25 +150,25 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
-        builder.define<Optional<UUID?>?>(OWNER_UUID, Optional.empty<UUID?>())
-        builder.define<Optional<UUID?>?>(TARGET_UUID, Optional.empty<UUID?>())
-        builder.define<Float?>(DAMAGE, 6.0f)
-        builder.define<Float?>(SPEED, 0.7f)
-        builder.define<Int?>(LIFE, 200)
-        builder.define<Float?>(EXPLOSION_RADIUS, 3.5f)
+        builder.define(OWNER_UUID, Optional.empty())
+        builder.define(TARGET_UUID, Optional.empty())
+        builder.define(DAMAGE, 6.0f)
+        builder.define(SPEED, 0.7f)
+        builder.define(LIFE, 200)
+        builder.define(EXPLOSION_RADIUS, 3.5f)
     }
 
     override fun readAdditionalSaveData(tag: CompoundTag) {
         if (tag.hasUUID("Owner")) {
-            this.entityData.set<Optional<UUID?>?>(OWNER_UUID, Optional.of<UUID?>(tag.getUUID("Owner")))
+            this.entityData.set(OWNER_UUID, Optional.of(tag.getUUID("Owner")))
         }
         if (tag.hasUUID("Target")) {
-            this.entityData.set<Optional<UUID?>?>(TARGET_UUID, Optional.of<UUID?>(tag.getUUID("Target")))
+            this.entityData.set(TARGET_UUID, Optional.of(tag.getUUID("Target")))
         }
-        this.entityData.set<Float?>(DAMAGE, tag.getFloat("Damage"))
-        this.entityData.set<Float?>(SPEED, tag.getFloat("Speed"))
-        this.entityData.set<Int?>(LIFE, tag.getInt("Life"))
-        this.entityData.set<Float?>(EXPLOSION_RADIUS, tag.getFloat("ExplosionRadius"))
+        this.entityData.set(DAMAGE, tag.getFloat("Damage"))
+        this.entityData.set(SPEED, tag.getFloat("Speed"))
+        this.entityData.set(LIFE, tag.getInt("Life"))
+        this.entityData.set(EXPLOSION_RADIUS, tag.getFloat("ExplosionRadius"))
         this.moveType = MoveType.fromId(tag.getInt("MoveType"))
         this.velX = tag.getDouble("VelX")
         this.velY = tag.getDouble("VelY")
@@ -186,7 +186,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         if (tag.contains(TAG_IMPACT_EFFECTS, Tag.TAG_LIST.toInt())) {
             val listTag = tag.getList(TAG_IMPACT_EFFECTS, Tag.TAG_COMPOUND.toInt())
             for (i in listTag.indices) {
-                val effectData = ImpactEffectData.Companion.fromTag(listTag.getCompound(i))
+                val effectData = ImpactEffectData.fromTag(listTag.getCompound(i))
                 if (effectData != null) {
                     this.impactEffects.add(effectData)
                 }
@@ -333,7 +333,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         this.impactEffects.clear()
         val impactEffectCount = buffer.readInt()
         for (i in 0..<impactEffectCount) {
-            val effectData = ImpactEffectData.Companion.read(buffer)
+            val effectData = ImpactEffectData.read(buffer)
             if (effectData != null) {
                 this.impactEffects.add(effectData)
             }
@@ -696,9 +696,9 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         if (entity is EntityMountBase) {
             val host = entity.getHost()
             if (host != null) {
-                return host.getOwnerUUID()
+                return host.ownerUUID
             }
-            return entity.getHostUUID()
+            return entity.hostUUID
         }
         if (entity is EntityAircraftBase) {
             return entity.getOwnerUUID()
@@ -727,7 +727,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
     }
 
     fun setOwner(owner: Entity) {
-        this.entityData.set<Optional<UUID?>?>(OWNER_UUID, Optional.of<UUID?>(owner.getUUID()))
+        this.entityData.set(OWNER_UUID, Optional.of(owner.uuid))
     }
 
     val ownerEntity: Entity?
@@ -736,6 +736,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
             if (ownerUuid.isEmpty() || this.level() !is ServerLevel) {
                 return null
             }
+            val serverLevel = this.level() as ServerLevel
             val entity: Entity? = serverLevel.getEntity(ownerUuid.get())
             if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
@@ -743,11 +744,11 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
             return entity
         }
 
-    val ownerUuid: Optional<UUID?>
-        get() = this.entityData.get<Optional<UUID?>>(OWNER_UUID)
+    val ownerUuid: Optional<UUID>
+        get() = this.entityData.get(OWNER_UUID)
 
     fun setTarget(target: Entity) {
-        this.entityData.set<Optional<UUID?>?>(TARGET_UUID, Optional.of<UUID?>(target.getUUID()))
+        this.entityData.set(TARGET_UUID, Optional.of(target.uuid))
     }
 
     val targetEntity: Entity?
@@ -756,6 +757,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
             if (targetUuid.isEmpty() || this.level() !is ServerLevel) {
                 return null
             }
+            val serverLevel = this.level() as ServerLevel
             val entity: Entity? = serverLevel.getEntity(targetUuid.get())
             if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
@@ -763,31 +765,31 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
             return entity
         }
 
-    val targetUuid: Optional<UUID?>
-        get() = this.entityData.get<Optional<UUID?>>(TARGET_UUID)
+    val targetUuid: Optional<UUID>
+        get() = this.entityData.get(TARGET_UUID)
 
     var damage: Float
-        get() = this.entityData.get<Float?>(DAMAGE)
+        get() = this.entityData.get(DAMAGE)!!
         set(damage) {
-            this.entityData.set<Float?>(DAMAGE, damage)
+            this.entityData.set(DAMAGE, damage)
         }
 
     var speed: Float
-        get() = this.entityData.get<Float?>(SPEED)
+        get() = this.entityData.get(SPEED)!!
         set(speed) {
-            this.entityData.set<Float?>(SPEED, speed)
+            this.entityData.set(SPEED, speed)
         }
 
     var life: Int
-        get() = this.entityData.get<Int?>(LIFE)
+        get() = this.entityData.get(LIFE)!!
         set(life) {
-            this.entityData.set<Int?>(LIFE, life)
+            this.entityData.set(LIFE, life)
         }
 
     var explosionRadius: Float
-        get() = this.entityData.get<Float?>(EXPLOSION_RADIUS)
+        get() = this.entityData.get(EXPLOSION_RADIUS)!!
         set(radius) {
-            this.entityData.set<Float?>(EXPLOSION_RADIUS, radius)
+            this.entityData.set(EXPLOSION_RADIUS, radius)
         }
 
     fun markClusterMain() {
@@ -878,7 +880,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         }
 
         companion object {
-            private fun fromTag(tag: CompoundTag): ImpactEffectData? {
+            fun fromTag(tag: CompoundTag): ImpactEffectData? {
                 val effectId = ResourceLocation.tryParse(tag.getString(TAG_EFFECT_ID))
                 val effect = if (effectId == null) null else BuiltInRegistries.MOB_EFFECT.get(effectId)
                 if (effect == null) {
@@ -892,7 +894,7 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
                 )
             }
 
-            private fun read(buffer: RegistryFriendlyByteBuf): ImpactEffectData? {
+            fun read(buffer: RegistryFriendlyByteBuf): ImpactEffectData? {
                 val effect = BuiltInRegistries.MOB_EFFECT.get(buffer.readResourceLocation())
                 val amplifier = buffer.readVarInt()
                 val duration = buffer.readVarInt()
@@ -928,21 +930,21 @@ class EntityAbyssMissile(type: EntityType<EntityAbyssMissile?>, level: Level) : 
         private const val TAG_EFFECT_DURATION = "Duration"
         private const val TAG_EFFECT_CHANCE = "Chance"
 
-        private val OWNER_UUID: EntityDataAccessor<Optional<UUID?>?> = SynchedEntityData.defineId<Optional<UUID?>?>(
+        private val OWNER_UUID: EntityDataAccessor<Optional<UUID>> = SynchedEntityData.defineId(
             EntityAbyssMissile::class.java,
             EntityDataSerializers.OPTIONAL_UUID
         )
-        private val TARGET_UUID: EntityDataAccessor<Optional<UUID?>?> = SynchedEntityData.defineId<Optional<UUID?>?>(
+        private val TARGET_UUID: EntityDataAccessor<Optional<UUID>> = SynchedEntityData.defineId(
             EntityAbyssMissile::class.java,
             EntityDataSerializers.OPTIONAL_UUID
         )
-        private val DAMAGE: EntityDataAccessor<Float?> =
-            SynchedEntityData.defineId<Float?>(EntityAbyssMissile::class.java, EntityDataSerializers.FLOAT)
-        private val SPEED: EntityDataAccessor<Float?> =
-            SynchedEntityData.defineId<Float?>(EntityAbyssMissile::class.java, EntityDataSerializers.FLOAT)
-        private val LIFE: EntityDataAccessor<Int?> =
-            SynchedEntityData.defineId<Int?>(EntityAbyssMissile::class.java, EntityDataSerializers.INT)
-        private val EXPLOSION_RADIUS: EntityDataAccessor<Float?> =
-            SynchedEntityData.defineId<Float?>(EntityAbyssMissile::class.java, EntityDataSerializers.FLOAT)
+        private val DAMAGE: EntityDataAccessor<Float> =
+            SynchedEntityData.defineId(EntityAbyssMissile::class.java, EntityDataSerializers.FLOAT)
+        private val SPEED: EntityDataAccessor<Float> =
+            SynchedEntityData.defineId(EntityAbyssMissile::class.java, EntityDataSerializers.FLOAT)
+        private val LIFE: EntityDataAccessor<Int> =
+            SynchedEntityData.defineId(EntityAbyssMissile::class.java, EntityDataSerializers.INT)
+        private val EXPLOSION_RADIUS: EntityDataAccessor<Float> =
+            SynchedEntityData.defineId(EntityAbyssMissile::class.java, EntityDataSerializers.FLOAT)
     }
 }

@@ -29,7 +29,8 @@ class VBox
     /**
      * Add a child, automatically positioning it at the next vertical slot.
      */
-    override fun addChild(child: AbstractWidget): VBox {
+    override fun addChild(child: AbstractWidget?): VBox {
+        child ?: return this
         // Position child at the current slot
         child.setX(getX())
         child.setY(nextY)

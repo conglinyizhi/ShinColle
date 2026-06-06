@@ -108,7 +108,7 @@ class IconButton
         this.defaultButtonNarrationText(output)
     }
 
-    class Builder private constructor(private val texture: ResourceLocation) {
+    class Builder(private val texture: ResourceLocation) {
         private var x = 0
         private var y = 0
         private var width = 18
