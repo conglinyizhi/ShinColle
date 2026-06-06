@@ -96,11 +96,11 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
     ) : this(ModEntities.ABYSS_MISSILE.get()!!, level) {
         if (owner != null) {
             this.setOwner(owner)
-            this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.6, owner.getZ())
+            this.setPos(owner.x, owner.y + owner.bbHeight * 0.6, owner.z)
         }
         if (target != null) {
             this.setTarget(target)
-            this.targetPos = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
+            this.targetPos = target.position().add(0.0, target.bbHeight * 0.5, 0.0)
         }
         this.damage = damage
         this.speed = speed
@@ -116,11 +116,11 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
     ) : this(ModEntities.ABYSS_MISSILE.get()!!, level) {
         if (owner != null) {
             this.setOwner(owner)
-            this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.6, owner.getZ())
+            this.setPos(owner.x, owner.y + owner.bbHeight * 0.6, owner.z)
         }
         if (target != null) {
             this.setTarget(target)
-            this.targetPos = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
+            this.targetPos = target.position().add(0.0, target.bbHeight * 0.5, 0.0)
         }
         this.damage = damage
         this.speed = vel0
@@ -136,7 +136,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
     ) : this(ModEntities.ABYSS_MISSILE.get()!!, level) {
         if (owner != null) {
             this.setOwner(owner)
-            this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.6, owner.getZ())
+            this.setPos(owner.x, owner.y + owner.bbHeight * 0.6, owner.z)
         }
         if (target != null) {
             this.setTarget(target)
@@ -248,7 +248,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
 
             updateVelocityByMoveType()
             val delta = Vec3(this.velX, this.velY, this.velZ)
-            this.setDeltaMovement(delta)
+            this.deltaMovement = delta
             val start = this.position()
             var end = start.add(delta)
 
@@ -263,7 +263,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
                 this,
                 start,
                 end,
-                this.getBoundingBox().expandTowards(delta).inflate(1.0),
+                this.boundingBox.expandTowards(delta).inflate(1.0),
                 Predicate { entity: Entity? -> this.canHitEntity(entity!!) })
             if (entityHit != null) {
                 onImpact(entityHit.getEntity())
@@ -383,15 +383,15 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         }
 
         if (this.tickCount <= 2 || this.age <= 2) {
-            this.setYRot(yaw)
-            this.setXRot(pitch)
+            this.yRot = yaw
+            this.xRot = pitch
             this.yRotO = yaw
             this.xRotO = pitch
         } else {
-            this.setYRot(Mth.rotLerp(1.0f, this.yRotO, yaw))
-            this.setXRot(Mth.rotLerp(1.0f, this.xRotO, pitch))
-            this.yRotO = this.getYRot()
-            this.xRotO = this.getXRot()
+            this.yRot = Mth.rotLerp(1.0f, this.yRotO, yaw)
+            this.xRot = Mth.rotLerp(1.0f, this.xRotO, pitch)
+            this.yRotO = this.yRot
+            this.xRotO = this.xRot
         }
     }
 
@@ -415,7 +415,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         }
 
         if (targetVector == null) {
-            val fallback = this.getLookAngle().scale(vel0.toDouble())
+            val fallback = this.lookAngle.scale(vel0.toDouble())
             this.velX = fallback.x
             this.velY = fallback.y
             this.velZ = fallback.z
@@ -443,7 +443,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         } else {
             val target = this.targetEntity
             if (target != null) {
-                targetVector = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0).subtract(this.position())
+                targetVector = target.position().add(0.0, target.bbHeight * 0.5, 0.0).subtract(this.position())
             }
         }
         return targetVector
@@ -606,7 +606,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         spawnImpactParticles(serverLevel)
         this.playSound(
             ModSounds.SHIP_EXPLODE.get(), 0.7f,
-            this.getRandom().nextFloat() * 0.12f + 0.98f
+            this.random.nextFloat() * 0.12f + 0.98f
         )
         if (this.blackHole) {
             applyBlackHoleEffect(serverLevel)
@@ -616,9 +616,9 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
     }
 
     private fun spawnImpactParticles(serverLevel: ServerLevel) {
-        val posX = this.getX()
-        val posY = this.getY()
-        val posZ = this.getZ()
+        val posX = this.x
+        val posY = this.y
+        val posZ = this.z
         serverLevel.sendParticles<SimpleParticleType?>(
             ParticleTypes.EXPLOSION_EMITTER, posX, posY + 1.0, posZ,
             1, 0.0, 0.0, 0.0, 0.0
@@ -644,7 +644,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
             this.damageSources().generic()
 
         val targets = serverLevel.getEntities(
-            this, this.getBoundingBox().inflate(radius.toDouble()),
+            this, this.boundingBox.inflate(radius.toDouble()),
             Predicate { entity: Entity? ->
                 entity!!.isAlive && entity.isPickable() && (entity !is EntityAbyssMissile) && !isFriendlyTarget(
                     owner,
@@ -685,7 +685,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
 
     private fun resolveOwnerUuid(entity: Entity?): UUID? {
         if (entity is Player) {
-            return entity.getUUID()
+            return entity.uuid
         }
         if (entity is EntityShipBase) {
             return entity.ownerUUID
@@ -711,7 +711,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         val to: Vec3?
 
         if (target != null && target.isAlive) {
-            to = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
+            to = target.position().add(0.0, target.bbHeight * 0.5, 0.0)
             this.targetPos = to
         } else if (this.targetPos != null) {
             to = this.targetPos
@@ -818,12 +818,12 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         val owner = this.ownerEntity
         val targets = serverLevel.getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java,
-            this.getBoundingBox().inflate(BLACK_HOLE_PULL_RADIUS),
+            this.boundingBox.inflate(BLACK_HOLE_PULL_RADIUS),
             Predicate { entity: LivingEntity? -> entity!!.isAlive && !isFriendlyTarget(owner, entity) })
 
         for (target in targets) {
             val pull = center.subtract(target.position()).normalize().scale(BLACK_HOLE_PULL_STRENGTH)
-            target.setDeltaMovement(target.getDeltaMovement().add(pull.x, pull.y * 0.35, pull.z))
+            target.deltaMovement = target.deltaMovement.add(pull.x, pull.y * 0.35, pull.z)
             target.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, 100, 1, false, true))
             target.addEffect(MobEffectInstance(MobEffects.LEVITATION, 20, 0, false, true))
         }
@@ -842,7 +842,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
     }
 
     override fun positionRider(passenger: Entity, moveFunction: MoveFunction) {
-        moveFunction.accept(passenger, this.getX(), this.getY(), this.getZ())
+        moveFunction.accept(passenger, this.x, this.y, this.z)
     }
 
     override fun isNoGravity(): Boolean {

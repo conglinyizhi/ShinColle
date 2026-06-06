@@ -11,10 +11,10 @@ class EntityTakoyaki(type: EntityType<out TamableAnimal>, level: Level) : Entity
 
     override fun applyFlyParticle() {
         if (this.tickCount % 2 == 0) {
-            val motion = this.getDeltaMovement()
+            val motion = this.deltaMovement
             this.level().addParticle(
                 ParticleTypes.SMOKE,
-                this.getX(), this.getY() + this.getBbHeight(), this.getZ(),
+                this.x, this.y + this.bbHeight, this.z,
                 -motion.x * 0.5, 0.07, -motion.z * 0.5
             )
         }

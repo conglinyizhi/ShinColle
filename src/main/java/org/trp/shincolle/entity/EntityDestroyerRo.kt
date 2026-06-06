@@ -34,9 +34,9 @@ class EntityDestroyerRo(type: EntityType<out TamableAnimal>, level: Level) : Ent
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (this.getBbHeight() * 0.28f).toDouble()
+                return (this.bbHeight * 0.28f).toDouble()
             }
-            return (this.getBbHeight() * 0.6f).toDouble()
+            return (this.bbHeight * 0.6f).toDouble()
         }
 
     override val equipOptions: MutableList<EquipOption>

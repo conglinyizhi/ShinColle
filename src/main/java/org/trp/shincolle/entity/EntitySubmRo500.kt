@@ -69,7 +69,7 @@ class EntitySubmRo500(type: EntityType<out TamableAnimal>, level: Level) : Entit
             return false
         }
 
-        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.fuel -= Config.fuelConsumeActionHeavy
         this.attackTick = 50
         this.applyEmotesReaction(3)
         spawnTorpedoes(target)
@@ -86,12 +86,12 @@ class EntitySubmRo500(type: EntityType<out TamableAnimal>, level: Level) : Entit
         val speed = 0.65f
         val life = 160
         val explosionRadius = 3.0f
-        val yawRad = this.getYRot() * Mth.DEG_TO_RAD
+        val yawRad = this.yRot * Mth.DEG_TO_RAD
 
         for (offset in TORPEDO_OFFSETS) {
             val pos = rotateXZByAxis(offset[0], offset[1], yawRad, 1.0f)
             val missile = EntityAbyssMissile((this.level() as ServerLevel), this, target, damage, speed, life, explosionRadius)
-            missile.setPos(this.getX() + pos[1], this.getY() + this.getBbHeight() * 0.6, this.getZ() + pos[0])
+            missile.setPos(this.x + pos[1], this.y + this.bbHeight * 0.6, this.z + pos[0])
             (this.level() as ServerLevel).addFreshEntity(missile)
         }
     }

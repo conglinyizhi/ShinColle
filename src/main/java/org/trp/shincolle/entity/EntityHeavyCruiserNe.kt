@@ -52,9 +52,9 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal>, level: Level) : 
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * 0.05f else this.getBbHeight() * 0.55f).toDouble()
+                return (if (this.getStateEmotion(1) == 4) this.bbHeight * 0.05f else this.bbHeight * 0.55f).toDouble()
             }
-            return (this.getBbHeight() * 0.7f).toDouble()
+            return (this.bbHeight * 0.7f).toDouble()
         }
 
     private fun updateServerLogic() {
@@ -64,7 +64,7 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal>, level: Level) : 
             this.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SPEED, duration, ampSpeed, false, false))
         }
 
-        val canFindTarget = (this.tickCount and 0xFF) == 0 && this.getRandom().nextInt(5) == 0
+        val canFindTarget = (this.tickCount and 0xFF) == 0 && this.random.nextInt(5) == 0
         val isActionBlocked =
             this.isInSittingPose || this.isPassenger() || this.isStateNoEquip || this.isLeashed() || this.isInDeadPose
         if (canFindTarget && !isActionBlocked && !this.isPushing) {
@@ -87,15 +87,15 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal>, level: Level) : 
     }
 
     private fun executePushAttack() {
-        val yawRad = this.getYRot() * Mth.DEG_TO_RAD
+        val yawRad = this.yRot * Mth.DEG_TO_RAD
         val push = Vec3((-Mth.sin(yawRad) * 0.5f).toDouble(), 0.5, (Mth.cos(yawRad) * 0.5f).toDouble())
-        this.targetPush!!.setDeltaMovement(this.targetPush!!.getDeltaMovement().add(push))
+        this.targetPush!!.deltaMovement = this.targetPush!!.deltaMovement.add(push)
         this.swing(InteractionHand.MAIN_HAND)
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
             serverLevel.sendParticles<SimpleParticleType?>(
                 ParticleTypes.CLOUD,
-                this.targetPush!!.getX(), this.targetPush!!.getY() + 1.0, this.targetPush!!.getZ(),
+                this.targetPush!!.x, this.targetPush!!.y + 1.0, this.targetPush!!.z,
                 6, 0.2, 0.2, 0.2, 0.02
             )
         }
@@ -110,13 +110,13 @@ class EntityHeavyCruiserNe(type: EntityType<out TamableAnimal>, level: Level) : 
     }
 
     private fun findTargetPush() {
-        val impactBox = this.getBoundingBox().inflate(12.0, 6.0, 12.0)
+        val impactBox = this.boundingBox.inflate(12.0, 6.0, 12.0)
         val list = this.level().getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java, impactBox,
             Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive && ent.canBeCollidedWith() })
         if (!list.isEmpty()) {
             this.pushMovement.reset()
-            this.targetPush = list.get(this.getRandom().nextInt(list.size))
+            this.targetPush = list.get(this.random.nextInt(list.size))
             this.tickPush = 0
             this.isPushing = true
         }

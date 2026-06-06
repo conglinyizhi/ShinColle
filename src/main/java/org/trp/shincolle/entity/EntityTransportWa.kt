@@ -56,7 +56,7 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
     }
 
     private fun updateClientEffects() {
-        if ((this.tickCount % 128) == 0 && this.getRandom().nextInt(4) == 0) {
+        if ((this.tickCount % 128) == 0 && this.random.nextInt(4) == 0) {
             this.applyParticleEmotion(2)
         }
     }
@@ -82,7 +82,7 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
         val range = 2.0 + this.getAttributeValue(Attributes.FOLLOW_RANGE) * 0.5
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(range, range, range)
+            this.boundingBox.inflate(range, range, range)
         )
         if (ships.isEmpty()) {
             return
@@ -130,9 +130,9 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
         if (this.level() !is ServerLevel) {
             return
         }
-        val midX = (this.getX() + target.getX()) * 0.5
-        val midY = (this.getY() + target.getY()) * 0.5 + 0.6
-        val midZ = (this.getZ() + target.getZ()) * 0.5
+        val midX = (this.x + target.x) * 0.5
+        val midY = (this.y + target.y) * 0.5 + 0.6
+        val midZ = (this.z + target.z) * 0.5
         (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ParticleTypes.HAPPY_VILLAGER, midX, midY, midZ,
             6, 0.3, 0.2, 0.3, 0.01

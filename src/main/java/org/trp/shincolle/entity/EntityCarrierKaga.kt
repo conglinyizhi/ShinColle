@@ -40,7 +40,7 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal>, level: Level) : Ent
 
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return
@@ -68,7 +68,7 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal>, level: Level) : Ent
     }
 
     override val aircraftLaunchHeight: Double
-        get() = this.getBbHeight() * 0.65
+        get() = this.bbHeight * 0.65
 
     override val aircraftLightLevelBonus: Float
         get() = 0.4f

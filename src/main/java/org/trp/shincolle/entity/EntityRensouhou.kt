@@ -16,7 +16,7 @@ class EntityRensouhou(type: EntityType<out TamableAnimal>, level: Level) : Entit
 
         val returnLight = max(0, this.numAmmoLight - AMMO_RETURN_PENALTY_LIGHT)
         if (returnLight > 0 && carrier != null) {
-            carrier.ammoLight = carrier.ammoLight + returnLight
+            carrier.ammoLight += returnLight
         }
     }
 

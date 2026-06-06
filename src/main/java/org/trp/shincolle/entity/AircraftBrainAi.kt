@@ -106,8 +106,8 @@ internal object AircraftBrainAi {
             host.attackDelay,
             targetEntity != null && host.hasLineOfSight(targetEntity),
             if (targetEntity == null) -1.0 else host.distanceToSqr(
-                targetEntity.getX(),
-                targetEntity.getY() + AircraftAiNumbers.ATTACK_TARGET_Y_OFFSET, targetEntity.getZ()
+                targetEntity.x,
+                targetEntity.y + AircraftAiNumbers.ATTACK_TARGET_Y_OFFSET, targetEntity.z
             )
         )
     }

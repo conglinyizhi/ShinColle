@@ -88,9 +88,9 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (this.getBbHeight() * 0.23f).toDouble()
+                return (this.bbHeight * 0.23f).toDouble()
             }
-            return (this.getBbHeight() * 0.64f).toDouble()
+            return (this.bbHeight * 0.64f).toDouble()
         }
 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
@@ -143,7 +143,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
             val partPos = CalcHelper.rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             this.level().addParticle(
                 ParticleTypes.SMOKE,
-                this.getX() + partPos[1], this.getY() + 1.4, this.getZ() + partPos[0],
+                this.x + partPos[1], this.y + 1.4, this.z + partPos[0],
                 0.0, 0.0, 0.0
             )
         }
@@ -208,7 +208,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
             this.yBodyRotO = inazuma.yBodyRotO
             this.yHeadRot = inazuma.yBodyRot
             this.yHeadRotO = inazuma.yBodyRotO
-            this.setYRot(inazuma.yBodyRot)
+            this.yRot = inazuma.yBodyRot
             this.yRotO = inazuma.yBodyRotO
         }
     }
@@ -220,7 +220,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
 
         val list = this.level().getEntitiesOfClass<EntityDestroyerInazuma?>(
             EntityDestroyerInazuma::class.java,
-            this.getBoundingBox().inflate(4.0, 4.0, 4.0)
+            this.boundingBox.inflate(4.0, 4.0, 4.0)
         )
         for (inazuma in list) {
             if (canGattaiWith(inazuma)) {
@@ -241,7 +241,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
             return false
         }
         return !this.isInSittingPose && !this.isPassenger() && this.getEquipFlag(EQUIP_RIGGING)
-                && this.riderType <= 0 && !this.isRaiden && this.getHealth() > this.getMaxHealth() * 0.5f
+                && this.riderType <= 0 && !this.isRaiden && this.health > this.maxHealth * 0.5f
     }
 
     private fun beginRaidenGattai(inazuma: EntityDestroyerInazuma) {

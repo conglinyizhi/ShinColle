@@ -69,14 +69,14 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         get() {
             if (this.isInSittingPose) {
                 if (checkModelState(1, this.getStateEmotion(0))) {
-                    return (this.getBbHeight() * 0.42f).toDouble()
+                    return (this.bbHeight * 0.42f).toDouble()
                 }
                 if (this.getStateEmotion(1) == 4) {
                     return 0.0
                 }
-                return (this.getBbHeight() * 0.35f).toDouble()
+                return (this.bbHeight * 0.35f).toDouble()
             }
-            return (this.getBbHeight() * 0.75f).toDouble()
+            return (this.bbHeight * 0.75f).toDouble()
         }
 
     override val equipOptions: MutableList<EquipOption>
@@ -100,7 +100,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         if (!consumeHeavyAmmo(1)) {
             return false
         }
-        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.fuel -= Config.fuelConsumeActionHeavy
 
         val phase = this.getStateEmotion(EMOTION_ATTACK_PHASE) + 1
 
@@ -133,7 +133,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
             for (i in 0..2) {
                 this.level().addParticle(
                     ParticleTypes.SMOKE,
-                    this.getX() + partPos[1], this.getY() + 1.5 + i * 0.1, this.getZ() + partPos[0],
+                    this.x + partPos[1], this.y + 1.5 + i * 0.1, this.z + partPos[0],
                     0.0, 0.0, 0.0
                 )
             }
@@ -144,8 +144,8 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
             if (atkPhase == 1 || atkPhase == 3) {
                 this.level().addParticle(
                     ModParticles.PARTICLE_CHI.get(),
-                    this.getX(), this.getY(), this.getZ(),
-                    0.12, this.getId().toDouble(), 1.0
+                    this.x, this.y, this.z,
+                    0.12, this.id.toDouble(), 1.0
                 )
             }
         }
@@ -154,7 +154,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
     private fun applyBuffToNearbyAllies() {
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return
@@ -178,7 +178,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         }
         val nearby = this.level().getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java,
-            this.getBoundingBox().inflate(16.0, 12.0, 16.0),
+            this.boundingBox.inflate(16.0, 12.0, 16.0),
             Predicate { entity: LivingEntity? ->
                 entity is EntityNorthernHime
                         || (entity is EntityShipBase && entity.getStateMinor(STATE_MINOR_FACTION_ID) != -1)
@@ -189,10 +189,10 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         if (this.morale < 7650) {
             this.addMorale(150 * nearby.size)
         }
-        if (!this.isInSittingPose && !this.isPassenger() && this.getRandom().nextFloat() > 0.5f) {
-            val target = nearby.get(this.getRandom().nextInt(nearby.size))
+        if (!this.isInSittingPose && !this.isPassenger() && this.random.nextFloat() > 0.5f) {
+            val target = nearby.get(this.random.nextInt(nearby.size))
             startLoveEventMovement(target)
-            val particleId: Int = LOVE_PARTICLES[this.getRandom().nextInt(LOVE_PARTICLES.size)]
+            val particleId: Int = LOVE_PARTICLES[this.random.nextInt(LOVE_PARTICLES.size)]
             this.applyParticleEmotion(particleId)
         }
     }
@@ -243,7 +243,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
                 val newPos1 = rotateXZByAxis(0.35f, 0.0f, 0.314f * i, 1.0f)
                 (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                     ModParticles.PARTICLE_SPRAY.get(),
-                    this.getX(), this.getY() + 0.3, this.getZ(),
+                    this.x, this.y + 0.3, this.z,
                     0, newPos1[0].toDouble(), 0.0, newPos1[1].toDouble(), 1.0
                 )
             }
@@ -252,7 +252,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
                 val newPos1 = rotateXZByAxis(2.0f, 0.0f, 0.314f * i, 1.0f)
                 (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                     ModParticles.PARTICLE_SPRAY.get(),
-                    this.getX() + newPos1[0], this.getY() + 1.0, this.getZ() + newPos1[1],
+                    this.x + newPos1[0], this.y + 1.0, this.z + newPos1[1],
                     0, -newPos1[0] * 0.06, 0.0, -newPos1[1] * 0.06, 1.0
                 )
             }
@@ -264,17 +264,17 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         val dir = if (delta.lengthSqr() < 1.0E-6) Vec3.ZERO else delta.normalize()
         val newPos = target.position().add(dir.scale(2.0))
 
-        val originX = this.getX()
-        val originY = this.getY()
-        val originZ = this.getZ()
+        val originX = this.x
+        val originY = this.y
+        val originZ = this.z
 
-        this.moveTo(newPos.x, newPos.y, newPos.z, this.getYRot(), this.getXRot())
+        this.moveTo(newPos.x, newPos.y, newPos.z, this.yRot, this.xRot)
 
         val baseDamage = this.getAttributeValue(Attributes.ATTACK_DAMAGE).toFloat()
         val damage = max(4.0f, baseDamage * 1.4f)
         target.hurt(this.damageSources().mobAttack(this), damage)
 
-        val impact = this.getBoundingBox().inflate(3.5, 3.5, 3.5)
+        val impact = this.boundingBox.inflate(3.5, 3.5, 3.5)
         for (hit in (this.level() as ServerLevel).getEntities(this, impact)) {
             if (hit === this || hit === target || !hit.isAlive) {
                 continue
@@ -282,9 +282,9 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
             hit.hurt(this.damageSources().mobAttack(this), damage * 0.5f)
         }
 
-        val tx = target.getX()
-        val ty = target.getY() + target.getBbHeight() * 0.5
-        val tz = target.getZ()
+        val tx = target.x
+        val ty = target.y + target.bbHeight * 0.5
+        val tz = target.z
         val dx = tx - originX
         val dy = ty - originY
         val dz = tz - originZ
@@ -339,7 +339,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         )
 
         (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
-            ParticleTypes.EXPLOSION, this.getX(), this.getY() + 1.0, this.getZ(),
+            ParticleTypes.EXPLOSION, this.x, this.y + 1.0, this.z,
             6, 0.2, 0.2, 0.2, 0.0
         )
     }

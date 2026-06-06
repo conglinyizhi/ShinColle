@@ -48,7 +48,7 @@ class EntityShipGrudge(type: EntityType<out EntityShipGrudge?>, level: Level) : 
                 this.discard()
                 return
             }
-            this.setDeltaMovement(Vec3.ZERO)
+            this.deltaMovement = Vec3.ZERO
         }
     }
 
@@ -63,7 +63,7 @@ class EntityShipGrudge(type: EntityType<out EntityShipGrudge?>, level: Level) : 
         if (this.pickupDelay > 0 || this.storedItem.isEmpty()) {
             return
         }
-        if (this.ownerId != null && this.ownerId != player.getUUID()) {
+        if (this.ownerId != null && this.ownerId != player.uuid) {
             return
         }
 

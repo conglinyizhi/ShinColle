@@ -27,8 +27,8 @@ class EntityShipFishingHook(type: EntityType<*>, level: Level) : Entity(type, le
 
     constructor(level: Level, host: EntityShipBase) : this(ModEntities.SHIP_FISHING_HOOK.get(), level) {
         this.host = host
-        this.entityData.set<Int?>(HOST_ID, host.getId())
-        this.setPos(host.getX(), host.getY() + host.getEyeHeight(), host.getZ())
+        this.entityData.set<Int?>(HOST_ID, host.id)
+        this.setPos(host.x, host.y + host.eyeHeight, host.z)
         host.fishHook = this
     }
 
@@ -80,11 +80,11 @@ class EntityShipFishingHook(type: EntityType<*>, level: Level) : Entity(type, le
                 )
             }
         } else {
-            this.setDeltaMovement(this.getDeltaMovement().multiply(0.9, 0.9, 0.9))
+            this.deltaMovement = this.deltaMovement.multiply(0.9, 0.9, 0.9)
             if (this.tickCount == 4 || ((this.tickCount and 0x3F) == 0 && this.random.nextFloat() < 0.35f)) {
-                val x = this.getX()
-                val y = this.getY() - 0.1
-                val z = this.getZ()
+                val x = this.x
+                val y = this.y - 0.1
+                val z = this.z
                 for (i in 0..13) {
                     val ranY = ((this.random.nextFloat() - 0.5f) * 0.25f).toDouble()
                     val ranX = ((this.random.nextFloat() - 0.5f) * 1.5f).toDouble()

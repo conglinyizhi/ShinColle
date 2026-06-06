@@ -7,10 +7,10 @@ import net.minecraft.world.level.Level
 
 class EntityAirplaneZero(type: EntityType<out TamableAnimal>, level: Level) : EntityAircraftBase(type, level) {
     override fun applyFlyParticle() {
-        val motion = this.getDeltaMovement()
-        val trailX = this.getX() - motion.x * 1.5
-        val trailY = this.getY() + this.getBbHeight()
-        val trailZ = this.getZ() - motion.z * 1.5
+        val motion = this.deltaMovement
+        val trailX = this.x - motion.x * 1.5
+        val trailY = this.y + this.bbHeight
+        val trailZ = this.z - motion.z * 1.5
 
         this.level().addParticle(
             ParticleTypes.SMOKE,

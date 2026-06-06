@@ -34,9 +34,9 @@ class EntityHeavyCruiserRi(type: EntityType<out TamableAnimal>, level: Level) : 
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * 0.05f else this.getBbHeight() * 0.55f).toDouble()
+                return (if (this.getStateEmotion(1) == 4) this.bbHeight * 0.05f else this.bbHeight * 0.55f).toDouble()
             }
-            return (this.getBbHeight() * 0.7f).toDouble()
+            return (this.bbHeight * 0.7f).toDouble()
         }
 
     private fun updateServerLogic() {

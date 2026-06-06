@@ -70,7 +70,7 @@ class EntitySSNH(type: EntityType<out TamableAnimal>, level: Level) : EntityShip
             return
         }
 
-        val canFindTarget = (this.tickCount and 0x7F) == 0 && this.getRandom().nextInt(4) == 0
+        val canFindTarget = (this.tickCount and 0x7F) == 0 && this.random.nextInt(4) == 0
         val isActionBlocked = this.isInSittingPose || this.isStateNoEquip || this.isLeashed()
         if (canFindTarget && !isActionBlocked) {
             findRideTarget()
@@ -78,12 +78,12 @@ class EntitySSNH(type: EntityType<out TamableAnimal>, level: Level) : EntityShip
     }
 
     private fun findRideTarget() {
-        val range = this.getBoundingBox().inflate(6.0, 4.0, 6.0)
+        val range = this.boundingBox.inflate(6.0, 4.0, 6.0)
         val candidates = this.level().getEntities(
             this, range,
             Predicate { ent: Entity? -> ent!!.isAlive && ent.canBeCollidedWith() && canRideEntity(ent) })
         if (!candidates.isEmpty()) {
-            val target = candidates.get(this.getRandom().nextInt(candidates.size))
+            val target = candidates.get(this.random.nextInt(candidates.size))
             this.startRiding(target, true)
         }
     }
@@ -96,7 +96,7 @@ class EntitySSNH(type: EntityType<out TamableAnimal>, level: Level) : EntityShip
             return target.ownerUUID == this.ownerUUID
         }
         if (target is Player) {
-            return target.getUUID() == this.ownerUUID
+            return target.uuid == this.ownerUUID
         }
         return false
     }
