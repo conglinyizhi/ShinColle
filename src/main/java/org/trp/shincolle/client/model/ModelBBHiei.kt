@@ -25,7 +25,7 @@ import kotlin.math.max
 
 class ModelBBHiei<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
     private var isSittingPose = false
 
     private val BodyMain: ModelPart

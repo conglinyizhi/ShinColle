@@ -20,7 +20,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 class ModelHarbourHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
     private var isSittingPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -136,7 +136,8 @@ class ModelHarbourHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         var netHeadYaw = netHeadYaw
         var headPitch = headPitch
         val partialTick = ageInTicks - entity!!.tickCount.toFloat()
-        if (entity.isPassenger() && entity.getVehicle() is LivingEntity) {
+        val vehicle = entity.vehicle
+        if (entity.isPassenger && vehicle is LivingEntity) {
             limbSwingAmount = vehicle.walkAnimation.speed(partialTick)
             limbSwing = vehicle.walkAnimation.position(partialTick)
 
@@ -144,7 +145,7 @@ class ModelHarbourHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
                 val vBodyRot = Mth.lerp(partialTick, vehicle.yBodyRotO, vehicle.yBodyRot)
                 val vHeadRot = Mth.lerp(partialTick, vehicle.yHeadRotO, vehicle.yHeadRot)
                 netHeadYaw = vHeadRot - vBodyRot
-                headPitch = Mth.lerp(partialTick, vehicle.xRotO, vehicle.getXRot())
+                headPitch = Mth.lerp(partialTick, vehicle.xRotO, vehicle.xRot)
             }
         }
         val ctx = computePoseContext(entity, limbSwing, limbSwingAmount, ageInTicks, 0.0f)

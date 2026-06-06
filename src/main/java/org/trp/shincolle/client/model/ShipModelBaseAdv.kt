@@ -14,7 +14,7 @@ import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 import kotlin.math.min
 
-abstract class ShipModelBaseAdv<T : EntityShipBase?> : EntityModel<T?>(), ArmedModel {
+abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedModel {
     var Face0: ModelPart? = null
     var Face1: ModelPart? = null
     var Face2: ModelPart? = null
@@ -56,21 +56,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase?> : EntityModel<T?>(), ArmedM
         return getLegacyScale(entity)
     }
 
-    val poseTranslateY: Float
-        get() {
-            val field: Field? =
-                POSE_TRANSLATE_Y_FIELDS.computeIfAbsent(javaClass) { type: Class<*>? ->
-                    findPoseTranslateYField(type)
-                }
-            if (field == null) {
-                return 0.0f
-            }
-            try {
-                return field.getFloat(this)
-            } catch (ignored: IllegalAccessException) {
-                return 0.0f
-            }
-        }
+    open var poseTranslateY: Float = 0f
 
     private fun getChildOrNull(parent: ModelPart, name: String): ModelPart? {
         return if (parent.hasChild(name)) parent.getChild(name) else null

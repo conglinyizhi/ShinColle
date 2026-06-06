@@ -102,7 +102,7 @@ class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHum
     private val armRight02DefaultY: Float
     private val armRight02DefaultZ: Float
     private var isDeadPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
     private var isSittingPose = false
 
     init {

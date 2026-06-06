@@ -21,7 +21,7 @@ import org.trp.shincolle.client.model.LegacyPoseOffsets.sneakY
 import org.trp.shincolle.entity.EntityNorthernHime
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelNorthernHime<T : EntityNorthernHime?>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
+class ModelNorthernHime<T : EntityNorthernHime>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private val BodyMain: ModelPart?
     private val Cloth01: ModelPart
     private val Cloth02: ModelPart
@@ -125,7 +125,7 @@ class ModelNorthernHime<T : EntityNorthernHime?>(root: ModelPart) : ShipModelHum
     private val EquipLHead02: ModelPart
     private val EquipLHead03: ModelPart
     private var isDeadPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
     private var poseTranslateZ = 0f
     private var isSittingPose = false
 

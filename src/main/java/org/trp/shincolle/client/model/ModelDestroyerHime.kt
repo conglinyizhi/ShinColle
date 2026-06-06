@@ -24,7 +24,7 @@ import kotlin.math.cos
 class ModelDestroyerHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
     private var isSittingPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart

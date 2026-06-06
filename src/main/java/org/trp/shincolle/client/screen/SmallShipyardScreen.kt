@@ -12,7 +12,7 @@ import org.trp.shincolle.menu.SmallShipyardMenu
 import java.util.List
 
 class SmallShipyardScreen(menu: SmallShipyardMenu, playerInventory: Inventory, title: Component) :
-    AbstractContainerScreen<SmallShipyardMenu?>(menu, playerInventory, title) {
+    AbstractContainerScreen<SmallShipyardMenu>(menu, playerInventory, title) {
     private var guiTicks = 0f
 
     init {

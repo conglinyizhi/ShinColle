@@ -20,7 +20,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 
 class ModelDestroyerAkatsuki<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Butt: ModelPart

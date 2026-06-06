@@ -9,7 +9,7 @@ import org.trp.shincolle.client.gui.component.Sprites
 import org.trp.shincolle.menu.VolCoreMenu
 
 class VolCoreScreen(menu: VolCoreMenu, inventory: Inventory, title: Component) :
-    AbstractContainerScreen<VolCoreMenu?>(menu, inventory, title) {
+    AbstractContainerScreen<VolCoreMenu>(menu, inventory, title) {
     init {
         this.imageWidth = 176
         this.imageHeight = 166

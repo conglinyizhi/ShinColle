@@ -20,7 +20,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 class ModelAirfieldHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
     private var isSittingPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -258,7 +258,7 @@ class ModelAirfieldHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         val angleAdd1 = Mth.cos(limbSwing * 0.7f) * limbSwingAmount * 0.7f
         val angleAdd2 = Mth.cos(limbSwing * 0.7f + Math.PI.toFloat()) * limbSwingAmount * 0.7f
 
-        if (entity!!.getShipDepth() > 0) {
+        if (entity!!.shipDepth > 0) {
             this.poseTranslateY = angleX * 0.05f + 0.025f
         }
 

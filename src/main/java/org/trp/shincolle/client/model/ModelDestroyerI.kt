@@ -47,7 +47,7 @@ class ModelDestroyerI<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowable
     private val GlowPBack: ModelPart
     private val GlowPNeck: ModelPart
     private val GlowPHead: ModelPart
-    override val poseTranslateY = 0f
+    var poseTranslateY = 0f
 
     init {
         this.PBack = root.getChild("PBack")

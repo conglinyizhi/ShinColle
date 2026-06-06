@@ -24,7 +24,7 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
     private var isDeadPose = false
     private var isSittingPose = false
     private var isTailPoseOverride = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Cloth: ModelPart

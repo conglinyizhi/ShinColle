@@ -23,7 +23,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 
 class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
     private var isDeadPose = false
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
     private var isSittingPose = false
 
     private val BodyMain: ModelPart

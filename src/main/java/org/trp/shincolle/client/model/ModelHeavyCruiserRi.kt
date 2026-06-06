@@ -17,7 +17,7 @@ import org.trp.shincolle.entity.EntityHeavyCruiserRi
 import org.trp.shincolle.entity.base.EntityShipBase
 
 class ModelHeavyCruiserRi<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    override val poseTranslateY = 0f
+    override var poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Butt: ModelPart
