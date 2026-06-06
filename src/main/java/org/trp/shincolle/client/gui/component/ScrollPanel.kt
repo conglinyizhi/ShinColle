@@ -36,7 +36,15 @@ class ScrollPanel
     (x: Int, y: Int, width: Int, height: Int) : AbstractWidget(x, y, width, height, Component.literal("")) {
     val children: MutableList<AbstractWidget> = ArrayList<AbstractWidget>()
     protected var contentHeight: Int = 0
+        set(value) {
+            field = value
+            clampScrollOffset()
+        }
     protected var scrollOffset: Int = 0
+        set(value) {
+            field = value
+            clampScrollOffset()
+        }
     protected var scrollBarWidth: Int = 6
     protected var draggingScrollbar: Boolean = false
     protected var dragStartY: Int = 0
@@ -44,15 +52,6 @@ class ScrollPanel
 
     // ---- Content ----
     /** Set the total height of the scrollable content (in pixels).  */
-    fun setContentHeight(contentHeight: Int) {
-        this.contentHeight = contentHeight
-        clampScrollOffset()
-    }
-
-    fun getContentHeight(): Int {
-        return contentHeight
-    }
-
     fun addChild(child: AbstractWidget?): ScrollPanel {
         children.add(child!!)
         return this
@@ -67,15 +66,6 @@ class ScrollPanel
     }
 
     // ---- Scrolling ----
-    fun getScrollOffset(): Int {
-        return scrollOffset
-    }
-
-    fun setScrollOffset(offset: Int) {
-        this.scrollOffset = offset
-        clampScrollOffset()
-    }
-
     protected fun clampScrollOffset() {
         val maxOffset = max(0, contentHeight - height)
         scrollOffset = max(0, min(scrollOffset, maxOffset))
@@ -83,7 +73,7 @@ class ScrollPanel
 
     /** Scroll by a relative delta (positive = down).  */
     fun scrollBy(delta: Int) {
-        setScrollOffset(scrollOffset + delta)
+        scrollOffset += delta
     }
 
     /** Convert a screen Y coordinate to a content Y coordinate.  */
@@ -164,7 +154,7 @@ class ScrollPanel
             // Scroll track click = jump to position
             if (mouseX >= sbX && mouseX < sbX + scrollBarWidth && mouseY >= getY() && mouseY < getY() + height) {
                 val clickRatio = (mouseY - getY()).toFloat() / height.toFloat()
-                setScrollOffset((clickRatio * contentHeight - height / 2.0f).toInt())
+                scrollOffset = (clickRatio * contentHeight - height / 2.0f).toInt()
                 return true
             }
         }
@@ -203,7 +193,7 @@ class ScrollPanel
             val dragRange = (height - this.scrollBarHeight).toFloat()
             if (dragRange > 0) {
                 val deltaScroll = (deltaY * scrollRange / dragRange).toInt()
-                setScrollOffset(dragStartOffset + deltaScroll)
+                scrollOffset = dragStartOffset + deltaScroll
             }
             return true
         }

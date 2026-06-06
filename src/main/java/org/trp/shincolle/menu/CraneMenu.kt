@@ -58,7 +58,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getPowerMax()
+                return blockEntity.powerMax
             }
 
             override fun set(value: Int) {
@@ -293,7 +293,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
     }
 
     fun getPowerMax(): Int {
-        return if (clientSide) powerMax else blockEntity.getPowerMax()
+        return if (clientSide) powerMax else blockEntity.powerMax
     }
 
     val isActive: Boolean

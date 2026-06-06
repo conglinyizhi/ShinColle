@@ -91,7 +91,18 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     override var chestPos: BlockPos? = BlockPos.ZERO
     private var isPaired = false
     override var ownerUUID: UUID? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            markForSync()
+        }
     override var ownerName = ""
+        set(value) {
+            val next = value ?: ""
+            if (field == next) return
+            field = next
+            markForSync()
+        }
 
     private var tickCount = 0
     private var tickRedstone = 0
@@ -986,10 +997,6 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     val craningShipTimer: Int
         get() = if (this.craningShip == null) 0 else this.craningShip!!.getStateTimer(1)
 
-    fun getPowerMax(): Int {
-        return powerMax
-    }
-
     fun getRemainedPower(): Int {
         return remainedPower
     }
@@ -1144,23 +1151,6 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             return
         }
         this.modeEnergy = `val`
-        markForSync()
-    }
-
-    fun setOwnerUUID(uuid: UUID?) {
-        if (this.ownerUUID == uuid) {
-            return
-        }
-        this.ownerUUID = uuid
-        markForSync()
-    }
-
-    fun setOwnerName(name: String?) {
-        val next = if (name == null) "" else name
-        if (this.ownerName == next) {
-            return
-        }
-        this.ownerName = next
         markForSync()
     }
 

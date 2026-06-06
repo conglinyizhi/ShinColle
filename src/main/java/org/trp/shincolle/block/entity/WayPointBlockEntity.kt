@@ -30,7 +30,18 @@ class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlo
     var wpStayTime: Int = 0
         private set
     override var ownerUUID: UUID? = null
+        set(value) {
+            if (field == value) return
+            field = value
+            markForSync()
+        }
     override var ownerName = ""
+        set(value) {
+            val next = value ?: ""
+            if (field == next) return
+            field = next
+            markForSync()
+        }
 
     val stayTimeTicks: Int
         get() {
@@ -58,22 +69,7 @@ class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlo
         markForSync()
     }
 
-    fun setOwnerUUID(uuid: UUID?) {
-        if (this.ownerUUID == uuid) {
-            return
-        }
-        this.ownerUUID = uuid
-        markForSync()
-    }
 
-    fun setOwnerName(name: String?) {
-        val next = if (name == null) "" else name
-        if (this.ownerName == next) {
-            return
-        }
-        this.ownerName = next
-        markForSync()
-    }
 
     override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.saveAdditional(tag, registries)
