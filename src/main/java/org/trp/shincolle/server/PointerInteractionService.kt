@@ -396,8 +396,8 @@ object PointerInteractionService {
     private fun handleEntityTargetCommand(player: Player, ships: MutableList<EntityShipBase>, target: Entity?) {
         if (player.isShiftKeyDown()) {
             var guardTarget = target
-            if (guardTarget is EntityMountBase && guardTarget.getHost() != null) {
-                guardTarget = guardTarget.getHost()
+            if (guardTarget is EntityMountBase && guardTarget.host != null) {
+                guardTarget = guardTarget.host
             }
             if (guardTarget is EntityShipBase && guardTarget.isOwnedBy(player)) {
                 for (ship in ships) {
@@ -458,13 +458,13 @@ object PointerInteractionService {
             return targetEntity
         }
         if (targetEntity is EntityMountBase) {
-            return targetEntity.getHost()
+            return targetEntity.host
         }
         return null
     }
 
     private fun sharesOwner(ship: EntityShipBase, target: Entity?): Boolean {
-        val ownerId = ship.getOwnerUUID()
+        val ownerId = ship.ownerUUID
         if (ownerId == null) {
             return false
         }
@@ -472,12 +472,12 @@ object PointerInteractionService {
             return ownerId == target.getUUID()
         }
         if (target is TamableAnimal) {
-            return ownerId == target.getOwnerUUID()
+            return ownerId == target.ownerUUID
         }
         if (target is EntityMountBase) {
-            val host = target.getHost()
+            val host = target.host
             if (host != null) {
-                return host.getOwnerUUID() == ownerId
+                return host.ownerUUID == ownerId
             }
             return target.hostUUID == ownerId
         }
@@ -489,15 +489,15 @@ object PointerInteractionService {
             return target.getUUID()
         }
         if (target is EntityShipBase) {
-            return target.getOwnerUUID()
+            return target.ownerUUID
         }
         if (target is TamableAnimal) {
-            return target.getOwnerUUID()
+            return target.ownerUUID
         }
         if (target is EntityMountBase) {
-            val host = target.getHost()
+            val host = target.host
             if (host != null) {
-                return host.getOwnerUUID()
+                return host.ownerUUID
             }
             return target.hostUUID
         }

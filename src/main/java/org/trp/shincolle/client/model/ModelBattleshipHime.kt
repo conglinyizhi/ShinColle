@@ -124,8 +124,8 @@ class ModelBattleshipHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         val ctx = computePoseContext(entity, limbSwing, limbSwingAmount, ageInTicks, 0.0f)
         applyFaceAndMouth(entity)
         setFlushVisible(
-            entity != null && (entity.getEmotionPrimary() == EntityShipBase.EMOTION_SHY
-                    || entity.getEmotionPrimary() == EntityShipBase.EMOTION_HAPPY)
+            entity != null && (entity.emotionPrimary == EntityShipBase.EMOTION_SHY
+                    || entity.emotionPrimary == EntityShipBase.EMOTION_HAPPY)
         )
         this.resetOffsets()
         this.applyEquipVisibility(entity)

@@ -6,7 +6,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import kotlin.math.cos
 
 abstract class ShipModelHumanoidBase<T : EntityShipBase> : ShipModelBaseAdv<T>() {
-    protected class PoseContext private constructor(
+    protected class PoseContext(
         @JvmField val angleX: Float, @JvmField val angleAdd1: Float, @JvmField val angleAdd2: Float,
         @JvmField val legAddLeft: Float, @JvmField val legAddRight: Float, @JvmField val isSitting: Boolean
     )
@@ -32,8 +32,8 @@ abstract class ShipModelHumanoidBase<T : EntityShipBase> : ShipModelBaseAdv<T>()
         if (entity == null) {
             return
         }
-        setFace(entity.getFaceId())
-        setMouth(entity.getMouthId())
+        setFace(entity.faceId)
+        setMouth(entity.mouthId)
     }
 
     protected fun applyHeadRotation(

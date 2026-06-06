@@ -234,11 +234,11 @@ object FormationService {
         val nearbySelected: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
             player.getBoundingBox().inflate(NEARBY_SELECTED_IMPORT_RADIUS),
-            Predicate { ship: EntityShipBase? -> ship!!.isPointerSelected && player.getUUID() == ship.getOwnerUUID() })
+            Predicate { ship: EntityShipBase? -> ship!!.isPointerSelected && player.getUUID() == ship.ownerUUID })
         val nearbyOwned: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
             player.getBoundingBox().inflate(NEARBY_SHIP_SYNC_RADIUS),
-            Predicate { ship: EntityShipBase? -> player.getUUID() == ship!!.getOwnerUUID() && !ship.isInDeadPose })
+            Predicate { ship: EntityShipBase? -> player.getUUID() == ship!!.ownerUUID && !ship.isInDeadPose })
 
         for (ship in nearbySelected) {
             if (!data.isShipInTeam(teamId, ship.getUUID())) {

@@ -139,7 +139,7 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
             sb.append("Position: ").append(formatPos(ship)).append("\n")
             sb.append("Health: ").append(String.format("%.1f / %.1f", ship.getHealth(), ship.getMaxHealth()))
                 .append("\n")
-            sb.append("Owner: ").append(if (ship.getOwnerUUID() != null) ship.getOwnerUUID() else "none").append("\n")
+            sb.append("Owner: ").append(if (ship.ownerUUID != null) ship.ownerUUID else "none").append("\n")
             sb.append("Tame: ").append(ship.isTame).append("\n")
             sb.append("Level: ").append(ship.level).append("\n")
             sb.append("ShipKills: ").append(ship.shipKills).append("\n")

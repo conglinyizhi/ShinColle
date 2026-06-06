@@ -24,7 +24,7 @@ object MountCameraHandler {
 
         if (player.getVehicle() is EntityMountBase) {
             val mount = player.getVehicle() as EntityMountBase
-            val host: Entity? = mount.getHost()
+            val host: Entity? = mount.host
             if (host != null) {
                 if (mc.getCameraEntity() !== host) {
                     mc.setCameraEntity(host)

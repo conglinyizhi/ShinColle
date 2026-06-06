@@ -295,7 +295,7 @@ class ParticleLightning protected constructor(
             if (host.shipDepth > 0.0) {
                 this.y -= 0.08
             }
-            if (host.getHost() != null && host.getHost()!!.isOrderedToSit()) {
+            if (host.host != null && host.host!!.isOrderedToSit()) {
                 this.y -= 0.23
             }
         }

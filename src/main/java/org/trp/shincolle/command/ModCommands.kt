@@ -620,7 +620,7 @@ object ModCommands {
                     ship.getName().getString(),
                     BuiltInRegistries.ENTITY_TYPE.getKey(ship.getType()),
                     ship.getUUID(),
-                    ship.getOwnerUUID(),
+                    ship.ownerUUID,
                     ship.level,
                     ship.getHealth(),
                     ship.getMaxHealth(),
@@ -928,7 +928,7 @@ object ModCommands {
             return 0
         }
 
-        val oldOwner = ship.getOwnerUUID()
+        val oldOwner = ship.ownerUUID
         if (ship.isStateMarried && oldOwner != null) {
             val oldOwnerPlayer = source.getServer().getPlayerList().getPlayer(oldOwner)
             if (oldOwnerPlayer != null) {
@@ -968,7 +968,7 @@ object ModCommands {
         val ships = entity.serverLevel().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
             entity.getBoundingBox().inflate(range.toDouble()),
-            Predicate { ship: EntityShipBase? -> ship!!.getOwnerUUID() != null && !ship.isInDeadPose }
+            Predicate { ship: EntityShipBase? -> ship!!.ownerUUID != null && !ship.isInDeadPose }
         )
 
         val registry = get(entity.serverLevel())
@@ -1010,7 +1010,7 @@ object ModCommands {
                 if (entity !is EntityShipBase || entity.isInDeadPose) {
                     continue
                 }
-                if (ownerUuid != entity.getOwnerUUID()) {
+                if (ownerUuid != entity.ownerUUID) {
                     continue
                 }
 

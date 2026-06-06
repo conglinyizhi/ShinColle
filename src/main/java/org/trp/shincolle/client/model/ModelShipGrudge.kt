@@ -28,7 +28,7 @@ class ModelShipGrudge<T : Entity>(root: ModelPart) : EntityModel<T>() {
     }
 
     override fun setupAnim(
-        entity: Entity,
+        entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
         ageInTicks: Float,

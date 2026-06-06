@@ -160,7 +160,7 @@ class ModelMountCaWD<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableM
         this.GlowBodyMain2.y = this.BodyMain.y
 
         this.Jaw01.xRot = angleX * 0.025f + 0.32f
-        if (entity is EntityMountBase && entity.getHost() != null && entity.getHost()!!.isOrderedToSit()) {
+        if (entity is EntityMountBase && entity.host != null && entity.host!!.isOrderedToSit()) {
             this.Jaw01.xRot = 0.7f
         }
         this.GlowJaw01.xRot = this.Jaw01.xRot

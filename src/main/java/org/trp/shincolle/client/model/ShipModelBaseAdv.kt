@@ -34,8 +34,8 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
     protected var offsetBlock: FloatArray = floatArrayOf(0.0f, 0.0f, 0.0f)
     protected var rotateBlock: FloatArray = floatArrayOf(0.0f, 0.0f, 0.0f)
     protected var modelScale: Float = 1.0f
-    private var armMain: Array<ModelPart?>?
-    private var armOff: Array<ModelPart?>?
+    private var armMain: Array<ModelPart?>? = null
+    private var armOff: Array<ModelPart?>? = null
     private var armsResolved = false
     fun initFaceParts(headPart: ModelPart) {
         this.Face0 = getChildOrNull(headPart, "Face0")
@@ -147,7 +147,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
         }
     }
 
-    fun getArmForSide(side: HumanoidArm?): Array<ModelPart>? {
+    fun getArmForSide(side: HumanoidArm?): Array<ModelPart?>? {
         resolveArmParts()
         return if (side == HumanoidArm.RIGHT) armMain else armOff
     }
@@ -166,7 +166,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
             return
         }
         for (part in parts) {
-            part.translateAndRotate(poseStack)
+            part?.translateAndRotate(poseStack)
         }
     }
 
@@ -268,7 +268,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
             else -> 0.34f
         }
 
-        var level = if (entity != null) entity.getScaleLevel() else 0
+        var level = if (entity != null) entity.scaleLevel else 0
         level = max(0, min(level, 3))
         return base * (level + 1)
     }

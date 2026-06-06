@@ -156,7 +156,7 @@ object PlayerStateService {
                 ship!!.isAlive
                         && !ship.isRemoved && ship.isTame
                         && ship.isStateMarried
-                        && ship.getOwnerUUID() == ownerId
+                        && ship.ownerUUID == ownerId
             }).size
         if (scanned > 0) {
             admiralData(player).setMarriedShipCount(scanned)
@@ -189,7 +189,7 @@ object PlayerStateService {
                     ship!!.isAlive
                             && !ship.isRemoved && ship.isTame
                             && ship.isStateMarried
-                            && ship.getOwnerUUID() == ownerId
+                            && ship.ownerUUID == ownerId
                 }
             ).size
         }

@@ -142,7 +142,7 @@ class ModelMountIsH<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableMo
             if (entity.shipDepth > 0.0) {
                 offsetY += angleX * 0.025f + 0.025f
             }
-            if (entity.getHost() != null && (entity.getHost()!!.isOrderedToSit() || entity.getHost()!!
+            if (entity.host != null && (entity.host!!.isOrderedToSit() || entity.host!!
                     .isInSittingPose())
             ) {
                 isSitting = true

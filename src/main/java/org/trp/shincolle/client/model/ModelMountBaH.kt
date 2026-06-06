@@ -183,7 +183,7 @@ class ModelMountBaH<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableMo
         this.ArmLeft01.xRot = angleAdd2 * 1.2f - 0.7f
         this.ArmRight01.xRot = angleAdd1 * 1.2f - 0.7f
 
-        if (entity is EntityMountBase && entity.getHost() != null && entity.getHost()!!.isOrderedToSit()) {
+        if (entity is EntityMountBase && entity.host != null && entity.host!!.isOrderedToSit()) {
             this.ArmRight01.xRot = -1.57f
         }
 
