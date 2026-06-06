@@ -67,7 +67,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
     }
 
     override fun init() {
-        super.init()
+        super.init(); syncStateFromMenu()
         pageButtons.clear(); settingsTabButtons.clear(); toggleButtons.clear(); toggleParentTabs.clear(); toggleVisibilitySuppliers.clear()
 
         val pageYs = intArrayOf(18, 54, 90)
@@ -582,7 +582,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
             Sprites.SHIP_INV_MORALE_ICON_W, Sprites.SHIP_INV_MORALE_ICON_H, 256, 256)
         val tex = if (nameData[0] < 100) TEXTURE_ICON1 else TEXTURE_ICON2
         var offY = if (nameData[0] == 4 || nameData[0] == 6) -10 else 0
-        if (nameData[0] >= 101) offY = 10
+        if (nameData[0] >= 100) offY = 10
         g.blit(tex, this.leftPos + 176, this.topPos + 63 + offY, nameData[1].toFloat(), nameData[2].toFloat(), Sprites.SHIP_INV_NAME_ICON_W, Sprites.SHIP_INV_NAME_ICON_H, 256, 256)
     }
 
@@ -709,13 +709,13 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
         const val SETTINGS_TAB_9 = 9; const val SETTINGS_TAB_10 = 10; const val SETTINGS_TAB_11 = 11; const val SETTINGS_TAB_12 = 12
         const val TOGGLE_SIZE = 11; const val TOGGLE_ROW_STEP = 13; const val TOGGLE_X = 174; const val TOGGLE_ROW_1_Y = 131; const val TOGGLE_ROW_2_Y = 144
         const val APPEARANCE_COLS = 4; const val APPEARANCE_GAP_X = 16; const val APPEARANCE_GAP_Y = 13
-        const val APPEARANCE_GRID_X = 173; const val APPEARANCE_GRID_Y = 171; const val APPEARANCE_TITLE_Y = 159; const val APPEARANCE_MAX_ITEMS = 8
-        const val HELD_MAIN_COL = 0; const val HELD_MAIN_ROW = 3; const val HELD_OFF_COL = 1; const val HELD_OFF_ROW = 3; const val CRAFTING_WORK_START_SLOT = 18
+        const val APPEARANCE_GRID_X = 176; const val APPEARANCE_GRID_Y = 171; const val APPEARANCE_TITLE_Y = 159; const val APPEARANCE_MAX_ITEMS = 16
+        const val HELD_MAIN_COL = 1; const val HELD_MAIN_ROW = 5; const val HELD_OFF_COL = 2; const val HELD_OFF_ROW = 5; const val CRAFTING_WORK_START_SLOT = 12
         const val MODEL_BOX_HALF_WIDTH = 57; const val MODEL_BOX_TOP = 91; const val MODEL_BOX_BOTTOM = 60
         const val MODEL_BOX_HALF_WIDTH_GATTAI = 72; const val MODEL_BOX_TOP_GATTAI = 85; const val MODEL_BOX_BOTTOM_GATTAI = 15
-        const val MODEL_SCALE_GATTAI_MULTIPLIER = 1.3f
+        const val MODEL_SCALE_GATTAI_MULTIPLIER = 0.90f
         const val SLIDER_NONE = -1; const val SLIDER_FOLLOW_MIN = 0; const val SLIDER_FOLLOW_MAX = 1; const val SLIDER_FLEE_HP = 2; const val SLIDER_WP_STAY = 3; const val SLIDER_RATION_MORALE = 4
-        const val LEGACY_LABEL_COLOR = 0x000000; const val LEGACY_LABEL_OUTLINE_COLOR = 0xFFFFFF
+        const val LEGACY_LABEL_COLOR = 0xFFFFFF; const val LEGACY_LABEL_OUTLINE_COLOR = 0x181010
         private val LEGACY_MORALE_LEVEL_0 = floatArrayOf(1f, 1.1f, 1.1f, 1.1f, 1.1f, 1.2f, 1.2f, 0.2f, 1.5f, 1.5f, 1.5f, 1.5f, 0f, 1.2f, 1.2f, 1.2f, 2.5f, 1.5f, 1.5f, 1.5f, 1.5f)
         private val LEGACY_MORALE_LEVEL_1 = floatArrayOf(1f, 1.1f, 1.1f, 1.1f, 1.1f, 0.8f, 1.1f, 0.06f, 1f, 1.2f, 1.2f, 1.2f, 0.03f, 1.1f, 1.1f, 1.2f, 1.5f, 1.2f, 1.2f, 1.2f, 1.2f)
         private val LEGACY_MORALE_NEUTRAL = floatArrayOf(1f, 1f, 1f, 1f, 1f, 1f, 1f, 0f, 1f, 0.5f, 0.5f, 0.5f, 0.3f, 1f, 1f, 1f, 1f, 1f, 1f, 0.9f, 0.8f)
@@ -759,7 +759,7 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
             (6).toByte() to intArrayOf(70, 0), (7).toByte() to intArrayOf(12, 74), (8).toByte() to intArrayOf(99, 0),
             (9).toByte() to intArrayOf(99, 58), (10).toByte() to intArrayOf(70, 87)
         )
-        private val DEFAULT_SHIP_TYPE_ICON = intArrayOf(0, 0)
+        private val DEFAULT_SHIP_TYPE_ICON = intArrayOf(41, 0)
 
         private val SHIP_NAME_ICON_MAP: Map<Int, IntArray> = run {
             val data = intArrayOf(0,1,0,0, 1,1,11,0, 2,1,22,0, 3,1,33,0, 4,1,44,0, 5,1,55,0, 6,1,66,0, 7,1,77,0,
@@ -776,9 +776,9 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
             val map = mutableMapOf<Int, IntArray>(); var i = 0
             while (i < data.size) { map[data[i]] = intArrayOf(data[i + 1], data[i + 2], data[i + 3]); i += 4 }; map
         }
-        private val DEFAULT_SHIP_NAME_ICON = intArrayOf(0, 0, 0)
+        private val DEFAULT_SHIP_NAME_ICON = intArrayOf(1, 0, 0)
 
-        private fun inside(x: Int, y: Int, x1: Int, y1: Int, x2: Int, y2: Int) = x >= x1 && x < x2 && y >= y1 && y < y2
+        private fun inside(x: Int, y: Int, x1: Int, y1: Int, x2: Int, y2: Int) = x >= x1 && x <= x2 && y >= y1 && y <= y2
     }
 
     private fun isHovering(mx: Int, my: Int, x: Int, y: Int, w: Int, h: Int) =
