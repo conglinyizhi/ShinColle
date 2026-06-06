@@ -39,7 +39,7 @@ class FrameBlock : Block(
 
     override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {
         return this.defaultBlockState()
-            .setValue<Direction?, Direction?>(FACING, context.getHorizontalDirection().getOpposite())
+            .setValue<Direction?, Direction?>(FACING, context.horizontalDirection.opposite)
     }
 
     public override fun rotate(state: BlockState, rotation: Rotation): BlockState {
@@ -87,8 +87,8 @@ class FrameBlock : Block(
 
     public override fun entityInside(state: BlockState, level: Level, pos: BlockPos, entity: Entity) {
         entity.resetFallDistance()
-        if (entity.getDeltaMovement().y < -0.1) {
-            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z)
+        if (entity.deltaMovement.y < -0.1) {
+            entity.deltaMovement = Vec3(entity.deltaMovement.x, -0.1, entity.deltaMovement.z)
         }
     }
 

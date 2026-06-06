@@ -57,7 +57,7 @@ class WayPointBlock : BaseEntityBlock(
         player: Player,
         hitResult: BlockHitResult
     ): InteractionResult {
-        val stack = player.getItemInHand(player.getUsedItemHand())
+        val stack = player.getItemInHand(player.usedItemHand)
 
         if (stack.item is TargetWrenchItem && !player.isShiftKeyDown) {
             if (!level.isClientSide) {

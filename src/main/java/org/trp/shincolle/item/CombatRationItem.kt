@@ -72,7 +72,7 @@ class CombatRationItem(properties: Properties) : Item(properties.stacksTo(16)) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag)
 
         val variant = getVariant(stack)
-        val lines = Component.translatable("gui.shincolle.combatration" + variant).getString().split("<br>".toRegex())
+        val lines = Component.translatable("gui.shincolle.combatration" + variant).string.split("<br>".toRegex())
             .dropLastWhile { it.isEmpty() }.toTypedArray()
         for (line in lines) {
             val trimmed = line.trim { it <= ' ' }

@@ -105,24 +105,24 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
                 data!!.update(
                     Consumer { tag: CompoundTag? ->
                         tag!!.putInt(TAG_BUCKET_REPAIR_COUNT, tag.getInt(TAG_BUCKET_REPAIR_COUNT) + 1)
-                        tag.putLong(TAG_BUCKET_REPAIR_GAME_TIME, ship.level().getGameTime())
-                        tag.putString(TAG_BUCKET_REPAIR_SHIP, ship.getName().getString())
+                        tag.putLong(TAG_BUCKET_REPAIR_GAME_TIME, ship.level().gameTime)
+                        tag.putString(TAG_BUCKET_REPAIR_SHIP, ship.name.string)
                     })
             })
         }
 
         @JvmStatic
         fun handleItemFrameInteract(event: EntityInteract) {
-            if (event.getLevel().isClientSide) return
-            val player = event.getEntity()
-            val held = event.getItemStack()
-            if (held.isEmpty() || held.getItem() !is DebugInspectorItem) return
-            if (event.getTarget() !is ItemFrame) return
+            if (event.level.isClientSide) return
+            val player = event.entity
+            val held = event.itemStack
+            if (held.isEmpty() || held.item !is DebugInspectorItem) return
+            if (event.target !is ItemFrame) return
 
-            event.setCanceled(true)
+            event.isCanceled = true
 
-            val frame = event.getTarget() as ItemFrame
-            val frameStack: ItemStack = frame.getItem()
+            val frame = event.target as ItemFrame
+            val frameStack: ItemStack = frame.item
             if (frameStack.isEmpty()) {
                 player.displayClientMessage(Component.literal("Item frame is empty"), false)
                 return
@@ -134,10 +134,10 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
         private fun inspectShip(player: ServerPlayer, ship: EntityShipBase) {
             val sb = StringBuilder()
             sb.append("=== Ship Debug Info ===\n")
-            sb.append("Type: ").append(ship.getType().builtInRegistryHolder().key().location()).append("\n")
-            sb.append("UUID: ").append(ship.getUUID()).append("\n")
+            sb.append("Type: ").append(ship.type.builtInRegistryHolder().key().location()).append("\n")
+            sb.append("UUID: ").append(ship.uuid).append("\n")
             sb.append("Position: ").append(formatPos(ship)).append("\n")
-            sb.append("Health: ").append(String.format("%.1f / %.1f", ship.getHealth(), ship.getMaxHealth()))
+            sb.append("Health: ").append(String.format("%.1f / %.1f", ship.health, ship.maxHealth))
                 .append("\n")
             sb.append("Owner: ").append(if (ship.ownerUUID != null) ship.ownerUUID else "none").append("\n")
             sb.append("Tame: ").append(ship.isTame).append("\n")
@@ -148,10 +148,10 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
             sb.append("Morale: ").append(ship.morale).append("\n")
             sb.append("Married: ").append(ship.isStateMarried).append("\n")
 
-            val target: Entity? = ship.getTarget()
+            val target: Entity? = ship.target
             if (target != null) {
-                sb.append("Target: ").append(target.getType().builtInRegistryHolder().key().location()).append(" ")
-                    .append(target.getUUID()).append("\n")
+                sb.append("Target: ").append(target.type.builtInRegistryHolder().key().location()).append(" ")
+                    .append(target.uuid).append("\n")
             } else {
                 sb.append("Target: none\n")
             }
@@ -166,17 +166,17 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
                 }
             }
 
-            val nav = ship.getNavigation()
+            val nav = ship.navigation
             if (nav != null) {
                 sb.append("Navigation: ").append(if (nav.isDone()) "idle" else "moving").append("\n")
-                if (nav.getPath() != null) {
-                    sb.append("Path nodes: ").append(nav.getPath()!!.getNodeCount()).append("\n")
+                if (nav.path != null) {
+                    sb.append("Path nodes: ").append(nav.path!!.nodeCount).append("\n")
                 }
             }
 
             sb.append("OnGround: ").append(ship.onGround()).append("\n")
             sb.append("InWater: ").append(ship.isInWater()).append("\n")
-            sb.append("Passengers: ").append(ship.getPassengers().size).append("\n")
+            sb.append("Passengers: ").append(ship.passengers.size).append("\n")
 
             sendChatWithCopy(player, sb.toString())
         }
@@ -184,10 +184,10 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
         private fun inspectItemStack(player: ServerPlayer, stack: ItemStack) {
             val sb = StringBuilder()
             sb.append("=== Item Debug Info ===\n")
-            sb.append("Item: ").append(stack.getItem()).append("\n")
-            sb.append("Count: ").append(stack.getCount()).append("\n")
+            sb.append("Item: ").append(stack.item).append("\n")
+            sb.append("Count: ").append(stack.count).append("\n")
 
-            val components = stack.getComponents()
+            val components = stack.components
             sb.append("Components (").append(components.size()).append("):\n")
             for (entry in components) {
                 sb.append("  ").append(entry.type()).append(" = ").append(entry.value()).append("\n")
@@ -236,7 +236,7 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
         private fun formatPos(entity: Entity): String {
             return String.format(
                 "(%.2f, %.2f, %.2f) dim=%s",
-                entity.getX(), entity.getY(), entity.getZ(),
+                entity.x, entity.y, entity.z,
                 entity.level().dimension().location()
             )
         }

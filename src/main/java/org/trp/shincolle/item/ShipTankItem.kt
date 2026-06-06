@@ -77,7 +77,7 @@ class ShipTankItem(properties: Properties) : Item(properties.stacksTo(1)) {
         tooltipComponents.add(Component.translatable("gui.shincolle.shiptank").withStyle(ChatFormatting.GRAY))
 
         val fluid = FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY)
-        val amount = fluid.getAmount()
+        val amount = fluid.amount
 
         if (fluid.isEmpty()) {
             tooltipComponents.add(
@@ -89,17 +89,17 @@ class ShipTankItem(properties: Properties) : Item(properties.stacksTo(1)) {
 
         tooltipComponents.add(
             Component.literal(amount.toString() + " / " + capacity + " mB ").withStyle(ChatFormatting.AQUA)
-                .append(fluid.getHoverName().copy().withStyle(ChatFormatting.AQUA))
+                .append(fluid.hoverName.copy().withStyle(ChatFormatting.AQUA))
         )
     }
 
     override fun useOn(context: UseOnContext): InteractionResult {
-        val level = context.getLevel()
-        val player = context.getPlayer()
-        val stack = context.getItemInHand()
-        val pos = context.getClickedPos()
-        val side = context.getClickedFace()
-        val hand = context.getHand()
+        val level = context.level
+        val player = context.player
+        val stack = context.itemInHand
+        val pos = context.clickedPos
+        val side = context.clickedFace
+        val hand = context.hand
 
         if (level.isClientSide) {
             return InteractionResult.PASS
@@ -123,7 +123,7 @@ class ShipTankItem(properties: Properties) : Item(properties.stacksTo(1)) {
 
             if (!transferred.isEmpty()) {
                 if (player != null) {
-                    player.setItemInHand(hand, itemHandler.getContainer())
+                    player.setItemInHand(hand, itemHandler.container)
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide)
             }
@@ -134,7 +134,7 @@ class ShipTankItem(properties: Properties) : Item(properties.stacksTo(1)) {
             val pickup = FluidUtil.tryPickUpFluid(stack, player, level, pos, side)
             if (pickup.isSuccess()) {
                 if (player != null) {
-                    player.setItemInHand(hand, pickup.getResult())
+                    player.setItemInHand(hand, pickup.result)
                 }
                 return InteractionResult.sidedSuccess(level.isClientSide)
             }
@@ -146,7 +146,7 @@ class ShipTankItem(properties: Properties) : Item(properties.stacksTo(1)) {
         val placed = FluidUtil.tryPlaceFluid(player, level, hand, placePos, stack, contained)
         if (placed.isSuccess()) {
             if (player != null) {
-                player.setItemInHand(hand, placed.getResult())
+                player.setItemInHand(hand, placed.result)
             }
             return InteractionResult.sidedSuccess(level.isClientSide)
         }
@@ -165,7 +165,7 @@ class ShipTankItem(properties: Properties) : Item(properties.stacksTo(1)) {
 
         @JvmStatic
         fun getCapacity(stack: ItemStack): Int {
-            if (stack.getItem() is ShipTankItem) {
+            if (stack.item is ShipTankItem) {
                 return Companion.getCapacity((stack.item as ShipTankItem).getVariant(stack))
             }
             return CAPACITY_BY_VARIANT[0]

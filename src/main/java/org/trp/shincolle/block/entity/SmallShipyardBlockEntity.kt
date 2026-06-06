@@ -316,7 +316,7 @@ class SmallShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
 
     private fun canConsumeMaterials(mats: IntArray): Boolean {
         for (i in 0..3) {
-            if (this.inventory.getStackInSlot(i).getCount() < mats[i]) {
+            if (this.inventory.getStackInSlot(i).count < mats[i]) {
                 return false
             }
         }

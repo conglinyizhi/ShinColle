@@ -35,7 +35,7 @@ class GrudgeHeavyBlock(properties: Properties) : Block(properties) {
         setLargeShipyardSupportFormed(level, pos, true)
 
         val activatedState = ModBlocks.LARGE_SHIPYARD.get()!!.defaultBlockState()
-            .setValue<Direction?, Direction?>(LargeShipyardBlock.Companion.FACING, player.getDirection().getOpposite())
+            .setValue<Direction?, Direction?>(LargeShipyardBlock.Companion.FACING, player.direction.opposite)
             .setValue<Boolean?, Boolean?>(LargeShipyardBlock.Companion.ACTIVE, false)
         level.setBlock(pos, activatedState, UPDATE_ALL)
         level.playSound(
@@ -69,7 +69,7 @@ class GrudgeHeavyBlock(properties: Properties) : Block(properties) {
         )
 
         fun hasLargeShipyardSupport(level: Level, center: BlockPos): Boolean {
-            if (center.getY() - 2 < level.getMinBuildHeight()) {
+            if (center.y - 2 < level.minBuildHeight) {
                 return false
             }
 
@@ -111,7 +111,7 @@ class GrudgeHeavyBlock(properties: Properties) : Block(properties) {
         }
 
         private fun isLargeShipyardPattern(level: Level, center: BlockPos): Boolean {
-            if (center.getY() - 2 < level.getMinBuildHeight()) {
+            if (center.y - 2 < level.minBuildHeight) {
                 return false
             }
 

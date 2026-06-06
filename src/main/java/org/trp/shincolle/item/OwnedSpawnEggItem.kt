@@ -34,9 +34,9 @@ open class OwnedSpawnEggItem(
     typeSupplier, primaryColor, secondaryColor, properties
 ) {
     override fun useOn(context: UseOnContext): InteractionResult {
-        val player = context.getPlayer()
-        if (player != null && !context.getLevel().isClientSide) {
-            val stack = context.getItemInHand()
+        val player = context.player
+        if (player != null && !context.level.isClientSide) {
+            val stack = context.itemInHand
 
             val customData = stack.get<CustomData?>(DataComponents.ENTITY_DATA)
             var isResurrection = false
@@ -73,7 +73,7 @@ open class OwnedSpawnEggItem(
         val stack = player.getItemInHand(hand)
 
         val hitresult: HitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY)
-        if (hitresult.getType() != HitResult.Type.BLOCK) {
+        if (hitresult.type != HitResult.Type.BLOCK) {
             return super.use(level, player, hand)
         } else if (level !is ServerLevel) {
             return InteractionResultHolder.success<ItemStack?>(stack)
@@ -100,7 +100,7 @@ open class OwnedSpawnEggItem(
 
             ensureOwnedEntityData(stack, player, "use")
             val result = super.use(level, player, hand)
-            if (result.getResult().consumesAction() && isResurrection && costLevel > 0 && !player.isCreative()) {
+            if (result.result.consumesAction() && isResurrection && costLevel > 0 && !player.isCreative()) {
                 player.giveExperienceLevels(-costLevel)
             }
             return result
@@ -136,7 +136,7 @@ open class OwnedSpawnEggItem(
                 existingData!!.update(
                     Consumer { tag: CompoundTag? ->
                         if (!tag!!.hasUUID("Owner")) {
-                            tag.putUUID("Owner", player.getUUID())
+                            tag.putUUID("Owner", player.uuid)
                         }
                         if (!tag.contains("Tame")) {
                             tag.putBoolean("Tame", true)
@@ -152,13 +152,13 @@ open class OwnedSpawnEggItem(
 
         val customData = stack.get<CustomData?>(DataComponents.ENTITY_DATA)
         if (customData == null) {
-            diagnosticLog("[SCSpawnDiag] ownedEggDataMissing source={} player={}", source, player.getUUID())
+            diagnosticLog("[SCSpawnDiag] ownedEggDataMissing source={} player={}", source, player.uuid)
             return
         }
         val tag = customData.copyTag()
         diagnosticLog(
             "[SCSpawnDiag] ownedEggPrepared source={} player={} ownerPresent={} tame={} entityId={}",
-            source, player.getUUID(), tag.hasUUID("Owner"), tag.getBoolean("Tame"), tag.getString("id")
+            source, player.uuid, tag.hasUUID("Owner"), tag.getBoolean("Tame"), tag.getString("id")
         )
     }
 
