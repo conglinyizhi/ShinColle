@@ -674,16 +674,16 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
 
     private fun drawValueRightLegacy(g: GuiGraphics, text: String, xRight: Int, y: Int, color: Int) {
         val x = xRight - this.font.width(text)
-        g.drawString(this.font, text, x + 1f, y + 1f, 0x301010, false)
-        g.drawString(this.font, text, x.toFloat(), y.toFloat(), color, false)
+        g.drawString(this.font, text, x + 1, y + 1, 0x301010, false)
+        g.drawString(this.font, text, x, y, color, false)
     }
 
     private fun drawOutlinedText(g: GuiGraphics, text: String, x: Int, y: Int, color: Int) {
-        g.drawString(this.font, text, (x - 1).toFloat(), y.toFloat(), LEGACY_LABEL_OUTLINE_COLOR, false)
-        g.drawString(this.font, text, (x + 1).toFloat(), y.toFloat(), LEGACY_LABEL_OUTLINE_COLOR, false)
-        g.drawString(this.font, text, x.toFloat(), (y - 1).toFloat(), LEGACY_LABEL_OUTLINE_COLOR, false)
-        g.drawString(this.font, text, x.toFloat(), (y + 1).toFloat(), LEGACY_LABEL_OUTLINE_COLOR, false)
-        g.drawString(this.font, text, x.toFloat(), y.toFloat(), color, false)
+        g.drawString(this.font, text, x - 1, y, LEGACY_LABEL_OUTLINE_COLOR, false)
+        g.drawString(this.font, text, x + 1, y, LEGACY_LABEL_OUTLINE_COLOR, false)
+        g.drawString(this.font, text, x, y - 1, LEGACY_LABEL_OUTLINE_COLOR, false)
+        g.drawString(this.font, text, x, y + 1, LEGACY_LABEL_OUTLINE_COLOR, false)
+        g.drawString(this.font, text, x, y, color, false)
     }
 
     private fun getResourceDisplay(fallback: String) = if (menu.isCreativeDebuggerActive) DebugInspectorItem.creativeInfiniteLabel().string else fallback
@@ -700,16 +700,15 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
         const val SETTINGS_TAB_1 = 1; const val SETTINGS_TAB_2 = 2; const val SETTINGS_TAB_3 = 3; const val SETTINGS_TAB_4 = 4
         const val SETTINGS_TAB_5 = 5; const val SETTINGS_TAB_6 = 6; const val SETTINGS_TAB_7 = 7; const val SETTINGS_TAB_8 = 8
         const val SETTINGS_TAB_9 = 9; const val SETTINGS_TAB_10 = 10; const val SETTINGS_TAB_11 = 11; const val SETTINGS_TAB_12 = 12
-        const val TOGGLE_SIZE = 11; const val TOGGLE_ROW_STEP = 13; const val TOGGLE_X = 173; const val TOGGLE_ROW_1_Y = 131; const val TOGGLE_ROW_2_Y = 194
-        const val APPEARANCE_COLS = 4; const val APPEARANCE_GAP_X = 12; const val APPEARANCE_GAP_Y = 12
-        const val APPEARANCE_GRID_X = 173; const val APPEARANCE_GRID_Y = 155; const val APPEARANCE_TITLE_Y = 148; const val APPEARANCE_MAX_ITEMS = 8
+        const val TOGGLE_SIZE = 11; const val TOGGLE_ROW_STEP = 13; const val TOGGLE_X = 174; const val TOGGLE_ROW_1_Y = 131; const val TOGGLE_ROW_2_Y = 144
+        const val APPEARANCE_COLS = 4; const val APPEARANCE_GAP_X = 16; const val APPEARANCE_GAP_Y = 13
+        const val APPEARANCE_GRID_X = 173; const val APPEARANCE_GRID_Y = 171; const val APPEARANCE_TITLE_Y = 159; const val APPEARANCE_MAX_ITEMS = 8
         const val HELD_MAIN_COL = 0; const val HELD_MAIN_ROW = 3; const val HELD_OFF_COL = 1; const val HELD_OFF_ROW = 3; const val CRAFTING_WORK_START_SLOT = 18
         const val MODEL_BOX_HALF_WIDTH = 57; const val MODEL_BOX_TOP = 91; const val MODEL_BOX_BOTTOM = 60
         const val MODEL_BOX_HALF_WIDTH_GATTAI = 72; const val MODEL_BOX_TOP_GATTAI = 85; const val MODEL_BOX_BOTTOM_GATTAI = 15
         const val MODEL_SCALE_GATTAI_MULTIPLIER = 1.3f
         const val SLIDER_NONE = -1; const val SLIDER_FOLLOW_MIN = 0; const val SLIDER_FOLLOW_MAX = 1; const val SLIDER_FLEE_HP = 2; const val SLIDER_WP_STAY = 3; const val SLIDER_RATION_MORALE = 4
         const val LEGACY_LABEL_COLOR = 0x000000; const val LEGACY_LABEL_OUTLINE_COLOR = 0xFFFFFF
-
         private val LEGACY_MORALE_LEVEL_0 = floatArrayOf(1f, 1.1f, 1.1f, 1.1f, 1.1f, 1.2f, 1.2f, 0.2f, 1.5f, 1.5f, 1.5f, 1.5f, 0f, 1.2f, 1.2f, 1.2f, 2.5f, 1.5f, 1.5f, 1.5f, 1.5f)
         private val LEGACY_MORALE_LEVEL_1 = floatArrayOf(1f, 1.1f, 1.1f, 1.1f, 1.1f, 0.8f, 1.1f, 0.06f, 1f, 1.2f, 1.2f, 1.2f, 0.03f, 1.1f, 1.1f, 1.2f, 1.5f, 1.2f, 1.2f, 1.2f, 1.2f)
         private val LEGACY_MORALE_NEUTRAL = floatArrayOf(1f, 1f, 1f, 1f, 1f, 1f, 1f, 0f, 1f, 0.5f, 0.5f, 0.5f, 0.3f, 1f, 1f, 1f, 1f, 1f, 1f, 0.9f, 0.8f)
@@ -773,6 +772,8 @@ class ShipInventoryScreen(menu: ShipContainerMenu, playerInventory: Inventory, t
         private val DEFAULT_SHIP_NAME_ICON = intArrayOf(0, 0, 0)
 
         private fun inside(x: Int, y: Int, x1: Int, y1: Int, x2: Int, y2: Int) = x >= x1 && x < x2 && y >= y1 && y < y2
-        private fun isHovering(mx: Int, my: Int, x: Int, y: Int, w: Int, h: Int) = mx >= x && mx < x + w && my >= y && my < y + h
     }
+
+    private fun isHovering(mx: Int, my: Int, x: Int, y: Int, w: Int, h: Int) =
+        mx >= this.leftPos + x && mx < this.leftPos + x + w && my >= this.topPos + y && my < this.topPos + y + h
 }
