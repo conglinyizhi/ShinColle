@@ -268,7 +268,7 @@ object Values {
         tempBookList.put(
             1000,
             Arrays.asList<IntArray?>(
-                intArrayOf(0, 0, 0, 0),
+                intArrayOf(0, 0, 0, 20),
                 intArrayOf(0, 1, 0, 0),
                 intArrayOf(1, 0, 0, 76, 0, 0, 0, 100, 56),
                 intArrayOf(2, 0, 13, -3, 1),
@@ -713,7 +713,7 @@ object Values {
         )
         tempBookList.put(
             1028,
-            Arrays.asList<IntArray?>(intArrayOf(0, 0, 0, 0), intArrayOf(0, 1, 0, 0), intArrayOf(2, 0, 43, 17, 74))
+            Arrays.asList<IntArray?>(intArrayOf(0, 0, 0, 30), intArrayOf(0, 1, 0, 0), intArrayOf(2, 0, 43, 17, 74))
         )
         tempBookList.put(
             1029,
