@@ -5,7 +5,11 @@
 
 ## 概述
 
-`IShipConsumable` 允许第三方模组创建可被舰娘识别并产生特殊效果的物品。与 `IShipEquip` 不同，这类物品**不需要放入装备槽**，而是放在舰娘的 cargo Inventory 中或玩家手持右键使用。
+`IShipConsumable` 允许第三方模组创建可被舰娘识别并产生特殊效果的物品。与 `IShipEquip` 不同，这类物品**不需要放入装备槽**。
+
+> **使用方式分为两类：**
+> - **被动效果**（死亡保护、自动补给、弹药统计）：物品放入舰娘 cargo Inventory 中即可自动生效。
+> - **主动交互**（右键交互）：玩家手持物品右键点击舰娘时触发。这是附加能力，若你的物品只需要被动效果，无需实现右键交互相关方法。
 
 ## 快速开始
 
@@ -43,15 +47,19 @@ class MyAddonConsumable(properties: Properties) : Item(properties), IShipConsuma
 
 所有方法均有默认实现，只需重写需要的能力。
 
-#### 右键交互能力
+#### 右键交互能力（玩家手持主动使用）
+
+> 若你的物品只需要放在 cargo Inventory 中自动生效，**无需实现以下方法**。
 
 | 方法 | 说明 |
 |------|------|
-| `canInteractWithShip(stack, ship, player)` | 是否触发右键交互。返回 true 会阻止默认交互（坐下/GUI）。 |
+| `canInteractWithShip(stack, ship, player)` | 玩家手持此物品右键舰娘时，是否触发交互。返回 true 会阻止默认交互（坐下/GUI）。 |
 | `onInteractWithShip(stack, ship, player)` | 执行交互效果。返回 true 表示成功。 |
 | `consumeItemOnInteract(stack, ship, player)` | 成功后是否自动 shrink 1 个物品。可多次使用的物品返回 false。 |
 
-#### 被动死亡保护
+#### 被动效果（放入 cargo Inventory 自动生效）
+
+##### 死亡保护
 
 | 方法 | 说明 |
 |------|------|
@@ -60,14 +68,14 @@ class MyAddonConsumable(properties: Properties) : Item(properties), IShipConsuma
 
 **触发条件：** 伤害 >= 当前生命值、非无敌伤害、非解体锤、非主人攻击。
 
-#### 自动补给能力
+##### 自动补给
 
 | 方法 | 说明 |
 |------|------|
 | `canAutoSupplyGrudge(stack, ship)` | fuel <= 0 时，该物品是否可被自动消耗。 |
 | `getAutoSupplyGrudgeAmount(stack, ship)` | 提供的 fuel 量（会乘以舰娘的怨念消耗系数）。 |
 
-#### 弹药能力
+##### 弹药统计
 
 | 方法 | 说明 |
 |------|------|
@@ -148,11 +156,12 @@ class UniversalAmmoBox(properties: Properties) : Item(properties), IShipConsumab
 
 ## 注意事项
 
-1. **右键交互优先级**：`IShipConsumable` 的右键交互在食物/怨念检查之后、Shift+右键打开 GUI 之前。若 `canInteractWithShip` 返回 true 且 `onInteractWithShip` 返回 true，会跳过默认交互。
-2. **死亡保护优先级**：内置 `REPAIR_GODDESS` 优先于 `IShipConsumable` 死亡保护。只有当 Repair Goddess 不可用时，才会扫描 `IShipConsumable`。
-3. **自动补给优先级**：内置 `GRUDGE` / `GRUDGE_BLOCK` 优先于 `IShipConsumable` 自动补给。
-4. **弹药消耗**：`IShipConsumable` 弹药消耗方式和内置弹药一致，每次攻击按物品数量消耗（不是按弹药点数）。
-5. **客户端同步**：`onInteractWithShip` 和 `onPreventDeath` 在服务端执行。若需要粒子/音效，请使用服务端 API。
+1. **右键交互是附加能力**：`IShipConsumable` 的核心设计是 cargo Inventory 中的**被动效果**（死亡保护、自动补给、弹药）。右键交互是额外提供的主动能力，若不需要请勿重写相关方法。
+2. **右键交互优先级**：在食物/怨念检查之后、Shift+右键打开 GUI 之前。若 `canInteractWithShip` 返回 true 且 `onInteractWithShip` 返回 true，会跳过默认交互。
+3. **死亡保护优先级**：内置 `REPAIR_GODDESS` 优先于 `IShipConsumable`。只有当 Repair Goddess 不可用时，才会扫描 cargo Inventory 中的 `IShipConsumable`。
+4. **自动补给优先级**：内置 `GRUDGE` / `GRUDGE_BLOCK` 优先于 `IShipConsumable` 自动补给。
+5. **弹药消耗**：`IShipConsumable` 弹药消耗方式和内置弹药一致，每次攻击按物品数量消耗（不是按弹药点数）。
+6. **客户端同步**：`onInteractWithShip` 和 `onPreventDeath` 在服务端执行。若需要粒子/音效，请使用服务端 API。
 
 ## 版本历史
 

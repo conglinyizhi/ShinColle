@@ -9,25 +9,37 @@ import org.trp.shincolle.entity.base.EntityShipBase
  * 第三方舰娘消耗品/交互物品扩展接口。
  *
  * 实现此接口的 [net.minecraft.world.item.Item] 可以赋予舰娘以下一种或多种能力：
- * - 右键交互补充（怨念、弹药、回血、心情等）
+ *
+ * **被动效果（核心）** — 物品放入舰娘 cargo Inventory 中自动生效：
  * - 被动死亡保护（类似修理女神）
  * - 自动补给（舰娘 fuel 耗尽时自动从 inventory 消耗）
  * - 弹药统计（物品被计入轻/重弹药总量）
  *
+ * **右键交互（附加）** — 玩家手持物品右键舰娘时触发：
+ * - 回血、补充怨念、修改心情等主动效果
+ *
  * 所有方法均有默认实现，第三方只需重写需要的能力即可。
+ * 若只需要被动效果，无需实现右键交互相关方法。
  *
  * **使用示例：**
  * ```kotlin
- * class MyAddonConsumable(properties: Properties) : Item(properties), IShipConsumable {
- *     override fun canInteractWithShip(stack: ItemStack, ship: EntityShipBase, player: Player): Boolean = true
- *
- *     override fun onInteractWithShip(stack: ItemStack, ship: EntityShipBase, player: Player): Boolean {
- *         ship.heal(10.0f)
- *         ship.fuel += 500
+ * // 仅被动死亡保护
+ * class EmergencyKit(properties: Properties) : Item(properties), IShipConsumable {
+ *     override fun canPreventDeath(stack: ItemStack, ship: EntityShipBase, source: DamageSource): Boolean = true
+ *     override fun onPreventDeath(stack: ItemStack, ship: EntityShipBase, source: DamageSource): Boolean {
+ *         ship.heal(ship.maxHealth * 0.5f)
+ *         stack.shrink(1)
  *         return true
  *     }
+ * }
  *
- *     override fun consumeItemOnInteract(stack: ItemStack, ship: EntityShipBase, player: Player): Boolean = false
+ * // 同时需要右键交互
+ * class MyAddonConsumable(properties: Properties) : Item(properties), IShipConsumable {
+ *     override fun canInteractWithShip(stack: ItemStack, ship: EntityShipBase, player: Player): Boolean = true
+ *     override fun onInteractWithShip(stack: ItemStack, ship: EntityShipBase, player: Player): Boolean {
+ *         ship.heal(10.0f)
+ *         return true
+ *     }
  * }
  * ```
  */
