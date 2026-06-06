@@ -15,9 +15,10 @@ import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.level.Level
+import net.neoforged.fml.ModList
 import org.trp.shincolle.init.ModDataComponents
+import org.trp.shincolle.integration.PatchouliIntegration
 import org.trp.shincolle.menu.DeskMenu
-import vazkii.patchouli.api.PatchouliAPI
 import java.util.function.Consumer
 
 class DeskItemBook(properties: Properties) : Item(properties) {
@@ -31,13 +32,8 @@ class DeskItemBook(properties: Properties) : Item(properties) {
         val chap = stack.getOrDefault<Int?>(ModDataComponents.BOOK_CHAPTER, 0)
         val page = stack.getOrDefault<Int?>(ModDataComponents.BOOK_PAGE, 0)
 
-        if (!PatchouliAPI.get().isStub() && !PatchouliAPI.get().getBookStack(PATCHOULI_BOOK_ID).isEmpty()) {
-            if (level.isClientSide) {
-                PatchouliAPI.get().openBookGUI(PATCHOULI_BOOK_ID)
-            } else if (player is ServerPlayer) {
-                PatchouliAPI.get().openBookGUI(player, PATCHOULI_BOOK_ID)
-            }
-
+        if (ModList.get().isLoaded("patchouli") && PatchouliIntegration.hasBook(PATCHOULI_BOOK_ID)) {
+            PatchouliIntegration.openBook(player, PATCHOULI_BOOK_ID)
             return InteractionResultHolder.sidedSuccess<ItemStack?>(stack, level.isClientSide)
         }
 
