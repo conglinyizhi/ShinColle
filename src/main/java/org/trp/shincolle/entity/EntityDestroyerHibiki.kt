@@ -124,7 +124,7 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
         this.riderType = 0
         val akatsuki = this.akatsukiRiding
         if (akatsuki != null) {
-            this.riderType = akatsuki.getRiderType()
+            this.riderType = akatsuki.riderType
         }
     }
 
@@ -146,13 +146,7 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
             return null
         }
 
-    override fun getRiderType(): Int {
-        return this.riderType
-    }
 
-    override fun setRiderType(type: Int) {
-        this.riderType = type
-    }
 
     override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN

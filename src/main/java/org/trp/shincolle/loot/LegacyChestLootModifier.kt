@@ -54,7 +54,7 @@ class LegacyChestLootModifier(conditions: Array<LootItemCondition?>, private val
     }
 
     override fun codec(): MapCodec<out IGlobalLootModifier?> {
-        return ModLootModifiers.LEGACY_CHEST_LOOT.get()
+        return ModLootModifiers.LEGACY_CHEST_LOOT.get()!!
     }
 
     companion object {
@@ -97,7 +97,8 @@ class LegacyChestLootModifier(conditions: Array<LootItemCondition?>, private val
 
             var stack = ItemStack(entry.item, count)
             if (entry.itemMeta == -1 && stack.getItem() is LegacyEquipItem) {
-                val variant = random.nextInt(equipItem.getVariantCount())
+                val equipItem = stack.getItem() as LegacyEquipItem
+                val variant = random.nextInt(equipItem.variantCount)
                 stack = equipItem.createVariantStack(variant)
                 stack.setCount(count)
             }

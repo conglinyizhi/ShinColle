@@ -149,7 +149,7 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
     private fun spawnAttackEffects() {
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
-            serverLevel.sendParticles<SimpleParticleType?>(
+            (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0, this.getZ(),
                 12, 0.25, 0.1, 0.25, 0.02
             )
@@ -162,18 +162,18 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
         }
 
         if (checkModelState(0, this.getStateEmotion(0))) {
-            val rensouhou = ModEntities.RENSOUHOU_S.get().create(serverLevel)
+            val rensouhou = ModEntities.RENSOUHOU_S.get().create((this.level() as ServerLevel))
             if (rensouhou != null) {
                 rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
                 rensouhou.initSummon(this, target, 0)
-                serverLevel.addFreshEntity(rensouhou)
+                (this.level() as ServerLevel).addFreshEntity(rensouhou)
             }
         } else {
-            val rensouhou = ModEntities.RENSOUHOU.get().create(serverLevel)
+            val rensouhou = ModEntities.RENSOUHOU.get().create((this.level() as ServerLevel))
             if (rensouhou != null) {
                 rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
                 rensouhou.initSummon(this, target, 0)
-                serverLevel.addFreshEntity(rensouhou)
+                (this.level() as ServerLevel).addFreshEntity(rensouhou)
             }
         }
     }

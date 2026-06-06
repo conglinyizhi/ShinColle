@@ -73,11 +73,11 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
                 this.fuel = this.fuel - Config.fuelConsumeActionLight
                 this.attackTick = 100
                 this.applyEmotesReaction(3)
-                serverLevel.sendParticles<SimpleParticleType?>(
+                (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                     ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0, this.getZ(),
                     10, 0.25, 0.1, 0.25, 0.02
                 )
-                summonRensouhou(serverLevel, target)
+                summonRensouhou((this.level() as ServerLevel), target)
                 return
             }
         }
@@ -137,18 +137,18 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
 
     private fun summonRensouhou(serverLevel: ServerLevel, target: Entity?) {
         if (checkModelState(0, this.getStateEmotion(0))) {
-            val rensouhou = ModEntities.RENSOUHOU.get().create(serverLevel)
+            val rensouhou = ModEntities.RENSOUHOU.get().create((this.level() as ServerLevel))
             if (rensouhou != null) {
                 rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
                 rensouhou.initSummon(this, target, 0)
-                serverLevel.addFreshEntity(rensouhou)
+                (this.level() as ServerLevel).addFreshEntity(rensouhou)
             }
         } else {
-            val rensouhouS = ModEntities.RENSOUHOU_S.get().create(serverLevel)
+            val rensouhouS = ModEntities.RENSOUHOU_S.get().create((this.level() as ServerLevel))
             if (rensouhouS != null) {
                 rensouhouS.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
                 rensouhouS.initSummon(this, target, 0)
-                serverLevel.addFreshEntity(rensouhouS)
+                (this.level() as ServerLevel).addFreshEntity(rensouhouS)
             }
         }
     }

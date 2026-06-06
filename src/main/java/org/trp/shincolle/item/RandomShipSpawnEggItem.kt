@@ -19,12 +19,12 @@ import java.util.function.Supplier
 import java.util.function.UnaryOperator
 
 class RandomShipSpawnEggItem(
-    fallbackType: Supplier<out EntityType<out Mob?>?>?,
+    fallbackType: Supplier<out EntityType<out Mob?>?>,
     shipClass: ShipClass?,
     private val largeShipyardEgg: Boolean,
     primaryColor: Int,
     secondaryColor: Int,
-    properties: Properties?
+    properties: Properties
 ) : ShipSpawnEggItem(fallbackType, shipClass, primaryColor, secondaryColor, properties) {
     override fun useOn(context: UseOnContext): InteractionResult {
         injectRandomEntityData(context.getLevel(), context.getPlayer(), context.getItemInHand())

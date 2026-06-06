@@ -41,13 +41,13 @@ class RecipePaperItem(properties: Properties) : Item(properties.stacksTo(1)) {
         val recipeGrid = RecipePaperData.loadRecipeGrid(stack, context.registries()!!)
         val inputList: MutableList<ItemStack> = recipeGridAsList(recipeGrid)
 
-        if (!RecipePaperData.hasAnyRecipeIngredient(recipeGrid)) {
+        if (!RecipePaperData.hasAnyRecipeIngredient(inputList)) {
             return
         }
 
         var result = RecipePaperData.loadStoredRecipeResult(stack, context.registries()!!)
         if (result.isEmpty() && context.level() != null) {
-            result = RecipePaperData.getRecipePreviewResult(context.level()!!, inputList)
+            result = RecipePaperData.getRecipePreviewResult(context.level()!!, inputList as MutableList<ItemStack?>)
         }
         appendRecipePreviewTooltip(tooltipComponents, inputList, result)
     }

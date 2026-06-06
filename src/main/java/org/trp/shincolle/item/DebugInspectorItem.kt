@@ -121,6 +121,7 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
 
             event.setCanceled(true)
 
+            val frame = event.getTarget() as ItemFrame
             val frameStack: ItemStack = frame.getItem()
             if (frameStack.isEmpty()) {
                 player.displayClientMessage(Component.literal("Item frame is empty"), false)
@@ -140,11 +141,11 @@ class DebugInspectorItem(properties: Properties) : Item(properties) {
                 .append("\n")
             sb.append("Owner: ").append(if (ship.getOwnerUUID() != null) ship.getOwnerUUID() else "none").append("\n")
             sb.append("Tame: ").append(ship.isTame).append("\n")
-            sb.append("Level: ").append(ship.getLevel()).append("\n")
-            sb.append("ShipKills: ").append(ship.getShipKills()).append("\n")
+            sb.append("Level: ").append(ship.level).append("\n")
+            sb.append("ShipKills: ").append(ship.shipKills).append("\n")
             sb.append("Fuel: ").append(ship.fuel).append("\n")
             sb.append("Ammo L/H: ").append(ship.ammoLight).append(" / ").append(ship.ammoHeavy).append("\n")
-            sb.append("Morale: ").append(ship.getMorale()).append("\n")
+            sb.append("Morale: ").append(ship.morale).append("\n")
             sb.append("Married: ").append(ship.isStateMarried).append("\n")
 
             val target: Entity? = ship.getTarget()

@@ -56,9 +56,9 @@ class EntityIsolatedHime(type: EntityType<out TamableAnimal>, level: Level) : En
         val explosionRadius = 4.0f
         val yawRad = this.getYRot() * Mth.DEG_TO_RAD
         val pos = rotateXZByAxis(0.1f, 0.0f, yawRad, 1.0f)
-        val missile = EntityAbyssMissile(serverLevel, this, target, damage, speed, life, explosionRadius)
+        val missile = EntityAbyssMissile((this.level() as ServerLevel), this, target, damage, speed, life, explosionRadius)
         missile.setPos(this.getX() + pos[1], this.getY() + this.getBbHeight() * 0.65, this.getZ() + pos[0])
-        serverLevel.addFreshEntity(missile)
+        (this.level() as ServerLevel).addFreshEntity(missile)
     }
 
     override val equipOptions: MutableList<EquipOption>

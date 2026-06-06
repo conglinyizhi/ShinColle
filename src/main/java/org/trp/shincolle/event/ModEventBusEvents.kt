@@ -140,7 +140,8 @@ object ModEventBusEvents {
 
     @SubscribeEvent
     fun onPlayerIncomingDamage(event: LivingIncomingDamageEvent) {
-        if (event.getEntity() is Player
+        val player = event.getEntity()
+        if (player is Player
             && handleFireDamageEvent(player, event.getSource())
         ) {
             event.setCanceled(true)
@@ -149,7 +150,8 @@ object ModEventBusEvents {
 
     @SubscribeEvent
     fun onPlayerLogin(event: PlayerLoggedInEvent) {
-        if (event.getEntity() is ServerPlayer) {
+        val serverPlayer = event.getEntity()
+        if (serverPlayer is ServerPlayer) {
             giveInitialManualIfNeeded(serverPlayer)
             syncAdmiralState(serverPlayer)
         }
@@ -157,14 +159,16 @@ object ModEventBusEvents {
 
     @SubscribeEvent
     fun onPlayerRespawn(event: PlayerRespawnEvent) {
-        if (event.getEntity() is ServerPlayer) {
+        val serverPlayer = event.getEntity()
+        if (serverPlayer is ServerPlayer) {
             syncAdmiralState(serverPlayer)
         }
     }
 
     @SubscribeEvent
     fun onPlayerChangedDimension(event: PlayerChangedDimensionEvent) {
-        if (event.getEntity() is ServerPlayer) {
+        val serverPlayer = event.getEntity()
+        if (serverPlayer is ServerPlayer) {
             syncAdmiralState(serverPlayer)
         }
     }

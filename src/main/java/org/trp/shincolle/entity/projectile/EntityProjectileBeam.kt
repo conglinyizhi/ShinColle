@@ -64,7 +64,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
-        builder.define<Optional<UUID?>?>(OWNER_UUID, Optional.empty<UUID?>())
+        builder.define<Optional<UUID>>(OWNER_UUID, Optional.empty())
         builder.define<Int?>(OWNER_ID, -1)
         builder.define<Float?>(DAMAGE, 6.0f)
         builder.define<Int?>(LIFE, LIFE_LONG)
@@ -73,7 +73,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
 
     override fun readAdditionalSaveData(tag: CompoundTag) {
         if (tag.hasUUID("Owner")) {
-            this.entityData.set<Optional<UUID?>?>(OWNER_UUID, Optional.of<UUID?>(tag.getUUID("Owner")))
+            this.entityData.set<Optional<UUID>>(OWNER_UUID, Optional.of(tag.getUUID("Owner")))
         }
         if (tag.contains("OwnerId")) {
             this.entityData.set<Int?>(OWNER_ID, tag.getInt("OwnerId"))
@@ -220,7 +220,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
             if (host != null) {
                 return host.getOwnerUUID()
             }
-            return entity.getHostUUID()
+            return entity.hostUUID
         }
         if (entity is EntityAircraftBase) {
             return entity.getOwnerUUID()
@@ -249,7 +249,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
     }
 
     fun setOwner(owner: Entity) {
-        this.entityData.set<Optional<UUID?>?>(OWNER_UUID, Optional.of<UUID?>(owner.getUUID()))
+        this.entityData.set<Optional<UUID>>(OWNER_UUID, Optional.of(owner.getUUID()))
     }
 
     val ownerEntity: Entity?
@@ -258,6 +258,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
             if (ownerUuid.isEmpty() || this.level() !is ServerLevel) {
                 return null
             }
+            val serverLevel = this.level() as ServerLevel
             val entity: Entity? = serverLevel.getEntity(ownerUuid.get())
             if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
@@ -265,8 +266,8 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
             return entity
         }
 
-    val ownerUuid: Optional<UUID?>
-        get() = this.entityData.get<Optional<UUID?>>(OWNER_UUID)
+    val ownerUuid: Optional<UUID>
+        get() = this.entityData.get<Optional<UUID>>(OWNER_UUID)
 
     var damage: Float
         get() = this.entityData.get<Float?>(DAMAGE)
@@ -299,7 +300,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
     }
 
     companion object {
-        private val OWNER_UUID: EntityDataAccessor<Optional<UUID?>?> = SynchedEntityData.defineId<Optional<UUID?>?>(
+        private val OWNER_UUID: EntityDataAccessor<Optional<UUID>> = SynchedEntityData.defineId<Optional<UUID>>(
             EntityProjectileBeam::class.java,
             EntityDataSerializers.OPTIONAL_UUID
         )

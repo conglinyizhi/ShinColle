@@ -217,7 +217,7 @@ class ShipMovementCoordinator @JvmOverloads constructor(
 
         val cx = Mth.floor(anchor.x) shr 4
         val cz = Mth.floor(anchor.z) shr 4
-        return serverLevel.hasChunk(cx, cz)
+        return (this.level() as ServerLevel).hasChunk(cx, cz)
     }
 
     companion object {

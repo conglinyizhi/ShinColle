@@ -117,7 +117,7 @@ class LegacyEquipItem @JvmOverloads constructor(
         return hasLegacyEnchantData(stack) || hasLegacyFoilVariant(stack)
     }
 
-    override fun getTooltipImage(stack: ItemStack): Optional<TooltipComponent?> {
+    override fun getTooltipImage(stack: ItemStack): Optional<TooltipComponent> {
         val scaledLines: MutableList<Component?> = ArrayList<Component?>()
 
         addSpecialTooltip(stack, scaledLines)
@@ -131,10 +131,10 @@ class LegacyEquipItem @JvmOverloads constructor(
         }
 
         if (scaledLines.isEmpty()) {
-            return Optional.empty<TooltipComponent?>()
+            return Optional.empty()
         }
 
-        return Optional.of<TooltipComponent?>(ScaledTextTooltipData(scaledLines, 1.0f))
+        return Optional.of(ScaledTextTooltipData(scaledLines, 1.0f))
     }
 
     private fun addSpecialTooltip(stack: ItemStack, tooltipComponents: MutableList<Component?>) {

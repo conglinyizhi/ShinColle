@@ -35,8 +35,10 @@ class EntitySubmSo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         if (this.isStateRingEffect) {
             val duration = 40 + this.level
             this.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
-            if (this.isStateMarried && this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
-                this.ownerPlayer.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
+            val owner = this.ownerPlayer
+
+            if (this.isStateMarried && owner != null && this.distanceToSqr(owner) < 256.0) {
+                owner.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
             }
         }
     }
@@ -58,9 +60,8 @@ class EntitySubmSo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
     override val shipSpawnEggItem: Item?
         get() = ModItems.SUBM_SO_SPAWN_EGG.get()
 
-    override fun isSubmarine(): Boolean {
-        return true
-    }
+    override val isSubmarine: Boolean
+        get() = true
 
     companion object {
         const val EQUIP_HEAD_BASE: String = "equip_head_base"

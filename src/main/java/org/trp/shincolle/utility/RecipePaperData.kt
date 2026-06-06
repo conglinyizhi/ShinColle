@@ -55,7 +55,7 @@ object RecipePaperData {
     ) {
         val list = ListTag()
         for (slot in 0..<min(grid.size, GRID_SIZE)) {
-            val stack = grid.get(slot)
+            val stack = grid.get(slot) ?: ItemStack.EMPTY
             if (stack.isEmpty()) {
                 continue
             }

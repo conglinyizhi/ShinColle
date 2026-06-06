@@ -87,7 +87,7 @@ object PointerInteractionService {
 
     fun handlePayloadAction(
         player: Player?, pointerStack: ItemStack, action: Int,
-        targetEntityUuid: Optional<UUID?>, targetPos: Optional<Vec3?>
+        targetEntityUuid: Optional<UUID>, targetPos: Optional<Vec3>
     ) {
         if (player == null || player.level().isClientSide) {
             return
@@ -102,7 +102,7 @@ object PointerInteractionService {
         } else if (action == 1 || action == 2) {
             assignFormationPointerTarget(player, pointerItem, pointerStack, action, targetEntityUuid, targetPos)
         } else if (action == 3) {
-            targetEntityUuid.ifPresent(Consumer { uuid: UUID? ->
+            targetEntityUuid.ifPresent(Consumer { uuid: UUID ->
                 PointerInteractionService.openOwnedShipMenu(
                     player,
                     uuid!!
@@ -116,7 +116,7 @@ object PointerInteractionService {
                 )
             )
         } else if (action == 5) {
-            targetEntityUuid.ifPresent(Consumer { uuid: UUID? ->
+            targetEntityUuid.ifPresent(Consumer { uuid: UUID ->
                 FormationService.handlePointerRosterToggle(
                     player,
                     uuid
@@ -281,7 +281,7 @@ object PointerInteractionService {
 
     private fun assignFormationPointerTarget(
         player: Player, pointerItem: PointerItem, pointerStack: ItemStack,
-        action: Int, targetEntityUuid: Optional<UUID?>, targetPos: Optional<Vec3?>
+        action: Int, targetEntityUuid: Optional<UUID>, targetPos: Optional<Vec3>
     ) {
         if (pointerItem.getMode(pointerStack) != PointerItem.MODE_FORMATION
             || player.level() !is ServerLevel

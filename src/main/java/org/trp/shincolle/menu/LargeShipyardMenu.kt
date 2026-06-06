@@ -50,7 +50,7 @@ class LargeShipyardMenu(
         this.powerScaleSynced = blockEntity.getPowerRemainingScaled(64)
         this.hasMaterialSynced = if (blockEntity.powerGoal > 0) 1 else 0
         this.hasPowerSynced = if (blockEntity.hasRemainedPower()) 1 else 0
-        this.remainingSecondsSynced = blockEntity.getRemainingTimeSeconds()
+        this.remainingSecondsSynced = blockEntity.remainingTimeSeconds
         this.powerRemainedSynced = blockEntity.powerRemained
         this.powerRemainedLowSynced = this.powerRemainedSynced and 0xFFFF
         this.powerRemainedHighSynced = (this.powerRemainedSynced ushr 16) and 0xFFFF
@@ -143,7 +143,7 @@ class LargeShipyardMenu(
 
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return min(Short.MAX_VALUE.toInt(), this@LargeShipyardMenu.blockEntity.getRemainingTimeSeconds())
+                return min(Short.MAX_VALUE.toInt(), this@LargeShipyardMenu.blockEntity.remainingTimeSeconds)
             }
 
             override fun set(value: Int) {
@@ -179,7 +179,7 @@ class LargeShipyardMenu(
             }
         })
 
-        this.addSlot(LargeShipyardMenu.OutputSlot(SLOT_OUTPUT, 168, 51))
+        this.addSlot(OutputSlot(SLOT_OUTPUT, 168, 51))
         for (i in SLOT_IO_START..SLOT_IO_END) {
             this.addSlot(InputSlot(i, 7 + i * 18, 116))
         }
@@ -230,7 +230,7 @@ class LargeShipyardMenu(
     val buildTimeString: String
         get() {
             val seconds =
-                if (this.clientSide) this.remainingSecondsSynced else this.blockEntity.getRemainingTimeSeconds()
+                if (this.clientSide) this.remainingSecondsSynced else this.blockEntity.remainingTimeSeconds
             val hours = seconds / 3600
             val minutes = (seconds % 3600) / 60
             val secs = seconds % 60
@@ -383,7 +383,7 @@ class LargeShipyardMenu(
 
             val pos = buffer.readBlockPos()
             if (playerInventory.player.level().getBlockEntity(pos) is LargeShipyardBlockEntity) {
-                return shipyard
+                return playerInventory.player.level().getBlockEntity(pos) as LargeShipyardBlockEntity
             }
 
             throw IllegalStateException("Large shipyard block entity not found.")

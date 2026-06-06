@@ -163,7 +163,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         }
         if (this.riderType > 0) {
             addMoraleToRider()
-            if (this.getMorale() < 7650) {
+            if (this.morale < 7650) {
                 this.addMorale(100)
             }
         }
@@ -205,11 +205,11 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
 
     private fun addMoraleToRider() {
         for (rider in this.getPassengers()) {
-            if (rider is EntityShipBase && rider.getMorale() < 7650) {
+            if (rider is EntityShipBase && rider.morale < 7650) {
                 rider.addMorale(100)
             }
             if (rider is IShipRiderType) {
-                rider.setRiderType(this.riderType)
+                rider.riderType = this.riderType)
             }
         }
     }
@@ -218,7 +218,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         if (ship == null) {
             return false
         }
-        if (this.getFormationTeam() == -1 || ship.getFormationTeam() != this.getFormationTeam()) {
+        if (this.formationTeam == -1 || ship.formationTeam != this.formationTeam) {
             return false
         }
         if (!ship.isAlive) {
@@ -330,7 +330,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         this.ridingState = 0
         for (rider in this.getPassengers()) {
             if (rider is IShipRiderType) {
-                rider.setRiderType(RIDER_TYPE_NONE)
+                rider.riderType = RIDER_TYPE_NONE)
             }
             if (rider is EntityShipBase) {
                 rider.ridingState = 0
@@ -396,13 +396,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         this.akatsukiGattaiCooldownUntilTick = compound.getLong("AkatsukiGattaiCooldownUntilTick")
     }
 
-    override fun getRiderType(): Int {
-        return this.riderType
-    }
 
-    override fun setRiderType(type: Int) {
-        this.riderType = type
-    }
 
     override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN

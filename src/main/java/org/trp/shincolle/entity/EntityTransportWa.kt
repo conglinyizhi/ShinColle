@@ -28,9 +28,8 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
         this.isStateCanRide = true
     }
 
-    override fun isNonCombatShip(): Boolean {
-        return true
-    }
+    override val isNonCombatShip: Boolean
+        get() = true
 
     override fun aiStep() {
         super.aiStep()
@@ -134,7 +133,7 @@ class EntityTransportWa(type: EntityType<out TamableAnimal>, level: Level) : Ent
         val midX = (this.getX() + target.getX()) * 0.5
         val midY = (this.getY() + target.getY()) * 0.5 + 0.6
         val midZ = (this.getZ() + target.getZ()) * 0.5
-        serverLevel.sendParticles<SimpleParticleType?>(
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ParticleTypes.HAPPY_VILLAGER, midX, midY, midZ,
             6, 0.3, 0.2, 0.3, 0.01
         )

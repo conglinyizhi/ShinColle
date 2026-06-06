@@ -101,18 +101,18 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
             val baseDamage = this.getAttributeValue(Attributes.ATTACK_DAMAGE).toFloat()
             val damage = max(6.0f, baseDamage * 1.6f)
             this.playSound(ModSounds.SHIP_YAMATO_SHOT.get(), max(0.0f, Config.volumeAttack), 1.0f)
-            spawnBeamEntity(serverLevel, target, damage)
+            spawnBeamEntity((this.level() as ServerLevel), target, damage)
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
         } else {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 1, true)
             this.playSound(ModSounds.SHIP_YAMATO_READY.get(), max(0.0f, Config.volumeAttack), 1.0f)
-            serverLevel.sendParticles<SimpleParticleType?>(
+            (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ModParticles.PARTICLE_CUBE.get(),
                 this.getX(), this.getY() + this.getBbHeight() * 0.6, this.getZ(),
                 0, 1.5, this.getId().toDouble(), 0.0, 1.0
             )
             for (i in 0..5) {
-                serverLevel.sendParticles<SimpleParticleType?>(
+                (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                     ModParticles.PARTICLE_LIGHTNING.get(),
                     this.getX(), this.getY() + 1.2, this.getZ(),
                     0, 0.1, this.getId().toDouble(), 3.0, 1.0
@@ -187,9 +187,9 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
         if (dist > 1.0E-4) {
             delta = delta.scale(1.0 / dist)
         }
-        val beam = EntityProjectileBeam(serverLevel)
+        val beam = EntityProjectileBeam((this.level() as ServerLevel))
         beam.initAttrs(this, 0, delta.x.toFloat(), delta.y.toFloat(), delta.z.toFloat(), damage)
-        serverLevel.addFreshEntity(beam)
+        (this.level() as ServerLevel).addFreshEntity(beam)
     }
 
     override val shipSpawnEggItem: Item?

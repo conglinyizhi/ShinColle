@@ -112,14 +112,14 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
 
         if (phase > 3) {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, 0, true)
-            performFinalAttack(serverLevel, target)
+            performFinalAttack((this.level() as ServerLevel), target)
             this.tryFlareTarget(target)
             this.attackTick = 50
             this.applyEmotesReaction(3)
             return true
         } else {
             this.setStateEmotion(EMOTION_ATTACK_PHASE, phase, true)
-            spawnAttackChargeParticles(serverLevel, phase)
+            spawnAttackChargeParticles((this.level() as ServerLevel), phase)
             this.tryFlareTarget(target)
             this.attackTick = 50
             this.applyEmotesReaction(3)
@@ -186,7 +186,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         if (nearby.isEmpty()) {
             return
         }
-        if (this.getMorale() < 7650) {
+        if (this.morale < 7650) {
             this.addMorale(150 * nearby.size)
         }
         if (!this.isInSittingPose && !this.isPassenger() && this.getRandom().nextFloat() > 0.5f) {
@@ -241,7 +241,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         if (phase == 2) {
             for (i in 0..19) {
                 val newPos1 = rotateXZByAxis(0.35f, 0.0f, 0.314f * i, 1.0f)
-                serverLevel.sendParticles<SimpleParticleType?>(
+                (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                     ModParticles.PARTICLE_SPRAY.get(),
                     this.getX(), this.getY() + 0.3, this.getZ(),
                     0, newPos1[0].toDouble(), 0.0, newPos1[1].toDouble(), 1.0
@@ -250,7 +250,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         } else {
             for (i in 0..19) {
                 val newPos1 = rotateXZByAxis(2.0f, 0.0f, 0.314f * i, 1.0f)
-                serverLevel.sendParticles<SimpleParticleType?>(
+                (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                     ModParticles.PARTICLE_SPRAY.get(),
                     this.getX() + newPos1[0], this.getY() + 1.0, this.getZ() + newPos1[1],
                     0, -newPos1[0] * 0.06, 0.0, -newPos1[1] * 0.06, 1.0
@@ -275,7 +275,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         target.hurt(this.damageSources().mobAttack(this), damage)
 
         val impact = this.getBoundingBox().inflate(3.5, 3.5, 3.5)
-        for (hit in serverLevel.getEntities(this, impact)) {
+        for (hit in (this.level() as ServerLevel).getEntities(this, impact)) {
             if (hit === this || hit === target || !hit.isAlive) {
                 continue
             }
@@ -289,7 +289,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
         val dy = ty - originY
         val dz = tz - originZ
 
-        serverLevel.sendParticles<SimpleParticleType?>(
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(),
             originX,
             originY,
@@ -300,7 +300,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
             dz,
             1.0
         )
-        serverLevel.sendParticles<SimpleParticleType?>(
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(),
             originX,
             originY + 0.4,
@@ -311,7 +311,7 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
             dz,
             1.0
         )
-        serverLevel.sendParticles<SimpleParticleType?>(
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ModParticles.PARTICLE_WAYPOINT_LINE_RED.get(),
             originX,
             originY + 0.8,
@@ -325,20 +325,20 @@ class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) 
 
         for (i in 0..19) {
             val newPos1 = rotateXZByAxis(1.0f, 0.0f, 0.314f * i, 1.0f)
-            serverLevel.sendParticles<SimpleParticleType?>(
+            (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ModParticles.PARTICLE_SPRAY_RED.get(),
                 tx, ty + 0.3, tz,
                 0, newPos1[0] * 0.35, 0.0, newPos1[1] * 0.35, 1.0
             )
         }
 
-        serverLevel.sendParticles<SimpleParticleType?>(
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ModParticles.PARTICLE_91TYPE.get(),
             tx, ty + 3.0, tz,
             1, 0.6, 0.0, 0.0, 0.0
         )
 
-        serverLevel.sendParticles<SimpleParticleType?>(
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ParticleTypes.EXPLOSION, this.getX(), this.getY() + 1.0, this.getZ(),
             6, 0.2, 0.2, 0.2, 0.0
         )

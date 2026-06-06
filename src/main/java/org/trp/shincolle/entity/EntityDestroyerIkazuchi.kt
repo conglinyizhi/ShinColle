@@ -257,7 +257,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
         if (this.getOwnerUUID() != partner.getOwnerUUID()) {
             return false
         }
-        return partner.getRiderType() == 0 && !partner.isRaiden && !partner.isStateNoEquip && partner.getStateMinor(
+        return partner.riderType == 0 && !partner.isRaiden && !partner.isStateNoEquip && partner.getStateMinor(
             43
         ) == 0 && !partner.isRaidenGattaiCooldownActive
     }
@@ -324,12 +324,6 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
         this.raidenGattaiCooldownUntilTick = compound.getLong("RaidenGattaiCooldownUntilTick")
     }
 
-    override val riderType: Int
-        get() =
-this.riderType
-
-    override fun setRiderType(type: Int) =
-run { this.riderType = type }
 
     override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN

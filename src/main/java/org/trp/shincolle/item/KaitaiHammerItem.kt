@@ -39,7 +39,7 @@ class KaitaiHammerItem(properties: Properties) : Item(properties.stacksTo(1).dur
                 }
             } else if (entity is EntitySummonBase) {
                 if (entity is TamableAnimal) {
-                    if (summon.isOwnedBy(player) || player.hasPermissions(2)) {
+                    if (entity.isOwnedBy(player) || player.hasPermissions(2)) {
                         entity.discard()
                         if (!player.getAbilities().instabuild) {
                             stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND)

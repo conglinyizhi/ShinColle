@@ -160,7 +160,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         ) {
             this.isRaiden = false
         }
-        if (this.riderType == 0 && this.isRaiden && this.getMorale() < 7650) {
+        if (this.riderType == 0 && this.isRaiden && this.morale < 7650) {
             this.addMorale(100)
         }
         if ((this.tickCount % 128) == 0) {
@@ -288,7 +288,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
     private fun beginRaidenGattai(ikazuchi: EntityDestroyerIkazuchi) {
         this.isRaiden = true
         this.raidenRecovery.reset(this.position())
-        ikazuchi.setRaiden(true)
+        ikazuchi.isRaiden = true)
 
         val expireTick: Long = this.level().getGameTime() + RAIDEN_GATTAI_DURATION_TICKS
         this.setRaidenGattaiExpireTick(expireTick)
@@ -302,15 +302,15 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         if (this.getOwnerUUID() != ikazuchi.getOwnerUUID()) {
             return false
         }
-        return ikazuchi.getRiderType() == 0 && !ikazuchi.isRaiden() && !ikazuchi.isStateNoEquip && ikazuchi.getStateMinor(
+        return ikazuchi.riderType == 0 && !ikazuchi.isRaiden && !ikazuchi.isStateNoEquip && ikazuchi.getStateMinor(
             43
-        ) == 0 && !ikazuchi.isRaidenGattaiCooldownActive()
+        ) == 0 && !ikazuchi.isRaidenGattaiCooldownActive
     }
 
     private fun checkRiderType() {
         this.riderType = 0
         if (this.getVehicle() is EntityDestroyerAkatsuki) {
-            this.riderType = akatsuki.getRiderType()
+            this.riderType = akatsuki.riderType
         }
     }
 
@@ -338,7 +338,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         for (rider in this.getPassengers()) {
             if (rider is EntityDestroyerIkazuchi) {
                 hadRaiden = true
-                rider.setRaiden(false)
+                rider.isRaiden = false)
                 rider.startRaidenGattaiCooldown()
                 rider.stopRiding()
                 placeIkazuchiAfterRaidenDismount(rider)
@@ -394,13 +394,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         this.raidenGattaiCooldownUntilTick = compound.getLong("RaidenGattaiCooldownUntilTick")
     }
 
-    override fun getRiderType(): Int {
-        return this.riderType
-    }
 
-    override fun setRiderType(type: Int) {
-        this.riderType = type
-    }
 
     override fun setFaceNormal() {
         this.faceId = FACE_EYES_OPEN

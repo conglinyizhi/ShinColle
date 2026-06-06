@@ -81,13 +81,13 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
         }
         val hurt = target.hurt(this.damageSources().mobAttack(this), damage)
 
-        this.spawnLightAttackMuzzleParticles(serverLevel, target)
-        serverLevel.sendParticles<SimpleParticleType?>(
+        this.spawnLightAttackMuzzleParticles((this.level() as ServerLevel), target)
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ModParticles.PARTICLE_LIGHTNING.get(),
             this.getX(), this.getY() + 1.5, this.getZ(),
             1, 0.1, this.getId().toDouble(), 0.0, 0.0
         )
-        serverLevel.sendParticles<SimpleParticleType?>(
+        (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ParticleTypes.ELECTRIC_SPARK,
             target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),
             4, 0.2, 0.2, 0.2, 0.0
@@ -244,7 +244,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
         this.swing(InteractionHand.MAIN_HAND)
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
-            serverLevel.sendParticles<SimpleParticleType?>(
+            (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ParticleTypes.CLOUD,
                 this.targetPush!!.getX(), this.targetPush!!.getY() + 1.0, this.targetPush!!.getZ(),
                 6, 0.2, 0.2, 0.2, 0.02
@@ -280,7 +280,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
         val maxTargets = max(1, (this.level * 0.05f).toInt())
         val damage = baseAttack * 0.2f
         val impactBox = primaryTarget.getBoundingBox().inflate(3.5, 3.5, 3.5)
-        val potentialTargets: MutableList<Entity> = serverLevel.getEntities(this, impactBox)
+        val potentialTargets: MutableList<Entity> = (this.level() as ServerLevel).getEntities(this, impactBox)
         var hits = 0
         for (entity in potentialTargets) {
             if (hits >= maxTargets) {
@@ -295,7 +295,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
                 continue
             }
             entity.hurt(this.damageSources().mobAttack(this), damage)
-            serverLevel.sendParticles<SimpleParticleType?>(
+            (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ParticleTypes.ELECTRIC_SPARK,
                 entity.getX(), entity.getY() + entity.getBbHeight() * 0.5, entity.getZ(),
                 4, 0.2, 0.2, 0.2, 0.0

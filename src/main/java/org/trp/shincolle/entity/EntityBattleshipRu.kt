@@ -186,11 +186,11 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
         val velocity = if (direction.lengthSqr() < 1.0E-6) Vec3.ZERO else direction.normalize().scale(speed.toDouble())
 
         val missile = EntityAbyssMissile(
-            serverLevel, this, null, damage,
+            (this.level() as ServerLevel), this, null, damage,
             MoveType.PRESET_VELOCITY, speed, 0.25f, 0.25f, velocity, life, explosionRadius
         )
         missile.setPos(origin.x, origin.y, origin.z)
-        serverLevel.addFreshEntity(missile)
+        (this.level() as ServerLevel).addFreshEntity(missile)
     }
 
     override val shipSpawnEggItem: Item?

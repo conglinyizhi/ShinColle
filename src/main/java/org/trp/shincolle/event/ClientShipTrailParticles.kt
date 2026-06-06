@@ -70,7 +70,7 @@ object ClientShipTrailParticles {
     }
 
     private fun spawnShipTrail(level: Level, ship: EntityShipBase, maxParticles: Int) {
-        if (ship.isPassenger() || ship.getShipDepth() <= 0.0) {
+        if (ship.isPassenger() || ship.shipDepth <= 0.0) {
             return
         }
 

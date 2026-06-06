@@ -29,6 +29,7 @@ internal object HostileSpawnManager {
         if (player.level() !is ServerLevel) {
             return
         }
+        val level = player.level() as ServerLevel
         if (level.getDifficulty() == Difficulty.PEACEFUL) {
             return
         }
@@ -189,7 +190,7 @@ internal object HostileSpawnManager {
                 EntityShipBase::class.java,
                 search,
                 Predicate { obj: EntityShipBase? -> obj!!.isHostileShipMob })
-            val bossNum = ships.stream().filter { ship: EntityShipBase? -> ship!!.getScaleLevel() > 1 }.count()
+            val bossNum = ships.stream().filter { ship: EntityShipBase? -> ship!!.scaleLevel > 1 }.count()
             if (bossNum >= 2) {
                 continue
             }
@@ -293,7 +294,7 @@ internal object HostileSpawnManager {
         for (entity in level.getAllEntities()) {
             if (entity is EntityShipBase
                 && entity.isHostileShipMob
-                && entity.getScaleLevel() < 2
+                && entity.scaleLevel < 2
             ) {
                 count++
             }

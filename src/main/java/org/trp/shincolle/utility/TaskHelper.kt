@@ -170,7 +170,7 @@ object TaskHelper {
         val wpPos = BlockPos(gx, gy, gz)
         val wpbe = level.getBlockEntity(wpPos)
         if (wpbe is WayPointBlockEntity) {
-            val chestPos: BlockPos = wpbe.getChestPos()
+            val chestPos: BlockPos = wpbe.chestPos ?: BlockPos.ZERO
             if (chestPos.getY() <= 0) {
                 invalidateTask(runtime)
                 return
@@ -926,7 +926,7 @@ object TaskHelper {
             invalidateTask(runtime)
             return
         }
-        val chestPos: BlockPos = wpbe.getChestPos()
+        val chestPos: BlockPos = wpbe.chestPos ?: BlockPos.ZERO
         if (chestPos.getY() <= 0) {
             invalidateTask(runtime)
             return

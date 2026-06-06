@@ -140,7 +140,7 @@ class PointerItem(properties: Properties) : Item(properties.stacksTo(1)) {
             if (mode == MODE_FORMATION) {
                 val blockPos = context.getClickedPos()
                 val pos = Vec3.atBottomCenterOf(blockPos).add(0.0, 1.0, 0.0)
-                sendToServer(C2SPointerActionPayload(2, Optional.empty<UUID>(), Optional.of<Vec3>(pos)))
+                sendToServer(C2SPointerActionPayload(2, Optional.empty<UUID?>(), Optional.of<Vec3?>(pos)))
                 return InteractionResult.SUCCESS
             }
         }
@@ -166,8 +166,8 @@ class PointerItem(properties: Properties) : Item(properties.stacksTo(1)) {
                     sendToServer(
                         C2SPointerActionPayload(
                             1,
-                            Optional.of<UUID>(target.uuid),
-                            Optional.empty<Vec3>()
+                            Optional.of<UUID?>(target.uuid),
+                            Optional.empty<Vec3?>()
                         )
                     )
                     return InteractionResult.SUCCESS
@@ -179,7 +179,7 @@ class PointerItem(properties: Properties) : Item(properties.stacksTo(1)) {
 
     fun onSwingMiss(player: Player, stack: ItemStack?) {
         if (player.level().isClientSide) {
-            sendToServer(C2SPointerActionPayload(0, Optional.empty<UUID>(), Optional.empty<Vec3>()))
+            sendToServer(C2SPointerActionPayload(0, Optional.empty<UUID?>(), Optional.empty<Vec3?>()))
         }
     }
 

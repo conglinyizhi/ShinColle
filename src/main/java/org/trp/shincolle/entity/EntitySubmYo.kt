@@ -85,8 +85,10 @@ class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         if (this.isStateRingEffect) {
             val duration = 40 + this.level
             this.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
-            if (this.isStateMarried && this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
-                this.ownerPlayer.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
+            val owner = this.ownerPlayer
+
+            if (this.isStateMarried && owner != null && this.distanceToSqr(owner) < 256.0) {
+                owner.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
             }
         }
     }
@@ -123,9 +125,9 @@ class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
 
         for (offset in TORPEDO_OFFSETS) {
             val pos = rotateXZByAxis(offset[0], offset[1], yawRad, 1.0f)
-            val missile = EntityAbyssMissile(serverLevel, this, target, damage, speed, life, explosionRadius)
+            val missile = EntityAbyssMissile((this.level() as ServerLevel), this, target, damage, speed, life, explosionRadius)
             missile.setPos(this.getX() + pos[1], this.getY() + this.getBbHeight() * 0.6, this.getZ() + pos[0])
-            serverLevel.addFreshEntity(missile)
+            (this.level() as ServerLevel).addFreshEntity(missile)
         }
     }
 
@@ -136,9 +138,8 @@ class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
     override val shipSpawnEggItem: Item?
         get() = ModItems.SUBM_YO_SPAWN_EGG.get()
 
-    override fun isSubmarine(): Boolean {
-        return true
-    }
+    override val isSubmarine: Boolean
+        get() = true
 
     companion object {
         const val EQUIP_BASE: String = "equip_base"

@@ -15,7 +15,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 
 class ModernKitItem(properties: Properties) : Item(properties.stacksTo(1)) {
     @JvmRecord
-    internal data class MaxedFeedback(val message: Component?, val actionBar: Boolean)
+    data class MaxedFeedback(val message: Component?, val actionBar: Boolean)
 
     override fun interactLivingEntity(
         stack: ItemStack,

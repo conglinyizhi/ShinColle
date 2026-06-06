@@ -21,7 +21,7 @@ object ModDataAttachments {
     private val ADMIRAL_CODEC: Codec<AdmiralData?> = CompoundTag.CODEC.xmap<AdmiralData?>(
         Function { tag: CompoundTag? ->
             val data = AdmiralData()
-            data.deserializeNBT(tag)
+            data.deserializeNBT(tag!!)
             data
         },
         Function { obj: AdmiralData? -> obj!!.serializeNBT() }

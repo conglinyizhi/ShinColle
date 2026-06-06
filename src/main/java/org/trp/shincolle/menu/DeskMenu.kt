@@ -89,7 +89,7 @@ class DeskMenu @JvmOverloads constructor(
             })
 
             if (!this.clientSide && this.guiFunc >= 3 && this.guiFunc <= 4 && playerInventory.player is ServerPlayer) {
-                sendDeskDiplomacySync(player)
+                sendDeskDiplomacySync(playerInventory.player as ServerPlayer)
             }
         }
     }
@@ -132,11 +132,12 @@ class DeskMenu @JvmOverloads constructor(
             if (deskType == 0) {
                 val pos = data.readBlockPos()
                 if (playerInventory.player.level().getBlockEntity(pos) is DeskBlockEntity) {
-                    return arrayOf<Any>(deskType, desk)
+                    val desk = playerInventory.player.level().getBlockEntity(pos) as DeskBlockEntity
+                    return arrayOf<Any?>(deskType, desk)
                 }
                 throw IllegalStateException("Desk block entity not found.")
             }
-            return arrayOf<Any>(deskType, data.readInt(), data.readInt())
+            return arrayOf<Any?>(deskType, data.readInt(), data.readInt())
         }
     }
 }

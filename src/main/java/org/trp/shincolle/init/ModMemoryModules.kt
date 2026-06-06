@@ -6,7 +6,11 @@ import net.minecraft.world.entity.ai.memory.MemoryModuleType
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
 import org.trp.shincolle.Shincolle
-import org.trp.shincolle.entity.base.ShipBrainMemory.*
+import org.trp.shincolle.entity.base.ShipBrainMemory.FollowStateMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.GuardTargetMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.PassiveCombatStateMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.PointerTargetMemory
+import org.trp.shincolle.entity.base.ShipBrainMemory.RecoveryStateMemory
 import java.util.*
 import java.util.function.Supplier
 

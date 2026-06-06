@@ -8,7 +8,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickE
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.item.PointerItem
-import org.trp.shincolle.item.PointerItem.onSwingMiss
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 object PointerItemHandler {
@@ -33,11 +32,11 @@ object PointerItemHandler {
         }
         var stack = player.getMainHandItem()
         if (stack.`is`(ModItems.POINTER_ITEM.get()) && stack.getItem() is PointerItem) {
-            pointer.onSwingMiss(player, stack)
+            (stack.getItem() as PointerItem).onSwingMiss(player, stack)
         } else {
             stack = player.getOffhandItem()
             if (stack.`is`(ModItems.POINTER_ITEM.get()) && stack.getItem() is PointerItem) {
-                pointer.onSwingMiss(player, stack)
+                (stack.getItem() as PointerItem).onSwingMiss(player, stack)
             }
         }
     }
