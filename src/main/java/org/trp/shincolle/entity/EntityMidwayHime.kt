@@ -53,8 +53,9 @@ class EntityMidwayHime(type: EntityType<out TamableAnimal>, level: Level) : Enti
             }
             ship.addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))
         }
-        if (this.ownerPlayer != null && this.distanceToSqr(this.ownerPlayer) < 256.0) {
-            this.ownerPlayer.addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))
+        val owner = this.ownerPlayer
+        if (owner != null && this.distanceToSqr(owner) < 256.0) {
+            owner.addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))
         }
     }
 

@@ -13,8 +13,8 @@ import java.util.*
 @JvmRecord
 data class C2SPointerActionPayload(
     val action: Int,
-    val targetEntity: Optional<UUID?>,
-    val targetPos: Optional<Vec3?>
+    val targetEntity: Optional<UUID>,
+    val targetPos: Optional<Vec3>
 ) : CustomPacketPayload {
     override fun type(): CustomPacketPayload.Type<out CustomPacketPayload?> {
         return TYPE
@@ -57,14 +57,14 @@ data class C2SPointerActionPayload(
             )
 
         val STREAM_CODEC: StreamCodec<FriendlyByteBuf?, C2SPointerActionPayload?> =
-            StreamCodec.composite<FriendlyByteBuf?, C2SPointerActionPayload?, Int?, Optional<UUID?>?, Optional<Vec3?>?>(
+            StreamCodec.composite<FriendlyByteBuf?, C2SPointerActionPayload?, Int?, Optional<UUID>?, Optional<Vec3>?>(
                 ByteBufCodecs.VAR_INT,
                 C2SPointerActionPayload::action,
                 ByteBufCodecs.optional<FriendlyByteBuf, UUID>(UUIDUtil.STREAM_CODEC),
                 C2SPointerActionPayload::targetEntity,
                 ByteBufCodecs.optional<FriendlyByteBuf, Vec3>(Vec3Util.STREAM_CODEC),
                 C2SPointerActionPayload::targetPos,
-                Function3 { action: Int?, targetEntity: Optional<UUID?>, targetPos: Optional<Vec3?> ->
+                Function3 { action: Int?, targetEntity: Optional<UUID>, targetPos: Optional<Vec3> ->
                     C2SPointerActionPayload(
                         action!!,
                         targetEntity,

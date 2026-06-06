@@ -129,26 +129,27 @@ internal class EntityShipLegacyState {
 
     val waypointBits: IntArray
         get() {
-            if (this.waypoints == null || this.waypoints!!.size == 0) {
+            val waypoints = this.waypoints
+            if (waypoints == null || waypoints.isEmpty()) {
                 return IntArray(0)
             }
-            val data = IntArray(this.waypoints!!.size * 3)
-            for (i in this.waypoints.indices) {
-                val pos = this.waypoints!![i]
+            val data = IntArray(waypoints.size * 3)
+            for (i in waypoints.indices) {
+                val pos = waypoints[i] ?: continue
                 val base = i * 3
-                data[base] = pos.getX()
-                data[base + 1] = pos.getY()
-                data[base + 2] = pos.getZ()
+                data[base] = pos.x
+                data[base + 1] = pos.y
+                data[base + 2] = pos.z
             }
             return data
         }
 
     fun applyWaypoints(points: Array<BlockPos?>?) {
-        if (points == null || points.size == 0) {
-            this.waypoints = arrayOf<BlockPos>(BlockPos.ZERO)
+        if (points == null || points.isEmpty()) {
+            this.waypoints = arrayOf<BlockPos?>(BlockPos.ZERO)
             return
         }
-        this.waypoints = points.copyOf<BlockPos?>(points.size)
+        this.waypoints = points.copyOf(points.size)
     }
 
     fun applyWaypointBits(data: IntArray?) {
@@ -156,7 +157,7 @@ internal class EntityShipLegacyState {
             return
         }
         val count = data.size / 3
-        val points: Array<BlockPos> = arrayOfNulls<BlockPos>(count)
+        val points: Array<BlockPos?> = arrayOfNulls(count)
         for (i in 0..<count) {
             val base = i * 3
             points[i] = BlockPos(data[base], data[base + 1], data[base + 2])

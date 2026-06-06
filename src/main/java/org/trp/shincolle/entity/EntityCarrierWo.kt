@@ -115,9 +115,8 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
         return if (isLightAircraft) ModEntities.AIRPLANE.get() else ModEntities.TAKOYAKI.get()
     }
 
-    override fun getAircraftLaunchHeight(): Double {
-        return this.getBbHeight() * 0.9
-    }
+    override val aircraftLaunchHeight: Double
+        get() = this.getBbHeight() * 0.9
 
     override fun getAircraftLightLevelBonus(): Float {
         return 0.25f

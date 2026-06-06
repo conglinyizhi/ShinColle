@@ -71,9 +71,8 @@ class EntityCarrierWDemon(type: EntityType<out TamableAnimal>, level: Level) : E
         return if (isLightAircraft) ModEntities.AIRPLANE.get() else ModEntities.TAKOYAKI.get()
     }
 
-    override fun getAircraftLaunchHeight(): Double {
-        return this.getBbHeight() * 1.2
-    }
+    override val aircraftLaunchHeight: Double
+        get() = this.getBbHeight() * 1.2
 
     override val shipSpawnEggItem: Item?
         get() = ModItems.CARRIER_W_DEMON_SPAWN_EGG.get()

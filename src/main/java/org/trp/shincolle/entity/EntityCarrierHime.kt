@@ -75,9 +75,8 @@ class EntityCarrierHime(type: EntityType<out TamableAnimal>, level: Level) : Ent
         return if (isLightAircraft) ModEntities.AIRPLANE.get() else ModEntities.TAKOYAKI.get()
     }
 
-    override fun getAircraftLaunchHeight(): Double {
-        return this.getBbHeight() * 0.9
-    }
+    override val aircraftLaunchHeight: Double
+        get() = this.getBbHeight() * 0.9
 
     override val shipSpawnEggItem: Item?
         get() = ModItems.CARRIER_HIME_SPAWN_EGG.get()

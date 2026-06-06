@@ -124,6 +124,7 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal>, level: Level) : En
         if (this.level() !is ServerLevel) {
             return
         }
+        val serverLevel = this.level() as ServerLevel
         val y = target.getY() + target.getBbHeight() * 0.6
         serverLevel.sendParticles<SimpleParticleType?>(
             ParticleTypes.HAPPY_VILLAGER, target.getX(), y, target.getZ(),

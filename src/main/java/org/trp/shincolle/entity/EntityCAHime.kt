@@ -78,13 +78,14 @@ class EntityCAHime(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
 
     private fun updatePushingState() {
         this.tickPush++
-        if (this.tickPush > PUSH_MAX_TICKS || this.targetPush == null || !this.targetPush!!.isAlive || this.isInDeadPose) {
+        val target = this.targetPush
+        if (this.tickPush > PUSH_MAX_TICKS || target == null || !target.isAlive || this.isInDeadPose) {
             cancelPush()
             return
         }
-        if (this.distanceTo(this.targetPush) <= PUSH_ENGAGE_DISTANCE) {
+        if (this.distanceTo(target) <= PUSH_ENGAGE_DISTANCE) {
             executePushAttack()
-        } else if (this.tickCount % 32 == 0 && !this.pushMovement.moveTo(this.targetPush, 1.0)) {
+        } else if (this.tickCount % 32 == 0 && !this.pushMovement.moveTo(target, 1.0)) {
             cancelPush()
         }
     }

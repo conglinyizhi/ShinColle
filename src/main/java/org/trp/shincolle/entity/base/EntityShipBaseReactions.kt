@@ -81,31 +81,32 @@ internal class EntityShipBaseReactions(private val ship: EntityShipBase) {
             return
         }
         val nextSeq = this.emotionParticleSeq++ and 0x7FFF
-        val packed = (nextSeq shl 16) or (type.getId() and 0xFF)
+        val packed = (nextSeq shl 16) or (type.id and 0xFF)
         this.ship.setEmotionParticlePacked(packed)
     }
 
     fun applyParticleEmotion(typeId: Int) {
-        applyParticleEmotion(EmotionParticleType.Companion.fromId(typeId))
+        applyParticleEmotion(EmotionParticleType.fromId(typeId) ?: EmotionParticleType.SWEAT_DROP_BIG)
     }
 
     fun spawnEmotionParticleClient(type: EmotionParticleType) {
         if (this.ship.level() !is ClientLevel) {
             return
         }
-        val baseX = this.ship.getX() + (this.ship.getRandom().nextDouble() - 0.5) * 0.2
-        val baseY = this.ship.getY() + this.ship.getBbHeight() * 0.6
-        val baseZ = this.ship.getZ() + (this.ship.getRandom().nextDouble() - 0.5) * 0.2
-        val height = (this.ship.getBbHeight() * 0.6).toFloat()
+        val clientLevel = this.ship.level() as ClientLevel
+        val baseX = this.ship.x + (this.ship.random.nextDouble() - 0.5) * 0.2
+        val baseY = this.ship.y + this.ship.bbHeight * 0.6
+        val baseZ = this.ship.z + (this.ship.random.nextDouble() - 0.5) * 0.2
+        val height = (this.ship.bbHeight * 0.6).toFloat()
         clientLevel.addParticle(
             ModParticles.PARTICLE_EMOTION.get(), baseX, baseY, baseZ,
-            height.toDouble(), this.ship.getId().toDouble(), type.getId().toDouble()
+            height.toDouble(), this.ship.id.toDouble(), type.id.toDouble()
         )
     }
 
     private val moraleLevel: Int
         get() {
-            val morale = this.ship.getMorale()
+            val morale = this.ship.morale
             if (morale > 5100) return 0
             if (morale > 3900) return 1
             if (morale > 2100) return 2

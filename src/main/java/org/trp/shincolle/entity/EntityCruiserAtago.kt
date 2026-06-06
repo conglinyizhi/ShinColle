@@ -27,7 +27,8 @@ class EntityCruiserAtago(type: EntityType<out TamableAnimal>, level: Level) : En
     override fun hurt(source: DamageSource, amount: Float): Boolean {
         val result = super.hurt(source, amount)
         if (result && !this.level().isClientSide) {
-            if (source.getEntity() is LivingEntity) {
+            val attacker = source.entity
+            if (attacker is LivingEntity) {
                 val duration = 80 + this.getStateMinor(0)
                 val amp = max(0, this.getStateMinor(0) / 80)
                 attacker.addEffect(MobEffectInstance(MobEffects.MOVEMENT_SLOWDOWN, duration, amp, false, false))

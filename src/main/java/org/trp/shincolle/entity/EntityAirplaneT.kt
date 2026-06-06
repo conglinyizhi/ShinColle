@@ -6,9 +6,8 @@ import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.level.Level
 
 class EntityAirplaneT(type: EntityType<out TamableAnimal>, level: Level) : EntityAircraftBase(type, level) {
-    override fun isDefaultLightAircraft(): Boolean {
-        return false
-    }
+    override val isDefaultLightAircraft: Boolean
+        get() = false
 
     override fun applyFlyParticle() {
         if (this.tickCount % 2 == 0) {
