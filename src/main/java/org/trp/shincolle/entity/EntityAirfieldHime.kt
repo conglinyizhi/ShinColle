@@ -64,16 +64,16 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal>, level: Level) : En
         get() {
             if (this.isInSittingPose) {
                 if (this.getStateEmotion(1) == 4) {
-                    return (this.getBbHeight() * 0.65f).toDouble()
+                    return (this.bbHeight * 0.65f).toDouble()
                 }
-                return (this.getBbHeight() * 0.56f).toDouble()
+                return (this.bbHeight * 0.56f).toDouble()
             }
-            return (this.getBbHeight() * 0.75f).toDouble()
+            return (this.bbHeight * 0.75f).toDouble()
         }
 
     private fun updateServerLogic() {
-        if (this.getStateMinor(6) > 0 && this.getHealth() < this.getMaxHealth()) {
-            this.heal(this.getMaxHealth() * 0.06f + 1.0f)
+        if (this.getStateMinor(6) > 0 && this.health < this.maxHealth) {
+            this.heal(this.maxHealth * 0.06f + 1.0f)
         }
 
         if (!(this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 50)) {
@@ -81,28 +81,28 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal>, level: Level) : En
         }
 
         var healCount = this.level / 15 + 2
-        val range = this.getBoundingBox().inflate(12.0, 12.0, 12.0)
+        val range = this.boundingBox.inflate(12.0, 12.0, 12.0)
         val targets = this.level().getEntitiesOfClass<LivingEntity?>(LivingEntity::class.java, range)
         for (target in targets) {
             if (healCount <= 0) {
                 break
             }
-            if (target === this || target.getHealth() / target.getMaxHealth() >= 0.96f) {
+            if (target === this || target.health / target.maxHealth >= 0.96f) {
                 continue
             }
 
             var healed = false
             if (target is Player) {
-                if (target.getUUID() != this.ownerUUID) {
+                if (target.uuid != this.ownerUUID) {
                     continue
                 }
-                target.heal(1.0f + target.getMaxHealth() * 0.04f + this.level * 0.04f)
+                target.heal(1.0f + target.maxHealth * 0.04f + this.level * 0.04f)
                 healed = true
             } else if (target is EntityShipBase) {
                 if (target.ownerUUID != this.ownerUUID) {
                     continue
                 }
-                target.heal(1.0f + target.getMaxHealth() * 0.04f + this.level * 0.1f)
+                target.heal(1.0f + target.maxHealth * 0.04f + this.level * 0.1f)
                 healed = true
             }
 
@@ -125,9 +125,9 @@ class EntityAirfieldHime(type: EntityType<out TamableAnimal>, level: Level) : En
             return
         }
         val serverLevel = this.level() as ServerLevel
-        val y = target.getY() + target.getBbHeight() * 0.6
+        val y = target.y + target.bbHeight * 0.6
         serverLevel.sendParticles<SimpleParticleType?>(
-            ParticleTypes.HAPPY_VILLAGER, target.getX(), y, target.getZ(),
+            ParticleTypes.HAPPY_VILLAGER, target.x, y, target.z,
             4, 0.3, 0.2, 0.3, 0.01
         )
     }

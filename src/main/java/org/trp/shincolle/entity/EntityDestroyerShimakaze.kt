@@ -50,9 +50,9 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * -0.04f else this.getBbHeight() * 0.16f).toDouble()
+                return (if (this.getStateEmotion(1) == 4) this.bbHeight * -0.04f else this.bbHeight * 0.16f).toDouble()
             }
-            return (this.getBbHeight() * 0.67f).toDouble()
+            return (this.bbHeight * 0.67f).toDouble()
         }
 
     override val equipOptions: MutableList<EquipOption>
@@ -87,7 +87,7 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
     }
 
     override fun performLightAttack(target: Entity?) {
-        if (this.numRensouhou > 0 && this.getRandom().nextInt(3) == 0) {
+        if (this.numRensouhou > 0 && this.random.nextInt(3) == 0) {
             if (this.attackEntityWithAmmo(target)) {
                 return
             }
@@ -117,7 +117,7 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
         }
 
         this.numRensouhou--
-        this.fuel = this.fuel - Config.fuelConsumeActionLight
+        this.fuel -= Config.fuelConsumeActionLight
         this.attackTick = 100
         this.applyEmotesReaction(3)
 
@@ -148,7 +148,7 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
             (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
-                ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0, this.getZ(),
+                ParticleTypes.CLOUD, this.x, this.y + 1.0, this.z,
                 12, 0.25, 0.1, 0.25, 0.02
             )
         }
@@ -162,14 +162,14 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
         if (checkModelState(0, this.getStateEmotion(0))) {
             val rensouhou = ModEntities.RENSOUHOU_S.get().create((this.level() as ServerLevel))
             if (rensouhou != null) {
-                rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
+                rensouhou.moveTo(this.x, this.y, this.z, this.yRot, this.xRot)
                 rensouhou.initSummon(this, target, 0)
                 (this.level() as ServerLevel).addFreshEntity(rensouhou)
             }
         } else {
             val rensouhou = ModEntities.RENSOUHOU.get().create((this.level() as ServerLevel))
             if (rensouhou != null) {
-                rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
+                rensouhou.moveTo(this.x, this.y, this.z, this.yRot, this.xRot)
                 rensouhou.initSummon(this, target, 0)
                 (this.level() as ServerLevel).addFreshEntity(rensouhou)
             }
@@ -181,11 +181,11 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
             return false
         }
 
-        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.fuel -= Config.fuelConsumeActionHeavy
         this.attackTick = 50
         this.applyEmotesReaction(3)
 
-        var aimPos = Vec3(targetPos.getX() + 0.5, targetPos.getY() + 0.5, targetPos.getZ() + 0.5)
+        var aimPos = Vec3(targetPos.x + 0.5, targetPos.y + 0.5, targetPos.z + 0.5)
         val toTarget = aimPos.subtract(this.position())
         if (toTarget.length() < 6.0 && toTarget.length() > 1.0E-6) {
             val push = toTarget.normalize().scale(6.0 - toTarget.length())
@@ -204,13 +204,13 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
         val explosionRadius = 3.5f
 
         val targetY = if (targetEntity != null)
-            targetEntity.getY() + targetEntity.getBbHeight() * 0.1
+            targetEntity.y + targetEntity.bbHeight * 0.1
         else
             centerTarget.y + 0.2
 
         for (offset in TORPEDO_OFFSETS) {
             val target = centerTarget.add(offset[0].toDouble(), targetY - centerTarget.y, offset[1].toDouble())
-            val direction = target.subtract(this.position().add(0.0, this.getBbHeight() * 0.7, 0.0))
+            val direction = target.subtract(this.position().add(0.0, this.bbHeight * 0.7, 0.0))
             val velocity = if (direction.lengthSqr() < 1.0E-6)
                 Vec3(0.0, 0.0, 0.0)
             else

@@ -37,7 +37,7 @@ class EntityIsolatedHime(type: EntityType<out TamableAnimal>, level: Level) : En
             return false
         }
 
-        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.fuel -= Config.fuelConsumeActionHeavy
         this.attackTick = 50
         this.applyEmotesReaction(3)
         spawnMissile(target)
@@ -54,10 +54,10 @@ class EntityIsolatedHime(type: EntityType<out TamableAnimal>, level: Level) : En
         val speed = 0.75f
         val life = 200
         val explosionRadius = 4.0f
-        val yawRad = this.getYRot() * Mth.DEG_TO_RAD
+        val yawRad = this.yRot * Mth.DEG_TO_RAD
         val pos = rotateXZByAxis(0.1f, 0.0f, yawRad, 1.0f)
         val missile = EntityAbyssMissile((this.level() as ServerLevel), this, target, damage, speed, life, explosionRadius)
-        missile.setPos(this.getX() + pos[1], this.getY() + this.getBbHeight() * 0.65, this.getZ() + pos[0])
+        missile.setPos(this.x + pos[1], this.y + this.bbHeight * 0.65, this.z + pos[0])
         (this.level() as ServerLevel).addFreshEntity(missile)
     }
 

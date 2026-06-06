@@ -55,9 +55,9 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * 0.35f else 0.0f).toDouble()
+                return (if (this.getStateEmotion(1) == 4) this.bbHeight * 0.35f else 0.0f).toDouble()
             }
-            return (this.getBbHeight() * 0.55f).toDouble()
+            return (this.bbHeight * 0.55f).toDouble()
         }
 
     override fun performLightAttack(target: Entity?) {
@@ -73,7 +73,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
         if (!consumeLightAmmo(1)) {
             return
         }
-        this.fuel = this.fuel - Config.fuelConsumeActionLight
+        this.fuel -= Config.fuelConsumeActionLight
 
         var damage = this.getAttributeValue(Attributes.ATTACK_DAMAGE).toFloat()
         if (damage <= 0.0f) {
@@ -84,18 +84,18 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
         this.spawnLightAttackMuzzleParticles((this.level() as ServerLevel), target)
         (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ModParticles.PARTICLE_LIGHTNING.get(),
-            this.getX(), this.getY() + 1.5, this.getZ(),
-            1, 0.1, this.getId().toDouble(), 0.0, 0.0
+            this.x, this.y + 1.5, this.z,
+            1, 0.1, this.id.toDouble(), 0.0, 0.0
         )
         (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
             ParticleTypes.ELECTRIC_SPARK,
-            target.getX(), target.getY() + target.getBbHeight() * 0.5, target.getZ(),
+            target.x, target.y + target.bbHeight * 0.5, target.z,
             4, 0.2, 0.2, 0.2, 0.0
         )
 
         this.playSound(
             ModSounds.SHIP_FIRELIGHT.get(), max(0.0f, Config.volumeAttack),
-            this.getRandom().nextFloat() * 0.12f + 0.98f
+            this.random.nextFloat() * 0.12f + 0.98f
         )
 
         this.attackTick = 50
@@ -195,7 +195,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
 
     private fun updateServerLogic() {
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
-            val owner = this.getOwner()
+            val owner = this.owner
             if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val duration = 50 + this.getStateMinor(0)
                 val amp = max(0, this.getStateMinor(0) / 50)
@@ -203,7 +203,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
             }
         }
 
-        val canFindTarget = (this.tickCount and 0xFF) == 0 && this.getRandom().nextInt(5) != 0
+        val canFindTarget = (this.tickCount and 0xFF) == 0 && this.random.nextInt(5) != 0
         val isActionBlocked =
             this.isInSittingPose || this.isPassenger() || this.isStateNoEquip || this.isLeashed() || this.isInDeadPose
         if (canFindTarget && !isActionBlocked && !this.isPushing) {
@@ -235,19 +235,19 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
     }
 
     private fun executePushAttack() {
-        val yawRad = this.getYRot() * Mth.DEG_TO_RAD
+        val yawRad = this.yRot * Mth.DEG_TO_RAD
         val push = Vec3((-Mth.sin(yawRad) * 0.5f).toDouble(), 0.5, (Mth.cos(yawRad) * 0.5f).toDouble())
 
         this.targetPush!!.hasImpulse = true
         this.targetPush!!.hurtMarked = true
 
-        this.targetPush!!.setDeltaMovement(this.targetPush!!.getDeltaMovement().add(push))
+        this.targetPush!!.deltaMovement = this.targetPush!!.deltaMovement.add(push)
         this.swing(InteractionHand.MAIN_HAND)
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
             (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ParticleTypes.CLOUD,
-                this.targetPush!!.getX(), this.targetPush!!.getY() + 1.0, this.targetPush!!.getZ(),
+                this.targetPush!!.x, this.targetPush!!.y + 1.0, this.targetPush!!.z,
                 6, 0.2, 0.2, 0.2, 0.02
             )
         }
@@ -262,13 +262,13 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
     }
 
     private fun findTargetPush() {
-        val impactBox = this.getBoundingBox().inflate(12.0, 6.0, 12.0)
+        val impactBox = this.boundingBox.inflate(12.0, 6.0, 12.0)
         val list = this.level().getEntitiesOfClass<LivingEntity?>(
             LivingEntity::class.java, impactBox,
             Predicate { ent: LivingEntity? -> ent !== this && ent!!.isAlive && ent.isPushable() })
         if (!list.isEmpty()) {
             this.pushMovement.reset()
-            this.targetPush = list.get(this.getRandom().nextInt(list.size))
+            this.targetPush = list.get(this.random.nextInt(list.size))
             this.tickPush = 0
             this.isPushing = true
         }
@@ -280,7 +280,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
         }
         val maxTargets = max(1, (this.level * 0.05f).toInt())
         val damage = baseAttack * 0.2f
-        val impactBox = primaryTarget.getBoundingBox().inflate(3.5, 3.5, 3.5)
+        val impactBox = primaryTarget.boundingBox.inflate(3.5, 3.5, 3.5)
         val potentialTargets: MutableList<Entity> = (this.level() as ServerLevel).getEntities(this, impactBox)
         var hits = 0
         for (entity in potentialTargets) {
@@ -298,7 +298,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
             entity.hurt(this.damageSources().mobAttack(this), damage)
             (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ParticleTypes.ELECTRIC_SPARK,
-                entity.getX(), entity.getY() + entity.getBbHeight() * 0.5, entity.getZ(),
+                entity.x, entity.y + entity.bbHeight * 0.5, entity.z,
                 4, 0.2, 0.2, 0.2, 0.0
             )
             hits++

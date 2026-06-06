@@ -36,7 +36,7 @@ class EntityCarrierWDemon(type: EntityType<out TamableAnimal>, level: Level) : E
         if (this.isStateMarried && this.isStateRingEffect && this.getStateMinor(6) > 0) {
             val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
                 EntityShipBase::class.java,
-                this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+                this.boundingBox.inflate(16.0, 16.0, 16.0)
             )
             if (!ships.isEmpty()) {
                 val duration = 50 + this.getStateMinor(0)
@@ -72,7 +72,7 @@ class EntityCarrierWDemon(type: EntityType<out TamableAnimal>, level: Level) : E
     }
 
     override val aircraftLaunchHeight: Double
-        get() = this.getBbHeight() * 1.2
+        get() = this.bbHeight * 1.2
 
     override val shipSpawnEggItem: Item?
         get() = ModItems.CARRIER_W_DEMON_SPAWN_EGG.get()

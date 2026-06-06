@@ -82,9 +82,9 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
             val partPos = rotateXZByAxis(-0.2f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             moveFunction.accept(
                 passenger,
-                this.getX() + partPos[1],
-                this.getY() + baseOffset + yOffsetEmotion + 0.375,
-                this.getZ() + partPos[0]
+                this.x + partPos[1],
+                this.y + baseOffset + yOffsetEmotion + 0.375,
+                this.z + partPos[0]
             )
             return
         }
@@ -95,9 +95,9 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * 0.23f else this.getBbHeight() * 0.44f).toDouble()
+                return (if (this.getStateEmotion(1) == 4) this.bbHeight * 0.23f else this.bbHeight * 0.44f).toDouble()
             }
-            return (this.getBbHeight() * 0.64f).toDouble()
+            return (this.bbHeight * 0.64f).toDouble()
         }
 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
@@ -136,7 +136,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
             val partPos = rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             this.level().addParticle(
                 ParticleTypes.SMOKE,
-                this.getX() + partPos[1], this.getY() + 1.4, this.getZ() + partPos[0],
+                this.x + partPos[1], this.y + 1.4, this.z + partPos[0],
                 0.0, 0.0, 0.0
             )
         }
@@ -155,7 +155,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         ) {
             this.raidenGattaiCooldownUntilTick = 0L
         }
-        if (this.isRaiden && (this.isInSittingPose || this.isInDeadPose || this.getHealth() <= this.getMaxHealth() * 0.5f || this.isRaidenGattaiDurationExpired)) {
+        if (this.isRaiden && (this.isInSittingPose || this.isInDeadPose || this.health <= this.maxHealth * 0.5f || this.isRaidenGattaiDurationExpired)) {
             dismountRaiden()
         }
         if (this.isRaiden && this.getPassengers().stream()
@@ -201,7 +201,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
                     rider.yBodyRotO = this.yBodyRotO
                     rider.yHeadRot = this.yBodyRot
                     rider.yHeadRotO = this.yBodyRotO
-                    rider.setYRot(this.yBodyRot)
+                    rider.yRot = this.yBodyRot
                     rider.yRotO = this.yBodyRotO
                 }
             }
@@ -213,7 +213,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
             return
         }
 
-        val owner = this.getOwner()
+        val owner = this.owner
         if (owner == null) {
             return
         }
@@ -249,7 +249,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         }
         debugLog(
             "[SCMoveDiag] RaidenFollow teleportRecovery ship={} owner={} force={} distSq={} stuckTicks={}",
-            this.getUUID(), owner.getUUID(), force, distanceSqr, this.raidenRecovery.stuckTicks()
+            this.uuid, owner.uuid, force, distanceSqr, this.raidenRecovery.stuckTicks()
         )
         this.raidenRecovery.reset(this.position())
     }
@@ -261,7 +261,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
 
         val list = this.level().getEntitiesOfClass<EntityDestroyerIkazuchi?>(
             EntityDestroyerIkazuchi::class.java,
-            this.getBoundingBox().inflate(4.0, 4.0, 4.0)
+            this.boundingBox.inflate(4.0, 4.0, 4.0)
         )
         for (ikazuchi in list) {
             if (canGattaiWith(ikazuchi)) {
@@ -284,7 +284,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         if (this.isInSittingPose || this.isStateNoEquip || this.riderType > 0 || this.isRaiden || this.isPassenger()) {
             return false
         }
-        return this.getHealth() > this.getMaxHealth() * 0.5f
+        return this.health > this.maxHealth * 0.5f
     }
 
     private fun beginRaidenGattai(ikazuchi: EntityDestroyerIkazuchi) {
@@ -359,11 +359,11 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
         }
         val dismountOffset = rotateXZByAxis(0.0f, 1.1f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
         ikazuchi.moveTo(
-            this.getX() + dismountOffset[1],
-            this.getY() + 0.1,
-            this.getZ() + dismountOffset[0],
-            ikazuchi.getYRot(),
-            ikazuchi.getXRot()
+            this.x + dismountOffset[1],
+            this.y + 0.1,
+            this.z + dismountOffset[0],
+            ikazuchi.yRot,
+            ikazuchi.xRot
         )
     }
 

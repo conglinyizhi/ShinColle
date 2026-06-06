@@ -15,7 +15,7 @@ class EntityMountBaH(type: EntityType<out PathfinderMob>, level: Level) : Entity
     override fun updateClientLogic() {
         super.updateClientLogic()
         if (this.tickCount % 4 == 0) {
-            this.level().addParticle(ParticleTypes.SMOKE, this.getX(), this.getY() + 3.0, this.getZ(), 0.0, 0.0, 0.0)
+            this.level().addParticle(ParticleTypes.SMOKE, this.x, this.y + 3.0, this.z, 0.0, 0.0, 0.0)
         }
     }
 }

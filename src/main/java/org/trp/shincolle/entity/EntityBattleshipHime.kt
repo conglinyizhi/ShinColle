@@ -37,9 +37,9 @@ class EntityBattleshipHime(type: EntityType<out TamableAnimal>, level: Level) : 
                 if (this.getStateEmotion(1) == 4) {
                     return 0.0
                 }
-                return (this.getBbHeight() * 0.62f).toDouble()
+                return (this.bbHeight * 0.62f).toDouble()
             }
-            return (this.getBbHeight() * 0.76f).toDouble()
+            return (this.bbHeight * 0.76f).toDouble()
         }
 
     private fun applyBuffToNearbyAllies() {
@@ -48,7 +48,7 @@ class EntityBattleshipHime(type: EntityType<out TamableAnimal>, level: Level) : 
         }
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return

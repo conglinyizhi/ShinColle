@@ -71,12 +71,12 @@ class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         val yOffset = if (this.isInSittingPose) 1.2 else 1.4
         this.level().addParticle(
             ParticleTypes.END_ROD,
-            this.getX() + left[1], this.getY() + yOffset, this.getZ() + left[0],
+            this.x + left[1], this.y + yOffset, this.z + left[0],
             0.0, 0.02, 0.0
         )
         this.level().addParticle(
             ParticleTypes.END_ROD,
-            this.getX() + right[1], this.getY() + yOffset, this.getZ() + right[0],
+            this.x + right[1], this.y + yOffset, this.z + right[0],
             0.0, 0.02, 0.0
         )
     }
@@ -104,7 +104,7 @@ class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
             return false
         }
 
-        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.fuel -= Config.fuelConsumeActionHeavy
         this.attackTick = 50
         this.applyEmotesReaction(3)
         spawnTorpedoes(target)
@@ -121,12 +121,12 @@ class EntitySubmYo(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         val speed = 0.65f
         val life = 160
         val explosionRadius = 3.0f
-        val yawRad = this.getYRot() * Mth.DEG_TO_RAD
+        val yawRad = this.yRot * Mth.DEG_TO_RAD
 
         for (offset in TORPEDO_OFFSETS) {
             val pos = rotateXZByAxis(offset[0], offset[1], yawRad, 1.0f)
             val missile = EntityAbyssMissile((this.level() as ServerLevel), this, target, damage, speed, life, explosionRadius)
-            missile.setPos(this.getX() + pos[1], this.getY() + this.getBbHeight() * 0.6, this.getZ() + pos[0])
+            missile.setPos(this.x + pos[1], this.y + this.bbHeight * 0.6, this.z + pos[0])
             (this.level() as ServerLevel).addFreshEntity(missile)
         }
     }

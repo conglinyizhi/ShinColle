@@ -17,12 +17,12 @@ class EntityMountMiH(type: EntityType<out PathfinderMob>, level: Level) : Entity
     override fun updateClientLogic() {
         super.updateClientLogic()
         if (this.tickCount % 8 == 0) {
-            val radians = this.getYRot() * (Math.PI / 180.0).toFloat()
+            val radians = this.yRot * (Math.PI / 180.0).toFloat()
             val cosR = cos(radians.toDouble()).toFloat()
             val sinR = sin(radians.toDouble()).toFloat()
-            val px = this.getX() + (-0.25 * cosR - 1.2 * sinR)
-            val pz = this.getZ() + (1.2 * cosR - 0.25 * sinR)
-            this.level().addParticle(ParticleTypes.DRIPPING_LAVA, px, this.getY() + 0.85, pz, 0.0, 0.0, 0.0)
+            val px = this.x + (-0.25 * cosR - 1.2 * sinR)
+            val pz = this.z + (1.2 * cosR - 0.25 * sinR)
+            this.level().addParticle(ParticleTypes.DRIPPING_LAVA, px, this.y + 0.85, pz, 0.0, 0.0, 0.0)
         }
     }
 }

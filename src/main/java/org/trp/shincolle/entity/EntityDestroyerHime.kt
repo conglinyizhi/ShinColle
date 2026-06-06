@@ -46,9 +46,9 @@ class EntityDestroyerHime(type: EntityType<out TamableAnimal>, level: Level) : E
                 if (this.getStateEmotion(1) == 4) {
                     return 0.0
                 }
-                return (this.getBbHeight() * 0.62f).toDouble()
+                return (this.bbHeight * 0.62f).toDouble()
             }
-            return (this.getBbHeight() * 0.76f).toDouble()
+            return (this.bbHeight * 0.76f).toDouble()
         }
 
     private fun applyBuffToOwner() {

@@ -42,9 +42,9 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return if (this.getStateEmotion(1) == 4) 0.0 else (this.getBbHeight() * 0.47f).toDouble()
+                return if (this.getStateEmotion(1) == 4) 0.0 else (this.bbHeight * 0.47f).toDouble()
             }
-            return (this.getBbHeight() * 0.76f).toDouble()
+            return (this.bbHeight * 0.76f).toDouble()
         }
 
     override val equipOptions: MutableList<EquipOption>
@@ -67,14 +67,14 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
             return
         }
 
-        if (this.numRensouhou > 0 && this.getRandom().nextInt(3) == 0) {
+        if (this.numRensouhou > 0 && this.random.nextInt(3) == 0) {
             if (consumeLightAmmo(4)) {
                 this.numRensouhou--
-                this.fuel = this.fuel - Config.fuelConsumeActionLight
+                this.fuel -= Config.fuelConsumeActionLight
                 this.attackTick = 100
                 this.applyEmotesReaction(3)
                 (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
-                    ParticleTypes.CLOUD, this.getX(), this.getY() + 1.0, this.getZ(),
+                    ParticleTypes.CLOUD, this.x, this.y + 1.0, this.z,
                     10, 0.25, 0.1, 0.25, 0.02
                 )
                 summonRensouhou((this.level() as ServerLevel), target)
@@ -115,7 +115,7 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
     private fun applyBuffToNearbyAllies() {
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return
@@ -137,14 +137,14 @@ class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : En
         if (checkModelState(0, this.getStateEmotion(0))) {
             val rensouhou = ModEntities.RENSOUHOU.get().create((this.level() as ServerLevel))
             if (rensouhou != null) {
-                rensouhou.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
+                rensouhou.moveTo(this.x, this.y, this.z, this.yRot, this.xRot)
                 rensouhou.initSummon(this, target, 0)
                 (this.level() as ServerLevel).addFreshEntity(rensouhou)
             }
         } else {
             val rensouhouS = ModEntities.RENSOUHOU_S.get().create((this.level() as ServerLevel))
             if (rensouhouS != null) {
-                rensouhouS.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), this.getXRot())
+                rensouhouS.moveTo(this.x, this.y, this.z, this.yRot, this.xRot)
                 rensouhouS.initSummon(this, target, 0)
                 (this.level() as ServerLevel).addFreshEntity(rensouhouS)
             }

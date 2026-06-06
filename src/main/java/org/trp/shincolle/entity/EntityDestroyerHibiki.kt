@@ -53,9 +53,9 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * -0.07f else this.getBbHeight() * 0.26f).toDouble()
+                return (if (this.getStateEmotion(1) == 4) this.bbHeight * -0.07f else this.bbHeight * 0.26f).toDouble()
             }
-            return (this.getBbHeight() * 0.64f).toDouble()
+            return (this.bbHeight * 0.64f).toDouble()
         }
 
     override val equipOptions: MutableList<EquipOption>
@@ -114,7 +114,7 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
             val partPos = CalcHelper.rotateXZByAxis(-0.42f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             this.level().addParticle(
                 ParticleTypes.SMOKE,
-                this.getX() + partPos[1], this.getY() + 1.4, this.getZ() + partPos[0],
+                this.x + partPos[1], this.y + 1.4, this.z + partPos[0],
                 0.0, 0.0, 0.0
             )
         }

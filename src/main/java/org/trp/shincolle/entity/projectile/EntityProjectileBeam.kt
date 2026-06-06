@@ -41,17 +41,17 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
 
     fun initAttrs(owner: Entity, type: Int, ax: Float, ay: Float, az: Float, damage: Float) {
         this.setOwner(owner)
-        this.entityData.set<Int?>(OWNER_ID, owner.getId())
+        this.entityData.set<Int?>(OWNER_ID, owner.id)
         this.beamType = type
         this.damage = damage
 
         val speed: Float
         if (type == TYPE_SHORT) {
-            this.setPos(owner.getX(), owner.getY() + owner.getBbHeight() * 0.75, owner.getZ())
+            this.setPos(owner.x, owner.y + owner.bbHeight * 0.75, owner.z)
             this.life = LIFE_SHORT
             speed = SPEED_SHORT
         } else {
-            this.setPos(owner.getX() + ax, owner.getY() + owner.getBbHeight() * 0.5, owner.getZ() + az)
+            this.setPos(owner.x + ax, owner.y + owner.bbHeight * 0.5, owner.z + az)
             this.life = LIFE_LONG
             speed = SPEED_LONG
         }
@@ -60,7 +60,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
         this.accY = (ay * speed).toDouble()
         this.accZ = (az * speed).toDouble()
         this.setDeltaMovement(this.accX, this.accY, this.accZ)
-        this.updateRotationFromMovement(this.getDeltaMovement())
+        this.updateRotationFromMovement(this.deltaMovement)
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -103,8 +103,8 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
     override fun tick() {
         super.tick()
         if (this.level().isClientSide) {
-            val delta = this.getDeltaMovement()
-            this.setPos(this.getX() + delta.x, this.getY() + delta.y, this.getZ() + delta.z)
+            val delta = this.deltaMovement
+            this.setPos(this.x + delta.x, this.y + delta.y, this.z + delta.z)
 
             this.age++
             if (this.age > this.life) {
@@ -117,12 +117,12 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
                 if (ownerId != -1) {
                     this.level().addParticle(
                         ModParticles.PARTICLE_BEAM.get(),
-                        this.getX(), this.getY(), this.getZ(),
-                        ownerId.toDouble(), this.getId().toDouble(), 2.0
+                        this.x, this.y, this.z,
+                        ownerId.toDouble(), this.id.toDouble(), 2.0
                     )
                     this.level().addParticle(
                         ModParticles.PARTICLE_CUBE.get(),
-                        this.getX(), this.getY(), this.getZ(),
+                        this.x, this.y, this.z,
                         2.5, ownerId.toDouble(), 1.0
                     )
                 }
@@ -133,8 +133,8 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
                 for (i in 0..3) {
                     this.level().addParticle(
                         ModParticles.PARTICLE_LIGHTNING.get(),
-                        this.getX(), this.getY(), this.getZ(),
-                        lifeLeft, this.getId().toDouble(), 6.0
+                        this.x, this.y, this.z,
+                        lifeLeft, this.id.toDouble(), 6.0
                     )
                 }
             }
@@ -156,15 +156,15 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
             }
 
             val delta = Vec3(this.accX, this.accY, this.accZ)
-            this.setDeltaMovement(delta)
+            this.deltaMovement = delta
             move(MoverType.SELF, delta)
             updateRotationFromMovement(delta)
 
             for (target in this.level().getEntities(
                 this,
-                this.getBoundingBox().inflate(1.5),
+                this.boundingBox.inflate(1.5),
                 Predicate { target: Entity? -> this.canHitEntity(target!!) })) {
-                if (this.damagedTargets.add(target.getUUID())) {
+                if (this.damagedTargets.add(target.uuid)) {
                     onImpact(target, owner)
                 }
             }
@@ -207,7 +207,7 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
 
     private fun resolveOwnerUuid(entity: Entity?): UUID? {
         if (entity is Player) {
-            return entity.getUUID()
+            return entity.uuid
         }
         if (entity is EntityShipBase) {
             return entity.ownerUUID
@@ -242,14 +242,14 @@ class EntityProjectileBeam(type: EntityType<out EntityProjectileBeam?>, level: L
         val dy = delta.y
         val yaw = (Mth.atan2(dz, dx) * (180.0f / Math.PI)).toFloat() - 90.0f
         val pitch = (-(Mth.atan2(dy, sqrt(dx * dx + dz * dz)) * (180.0f / Math.PI))).toFloat()
-        this.setYRot(yaw)
-        this.setXRot(pitch)
-        this.yRotO = this.getYRot()
-        this.xRotO = this.getXRot()
+        this.yRot = yaw
+        this.xRot = pitch
+        this.yRotO = this.yRot
+        this.xRotO = this.xRot
     }
 
     fun setOwner(owner: Entity) {
-        this.entityData.set<Optional<UUID>>(OWNER_UUID, Optional.of(owner.getUUID()))
+        this.entityData.set<Optional<UUID>>(OWNER_UUID, Optional.of(owner.uuid))
     }
 
     val ownerEntity: Entity?

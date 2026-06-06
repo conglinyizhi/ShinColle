@@ -89,9 +89,9 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
             val partPos = rotateXZByAxis(-0.2f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             moveFunction.accept(
                 passenger,
-                this.getX() + partPos[1],
-                this.getY() + baseOffset + yOffsetEmotion * 2.5 - 0.4f,
-                this.getZ() + partPos[0]
+                this.x + partPos[1],
+                this.y + baseOffset + yOffsetEmotion * 2.5 - 0.4f,
+                this.z + partPos[0]
             )
             return
         }
@@ -100,9 +100,9 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
             val partPos = rotateXZByAxis(-0.48f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             moveFunction.accept(
                 passenger,
-                this.getX() + partPos[1],
-                this.getY() + baseOffset + yOffsetEmotion * 4.5 - 0.05f,
-                this.getZ() + partPos[0]
+                this.x + partPos[1],
+                this.y + baseOffset + yOffsetEmotion * 4.5 - 0.05f,
+                this.z + partPos[0]
             )
             return
         }
@@ -111,9 +111,9 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
             val partPos = rotateXZByAxis(-0.68f, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
             moveFunction.accept(
                 passenger,
-                this.getX() + partPos[1],
-                this.getY() + baseOffset + yOffsetEmotion * 6 + 0.4f,
-                this.getZ() + partPos[0]
+                this.x + partPos[1],
+                this.y + baseOffset + yOffsetEmotion * 6 + 0.4f,
+                this.z + partPos[0]
             )
             return
         }
@@ -124,9 +124,9 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
     val passengersRidingOffset: Double
         get() {
             if (this.isInSittingPose) {
-                return (if (this.getStateEmotion(1) == 4) this.getBbHeight() * -0.07f else this.getBbHeight() * 0.26f).toDouble()
+                return (if (this.getStateEmotion(1) == 4) this.bbHeight * -0.07f else this.bbHeight * 0.26f).toDouble()
             }
-            return (this.getBbHeight() * 0.64f).toDouble()
+            return (this.bbHeight * 0.64f).toDouble()
         }
 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
@@ -146,7 +146,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
                 val partPos = rotateXZByAxis(-0.42f + addZ, 0.0f, (this.yBodyRot % 360.0f) * Mth.DEG_TO_RAD, 1.0f)
                 this.level().addParticle(
                     ParticleTypes.SMOKE,
-                    this.getX() + partPos[1], this.getY() + 1.4, this.getZ() + partPos[0],
+                    this.x + partPos[1], this.y + 1.4, this.z + partPos[0],
                     0.0, 0.0, 0.0
                 )
             }
@@ -259,7 +259,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
         if (this.isGattaiCooldownActive) {
             return
         }
-        if (this.getHealth() <= this.getMaxHealth() * 0.5f) {
+        if (this.health <= this.maxHealth * 0.5f) {
             return
         }
         if (this.isInSittingPose || this.isStateNoEquip || this.riderType == RIDER_TYPE_ALL) {
@@ -268,7 +268,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
 
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(6.0, 5.0, 6.0)
+            this.boundingBox.inflate(6.0, 5.0, 6.0)
         )
 
         var hibiki: EntityDestroyerHibiki? = null
@@ -316,7 +316,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
                 rider.yBodyRotO = this.yBodyRotO
                 rider.yHeadRot = this.yBodyRot
                 rider.yHeadRotO = this.yBodyRotO
-                rider.setYRot(this.yBodyRot)
+                rider.yRot = this.yBodyRot
                 rider.yRotO = this.yBodyRotO
             }
         }
@@ -351,7 +351,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal>, level: Level)
             if (this.akatsukiGattaiExpireTick == 0L) {
                 this.akatsukiGattaiExpireTick = this.level().getGameTime() + AKATSUKI_GATTAI_DURATION_TICKS
             }
-            if (this.isInSittingPose || this.isInDeadPose || this.getHealth() <= this.getMaxHealth() * 0.5f || this.isGattaiDurationExpired) {
+            if (this.isInSittingPose || this.isInDeadPose || this.health <= this.maxHealth * 0.5f || this.isGattaiDurationExpired) {
                 dismountAllRider()
             }
         } else {

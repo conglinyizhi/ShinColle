@@ -41,7 +41,7 @@ class EntityCarrierAkagi(type: EntityType<out TamableAnimal>, level: Level) : En
     }
 
     private fun updateClientEffects() {
-        if ((this.tickCount % 128) == 0 && this.getRandom().nextInt(4) == 0 && !this.isStateNoEquip) {
+        if ((this.tickCount % 128) == 0 && this.random.nextInt(4) == 0 && !this.isStateNoEquip) {
             this.applyParticleEmotion(9)
         }
     }
@@ -53,7 +53,7 @@ class EntityCarrierAkagi(type: EntityType<out TamableAnimal>, level: Level) : En
 
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return
@@ -81,7 +81,7 @@ class EntityCarrierAkagi(type: EntityType<out TamableAnimal>, level: Level) : En
     }
 
     override val aircraftLaunchHeight: Double
-        get() = this.getBbHeight() * 0.65
+        get() = this.bbHeight * 0.65
 
     override val aircraftLightLevelBonus: Float
         get() = 0.28f

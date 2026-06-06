@@ -37,13 +37,13 @@ class EntityMidwayHime(type: EntityType<out TamableAnimal>, level: Level) : Enti
         }
 
         val baseHeal = 1.0f + this.getStateMinor(0) * 0.01f
-        if (this.getHealth() < this.getMaxHealth()) {
+        if (this.health < this.maxHealth) {
             this.heal(baseHeal)
         }
 
         val duration = 100 + this.getStateMinor(0)
         val amp = max(0, this.getStateMinor(0) / 80)
-        val range = this.getBoundingBox().inflate(14.0, 8.0, 14.0)
+        val range = this.boundingBox.inflate(14.0, 8.0, 14.0)
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, range)
         for (ship in ships) {
             if (ship === this) {

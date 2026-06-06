@@ -33,14 +33,14 @@ class EntityHarbourHime(type: EntityType<out TamableAnimal>, level: Level) : Ent
         }
 
         val baseHeal = 1.0f + this.getStateMinor(0) * 0.01f
-        if (this.getHealth() < this.getMaxHealth()) {
+        if (this.health < this.maxHealth) {
             this.heal(baseHeal)
         }
 
-        val range = this.getBoundingBox().inflate(12.0, 8.0, 12.0)
+        val range = this.boundingBox.inflate(12.0, 8.0, 12.0)
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, range)
         for (ship in ships) {
-            if (ship === this || ship.getHealth() >= ship.getMaxHealth()) {
+            if (ship === this || ship.health >= ship.maxHealth) {
                 continue
             }
             if (ship.ownerUUID != this.ownerUUID) {

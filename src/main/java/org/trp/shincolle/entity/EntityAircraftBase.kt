@@ -85,8 +85,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         if (carrier == null) {
             return
         }
-        this.carrierId = carrier.getUUID()
-        this.targetId = if (target == null) null else target.getUUID()
+        this.carrierId = carrier.uuid
+        this.targetId = if (target == null) null else target.uuid
         resumeMission()
         this.missionTick = 0
         this.isMissionLightAircraft = lightAircraft
@@ -114,9 +114,9 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         this.setTame(true, false)
 
         if (target != null) {
-            this.randPos[0] = target.getX()
-            this.randPos[1] = target.getY()
-            this.randPos[2] = target.getZ()
+            this.randPos[0] = target.x
+            this.randPos[1] = target.y
+            this.randPos[2] = target.z
         }
     }
 
@@ -245,9 +245,9 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
     override fun travel(travelVector: Vec3) {
         if (this.isEffectiveAi() && (this.isNoGravity() || !this.isDying)) {
             this.moveRelative(this.getSpeed(), travelVector)
-            this.move(MoverType.SELF, this.getDeltaMovement())
+            this.move(MoverType.SELF, this.deltaMovement)
 
-            this.setDeltaMovement(this.getDeltaMovement().scale(0.95))
+            this.deltaMovement = this.deltaMovement.scale(0.95)
         } else {
             super.travel(travelVector)
         }
@@ -261,8 +261,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         if (target == null) {
             return
         }
-        val dx = target.getX() - this.getX()
-        val dz = target.getZ() - this.getZ()
+        val dx = target.x - this.x
+        val dz = target.z - this.z
         val distSqrt = Mth.sqrt((dx * dx + dz * dz).toFloat()).toDouble()
         if (distSqrt > 1.0E-4) {
             this.setDeltaMovement(
@@ -292,14 +292,14 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         var newTarget = findNewTarget(carrier)
 
         if (newTarget == null) {
-            val carrierTarget: Entity? = carrier.getTarget()
+            val carrierTarget: Entity? = carrier.target
             if (carrierTarget != null && carrierTarget.isAlive && !isFriendlyTarget(carrier, carrierTarget)) {
                 newTarget = carrierTarget
             }
         }
 
         if (newTarget != null) {
-            this.targetId = newTarget.getUUID()
+            this.targetId = newTarget.uuid
             resumeMission()
         } else {
             startReturnHome()
@@ -326,7 +326,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         this.returnHomeTicks++
 
         val distSq = this.distanceToSqr(carrier)
-        val arrivalDist = (2.0 + carrier.getBbHeight()).pow(2.0)
+        val arrivalDist = (2.0 + carrier.bbHeight).pow(2.0)
 
         if (distSq <= arrivalDist) {
             returnSummonResources(carrier)
@@ -335,7 +335,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         }
 
         val homePos =
-            carrier.position().add(0.0, carrier.getBbHeight() + AircraftAiNumbers.RETURN_HOME_EXTRA_HEIGHT, 0.0)
+            carrier.position().add(0.0, carrier.bbHeight + AircraftAiNumbers.RETURN_HOME_EXTRA_HEIGHT, 0.0)
         this.returnMovement.moveTo(homePos, AircraftAiNumbers.RETURN_HOME_SPEED)
         if (trackReturnHomeRecovery(carrier, distSq)) {
             return
@@ -345,7 +345,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         ) {
             debugLog(
                 "[SCMoveDiag] AircraftReturn failsafeDiscard aircraft={} carrier={} distanceSqr={} returnTicks={} stuckTicks={}",
-                this.getUUID(), carrier.getUUID(), distSq, this.returnHomeTicks, this.returnRecovery.stuckTicks()
+                this.uuid, carrier.uuid, distSq, this.returnHomeTicks, this.returnRecovery.stuckTicks()
             )
             returnSummonResources(carrier)
             this.discard()
@@ -369,7 +369,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         }
         if (!this.returnMovement.teleportNearLiving(
                 carrier,
-                carrier.getBbHeight() + AircraftAiNumbers.RETURN_HOME_TELEPORT_EXTRA
+                carrier.bbHeight + AircraftAiNumbers.RETURN_HOME_TELEPORT_EXTRA
             )
         ) {
             return false
@@ -377,7 +377,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
         debugLog(
             "[SCMoveDiag] AircraftReturn teleportRecovery aircraft={} carrier={} force={} distanceSqr={} stuckTicks={}",
-            this.getUUID(), carrier.getUUID(), force, distanceSqr, this.returnRecovery.stuckTicks()
+            this.uuid, carrier.uuid, force, distanceSqr, this.returnRecovery.stuckTicks()
         )
         this.returnRecovery.reset(this.position())
         this.returnHomeTicks = 0
@@ -388,8 +388,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         val returnLight = max(0, this.numAmmoLight - AircraftAiNumbers.AMMO_RETURN_PENALTY_LIGHT)
         val returnHeavy = max(0, this.numAmmoHeavy - AircraftAiNumbers.AMMO_RETURN_PENALTY_HEAVY)
 
-        carrier.ammoLight = carrier.ammoLight + returnLight
-        carrier.ammoHeavy = carrier.ammoHeavy + returnHeavy
+        carrier.ammoLight += returnLight
+        carrier.ammoHeavy += returnHeavy
 
         carrier.returnAircraftToDeck(this.isMissionLightAircraft)
     }
@@ -417,7 +417,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
             val missileDamage = atk * 1.4f
-            var targetPos = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
+            var targetPos = target.position().add(0.0, target.bbHeight * 0.5, 0.0)
             val distance = this.distanceTo(target).toDouble()
 
             if (this.random.nextFloat() <= calcMissRate(carrier, distance.toFloat())) {
@@ -428,7 +428,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
                 serverLevel.sendParticles<SimpleParticleType?>(
                     ModParticles.PARTICLE_TEXTS.get(),
-                    this.getX(), this.getY() + 1.2, this.getZ(),
+                    this.x, this.y + 1.2, this.z,
                     1, 0.0, 0.1, 0.5, 0.0
                 )
             }
@@ -459,17 +459,17 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
         val ref = if (reference != null) reference else this
         val level = this.level()
-        val currentYaw = this.getYRot()
+        val currentYaw = this.yRot
 
         for (i in 0..<AircraftAiNumbers.RANDOM_CRUISE_ATTEMPTS) {
             val angle = currentYaw + (i * AircraftAiNumbers.RANDOM_CRUISE_ANGLE_STEP)
             val rad = Math.toRadians(angle.toDouble())
 
-            val dist = minDist + this.getRandom().nextDouble() * randDist
-            val newX = ref.getX() + cos(rad) * dist
-            val newZ = ref.getZ() + sin(rad) * dist
-            val newY = (ref.getY() + ref.getBbHeight() + AircraftAiNumbers.RANDOM_CRUISE_Y_OFFSET
-                    + this.getRandom().nextDouble() * AircraftAiNumbers.RANDOM_CRUISE_Y_RANDOM)
+            val dist = minDist + this.random.nextDouble() * randDist
+            val newX = ref.x + cos(rad) * dist
+            val newZ = ref.z + sin(rad) * dist
+            val newY = (ref.y + ref.bbHeight + AircraftAiNumbers.RANDOM_CRUISE_Y_OFFSET
+                    + this.random.nextDouble() * AircraftAiNumbers.RANDOM_CRUISE_Y_RANDOM)
 
             val targetPos = BlockPos.containing(newX, newY, newZ)
             if (level.getBlockState(targetPos).getCollisionShape(level, targetPos).isEmpty()) {
@@ -477,7 +477,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
             }
         }
 
-        return Vec3(ref.getX(), ref.getY() + AircraftAiNumbers.RANDOM_CRUISE_FALLBACK_Y, ref.getZ())
+        return Vec3(ref.x, ref.y + AircraftAiNumbers.RANDOM_CRUISE_FALLBACK_Y, ref.z)
     }
 
     override fun hurt(source: DamageSource, amount: Float): Boolean {
@@ -486,10 +486,10 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
             this.isDying = true
             this.deathAnimTick = 0
             this.setNoGravity(false)
-            val motion = this.getDeltaMovement()
+            val motion = this.deltaMovement
             this.deadMotionX = motion.x
             this.deadMotionZ = motion.z
-            this.setHealth(1.0f)
+            this.health = 1.0f
             // Return remaining ammo to carrier before death animation
             val carrier = this.carrier
             if (carrier != null) {
@@ -503,20 +503,20 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         this.deathAnimTick++
         this.setNoGravity(false)
 
-        val motion = this.getDeltaMovement()
+        val motion = this.deltaMovement
         this.setDeltaMovement(this.deadMotionX, motion.y - AircraftAiNumbers.DEATH_GRAVITY, this.deadMotionZ)
         this.hasImpulse = true
 
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
             if (this.deathAnimTick % 2 == 0) {
-                val range = this.getBbWidth() * 0.5
+                val range = this.bbWidth * 0.5
                 for (i in 0..2) {
                     serverLevel.sendParticles<SimpleParticleType?>(
                         ParticleTypes.LARGE_SMOKE,
-                        this.getX() - range + this.random.nextDouble() * range * 2.0,
-                        this.getY() + this.getBbHeight() * 0.3 + this.random.nextDouble() * 0.3,
-                        this.getZ() - range + this.random.nextDouble() * range * 2.0,
+                        this.x - range + this.random.nextDouble() * range * 2.0,
+                        this.y + this.bbHeight * 0.3 + this.random.nextDouble() * 0.3,
+                        this.z - range + this.random.nextDouble() * range * 2.0,
                         1, 0.0, 0.0, 0.0, 0.02
                     )
                 }
@@ -524,17 +524,17 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
             if (this.deathAnimTick >= AircraftAiNumbers.DEATH_TIME_EXPLOSION - 1) {
                 for (i in 0..11) {
-                    val ran1 = (this.getBbWidth() * (this.random.nextFloat() - 0.5f)).toDouble()
-                    val ran2 = (this.getBbWidth() * (this.random.nextFloat() - 0.5f)).toDouble()
+                    val ran1 = (this.bbWidth * (this.random.nextFloat() - 0.5f)).toDouble()
+                    val ran2 = (this.bbWidth * (this.random.nextFloat() - 0.5f)).toDouble()
                     serverLevel.sendParticles<SimpleParticleType?>(
                         ParticleTypes.LAVA,
-                        this.getX() + ran1, this.getY() + this.getBbHeight() * 0.3, this.getZ() + ran2,
+                        this.x + ran1, this.y + this.bbHeight * 0.3, this.z + ran2,
                         1, 0.0, 0.0, 0.0, 0.0
                     )
                     if ((i and 3) == 0) {
                         serverLevel.sendParticles<SimpleParticleType?>(
                             ParticleTypes.EXPLOSION,
-                            this.getX() + ran2, this.getY() + this.getBbHeight() * 0.5, this.getZ() + ran1,
+                            this.x + ran2, this.y + this.bbHeight * 0.5, this.z + ran1,
                             1, 0.0, 0.0, 0.0, 0.0
                         )
                     }
@@ -548,9 +548,9 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
                     val d1 = this.random.nextGaussian() * 0.02
                     serverLevel.sendParticles<SimpleParticleType?>(
                         ParticleTypes.POOF,
-                        this.getX() + (this.random.nextFloat() * this.getBbWidth() * 2.0f) - this.getBbWidth(),
-                        this.getY() + (this.random.nextFloat() * this.getBbHeight()),
-                        this.getZ() + (this.random.nextFloat() * this.getBbWidth() * 2.0f) - this.getBbWidth(),
+                        this.x + (this.random.nextFloat() * this.bbWidth * 2.0f) - this.bbWidth,
+                        this.y + (this.random.nextFloat() * this.bbHeight),
+                        this.z + (this.random.nextFloat() * this.bbWidth * 2.0f) - this.bbWidth,
                         1, d2, d0, d1, 0.05
                     )
                 }
@@ -593,7 +593,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
     }
 
     private fun updateRotation() {
-        val delta = this.getDeltaMovement()
+        val delta = this.deltaMovement
         if (delta.horizontalDistanceSqr() < 1.0E-5) {
             return
         }
@@ -602,11 +602,11 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         val targetYaw = (Math.toDegrees(atan2(delta.z, delta.x)) - 90.0).toFloat()
         val targetPitch = (-Math.toDegrees(atan2(delta.y, horizontal))).toFloat()
 
-        this.setYRot(Mth.approachDegrees(this.getYRot(), targetYaw, 15.0f))
-        this.setXRot(Mth.approachDegrees(this.getXRot(), targetPitch, 15.0f))
+        this.yRot = Mth.approachDegrees(this.yRot, targetYaw, 15.0f)
+        this.xRot = Mth.approachDegrees(this.xRot, targetPitch, 15.0f)
 
-        this.yBodyRot = this.getYRot()
-        this.yHeadRot = this.getYRot()
+        this.yBodyRot = this.yRot
+        this.yHeadRot = this.yRot
     }
 
 
@@ -656,7 +656,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
     private fun findNewTarget(carrier: EntityShipBase): Entity? {
         val range =
             if (carrier.isStateAntiAir) AircraftAiNumbers.TARGETING_RANGE_AIR_ONLY else AircraftAiNumbers.TARGETING_RANGE_NORMAL
-        val box = this.getBoundingBox().inflate(range, range, range)
+        val box = this.boundingBox.inflate(range, range, range)
         val entities = this.level().getEntities(this, box) { entity: Entity? ->
             if (entity == null || !entity.isAlive || entity === this) return@getEntities false
             entity is LivingEntity
@@ -693,14 +693,14 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
                 return true
             }
         }
-        if (carrier.getTarget() === target) {
+        if (carrier.target === target) {
             return true
         }
         val lastHurtBy = carrier.getLastHurtByMob()
         if (lastHurtBy === target) {
             return true
         }
-        val owner = carrier.getOwner()
+        val owner = carrier.owner
         if (owner != null && (owner.getLastHurtByMob() === target || owner.getLastHurtMob() === target)) {
             return true
         }
@@ -711,7 +711,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         if (target === carrier) {
             return true
         }
-        if (target is Player && target.getUUID() == carrier.ownerUUID) {
+        if (target is Player && target.uuid == carrier.ownerUUID) {
             return true
         }
         if (target is TamableAnimal && target.ownerUUID == carrier.ownerUUID) {

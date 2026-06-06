@@ -57,15 +57,15 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
     val passengersRidingOffset: Double
         get() {
             if (!this.isInSittingPose) {
-                return (this.getBbHeight() * 0.75f).toDouble()
+                return (this.bbHeight * 0.75f).toDouble()
             }
             if (checkModelState(0, this.getStateEmotion(0))) {
-                return (this.getBbHeight() * 0.5f).toDouble()
+                return (this.bbHeight * 0.5f).toDouble()
             }
             if (this.getStateEmotion(1) == 4) {
-                return (this.getBbHeight() * 0.1f).toDouble()
+                return (this.bbHeight * 0.1f).toDouble()
             }
-            return (this.getBbHeight() * 0.4f).toDouble()
+            return (this.bbHeight * 0.4f).toDouble()
         }
 
     override val equipOptions: MutableList<EquipOption>
@@ -97,7 +97,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
             if (!consumeHeavyAmmo(1)) {
                 return false
             }
-            this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+            this.fuel -= Config.fuelConsumeActionHeavy
             val baseDamage = this.getAttributeValue(Attributes.ATTACK_DAMAGE).toFloat()
             val damage = max(6.0f, baseDamage * 1.6f)
             this.playSound(ModSounds.SHIP_YAMATO_SHOT.get(), max(0.0f, Config.volumeAttack), 1.0f)
@@ -108,14 +108,14 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
             this.playSound(ModSounds.SHIP_YAMATO_READY.get(), max(0.0f, Config.volumeAttack), 1.0f)
             (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                 ModParticles.PARTICLE_CUBE.get(),
-                this.getX(), this.getY() + this.getBbHeight() * 0.6, this.getZ(),
-                0, 1.5, this.getId().toDouble(), 0.0, 1.0
+                this.x, this.y + this.bbHeight * 0.6, this.z,
+                0, 1.5, this.id.toDouble(), 0.0, 1.0
             )
             for (i in 0..5) {
                 (this.level() as ServerLevel).sendParticles<SimpleParticleType?>(
                     ModParticles.PARTICLE_LIGHTNING.get(),
-                    this.getX(), this.getY() + 1.2, this.getZ(),
-                    0, 0.1, this.getId().toDouble(), 3.0, 1.0
+                    this.x, this.y + 1.2, this.z,
+                    0, 0.1, this.id.toDouble(), 3.0, 1.0
                 )
             }
             this.tryFlareTarget(target)
@@ -137,7 +137,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
             for (i in 0..2) {
                 this.level().addParticle(
                     ParticleTypes.SMOKE,
-                    this.getX() + partPos[1], this.getY() + 1.65 + i * 0.1, this.getZ() + partPos[0],
+                    this.x + partPos[1], this.y + 1.65 + i * 0.1, this.z + partPos[0],
                     0.0, 0.0, 0.0
                 )
             }
@@ -147,8 +147,8 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
             for (i in 0..3) {
                 this.level().addParticle(
                     ModParticles.PARTICLE_LIGHTNING.get(),
-                    this.getX(), this.getY() + 1.2, this.getZ(),
-                    0.1, this.getId().toDouble(), 1.0
+                    this.x, this.y + 1.2, this.z,
+                    0.1, this.id.toDouble(), 1.0
                 )
             }
         }
@@ -160,7 +160,7 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
         }
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return
@@ -180,8 +180,8 @@ class EntityBattleshipYamato(type: EntityType<out TamableAnimal>, level: Level) 
     }
 
     private fun spawnBeamEntity(serverLevel: ServerLevel, target: Entity, damage: Float) {
-        val start = this.position().add(0.0, this.getBbHeight() * 0.7, 0.0)
-        val end = target.position().add(0.0, target.getBbHeight() * 0.5, 0.0)
+        val start = this.position().add(0.0, this.bbHeight * 0.7, 0.0)
+        val end = target.position().add(0.0, target.bbHeight * 0.5, 0.0)
         var delta = end.subtract(start)
         val dist = delta.length()
         if (dist > 1.0E-4) {

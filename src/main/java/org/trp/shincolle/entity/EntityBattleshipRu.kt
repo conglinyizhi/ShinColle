@@ -56,18 +56,18 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
     val passengersRidingOffset: Double
         get() {
             if (!this.isInSittingPose) {
-                return (this.getBbHeight() * 0.72f).toDouble()
+                return (this.bbHeight * 0.72f).toDouble()
             }
             if ((this.getStateEmotion(0) and (1 shl 0)) != 0) {
                 if (this.getStateEmotion(1) == 4) {
-                    return (this.getBbHeight() * 0.51f).toDouble()
+                    return (this.bbHeight * 0.51f).toDouble()
                 }
                 if (this.getStateEmotion(7) == 4) {
                     return 0.0
                 }
-                return (this.getBbHeight() * 0.55f).toDouble()
+                return (this.bbHeight * 0.55f).toDouble()
             }
-            return (this.getBbHeight() * 0.45f).toDouble()
+            return (this.bbHeight * 0.45f).toDouble()
         }
 
     override fun performHeavyAttack(target: Entity?): Boolean {
@@ -81,11 +81,11 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
             return false
         }
 
-        this.fuel = this.fuel - Config.fuelConsumeActionHeavy
+        this.fuel -= Config.fuelConsumeActionHeavy
         this.attackTick = 50
         this.applyEmotesReaction(3)
 
-        val targetPos = target.position().add(0.0, target.getBbHeight() * 0.35, 0.0)
+        val targetPos = target.position().add(0.0, target.bbHeight * 0.35, 0.0)
         this.skillTarget = targetPos
         if (this.getStateEmotion(EMOTION_SKILL_PHASE) == 0) {
             this.setStateEmotion(EMOTION_SKILL_PHASE, 1, true)
@@ -138,7 +138,7 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
             ) {
                 this.level().addParticle(
                     ParticleTypes.HAPPY_VILLAGER,
-                    this.getX(), this.getY() + 0.6, this.getZ(),
+                    this.x, this.y + 0.6, this.z,
                     0.0, 0.0, 0.0
                 )
             }
@@ -176,11 +176,11 @@ class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : En
         val life = 200
         val explosionRadius = 3.5f
 
-        val targetX = this.skillTarget.x + this.getRandom().nextFloat() * 8.0f - 4.0f
-        val targetY = this.skillTarget.y + this.getRandom().nextFloat() * 4.0f - 2.0f
-        val targetZ = this.skillTarget.z + this.getRandom().nextFloat() * 8.0f - 4.0f
+        val targetX = this.skillTarget.x + this.random.nextFloat() * 8.0f - 4.0f
+        val targetY = this.skillTarget.y + this.random.nextFloat() * 4.0f - 2.0f
+        val targetZ = this.skillTarget.z + this.random.nextFloat() * 8.0f - 4.0f
 
-        val origin = this.position().add(0.0, this.getBbHeight() * 0.4, 0.0)
+        val origin = this.position().add(0.0, this.bbHeight * 0.4, 0.0)
         val target = Vec3(targetX, targetY, targetZ)
         val direction = target.subtract(origin)
         val velocity = if (direction.lengthSqr() < 1.0E-6) Vec3.ZERO else direction.normalize().scale(speed.toDouble())

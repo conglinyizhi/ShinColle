@@ -57,7 +57,7 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
         ) {
             this.level().addParticle(
                 ParticleTypes.CLOUD,
-                this.getX(), this.getY() + 1.2, this.getZ(),
+                this.x, this.y + 1.2, this.z,
                 0.0, 0.02, 0.0
             )
         }
@@ -71,12 +71,12 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
         val yOffset = if (this.isInSittingPose) 1.25 else 1.5
         this.level().addParticle(
             ParticleTypes.END_ROD,
-            this.getX() + left[1], this.getY() + yOffset, this.getZ() + left[0],
+            this.x + left[1], this.y + yOffset, this.z + left[0],
             0.0, 0.02, 0.0
         )
         this.level().addParticle(
             ParticleTypes.END_ROD,
-            this.getX() + right[1], this.getY() + yOffset, this.getZ() + right[0],
+            this.x + right[1], this.y + yOffset, this.z + right[0],
             0.0, 0.02, 0.0
         )
     }
@@ -88,7 +88,7 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
 
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return
@@ -116,7 +116,7 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
     }
 
     override val aircraftLaunchHeight: Double
-        get() = this.getBbHeight() * 0.9
+        get() = this.bbHeight * 0.9
 
     override val aircraftLightLevelBonus: Float
         get() = 0.25f

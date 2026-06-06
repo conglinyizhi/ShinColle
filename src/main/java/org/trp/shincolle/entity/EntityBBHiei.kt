@@ -42,15 +42,15 @@ class EntityBBHiei(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
     val passengersRidingOffset: Double
         get() {
             if (!this.isInSittingPose) {
-                return (this.getBbHeight() * 0.75f).toDouble()
+                return (this.bbHeight * 0.75f).toDouble()
             }
             if (checkModelState(1, this.getStateEmotion(0))) {
-                return (this.getBbHeight() * 0.42f).toDouble()
+                return (this.bbHeight * 0.42f).toDouble()
             }
             if (this.getStateEmotion(1) == 4) {
                 return 0.0
             }
-            return (this.getBbHeight() * 0.35f).toDouble()
+            return (this.bbHeight * 0.35f).toDouble()
         }
 
     override val equipOptions: MutableList<EquipOption>
@@ -67,7 +67,7 @@ class EntityBBHiei(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
             for (i in 0..2) {
                 this.level().addParticle(
                     ParticleTypes.SMOKE,
-                    this.getX() + partPos[1], this.getY() + 1.17 + i * 0.1, this.getZ() + partPos[0],
+                    this.x + partPos[1], this.y + 1.17 + i * 0.1, this.z + partPos[0],
                     0.0, 0.0, 0.0
                 )
             }
@@ -80,7 +80,7 @@ class EntityBBHiei(type: EntityType<out TamableAnimal>, level: Level) : EntitySh
         }
         val ships = this.level().getEntitiesOfClass<EntityShipBase?>(
             EntityShipBase::class.java,
-            this.getBoundingBox().inflate(16.0, 16.0, 16.0)
+            this.boundingBox.inflate(16.0, 16.0, 16.0)
         )
         if (ships.isEmpty()) {
             return

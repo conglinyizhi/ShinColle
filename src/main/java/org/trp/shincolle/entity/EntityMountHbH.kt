@@ -17,43 +17,43 @@ class EntityMountHbH(type: EntityType<out PathfinderMob>, level: Level) : Entity
         if (this.tickCount % 16 == 0) {
             this.level().addParticle(
                 ModParticles.PARTICLE_LIGHTNING.get(),
-                this.getX(),
-                this.getY(),
-                this.getZ(),
+                this.x,
+                this.y,
+                this.z,
                 0.0,
-                this.getId().toDouble(),
+                this.id.toDouble(),
                 0.0
             )
             if (this.random.nextInt(3) == 0) {
                 this.level().addParticle(
                     ModParticles.PARTICLE_LIGHTNING.get(),
-                    this.getX(),
-                    this.getY(),
-                    this.getZ(),
+                    this.x,
+                    this.y,
+                    this.z,
                     0.0,
-                    this.getId().toDouble(),
+                    this.id.toDouble(),
                     0.0
                 )
             }
             if (this.random.nextInt(3) == 0) {
                 this.level().addParticle(
                     ModParticles.PARTICLE_LIGHTNING.get(),
-                    this.getX(),
-                    this.getY(),
-                    this.getZ(),
+                    this.x,
+                    this.y,
+                    this.z,
                     0.0,
-                    this.getId().toDouble(),
+                    this.id.toDouble(),
                     0.0
                 )
             }
             if (this.random.nextInt(3) == 0) {
                 this.level().addParticle(
                     ModParticles.PARTICLE_LIGHTNING.get(),
-                    this.getX(),
-                    this.getY(),
-                    this.getZ(),
+                    this.x,
+                    this.y,
+                    this.z,
                     0.0,
-                    this.getId().toDouble(),
+                    this.id.toDouble(),
                     0.0
                 )
             }
