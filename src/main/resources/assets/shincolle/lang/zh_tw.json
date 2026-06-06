@@ -1221,5 +1221,7 @@
     "jei.category.shincolle.ship_acquisition": "艦娘獲取",
     "jei.shincolle.ref_shipyard": "參閱深海日誌-艦娘圖鑑",
     "jei.shincolle.ref_equip": "參閱深海日誌-艦娘裝備",
-    "jei.shincolle.fuel_hint_large": "大型建造需要提供燃料（岩漿/煤炭等）"
+    "jei.shincolle.fuel_hint_large": "大型建造需要提供燃料（岩漿/煤炭等）",
+    "jei.ref.shincolle.chap4": "參閱深海日誌-深海棲艦列表",
+    "jei.ref.shincolle.chap5": "參閱深海日誌-敵艦列表"
 }

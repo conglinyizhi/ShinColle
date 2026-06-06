@@ -1228,5 +1228,7 @@
     "jei.category.shincolle.ship_acquisition": "艦娘入手",
     "jei.shincolle.ref_shipyard": "深海日誌-艦娘図鑑ヲ参照",
     "jei.shincolle.ref_equip": "深海日誌-艦娘装備ヲ参照",
-    "jei.shincolle.fuel_hint_large": "大型建造ニハ燃料(溶岩/石炭ナド)ガ必要デス"
+    "jei.shincolle.fuel_hint_large": "大型建造ニハ燃料(溶岩/石炭ナド)ガ必要デス",
+    "jei.ref.shincolle.chap4": "深海日誌-深海栖艦リストヲ参照",
+    "jei.ref.shincolle.chap5": "深海日誌-敵艦リストヲ参照"
 }

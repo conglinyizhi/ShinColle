@@ -1717,5 +1717,7 @@
   "jei.shincolle.ref_equip": "See Legacy Log: Ship Equipment",
   "jei.shincolle.fuel_hint_large": "Large shipyard requires fuel (lava/coal/etc.)",
   "patchouli.shincolle.category.equipment.name": "Ship Equipment",
-  "patchouli.shincolle.category.equipment.desc": "Equipment and enchantment reference for ships"
+  "patchouli.shincolle.category.equipment.desc": "Equipment and enchantment reference for ships",
+  "jei.ref.shincolle.chap4": "See Legacy Log: Abyssal Ship List",
+  "jei.ref.shincolle.chap5": "See Legacy Log: Enemy Ship List"
 }

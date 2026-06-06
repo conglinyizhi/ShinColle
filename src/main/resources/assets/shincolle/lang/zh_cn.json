@@ -1732,5 +1732,7 @@
   "jei.shincolle.ref_equip": "参阅深海日志-舰娘装备",
   "jei.shincolle.fuel_hint_large": "大型建造需要提供燃料（岩浆/煤炭等）",
   "patchouli.shincolle.category.equipment.name": "舰娘装备",
-  "patchouli.shincolle.category.equipment.desc": "舰娘可用的装备与附魔参考"
+  "patchouli.shincolle.category.equipment.desc": "舰娘可用的装备与附魔参考",
+  "jei.ref.shincolle.chap4": "参阅深海日志-深海栖舰列表",
+  "jei.ref.shincolle.chap5": "参阅深海日志-敌舰列表"
 }
