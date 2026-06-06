@@ -24,12 +24,29 @@ displayName = "${mod_name}"
 # A file name (in the root of the mod JAR) containing a logo for display
 #logoFile="shincolle_1_21_1.png" #optional
 # A text field displayed in the mod UI
-#credits="" #optional
+credits = "Original mod by lulan | Ported to NeoForge 1.21.1 by conglinyizhi | Sound: Amitaro's Sound Material Workshop"
 # A text field displayed in the mod UI
 authors = "${mod_authors}" #optional
 
 # The description text for the mod (multi line!) (#mandatory)
-description = '''${mod_description}'''
+description = '''Shinkaiseikan Collection (深海舰队收藏)
+
+A Minecraft mod featuring cute abyssal ship girls (Kanmusu / Abyssals).
+Collect, build, and command your fleet with unique abilities,
+equipment crafting, formation systems, and base building.
+
+深海舰队收藏
+以可爱的深海栖舰与舰娘为主题的 Minecraft 模组。
+收集、建造并指挥你的舰队，体验装备制作、阵型配置、
+基地建设、结婚系统等丰富玩法。
+
+Features / 特色：
+- Over 40 unique ship girls / 超过 40 艘各具特色的舰娘
+- Fleet management & formations / 舰队管理与阵型系统
+- Equipment crafting & enhancement / 装备制作与强化
+- Deep sea base building / 深海基地建设
+- Marriage system & emotional interactions / 结婚系统与情感互动'''
+
 
 # The [[mixins]] block allows you to declare your mixin config to FML so that it gets loaded.
 #[[mixins]]
