@@ -44,7 +44,7 @@ class EntitySubmU511(type: EntityType<out TamableAnimal>, level: Level) : Entity
             val owner = this.ownerPlayer
 
             if (this.isStateMarried && owner != null && this.distanceToSqr(owner) < 256.0) {
-                owner.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, duration, 0, false, false))
+                owner.addEffect(MobEffectInstance(MobEffects.INVISIBILITY, Config.SHIP_BUFF_DURATION.get(), 0, false, false))
             }
         }
     }

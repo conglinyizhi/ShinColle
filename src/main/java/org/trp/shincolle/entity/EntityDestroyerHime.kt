@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity
 
+import org.trp.shincolle.Config
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
@@ -57,16 +58,10 @@ class EntityDestroyerHime(type: EntityType<out TamableAnimal>, level: Level) : E
                 val ampSpeed = this.getStateMinor(0) / 45 + 1
                 val ampHaste = this.getStateMinor(0) / 30
                 owner.addEffect(
-                    MobEffectInstance(
-                        MobEffects.MOVEMENT_SPEED,
-                        80 + this.getStateMinor(0), ampSpeed, false, false
-                    )
+                    MobEffectInstance(MobEffects.MOVEMENT_SPEED, Config.SHIP_BUFF_DURATION.get(), ampSpeed, false, false)
                 )
                 owner.addEffect(
-                    MobEffectInstance(
-                        MobEffects.DIG_SPEED,
-                        80 + this.getStateMinor(0), ampHaste, false, false
-                    )
+                    MobEffectInstance(MobEffects.DIG_SPEED, Config.SHIP_BUFF_DURATION.get(), ampHaste, false, false)
                 )
             }
         }

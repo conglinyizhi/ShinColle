@@ -199,7 +199,7 @@ class EntityBattleshipRe(type: EntityType<out TamableAnimal>, level: Level) : En
             if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val duration = 50 + this.getStateMinor(0)
                 val amp = max(0, this.getStateMinor(0) / 50)
-                owner.addEffect(MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, duration, amp, false, false))
+                owner.addEffect(MobEffectInstance(MobEffects.DAMAGE_RESISTANCE, Config.SHIP_BUFF_DURATION.get(), amp, false, false))
             }
         }
 

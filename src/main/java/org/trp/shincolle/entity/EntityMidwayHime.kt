@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity
 
+import org.trp.shincolle.Config
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
@@ -55,7 +56,7 @@ class EntityMidwayHime(type: EntityType<out TamableAnimal>, level: Level) : Enti
         }
         val owner = this.ownerPlayer
         if (owner != null && this.distanceToSqr(owner) < 256.0) {
-            owner.addEffect(MobEffectInstance(MobEffects.ABSORPTION, duration, amp, false, false))
+            owner.addEffect(MobEffectInstance(MobEffects.ABSORPTION, Config.SHIP_BUFF_DURATION.get(), amp, false, false))
         }
     }
 

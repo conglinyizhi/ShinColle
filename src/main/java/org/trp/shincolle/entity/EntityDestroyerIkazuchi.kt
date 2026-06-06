@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity
 
+import org.trp.shincolle.Config
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.syncher.SynchedEntityData
@@ -190,7 +191,7 @@ class EntityDestroyerIkazuchi(type: EntityType<out TamableAnimal>, level: Level)
                 ownerPlayer.addEffect(
                     MobEffectInstance(
                         MobEffects.DAMAGE_BOOST,
-                        80 + this.getStateMinor(0), amp, false, false
+                        Config.SHIP_BUFF_DURATION.get(), amp, false, false
                     )
                 )
             }

@@ -1450,7 +1450,7 @@
   "patchouli.shincolle.entry.equipment_support.page8.text": "$(item)深海探照灯$()保留了旧版的被动效用，包括照亮目标和装备舰自身发光。",
   "patchouli.shincolle.entry.equipment_support.page9.title": "锅炉",
   "patchouli.shincolle.entry.equipment_support.page9.text": "$(item)深海锅炉$()提升舰娘机动性和航速。对于需要阵型机动优势的慢速舰种尤其有用。",
-  "config.shincolle.title": "深海收集 配置",
+  "config.shincolle.title": "深海舰队收藏 配置",
   "config.shincolle.category.common": "通用设置",
   "config.shincolle.category.client": "客户端设置",
   "config.shincolle.ship_exp": "舰娘经验与等级",

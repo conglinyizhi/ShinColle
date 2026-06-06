@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity
 
+import org.trp.shincolle.Config
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.util.Mth
 import net.minecraft.world.damagesource.DamageSource
@@ -101,10 +102,7 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
             if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 45 + 1
                 owner.addEffect(
-                    MobEffectInstance(
-                        MobEffects.JUMP,
-                        80 + this.getStateMinor(0), amp, false, false
-                    )
+                    MobEffectInstance(MobEffects.JUMP, Config.SHIP_BUFF_DURATION.get(), amp, false, false)
                 )
             }
         }

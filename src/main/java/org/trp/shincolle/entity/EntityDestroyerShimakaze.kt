@@ -80,10 +80,7 @@ class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level
             if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 35 + 1
                 owner.addEffect(
-                    MobEffectInstance(
-                        MobEffects.MOVEMENT_SPEED,
-                        80 + this.getStateMinor(0), amp, false, false
-                    )
+                    MobEffectInstance(MobEffects.MOVEMENT_SPEED, Config.SHIP_BUFF_DURATION.get(), amp, false, false)
                 )
             }
         }

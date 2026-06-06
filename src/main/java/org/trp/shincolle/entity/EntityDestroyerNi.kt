@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity
 
+import org.trp.shincolle.Config
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
@@ -54,10 +55,7 @@ class EntityDestroyerNi(type: EntityType<out TamableAnimal>, level: Level) : Ent
             if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 50
                 owner.addEffect(
-                    MobEffectInstance(
-                        MobEffects.DAMAGE_BOOST,
-                        80 + this.getStateMinor(0), amp, false, false
-                    )
+                    MobEffectInstance(MobEffects.DAMAGE_BOOST, Config.SHIP_BUFF_DURATION.get(), amp, false, false)
                 )
             }
         }

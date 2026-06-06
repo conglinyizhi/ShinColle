@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity
 
+import org.trp.shincolle.Config
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.util.Mth
@@ -183,10 +184,7 @@ class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) 
             if (owner != null && this.distanceToSqr(owner) < 256.0) {
                 val amp = this.getStateMinor(0) / 45
                 owner.addEffect(
-                    MobEffectInstance(
-                        MobEffects.MOVEMENT_SPEED,
-                        80 + this.getStateMinor(0), amp, false, false
-                    )
+                    MobEffectInstance(MobEffects.MOVEMENT_SPEED, Config.SHIP_BUFF_DURATION.get(), amp, false, false)
                 )
             }
         }

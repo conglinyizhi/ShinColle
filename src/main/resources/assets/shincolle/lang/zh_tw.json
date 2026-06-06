@@ -1018,7 +1018,7 @@
     "item.shincolle.debug_inspector.bucket_count": "修復桶觸發次數：%s",
     "item.shincolle.debug_inspector.bucket_ship": "最近觸發艦娘：%s",
     "item.shincolle.debug_inspector.bucket_time": "最近觸發遊戲刻：%s",
-    "config.shincolle.title": "深海收集 設定",
+    "config.shincolle.title": "深海艦隊收藏 設定",
     "config.shincolle.category.common": "通用設定",
     "config.shincolle.category.client": "客戶端設定",
     "config.shincolle.ship_exp": "艦娘經驗與等級",
