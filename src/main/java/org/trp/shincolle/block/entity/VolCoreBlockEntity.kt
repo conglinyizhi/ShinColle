@@ -61,13 +61,13 @@ class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
                 markForSync()
             }
             if (this.isWorking && level is ServerLevel) {
-                val bx = pos.getX() + 0.5
-                val by = pos.getY() + 1.5
-                val bz = pos.getZ() + 0.5
+                val bx = pos.x + 0.5
+                val by = pos.y + 1.5
+                val bz = pos.z + 0.5
                 for (i in 0..24) {
-                    val px = bx + (level.getRandom().nextFloat() * 13.0f) - 6.5
-                    val py = by + (level.getRandom().nextFloat() * 13.0f) - 4.5
-                    val pz = bz + (level.getRandom().nextFloat() * 13.0f) - 6.5
+                    val px = bx + (level.random.nextFloat() * 13.0f) - 6.5
+                    val py = by + (level.random.nextFloat() * 13.0f) - 4.5
+                    val pz = bz + (level.random.nextFloat() * 13.0f) - 6.5
                     level.sendParticles<SimpleParticleType?>(
                         ModParticles.PARTICLE_SPRAY.get(),
                         px, py, pz,
@@ -87,14 +87,14 @@ class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
         }
 
         if (this.syncTime % 256 == 0 && this.isWorking) {
-            val dx = pos.getX() + 0.5
-            val dy = pos.getY() + 2.5
-            val dz = pos.getZ() + 0.5
+            val dx = pos.x + 0.5
+            val dy = pos.y + 2.5
+            val dz = pos.z + 0.5
             val box = AABB(dx - 6.0, dy - 6.0, dz - 6.0, dx + 6.0, dy + 6.0, dz + 6.0)
             val slist = level.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, box)
 
             if (!slist.isEmpty()) {
-                val emotes = level.getRandom().nextInt(11)
+                val emotes = level.random.nextInt(11)
                 for (ship in slist) {
                     if (ship.isAlive) {
                         ship.applyParticleEmotion(emotes)
@@ -105,7 +105,7 @@ class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
     }
 
     private fun decrItemFuel() {
-        for (i in 0..<inventory.getSlots()) {
+        for (i in 0..<inventory.slots) {
             val stack = inventory.getStackInSlot(i)
             if (stack.isEmpty()) continue
 
@@ -131,17 +131,17 @@ class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
     private fun volcoreFunction() {
         if (level == null) return
 
-        val dx = worldPosition.getX() + 0.5
-        val dy = worldPosition.getY() + 0.5
-        val dz = worldPosition.getZ() + 0.5
+        val dx = worldPosition.x + 0.5
+        val dy = worldPosition.y + 0.5
+        val dz = worldPosition.z + 0.5
         val box = AABB(dx - 6.0, dy - 6.0, dz - 6.0, dx + 6.0, dy + 6.0, dz + 6.0)
 
         if (this.isNearbyLiquid) {
             val slist = level!!.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, box)
             for (s in slist) {
                 if (s.isTame && s.isInWaterOrBubble()) {
-                    if (s.getHealth() < s.getMaxHealth()) {
-                        s.heal(s.getMaxHealth() * 0.01f + 4.0f)
+                    if (s.health < s.maxHealth) {
+                        s.heal(s.maxHealth * 0.01f + 4.0f)
                     }
                     if (s.morale < 9180) {
                         s.addMorale(80)

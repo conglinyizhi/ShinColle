@@ -368,7 +368,7 @@ class LargeShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
         if (current.isEmpty()) {
             this.inventory.setStackInSlot(slot, output)
         } else {
-            current.grow(output.getCount())
+            current.grow(output.count)
             this.inventory.setStackInSlot(slot, current)
         }
         return true
@@ -382,7 +382,7 @@ class LargeShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
             }
 
             if (ItemStack.isSameItemSameComponents(current, output)
-                && current.getCount() + output.getCount() <= current.getMaxStackSize()
+                && current.count + output.count <= current.maxStackSize
             ) {
                 return i
             }

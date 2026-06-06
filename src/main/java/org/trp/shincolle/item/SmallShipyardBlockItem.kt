@@ -18,8 +18,8 @@ class SmallShipyardBlockItem(block: Block, properties: Properties) : BlockItem(b
                 if (this.renderer == null) {
                     val minecraft = Minecraft.getInstance()
                     this.renderer = SmallShipyardItemRenderer(
-                        minecraft.getBlockEntityRenderDispatcher(),
-                        minecraft.getEntityModels()
+                        minecraft.blockEntityRenderDispatcher,
+                        minecraft.entityModels
                     )
                 }
                 return this.renderer!!

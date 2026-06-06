@@ -28,22 +28,22 @@ class ModernKitItem(properties: Properties) : Item(properties.stacksTo(1)) {
         }
         debugLog(
             "ModernKit interact target={} ship={} ownerMatch={} client={} hand={} itemCount={}",
-            interactionTarget.getType().toShortString(),
-            interactionTarget.getUUID(),
+            interactionTarget.type.toShortString(),
+            interactionTarget.uuid,
             interactionTarget.isOwnedBy(player),
             player.level().isClientSide,
             usedHand,
-            stack.getCount()
+            stack.count
         )
         if (!interactionTarget.isOwnedBy(player)) {
             return InteractionResult.PASS
         }
         if (player.level().isClientSide) {
             if (!interactionTarget.legacyShipStats.hasBonusCapacity()) {
-                debugLog("ModernKit client fail ship={} bonusesMaxed=true", interactionTarget.getUUID())
+                debugLog("ModernKit client fail ship={} bonusesMaxed=true", interactionTarget.uuid)
                 return InteractionResult.FAIL
             }
-            debugLog("ModernKit client success ship={}", interactionTarget.getUUID())
+            debugLog("ModernKit client success ship={}", interactionTarget.uuid)
             return InteractionResult.sidedSuccess(true)
         }
 
@@ -53,7 +53,7 @@ class ModernKitItem(properties: Properties) : Item(properties.stacksTo(1)) {
         }
 
         if (!interactionTarget.interactModernKit(player, stack)) {
-            debugLog("ModernKit noEffect ship={} bonusesMaxed=true", interactionTarget.getUUID())
+            debugLog("ModernKit noEffect ship={} bonusesMaxed=true", interactionTarget.uuid)
             if (Config.modernKitNotifyWhenMaxed) {
                 val feedback: MaxedFeedback = maxedFeedback()
                 player.displayClientMessage(feedback.message ?: Component.empty(), feedback.actionBar)
@@ -71,7 +71,7 @@ class ModernKitItem(properties: Properties) : Item(properties.stacksTo(1)) {
 
         debugLog(
             "ModernKit applied ship={} attrId={} newAttrBonus={} bonuses={}/{}/{}/{}/{}/{} creative={}",
-            interactionTarget.getUUID(),
+            interactionTarget.uuid,
             appliedAttrId,
             if (appliedAttrId >= 0) interactionTarget.getAttrBonus(appliedAttrId) else -1,
             interactionTarget.getAttrBonus(0),
@@ -80,9 +80,9 @@ class ModernKitItem(properties: Properties) : Item(properties.stacksTo(1)) {
             interactionTarget.getAttrBonus(3),
             interactionTarget.getAttrBonus(4),
             interactionTarget.getAttrBonus(5),
-            player.getAbilities().instabuild
+            player.abilities.instabuild
         )
-        debugLog("ModernKit consumed ship={} remaining={}", interactionTarget.getUUID(), stack.getCount())
+        debugLog("ModernKit consumed ship={} remaining={}", interactionTarget.uuid, stack.count)
         return InteractionResult.sidedSuccess(false)
     }
 

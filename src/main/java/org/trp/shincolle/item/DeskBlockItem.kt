@@ -18,8 +18,8 @@ class DeskBlockItem(block: Block, properties: Properties) : BlockItem(block, pro
                 if (this.renderer == null) {
                     val minecraft = Minecraft.getInstance()
                     this.renderer = DeskItemRenderer(
-                        minecraft.getBlockEntityRenderDispatcher(),
-                        minecraft.getEntityModels()
+                        minecraft.blockEntityRenderDispatcher,
+                        minecraft.entityModels
                     )
                 }
                 return this.renderer!!

@@ -16,9 +16,9 @@ class KaitaiHammerItem(properties: Properties) : Item(properties.stacksTo(1).dur
 
     override fun getCraftingRemainingItem(stack: ItemStack): ItemStack {
         val remainder = stack.copy()
-        remainder.setCount(1)
-        remainder.setDamageValue(remainder.getDamageValue() + 1)
-        if (remainder.getDamageValue() >= remainder.getMaxDamage()) {
+        remainder.count = 1
+        remainder.damageValue += 1
+        if (remainder.damageValue >= remainder.maxDamage) {
             return ItemStack.EMPTY
         }
         return remainder
@@ -32,7 +32,7 @@ class KaitaiHammerItem(properties: Properties) : Item(properties.stacksTo(1).dur
                     entity.applyEmotesAOE(10.0, 6, false)
                     entity.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE)
 
-                    if (!player.getAbilities().instabuild) {
+                    if (!player.abilities.instabuild) {
                         stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND)
                     }
                     return true
@@ -41,7 +41,7 @@ class KaitaiHammerItem(properties: Properties) : Item(properties.stacksTo(1).dur
                 if (entity is TamableAnimal) {
                     if (entity.isOwnedBy(player) || player.hasPermissions(2)) {
                         entity.discard()
-                        if (!player.getAbilities().instabuild) {
+                        if (!player.abilities.instabuild) {
                             stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND)
                         }
                         return true

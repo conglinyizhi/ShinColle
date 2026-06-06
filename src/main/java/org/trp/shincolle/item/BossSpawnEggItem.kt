@@ -31,12 +31,12 @@ class BossSpawnEggItem(
     typeSupplier, primaryColor, secondaryColor, properties
 ) {
     override fun useOn(context: UseOnContext): InteractionResult {
-        val level = context.getLevel()
+        val level = context.level
         if (level.isClientSide) return super.useOn(context)
 
-        val stack = context.getItemInHand()
-        val player = context.getPlayer()
-        val clickPos = context.getClickedPos().relative(context.getClickedFace())
+        val stack = context.itemInHand
+        val player = context.player
+        val clickPos = context.clickedPos.relative(context.clickedFace)
 
         // Inject entity type without Owner/Tame -> spawns untamed (hostile)
         val key = BuiltInRegistries.ENTITY_TYPE.getKey(this.typeSupplier.get())
@@ -63,11 +63,11 @@ class BossSpawnEggItem(
             for (entity in level.getEntities(
                 null as Entity?,
                 AABB(clickPos).inflate(4.0),
-                Predicate { e: Entity? -> e!!.getType() === spawnedType && e is EntityShipBase })) {
+                Predicate { e: Entity? -> e!!.type === spawnedType && e is EntityShipBase })) {
                 val ship = entity as EntityShipBase
                 ship.initializeHostileSpawnState(bossScale)
-                ship.ammoLight = ship.ammoLight + 128
-                ship.ammoHeavy = ship.ammoHeavy + 64
+                ship.ammoLight += 128
+                ship.ammoHeavy += 64
                 ship.fuel = max(ship.fuel, 5000)
                 break
             }
@@ -97,18 +97,18 @@ class BossSpawnEggItem(
             })
 
         val result = super.use(level, player, hand)
-        if (result.getResult().consumesAction() && level is ServerLevel) {
+        if (result.result.consumesAction() && level is ServerLevel) {
             val spawnedType: EntityType<*>? = this.typeSupplier.get()
             val spawnPos = player.blockPosition()
             val bossScale = 2 + level.random.nextInt(2)
             for (entity in level.getEntities(
                 null as Entity?,
                 AABB(spawnPos).inflate(4.0),
-                Predicate { e: Entity? -> e!!.getType() === spawnedType && e is EntityShipBase })) {
+                Predicate { e: Entity? -> e!!.type === spawnedType && e is EntityShipBase })) {
                 val ship = entity as EntityShipBase
                 ship.initializeHostileSpawnState(bossScale)
-                ship.ammoLight = ship.ammoLight + 128
-                ship.ammoHeavy = ship.ammoHeavy + 64
+                ship.ammoLight += 128
+                ship.ammoHeavy += 64
                 ship.fuel = max(ship.fuel, 5000)
                 break
             }

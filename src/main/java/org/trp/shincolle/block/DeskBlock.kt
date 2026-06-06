@@ -51,7 +51,7 @@ class DeskBlock : BaseEntityBlock(
 
     override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {
         return this.defaultBlockState()
-            .setValue<Direction?, Direction?>(FACING, context.getHorizontalDirection().getOpposite())
+            .setValue<Direction?, Direction?>(FACING, context.horizontalDirection.opposite)
     }
 
     public override fun rotate(state: BlockState, rotation: Rotation): BlockState {

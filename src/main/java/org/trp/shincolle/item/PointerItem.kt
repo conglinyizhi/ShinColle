@@ -129,16 +129,16 @@ class PointerItem(properties: Properties) : Item(properties.stacksTo(1)) {
     }
 
     override fun useOn(context: UseOnContext): InteractionResult {
-        val player = context.getPlayer()
+        val player = context.player
         if (player != null && player.isShiftKeyDown()) {
             return InteractionResult.PASS
         }
 
-        val level = context.getLevel()
+        val level = context.level
         if (level.isClientSide && player != null) {
-            val mode = getMode(context.getItemInHand())
+            val mode = getMode(context.itemInHand)
             if (mode == MODE_FORMATION) {
-                val blockPos = context.getClickedPos()
+                val blockPos = context.clickedPos
                 val pos = Vec3.atBottomCenterOf(blockPos).add(0.0, 1.0, 0.0)
                 sendToServer(C2SPointerActionPayload(2, Optional.empty<UUID?>(), Optional.of<Vec3?>(pos)))
                 return InteractionResult.SUCCESS

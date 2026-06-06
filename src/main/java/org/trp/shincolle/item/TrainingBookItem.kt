@@ -36,14 +36,14 @@ class TrainingBookItem(properties: Properties) : Item(properties) {
         val maxLevelGain = max(minLevelGain, Config.trainingBookLevelMax)
         var levelGain = minLevelGain
         if (maxLevelGain > minLevelGain) {
-            levelGain += player.getRandom().nextInt(maxLevelGain - minLevelGain + 1)
+            levelGain += player.random.nextInt(maxLevelGain - minLevelGain + 1)
         }
 
         if (!interactionTarget.addTrainingBookLevel(levelGain)) {
             return InteractionResult.FAIL
         }
 
-        if (!player.getAbilities().instabuild) {
+        if (!player.abilities.instabuild) {
             stack.shrink(1)
         }
 

@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.*
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.Shapes
 import net.minecraft.world.phys.shapes.VoxelShape
@@ -38,7 +39,7 @@ class FrameBlock : Block(
 
     override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {
         return this.defaultBlockState()
-            .setValue<Direction?, Direction?>(FACING, context.getHorizontalDirection().getOpposite())
+            .setValue<Direction?, Direction?>(FACING, context.horizontalDirection.opposite)
     }
 
     public override fun rotate(state: BlockState, rotation: Rotation): BlockState {
@@ -86,8 +87,8 @@ class FrameBlock : Block(
 
     public override fun entityInside(state: BlockState, level: Level, pos: BlockPos, entity: Entity) {
         entity.resetFallDistance()
-        if (entity.getDeltaMovement().y < -0.1) {
-            entity.setDeltaMovement(entity.getDeltaMovement().x, -0.1, entity.getDeltaMovement().z)
+        if (entity.deltaMovement.y < -0.1) {
+            entity.deltaMovement = Vec3(entity.deltaMovement.x, -0.1, entity.deltaMovement.z)
         }
     }
 

@@ -69,15 +69,15 @@ class VolBlock : Block(
             }
             val sidePos = pos.relative(direction)
             val sideState = level.getBlockState(sidePos)
-            if (sideState.isFaceSturdy(level, sidePos, direction.getOpposite())) {
+            if (sideState.isFaceSturdy(level, sidePos, direction.opposite)) {
                 continue
             }
 
             val x =
-                if (direction.getStepX() == 0) 0.2 + random.nextDouble() * 0.6 else 0.5 + direction.getStepX() * 0.48
+                if (direction.stepX == 0) 0.2 + random.nextDouble() * 0.6 else 0.5 + direction.stepX * 0.48
             val y = 0.1 + random.nextDouble() * 0.7
             val z =
-                if (direction.getStepZ() == 0) 0.2 + random.nextDouble() * 0.6 else 0.5 + direction.getStepZ() * 0.48
+                if (direction.stepZ == 0) 0.2 + random.nextDouble() * 0.6 else 0.5 + direction.stepZ * 0.48
             spawnDripParticle(level, pos, random, x, y, z)
         }
     }
@@ -99,9 +99,9 @@ class VolBlock : Block(
         ) {
             level.addParticle(
                 ParticleTypes.DRIPPING_WATER,
-                pos.getX() + offsetX,
-                pos.getY() + offsetY,
-                pos.getZ() + offsetZ,
+                pos.x + offsetX,
+                pos.y + offsetY,
+                pos.z + offsetZ,
                 (random.nextDouble() - 0.5) * 0.01,
                 -0.02 - random.nextDouble() * 0.01,
                 (random.nextDouble() - 0.5) * 0.01

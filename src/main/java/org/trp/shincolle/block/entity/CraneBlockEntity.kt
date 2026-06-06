@@ -127,15 +127,15 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
                 if (targetShip != null) {
                     this.partDelay = 128
-                    var distY = this.worldPosition.getY() - targetShip.getY() - 1.0
+                    var distY = this.worldPosition.y - targetShip.y - 1.0
                     if (distY < 1.0) {
                         distY = 1.0
                     }
                     this.level!!.addParticle(
                         ModParticles.PARTICLE_CRANING.get(),
-                        this.worldPosition.getX() + 0.5,
-                        this.worldPosition.getY() - 1.0,
-                        this.worldPosition.getZ() + 0.5,
+                        this.worldPosition.x + 0.5,
+                        this.worldPosition.y - 1.0,
+                        this.worldPosition.z + 0.5,
                         distY,
                         0.25,
                         0.0
@@ -144,8 +144,8 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
                     this.level!!.addParticle(
                         ModParticles.PARTICLE_SPARKLE.get(),
-                        targetShip.getX(), targetShip.getY() + targetShip.getBbHeight() * 0.4, targetShip.getZ(),
-                        3.0, targetShip.getBbWidth().toDouble(), 0.1
+                        targetShip.x, targetShip.y + targetShip.bbHeight * 0.4, targetShip.z,
+                        3.0, targetShip.bbWidth.toDouble(), 0.1
                     )
                 }
             }
@@ -259,22 +259,22 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private fun checkCraningShip(): Boolean {
         if (this.craningShip != null && this.craningShip!!.isAlive && !this.craningShip!!.isRemoved) {
             if (this.craningShip!!.distanceToSqr(
-                    this.worldPosition.getX() + 0.5,
-                    this.worldPosition.getY().toDouble(),
-                    this.worldPosition.getZ() + 0.5
+                    this.worldPosition.x + 0.5,
+                    this.worldPosition.y.toDouble(),
+                    this.worldPosition.z + 0.5
                 ) < 64.0
             ) {
                 if (this.craningShip!!.getStateMinor(43) == 2) {
-                    if (this.syncedShipId != this.craningShip!!.getId()) {
-                        this.syncedShipId = this.craningShip!!.getId()
+                    if (this.syncedShipId != this.craningShip!!.id) {
+                        this.syncedShipId = this.craningShip!!.id
                         markForSync()
                     }
                     return true
                 }
                 if (this.craningShip!!.getStateMinor(43) == 1) {
                     moveShipToCrane(this.craningShip!!)
-                    if (this.syncedShipId != this.craningShip!!.getId()) {
-                        this.syncedShipId = this.craningShip!!.getId()
+                    if (this.syncedShipId != this.craningShip!!.id) {
+                        this.syncedShipId = this.craningShip!!.id
                         markForSync()
                     }
                     return true
@@ -285,12 +285,12 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         val aabb = AABB(this.worldPosition).inflate(8.0)
         val ships = this.level!!.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, aabb)
         for (ship in ships) {
-            if (ship.isAlive && !ship.isRemoved && ship.isTame && this.ownerUUID != null && this.ownerUUID == ship.getOwnerUUID()) {
+            if (ship.isAlive && !ship.isRemoved && ship.isTame && this.ownerUUID != null && this.ownerUUID == ship.ownerUUID) {
                 if (ship.getStateMinor(43) == 1 || ship.getStateMinor(43) == 2) {
                     this.craningShip = ship
                     this.liquidTransferRate = calculateLiquidTransferRate(ship)
-                    if (this.syncedShipId != ship.getId()) {
-                        this.syncedShipId = ship.getId()
+                    if (this.syncedShipId != ship.id) {
+                        this.syncedShipId = ship.id
                         markForSync()
                     }
                     if (ship.getStateMinor(43) == 1) {
@@ -312,9 +312,9 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private fun moveShipToCrane(ship: EntityShipBase) {
         ship.moveGuardTargetTo(
             Vec3(
-                this.worldPosition.getX() + 0.5,
-                this.worldPosition.getY() - 2.0,
-                this.worldPosition.getZ() + 0.5
+                this.worldPosition.x + 0.5,
+                this.worldPosition.y - 2.0,
+                this.worldPosition.z + 0.5
             ),
             1.0
         )
@@ -324,16 +324,16 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         if (this.chestHandler == null) return
         val preTransferAmount = max(1000, this.liquidTransferRate)
         if (mode == 1) {
-            val maxDrain = min(preTransferAmount, this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount())
+            val maxDrain = min(preTransferAmount, this.fluidTank.capacity - this.fluidTank.fluidAmount)
             if (maxDrain <= 0) return
-            val drained = drainFromChestContainers(this.fluidTank.getFluid(), maxDrain)
+            val drained = drainFromChestContainers(this.fluidTank.fluid, maxDrain)
             if (!drained.isEmpty()) {
                 this.fluidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE)
                 markChestForSync()
             }
         } else if (mode == 2) {
-            if (!this.fluidTank.getFluid().isEmpty()) {
-                if (fillChestContainers(this.fluidTank.getFluid())) {
+            if (!this.fluidTank.fluid.isEmpty()) {
+                if (fillChestContainers(this.fluidTank.fluid)) {
                     markChestForSync()
                 }
             }
@@ -360,13 +360,13 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                 val filter = this.inventory.getStackInSlot(filterStart + i)
                 if (!filter.isEmpty() && !getItemMode(filterStart + i)) {
                     if (canMoveItem(isLoading, filter)) {
-                        for (slot in 0..<invFrom!!.getSlots()) {
+                        for (slot in 0..<invFrom!!.slots) {
                             val stack = invFrom.getStackInSlot(slot)
                             if (matchTargetItem(stack, filter, this.checkMetadata, this.checkNbt, this.checkOredict)) {
-                                val extracted = invFrom.extractItem(slot, stack.getCount(), false)
+                                val extracted = invFrom.extractItem(slot, stack.count, false)
                                 if (!extracted.isEmpty()) {
                                     val moved = moveItemstackToInv(invTo, extracted, null)
-                                    if (extracted.getCount() > 0) {
+                                    if (extracted.count > 0) {
                                         returnRemainderToSourceOrDrop(invFrom, extracted)
                                     }
                                     if (moved) {
@@ -380,13 +380,13 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                 }
             }
         } else {
-            for (slot in 0..<invFrom!!.getSlots()) {
+            for (slot in 0..<invFrom!!.slots) {
                 val stack = invFrom.getStackInSlot(slot)
                 if (!stack.isEmpty() && isNotModeItem(stack, isLoading)) {
-                    val extracted = invFrom.extractItem(slot, stack.getCount(), false)
+                    val extracted = invFrom.extractItem(slot, stack.count, false)
                     if (!extracted.isEmpty()) {
                         val moved = moveItemstackToInv(invTo, extracted, null)
-                        if (extracted.getCount() > 0) {
+                        if (extracted.count > 0) {
                             returnRemainderToSourceOrDrop(invFrom, extracted)
                         }
                         if (moved) {
@@ -404,11 +404,11 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         if (this.craneMode == 3) {
             val targetInv: IItemHandler = (if (isLoading) this.craningShip!!.inventory else this.combinedChestHandler)!!
             val current = calcItemStackAmount(targetInv, temp, this.checkMetadata, this.checkNbt, this.checkOredict)
-            return current < temp.getCount()
+            return current < temp.count
         } else if (this.craneMode == 4) {
             val sourceInv: IItemHandler = (if (isLoading) this.combinedChestHandler else this.craningShip!!.inventory)!!
             val current = calcItemStackAmount(sourceInv, temp, this.checkMetadata, this.checkNbt, this.checkOredict)
-            return current > temp.getCount()
+            return current > temp.count
         }
         return true
     }
@@ -429,21 +429,21 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         val transferRate = max(0, this.liquidTransferRate)
         if (transferRate <= 0) return false
         if (mode == 1) {
-            if (this.fluidTank.getFluidAmount() <= 0) return false
-            val toFill = this.fluidTank.getFluid().copy()
-            val amountBefore = min(transferRate, toFill.getAmount())
-            toFill.setAmount(amountBefore)
+            if (this.fluidTank.fluidAmount <= 0) return false
+            val toFill = this.fluidTank.fluid.copy()
+            val amountBefore = min(transferRate, toFill.amount)
+            toFill.amount = amountBefore
             if (tryFillContainer(this.craningShip!!.inventory, toFill)) {
-                val filled = amountBefore - toFill.getAmount()
+                val filled = amountBefore - toFill.amount
                 if (filled > 0) {
                     this.fluidTank.drain(filled, IFluidHandler.FluidAction.EXECUTE)
                     return true
                 }
             }
         } else if (mode == 2) {
-            val maxDrain = min(transferRate, this.fluidTank.getCapacity() - this.fluidTank.getFluidAmount())
+            val maxDrain = min(transferRate, this.fluidTank.capacity - this.fluidTank.fluidAmount)
             if (maxDrain <= 0) return false
-            val drained = tryDrainContainer(this.craningShip!!.inventory, this.fluidTank.getFluid(), maxDrain)
+            val drained = tryDrainContainer(this.craningShip!!.inventory, this.fluidTank.fluid, maxDrain)
             if (!drained.isEmpty()) {
                 this.fluidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE)
                 return true
@@ -520,13 +520,13 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             }
             if (this.modeLiquid == 1 && !checkInventoryFluidContainer(
                     this.craningShip!!.inventory,
-                    this.fluidTank.getFluid(),
+                    this.fluidTank.fluid,
                     true
                 )
             ) {
                 return false
             }
-            if (this.modeLiquid == 2 && !isChestFluidContainersFull(this.fluidTank.getFluid())) {
+            if (this.modeLiquid == 2 && !isChestFluidContainersFull(this.fluidTank.fluid)) {
                 return false
             }
             return true
@@ -542,18 +542,18 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             }
             if (this.modeLiquid == 1 && !checkInventoryFluidContainer(
                     this.chestHandler,
-                    this.fluidTank.getFluid(),
+                    this.fluidTank.fluid,
                     false
                 )
             ) {
                 return false
             }
-            if (this.modeLiquid == 1 && !isChestFluidContainersEmpty(this.fluidTank.getFluid())) {
+            if (this.modeLiquid == 1 && !isChestFluidContainersEmpty(this.fluidTank.fluid)) {
                 return false
             }
             if (this.modeLiquid == 2 && !checkInventoryFluidContainer(
                     this.craningShip!!.inventory,
-                    this.fluidTank.getFluid(),
+                    this.fluidTank.fluid,
                     false
                 )
             ) {
@@ -596,10 +596,10 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                 foundNormalFilter = true
                 val current = calcItemStackAmount(target, filter, this.checkMetadata, this.checkNbt, this.checkOredict)
                 if (atLeast) {
-                    if (current < filter.getCount()) {
+                    if (current < filter.count) {
                         return false
                     }
-                } else if (current > filter.getCount()) {
+                } else if (current > filter.count) {
                     return false
                 }
             }
@@ -609,14 +609,14 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     }
 
     private fun isInventoryFull(inv: IItemHandler): Boolean {
-        for (i in 0..<inv.getSlots()) {
-            if (inv.getStackInSlot(i).isEmpty() || inv.getStackInSlot(i).getCount() < inv.getSlotLimit(i)) return false
+        for (i in 0..<inv.slots) {
+            if (inv.getStackInSlot(i).isEmpty() || inv.getStackInSlot(i).count < inv.getSlotLimit(i)) return false
         }
         return true
     }
 
     private fun isInventoryEmpty(inv: IItemHandler): Boolean {
-        for (i in 0..<inv.getSlots()) {
+        for (i in 0..<inv.slots) {
             if (!inv.getStackInSlot(i).isEmpty()) return false
         }
         return true
@@ -642,14 +642,14 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         if (!remainder.isEmpty() && lvl is ServerLevel) {
             val drop = ItemEntity(
                 lvl,
-                this.worldPosition.getX() + 0.5,
-                this.worldPosition.getY() + 1.0,
-                this.worldPosition.getZ() + 0.5,
+                this.worldPosition.x + 0.5,
+                this.worldPosition.y + 1.0,
+                this.worldPosition.z + 0.5,
                 remainder.copy()
             )
             drop.setDefaultPickUpDelay()
             lvl.addFreshEntity(drop)
-            remainder.setCount(0)
+            remainder.count = 0
         }
     }
 
@@ -658,7 +658,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             val be = this.level!!.getBlockEntity(this.chestPos)
             if (be != null) {
                 be.setChanged()
-                this.level!!.sendBlockUpdated(this.chestPos, be.getBlockState(), be.getBlockState(), 3)
+                this.level!!.sendBlockUpdated(this.chestPos, be.blockState, be.blockState, 3)
             }
         }
     }
@@ -672,7 +672,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             for (direction in Direction.Plane.HORIZONTAL) {
                 val adjacentPos = this.chestPos!!.relative(direction)
                 val adjacentState = this.level!!.getBlockState(adjacentPos)
-                if (!adjacentState.`is`(this.level!!.getBlockState(this.chestPos).getBlock())) {
+                if (!adjacentState.`is`(this.level!!.getBlockState(this.chestPos).block)) {
                     continue
                 }
 
@@ -742,7 +742,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private fun calculateLiquidTransferRate(ship: EntityShipBase): Int {
         var drumCount = 0
         var enchantCount = 0
-        val equipSlots = min(6, ship.inventory!!.getSlots())
+        val equipSlots = min(6, ship.inventory!!.slots)
 
         if (ship is EntityTransportWa && ship.isStateMarried) {
             drumCount = 1
@@ -750,11 +750,11 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
         for (slot in 0..<equipSlots) {
             val stack = ship.inventory.getStackInSlot(slot)
-            if (stack.isEmpty() || stack.getItem() !is LegacyEquipItem) {
+            if (stack.isEmpty() || stack.item !is LegacyEquipItem) {
                 continue
             }
 
-            if ((stack.getItem() as LegacyEquipItem).getEquipTypeId(stack) != 24 || (stack.getItem() as LegacyEquipItem).getVariant(stack) != 1) {
+            if ((stack.item as LegacyEquipItem).getEquipTypeId(stack) != 24 || (stack.item as LegacyEquipItem).getVariant(stack) != 1) {
                 continue
             }
 
@@ -775,7 +775,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private fun calculateEnergyTransferRate(ship: EntityShipBase): Int {
         var drumCount = 0
         var enchantCount = 0
-        val equipSlots = min(6, ship.inventory!!.getSlots())
+        val equipSlots = min(6, ship.inventory!!.slots)
 
         if (ship is EntityTransportWa && ship.isStateMarried) {
             drumCount = 1
@@ -783,11 +783,11 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
         for (slot in 0..<equipSlots) {
             val stack = ship.inventory.getStackInSlot(slot)
-            if (stack.isEmpty() || stack.getItem() !is LegacyEquipItem) {
+            if (stack.isEmpty() || stack.item !is LegacyEquipItem) {
                 continue
             }
 
-            if ((stack.getItem() as LegacyEquipItem).getEquipTypeId(stack) != 24 || (stack.getItem() as LegacyEquipItem).getVariant(stack) != 2) {
+            if ((stack.item as LegacyEquipItem).getEquipTypeId(stack) != 24 || (stack.item as LegacyEquipItem).getVariant(stack) != 2) {
                 continue
             }
 
@@ -811,7 +811,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             return false
         }
 
-        for (slot in 0..<shipInventory.getSlots()) {
+        for (slot in 0..<shipInventory.slots) {
             val stack = shipInventory.getStackInSlot(slot)
             if (stack.isEmpty()) {
                 continue
@@ -840,7 +840,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             return false
         }
 
-        for (slot in 0..<shipInventory.getSlots()) {
+        for (slot in 0..<shipInventory.slots) {
             val stack = shipInventory.getStackInSlot(slot)
             if (stack.isEmpty()) {
                 continue
@@ -992,7 +992,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     }
 
     val craningShipId: Int
-        get() = if (this.craningShip == null) 0 else this.craningShip!!.getId()
+        get() = if (this.craningShip == null) 0 else this.craningShip!!.id
 
     val craningShipTimer: Int
         get() = if (this.craningShip == null) 0 else this.craningShip!!.getStateTimer(1)
@@ -1168,11 +1168,11 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private class CombinedItemHandler(private val first: IItemHandler, private val second: IItemHandler) :
         IItemHandler {
         override fun getSlots(): Int {
-            return this.first.getSlots() + this.second.getSlots()
+            return this.first.slots + this.second.slots
         }
 
         override fun getStackInSlot(slot: Int): ItemStack {
-            return if (isFirst(slot)) this.first.getStackInSlot(slot) else this.second.getStackInSlot(slot - this.first.getSlots())
+            return if (isFirst(slot)) this.first.getStackInSlot(slot) else this.second.getStackInSlot(slot - this.first.slots)
         }
 
         override fun insertItem(slot: Int, stack: ItemStack, simulate: Boolean): ItemStack {
@@ -1180,7 +1180,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                 slot,
                 stack,
                 simulate
-            ) else this.second.insertItem(slot - this.first.getSlots(), stack, simulate)
+            ) else this.second.insertItem(slot - this.first.slots, stack, simulate)
         }
 
         override fun extractItem(slot: Int, amount: Int, simulate: Boolean): ItemStack {
@@ -1188,22 +1188,22 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                 slot,
                 amount,
                 simulate
-            ) else this.second.extractItem(slot - this.first.getSlots(), amount, simulate)
+            ) else this.second.extractItem(slot - this.first.slots, amount, simulate)
         }
 
         override fun getSlotLimit(slot: Int): Int {
-            return if (isFirst(slot)) this.first.getSlotLimit(slot) else this.second.getSlotLimit(slot - this.first.getSlots())
+            return if (isFirst(slot)) this.first.getSlotLimit(slot) else this.second.getSlotLimit(slot - this.first.slots)
         }
 
         override fun isItemValid(slot: Int, stack: ItemStack): Boolean {
             return if (isFirst(slot)) this.first.isItemValid(
                 slot,
                 stack
-            ) else this.second.isItemValid(slot - this.first.getSlots(), stack)
+            ) else this.second.isItemValid(slot - this.first.slots, stack)
         }
 
         fun isFirst(slot: Int): Boolean {
-            return slot < this.first.getSlots()
+            return slot < this.first.slots
         }
     }
 
@@ -1252,7 +1252,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         }
 
         private fun extractEnergyFromInventory(inventory: IItemHandler, maxTransfer: Int): Int {
-            for (slot in 0..<inventory.getSlots()) {
+            for (slot in 0..<inventory.slots) {
                 val stack = inventory.getStackInSlot(slot)
                 if (stack.isEmpty()) {
                     continue
@@ -1273,7 +1273,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         }
 
         private fun receiveEnergyIntoInventory(inventory: IItemHandler, maxTransfer: Int): Int {
-            for (slot in 0..<inventory.getSlots()) {
+            for (slot in 0..<inventory.slots) {
                 val stack = inventory.getStackInSlot(slot)
                 if (stack.isEmpty()) {
                     continue

@@ -58,7 +58,7 @@ class MarriageRingItem(properties: Properties) : Item(properties) {
     }
 
     private fun applyAuraToNearbyShips(player: Player, level: Level) {
-        val area = player.getBoundingBox().inflate(6.0, 5.0, 6.0)
+        val area = player.boundingBox.inflate(6.0, 5.0, 6.0)
         val nearbyShips = level.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, area)
 
         for (ship in nearbyShips) {
@@ -67,7 +67,7 @@ class MarriageRingItem(properties: Properties) : Item(properties) {
             }
 
             ship.emotionPrimary = EntityShipBase.EMOTION_HAPPY
-            if (ship.getRandom().nextInt(5) == 0) {
+            if (ship.random.nextInt(5) == 0) {
                 ship.applyParticleEmotion(EmotionParticleType.HEART)
             }
         }

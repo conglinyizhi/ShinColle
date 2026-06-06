@@ -26,8 +26,8 @@ class OwnerPaperItem(properties: Properties) : Item(properties.stacksTo(1)) {
                     data!!.update(Consumer { tag: CompoundTag? ->
                         Companion.writeOwnerSignature(
                             tag!!,
-                            player.getName().getString(),
-                            player.getUUID()
+                            player.name.string,
+                            player.uuid
                         )
                     })
                 })

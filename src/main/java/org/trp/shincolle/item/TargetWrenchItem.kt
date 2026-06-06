@@ -27,15 +27,15 @@ import java.util.function.UnaryOperator
 
 class TargetWrenchItem(properties: Properties) : Item(properties) {
     override fun useOn(context: UseOnContext): InteractionResult {
-        val player = context.getPlayer()
+        val player = context.player
         if (player == null) return InteractionResult.PASS
 
         if (!player.isShiftKeyDown()) {
             return InteractionResult.PASS
         }
 
-        val clickedPos = context.getClickedPos()
-        val level = context.getLevel()
+        val clickedPos = context.clickedPos
+        val level = context.level
         val be = level.getBlockEntity(clickedPos)
 
         val isWaypoint = be is IWaypoint
@@ -45,17 +45,17 @@ class TargetWrenchItem(properties: Properties) : Item(properties) {
             if (!level.isClientSide) {
                 player.displayClientMessage(Component.translatable("chat.shincolle.wrench.wrongtile"), true)
             }
-            clearMarked(context.getItemInHand())
+            clearMarked(context.itemInHand)
             return InteractionResult.FAIL
         }
 
-        val stack = context.getItemInHand()
+        val stack = context.itemInHand
 
         if (!hasMarked(stack)) {
             setMarked(stack, clickedPos)
             if (!level.isClientSide) {
                 player.displayClientMessage(
-                    Component.literal(ChatFormatting.AQUA.toString() + "Marked: " + clickedPos.getX() + " " + clickedPos.getY() + " " + clickedPos.getZ()),
+                    Component.literal(ChatFormatting.AQUA.toString() + "Marked: " + clickedPos.x + " " + clickedPos.y + " " + clickedPos.z),
                     true
                 )
             }
@@ -76,8 +76,8 @@ class TargetWrenchItem(properties: Properties) : Item(properties) {
             PacketDistributor.sendToServer(
                 C2SWaypointActionPayload(
                     2,
-                    markedPos.getX(), markedPos.getY(), markedPos.getZ(),
-                    clickedPos.getX(), clickedPos.getY(), clickedPos.getZ()
+                    markedPos.x, markedPos.y, markedPos.z,
+                    clickedPos.x, clickedPos.y, clickedPos.z
                 )
             )
         }
@@ -126,9 +126,9 @@ class TargetWrenchItem(properties: Properties) : Item(properties) {
             CustomData.EMPTY,
             UnaryOperator { data: CustomData? ->
                 data!!.update(Consumer { tag: CompoundTag? ->
-                    tag!!.putInt(TAG_MARKED_X, pos.getX())
-                    tag.putInt(TAG_MARKED_Y, pos.getY())
-                    tag.putInt(TAG_MARKED_Z, pos.getZ())
+                    tag!!.putInt(TAG_MARKED_X, pos.x)
+                    tag.putInt(TAG_MARKED_Y, pos.y)
+                    tag.putInt(TAG_MARKED_Z, pos.z)
                 })
             }
         )
@@ -163,23 +163,23 @@ class TargetWrenchItem(properties: Properties) : Item(properties) {
         tooltipComponents.add(Component.translatable("gui.shincolle.wrench3").withStyle(ChatFormatting.YELLOW))
         if (hasMarked(stack)) {
             val p = getMarked(stack)
-            tooltipComponents.add(Component.literal(ChatFormatting.AQUA.toString() + "Marked: " + p.getX() + " " + p.getY() + " " + p.getZ()))
+            tooltipComponents.add(Component.literal(ChatFormatting.AQUA.toString() + "Marked: " + p.x + " " + p.y + " " + p.z))
         }
     }
 
     override fun inventoryTick(stack: ItemStack, level: Level, entity: Entity, slotId: Int, isSelected: Boolean) {
         if (entity is Player) {
-            val isHeld = entity.getMainHandItem() == stack || entity.getOffhandItem() == stack
+            val isHeld = entity.mainHandItem == stack || entity.offhandItem == stack
 
             if (!isHeld) {
                 if (hasMarked(stack)) {
                     clearMarked(stack)
                 }
             } else if (level.isClientSide && isSelected && hasMarked(stack)) {
-                if (level.getGameTime() % 40 == 0L) {
+                if (level.gameTime % 40 == 0L) {
                     val pos = getMarked(stack)
                     entity.displayClientMessage(
-                        Component.literal(ChatFormatting.AQUA.toString() + "Marked: " + pos.getX() + " " + pos.getY() + " " + pos.getZ()),
+                        Component.literal(ChatFormatting.AQUA.toString() + "Marked: " + pos.x + " " + pos.y + " " + pos.z),
                         true
                     )
                 }

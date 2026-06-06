@@ -71,7 +71,7 @@ class RecipePaperItem(properties: Properties) : Item(properties.stacksTo(1)) {
                     Component.translatable("gui.shincolle.recipepaper.result")
                         .withStyle(ChatFormatting.YELLOW)
                         .append(" ")
-                        .append(result.getHoverName().copy().withStyle(ChatFormatting.WHITE))
+                        .append(result.hoverName.copy().withStyle(ChatFormatting.WHITE))
                 )
             }
 
@@ -81,7 +81,7 @@ class RecipePaperItem(properties: Properties) : Item(properties.stacksTo(1)) {
             for (ingredient in inputList) {
                 if (!ingredient.isEmpty()) {
                     tooltipComponents.add(
-                        Component.literal("  ").append(ingredient.getHoverName()).withStyle(ChatFormatting.GRAY)
+                        Component.literal("  ").append(ingredient.hoverName).withStyle(ChatFormatting.GRAY)
                     )
                 }
             }

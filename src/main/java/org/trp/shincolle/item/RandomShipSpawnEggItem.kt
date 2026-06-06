@@ -27,7 +27,7 @@ class RandomShipSpawnEggItem(
     properties: Properties
 ) : ShipSpawnEggItem(fallbackType, shipClass, primaryColor, secondaryColor, properties) {
     override fun useOn(context: UseOnContext): InteractionResult {
-        injectRandomEntityData(context.getLevel(), context.getPlayer(), context.getItemInHand())
+        injectRandomEntityData(context.level, context.player, context.itemInHand)
         return super.useOn(context)
     }
 
@@ -56,7 +56,7 @@ class RandomShipSpawnEggItem(
                     Consumer { tag: CompoundTag? ->
                         tag!!.putString("id", key.toString())
                         if (player != null && !tag.hasUUID("Owner")) {
-                            tag.putUUID("Owner", player.getUUID())
+                            tag.putUUID("Owner", player.uuid)
                         }
                         if (!tag.contains("Tame")) {
                             tag.putBoolean("Tame", true)

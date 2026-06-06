@@ -78,7 +78,7 @@ class LargeShipyardBlock : BaseEntityBlock(
 
     override fun getStateForPlacement(context: BlockPlaceContext): BlockState? {
         return this.defaultBlockState()
-            .setValue<Direction?, Direction?>(FACING, context.getHorizontalDirection().getOpposite())
+            .setValue<Direction?, Direction?>(FACING, context.horizontalDirection.opposite)
             .setValue<Boolean?, Boolean?>(ACTIVE, false)
     }
 
@@ -116,7 +116,7 @@ class LargeShipyardBlock : BaseEntityBlock(
         newState: BlockState,
         movedByPiston: Boolean
     ) {
-        if (!state.`is`(newState.getBlock())) {
+        if (!state.`is`(newState.block)) {
             val blockEntity = level.getBlockEntity(pos)
             if (blockEntity is LargeShipyardBlockEntity) {
                 popResource(level, pos, blockEntity.createStoredHeavyGrudgeStack())
