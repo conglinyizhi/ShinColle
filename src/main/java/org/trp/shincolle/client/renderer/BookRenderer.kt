@@ -127,7 +127,7 @@ object BookRenderer {
                 x + 45 + (idx % 8) * 9,
                 y + 158 + (idx / 8) * 9,
                 115,
-                if (((stats shr i) and 1) == 1) 156 else 147,
+                if (((stats shr i) and 1) == 1) 158 else 149,
                 7,
                 9
             )
