@@ -11,24 +11,26 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityAircraftBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-open class RendererSimpleMob<T : Mob?, M : EntityModel<T?>?>(
+@Suppress("UNCHECKED_CAST")
+open class RendererSimpleMob<T : Mob, M : EntityModel<T>>(
     context: EntityRendererProvider.Context,
-    model: M?,
+    model: M,
     shadowSize: Float,
     private val modelScale: Float,
     private val texture: ResourceLocation
-) : MobRenderer<T?, M?>(context, model, shadowSize) {
+) : MobRenderer<T, M>(context, model, shadowSize) {
     init {
         if (model is IGlowableModel) {
-            this.addLayer(GenericGlowLayer<Any?, Any?>(this, texture))
+            @Suppress("UNCHECKED_CAST")
+            this.addLayer(GenericGlowLayer<T, M>(this, texture))
         }
     }
 
-    override fun getTextureLocation(entity: T?): ResourceLocation {
+    override fun getTextureLocation(entity: T): ResourceLocation {
         return texture
     }
 
-    override fun scale(entity: T?, poseStack: PoseStack, partialTickTime: Float) {
+    override fun scale(entity: T, poseStack: PoseStack, partialTickTime: Float) {
         var s = LegacyScale.getScale(entity, this.model)
 
         if (s == 0.34f && this.modelScale != 0.34f) {
@@ -42,7 +44,7 @@ open class RendererSimpleMob<T : Mob?, M : EntityModel<T?>?>(
         poseStack.scale(s, s, s)
     }
 
-    override fun getFlipDegrees(entity: T?): Float {
+    override fun getFlipDegrees(entity: T): Float {
         if (entity is EntityShipBase && entity.isInDeadPose) {
             return 0.0f
         }

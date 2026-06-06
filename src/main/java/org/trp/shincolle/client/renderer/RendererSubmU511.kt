@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntitySubmU511
 
 class RendererSubmU511(context: EntityRendererProvider.Context) :
-    MobRenderer<EntitySubmU511?, ModelSubmU511<EntitySubmU511?>?>(
+    MobRenderer<EntitySubmU511, ModelSubmU511<EntitySubmU511>>(
         context,
         ModelSubmU511<EntitySubmU511>(context.bakeLayer(ModelSubmU511.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntitySubmU511?, ModelSubmU511<EntitySubmU511?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntitySubmU511, ModelSubmU511<EntitySubmU511>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntitySubmU511): ResourceLocation {

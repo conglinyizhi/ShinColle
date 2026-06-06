@@ -13,15 +13,16 @@ import net.minecraft.world.entity.LivingEntity
 import org.trp.shincolle.client.model.IGlowableModel
 import org.trp.shincolle.client.renderer.ShincolleRenderTypes.Companion.getFlatGlow
 
-class GenericGlowLayer<T : LivingEntity?, M>(
-    renderer: RenderLayerParent<T?, M?>,
+@Suppress("UNCHECKED_CAST")
+class GenericGlowLayer<T : LivingEntity, M : EntityModel<T>>(
+    renderer: RenderLayerParent<T, out EntityModel<T>>,
     private val glowTexture: ResourceLocation
-) : RenderLayer<T?, M?>(renderer) where M : EntityModel<T?>?, M : IGlowableModel? {
+) : RenderLayer<T, M>(renderer as RenderLayerParent<T, M>) {
     override fun render(
         poseStack: PoseStack,
         bufferSource: MultiBufferSource,
         packedLight: Int,
-        entity: T?,
+        entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
         partialTick: Float,
@@ -29,23 +30,26 @@ class GenericGlowLayer<T : LivingEntity?, M>(
         netHeadYaw: Float,
         headPitch: Float
     ) {
-        if (entity!!.isInvisible() && entity.isInvisibleTo(Minecraft.getInstance().player)) {
+        if (entity.isInvisible && entity.isInvisibleTo(Minecraft.getInstance().player)) {
             return
         }
 
         val vertexConsumer = bufferSource.getBuffer(getFlatGlow(this.glowTexture))
 
         var color = -0x1
-        if (entity.isInvisible()) {
+        if (entity.isInvisible) {
             color = 0x26FFFFFF
         }
 
-        this.getParentModel()!!.renderGlow(
-            poseStack,
-            vertexConsumer,
-            LightTexture.FULL_BRIGHT,
-            OverlayTexture.NO_OVERLAY,
-            color
-        )
+        val parentModel = this.getParentModel()
+        if (parentModel is IGlowableModel) {
+            parentModel.renderGlow(
+                poseStack,
+                vertexConsumer,
+                LightTexture.FULL_BRIGHT,
+                OverlayTexture.NO_OVERLAY,
+                color
+            )
+        }
     }
 }

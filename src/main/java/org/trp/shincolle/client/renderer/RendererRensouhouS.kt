@@ -7,8 +7,8 @@ import org.trp.shincolle.client.model.ModelRensouhouS
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.base.EntityShincolleSimpleMob
 
-class RendererRensouhouS<T : EntityShincolleSimpleMob?>(context: EntityRendererProvider.Context) :
-    RendererSimpleMob<T?, ModelRensouhouS<T?>?>(
+class RendererRensouhouS<T : EntityShincolleSimpleMob>(context: EntityRendererProvider.Context) :
+    RendererSimpleMob<T, ModelRensouhouS<T>>(
         context,
         ModelRensouhouS<T>(context.bakeLayer(ModelRensouhouS.LAYER_LOCATION)),
         0.5f,
@@ -16,7 +16,7 @@ class RendererRensouhouS<T : EntityShincolleSimpleMob?>(context: EntityRendererP
         TEXTURE
     ) {
     init {
-        this.addLayer(GenericGlowLayer<T?, ModelRensouhouS<T?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<T, ModelRensouhouS<T>>(this, TEXTURE))
     }
 
     companion object {

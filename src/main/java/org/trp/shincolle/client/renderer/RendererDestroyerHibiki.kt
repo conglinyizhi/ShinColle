@@ -10,14 +10,14 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityDestroyerHibiki
 
 class RendererDestroyerHibiki(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityDestroyerHibiki?, ModelDestroyerHibiki<EntityDestroyerHibiki?>?>(
+    MobRenderer<EntityDestroyerHibiki, ModelDestroyerHibiki<EntityDestroyerHibiki>>(
         context,
         ModelDestroyerHibiki<EntityDestroyerHibiki>(context.bakeLayer(ModelDestroyerHibiki.LAYER_LOCATION)),
         0.5f
     ) {
     init {
         this.addLayer(
-            GenericGlowLayer<EntityDestroyerHibiki?, ModelDestroyerHibiki<EntityDestroyerHibiki?>?>(
+            GenericGlowLayer<EntityDestroyerHibiki, ModelDestroyerHibiki<EntityDestroyerHibiki>>(
                 this,
                 TEXTURE
             )

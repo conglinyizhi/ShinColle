@@ -10,14 +10,14 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityBattleshipNagato
 
 class RendererBattleshipNagato(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityBattleshipNagato?, ModelBattleshipNagato<EntityBattleshipNagato?>?>(
+    MobRenderer<EntityBattleshipNagato, ModelBattleshipNagato<EntityBattleshipNagato>>(
         context,
         ModelBattleshipNagato<EntityBattleshipNagato>(context.bakeLayer(ModelBattleshipNagato.LAYER_LOCATION)),
         0.5f
     ) {
     init {
         this.addLayer(
-            GenericGlowLayer<EntityBattleshipNagato?, ModelBattleshipNagato<EntityBattleshipNagato?>?>(
+            GenericGlowLayer<EntityBattleshipNagato, ModelBattleshipNagato<EntityBattleshipNagato>>(
                 this,
                 TEXTURE
             )

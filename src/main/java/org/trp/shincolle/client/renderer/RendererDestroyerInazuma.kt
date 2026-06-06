@@ -10,14 +10,14 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityDestroyerInazuma
 
 class RendererDestroyerInazuma(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityDestroyerInazuma?, ModelDestroyerInazuma<EntityDestroyerInazuma?>?>(
+    MobRenderer<EntityDestroyerInazuma, ModelDestroyerInazuma<EntityDestroyerInazuma>>(
         context,
         ModelDestroyerInazuma<EntityDestroyerInazuma>(context.bakeLayer(ModelDestroyerInazuma.LAYER_LOCATION)),
         0.5f
     ) {
     init {
         this.addLayer(
-            GenericGlowLayer<EntityDestroyerInazuma?, ModelDestroyerInazuma<EntityDestroyerInazuma?>?>(
+            GenericGlowLayer<EntityDestroyerInazuma, ModelDestroyerInazuma<EntityDestroyerInazuma>>(
                 this,
                 TEXTURE
             )

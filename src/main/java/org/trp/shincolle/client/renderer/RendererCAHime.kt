@@ -9,13 +9,13 @@ import org.trp.shincolle.client.model.ModelCAHime
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityCAHime
 
-class RendererCAHime(context: EntityRendererProvider.Context) : MobRenderer<EntityCAHime?, ModelCAHime<EntityCAHime?>?>(
+class RendererCAHime(context: EntityRendererProvider.Context) : MobRenderer<EntityCAHime, ModelCAHime<EntityCAHime>>(
     context,
     ModelCAHime<EntityCAHime>(context.bakeLayer(ModelCAHime.LAYER_LOCATION)),
     0.5f
 ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityCAHime?, ModelCAHime<EntityCAHime?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityCAHime, ModelCAHime<EntityCAHime>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityCAHime): ResourceLocation {

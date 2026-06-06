@@ -10,14 +10,14 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityCruiserTenryuu
 
 class RendererCruiserTenryuu(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityCruiserTenryuu?, ModelCruiserTenryuu<EntityCruiserTenryuu?>?>(
+    MobRenderer<EntityCruiserTenryuu, ModelCruiserTenryuu<EntityCruiserTenryuu>>(
         context,
         ModelCruiserTenryuu<EntityCruiserTenryuu>(context.bakeLayer(ModelCruiserTenryuu.LAYER_LOCATION)),
         0.5f
     ) {
     init {
         this.addLayer(
-            GenericGlowLayer<EntityCruiserTenryuu?, ModelCruiserTenryuu<EntityCruiserTenryuu?>?>(
+            GenericGlowLayer<EntityCruiserTenryuu, ModelCruiserTenryuu<EntityCruiserTenryuu>>(
                 this,
                 TEXTURE
             )

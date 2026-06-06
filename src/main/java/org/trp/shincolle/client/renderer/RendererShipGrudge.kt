@@ -12,8 +12,8 @@ import org.trp.shincolle.Shincolle
 import org.trp.shincolle.client.model.ModelShipGrudge
 import org.trp.shincolle.entity.EntityShipGrudge
 
-class RendererShipGrudge(context: EntityRendererProvider.Context) : EntityRenderer<EntityShipGrudge?>(context) {
-    private val model: ModelShipGrudge<EntityShipGrudge?>
+class RendererShipGrudge(context: EntityRendererProvider.Context) : EntityRenderer<EntityShipGrudge>(context) {
+    private val model: ModelShipGrudge<EntityShipGrudge>
 
     init {
         this.model = ModelShipGrudge<EntityShipGrudge>(context.bakeLayer(ModelShipGrudge.LAYER_LOCATION))

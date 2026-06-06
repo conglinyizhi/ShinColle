@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityBattleshipRe
 
 class RendererBattleshipRe(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityBattleshipRe?, ModelBattleshipRe<EntityBattleshipRe?>?>(
+    MobRenderer<EntityBattleshipRe, ModelBattleshipRe<EntityBattleshipRe>>(
         context,
         ModelBattleshipRe<EntityBattleshipRe>(context.bakeLayer(ModelBattleshipRe.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityBattleshipRe?, ModelBattleshipRe<EntityBattleshipRe?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityBattleshipRe, ModelBattleshipRe<EntityBattleshipRe>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityBattleshipRe): ResourceLocation {

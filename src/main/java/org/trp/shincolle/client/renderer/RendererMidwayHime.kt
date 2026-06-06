@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityMidwayHime
 
 class RendererMidwayHime(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityMidwayHime?, ModelMidwayHime<EntityMidwayHime?>?>(
+    MobRenderer<EntityMidwayHime, ModelMidwayHime<EntityMidwayHime>>(
         context,
         ModelMidwayHime<EntityMidwayHime>(context.bakeLayer(ModelMidwayHime.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityMidwayHime?, ModelMidwayHime<EntityMidwayHime?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityMidwayHime, ModelMidwayHime<EntityMidwayHime>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityMidwayHime): ResourceLocation {

@@ -7,7 +7,7 @@ import org.trp.shincolle.Shincolle
 import org.trp.shincolle.client.model.ModelMountBaH
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 
-class RendererMountBaH<T : Mob?>(context: EntityRendererProvider.Context) : RendererSimpleMob<T?, ModelMountBaH<T?>?>(
+class RendererMountBaH<T : Mob>(context: EntityRendererProvider.Context) : RendererSimpleMob<T, ModelMountBaH<T>>(
     context,
     ModelMountBaH<T>(context.bakeLayer(ModelMountBaH.LAYER_LOCATION)),
     0.8f,
@@ -15,7 +15,7 @@ class RendererMountBaH<T : Mob?>(context: EntityRendererProvider.Context) : Rend
     TEXTURE
 ) {
     init {
-        this.addLayer(GenericGlowLayer<T?, ModelMountBaH<T?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<T, ModelMountBaH<T>>(this, TEXTURE))
     }
 
     companion object {

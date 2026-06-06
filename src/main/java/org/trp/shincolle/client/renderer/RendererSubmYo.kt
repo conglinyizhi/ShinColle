@@ -9,13 +9,13 @@ import org.trp.shincolle.client.model.ModelSubmYo
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntitySubmYo
 
-class RendererSubmYo(context: EntityRendererProvider.Context) : MobRenderer<EntitySubmYo?, ModelSubmYo<EntitySubmYo?>?>(
+class RendererSubmYo(context: EntityRendererProvider.Context) : MobRenderer<EntitySubmYo, ModelSubmYo<EntitySubmYo>>(
     context,
     ModelSubmYo<EntitySubmYo>(context.bakeLayer(ModelSubmYo.LAYER_LOCATION)),
     0.5f
 ) {
     init {
-        this.addLayer(GenericGlowLayer<EntitySubmYo?, ModelSubmYo<EntitySubmYo?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntitySubmYo, ModelSubmYo<EntitySubmYo>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntitySubmYo): ResourceLocation {

@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityCarrierWo
 
 class RendererCarrierWo(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityCarrierWo?, ModelCarrierWo<EntityCarrierWo?>?>(
+    MobRenderer<EntityCarrierWo, ModelCarrierWo<EntityCarrierWo>>(
         context,
         ModelCarrierWo<EntityCarrierWo>(context.bakeLayer(ModelCarrierWo.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityCarrierWo?, ModelCarrierWo<EntityCarrierWo?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityCarrierWo, ModelCarrierWo<EntityCarrierWo>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityCarrierWo): ResourceLocation {

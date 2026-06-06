@@ -11,7 +11,7 @@ import net.minecraft.world.entity.HumanoidArm
 import org.trp.shincolle.entity.EntityShipFishingHook
 
 class RendererShipFishingHook(context: EntityRendererProvider.Context) :
-    EntityRenderer<EntityShipFishingHook?>(context) {
+    EntityRenderer<EntityShipFishingHook>(context) {
     override fun render(
         entity: EntityShipFishingHook,
         yaw: Float,

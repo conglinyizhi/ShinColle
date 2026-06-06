@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityDestroyerI
 
 class RendererDestroyerI(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityDestroyerI?, ModelDestroyerI<EntityDestroyerI?>?>(
+    MobRenderer<EntityDestroyerI, ModelDestroyerI<EntityDestroyerI>>(
         context,
         ModelDestroyerI<EntityDestroyerI>(context.bakeLayer(ModelDestroyerI.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityDestroyerI?, ModelDestroyerI<EntityDestroyerI?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityDestroyerI, ModelDestroyerI<EntityDestroyerI>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityDestroyerI): ResourceLocation {

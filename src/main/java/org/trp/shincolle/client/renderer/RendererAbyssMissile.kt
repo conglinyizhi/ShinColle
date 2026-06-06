@@ -12,8 +12,8 @@ import org.trp.shincolle.Shincolle
 import org.trp.shincolle.client.model.ModelAbyssMissile
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile
 
-class RendererAbyssMissile(context: EntityRendererProvider.Context) : EntityRenderer<EntityAbyssMissile?>(context) {
-    private val model: ModelAbyssMissile<EntityAbyssMissile?>
+class RendererAbyssMissile(context: EntityRendererProvider.Context) : EntityRenderer<EntityAbyssMissile>(context) {
+    private val model: ModelAbyssMissile<EntityAbyssMissile>
 
     init {
         this.model = ModelAbyssMissile<EntityAbyssMissile>(context.bakeLayer(ModelAbyssMissile.LAYER_LOCATION))

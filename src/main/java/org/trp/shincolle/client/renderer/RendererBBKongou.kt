@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityBBKongou
 
 class RendererBBKongou(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityBBKongou?, ModelBBKongou<EntityBBKongou?>?>(
+    MobRenderer<EntityBBKongou, ModelBBKongou<EntityBBKongou>>(
         context,
         ModelBBKongou<EntityBBKongou>(context.bakeLayer(ModelBBKongou.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityBBKongou?, ModelBBKongou<EntityBBKongou?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityBBKongou, ModelBBKongou<EntityBBKongou>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityBBKongou): ResourceLocation {

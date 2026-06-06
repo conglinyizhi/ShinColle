@@ -10,14 +10,14 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityHeavyCruiserRi
 
 class RendererHeavyCruiserRi(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityHeavyCruiserRi?, ModelHeavyCruiserRi<EntityHeavyCruiserRi?>?>(
+    MobRenderer<EntityHeavyCruiserRi, ModelHeavyCruiserRi<EntityHeavyCruiserRi>>(
         context,
         ModelHeavyCruiserRi<EntityHeavyCruiserRi>(context.bakeLayer(ModelHeavyCruiserRi.LAYER_LOCATION)),
         0.5f
     ) {
     init {
         this.addLayer(
-            GenericGlowLayer<EntityHeavyCruiserRi?, ModelHeavyCruiserRi<EntityHeavyCruiserRi?>?>(
+            GenericGlowLayer<EntityHeavyCruiserRi, ModelHeavyCruiserRi<EntityHeavyCruiserRi>>(
                 this,
                 TEXTURE
             )

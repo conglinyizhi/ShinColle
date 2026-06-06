@@ -418,7 +418,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
             this.faceId = FACE_DOT_EYES_TEAR
-            this.mouthId = mapLegacyMouth(if (tick < 64 5 else 2))
+            this.mouthId = mapLegacyMouth(if (tick < 64) 5 else 2)
         } else {
             this.faceId = FACE_CRY
             this.mouthId = mapLegacyMouth(2)
@@ -429,13 +429,13 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT)
         if (tick < 200) {
             this.faceId = FACE_DOT_EYES_TEAR
-            this.mouthId = mapLegacyMouth(if (tick < 60 5 else 2))
+            this.mouthId = mapLegacyMouth(if (tick < 60) 5 else 2)
         } else if (tick < 400) {
             this.faceId = FACE_TENSION
-            this.mouthId = mapLegacyMouth(if (tick < 250 0 else 4))
+            this.mouthId = mapLegacyMouth(if (tick < 250) 0 else 4)
         } else {
             this.faceId = FACE_SOFT
-            this.mouthId = mapLegacyMouth(if (tick < 450 0 else 1))
+            this.mouthId = mapLegacyMouth(if (tick < 450) 0 else 1)
         }
     }
 
@@ -453,10 +453,10 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 128) {
             this.faceId = FACE_EYES_CLOSED
-            this.mouthId = mapLegacyMouth(if (tick < 64 0 else 1))
+            this.mouthId = mapLegacyMouth(if (tick < 64) 0 else 1)
         } else {
             this.faceId = FACE_EYES_HALF
-            this.mouthId = mapLegacyMouth(if (tick < 170 1 else 2))
+            this.mouthId = mapLegacyMouth(if (tick < 170) 1 else 2)
         }
     }
 
@@ -464,7 +464,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_9BIT)
         if (tick < 170) {
             this.faceId = FACE_DOT_EYES
-            this.mouthId = mapLegacyMouth(if (tick < 80 0 else 4))
+            this.mouthId = mapLegacyMouth(if (tick < 80) 0 else 4)
         } else if (tick < 340) {
             this.faceId = FACE_WINK
             this.mouthId = mapLegacyMouth(0)
@@ -478,7 +478,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 140) {
             this.faceId = FACE_EYES_OPEN
-            this.mouthId = mapLegacyMouth(if (tick < 80 3 else 2))
+            this.mouthId = mapLegacyMouth(if (tick < 80) 3 else 2)
         } else {
             this.faceId = FACE_WINK
             this.mouthId = mapLegacyMouth(0)
@@ -489,7 +489,7 @@ class EntityDestroyerAkatsuki(type: EntityType<out TamableAnimal?>?, level: Leve
         val tick = getLegacyFaceTick(EMOTION_TICK_MASK_8BIT)
         if (tick < 140) {
             this.faceId = FACE_TENSION
-            this.mouthId = mapLegacyMouth(if (tick < 80 0 else 4))
+            this.mouthId = mapLegacyMouth(if (tick < 80) 0 else 4)
         } else {
             this.faceId = FACE_WINK
             this.mouthId = mapLegacyMouth(4)

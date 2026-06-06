@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityBBKirishima
 
 class RendererBBKirishima(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityBBKirishima?, ModelBBKirishima<EntityBBKirishima?>?>(
+    MobRenderer<EntityBBKirishima, ModelBBKirishima<EntityBBKirishima>>(
         context,
         ModelBBKirishima<EntityBBKirishima>(context.bakeLayer(ModelBBKirishima.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityBBKirishima?, ModelBBKirishima<EntityBBKirishima?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityBBKirishima, ModelBBKirishima<EntityBBKirishima>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityBBKirishima): ResourceLocation {

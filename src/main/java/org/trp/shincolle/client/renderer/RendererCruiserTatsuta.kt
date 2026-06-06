@@ -10,14 +10,14 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityCruiserTatsuta
 
 class RendererCruiserTatsuta(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityCruiserTatsuta?, ModelCruiserTatsuta<EntityCruiserTatsuta?>?>(
+    MobRenderer<EntityCruiserTatsuta, ModelCruiserTatsuta<EntityCruiserTatsuta>>(
         context,
         ModelCruiserTatsuta<EntityCruiserTatsuta>(context.bakeLayer(ModelCruiserTatsuta.LAYER_LOCATION)),
         0.5f
     ) {
     init {
         this.addLayer(
-            GenericGlowLayer<EntityCruiserTatsuta?, ModelCruiserTatsuta<EntityCruiserTatsuta?>?>(
+            GenericGlowLayer<EntityCruiserTatsuta, ModelCruiserTatsuta<EntityCruiserTatsuta>>(
                 this,
                 TEXTURE
             )

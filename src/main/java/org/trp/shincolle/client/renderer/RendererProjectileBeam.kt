@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.resources.ResourceLocation
 import org.trp.shincolle.entity.projectile.EntityProjectileBeam
 
-class RendererProjectileBeam(context: EntityRendererProvider.Context) : EntityRenderer<EntityProjectileBeam?>(context) {
+class RendererProjectileBeam(context: EntityRendererProvider.Context) : EntityRenderer<EntityProjectileBeam>(context) {
     override fun getTextureLocation(entity: EntityProjectileBeam): ResourceLocation {
         return DUMMY_TEXTURE
     }

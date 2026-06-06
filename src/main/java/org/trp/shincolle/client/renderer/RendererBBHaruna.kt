@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityBBHaruna
 
 class RendererBBHaruna(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityBBHaruna?, ModelBBHaruna<EntityBBHaruna?>?>(
+    MobRenderer<EntityBBHaruna, ModelBBHaruna<EntityBBHaruna>>(
         context,
         ModelBBHaruna<EntityBBHaruna>(context.bakeLayer(ModelBBHaruna.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityBBHaruna?, ModelBBHaruna<EntityBBHaruna?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityBBHaruna, ModelBBHaruna<EntityBBHaruna>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityBBHaruna): ResourceLocation {

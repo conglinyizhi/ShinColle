@@ -10,13 +10,13 @@ import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntityCruiserAtago
 
 class RendererCruiserAtago(context: EntityRendererProvider.Context) :
-    MobRenderer<EntityCruiserAtago?, ModelCruiserAtago<EntityCruiserAtago?>?>(
+    MobRenderer<EntityCruiserAtago, ModelCruiserAtago<EntityCruiserAtago>>(
         context,
         ModelCruiserAtago<EntityCruiserAtago>(context.bakeLayer(ModelCruiserAtago.LAYER_LOCATION)),
         0.5f
     ) {
     init {
-        this.addLayer(GenericGlowLayer<EntityCruiserAtago?, ModelCruiserAtago<EntityCruiserAtago?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntityCruiserAtago, ModelCruiserAtago<EntityCruiserAtago>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntityCruiserAtago): ResourceLocation {

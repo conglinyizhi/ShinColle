@@ -9,13 +9,13 @@ import org.trp.shincolle.client.model.ModelSSNH
 import org.trp.shincolle.client.renderer.layer.GenericGlowLayer
 import org.trp.shincolle.entity.EntitySSNH
 
-class RendererSSNH(context: EntityRendererProvider.Context) : MobRenderer<EntitySSNH?, ModelSSNH<EntitySSNH?>?>(
+class RendererSSNH(context: EntityRendererProvider.Context) : MobRenderer<EntitySSNH, ModelSSNH<EntitySSNH>>(
     context,
     ModelSSNH<EntitySSNH>(context.bakeLayer(ModelSSNH.LAYER_LOCATION)),
     0.5f
 ) {
     init {
-        this.addLayer(GenericGlowLayer<EntitySSNH?, ModelSSNH<EntitySSNH?>?>(this, TEXTURE))
+        this.addLayer(GenericGlowLayer<EntitySSNH, ModelSSNH<EntitySSNH>>(this, TEXTURE))
     }
 
     override fun getTextureLocation(entity: EntitySSNH): ResourceLocation {
