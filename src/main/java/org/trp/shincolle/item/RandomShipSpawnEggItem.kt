@@ -37,8 +37,8 @@ class RandomShipSpawnEggItem(
         return super.use(level, player, hand)
     }
 
-    private fun injectRandomEntityData(level: Level, player: Player?, stack: ItemStack) {
-        if (level.isClientSide || stack.isEmpty()) {
+    private fun injectRandomEntityData(level: Level?, player: Player?, stack: ItemStack) {
+        if (level == null || level.isClientSide || stack.isEmpty()) {
             return
         }
 
