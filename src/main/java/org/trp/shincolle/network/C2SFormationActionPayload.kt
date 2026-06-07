@@ -15,7 +15,7 @@ data class C2SFormationActionPayload(
     val param1: Int,
     val param2: Int,
     val paramString: String?,
-    val paramUUID: Optional<UUID?>
+    val paramUUID: Optional<UUID>
 ) : CustomPacketPayload {
     override fun type(): CustomPacketPayload.Type<out CustomPacketPayload?> {
         return TYPE
@@ -43,7 +43,7 @@ data class C2SFormationActionPayload(
             )
 
         val STREAM_CODEC: StreamCodec<FriendlyByteBuf?, C2SFormationActionPayload?> =
-            StreamCodec.composite<FriendlyByteBuf?, C2SFormationActionPayload?, Int?, Int?, Int?, String?, Optional<UUID?>?>(
+            StreamCodec.composite<FriendlyByteBuf?, C2SFormationActionPayload?, Int?, Int?, Int?, String?, Optional<UUID>?>(
                 ByteBufCodecs.VAR_INT,
                 C2SFormationActionPayload::action,
                 ByteBufCodecs.VAR_INT,
@@ -54,7 +54,7 @@ data class C2SFormationActionPayload(
                 C2SFormationActionPayload::paramString,
                 ByteBufCodecs.optional<FriendlyByteBuf, UUID>(UUIDUtil.STREAM_CODEC),
                 C2SFormationActionPayload::paramUUID,
-                Function5 { action: Int?, param1: Int?, param2: Int?, paramString: String?, paramUUID: Optional<UUID?> ->
+                Function5 { action: Int?, param1: Int?, param2: Int?, paramString: String?, paramUUID: Optional<UUID> ->
                     C2SFormationActionPayload(
                         action!!,
                         param1!!,

@@ -43,7 +43,7 @@ class RecipePaperDataTest {
         val restoredGrid = RecipePaperData.loadRecipeGrid(host, RegistryAccess.EMPTY)
         val restoredResult = RecipePaperData.loadStoredRecipeResult(host, RegistryAccess.EMPTY)
 
-        assertTrue(!RecipePaperData.hasAnyRecipeIngredient(restoredGrid))
+        assertTrue(!RecipePaperData.hasAnyRecipeIngredient(restoredGrid.filterNotNull().toMutableList()))
         assertTrue(restoredResult.isEmpty)
     }
 

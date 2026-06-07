@@ -17,21 +17,21 @@ class WayPointBlockEntityTest {
         val owner = UUID.randomUUID()
         val entity = TestWayPointBlockEntity()
 
-        entity.setLastPos(BlockPos(1, 2, 3))
-        entity.setNextPos(BlockPos(4, 5, 6))
-        entity.setChestPos(BlockPos(7, 8, 9))
+        entity.lastPos = BlockPos(1, 2, 3)
+        entity.nextPos = BlockPos(4, 5, 6)
+        entity.chestPos = BlockPos(7, 8, 9)
         entity.nextWpStayTime()
         entity.nextWpStayTime()
-        entity.setOwnerUUID(owner)
-        entity.setOwnerName("Admiral")
+        entity.ownerUUID = owner
+        entity.ownerName = "Admiral"
 
         val restored = TestWayPointBlockEntity()
         restored.loadForTest(entity.saveForTest())
 
-        assertThat(restored.getLastPos()).isEqualTo(BlockPos(1, 2, 3))
-        assertThat(restored.getNextPos()).isEqualTo(BlockPos(4, 5, 6))
-        assertThat(restored.getChestPos()).isEqualTo(BlockPos(7, 8, 9))
-        assertThat(restored.getWpStayTime()).isEqualTo(2)
+        assertThat(restored.lastPos).isEqualTo(BlockPos(1, 2, 3))
+        assertThat(restored.nextPos).isEqualTo(BlockPos(4, 5, 6))
+        assertThat(restored.chestPos).isEqualTo(BlockPos(7, 8, 9))
+        assertThat(restored.wpStayTime).isEqualTo(2)
         assertThat(restored.ownerUUID).isEqualTo(owner)
         assertThat(restored.ownerName).isEqualTo("Admiral")
     }
@@ -39,25 +39,25 @@ class WayPointBlockEntityTest {
     @Test
     fun `waypoint block entity should treat null setters and sparse tags as zero state`() {
         val entity = TestWayPointBlockEntity()
-        entity.setLastPos(null)
-        entity.setNextPos(null)
-        entity.setChestPos(null)
-        entity.setOwnerUUID(null)
-        entity.setOwnerName(null)
+        entity.lastPos = null
+        entity.nextPos = null
+        entity.chestPos = null
+        entity.ownerUUID = null
+        entity.ownerName = ""
 
-        assertThat(entity.getLastPos()).isEqualTo(BlockPos.ZERO)
-        assertThat(entity.getNextPos()).isEqualTo(BlockPos.ZERO)
-        assertThat(entity.getChestPos()).isEqualTo(BlockPos.ZERO)
+        assertThat(entity.lastPos).isEqualTo(BlockPos.ZERO)
+        assertThat(entity.nextPos).isEqualTo(BlockPos.ZERO)
+        assertThat(entity.chestPos).isEqualTo(BlockPos.ZERO)
         assertThat(entity.ownerUUID).isNull()
         assertThat(entity.ownerName).isEmpty()
 
         val restored = TestWayPointBlockEntity()
         restored.loadForTest(CompoundTag())
 
-        assertThat(restored.getLastPos()).isEqualTo(BlockPos.ZERO)
-        assertThat(restored.getNextPos()).isEqualTo(BlockPos.ZERO)
-        assertThat(restored.getChestPos()).isEqualTo(BlockPos.ZERO)
-        assertThat(restored.getWpStayTime()).isZero()
+        assertThat(restored.lastPos).isEqualTo(BlockPos.ZERO)
+        assertThat(restored.nextPos).isEqualTo(BlockPos.ZERO)
+        assertThat(restored.chestPos).isEqualTo(BlockPos.ZERO)
+        assertThat(restored.wpStayTime).isZero()
         assertThat(restored.ownerUUID).isNull()
         assertThat(restored.ownerName).isEmpty()
     }
@@ -69,19 +69,19 @@ class WayPointBlockEntityTest {
         assertThat(entity.stayTimeDisplay).isEqualTo("0s")
 
         repeat(1) { entity.nextWpStayTime() }
-        assertThat(entity.getStayTimeTicks()).isEqualTo(100)
+        assertThat(entity.stayTimeTicks).isEqualTo(100)
         assertThat(entity.stayTimeDisplay).isEqualTo("5s")
 
         repeat(5) { entity.nextWpStayTime() }
-        assertThat(entity.getStayTimeTicks()).isEqualTo(1200)
+        assertThat(entity.stayTimeTicks).isEqualTo(1200)
         assertThat(entity.stayTimeDisplay).isEqualTo("1m")
 
         repeat(5) { entity.nextWpStayTime() }
-        assertThat(entity.getStayTimeTicks()).isEqualTo(12000)
+        assertThat(entity.stayTimeTicks).isEqualTo(12000)
         assertThat(entity.stayTimeDisplay).isEqualTo("10m")
     }
 
-    private class TestWayPointBlockEntity : WayPointBlockEntity(BlockPos.ZERO, ModBlocks.WAYPOINT.get().defaultBlockState()) {
+    private class TestWayPointBlockEntity : WayPointBlockEntity(BlockPos.ZERO, ModBlocks.WAYPOINT.get()!!.defaultBlockState()) {
         fun saveForTest(): CompoundTag = CompoundTag().also { saveAdditional(it, registries()) }
 
         fun loadForTest(tag: CompoundTag) {

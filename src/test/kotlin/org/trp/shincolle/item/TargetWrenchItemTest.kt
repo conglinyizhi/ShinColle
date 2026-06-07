@@ -39,16 +39,16 @@ class TargetWrenchItemTest {
     fun targetWrenchTooltipShouldExposeLocalizedHintsAndMarkedPosition() {
         val item = ModItems.TARGET_WRENCH.get() as TargetWrenchItem
         val stack = ItemStack(item)
-        val tooltip = mutableListOf<Component>()
+        val tooltip = mutableListOf<Component?>()
 
         setMarked(item, stack, BlockPos(1, 2, 3))
         item.appendHoverText(stack, TooltipContext.EMPTY, tooltip, TooltipFlag.Default.NORMAL)
 
         assertEquals(4, tooltip.size)
-        assertEquals("gui.shincolle.wrench1", translationKey(tooltip[0]))
-        assertEquals("gui.shincolle.wrench2", translationKey(tooltip[1]))
-        assertEquals("gui.shincolle.wrench3", translationKey(tooltip[2]))
-        assertTrue(tooltip[3].string.contains("1 2 3"))
+        assertEquals("gui.shincolle.wrench1", translationKey(tooltip[0]!!))
+        assertEquals("gui.shincolle.wrench2", translationKey(tooltip[1]!!))
+        assertEquals("gui.shincolle.wrench3", translationKey(tooltip[2]!!))
+        assertTrue(tooltip[3]!!.string.contains("1 2 3"))
     }
 
     private fun translationKey(component: Component): String {

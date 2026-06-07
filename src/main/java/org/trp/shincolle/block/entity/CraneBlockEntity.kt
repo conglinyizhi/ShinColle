@@ -53,7 +53,7 @@ import java.util.*
 import kotlin.math.max
 import kotlin.math.min
 
-class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
+open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     BlockEntity(ModBlockEntities.CRANE.get(), pos, blockState), MenuProvider, IWaypoint {
     val inventory: ItemStackHandler = object : ItemStackHandler(18) {
         override fun onContentsChanged(slot: Int) {
@@ -1162,7 +1162,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         return false
     }
 
-    fun markForSync() {
+    open fun markForSync() {
         setChanged()
         if (level != null) {
             level!!.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3)

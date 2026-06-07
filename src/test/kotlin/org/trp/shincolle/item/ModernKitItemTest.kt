@@ -16,13 +16,13 @@ class ModernKitItemTest {
         try {
             Config.modernKitNotifyWhenMaxedActionBar = true
             val actionBarFeedback = ModernKitItem.maxedFeedback()
-            assertEquals("chat.shincolle.modernkit.maxed", translationKey(actionBarFeedback.message()))
-            assertTrue(actionBarFeedback.actionBar())
+            assertEquals("chat.shincolle.modernkit.maxed", translationKey(actionBarFeedback.message!!))
+            assertTrue(actionBarFeedback.actionBar)
 
             Config.modernKitNotifyWhenMaxedActionBar = false
             val chatFeedback = ModernKitItem.maxedFeedback()
-            assertEquals("chat.shincolle.modernkit.maxed", translationKey(chatFeedback.message()))
-            assertFalse(chatFeedback.actionBar())
+            assertEquals("chat.shincolle.modernkit.maxed", translationKey(chatFeedback.message!!))
+            assertFalse(chatFeedback.actionBar)
         } finally {
             Config.modernKitNotifyWhenMaxedActionBar = originalActionBar
         }

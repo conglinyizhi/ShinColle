@@ -17,8 +17,8 @@ class ShipLegacyPathHeapTest {
 
         heap.clearPath()
 
-        assertThat(first.isAssigned()).isFalse()
-        assertThat(second.isAssigned()).isFalse()
+        assertThat(first.isAssigned).isFalse()
+        assertThat(second.isAssigned).isFalse()
         assertThatThrownBy { heap.dequeue() }
             .isInstanceOf(IllegalStateException::class.java)
             .hasMessageContaining("empty path heap")
@@ -53,13 +53,13 @@ class ShipLegacyPathHeapTest {
         heap.addPoint(near)
 
         assertThat(heap.dequeue()).isEqualTo(near)
-        assertThat(near.isAssigned()).isFalse()
-        assertThat(far.isAssigned()).isTrue()
+        assertThat(near.isAssigned).isFalse()
+        assertThat(far.isAssigned).isTrue()
     }
 
     private fun point(x: Int, distance: Float): ShipLegacyPathPoint {
         return ShipLegacyPathPoint(x, 0, 0, x.toLong()).apply {
-            setDistanceToTarget(distance)
+            distanceToTarget = distance
         }
     }
 }

@@ -21,7 +21,7 @@ class AdmiralDataPersistenceRegressionTest {
         data.setCurrentTeamID(1)
         data.setHasReceivedBook(true)
         data.setMarriedShipCount(3)
-        data.setRingFlightActive(true)
+        data.isRingFlightActive = true
 
         val restored = AdmiralData().apply {
             deserializeNBT(data.serializeNBT())
@@ -35,7 +35,7 @@ class AdmiralDataPersistenceRegressionTest {
         assertThat(restored.getCurrentTeamID()).isEqualTo(1)
         assertThat(restored.hasReceivedBook()).isTrue()
         assertThat(restored.getMarriedShipCount()).isEqualTo(3)
-        assertThat(restored.isRingFlightActive()).isTrue()
+        assertThat(restored.isRingFlightActive).isTrue()
     }
 
     @Test

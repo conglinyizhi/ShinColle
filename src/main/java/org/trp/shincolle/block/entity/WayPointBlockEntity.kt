@@ -21,7 +21,7 @@ import org.trp.shincolle.utility.PerformanceTrace.logSlowBlockEntityTick
 import org.trp.shincolle.utility.PerformanceTrace.now
 import java.util.*
 
-class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlockEntities.WAYPOINT.get(), pos, state),
+open class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlockEntities.WAYPOINT.get(), pos, state),
     IWaypoint {
     private var tickCount = 0
     override var lastPos: BlockPos? = BlockPos.ZERO

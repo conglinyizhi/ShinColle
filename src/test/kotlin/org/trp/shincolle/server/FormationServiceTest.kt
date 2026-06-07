@@ -11,9 +11,9 @@ class FormationServiceTest {
         FormationService.syncNearbyShipsForCurrentTeam(null, true)
         FormationService.syncNearbyShipsForCurrentTeam(null, false)
 
-        FormationService.handleFormationAction(null, 0, 0, 0, null, Optional.empty())
+        FormationService.handleFormationAction(null, 0, 0, 0, null, Optional.empty<UUID>())
         FormationService.handleFormationAction(null, 5, 0, 0, "Fleet", Optional.of(UUID.randomUUID()))
-        FormationService.handleFormationAction(null, 99, 0, 0, "", Optional.empty())
+        FormationService.handleFormationAction(null, 99, 0, 0, "", Optional.empty<UUID>())
 
         FormationService.handlePointerRosterToggle(null, UUID.randomUUID())
         FormationService.handlePointerRosterToggle(null, null)

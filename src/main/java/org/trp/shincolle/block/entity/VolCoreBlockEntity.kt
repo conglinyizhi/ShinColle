@@ -35,7 +35,7 @@ import org.trp.shincolle.utility.PerformanceTrace.enabled
 import org.trp.shincolle.utility.PerformanceTrace.logSlowBlockEntityTick
 import org.trp.shincolle.utility.PerformanceTrace.now
 
-class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
+open class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
     BlockEntity(ModBlockEntities.VOL_CORE.get(), pos, blockState), MenuProvider {
     val inventory: ItemStackHandler = object : ItemStackHandler(SLOT_COUNT) {
         override fun onContentsChanged(slot: Int) {
@@ -225,7 +225,7 @@ class VolCoreBlockEntity(pos: BlockPos, blockState: BlockState) :
         return VolCoreMenu(containerId, playerInventory, this)
     }
 
-    fun markForSync() {
+    open fun markForSync() {
         setChanged()
         if (level != null) {
             level!!.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3)

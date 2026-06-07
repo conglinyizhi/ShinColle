@@ -15,13 +15,13 @@ class InstantConstructionMaterialItemTest {
     fun instantConstructionMaterialShouldExposeLocalizedTooltipLines() {
         val item = ModItems.INSTANT_CON_MAT.get() as InstantConstructionMaterialItem
         val stack = ItemStack(item)
-        val tooltip = mutableListOf<Component>()
+        val tooltip = mutableListOf<Component?>()
 
         item.appendHoverText(stack, TooltipContext.EMPTY, tooltip, TooltipFlag.Default.NORMAL)
 
         assertEquals(2, tooltip.size)
-        assertEquals("gui.shincolle.instantconmat", translationKey(tooltip[0]))
-        assertEquals("gui.shincolle.instantconmat.slot", translationKey(tooltip[1]))
+        assertEquals("gui.shincolle.instantconmat", translationKey(tooltip[0]!!))
+        assertEquals("gui.shincolle.instantconmat.slot", translationKey(tooltip[1]!!))
     }
 
     private fun translationKey(component: Component): String {

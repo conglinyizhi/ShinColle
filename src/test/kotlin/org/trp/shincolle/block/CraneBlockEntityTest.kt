@@ -84,28 +84,28 @@ class CraneBlockEntityTest {
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setLastPos(BlockPos(1, 2, 3))
-        entity.setLastPos(BlockPos(1, 2, 3))
+        entity.lastPos = BlockPos(1, 2, 3)
+        entity.lastPos = BlockPos(1, 2, 3)
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setNextPos(BlockPos(4, 5, 6))
-        entity.setNextPos(BlockPos(4, 5, 6))
+        entity.nextPos = BlockPos(4, 5, 6)
+        entity.nextPos = BlockPos(4, 5, 6)
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setChestPos(BlockPos(7, 8, 9))
-        entity.setChestPos(BlockPos(7, 8, 9))
+        entity.chestPos = BlockPos(7, 8, 9)
+        entity.chestPos = BlockPos(7, 8, 9)
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setOwnerUUID(owner)
-        entity.setOwnerUUID(owner)
+        entity.ownerUUID = owner
+        entity.ownerUUID = owner
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setOwnerName("Admiral")
-        entity.setOwnerName("Admiral")
+        entity.ownerName = "Admiral"
+        entity.ownerName = "Admiral"
         assertThat(entity.syncCount).isEqualTo(1)
     }
 
@@ -128,11 +128,11 @@ class CraneBlockEntityTest {
         entity.setModeRedstone(2)
         entity.setModeLiquid(1)
         entity.setModeEnergy(2)
-        entity.setLastPos(BlockPos(1, 2, 3))
-        entity.setNextPos(BlockPos(4, 5, 6))
-        entity.setChestPos(BlockPos(7, 8, 9))
-        entity.setOwnerUUID(owner)
-        entity.setOwnerName(null)
+        entity.lastPos = BlockPos(1, 2, 3)
+        entity.nextPos = BlockPos(4, 5, 6)
+        entity.chestPos = BlockPos(7, 8, 9)
+        entity.ownerUUID = owner
+        entity.ownerName = ""
 
         val tag = entity.saveForTest()
         val restored = TestCraneBlockEntity()
@@ -151,9 +151,9 @@ class CraneBlockEntityTest {
         assertThat(restored.getModeRedstone()).isEqualTo(2)
         assertThat(restored.getModeLiquid()).isEqualTo(1)
         assertThat(restored.getModeEnergy()).isEqualTo(2)
-        assertThat(restored.getLastPos()).isEqualTo(BlockPos(1, 2, 3))
-        assertThat(restored.getNextPos()).isEqualTo(BlockPos(4, 5, 6))
-        assertThat(restored.getChestPos()).isEqualTo(BlockPos(7, 8, 9))
+        assertThat(restored.lastPos).isEqualTo(BlockPos(1, 2, 3))
+        assertThat(restored.nextPos).isEqualTo(BlockPos(4, 5, 6))
+        assertThat(restored.chestPos).isEqualTo(BlockPos(7, 8, 9))
         assertThat(restored.ownerUUID).isEqualTo(owner)
         assertThat(restored.ownerName).isEmpty()
         assertThat(tag.getBoolean("IsPaired")).isTrue()
@@ -163,20 +163,20 @@ class CraneBlockEntityTest {
     fun `crane block entity should normalize null owner and chest state`() {
         val entity = TestCraneBlockEntity()
 
-        entity.setChestPos(null)
-        entity.setOwnerUUID(null)
-        entity.setOwnerName(null)
+        entity.chestPos = null
+        entity.ownerUUID = null
+        entity.ownerName = ""
 
         val tag = entity.saveForTest()
 
-        assertThat(entity.getChestPos()).isEqualTo(BlockPos.ZERO)
+        assertThat(entity.chestPos).isEqualTo(BlockPos.ZERO)
         assertThat(entity.ownerUUID).isNull()
         assertThat(entity.ownerName).isEmpty()
         assertThat(tag.getBoolean("IsPaired")).isFalse()
         assertThat(tag.contains("OwnerUUID")).isFalse()
     }
 
-    private class TestCraneBlockEntity : CraneBlockEntity(BlockPos.ZERO, ModBlocks.CRANE.get().defaultBlockState()) {
+    private class TestCraneBlockEntity : CraneBlockEntity(BlockPos.ZERO, ModBlocks.CRANE.get()!!.defaultBlockState()) {
         var syncCount = 0
             private set
 

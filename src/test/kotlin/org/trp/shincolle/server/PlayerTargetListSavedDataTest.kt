@@ -51,7 +51,7 @@ class PlayerTargetListSavedDataTest {
         data.toggle(firstOwner, "mob.Skeleton")
         data.toggle(secondOwner, "mob.Creeper")
 
-        val restored = loadFromSavedTag(data.save(CompoundTag(), null))
+        val restored = loadFromSavedTag(data.save(CompoundTag(), net.minecraft.core.RegistryAccess.EMPTY))
 
         assertThat(restored.entries(firstOwner)).containsExactly("mob.Skeleton", "mob.Zombie")
         assertThat(restored.entries(secondOwner)).containsExactly("mob.Creeper")

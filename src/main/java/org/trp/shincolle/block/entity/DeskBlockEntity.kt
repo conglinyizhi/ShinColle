@@ -19,7 +19,7 @@ import org.trp.shincolle.reference.Values
 import kotlin.math.max
 import kotlin.math.min
 
-class DeskBlockEntity(pos: BlockPos, blockState: BlockState) :
+open class DeskBlockEntity(pos: BlockPos, blockState: BlockState) :
     BlockEntity(ModBlockEntities.DESK.get(), pos, blockState), MenuProvider {
     private var guiFunc = 0
     private var radarZoomLv = 0
@@ -113,7 +113,7 @@ class DeskBlockEntity(pos: BlockPos, blockState: BlockState) :
         )
     }
 
-    fun markForSync() {
+    open fun markForSync() {
         setChanged()
         if (level != null) {
             level!!.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3)

@@ -63,7 +63,7 @@ object FormationService {
 
     fun handleFormationAction(
         player: Player?, action: Int, param1: Int, param2: Int,
-        paramString: String?, paramUuid: Optional<UUID?>
+        paramString: String?, paramUuid: Optional<UUID>
     ) {
         if (player == null) {
             return

@@ -224,8 +224,7 @@ class FormationScreen(menu: FormationMenu, playerInventory: Inventory, title: Co
         return super.charTyped(codePoint, modifiers)
     }
     private fun sendAction(action: Int, p1: Int, p2: Int, s: String, uuid: Optional<UUID>) {
-        val u = Optional.ofNullable(uuid.orElse(null)) as Optional<UUID?>
-        Minecraft.getInstance().connection?.send(ServerboundCustomPayloadPacket(C2SFormationActionPayload(action, p1, p2, s, u)))
+        Minecraft.getInstance().connection?.send(ServerboundCustomPayloadPacket(C2SFormationActionPayload(action, p1, p2, s, uuid)))
     }
 
     private fun drawFormationText(g: GuiGraphics, data: AdmiralData, ct: Int) {

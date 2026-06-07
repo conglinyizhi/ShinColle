@@ -39,7 +39,7 @@ class UnattackableTargetDataTest {
         data.toggle("mob.Zombie")
         data.toggle("mob.Skeleton")
 
-        val restored = loadFromSavedTag(data.save(CompoundTag(), null))
+        val restored = loadFromSavedTag(data.save(CompoundTag(), net.minecraft.core.RegistryAccess.EMPTY))
 
         assertThat(restored.entries()).containsExactly("mob.Skeleton", "mob.Zombie")
         assertThat(restored.contains("mob.Zombie")).isTrue()

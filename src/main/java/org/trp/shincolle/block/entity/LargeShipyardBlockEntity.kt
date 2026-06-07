@@ -41,7 +41,7 @@ import org.trp.shincolle.utility.PerformanceTrace.now
 import kotlin.math.max
 import kotlin.math.min
 
-class LargeShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
+open class LargeShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
     BlockEntity(ModBlockEntities.LARGE_SHIPYARD.get(), pos, blockState), MenuProvider {
     val inventory: ItemStackHandler = object : ItemStackHandler(SLOT_COUNT) {
         override fun onContentsChanged(slot: Int) {
@@ -474,7 +474,7 @@ class LargeShipyardBlockEntity(pos: BlockPos, blockState: BlockState) :
         }
     }
 
-    fun markForSync() {
+    open fun markForSync() {
         setChanged()
         if (this.level != null) {
             this.level!!.sendBlockUpdated(this.worldPosition, getBlockState(), getBlockState(), 3)

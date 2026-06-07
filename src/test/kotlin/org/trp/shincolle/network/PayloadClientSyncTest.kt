@@ -48,7 +48,7 @@ class PayloadClientSyncTest {
             nullPlayerPayloadContext(PacketFlow.CLIENTBOUND)
         )
 
-        assertEquals(owner, DeskDiplomacySync.getOwnerUuid())
+        assertEquals(owner, DeskDiplomacySync.ownerUuid)
         assertTrue(DeskDiplomacySync.isAlly(ally))
         assertTrue(DeskDiplomacySync.isBanned(banned))
         assertEquals("Alpha", DeskDiplomacySync.getTeamName(display))

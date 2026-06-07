@@ -60,7 +60,7 @@ class DeskBlockEntityTest {
         assertThat(restored.getBookPage()).isEqualTo(Values.PageLimit.last())
     }
 
-    private class TestDeskBlockEntity : DeskBlockEntity(BlockPos.ZERO, ModBlocks.DESK.get().defaultBlockState()) {
+    private class TestDeskBlockEntity : DeskBlockEntity(BlockPos.ZERO, ModBlocks.DESK.get()!!.defaultBlockState()) {
         fun saveForTest(): CompoundTag = CompoundTag().also { saveAdditional(it, registries()) }
 
         fun loadForTest(tag: CompoundTag) {

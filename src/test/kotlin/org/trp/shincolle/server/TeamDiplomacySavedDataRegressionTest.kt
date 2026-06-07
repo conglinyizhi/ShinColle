@@ -19,14 +19,14 @@ class TeamDiplomacySavedDataRegressionTest {
         assertThat(data.setDisplayData(owner, null, null)).isFalse()
         val entry = data.get(owner)
         assertThat(entry).isNotNull
-        assertThat(entry!!.teamName()).isEmpty()
-        assertThat(entry.leaderName()).isEmpty()
+        assertThat(entry!!.teamName).isEmpty()
+        assertThat(entry.leaderName).isEmpty()
 
         assertThat(data.setDisplayData(owner, null, null)).isFalse()
         assertThat(data.setDisplayData(owner, "Fleet", "Leader")).isTrue()
         assertThat(data.setDisplayData(owner, "Fleet", "Leader")).isFalse()
-        assertThat(data.get(owner)!!.teamName()).isEqualTo("Fleet")
-        assertThat(data.get(owner)!!.leaderName()).isEqualTo("Leader")
+        assertThat(data.get(owner)!!.teamName).isEqualTo("Fleet")
+        assertThat(data.get(owner)!!.leaderName).isEqualTo("Leader")
     }
 
     @Test
@@ -65,12 +65,12 @@ class TeamDiplomacySavedDataRegressionTest {
         data.addAlly(owner, ally)
         data.addBanned(owner, banned)
 
-        val restored = loadFromSavedTag(data.save(CompoundTag(), null))
+        val restored = loadFromSavedTag(data.save(CompoundTag(), net.minecraft.core.RegistryAccess.EMPTY))
         val entry = restored.get(owner)
 
         assertThat(entry).isNotNull
-        assertThat(entry!!.teamName()).isEqualTo("Fleet")
-        assertThat(entry.leaderName()).isEqualTo("Leader")
+        assertThat(entry!!.teamName).isEqualTo("Fleet")
+        assertThat(entry.leaderName).isEqualTo("Leader")
         assertThat(restored.areAllies(owner, ally)).isTrue()
         assertThat(restored.isBanned(owner, banned)).isTrue()
     }
@@ -107,8 +107,8 @@ class TeamDiplomacySavedDataRegressionTest {
 
         assertThat(restored.get(null)).isNull()
         assertThat(restored.get(validOwner)).isNotNull
-        assertThat(restored.get(validOwner)!!.allies()).isEmpty()
-        assertThat(restored.get(validOwner)!!.banned()).hasSize(1)
+        assertThat(restored.get(validOwner)!!.allies).isEmpty()
+        assertThat(restored.get(validOwner)!!.banned).hasSize(1)
     }
 
     @Test
@@ -123,9 +123,9 @@ class TeamDiplomacySavedDataRegressionTest {
 
         val entry = data.get(owner)!!
 
-        assertThatThrownBy { entry.allies().add(UUID.randomUUID()) }
+        assertThatThrownBy { entry.allies.add(UUID.randomUUID()) }
             .isInstanceOf(UnsupportedOperationException::class.java)
-        assertThatThrownBy { entry.banned().add(UUID.randomUUID()) }
+        assertThatThrownBy { entry.banned.add(UUID.randomUUID()) }
             .isInstanceOf(UnsupportedOperationException::class.java)
     }
 

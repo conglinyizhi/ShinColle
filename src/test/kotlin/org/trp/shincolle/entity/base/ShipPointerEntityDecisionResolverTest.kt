@@ -22,10 +22,10 @@ class ShipPointerEntityDecisionResolverTest {
                 .build()
         )
 
-        assertThat(inRange.preferredRangeSqr()).isEqualTo(144.0)
-        assertThat(inRange.shouldChase()).isFalse()
-        assertThat(tooFar.needsCloser()).isTrue()
-        assertThat(tooFar.shouldChase()).isTrue()
+        assertThat(inRange.preferredRangeSqr).isEqualTo(144.0)
+        assertThat(inRange.shouldChase).isFalse()
+        assertThat(tooFar.needsCloser).isTrue()
+        assertThat(tooFar.shouldChase).isTrue()
     }
 
     @Test
@@ -45,10 +45,10 @@ class ShipPointerEntityDecisionResolverTest {
                 .build()
         )
 
-        assertThat(shortStatRange.preferredRangeSqr()).isEqualTo(24.0 * 24.0)
-        assertThat(shortStatRange.shouldChase()).isFalse()
-        assertThat(scaledStatRange.preferredRangeSqr()).isEqualTo(30.0 * 30.0)
-        assertThat(scaledStatRange.shouldChase()).isTrue()
+        assertThat(shortStatRange.preferredRangeSqr).isEqualTo(24.0 * 24.0)
+        assertThat(shortStatRange.shouldChase).isFalse()
+        assertThat(scaledStatRange.preferredRangeSqr).isEqualTo(30.0 * 30.0)
+        assertThat(scaledStatRange.shouldChase).isTrue()
     }
 
     @Test
@@ -70,10 +70,10 @@ class ShipPointerEntityDecisionResolverTest {
                 .build()
         )
 
-        assertThat(minimumRange.attackRangeSqr()).isEqualTo(ShipAiNumbers.POINTER_ENTITY_ATTACK_RANGE_SQR)
-        assertThat(minimumRange.shouldChase()).isFalse()
-        assertThat(largeBodyRange.attackRangeSqr()).isEqualTo(17.0)
-        assertThat(largeBodyRange.needsCloser()).isTrue()
+        assertThat(minimumRange.attackRangeSqr).isEqualTo(ShipAiNumbers.POINTER_ENTITY_ATTACK_RANGE_SQR)
+        assertThat(minimumRange.shouldChase).isFalse()
+        assertThat(largeBodyRange.attackRangeSqr).isEqualTo(17.0)
+        assertThat(largeBodyRange.needsCloser).isTrue()
     }
 
     @Test
@@ -95,10 +95,10 @@ class ShipPointerEntityDecisionResolverTest {
                 .build()
         )
 
-        assertThat(nearBlind.cannotSee()).isFalse()
-        assertThat(nearBlind.shouldChase()).isFalse()
-        assertThat(farBlind.cannotSee()).isTrue()
-        assertThat(farBlind.shouldChase()).isTrue()
+        assertThat(nearBlind.cannotSee).isFalse()
+        assertThat(nearBlind.shouldChase).isFalse()
+        assertThat(farBlind.cannotSee).isTrue()
+        assertThat(farBlind.shouldChase).isTrue()
     }
 
     @Test
@@ -113,9 +113,9 @@ class ShipPointerEntityDecisionResolverTest {
                 .build()
         )
 
-        assertThat(decision.needsCloser()).isFalse()
-        assertThat(decision.cannotSee()).isFalse()
-        assertThat(decision.shouldChase()).isFalse()
+        assertThat(decision.needsCloser).isFalse()
+        assertThat(decision.cannotSee).isFalse()
+        assertThat(decision.shouldChase).isFalse()
     }
 
     @Test

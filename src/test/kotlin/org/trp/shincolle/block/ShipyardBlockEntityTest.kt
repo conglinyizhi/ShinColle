@@ -33,8 +33,8 @@ class ShipyardBlockEntityTest {
         val restored = TestVolCoreBlockEntity()
         restored.loadForTest(entity.saveForTest())
 
-        assertThat(restored.remainedPower).isEqualTo(3200)
-        assertThat(restored.isBtnActive).isTrue()
+        assertThat(restored.getRemainedPower()).isEqualTo(3200)
+        assertThat(restored.isBtnActive()).isTrue()
         assertThat(restored.inventory.getStackInSlot(0).item).isEqualTo(ModItems.GRUDGE.get())
         assertThat(restored.inventory.getStackInSlot(0).count).isEqualTo(3)
     }
@@ -49,8 +49,8 @@ class ShipyardBlockEntityTest {
 
         entity.resetSyncCount()
         entity.setBuildType(3)
-        assertThat(entity.buildType).isEqualTo(3)
-        assertThat(entity.buildRecord).containsExactly(20, 21, 22, 23)
+        assertThat(entity.getBuildType()).isEqualTo(3)
+        assertThat(entity.getBuildRecord()).containsExactly(20, 21, 22, 23)
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
@@ -60,13 +60,13 @@ class ShipyardBlockEntityTest {
         entity.inventory.setStackInSlot(SmallShipyardBlockEntity.SLOT_GRUDGE, ItemStack(ModItems.GRUDGE.get(), 24))
         entity.resetSyncCount()
         entity.setBuildType(3)
-        assertThat(entity.buildRecord).containsExactly(24, 21, 22, 23)
+        assertThat(entity.getBuildRecord()).containsExactly(24, 21, 22, 23)
         assertThat(entity.syncCount).isEqualTo(1)
 
         val restored = TestSmallShipyardBlockEntity()
         restored.loadForTest(entity.saveForTest())
-        assertThat(restored.buildType).isEqualTo(3)
-        assertThat(restored.buildRecord).containsExactly(24, 21, 22, 23)
+        assertThat(restored.getBuildType()).isEqualTo(3)
+        assertThat(restored.getBuildRecord()).containsExactly(24, 21, 22, 23)
     }
 
     @Test
@@ -76,19 +76,19 @@ class ShipyardBlockEntityTest {
         entity.resetSyncCount()
         entity.setBuildType(9)
         entity.setBuildType(9)
-        assertThat(entity.buildType).isEqualTo(4)
+        assertThat(entity.getBuildType()).isEqualTo(4)
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
         entity.setInvMode(99)
         entity.setInvMode(99)
-        assertThat(entity.invMode).isEqualTo(1)
+        assertThat(entity.getInvMode()).isEqualTo(1)
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
         entity.setSelectMat(99)
         entity.setSelectMat(99)
-        assertThat(entity.selectMat).isEqualTo(3)
+        assertThat(entity.getSelectMat()).isEqualTo(3)
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.matsStock[1] = 150
@@ -117,14 +117,14 @@ class ShipyardBlockEntityTest {
             putIntArray("MatsStock", intArrayOf(4, 5, 6, 7, 8))
         })
 
-        assertThat(restored.buildType).isEqualTo(4)
-        assertThat(restored.invMode).isEqualTo(1)
-        assertThat(restored.selectMat).isEqualTo(3)
+        assertThat(restored.getBuildType()).isEqualTo(4)
+        assertThat(restored.getInvMode()).isEqualTo(1)
+        assertThat(restored.getSelectMat()).isEqualTo(3)
         assertThat(restored.matsBuild).containsExactly(0, 0, 0, 0)
         assertThat(restored.matsStock).containsExactly(4, 5, 6, 7)
     }
 
-    private class TestVolCoreBlockEntity : VolCoreBlockEntity(BlockPos.ZERO, ModBlocks.VOL_CORE.get().defaultBlockState()) {
+    private class TestVolCoreBlockEntity : VolCoreBlockEntity(BlockPos.ZERO, ModBlocks.VOL_CORE.get()!!.defaultBlockState()) {
         var syncCount = 0
             private set
 
@@ -143,7 +143,7 @@ class ShipyardBlockEntityTest {
         }
     }
 
-    private class TestSmallShipyardBlockEntity : SmallShipyardBlockEntity(BlockPos.ZERO, ModBlocks.SMALL_SHIPYARD.get().defaultBlockState()) {
+    private class TestSmallShipyardBlockEntity : SmallShipyardBlockEntity(BlockPos.ZERO, ModBlocks.SMALL_SHIPYARD.get()!!.defaultBlockState()) {
         var syncCount = 0
             private set
 
@@ -162,7 +162,7 @@ class ShipyardBlockEntityTest {
         }
     }
 
-    private class TestLargeShipyardBlockEntity : LargeShipyardBlockEntity(BlockPos.ZERO, ModBlocks.LARGE_SHIPYARD.get().defaultBlockState()) {
+    private class TestLargeShipyardBlockEntity : LargeShipyardBlockEntity(BlockPos.ZERO, ModBlocks.LARGE_SHIPYARD.get()!!.defaultBlockState()) {
         var syncCount = 0
             private set
 
