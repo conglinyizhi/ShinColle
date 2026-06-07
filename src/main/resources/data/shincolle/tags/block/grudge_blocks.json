@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "shincolle:grudge_block",
+    "shincolle:grudge_heavy_block",
+    "shincolle:grudge_xp_block"
+  ]
+}

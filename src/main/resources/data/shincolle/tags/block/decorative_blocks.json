@@ -1,0 +1,8 @@
+{
+  "replace": false,
+  "values": [
+    "shincolle:blockframe",
+    "shincolle:blockvolblock",
+    "shincolle:blockvolcore"
+  ]
+}

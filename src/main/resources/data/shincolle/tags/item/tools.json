@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "shincolle:kaitaihammer",
+    "shincolle:pointer_item",
+    "shincolle:targetwrench",
+    "shincolle:optool",
+    "shincolle:debug_inspector"
+  ]
+}
