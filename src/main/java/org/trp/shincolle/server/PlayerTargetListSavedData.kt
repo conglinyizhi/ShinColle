@@ -84,6 +84,7 @@ class PlayerTargetListSavedData : SavedData() {
             )
         }
 
+        @JvmStatic
         private fun load(tag: CompoundTag, registries: HolderLookup.Provider?): PlayerTargetListSavedData {
             val data = PlayerTargetListSavedData()
             val list = tag.getList("Entries", Tag.TAG_COMPOUND.toInt())

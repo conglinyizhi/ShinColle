@@ -25,8 +25,26 @@ open class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(M
     IWaypoint {
     private var tickCount = 0
     override var lastPos: BlockPos? = BlockPos.ZERO
+        set(value) {
+            val next = value ?: BlockPos.ZERO
+            if (field == next) return
+            field = next
+            markForSync()
+        }
     override var nextPos: BlockPos? = BlockPos.ZERO
+        set(value) {
+            val next = value ?: BlockPos.ZERO
+            if (field == next) return
+            field = next
+            markForSync()
+        }
     override var chestPos: BlockPos? = BlockPos.ZERO
+        set(value) {
+            val next = value ?: BlockPos.ZERO
+            if (field == next) return
+            field = next
+            markForSync()
+        }
     var wpStayTime: Int = 0
         private set
     override var ownerUUID: UUID? = null
@@ -73,9 +91,9 @@ open class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(M
 
     override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.saveAdditional(tag, registries)
-        tag.put("lastPos", NbtUtils.writeBlockPos(lastPos!!))
-        tag.put("nextPos", NbtUtils.writeBlockPos(nextPos!!))
-        tag.put("chestPos", NbtUtils.writeBlockPos(chestPos!!))
+        tag.put("lastPos", NbtUtils.writeBlockPos(lastPos ?: BlockPos.ZERO))
+        tag.put("nextPos", NbtUtils.writeBlockPos(nextPos ?: BlockPos.ZERO))
+        tag.put("chestPos", NbtUtils.writeBlockPos(chestPos ?: BlockPos.ZERO))
         tag.putInt("wpStayTime", wpStayTime)
         val uuid = ownerUUID
         if (uuid != null) {

@@ -87,8 +87,27 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     private var modeEnergy = 0
 
     override var lastPos: BlockPos? = BlockPos.ZERO
+        set(value) {
+            val next = value ?: BlockPos.ZERO
+            if (field == next) return
+            field = next
+            markForSync()
+        }
     override var nextPos: BlockPos? = BlockPos.ZERO
+        set(value) {
+            val next = value ?: BlockPos.ZERO
+            if (field == next) return
+            field = next
+            markForSync()
+        }
     override var chestPos: BlockPos? = BlockPos.ZERO
+        set(value) {
+            val next = value ?: BlockPos.ZERO
+            if (field == next) return
+            field = next
+            isPaired = next !== BlockPos.ZERO
+            markForSync()
+        }
     private var isPaired = false
     override var ownerUUID: UUID? = null
         set(value) {
@@ -940,9 +959,9 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         tag.putInt("ModeRedstone", modeRedstone)
         tag.putInt("ModeLiquid", modeLiquid)
         tag.putInt("ModeEnergy", modeEnergy)
-        tag.putLong("LastPos", lastPos!!.asLong())
-        tag.putLong("NextPos", nextPos!!.asLong())
-        tag.putLong("ChestPos", chestPos!!.asLong())
+        tag.putLong("LastPos", (lastPos ?: BlockPos.ZERO).asLong())
+        tag.putLong("NextPos", (nextPos ?: BlockPos.ZERO).asLong())
+        tag.putLong("ChestPos", (chestPos ?: BlockPos.ZERO).asLong())
         tag.putBoolean("IsPaired", isPaired)
         if (ownerUUID != null) tag.putUUID("OwnerUUID", ownerUUID!!)
         tag.putString("OwnerName", ownerName)

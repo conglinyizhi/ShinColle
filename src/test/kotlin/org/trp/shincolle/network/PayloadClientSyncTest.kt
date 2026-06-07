@@ -59,7 +59,8 @@ class PayloadClientSyncTest {
     private fun invokeHandler(name: String, payload: Any, context: IPayloadContext) {
         val method = ModNetwork::class.java.getDeclaredMethod(name, payload.javaClass, IPayloadContext::class.java)
         method.isAccessible = true
-        method.invoke(null, payload, context)
+        val instance = ModNetwork::class.java.getDeclaredField("INSTANCE").get(null)
+        method.invoke(instance, payload, context)
     }
 
     private fun nullPlayerPayloadContext(flow: PacketFlow): IPayloadContext {

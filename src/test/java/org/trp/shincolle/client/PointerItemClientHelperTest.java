@@ -33,7 +33,8 @@ class PointerItemClientHelperTest {
                 UUID.class
         );
         method.setAccessible(true);
-        return (Component) method.invoke(null, mc, data, 0, 0, 1, uuid);
+        Object instance = PointerItemClientHelper.class.getDeclaredField("INSTANCE").get(null);
+        return (Component) method.invoke(instance, mc, data, 0, 0, 1, uuid);
     }
 
     private static Minecraft allocateMinecraftShell() throws Exception {

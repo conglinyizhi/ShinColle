@@ -71,7 +71,10 @@ object TaskHelper {
     private val TASK_NAMES = arrayOf<String>("none", "cooking", "fishing", "mining", "crafting")
 
     @JvmStatic
-    fun onUpdateTask(host: EntityShipBase) {
+    fun onUpdateTask(host: EntityShipBase?) {
+        if (host == null) {
+            return
+        }
         if (host.isInSittingPose || !host.isAlive || host.isNoFuel) {
             host.taskRuntime.clearTask()
             return

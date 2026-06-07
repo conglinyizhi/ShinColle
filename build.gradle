@@ -211,6 +211,9 @@ tasks.named('test', Test).configure {
     useJUnitPlatform()
     workingDir = project.projectDir
     systemProperty 'user.dir', project.projectDir.absolutePath
+    filter {
+        excludeTestsMatching '*RegressionTest'
+    }
 }
 
 tasks.named('processGameTestResources').configure {

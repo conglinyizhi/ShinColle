@@ -68,6 +68,7 @@ class UnattackableTargetData : SavedData() {
             )
         }
 
+        @JvmStatic
         private fun load(tag: CompoundTag, registries: HolderLookup.Provider?): UnattackableTargetData {
             val data = UnattackableTargetData()
             val list = tag.getList("ClassNames", Tag.TAG_STRING.toInt())

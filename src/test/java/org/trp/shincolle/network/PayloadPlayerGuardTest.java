@@ -35,7 +35,8 @@ class PayloadPlayerGuardTest {
     private static void invokeHandler(String name, Object payload, IPayloadContext context) throws Exception {
         Method method = ModNetwork.class.getDeclaredMethod(name, payload.getClass(), IPayloadContext.class);
         method.setAccessible(true);
-        method.invoke(null, payload, context);
+        Object instance = ModNetwork.class.getDeclaredField("INSTANCE").get(null);
+        method.invoke(instance, payload, context);
     }
 
     private static final class NullPlayerPayloadContext implements IPayloadContext {
