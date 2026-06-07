@@ -56,6 +56,15 @@
       "title": "patchouli.shincolle.entry.logistics_and_energy.page4b.title",
       "recipe": "shincolle:shiptank3",
       "text": "patchouli.shincolle.entry.logistics_and_energy.page4b.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.logistics_and_energy.page5.title",
+      "images": [
+        "shincolle:textures/gui/guivolcore.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.logistics_and_energy.page5.text"
     }
   ]
 }

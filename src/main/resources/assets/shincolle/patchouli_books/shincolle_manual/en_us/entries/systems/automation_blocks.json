@@ -32,6 +32,15 @@
       "title": "patchouli.shincolle.entry.automation_blocks.page2b.title",
       "recipe": "shincolle:blockvolcore_2",
       "text": "patchouli.shincolle.entry.automation_blocks.page2b.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.automation_blocks.page3.title",
+      "images": [
+        "shincolle:textures/gui/guicrane.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.automation_blocks.page3.text"
     }
   ]
 }

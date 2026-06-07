@@ -29,6 +29,15 @@
       ],
       "border": true,
       "text": "patchouli.shincolle.entry.desk_and_radar.page3.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.desk_and_radar.page4.title",
+      "images": [
+        "shincolle:textures/gui/guidesk.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.desk_and_radar.page4.text"
     }
   ]
 }

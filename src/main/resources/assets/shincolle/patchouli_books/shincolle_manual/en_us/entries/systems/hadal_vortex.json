@@ -49,6 +49,15 @@
       ],
       "border": true,
       "text": "patchouli.shincolle.entry.hadal_vortex.page7.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page8.title",
+      "images": [
+        "shincolle:textures/gui/guismallshipyard.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.hadal_vortex.page8.text"
     }
   ]
 }

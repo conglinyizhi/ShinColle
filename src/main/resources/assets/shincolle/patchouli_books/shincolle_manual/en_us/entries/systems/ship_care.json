@@ -38,6 +38,21 @@
       "title": "patchouli.shincolle.entry.ship_care.page3.title",
       "item": "shincolle:trainingbook",
       "text": "patchouli.shincolle.entry.ship_care.page3.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.ship_care.page4.title",
+      "images": [
+        "shincolle:textures/gui/guishipinventory.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.ship_care.page4.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.ship_care.page5.title",
+      "recipe": "shincolle:modernkit",
+      "text": "patchouli.shincolle.entry.ship_care.page5.text"
     }
   ]
 }

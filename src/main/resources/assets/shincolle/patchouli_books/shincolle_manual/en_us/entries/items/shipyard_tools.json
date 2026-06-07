@@ -65,6 +65,15 @@
       "title": "patchouli.shincolle.entry.shipyard_tools.page8.title",
       "recipe": "shincolle:kaitaihammer",
       "text": "patchouli.shincolle.entry.shipyard_tools.page8.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page9.title",
+      "images": [
+        "shincolle:textures/gui/guismallshipyard.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.shipyard_tools.page9.text"
     }
   ]
 }

@@ -13,6 +13,12 @@
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.intro.page1.title",
       "text": "patchouli.shincolle.entry.intro.page1.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.intro.page2.title",
+      "recipe": "shincolle:small_shipyard",
+      "text": "patchouli.shincolle.entry.intro.page2.text"
     }
   ]
 }
