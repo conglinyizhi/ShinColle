@@ -73,6 +73,7 @@ ShipEquipRegistry.register(object : ShipEquipSpecialEffect {
 | `getEquipId(stack)` | 返回装备唯一 ID。 |
 | `getMainAttributes(stack)` | 返回长度为 21 的属性数组。 |
 | `getMiscAttributes(stack)` | 可选。返回杂项属性，null 表示无。 |
+| `getEnchantmentBonusAttributes(stack)` | 可选。返回附魔带来的额外属性加成，null 表示不受附魔影响。 |
 
 **装备类型 ID 分配建议：**
 - `0~99`：保留给 ShinColle 内置装备。
@@ -103,6 +104,41 @@ ShipEquipRegistry.register(object : ShipEquipSpecialEffect {
 | `hasEffect(typeId)` | 检查是否已注册。 |
 
 **注册时机**：建议在 `FMLCommonSetupEvent` 中执行，确保服务端和客户端都注册。
+
+### `ShipEquipEnchantmentHelper`
+
+位于 `org.trp.shincolle.api.equip.ShipEquipEnchantmentHelper`。
+
+| 方法 | 说明 |
+|------|------|
+| `getDefaultEnchantmentBonus(stack)` | 根据物品上的原版附魔，返回默认的舰娘属性加成（长度为 21 的 FloatArray）。 |
+
+**默认映射规则（节选）：**
+- 锋利/力量 → 火力
+- 保护类 → 装甲
+- 效率 → 攻速
+- 耐久 → HP
+- 抢夺 → XP加成
+- 时运 → 怨念加成
+- 激流/灵魂疾行/深海探索者 → 移速
+- 穿刺 → 雷装
+-  respiration/ Aqua Affinity → 对潜
+- ...（详见源码）
+
+第三方可以直接调用此方法作为 `IShipEquip.getEnchantmentBonusAttributes()` 的默认实现，也可以完全自行编写映射逻辑。
+
+### 附魔台支持
+
+要让第三方装备能在附魔台被附魔，需要在你的 `Item` 子类中覆写 `getEnchantmentValue()`，返回一个大于 0 的值（即附魔能力 enchantability）。例如：
+
+```kotlin
+class MyAddonEquipItem(properties: Properties) : Item(properties), IShipEquip {
+    override fun getEnchantmentValue(): Int = 15
+    // ... 其他 IShipEquip 方法
+}
+```
+
+> **注意**：`IShipEquip` 接口本身不控制附魔台行为，附魔台由 Minecraft 原版的 `Item#getEnchantmentValue()` 决定。接口中的 `getEnchantmentBonusAttributes()` 只负责"附魔后给舰娘多少加成"。
 
 ## 常见场景示例
 
@@ -163,6 +199,53 @@ ShipEquipRegistry.register(object : ShipEquipSpecialEffect {
 })
 ```
 
+### 场景 4：附魔加成（使用默认映射）
+
+```kotlin
+import org.trp.shincolle.api.equip.ShipEquipEnchantmentHelper
+
+class MyEnchantableEquipItem(properties: Properties) : Item(properties), IShipEquip {
+
+    override fun getEnchantmentValue(): Int = 12
+
+    override fun getEquipTypeId(stack: ItemStack): Int = 1003
+    override fun getEquipId(stack: ItemStack): Int = 1003
+
+    override fun getMainAttributes(stack: ItemStack): FloatArray =
+        floatArrayOf(0f, 8f, 0f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
+
+    /** 附魔后额外给舰娘加成 */
+    override fun getEnchantmentBonusAttributes(stack: ItemStack): FloatArray? {
+        return ShipEquipEnchantmentHelper.getDefaultEnchantmentBonus(stack)
+    }
+}
+```
+
+### 场景 5：附魔加成（完全自定义）
+
+```kotlin
+class MyCustomEnchantedEquipItem(properties: Properties) : Item(properties), IShipEquip {
+
+    override fun getEnchantmentValue(): Int = 20
+
+    override fun getEquipTypeId(stack: ItemStack): Int = 1004
+    override fun getEquipId(stack: ItemStack): Int = 1004
+
+    override fun getMainAttributes(stack: ItemStack): FloatArray =
+        floatArrayOf(0f, 10f, 0f, 0f, 0f, 0f, 0f, 0f, 1f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f)
+
+    override fun getEnchantmentBonusAttributes(stack: ItemStack): FloatArray? {
+        val bonus = FloatArray(21)
+        // 每有一个附魔等级，火力 +0.5，装甲 +1%
+        val enchantments = net.minecraft.world.item.enchantment.EnchantmentHelper.getEnchantmentsForCrafting(stack)
+        val totalLevels = enchantments.entrySet().sumOf { it.intValue }
+        bonus[1] = totalLevels * 0.5f
+        bonus[5] = totalLevels * 0.01f
+        return bonus
+    }
+}
+```
+
 ## 注意事项
 
 1. **属性数组长度**：`getMainAttributes()` 返回的 `FloatArray` 长度必须是 21。超出部分会被忽略，不足会导致 `IndexOutOfBoundsException`。
@@ -176,3 +259,4 @@ ShipEquipRegistry.register(object : ShipEquipSpecialEffect {
 | 版本 | 变更 |
 |------|------|
 | 1.21.1-neoforge | 初始引入 `IShipEquip`、`ShipEquipSpecialEffect`、`ShipEquipRegistry`。 |
+| 1.21.1-neoforge | 新增附魔台支持与 `IShipEquip.getEnchantmentBonusAttributes`，引入 `ShipEquipEnchantmentHelper` 提供默认附魔映射。 |

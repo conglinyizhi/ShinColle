@@ -9,12 +9,10 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent
 import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.item.enchantment.ItemEnchantments
+import org.trp.shincolle.api.equip.ShipEquipEnchantmentHelper
 import java.util.*
-import java.util.function.Consumer
-import java.util.function.UnaryOperator
 import kotlin.math.max
 import kotlin.math.min
 
@@ -22,14 +20,13 @@ class LegacyEquipItem @JvmOverloads constructor(
     properties: Properties,
     private val legacyNameBase: String,
     equipTypeByVariant: IntArray,
-    modelVariantByVariant: IntArray? = null
+    modelVariantByVariant: IntArray? = null,
+    private val enchantmentValue: Int = 10,
 ) : Item(properties.stacksTo(1)) {
-    private val equipTypeByVariant: IntArray
-    private val modelVariantByVariant: IntArray
+    private val equipTypeByVariant: IntArray = equipTypeByVariant.clone()
+    private val modelVariantByVariant: IntArray = IntArray(this.equipTypeByVariant.size)
 
     init {
-        this.equipTypeByVariant = equipTypeByVariant.clone()
-        this.modelVariantByVariant = IntArray(this.equipTypeByVariant.size)
         if (modelVariantByVariant != null) {
             val copyLen = min(this.modelVariantByVariant.size, modelVariantByVariant.size)
             for (i in 0..<copyLen) {
@@ -46,10 +43,7 @@ class LegacyEquipItem @JvmOverloads constructor(
             return 0
         }
 
-        val customData = stack.get<CustomData?>(DataComponents.CUSTOM_DATA)
-        if (customData == null) {
-            return 0
-        }
+        val customData = stack.get(DataComponents.CUSTOM_DATA) ?: return 0
 
         val raw = customData.copyTag().getInt(TAG_VARIANT)
         return Mth.clamp(raw, 0, this.equipTypeByVariant.size - 1)
@@ -73,16 +67,16 @@ class LegacyEquipItem @JvmOverloads constructor(
         val stack = ItemStack(this)
 
         if (clamped > 0) {
-            stack.update<CustomData?>(
-                DataComponents.CUSTOM_DATA, CustomData.EMPTY,
-                UnaryOperator { data: CustomData? ->
-                    data!!.update(Consumer { tag: CompoundTag? ->
-                        tag!!.putInt(
-                            TAG_VARIANT,
-                            clamped
-                        )
-                    })
-                })
+            stack.update(
+                DataComponents.CUSTOM_DATA, CustomData.EMPTY
+            ) { data: CustomData? ->
+                data!!.update { tag: CompoundTag? ->
+                    tag!!.putInt(
+                        TAG_VARIANT,
+                        clamped
+                    )
+                }
+            }
         }
 
         return stack
@@ -94,19 +88,18 @@ class LegacyEquipItem @JvmOverloads constructor(
         }
     }
 
+    override fun getEnchantmentValue(): Int {
+        return this.enchantmentValue
+    }
+
+    fun getEnchantmentBonusAttributes(stack: ItemStack): FloatArray {
+        return ShipEquipEnchantmentHelper.getDefaultEnchantmentBonus(stack)
+    }
+
     override fun getName(stack: ItemStack): Component {
         val variant = getVariant(stack)
         val suffix = if (variant > 0) variant.toString() else ""
         return Component.translatable("item.shincolle." + this.legacyNameBase + suffix + ".name")
-    }
-
-    override fun appendHoverText(
-        stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component?>,
-        tooltipFlag: TooltipFlag
-    ) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag)
     }
 
     override fun isFoil(stack: ItemStack): Boolean {
@@ -154,12 +147,16 @@ class LegacyEquipItem @JvmOverloads constructor(
             )
 
             "EquipDrum" -> {
-                if (variant == 1) {
-                    tooltipComponents.add(Component.translatable("gui.shincolle.drum1").withStyle(ChatFormatting.GRAY))
-                } else if (variant == 2) {
-                    tooltipComponents.add(Component.translatable("gui.shincolle.drum2b").withStyle(ChatFormatting.GRAY))
-                } else {
-                    tooltipComponents.add(Component.translatable("gui.shincolle.drum").withStyle(ChatFormatting.GRAY))
+                when (variant) {
+                    1 -> {
+                        tooltipComponents.add(Component.translatable("gui.shincolle.drum1").withStyle(ChatFormatting.GRAY))
+                    }
+                    2 -> {
+                        tooltipComponents.add(Component.translatable("gui.shincolle.drum2b").withStyle(ChatFormatting.GRAY))
+                    }
+                    else -> {
+                        tooltipComponents.add(Component.translatable("gui.shincolle.drum").withStyle(ChatFormatting.GRAY))
+                    }
                 }
             }
 
@@ -322,15 +319,12 @@ class LegacyEquipItem @JvmOverloads constructor(
         }
 
         private fun hasLegacyEnchantData(stack: ItemStack): Boolean {
-            val enchantments = stack.getOrDefault<ItemEnchantments>(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY)
-            if (!enchantments.isEmpty()) {
+            val enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY)
+            if (!enchantments.isEmpty) {
                 return true
             }
 
-            val customData = stack.get<CustomData?>(DataComponents.CUSTOM_DATA)
-            if (customData == null) {
-                return false
-            }
+            val customData = stack.get(DataComponents.CUSTOM_DATA) ?: return false
 
             return customData.copyTag().contains("PList")
         }

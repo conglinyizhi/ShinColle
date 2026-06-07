@@ -926,14 +926,12 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
     var guardedEntity: Entity?
         get() {
-            if (this.guardedEntityIdInternal == null) {
-                return null
-            }
+            val guardedId = this.guardedEntityIdInternal ?: return null
 
             if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
                 if (this.getGuardedPos(3) == getLegacyDimensionId(serverLevel)) {
-                    val entity: Entity? = serverLevel.getEntity(this.guardedEntityIdInternal)
+                    val entity: Entity? = serverLevel.getEntity(guardedId)
                     if (entity == null || !entity.isAlive || entity.isRemoved) {
                         return null
                     }
@@ -942,7 +940,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
                 for (level in serverLevel.server.allLevels) {
                     if (this.getGuardedPos(3) == getLegacyDimensionId(level)) {
-                        val entity: Entity? = level.getEntity(this.guardedEntityIdInternal)
+                        val entity: Entity? = level.getEntity(guardedId)
                         if (entity == null || !entity.isAlive || entity.isRemoved) {
                             return null
                         }
@@ -955,7 +953,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             if (this.level() is ClientLevel) {
                 val clientLevel = this.level() as ClientLevel
                 for (entity in clientLevel.entitiesForRendering()) {
-                    if (entity.uuid == this.guardedEntityIdInternal && entity.isAlive && !entity.isRemoved) {
+                    if (entity.uuid == guardedId && entity.isAlive && !entity.isRemoved) {
                         return entity
                     }
                 }
@@ -1482,7 +1480,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                     if (option.key == EQUIP_MOUNT) {
                         continue
                     }
-                    tag.putBoolean(option.key, this.random.nextBoolean())
+                    tag.putBoolean(option.key!!, this.random.nextBoolean())
                 }
                 this.entityData.set<CompoundTag?>(EQUIP_FLAGS, tag)
             }
@@ -1773,6 +1771,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.perfShipPeriodicNanos += finishPerfSegment(tracing, segmentStart)
     }
 
+    @Suppress("DEPRECATION")
     private fun applyWaterBuoyancyIfNeeded() {
         if (!this.isInWater() || this.isPassenger() || this.isSubmarine) {
             return
@@ -1959,7 +1958,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     private fun createShipSpawnEggStack(): ItemStack {
-        val egg = ItemStack(this.shipSpawnEggItem)
+        val egg = ItemStack(this.shipSpawnEggItem!!)
         val shipTag = CompoundTag()
         this.addAdditionalSaveData(shipTag)
         shipTag.putString("id", BuiltInRegistries.ENTITY_TYPE.getKey(this.type).toString())
@@ -2052,12 +2051,12 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         }
 
         val hour = ((worldTime / TIMEKEEP_INTERVAL_TICKS) % 24L).toInt()
-        val timeSound = getShipSound(
-            timeKeeping(hour),
-            this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-            this.random
-        )
-        if (timeSound != null) {
+        timeKeeping(hour)?.let { timeType ->
+            val timeSound = getShipSound(
+                timeType,
+                this.getStateMinor(STATE_MINOR_SHIP_CLASS),
+                this.random
+            )
             this.playSound(timeSound, max(0.0f, Config.volumeTimeKeeping), 1.0f)
         }
     }
@@ -2274,8 +2273,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
         items.sortWith(Comparator { a: ItemEntity?, b: ItemEntity? ->
             java.lang.Double.compare(
-                this.distanceToSqr(a),
-                this.distanceToSqr(b)
+                this.distanceToSqr(a!!),
+                this.distanceToSqr(b!!)
             )
         })
         return items.get(0)
@@ -2522,7 +2521,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         val slotCount = this.accessibleInventorySlotCount
         for (i in ShipInventoryHandler.equipSlotCount..<slotCount) {
             val stack = this.inventory!!.getStackInSlot(i)
-            if (!stack.isEmpty() && stack.`is`(item)) {
+            if (!stack.isEmpty() && item != null && stack.`is`(item)) {
                 return i
             }
         }
@@ -2723,7 +2722,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         val slots = this.inventory!!.accessibleSlotCount
         for (i in 0..<slots) {
             val stack = this.inventory.getStackInSlot(i)
-            if (!stack.isEmpty() && stack.`is`(item)) {
+            if (!stack.isEmpty() && item != null && stack.`is`(item)) {
                 return i
             }
         }
@@ -3450,6 +3449,21 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                     equipBonuses[i] += stats[i]
                 }
             }
+
+            val enchantStats: FloatArray? = when (item) {
+                is LegacyEquipItem -> item.getEnchantmentBonusAttributes(stack)
+                is IShipEquip -> ApiCallSafety.runNullable(
+                    "IShipEquip.getEnchantmentBonusAttributes"
+                ) { item.getEnchantmentBonusAttributes(stack) }
+                else -> null
+            }
+
+            if (enchantStats != null) {
+                val len = min(equipBonuses.size, enchantStats.size)
+                for (i in 0..<len) {
+                    equipBonuses[i] += enchantStats[i]
+                }
+            }
         }
 
         this.setStateMinor(STATE_MINOR_EQUIP_DRUM, drumCount)
@@ -3833,7 +3847,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             val customMessage: Component =
                 Component.translatable("chat.shincolle.entity_fainted", this.displayName)
 
-            val owner = if (this is TamableAnimal) this.owner else null
+            val owner = this.owner
             if (owner is ServerPlayer) {
                 owner.sendSystemMessage(customMessage)
             } else if (this.isTame || this.hasCustomName()) {
@@ -3847,16 +3861,13 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         val backupName = this.customName
         this.customName = null
 
-        var backupOwner: UUID? = null
-        if (this is TamableAnimal) {
-            backupOwner = this.ownerUUID
-            this.setOwnerUUID(null)
-        }
+        var backupOwner: UUID? = this.ownerUUID
+        this.setOwnerUUID(null)
 
         super.die(cause)
 
         this.customName = backupName
-        if (this is TamableAnimal && backupOwner != null) {
+        if (backupOwner != null) {
             this.setOwnerUUID(backupOwner)
         }
     }

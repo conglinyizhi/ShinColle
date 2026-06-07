@@ -56,4 +56,16 @@ interface IShipEquip {
      * 若返回 null 则表示无杂项属性。
      */
     fun getMiscAttributes(stack: ItemStack): FloatArray? = null
+
+    /**
+     * 返回附魔带来的额外属性加成。
+     *
+     * 长度应为 [org.trp.shincolle.item.LegacyEquipStats.ATTR_COUNT]（21），
+     * 返回 null 表示该装备不受附魔属性加成影响。
+     *
+     * 默认实现返回 null。第三方可覆写以提供自定义加成，
+     * 也可以调用 [ShipEquipEnchantmentHelper.getDefaultEnchantmentBonus]
+     * 使用本模组内置的默认附魔映射规则。
+     */
+    fun getEnchantmentBonusAttributes(stack: ItemStack): FloatArray? = null
 }
