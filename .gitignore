@@ -91,3 +91,4 @@ config/shincolle-common.toml
 
 .sisyphus/
 .sisyphus/run-continuation/
+.worktree/

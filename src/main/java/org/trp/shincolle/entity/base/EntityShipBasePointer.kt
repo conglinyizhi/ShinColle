@@ -36,11 +36,12 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
                 compound.put("PointerTarget", targetTag)
             }
         }
-        if (this.pointerTargetEntityId != null) {
+        val targetId = this.pointerTargetEntityId
+        if (targetId != null) {
             val remaining = max(0L, this.pointerTargetEntityUntil - this.ship.level().gameTime)
             if (remaining > 0L) {
                 val targetTag = CompoundTag()
-                targetTag.putUUID("Id", this.pointerTargetEntityId)
+                targetTag.putUUID("Id", targetId)
                 targetTag.putLong("Remaining", remaining)
                 compound.put("PointerTargetEntity", targetTag)
             }
@@ -194,12 +195,13 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             if (this.ship.level().isClientSide) {
                 readSynchedData()
             }
-            if (!hasPointerTargetEntity() || this.pointerTargetEntityId == null) {
+            val targetId = this.pointerTargetEntityId
+            if (!hasPointerTargetEntity() || targetId == null) {
                 return null
             }
             if (this.ship.level() is ServerLevel) {
                 val serverLevel = this.ship.level() as ServerLevel
-                val entity: Entity? = serverLevel.getEntity(this.pointerTargetEntityId)
+                val entity: Entity? = serverLevel.getEntity(targetId)
                 if (entity == null || !entity.isAlive || entity.isRemoved) {
                     return null
                 }
@@ -258,8 +260,9 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             tag.putBoolean("PAX", this.pointerAlongX)
             tag.putBoolean("PFP", this.pointerFaceP)
         }
-        if (this.pointerTargetEntityId != null) {
-            tag.putUUID("PEId", this.pointerTargetEntityId)
+        val targetId = this.pointerTargetEntityId
+        if (targetId != null) {
+            tag.putUUID("PEId", targetId)
             tag.putLong("PEUntil", this.pointerTargetEntityUntil)
         }
         this.ship.entityData.set(EntityShipBase.Companion.POINTER_TARGET_DATA, tag)

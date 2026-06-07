@@ -122,12 +122,8 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     override fun addAdditionalSaveData(compound: CompoundTag) {
         super.addAdditionalSaveData(compound)
-        if (this.carrierId != null) {
-            compound.putUUID("CarrierId", this.carrierId)
-        }
-        if (this.targetId != null) {
-            compound.putUUID("TargetId", this.targetId)
-        }
+        this.carrierId?.let { compound.putUUID("CarrierId", it) }
+        this.targetId?.let { compound.putUUID("TargetId", it) }
         compound.putBoolean("BackHome", this.backHome)
         compound.putBoolean("MissionLight", this.isMissionLightAircraft)
         compound.putInt("MissionTick", this.missionTick)
@@ -631,10 +627,11 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     private val carrier: EntityShipBase?
         get() {
-            if (this.carrierId == null || this.level() !is ServerLevel) {
+            val id = this.carrierId ?: return null
+            if (this.level() !is ServerLevel) {
                 return null
             }
-            val entity: Entity? = (this.level() as ServerLevel).getEntity(this.carrierId)
+            val entity: Entity? = (this.level() as ServerLevel).getEntity(id)
             if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) {
                 return entity
             }
@@ -643,10 +640,11 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
 
     val missionTarget: Entity?
         get() {
-            if (this.targetId == null || this.level() !is ServerLevel) {
+            val id = this.targetId ?: return null
+            if (this.level() !is ServerLevel) {
                 return null
             }
-            val entity: Entity? = (this.level() as ServerLevel).getEntity(this.targetId)
+            val entity: Entity? = (this.level() as ServerLevel).getEntity(id)
             if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }

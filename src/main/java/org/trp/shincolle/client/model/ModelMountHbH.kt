@@ -126,7 +126,7 @@ class ModelMountHbH<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowableMo
     }
 
     override fun setupAnim(
-        entity: T?,
+        entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
         ageInTicks: Float,

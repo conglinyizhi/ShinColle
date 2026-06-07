@@ -73,12 +73,13 @@ class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlo
 
     override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.saveAdditional(tag, registries)
-        tag.put("lastPos", NbtUtils.writeBlockPos(lastPos))
-        tag.put("nextPos", NbtUtils.writeBlockPos(nextPos))
-        tag.put("chestPos", NbtUtils.writeBlockPos(chestPos))
+        tag.put("lastPos", NbtUtils.writeBlockPos(lastPos!!))
+        tag.put("nextPos", NbtUtils.writeBlockPos(nextPos!!))
+        tag.put("chestPos", NbtUtils.writeBlockPos(chestPos!!))
         tag.putInt("wpStayTime", wpStayTime)
-        if (ownerUUID != null) {
-            tag.putUUID("ownerUUID", ownerUUID)
+        val uuid = ownerUUID
+        if (uuid != null) {
+            tag.putUUID("ownerUUID", uuid)
         }
         tag.putString("ownerName", ownerName)
     }
@@ -113,7 +114,7 @@ class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlo
         if (this.level == null || this.level!!.isClientSide) return
 
         if (this.nextPos !== BlockPos.ZERO) {
-            val be = this.level!!.getBlockEntity(this.nextPos)
+            val be = this.level!!.getBlockEntity(this.nextPos!!)
             if (be !is IWaypoint) {
                 this.nextPos = BlockPos.ZERO
                 markForSync()
@@ -121,11 +122,13 @@ class WayPointBlockEntity(pos: BlockPos, state: BlockState) : BlockEntity(ModBlo
         }
 
         if (this.chestPos !== BlockPos.ZERO) {
-            val be = this.level!!.getBlockEntity(this.chestPos)
+            val pos = this.chestPos!!
+            val be = this.level!!.getBlockEntity(pos)
+            val side: Direction? = null
             if (be == null || this.level!!.getCapability<IItemHandler?, Direction?>(
                     Capabilities.ItemHandler.BLOCK,
-                    this.chestPos,
-                    null
+                    pos,
+                    side
                 ) == null
             ) {
                 this.chestPos = BlockPos.ZERO

@@ -124,12 +124,8 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
 
     override fun addAdditionalSaveData(compound: CompoundTag) {
         super.addAdditionalSaveData(compound)
-        if (this.carrierId != null) {
-            compound.putUUID("CarrierId", this.carrierId)
-        }
-        if (this.targetId != null) {
-            compound.putUUID("TargetId", this.targetId)
-        }
+        this.carrierId?.let { compound.putUUID("CarrierId", it) }
+        this.targetId?.let { compound.putUUID("TargetId", it) }
         compound.putInt("MissionTick", this.missionTick)
         compound.putInt("NumAmmoLight", this.numAmmoLight)
         compound.putInt("NumAmmoHeavy", this.numAmmoHeavy)
@@ -308,11 +304,12 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
 
     val carrier: EntityShipBase?
         get() {
-            if (this.carrierId == null || this.level() !is ServerLevel) {
+            val id = this.carrierId ?: return null
+            if (this.level() !is ServerLevel) {
                 return null
             }
             val serverLevel = this.level() as ServerLevel
-            val entity: Entity? = serverLevel.getEntity(this.carrierId)
+            val entity: Entity? = serverLevel.getEntity(id)
             if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) {
                 return entity
             }
@@ -321,11 +318,12 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
 
     protected val missionTarget: Entity?
         get() {
-            if (this.targetId == null || this.level() !is ServerLevel) {
+            val id = this.targetId ?: return null
+            if (this.level() !is ServerLevel) {
                 return null
             }
             val serverLevel = this.level() as ServerLevel
-            val entity: Entity? = serverLevel.getEntity(this.targetId)
+            val entity: Entity? = serverLevel.getEntity(id)
             if (entity == null || !entity.isAlive || entity.isRemoved) {
                 return null
             }

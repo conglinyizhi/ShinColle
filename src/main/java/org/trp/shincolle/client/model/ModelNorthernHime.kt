@@ -237,7 +237,7 @@ class ModelNorthernHime<T : EntityNorthernHime>(root: ModelPart) : ShipModelHuma
     }
 
     override fun setupAnim(
-        entity: T?,
+        entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
         ageInTicks: Float,

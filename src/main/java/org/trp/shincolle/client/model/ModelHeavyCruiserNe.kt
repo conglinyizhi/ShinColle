@@ -1,3 +1,4 @@
+@file:Suppress("SENSELESS_COMPARISON")
 package org.trp.shincolle.client.model
 
 import com.mojang.blaze3d.vertex.PoseStack
@@ -122,7 +123,7 @@ class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
     }
 
     override fun setupAnim(
-        entity: T?,
+        entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
         ageInTicks: Float,

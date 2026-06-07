@@ -184,7 +184,7 @@ class DeskScreen(menu: DeskMenu, inventory: Inventory, title: Component) :
         }
         val list = mutableListOf<Component>()
         for (obj in shipList) {
-            if (obj != null && obj.ship != null && mx < obj.pixelx + 4.0 && mx > obj.pixelx - 2.0 && my < obj.pixelz + 4.0 && my > obj.pixelz - 2.0) {
+            if (obj.ship != null && mx < obj.pixelx + 4.0 && mx > obj.pixelx - 2.0 && my < obj.pixelz + 4.0 && my > obj.pixelz - 2.0) {
                 list.add(obj.ship!!.name)
             }
         }
@@ -298,7 +298,7 @@ class DeskScreen(menu: DeskMenu, inventory: Inventory, title: Component) :
             if (index >= shipList.size) break
 
             val s = shipList[index]
-            if (s != null && s.ship is EntityShipBase) {
+            if (s.ship is EntityShipBase) {
                 val s2 = s.ship as EntityShipBase
                 val ix = getMoraleLevel(s2.morale) * 11
                 guiGraphics.blit(BookRenderer.GUI_NAME_ICON0, 237, texty - 1, ix.toFloat(), 240f, 11, 11, 256, 256)
@@ -321,7 +321,7 @@ class DeskScreen(menu: DeskMenu, inventory: Inventory, title: Component) :
             if (index >= shipList.size) break
 
             val s = shipList[index]
-            if (s == null || s.ship !is EntityShipBase) continue
+            if (s.ship !is EntityShipBase) continue
             val s2 = s.ship as EntityShipBase
 
             guiGraphics.drawString(this.font, s.ship!!.name.string, 147, texty, 0xFFFFFF, false)
@@ -457,7 +457,6 @@ class DeskScreen(menu: DeskMenu, inventory: Inventory, title: Component) :
     }
 
     private fun formatDiplomacyName(uuid: UUID): String {
-        if (uuid == null) return "-"
         val leaderName = DeskDiplomacySync.getLeaderName(uuid)
         val teamName = DeskDiplomacySync.getTeamName(uuid)
         return when {
@@ -533,7 +532,7 @@ class DeskScreen(menu: DeskMenu, inventory: Inventory, title: Component) :
 
         if (entityTemp == null || entityTemp!!.type !== type) {
             if (minecraft?.level != null) {
-                entityTemp = type.create(minecraft!!.level) as? LivingEntity
+                entityTemp = type.create(minecraft!!.level!!) as? LivingEntity
                 if (entityTemp is EntityShipBase) {
                     val ship = entityTemp as EntityShipBase
                     ship.level = 1
@@ -619,6 +618,7 @@ class DeskScreen(menu: DeskMenu, inventory: Inventory, title: Component) :
         return PlayerStateService.hasCollectedShip(minecraft!!.player!!, classID)
     }
 
+    @Suppress("DEPRECATION")
     private fun renderBookEntity(guiGraphics: GuiGraphics, x: Int, y: Int, partialTick: Float) {
         if (entityTemp != null) {
             val classID = when {

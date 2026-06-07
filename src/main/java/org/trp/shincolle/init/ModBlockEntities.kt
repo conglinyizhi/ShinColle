@@ -1,3 +1,4 @@
+@file:Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 package org.trp.shincolle.init
 
 import net.minecraft.core.BlockPos
@@ -7,9 +8,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType.BlockEntitySupplie
 import net.minecraft.world.level.block.state.BlockState
 import net.neoforged.neoforge.registries.DeferredHolder
 import net.neoforged.neoforge.registries.DeferredRegister
+import com.mojang.datafixers.types.Type
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.block.entity.*
 import java.util.function.Supplier
+
+private val NO_DATAFIXER_TYPE: Type<*>? = null
 
 object ModBlockEntities {
     val BLOCK_ENTITY_TYPES: DeferredRegister<BlockEntityType<*>?> =
@@ -25,7 +29,7 @@ object ModBlockEntities {
                         pos,
                         blockState
                     )
-                }, ModBlocks.DESK.get()).build(null)
+                }, ModBlocks.DESK.get()).build(NO_DATAFIXER_TYPE)
             })
 
     @JvmField
@@ -38,7 +42,7 @@ object ModBlockEntities {
                         pos,
                         blockState
                     )
-                }, ModBlocks.SMALL_SHIPYARD.get()).build(null)
+                }, ModBlocks.SMALL_SHIPYARD.get()).build(NO_DATAFIXER_TYPE)
             })
 
     @JvmField
@@ -51,7 +55,7 @@ object ModBlockEntities {
                         pos,
                         blockState
                     )
-                }, ModBlocks.LARGE_SHIPYARD.get()).build(null)
+                }, ModBlocks.LARGE_SHIPYARD.get()).build(NO_DATAFIXER_TYPE)
             })
 
     @JvmField
@@ -64,7 +68,7 @@ object ModBlockEntities {
                         pos,
                         blockState
                     )
-                }, ModBlocks.VOL_CORE.get()).build(null)
+                }, ModBlocks.VOL_CORE.get()).build(NO_DATAFIXER_TYPE)
             })
 
     @JvmField
@@ -77,7 +81,7 @@ object ModBlockEntities {
                         pos,
                         state
                     )
-                }, ModBlocks.WAYPOINT.get()).build(null)
+                }, ModBlocks.WAYPOINT.get()).build(NO_DATAFIXER_TYPE)
             })
 
     @JvmField
@@ -90,7 +94,7 @@ object ModBlockEntities {
                         pos,
                         blockState
                     )
-                }, ModBlocks.CRANE.get()).build(null)
+                }, ModBlocks.CRANE.get()).build(NO_DATAFIXER_TYPE)
             })
 }
 

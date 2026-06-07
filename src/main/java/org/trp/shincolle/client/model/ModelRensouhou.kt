@@ -59,7 +59,7 @@ class ModelRensouhou<T : EntityShincolleSimpleMob?>(root: ModelPart) : EntityMod
     }
 
     override fun setupAnim(
-        entity: T?,
+        entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
         ageInTicks: Float,

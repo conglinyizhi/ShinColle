@@ -81,7 +81,7 @@ class ModelDestroyerI<T : Entity>(root: ModelPart) : EntityModel<T>(), IGlowable
     }
 
     override fun setupAnim(
-        entity: T?,
+        entity: T,
         limbSwing: Float,
         limbSwingAmount: Float,
         ageInTicks: Float,

@@ -81,6 +81,7 @@ internal object EntityShipBrainAi {
         return brain
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun tick(level: ServerLevel, ship: EntityShipBase) {
         val brain = ship.brain as Brain<EntityShipBase>
         syncShipStateMemory(ship, brain)
@@ -130,6 +131,7 @@ internal object EntityShipBrainAi {
         )
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun typedBrain(ship: EntityShipBase): Brain<EntityShipBase> {
         val brain = ship.brain as Brain<EntityShipBase>
         return brain
@@ -722,7 +724,8 @@ internal object EntityShipBrainAi {
                 return
             }
 
-            if (this.lastRawPointerTarget == null || rawTarget.distanceToSqr(this.lastRawPointerTarget) > ShipAiNumbers.TARGET_SWITCH_DISTANCE_SQ) {
+            val lastTarget = this.lastRawPointerTarget
+            if (lastTarget == null || rawTarget.distanceToSqr(lastTarget) > ShipAiNumbers.TARGET_SWITCH_DISTANCE_SQ) {
                 this.nextPointerPathTick = 0
                 this.lastRawPointerTarget = rawTarget
                 this.lastPointerEntityTargetId = null

@@ -80,7 +80,7 @@ class ShipSlot(
 
         // ---- Name label ----
         val name = if (ship!!.hasCustomName())
-            ship.customName
+            ship.customName!!
         else
             Component.translatable(ship.getType().getDescriptionId())
         val nameWidth = Minecraft.getInstance().font.width(name)
@@ -96,6 +96,7 @@ class ShipSlot(
     }
 
     // ---- Entity rendering ----
+    @Suppress("DEPRECATION")
     private fun renderShipEntity(graphics: GuiGraphics, x: Int, y: Int, scale: Int, mouseX: Int, mouseY: Int) {
         val lookX = (x - mouseX) / 40.0f
         val lookY = (y - 50.0f - mouseY) / 40.0f
@@ -154,12 +155,14 @@ class ShipSlot(
         ship.yHeadRot = prevYHeadRot
 
         dispatcher.setRenderShadow(true)
-        dispatcher.overrideCameraOrientation(null)
+        val nullQuat: org.joml.Quaternionf? = null
+        dispatcher.overrideCameraOrientation(nullQuat)
 
         poseStack.popPose()
     }
 
     // ---- Interaction ----
+    @Suppress("DEPRECATION")
     override fun onClick(mouseX: Double, mouseY: Double) {
         if (onPress != null) {
             onPress.run()

@@ -199,8 +199,8 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
     }
 
     override fun addAdditionalSaveData(tag: CompoundTag) {
-        this.ownerUuid.ifPresent(Consumer { uuid: UUID? -> tag.putUUID("Owner", uuid) })
-        this.targetUuid.ifPresent(Consumer { uuid: UUID? -> tag.putUUID("Target", uuid) })
+        this.ownerUuid.ifPresent(Consumer { uuid: UUID -> tag.putUUID("Owner", uuid) })
+        this.targetUuid.ifPresent(Consumer { uuid: UUID -> tag.putUUID("Target", uuid) })
         tag.putFloat("Damage", this.damage)
         tag.putFloat("Speed", this.speed)
         tag.putInt("Life", this.life)
@@ -806,7 +806,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         this.blackHole = true
     }
 
-    fun addImpactEffect(effect: Holder<MobEffect?>?, amplifier: Int, duration: Int, chance: Int) {
+    fun addImpactEffect(effect: Holder<MobEffect>?, amplifier: Int, duration: Int, chance: Int) {
         if (effect == null || duration <= 0 || chance <= 0) {
             return
         }
@@ -851,14 +851,14 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
 
     @JvmRecord
     private data class ImpactEffectData(
-        val effect: Holder<MobEffect?>?,
+        val effect: Holder<MobEffect>?,
         val amplifier: Int,
         val duration: Int,
         val chance: Int
     ) {
         fun toTag(): CompoundTag {
             val tag = CompoundTag()
-            tag.putString(TAG_EFFECT_ID, BuiltInRegistries.MOB_EFFECT.getKey(this.effect!!.value()).toString())
+            tag.putString(TAG_EFFECT_ID, BuiltInRegistries.MOB_EFFECT.getKey(this.effect!!.value())!!.toString())
             tag.putInt(TAG_EFFECT_LEVEL, this.amplifier)
             tag.putInt(TAG_EFFECT_DURATION, this.duration)
             tag.putInt(TAG_EFFECT_CHANCE, this.chance)
@@ -866,7 +866,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
         }
 
         fun write(buffer: RegistryFriendlyByteBuf) {
-            buffer.writeResourceLocation(BuiltInRegistries.MOB_EFFECT.getKey(this.effect!!.value()))
+            buffer.writeResourceLocation(BuiltInRegistries.MOB_EFFECT.getKey(this.effect!!.value())!!)
             buffer.writeVarInt(this.amplifier)
             buffer.writeVarInt(this.duration)
             buffer.writeVarInt(this.chance)
@@ -876,7 +876,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
             if (random.nextInt(100) >= this.chance) {
                 return
             }
-            target.addEffect(MobEffectInstance(this.effect, this.duration, this.amplifier, false, true))
+            target.addEffect(MobEffectInstance(this.effect!!, this.duration, this.amplifier, false, true))
         }
 
         companion object {
@@ -887,7 +887,7 @@ class EntityAbyssMissile(type: EntityType<out EntityAbyssMissile?>, level: Level
                     return null
                 }
                 return ImpactEffectData(
-                    Holder.direct<MobEffect?>(effect),
+                    Holder.direct(effect),
                     tag.getInt(TAG_EFFECT_LEVEL),
                     tag.getInt(TAG_EFFECT_DURATION),
                     tag.getInt(TAG_EFFECT_CHANCE)

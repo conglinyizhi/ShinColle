@@ -1,3 +1,4 @@
+@file:Suppress("DEPRECATION", "UNCHECKED_CAST")
 package org.trp.shincolle
 
 import net.minecraft.core.registries.BuiltInRegistries

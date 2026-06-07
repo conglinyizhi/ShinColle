@@ -219,10 +219,11 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         if (this.level == null || this.level!!.isClientSide) return
 
         if (this.isPaired && this.chestPos !== BlockPos.ZERO) {
+            val side: Direction? = null
             val handler = this.level!!.getCapability<IItemHandler?, Direction?>(
                 Capabilities.ItemHandler.BLOCK,
-                this.chestPos,
-                null
+                this.chestPos!!,
+                side
             )
             if (handler == null) {
                 this.isPaired = false
@@ -234,7 +235,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         }
 
         if (this.nextPos !== BlockPos.ZERO) {
-            val be = this.level!!.getBlockEntity(this.nextPos)
+            val be = this.level!!.getBlockEntity(this.nextPos!!)
             if (be !is IWaypoint) {
                 this.nextPos = BlockPos.ZERO
                 markForSync()
@@ -244,8 +245,9 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
     private fun checkPairedChest(): Boolean {
         if (this.chestPos === BlockPos.ZERO || this.level == null) return false
+        val side: Direction? = null
         val handler =
-            this.level!!.getCapability<IItemHandler?, Direction?>(Capabilities.ItemHandler.BLOCK, this.chestPos, null)
+            this.level!!.getCapability<IItemHandler?, Direction?>(Capabilities.ItemHandler.BLOCK, this.chestPos!!, side)
         if (handler != null) {
             this.chestHandler = handler
             this.combinedChestHandler = createCombinedChestHandler(handler)
@@ -654,11 +656,12 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     }
 
     private fun markChestForSync() {
-        if (this.chestPos != null && this.level != null && !this.level!!.isClientSide) {
-            val be = this.level!!.getBlockEntity(this.chestPos)
+        val pos = this.chestPos
+        if (pos != null && this.level != null && !this.level!!.isClientSide) {
+            val be = this.level!!.getBlockEntity(pos)
             if (be != null) {
                 be.setChanged()
-                this.level!!.sendBlockUpdated(this.chestPos, be.blockState, be.blockState, 3)
+                this.level!!.sendBlockUpdated(pos, be.blockState, be.blockState, 3)
             }
         }
     }
@@ -672,14 +675,15 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             for (direction in Direction.Plane.HORIZONTAL) {
                 val adjacentPos = this.chestPos!!.relative(direction)
                 val adjacentState = this.level!!.getBlockState(adjacentPos)
-                if (!adjacentState.`is`(this.level!!.getBlockState(this.chestPos).block)) {
+                if (!adjacentState.`is`(this.level!!.getBlockState(this.chestPos!!).block)) {
                     continue
                 }
 
+                val side: Direction? = null
                 return this.level!!.getCapability<IItemHandler?, Direction?>(
                     Capabilities.ItemHandler.BLOCK,
                     adjacentPos,
-                    null
+                    side
                 )
             }
 
@@ -940,7 +944,7 @@ class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         tag.putLong("NextPos", nextPos!!.asLong())
         tag.putLong("ChestPos", chestPos!!.asLong())
         tag.putBoolean("IsPaired", isPaired)
-        if (ownerUUID != null) tag.putUUID("OwnerUUID", ownerUUID)
+        if (ownerUUID != null) tag.putUUID("OwnerUUID", ownerUUID!!)
         tag.putString("OwnerName", ownerName)
         tag.putInt("SyncedShipId", syncedShipId)
         tag.putInt("LiquidTransferRate", liquidTransferRate)

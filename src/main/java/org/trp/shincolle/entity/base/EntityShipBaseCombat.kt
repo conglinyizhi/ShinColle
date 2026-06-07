@@ -378,7 +378,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
                 continue
             }
             missile.addImpactEffect(
-                Holder.direct<MobEffect?>(effect),
+                Holder.direct(effect),
                 effectTag.getInt(TAG_POTION_LEVEL),
                 effectTag.getInt(TAG_POTION_TIME),
                 effectTag.getInt(TAG_POTION_CHANCE)
