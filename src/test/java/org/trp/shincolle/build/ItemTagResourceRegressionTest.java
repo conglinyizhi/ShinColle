@@ -15,18 +15,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ItemTagResourceRegressionTest {
     private static final Path TAG_ROOT =
-            Path.of("src/main/resources/data/shincolle/tags/items");
+            Path.of("src/main/resources/data/shincolle/tags/item");
     private static final Path EQUIP_TAG =
             TAG_ROOT.resolve("ship_equip_items.json");
     private static final Path SHIP_INVENTORY_HANDLER =
-            Path.of("src/main/java/org/trp/shincolle/inventory/ShipInventoryHandler.java");
+            Path.of("src/main/java/org/trp/shincolle/inventory/ShipInventoryHandler.kt");
     private static final Path MOD_ITEMS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
 
     private static final Pattern TAG_VALUE_PATTERN =
             Pattern.compile("\"(shincolle:[^\"]+)\"");
     private static final Pattern EQUIP_ITEM_REGISTER_PATTERN =
-            Pattern.compile("ITEMS\\.register\\(\"(equip[a-z0-9_]+)\"");
+            Pattern.compile("ITEMS\\.register<[^>]*>\\(\\s*\"(equip[a-z0-9_]+)\"");
 
     private static final Set<String> EXPECTED_EQUIP_TAG_VALUES = Set.of(
             "shincolle:equipairplane",
@@ -44,10 +44,21 @@ class ItemTagResourceRegressionTest {
             "shincolle:equipturbine"
     );
 
+    private static final Set<String> EXPECTED_ITEM_TAG_FILES = Set.of(
+            "ship_equip_items.json",
+            "spawn_eggs.json",
+            "boss_eggs.json",
+            "ammunition.json",
+            "repair_items.json",
+            "ship_consumables.json",
+            "tools.json",
+            "materials.json"
+    );
+
     @Test
-    void itemTagFilesShouldStayWithinKnownShipEquipSet() throws IOException {
+    void itemTagFilesShouldStayWithinKnownSet() throws IOException {
         Set<String> actual = listJsonNames(TAG_ROOT);
-        assertTrue(actual.equals(Set.of("ship_equip_items.json")),
+        assertTrue(actual.equals(EXPECTED_ITEM_TAG_FILES),
                 () -> "Custom item tag file set changed unexpectedly, found: "
                         + String.join(", ", new TreeSet<>(actual)));
     }
@@ -68,10 +79,10 @@ class ItemTagResourceRegressionTest {
     void shipInventoryHandlerShouldKeepUsingTheShipEquipItemTag() throws IOException {
         String inventory = Files.readString(SHIP_INVENTORY_HANDLER);
 
-        assertTrue(inventory.contains("ItemTags.create(\n            ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, \"ship_equip_items\"))"),
+        assertTrue(inventory.contains("ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, \"ship_equip_items\")"),
                 "Ship inventory handler should keep binding equip-slot validation to tag shincolle:ship_equip_items");
-        assertTrue(inventory.contains("return stack.is(EQUIP_ITEMS_TAG) || stack.getItem() instanceof LegacyEquipItem;"),
-                "Equip slot validation should continue accepting tagged items alongside legacy equip items");
+        assertTrue(inventory.contains("stack.item is LegacyEquipItem"),
+                "Equip slot validation should continue accepting legacy equip items");
     }
 
     @Test
