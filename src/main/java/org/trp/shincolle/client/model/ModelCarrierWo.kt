@@ -16,6 +16,7 @@ import net.minecraft.util.Mth
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.client.model.LegacyPoseOffsets.deadY
 import org.trp.shincolle.client.model.LegacyPoseOffsets.sneakY
+import org.trp.shincolle.entity.EntityCarrierWo
 import org.trp.shincolle.entity.base.EntityShipBase
 
 class ModelCarrierWo<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
@@ -223,7 +224,7 @@ class ModelCarrierWo<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBas
         }
 
         this.EquipBase.visible = hasLegacyModelFlag(entity, 0)
-        this.GlowEquipBase.visible = this.EquipBase.visible
+        this.GlowEquipBase.visible = entity.getEquipFlag(EntityCarrierWo.EQUIP_GLOWEQUIPBASE)
         this.Staff.visible = hasLegacyModelFlag(entity, 1)
         this.Neck.visible = hasLegacyModelFlag(entity, 2)
         this.CloakNeck.visible = hasLegacyModelFlag(entity, 3)

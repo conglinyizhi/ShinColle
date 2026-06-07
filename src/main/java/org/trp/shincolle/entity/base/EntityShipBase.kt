@@ -1162,8 +1162,14 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         get() = false
 
     override fun isCurrentlyGlowing(): Boolean {
-        if (this.level().isClientSide && this.isSubmarine && this.isStateRingEffect) {
+        if (!this.level().isClientSide) {
+            return super.isCurrentlyGlowing()
+        }
+        if (this.isSubmarine && this.isStateRingEffect) {
             return this.isLocalPlayerOwner
+        }
+        if (this.isStateMarried && this.isStateRingEffect) {
+            return true
         }
         return super.isCurrentlyGlowing()
     }

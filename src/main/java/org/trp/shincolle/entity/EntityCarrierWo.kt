@@ -43,9 +43,16 @@ class EntityCarrierWo(type: EntityType<out TamableAnimal>, level: Level) : Entit
         }
     }
 
+    override fun isCurrentlyGlowing(): Boolean {
+        if (this.level().isClientSide && this.getEquipFlag(EQUIP_GLOWEQUIPBASE)) {
+            return true
+        }
+        return super.isCurrentlyGlowing()
+    }
+
     private fun updateClientEffects() {
         if ((this.tickCount % 4) == 0) {
-            val shouldGlow = checkModelState(0, this.getStateEmotion(0))
+            val shouldGlow = this.getEquipFlag(EQUIP_GLOWEQUIPBASE)
                     && !this.isStateNoEquip && !(this.isInSittingPose && this.getStateEmotion(1) == 4)
             if (shouldGlow) {
                 spawnEyeGlowParticles()
