@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
@@ -18,6 +19,7 @@ import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec3
+import net.neoforged.neoforge.common.NeoForge
 import org.trp.shincolle.Config
 import org.trp.shincolle.entity.EntityAircraftBase
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile
@@ -27,8 +29,10 @@ import org.trp.shincolle.init.ModSounds
 // import org.trp.shincolle.item.CombatRationItem.getVariant
 import org.trp.shincolle.api.ApiCallSafety
 import org.trp.shincolle.api.consumable.IShipConsumable
+import org.trp.shincolle.api.entity.IShipAttackEffect
 import org.trp.shincolle.api.equip.IShipEquip
 import org.trp.shincolle.api.equip.ShipEquipRegistry
+import org.trp.shincolle.api.event.ShipAttackEvent
 import org.trp.shincolle.item.LegacyEquipItem
 import kotlin.math.max
 import kotlin.math.min
@@ -226,18 +230,39 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         if (damage <= 0.0f) {
             damage = 2.0f
         }
+
+        val livingTarget = target as? LivingEntity
+        val preEvent = ShipAttackEvent.Pre(this.ship, livingTarget, ShipAttackEvent.AttackType.LIGHT, damage)
+        NeoForge.EVENT_BUS.post(preEvent)
+        if (preEvent.isCanceled) {
+            return
+        }
+        damage = preEvent.damage
+
         val serverLevel = this.ship.level() as ServerLevel
         notifyEquipOnLightAttack(target)
         target.hurt(this.ship.damageSources().mobAttack(this.ship), damage)
-        this.ship.spawnLightAttackTargetParticles(serverLevel, target)
-        this.ship.spawnLightAttackMuzzleParticles(serverLevel, target)
-        this.ship.playSound(
-            ModSounds.SHIP_FIRELIGHT.get(), max(0.0f, Config.volumeAttack),
-            this.ship.random.nextFloat() * 0.12f + 0.98f
-        )
+
+        if (!this.ship.onLightAttackParticles(this.ship, livingTarget)) {
+            this.ship.spawnLightAttackTargetParticles(serverLevel, target)
+            this.ship.spawnLightAttackMuzzleParticles(serverLevel, target)
+        }
+
+        val sound = this.ship.onLightAttackSound(this.ship, livingTarget)
+        if (sound != null) {
+            this.ship.playSound(sound, max(0.0f, Config.volumeAttack), this.ship.random.nextFloat() * 0.12f + 0.98f)
+        } else {
+            this.ship.playSound(
+                ModSounds.SHIP_FIRELIGHT.get(), max(0.0f, Config.volumeAttack),
+                this.ship.random.nextFloat() * 0.12f + 0.98f
+            )
+        }
+
         this.ship.attackTick = 50
         this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionLight
         this.ship.applyEmotesReaction(3)
+
+        NeoForge.EVENT_BUS.post(ShipAttackEvent.Post(this.ship, livingTarget, ShipAttackEvent.AttackType.LIGHT, damage))
     }
 
     fun performHeavyAttack(target: Entity?): Boolean {
@@ -268,15 +293,40 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         val serverLevel = this.ship.level() as ServerLevel
 
         val missile = createHeavyMissile(serverLevel, target, missileDamage)
+
+        val livingTarget = target as? LivingEntity
+        val preEvent = ShipAttackEvent.Pre(this.ship, livingTarget, ShipAttackEvent.AttackType.HEAVY, missileDamage)
+        NeoForge.EVENT_BUS.post(preEvent)
+        if (preEvent.isCanceled) {
+            return false
+        }
+        val finalDamage = preEvent.damage
+        if (finalDamage != missileDamage) {
+            missile.damage = finalDamage
+        }
+
         notifyEquipOnHeavyAttack(target, missile)
         serverLevel.addFreshEntity(missile)
-        this.ship.playSound(
-            ModSounds.SHIP_FIREHEAVY.get(), max(0.0f, Config.volumeAttack),
-            this.ship.random.nextFloat() * 0.12f + 0.83f
-        )
+
+        if (!this.ship.onHeavyAttackParticles(this.ship, livingTarget)) {
+            // 默认重攻击无粒子效果
+        }
+
+        val sound = this.ship.onHeavyAttackSound(this.ship, livingTarget)
+        if (sound != null) {
+            this.ship.playSound(sound, max(0.0f, Config.volumeAttack), this.ship.random.nextFloat() * 0.12f + 0.83f)
+        } else {
+            this.ship.playSound(
+                ModSounds.SHIP_FIREHEAVY.get(), max(0.0f, Config.volumeAttack),
+                this.ship.random.nextFloat() * 0.12f + 0.83f
+            )
+        }
+
         this.ship.attackTick = 50
         this.ship.fuel = this.ship.fuel - Config.fuelConsumeActionHeavy
         this.ship.applyEmotesReaction(3)
+
+        NeoForge.EVENT_BUS.post(ShipAttackEvent.Post(this.ship, livingTarget, ShipAttackEvent.AttackType.HEAVY, finalDamage))
         return true
     }
 
@@ -647,6 +697,18 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
             return false
         }
 
+        val estimatedDamage = if (lightAircraft) {
+            max(2.0f, this.ship.legacyShipStats.firepower * 0.35f)
+        } else {
+            max(4.0f, this.ship.legacyShipStats.firepower * 0.55f)
+        }
+        val livingTarget = target as? LivingEntity
+        val preEvent = ShipAttackEvent.Pre(this.ship, livingTarget, ShipAttackEvent.AttackType.AIRCRAFT, estimatedDamage)
+        NeoForge.EVENT_BUS.post(preEvent)
+        if (preEvent.isCanceled) {
+            return false
+        }
+
         if (lightAircraft) {
             if (!consumeLightAmmo(AIRCRAFT_LIGHT_AMMO_COST)) {
                 return false
@@ -669,6 +731,8 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
 
         this.ship.attackTick = 50
         this.ship.applyEmotesReaction(3)
+
+        NeoForge.EVENT_BUS.post(ShipAttackEvent.Post(this.ship, livingTarget, ShipAttackEvent.AttackType.AIRCRAFT, preEvent.damage))
         return true
     }
 

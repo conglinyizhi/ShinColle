@@ -1,13 +1,18 @@
 package org.trp.shincolle.entity
 
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.resources.ResourceLocation
+import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.Level
 import org.trp.shincolle.Config
+import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModEntities
 import org.trp.shincolle.init.ModItems
@@ -83,6 +88,25 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal>, level: Level) : Ent
             Config.volumeAttack + 0.2f,
             1f / (this.random.nextFloat() * 0.4f + 1.2f) + 0.5f
         )
+    }
+
+    override fun onLightAttackSound(ship: EntityShipBase, target: LivingEntity?): SoundEvent? {
+        return tryGetAttackVoice()
+    }
+
+    override fun onHeavyAttackSound(ship: EntityShipBase, target: LivingEntity?): SoundEvent? {
+        return tryGetAttackVoice()
+    }
+
+    private fun tryGetAttackVoice(): SoundEvent? {
+        if (this.random.nextFloat() < 0.3f) {
+            val customId = ResourceLocation.fromNamespaceAndPath(
+                Shincolle.MODID,
+                Config.ShipCustomSoundType.ATTACK.soundPath() + "-" + this.getStateMinor(STATE_MINOR_SHIP_CLASS)
+            )
+            return BuiltInRegistries.SOUND_EVENT.get(customId)
+        }
+        return null
     }
 
     override val shipSpawnEggItem: Item?

@@ -20,6 +20,7 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.tags.FluidTags
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.util.Mth
 import net.minecraft.world.*
 import net.minecraft.world.damagesource.DamageSource
@@ -73,6 +74,7 @@ import org.trp.shincolle.item.CombatRationItem.Companion.rollFuelGain
 import org.trp.shincolle.item.DebugInspectorItem.Companion.markBucketRepairTriggered
 import org.trp.shincolle.api.ApiCallSafety
 import org.trp.shincolle.api.consumable.IShipConsumable
+import org.trp.shincolle.api.entity.IShipAttackEffect
 import org.trp.shincolle.api.equip.IShipEquip
 import org.trp.shincolle.api.equip.ShipEquipRegistry
 import org.trp.shincolle.item.LegacyEquipItem
@@ -101,7 +103,7 @@ import java.util.function.Predicate
 import kotlin.math.*
 
 abstract class EntityShipBase protected constructor(type: EntityType<out TamableAnimal?>, level: Level) :
-    TamableAnimal(type, level) {
+    TamableAnimal(type, level), IShipAttackEffect {
     private var marriageCountReleased = false
 
     @JvmField
@@ -778,6 +780,22 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         get() = 0.0f
 
     open fun onAircraftLaunched(lightAircraft: Boolean) {
+    }
+
+    override fun onLightAttackSound(ship: EntityShipBase, target: LivingEntity?): SoundEvent? {
+        return null
+    }
+
+    override fun onHeavyAttackSound(ship: EntityShipBase, target: LivingEntity?): SoundEvent? {
+        return null
+    }
+
+    override fun onLightAttackParticles(ship: EntityShipBase, target: LivingEntity?): Boolean {
+        return false
+    }
+
+    override fun onHeavyAttackParticles(ship: EntityShipBase, target: LivingEntity?): Boolean {
+        return false
     }
 
     open fun performLightAttack(target: Entity?) {
