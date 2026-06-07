@@ -1,5 +1,6 @@
 package org.trp.shincolle.entity
 
+import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EntityType
@@ -75,6 +76,14 @@ class EntityCarrierKaga(type: EntityType<out TamableAnimal>, level: Level) : Ent
 
     override val aircraftHeavyLevelBonus: Float
         get() = 0.2f
+
+    override fun onAircraftLaunched(lightAircraft: Boolean) {
+        this.playSound(
+            SoundEvents.ARROW_SHOOT,
+            Config.volumeAttack + 0.2f,
+            1f / (this.random.nextFloat() * 0.4f + 1.2f) + 0.5f
+        )
+    }
 
     override val shipSpawnEggItem: Item?
         get() = ModItems.CARRIER_KAGA_SPAWN_EGG.get()

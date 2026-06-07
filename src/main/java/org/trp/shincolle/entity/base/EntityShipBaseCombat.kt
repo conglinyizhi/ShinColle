@@ -665,6 +665,7 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
         spawned.moveTo(this.ship.x, launchY, this.ship.z, this.ship.yRot, this.ship.xRot)
         spawned.initCarrierMission(this.ship, target, lightAircraft)
         serverLevel.addFreshEntity(spawned)
+        this.ship.onAircraftLaunched(lightAircraft)
 
         this.ship.attackTick = 50
         this.ship.applyEmotesReaction(3)

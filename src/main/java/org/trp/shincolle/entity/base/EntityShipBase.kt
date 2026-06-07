@@ -777,6 +777,9 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     open val aircraftHeavyLevelBonus: Float
         get() = 0.0f
 
+    open fun onAircraftLaunched(lightAircraft: Boolean) {
+    }
+
     open fun performLightAttack(target: Entity?) {
         this.combat.performLightAttack(target)
     }
