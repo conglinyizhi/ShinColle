@@ -3272,6 +3272,18 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         return false
     }
 
+    /**
+     * 舰娘专属 dodge 修正值，由具体舰娘实体覆写。
+     * 例如：响（Hibiki）返回 0.3f 表示 +30% dodge。
+     */
+    open fun getDodgeModifier(): Float = 0.0f
+
+    /**
+     * 隐身状态下的距离 dodge 加成，由潜水舰等覆写。
+     * @param attackerPos 攻击者位置，null 表示无法计算距离
+     */
+    open fun getInvisibleDodgeBonus(attackerPos: Vec3?): Float = 0.0f
+
     private fun tryLegacyDodge(source: DamageSource): Boolean {
         val attacker = source.entity
         if (attacker == null || attacker === this) {
@@ -3281,7 +3293,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             return false
         }
 
-        val dodge = Mth.clamp(this.legacyShipStats.getBuffedAttr(15), 0.0f, 0.9f)
+        val attackerPos = if (attacker is LivingEntity) attacker.position() else null
+        val baseDodge = this.legacyShipStats.getBuffedAttr(15)
+        val shipModifier = this.getDodgeModifier()
+        val invisibleBonus = this.getInvisibleDodgeBonus(attackerPos)
+        val dodge = Mth.clamp(baseDodge + shipModifier + invisibleBonus, 0.0f, 0.9f)
         if (dodge <= 0.0f || this.random.nextFloat() > dodge) {
             return false
         }

@@ -101,6 +101,15 @@ class EntitySubmHime(type: EntityType<out TamableAnimal>, level: Level) : Entity
         return true
     }
 
+    override fun getInvisibleDodgeBonus(attackerPos: net.minecraft.world.phys.Vec3?): Float {
+        if (!this.hasEffect(MobEffects.INVISIBILITY) || attackerPos == null) {
+            return 0.0f
+        }
+        val dist = this.position().distanceTo(attackerPos)
+        val threshold = max(5.0, 64.0 - this.level * 0.28)
+        return if (dist > threshold) 0.3f else 0.0f
+    }
+
     override val shipSpawnEggItem: Item?
         get() = ModItems.SUBM_HIME_SPAWN_EGG.get()
 

@@ -241,6 +241,8 @@ class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) :
         return true
     }
 
+    override fun getDodgeModifier(): Float = 0.3f
+
     override val shipSpawnEggItem: Item?
         get() = ModItems.DESTROYER_HIBIKI_SPAWN_EGG.get()
 
