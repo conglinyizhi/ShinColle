@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class ClientEventBusRegressionTest {
 
     private static final Path CLIENT_EVENT_BUS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
 
     @Test
     void clientModEventsShouldStayOnClientModBus() throws IOException {

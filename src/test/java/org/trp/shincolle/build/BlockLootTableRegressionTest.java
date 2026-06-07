@@ -20,9 +20,9 @@ class BlockLootTableRegressionTest {
     private static final Path BLOCK_LOOT_ROOT =
             Path.of("src/main/resources/data/shincolle/loot_table/blocks");
     private static final Path MOD_BLOCKS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt");
     private static final Path MOD_ITEMS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
 
     private static final Pattern BLOCK_REGISTER_PATTERN =
             Pattern.compile("BLOCKS\\.register\\(\"([a-z0-9_]+)\"");

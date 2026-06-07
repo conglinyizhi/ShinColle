@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class EntityRendererRegistrationRegressionTest {
     private static final Path MOD_ENTITIES_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModEntities.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModEntities.kt");
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
     private static final Pattern ENTITY_FIELD_PATTERN = Pattern.compile(
             "public static final DeferredHolder<EntityType<\\?>, EntityType<[^>]+>>\\s+([A-Z0-9_]+)\\s*=\\s*ENTITY_TYPES\\.register\\(\"([a-z0-9_]+)\"");
 

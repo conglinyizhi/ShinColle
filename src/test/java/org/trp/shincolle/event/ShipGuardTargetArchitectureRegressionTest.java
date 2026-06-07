@@ -11,21 +11,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipGuardTargetArchitectureRegressionTest {
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path GUARD_TARGET_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipGuardTarget.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipGuardTarget.kt");
     private static final Path BRAIN_AI_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt");
     private static final Path MOUNT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.kt");
     private static final Path MOUNT_BRAIN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.kt");
     private static final Path FORMATION_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/utility/FormationHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/utility/FormationHelper.kt");
     private static final Path EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.kt");
     private static final Path POINTER_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.kt");
 
     @Test
     void guardStateShouldHaveTypedFacadeOverLegacySlots() throws IOException {

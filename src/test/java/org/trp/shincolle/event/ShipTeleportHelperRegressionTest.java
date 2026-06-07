@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipTeleportHelperRegressionTest {
     private static final Path TELEPORT_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/utility/ShipTeleportHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/utility/ShipTeleportHelper.kt");
 
     @Test
     void teleportNearLivingShouldKeepShipsOutsideThreeBlockRadius() throws IOException {

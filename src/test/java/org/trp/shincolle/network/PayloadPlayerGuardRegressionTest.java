@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PayloadPlayerGuardRegressionTest {
     private static final Path NETWORK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.java");
+            Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.kt");
 
     private static final List<String> GUARDED_HANDLERS = List.of(
             "handleBookState",

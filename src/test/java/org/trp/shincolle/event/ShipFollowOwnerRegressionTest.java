@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipFollowOwnerRegressionTest {
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
 
     @Test
     void followOwnerShouldStillRequireFuelAndNoGuardBlockState() throws IOException {

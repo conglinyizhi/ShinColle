@@ -12,19 +12,19 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BrainMemorySensorArchitectureRegressionTest {
     private static final List<Path> BRAIN_HELPERS = List.of(
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBrainAi.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/AircraftBrainAi.java")
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBrainAi.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/AircraftBrainAi.kt")
     );
     private static final Path SHIP_BRAIN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt");
     private static final Path SHIP_BRAIN_MEMORY_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainMemory.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainMemory.kt");
     private static final Path MEMORY_MODULES_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModMemoryModules.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModMemoryModules.kt");
     private static final Path MOD_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Shincolle.java");
+            Path.of("src/main/java/org/trp/shincolle/Shincolle.kt");
 
     @Test
     void brainHelpersShouldNotDeclareUnconsumedSensors() throws IOException {

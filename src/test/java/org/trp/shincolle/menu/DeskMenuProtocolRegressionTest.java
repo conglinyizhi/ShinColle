@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class DeskMenuProtocolRegressionTest {
 
     private static final Path DESK_MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/DeskMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/DeskMenu.kt");
     private static final Path DESK_RADAR_ITEM_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/DeskItemRadar.java");
+            Path.of("src/main/java/org/trp/shincolle/item/DeskItemRadar.kt");
     private static final Path DESK_BOOK_ITEM_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/DeskItemBook.java");
+            Path.of("src/main/java/org/trp/shincolle/item/DeskItemBook.kt");
 
     @Test
     void deskMenuShouldKeepClientPayloadContract() throws IOException {

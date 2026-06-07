@@ -21,9 +21,9 @@ class LegacyVariantModelPropertyRegistrationRegressionTest {
     private static final Path ITEM_MODEL_ROOT =
             Path.of("src/main/resources/assets/shincolle/models/item");
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
     private static final Path ITEM_REGISTRY_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
     private static final Pattern LEGACY_VARIANT_REGISTRATION_PATTERN =
             Pattern.compile("registerLegacyVariantProperty\\(ModItems\\.([A-Z0-9_]+)\\.get\\(\\)\\);");
     private static final Pattern ITEM_REGISTRATION_PATTERN =

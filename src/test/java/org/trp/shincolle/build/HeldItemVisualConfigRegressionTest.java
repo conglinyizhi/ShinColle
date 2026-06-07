@@ -19,11 +19,11 @@ class HeldItemVisualConfigRegressionTest {
     }
 
     private static final Path CONFIG_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
     private static final Path CONFIG_SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.kt");
     private static final Path HELD_ITEM_LAYER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/renderer/layer/ShipHeldItemLayer.java");
+            Path.of("src/main/java/org/trp/shincolle/client/renderer/layer/ShipHeldItemLayer.kt");
 
     private static final List<VisualConfigExpectation> EXPECTATIONS = List.of(
             new VisualConfigExpectation("config.shincolle.scaleHeldItem", "CLIENT_SCALE_HELD_ITEM", "scaleHeldItem",

@@ -12,13 +12,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipMovementCoordinatorArchitectureRegressionTest {
     private static final Path COORDINATOR_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipMovementCoordinator.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipMovementCoordinator.kt");
     private static final Path BRAIN_AI_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt");
     private static final Path SHIP_BRAIN_ACTIVITY_RESOLVER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainActivityResolver.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainActivityResolver.kt");
     private static final Path SHIP_BRAIN_RECOVERY_SUPPORT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainRecoverySupport.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipBrainRecoverySupport.kt");
     private static final Path SHIP_BRAIN_RECOVERY_SUPPORT_TEST_SOURCE =
             Path.of("src/test/kotlin/org/trp/shincolle/entity/base/ShipBrainRecoverySupportTest.kt");
     private static final Path SHIP_POINTER_POINT_DECISION_RESOLVER_TEST_SOURCE =
@@ -26,47 +26,47 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     private static final Path SHIP_FOLLOW_DECISION_RESOLVER_TEST_SOURCE =
             Path.of("src/test/kotlin/org/trp/shincolle/entity/base/ShipFollowDecisionResolverTest.kt");
     private static final Path AI_NUMBERS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.kt");
     private static final Path POINTER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.kt");
     private static final Path PASSIVE_COMBAT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePassiveCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePassiveCombat.kt");
     private static final Path MOUNT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.kt");
     private static final Path MOUNT_BRAIN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBrainAi.kt");
     private static final Path MOUNT_NUMBERS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/MountAiNumbers.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/MountAiNumbers.kt");
     private static final Path FORMATION_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/utility/FormationHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/utility/FormationHelper.kt");
     private static final Path COMMANDS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/command/ModCommands.java");
+            Path.of("src/main/java/org/trp/shincolle/command/ModCommands.kt");
     private static final Path SHIP_BASE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path MOVEMENT_RECOVERY_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipMovementRecoveryState.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipMovementRecoveryState.kt");
     private static final Path AIRCRAFT_BRAIN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/AircraftBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/AircraftBrainAi.kt");
     private static final Path AIRCRAFT_NUMBERS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/AircraftAiNumbers.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/AircraftAiNumbers.kt");
     private static final Path AIRCRAFT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityAircraftBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityAircraftBase.kt");
     private static final Path SUMMON_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBase.kt");
     private static final Path SUMMON_BRAIN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntitySummonBrainAi.kt");
     private static final Path SUMMON_NUMBERS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/SummonAiNumbers.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/SummonAiNumbers.kt");
     private static final Path CA_HIME_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityCAHime.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityCAHime.kt");
     private static final Path HEAVY_CRUISER_NE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityHeavyCruiserNe.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityHeavyCruiserNe.kt");
     private static final Path BATTLESHIP_RE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipRe.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipRe.kt");
     private static final Path DESTROYER_INAZUMA_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerInazuma.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerInazuma.kt");
     private static final Path BATTLESHIP_NAGATO_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipNagato.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipNagato.kt");
     private static final Path SHINCOLLE_MAIN_SOURCE =
             Path.of("src/main/java/org/trp/shincolle");
 
@@ -896,7 +896,7 @@ class ShipMovementCoordinatorArchitectureRegressionTest {
     private static void assertNoRawNavigationOutsideCoordinator(String forbidden) throws IOException {
         try (Stream<Path> files = Files.walk(SHINCOLLE_MAIN_SOURCE)) {
             String offenders = files
-                    .filter(path -> path.toString().endsWith(".java"))
+                    .filter(path -> path.toString().endsWith(".kt"))
                     .filter(path -> !path.equals(COORDINATOR_SOURCE))
                     .filter(path -> contains(path, forbidden))
                     .map(Path::toString)

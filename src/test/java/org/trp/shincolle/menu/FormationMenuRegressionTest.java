@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FormationMenuRegressionTest {
     private static final Path FORMATION_MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/FormationMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/FormationMenu.kt");
     private static final Path POINTER_ITEM_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/PointerItem.java");
+            Path.of("src/main/java/org/trp/shincolle/item/PointerItem.kt");
     private static final Path POINTER_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.kt");
 
     @Test
     void formationMenuShouldStayBoundToPointerHostItem() throws IOException {

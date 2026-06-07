@@ -14,7 +14,7 @@ class FontResourceReferenceRegressionTest {
     private static final Path MISANS_TTF =
             Path.of("src/main/resources/assets/shincolle/font/misans.ttf");
     private static final Path BOOK_RENDERER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/renderer/BookRenderer.java");
+            Path.of("src/main/java/org/trp/shincolle/client/renderer/BookRenderer.kt");
 
     @Test
     void fontDefinitionShouldKeepMiSansProviderAndMinecraftFallback() throws IOException {

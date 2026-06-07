@@ -18,9 +18,9 @@ class ClientConfigCoverageRegressionTest {
     }
 
     private static final Path CONFIG_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
     private static final Path CONFIG_SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.kt");
     private static final Path EN_US_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
 

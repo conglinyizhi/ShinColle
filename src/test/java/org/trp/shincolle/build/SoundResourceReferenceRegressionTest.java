@@ -29,7 +29,7 @@ class SoundResourceReferenceRegressionTest {
             "zh_tw", Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
     ));
     private static final Path MOD_SOUNDS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModSounds.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModSounds.kt");
 
     private static final Pattern SOUND_EVENT_KEY_PATTERN =
             Pattern.compile("\"([a-z0-9_./-]+)\"\\s*:\\s*\\{");

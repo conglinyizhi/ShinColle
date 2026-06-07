@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipContainerMenuProtocolRegressionTest {
     private static final Path MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.kt");
     private static final Path MOD_MENUS =
-            Path.of("src/main/java/org/trp/shincolle/menu/ModMenus.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/ModMenus.kt");
 
     @Test
     void shipMenuShouldKeepRegistryFriendlyByteBufClientFactory() throws IOException {

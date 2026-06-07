@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ParticleProviderRegistrationRegressionTest {
     private static final Path MOD_PARTICLES_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModParticles.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModParticles.kt");
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
     private static final Pattern PARTICLE_FIELD_PATTERN = Pattern.compile(
             "public static final DeferredHolder<ParticleType<\\?>, SimpleParticleType>\\s+([A-Z0-9_]+)\\s*=\\s*PARTICLES\\.register",
             Pattern.MULTILINE);

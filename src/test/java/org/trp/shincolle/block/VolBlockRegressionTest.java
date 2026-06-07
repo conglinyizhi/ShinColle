@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class VolBlockRegressionTest {
 
     private static final Path VOL_BLOCK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/block/VolBlock.java");
+            Path.of("src/main/java/org/trp/shincolle/block/VolBlock.kt");
     private static final Path MOD_BLOCKS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt");
     private static final Path MOD_ITEMS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
     private static final Path VOL_BLOCK_RECIPE =
             Path.of("src/main/resources/data/shincolle/recipe/blockvolblock.json");
     private static final Path VOL_BLOCK_RECIPE_ALT =

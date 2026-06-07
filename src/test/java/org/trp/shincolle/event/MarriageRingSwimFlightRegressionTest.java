@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MarriageRingSwimFlightRegressionTest {
     private static final Path CONFIG_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
     private static final Path RING_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/MarriageRingService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/MarriageRingService.kt");
     private static final Path PLAYER_STATE_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.kt");
     private static final Path ADMIRAL_DATA_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/attachment/AdmiralData.java");
+            Path.of("src/main/java/org/trp/shincolle/attachment/AdmiralData.kt");
 
     @Test
     void swimFlightAbilityShouldNoLongerBeMarkedAsParityOnly() throws IOException {

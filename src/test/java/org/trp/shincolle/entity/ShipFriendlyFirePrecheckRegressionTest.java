@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipFriendlyFirePrecheckRegressionTest {
     private static final Path SHIP_COMBAT =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.kt");
 
     @Test
     void lightAndHeavyAttacksShouldRejectSameOwnerTargetsBeforeSpendingAmmo() throws IOException {

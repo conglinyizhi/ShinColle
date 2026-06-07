@@ -23,13 +23,13 @@ class PatchouliBookMetadataRegressionTest {
     private static final Path ZH_TW =
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json");
     private static final Path MOD_ITEMS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
     private static final Path DESK_ITEM_BOOK_RECIPE =
             Path.of("src/main/resources/data/shincolle/recipe/deskitembook.json");
     private static final Path DESK_ITEM_BOOK_MODEL =
             Path.of("src/main/resources/assets/shincolle/models/item/deskitembook.json");
     private static final Path DESK_ITEM_BOOK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/DeskItemBook.java");
+            Path.of("src/main/java/org/trp/shincolle/item/DeskItemBook.kt");
 
     private static final Map<String, Path> MAINTAINED_LANGS = Map.of(
             "en_us", EN_US,

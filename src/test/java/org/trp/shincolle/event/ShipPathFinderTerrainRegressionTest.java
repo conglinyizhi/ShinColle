@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipPathFinderTerrainRegressionTest {
     private static final Path PATH_FINDER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyPathFinder.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyPathFinder.kt");
 
     @Test
     void pathFinderShouldNotTreatStairsAndClimbablesAsHardBlockedTiles() throws IOException {

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipAmmoAutosupplyRegressionTest {
     private static final Path SHIP_BASE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
 
     @Test
     void autoSupplyShouldStillConsumeFuelItems() throws IOException {

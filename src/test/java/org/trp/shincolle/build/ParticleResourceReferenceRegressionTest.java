@@ -22,7 +22,7 @@ class ParticleResourceReferenceRegressionTest {
     private static final Path PARTICLE_TEXTURE_ROOT =
             Path.of("src/main/resources/assets/shincolle/textures/particle");
     private static final Path MOD_PARTICLES_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModParticles.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModParticles.kt");
 
     private static final Pattern REGISTERED_PARTICLE_PATTERN =
             Pattern.compile("PARTICLES\\.register\\(\"([a-z0-9_]+)\"");

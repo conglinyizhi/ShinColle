@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipMenuOpenGuardRegressionTest {
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path DESK_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/DeskInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/DeskInteractionService.kt");
     private static final Path POINTER_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.kt");
 
     @Test
     void shipMenuOpenShouldRejectInvalidServerSideShipStates() throws IOException {

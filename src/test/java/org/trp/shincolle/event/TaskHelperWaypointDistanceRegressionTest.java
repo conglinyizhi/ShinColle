@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskHelperWaypointDistanceRegressionTest {
     private static final Path TASK_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.kt");
 
     @Test
     void cookingAndCraftingShouldKeepLegacyChestDistanceGate() throws IOException {

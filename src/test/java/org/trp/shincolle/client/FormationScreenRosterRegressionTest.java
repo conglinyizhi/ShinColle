@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FormationScreenRosterRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/FormationScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/FormationScreen.kt");
 
     @Test
     void formationScreenShouldIgnoreRemovedShipsWhenPickingNearbyRosterCandidates() throws IOException {

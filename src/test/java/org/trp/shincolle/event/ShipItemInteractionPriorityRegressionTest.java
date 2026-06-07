@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipItemInteractionPriorityRegressionTest {
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path MOUNT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.kt");
     private static final Path HOST_INTERACTION_ROUTER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipHostInteractionRouter.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipHostInteractionRouter.kt");
 
     @Test
     void shipMobInteractShouldLetItemEntityInteractionsWinBeforeDefaultShipInteraction() throws IOException {

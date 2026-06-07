@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipCommandRecoveryRegressionTest {
     private static final Path POINTER_GOAL_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt");
     private static final Path POINTER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.kt");
     private static final Path AI_NUMBERS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.kt");
 
     @Test
     void pointerMoveBehaviorShouldUseCentralizedAiNumbersAndCoordinator() throws IOException {

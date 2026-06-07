@@ -32,7 +32,7 @@ public class ComponentTranslationCoverageRegressionTest {
         try (Stream<Path> stream = Files.walk(JAVA_ROOT)) {
             for (Path javaFile : (Iterable<Path>) stream
                     .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(".java"))::iterator) {
+                    .filter(path -> path.toString().endsWith(".kt"))::iterator) {
                 String source = stripComments(Files.readString(javaFile));
                 Matcher matcher = TRANSLATABLE_PATTERN.matcher(source);
                 Set<String> fileKeys = new TreeSet<>();

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HostileSpawnBroadcastRegressionTest {
     private static final Path HOSTILE_SPAWN_MANAGER =
-            Path.of("src/main/java/org/trp/shincolle/event/HostileSpawnManager.java");
+            Path.of("src/main/java/org/trp/shincolle/event/HostileSpawnManager.kt");
 
     @Test
     void bossSpawnBroadcastShouldRequireAtLeastOneSuccessfulSpawn() throws IOException {

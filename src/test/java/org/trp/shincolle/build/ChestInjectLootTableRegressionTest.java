@@ -20,11 +20,11 @@ class ChestInjectLootTableRegressionTest {
     private static final Path CHEST_LOOT_ROOT =
             Path.of("src/main/resources/data/shincolle/loot_table/inject/chests");
     private static final Path LEGACY_CHEST_LOOT_MODIFIER =
-            Path.of("src/main/java/org/trp/shincolle/loot/LegacyChestLootModifier.java");
+            Path.of("src/main/java/org/trp/shincolle/loot/LegacyChestLootModifier.kt");
     private static final Path MOD_ITEMS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
     private static final Path CONFIG =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
 
     private static final Pattern TYPE_PATTERN =
             Pattern.compile("\"type\"\\s*:\\s*\"([^\"]+)\"");

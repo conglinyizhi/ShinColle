@@ -11,18 +11,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipEquipOptionLocalizationRegressionTest {
     private static final List<Path> EQUIP_OPTION_SOURCES = List.of(
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityCarrierWo.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityCarrierAkagi.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityCarrierKaga.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityAirfieldHime.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerShimakaze.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerAkatsuki.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerI.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerHa.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerNi.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerRo.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipRu.java"),
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipTa.java")
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityCarrierWo.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityCarrierAkagi.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityCarrierKaga.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityAirfieldHime.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerShimakaze.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerAkatsuki.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerI.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerHa.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerNi.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerRo.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipRu.kt"),
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityBattleshipTa.kt")
     );
     private static final List<Path> LANGUAGE_SOURCES = List.of(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),

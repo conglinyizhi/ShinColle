@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipLegacyNbtCompatibilityRegressionTest {
     private static final Path SERIALIZATION_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseSerialization.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseSerialization.kt");
 
     @Test
     void legacyShipExtPropsAndInventoryShouldStillLoad() throws IOException {
@@ -67,7 +67,7 @@ class ShipLegacyNbtCompatibilityRegressionTest {
     @Test
     void legacyShipExtPropsBackupShouldBeSavedForward() throws IOException {
         String source = Files.readString(SERIALIZATION_SOURCE);
-        String entitySource = Files.readString(Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java"));
+        String entitySource = Files.readString(Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt"));
 
         assertTrue(entitySource.contains("private CompoundTag legacyShipExtPropsBackup = new CompoundTag();"),
                 "Ship entities should keep an internal backup of legacy ShipExtProps data");
@@ -83,7 +83,7 @@ class ShipLegacyNbtCompatibilityRegressionTest {
 
     @Test
     void legacyCanDropShouldStillGateDeathSpawnEggDrop() throws IOException {
-        String entitySource = Files.readString(Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java"));
+        String entitySource = Files.readString(Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt"));
 
         assertTrue(entitySource.contains("if (!this.level().isClientSide && this.shipDeathTicks == SHIP_DEATH_MAX_TICKS && this.hostileCanDrop) {"),
                 "Ship death handling should still respect the legacy CanDrop gate before spawning the preserved spawn egg");

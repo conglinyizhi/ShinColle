@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ModEventBusArchitectureRegressionTest {
     private static final Path EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.kt");
     private static final Path MARRIAGE_RING_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/MarriageRingService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/MarriageRingService.kt");
     private static final Path HOSTILE_DROP_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/HostileDropService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/HostileDropService.kt");
 
     @Test
     void marriageRingRulesShouldLiveInDedicatedService() throws IOException {

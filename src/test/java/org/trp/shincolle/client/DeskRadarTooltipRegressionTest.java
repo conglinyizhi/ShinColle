@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeskRadarTooltipRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/DeskScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/DeskScreen.kt");
     private static final Path EN_US_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
 

@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BlockEntityRendererRegistrationRegressionTest {
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
 
     private static final List<String> BLOCK_ENTITIES_REQUIRING_RENDERERS = List.of(
             "SMALL_SHIPYARD",

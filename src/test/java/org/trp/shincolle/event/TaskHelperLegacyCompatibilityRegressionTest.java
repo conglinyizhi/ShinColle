@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TaskHelperLegacyCompatibilityRegressionTest {
     private static final Path TASK_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.kt");
     private static final Path CONFIG_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
 
     @Test
     void taskDispatcherShouldPreserveFuelAndEnableGates() throws IOException {

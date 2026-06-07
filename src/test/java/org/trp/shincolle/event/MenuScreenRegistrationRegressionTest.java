@@ -14,9 +14,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MenuScreenRegistrationRegressionTest {
     private static final Path MOD_MENUS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/ModMenus.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/ModMenus.kt");
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
     private static final Pattern MENU_FIELD_PATTERN = Pattern.compile(
             "public static final DeferredHolder<MenuType<\\?>, MenuType<[^>]+>>\\s+([A-Z0-9_]+)\\s*=\\s*MENUS\\.register",
             Pattern.MULTILINE);

@@ -19,18 +19,18 @@ class ItemCustomRendererRegressionTest {
     }
 
     private static final Path ITEM_REGISTRY_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
 
     private static final List<ItemRendererExpectation> ITEMS_REQUIRING_CUSTOM_RENDERERS = List.of(
             new ItemRendererExpectation(
                     "DESK",
-                    Path.of("src/main/java/org/trp/shincolle/item/DeskBlockItem.java"),
+                    Path.of("src/main/java/org/trp/shincolle/item/DeskBlockItem.kt"),
                     "DeskBlockItem",
                     "DeskItemRenderer"
             ),
             new ItemRendererExpectation(
                     "SMALL_SHIPYARD",
-                    Path.of("src/main/java/org/trp/shincolle/item/SmallShipyardBlockItem.java"),
+                    Path.of("src/main/java/org/trp/shincolle/item/SmallShipyardBlockItem.kt"),
                     "SmallShipyardBlockItem",
                     "SmallShipyardItemRenderer"
             )

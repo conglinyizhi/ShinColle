@@ -11,13 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipPointerRecoveryRegressionTest {
     private static final Path POINTER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.kt");
     private static final Path BRAIN_AI_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt");
     private static final Path AI_NUMBERS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipAiNumbers.kt");
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
 
     @Test
     void pointerEntityCommandShouldClearAfterRepeatedMoveFailures() throws IOException {

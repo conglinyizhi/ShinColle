@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeskDiplomacyScreenRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/DeskScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/DeskScreen.kt");
     private static final Path JA_LANG_SOURCE =
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json");
     private static final Path ZH_LANG_SOURCE =

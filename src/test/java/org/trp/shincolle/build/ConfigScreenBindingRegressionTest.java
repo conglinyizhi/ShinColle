@@ -14,7 +14,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConfigScreenBindingRegressionTest {
     private static final Path CONFIG_SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.kt");
     private static final Pattern CONFIG_GET_PATTERN =
             Pattern.compile("Config\\.([A-Z0-9_]+)\\.get\\(\\)");
     private static final Pattern CONFIG_SET_PATTERN =

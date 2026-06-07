@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipTaskRuntimeArchitectureRegressionTest {
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path TASK_RUNTIME_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipTaskRuntime.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/ShipTaskRuntime.kt");
     private static final Path TASK_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.kt");
 
     @Test
     void shipsShouldOwnLongLivedTaskRuntime() throws IOException {

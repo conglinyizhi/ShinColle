@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CraneMovementCoordinatorRegressionTest {
     private static final Path CRANE_BE =
-            Path.of("src/main/java/org/trp/shincolle/block/entity/CraneBlockEntity.java");
+            Path.of("src/main/java/org/trp/shincolle/block/entity/CraneBlockEntity.kt");
 
     @Test
     void craneShouldRouteShipMovementThroughCoordinator() throws IOException {

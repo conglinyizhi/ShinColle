@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipSpecialAttackFriendlyFireRegressionTest {
     private static final Path SHIP_BASE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path SHIP_COMBAT =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.kt");
 
     @Test
     void shipBaseShouldExposeSharedSameOwnerAttackHelper() throws IOException {
@@ -46,7 +46,7 @@ class ShipSpecialAttackFriendlyFireRegressionTest {
                 "src/main/java/org/trp/shincolle/entity/EntitySubmHime.java",
                 "src/main/java/org/trp/shincolle/entity/EntitySubmRo500.java",
                 "src/main/java/org/trp/shincolle/entity/EntitySubmU511.java",
-                "src/main/java/org/trp/shincolle/entity/EntitySubmYo.java")) {
+                "src/main/java/org/trp/shincolle/entity/EntitySubmYo.kt")) {
             assertGuardBeforeConsume(file, "if (!consumeHeavyAmmo(1)) {");
         }
     }

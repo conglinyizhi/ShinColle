@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipPassiveCombatRegressionTest {
     private static final Path PASSIVE_COMBAT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePassiveCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePassiveCombat.kt");
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path SHIP_BRAIN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt");
 
     @Test
     void passiveCombatShouldStillAdvanceOnTargetsEvenWhenFollowOwnerWouldNormallyApply() throws IOException {

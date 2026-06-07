@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DeskRadarOpenShipRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/DeskScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/DeskScreen.kt");
     private static final Path NETWORK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.java");
+            Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.kt");
     private static final Path DESK_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/DeskInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/DeskInteractionService.kt");
 
     @Test
     void radarListShouldStillOpenShipMenuWhenClickingSameShipAgain() throws IOException {

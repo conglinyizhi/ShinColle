@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipLegacyCommandCompatibilityRegressionTest {
     private static final Path COMMANDS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/command/ModCommands.java");
+            Path.of("src/main/java/org/trp/shincolle/command/ModCommands.kt");
     private static final Path MOUNT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.kt");
 
     @Test
     void publicLegacyCommandBranchesShouldStayAvailableToNormalPlayers() throws IOException {

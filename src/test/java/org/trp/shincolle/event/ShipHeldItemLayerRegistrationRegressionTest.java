@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipHeldItemLayerRegistrationRegressionTest {
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
     private static final Path HELD_ITEM_LAYER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/renderer/layer/ShipHeldItemLayer.java");
+            Path.of("src/main/java/org/trp/shincolle/client/renderer/layer/ShipHeldItemLayer.kt");
 
     @Test
     void shipRenderersShouldKeepSharedHeldItemLayerHook() throws IOException {

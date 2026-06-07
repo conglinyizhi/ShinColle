@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipMountFireImmunityRegressionTest {
     private static final Path MOUNT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityMountBase.kt");
 
     @Test
     void mountEntitiesShouldIgnoreFireDamageAndBurningVisuals() throws IOException {

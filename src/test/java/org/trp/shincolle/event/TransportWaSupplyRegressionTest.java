@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TransportWaSupplyRegressionTest {
     private static final Path WA_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityTransportWa.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityTransportWa.kt");
 
     @Test
     void waShouldKeepLegacyAmmoThresholdsForSelfSupplyAndAllySupply() throws IOException {

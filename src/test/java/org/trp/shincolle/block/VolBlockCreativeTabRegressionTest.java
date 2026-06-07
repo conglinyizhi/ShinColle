@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VolBlockCreativeTabRegressionTest {
     private static final Path MOD_TABS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModTabs.kt");
     private static final Path MOD_ITEMS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModItems.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt");
 
     @Test
     void multiblockVolcanoShellShouldNotAppearInCreativeTab() throws IOException {

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TeamDiplomacyServiceRegressionTest {
     private static final Path TEAM_DIPLOMACY_SERVICE =
-            Path.of("src/main/java/org/trp/shincolle/server/TeamDiplomacyService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/TeamDiplomacyService.kt");
 
     @Test
     void diplomacyActionsShouldOnlySyncDeskStateAfterRealRelationChanges() throws IOException {

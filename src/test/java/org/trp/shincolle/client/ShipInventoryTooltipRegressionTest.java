@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipInventoryTooltipRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/ShipInventoryScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/ShipInventoryScreen.kt");
     private static final List<Path> MAINTAINED_LANGS = List.of(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),

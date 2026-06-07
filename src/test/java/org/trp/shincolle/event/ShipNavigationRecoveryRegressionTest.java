@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipNavigationRecoveryRegressionTest {
     private static final Path NAVIGATION_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyNavigation.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyNavigation.kt");
     private static final Path NAVIGATION_POLICY_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyNavigationPolicy.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyNavigationPolicy.kt");
     private static final Path LEGACY_PATH_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyPath.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/path/ShipLegacyPath.kt");
 
     @Test
     void navigationTimeoutShouldRetryPathBeforeGivingUp() throws IOException {

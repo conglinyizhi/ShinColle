@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CraneScreenTooltipRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/CraneScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/CraneScreen.kt");
     private static final Path EN_US_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
 

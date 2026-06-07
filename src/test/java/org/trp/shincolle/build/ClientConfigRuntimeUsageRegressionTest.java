@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ClientConfigRuntimeUsageRegressionTest {
     private static final Path SHIP_BASE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path SHIP_COMBAT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.kt");
     private static final Path BOOK_RENDERER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/renderer/BookRenderer.java");
+            Path.of("src/main/java/org/trp/shincolle/client/renderer/BookRenderer.kt");
 
     @Test
     void clientConfigTogglesShouldRemainConnectedToRuntimeConsumers() throws IOException {

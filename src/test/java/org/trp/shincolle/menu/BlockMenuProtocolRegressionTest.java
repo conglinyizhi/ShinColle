@@ -11,33 +11,33 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class BlockMenuProtocolRegressionTest {
     private static final Path MOD_MENUS =
-            Path.of("src/main/java/org/trp/shincolle/menu/ModMenus.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/ModMenus.kt");
 
     private static final List<MenuContract> MENU_CONTRACTS = List.of(
             new MenuContract(
                     "crane_menu",
-                    Path.of("src/main/java/org/trp/shincolle/menu/CraneMenu.java"),
+                    Path.of("src/main/java/org/trp/shincolle/menu/CraneMenu.kt"),
                     "CraneBlockEntity",
                     "Missing crane menu data.",
                     "Crane block entity not found."
             ),
             new MenuContract(
                     "small_shipyard_menu",
-                    Path.of("src/main/java/org/trp/shincolle/menu/SmallShipyardMenu.java"),
+                    Path.of("src/main/java/org/trp/shincolle/menu/SmallShipyardMenu.kt"),
                     "SmallShipyardBlockEntity",
                     "Missing small shipyard menu data.",
                     "Small shipyard block entity not found."
             ),
             new MenuContract(
                     "large_shipyard_menu",
-                    Path.of("src/main/java/org/trp/shincolle/menu/LargeShipyardMenu.java"),
+                    Path.of("src/main/java/org/trp/shincolle/menu/LargeShipyardMenu.kt"),
                     "LargeShipyardBlockEntity",
                     "Missing large shipyard menu data.",
                     "Large shipyard block entity not found."
             ),
             new MenuContract(
                     "vol_core_menu",
-                    Path.of("src/main/java/org/trp/shincolle/menu/VolCoreMenu.java"),
+                    Path.of("src/main/java/org/trp/shincolle/menu/VolCoreMenu.kt"),
                     "VolCoreBlockEntity",
                     "Missing VolCore menu data.",
                     "VolCore block entity not found."
@@ -94,7 +94,7 @@ class BlockMenuProtocolRegressionTest {
 
     @Test
     void craneMenuShouldRejectStaleCraningShipEntityReferences() throws IOException {
-        String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/menu/CraneMenu.java"));
+        String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/menu/CraneMenu.kt"));
 
         assertTrue(source.contains("if (level.getEntity(id) instanceof EntityShipBase ship\n                && ship.isAlive()\n                && !ship.isRemoved()) {\n            return ship;\n        }"),
                 "Crane menu should only surface live, non-removed craning ships to the client screen");

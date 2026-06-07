@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipyardTooltipRegressionTest {
     private static final Path SMALL_SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/SmallShipyardScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/SmallShipyardScreen.kt");
     private static final Path LARGE_SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/LargeShipyardScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/LargeShipyardScreen.kt");
     private static final Path EN_US_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json");
     private static final Path JA_JP_LANG =

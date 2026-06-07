@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipContainerMenuAmmoSyncRegressionTest {
     private static final Path MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.kt");
 
     @Test
     void menuClickPathShouldRecalculateShipInventoryDerivedStats() throws IOException {

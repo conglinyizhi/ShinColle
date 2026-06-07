@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipAmmoValueRegressionTest {
     private static final Path COMBAT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.kt");
 
     @Test
     void ammoItemsShouldKeepLegacyInternalValueScale() throws IOException {

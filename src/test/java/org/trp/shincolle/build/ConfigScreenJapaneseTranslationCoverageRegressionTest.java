@@ -15,7 +15,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ConfigScreenJapaneseTranslationCoverageRegressionTest {
     private static final Path CONFIG_SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/gui/ShincolleConfigScreen.kt");
     private static final Path JA_JP_LANG =
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json");
     private static final Pattern CONFIG_KEY_PATTERN =

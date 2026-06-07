@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MiningConfigLevelGateRegressionTest {
     private static final Path CONFIG_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
 
     @Test
     void miningConfigShouldPreserveLegacyZeroShipLevelRequirement() throws IOException {

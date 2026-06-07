@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipTaskSideButtonRegressionTest {
     private static final Path MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.kt");
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/ShipInventoryScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/ShipInventoryScreen.kt");
     private static final Path INVENTORY_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/inventory/ShipInventoryHandler.java");
+            Path.of("src/main/java/org/trp/shincolle/inventory/ShipInventoryHandler.kt");
 
     @Test
     void taskSideButtonsShouldOnlyCoverTheLegacyEighteenSideBits() throws IOException {

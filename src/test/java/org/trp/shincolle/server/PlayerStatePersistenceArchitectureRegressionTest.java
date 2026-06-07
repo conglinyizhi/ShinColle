@@ -12,53 +12,53 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class PlayerStatePersistenceArchitectureRegressionTest {
     private static final Path PLAYER_STATE_SERVICE =
-            Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.kt");
     private static final Path DATA_ATTACHMENTS =
-            Path.of("src/main/java/org/trp/shincolle/init/ModDataAttachments.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModDataAttachments.kt");
     private static final Path EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ModEventBusEvents.kt");
     private static final Path NETWORK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.java");
+            Path.of("src/main/java/org/trp/shincolle/network/ModNetwork.kt");
     private static final Path DESK_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/DeskInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/DeskInteractionService.kt");
     private static final Path FORMATION_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/FormationService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/FormationService.kt");
     private static final Path POINTER_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.kt");
     private static final Path TARGET_PROTECTION_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/TargetProtectionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/TargetProtectionService.kt");
     private static final Path TEAM_DIPLOMACY_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/TeamDiplomacyService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/TeamDiplomacyService.kt");
     private static final Path SHIP_MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/ShipContainerMenu.kt");
     private static final Path DESK_MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/DeskMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/DeskMenu.kt");
     private static final Path FORMATION_MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/FormationMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/FormationMenu.kt");
     private static final Path POINTER_ITEM_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/item/PointerItem.java");
+            Path.of("src/main/java/org/trp/shincolle/item/PointerItem.kt");
     private static final Path POINTER_ITEM_CLIENT_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/PointerItemClientHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/client/PointerItemClientHelper.kt");
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path SHIP_POINTER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePointer.kt");
     private static final Path BRAIN_AI_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBrainAi.kt");
     private static final Path COMMANDS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/command/ModCommands.java");
+            Path.of("src/main/java/org/trp/shincolle/command/ModCommands.kt");
     private static final Path SHIP_REGISTRY =
-            Path.of("src/main/java/org/trp/shincolle/server/ShipRegistrySavedData.java");
+            Path.of("src/main/java/org/trp/shincolle/server/ShipRegistrySavedData.kt");
     private static final Path TEAM_DIPLOMACY =
-            Path.of("src/main/java/org/trp/shincolle/server/TeamDiplomacySavedData.java");
+            Path.of("src/main/java/org/trp/shincolle/server/TeamDiplomacySavedData.kt");
     private static final Path PLAYER_TARGET_LIST =
-            Path.of("src/main/java/org/trp/shincolle/server/PlayerTargetListSavedData.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PlayerTargetListSavedData.kt");
     private static final Path UNATTACKABLE_TARGETS =
-            Path.of("src/main/java/org/trp/shincolle/server/UnattackableTargetData.java");
+            Path.of("src/main/java/org/trp/shincolle/server/UnattackableTargetData.kt");
     private static final Path TARGET_WRENCH =
-            Path.of("src/main/java/org/trp/shincolle/item/TargetWrenchItem.java");
+            Path.of("src/main/java/org/trp/shincolle/item/TargetWrenchItem.kt");
     private static final Path PASSIVE_COMBAT =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePassiveCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBasePassiveCombat.kt");
 
     @Test
     void playerAttachmentsShouldUseModernSerializedCopyOnDeathTypes() throws IOException {

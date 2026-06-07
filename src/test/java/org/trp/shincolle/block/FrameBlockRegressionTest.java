@@ -11,9 +11,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class FrameBlockRegressionTest {
 
     private static final Path FRAME_BLOCK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/block/FrameBlock.java");
+            Path.of("src/main/java/org/trp/shincolle/block/FrameBlock.kt");
     private static final Path MOD_BLOCKS_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.java");
+            Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt");
     private static final Path BLOCKFRAME_RECIPE =
             Path.of("src/main/resources/data/shincolle/recipe/blockframe.json");
 

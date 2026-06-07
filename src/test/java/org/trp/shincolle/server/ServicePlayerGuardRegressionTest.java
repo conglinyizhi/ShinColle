@@ -10,11 +10,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ServicePlayerGuardRegressionTest {
     private static final Path WAYPOINT_SERVICE =
-            Path.of("src/main/java/org/trp/shincolle/server/WaypointService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/WaypointService.kt");
     private static final Path FORMATION_SERVICE =
-            Path.of("src/main/java/org/trp/shincolle/server/FormationService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/FormationService.kt");
     private static final Path POINTER_SERVICE =
-            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/PointerInteractionService.kt");
 
     @Test
     void waypointServiceShouldKeepExplicitPayloadDispatchBranches() throws IOException {
@@ -56,7 +56,7 @@ class ServicePlayerGuardRegressionTest {
 
     @Test
     void playerStateServiceShouldRejectNoopFormationMutations() throws IOException {
-        String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.java"));
+        String source = Files.readString(Path.of("src/main/java/org/trp/shincolle/server/PlayerStateService.kt"));
 
         assertTrue(source.contains("if (data.getCurrentTeamID() == teamId) {\n            return false;\n        }"),
                 "PlayerStateService should reject no-op current team switches");

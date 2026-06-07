@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipJadeProviderRegressionTest {
     private static final Path SHIP_JADE_PROVIDER =
-            Path.of("src/main/java/org/trp/shincolle/integration/jade/ShipJadeProvider.java");
+            Path.of("src/main/java/org/trp/shincolle/integration/jade/ShipJadeProvider.kt");
     private static final List<Path> MAINTAINED_LANGS = List.of(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),

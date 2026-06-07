@@ -12,9 +12,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShincolleDebugLoggingRegressionTest {
     private static final Path CONFIG_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
     private static final Path MOD_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Shincolle.java");
+            Path.of("src/main/java/org/trp/shincolle/Shincolle.kt");
     private static final Path MAIN_SOURCE =
             Path.of("src/main/java/org/trp/shincolle");
 
@@ -38,7 +38,7 @@ class ShincolleDebugLoggingRegressionTest {
         long directPrefixCount;
         try (Stream<Path> paths = Files.walk(MAIN_SOURCE)) {
             directPrefixCount = paths
-                    .filter(path -> path.toString().endsWith(".java"))
+                    .filter(path -> path.toString().endsWith(".kt"))
                     .map(path -> {
                         try {
                             return Files.readString(path);

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShimakazeSpecialAttackRegressionTest {
     private static final Path SHIMAKAZE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerShimakaze.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityDestroyerShimakaze.kt");
 
     @Test
     void specialLightAttackShouldRejectSameOwnerTargetsBeforeAmmoSpend() throws IOException {

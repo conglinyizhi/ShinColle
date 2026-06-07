@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class AmmoStackClampRegressionTest {
     private static final Path SHIP_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBase.kt");
     private static final Path COMBAT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/base/EntityShipBaseCombat.kt");
 
     @Test
     void ammoRemaindersShouldSplitIntoLegalStacks() throws IOException {

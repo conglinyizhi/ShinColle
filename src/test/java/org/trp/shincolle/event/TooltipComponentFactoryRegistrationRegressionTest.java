@@ -19,14 +19,14 @@ class TooltipComponentFactoryRegistrationRegressionTest {
     }
 
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
 
     private static final List<TooltipFactoryExpectation> TOOLTIP_FACTORIES = List.of(
             new TooltipFactoryExpectation(
                     "ScaledTextTooltipData",
-                    Path.of("src/main/java/org/trp/shincolle/item/ScaledTextTooltipData.java"),
+                    Path.of("src/main/java/org/trp/shincolle/item/ScaledTextTooltipData.kt"),
                     "ScaledTextClientTooltip",
-                    Path.of("src/main/java/org/trp/shincolle/item/LegacyEquipItem.java")
+                    Path.of("src/main/java/org/trp/shincolle/item/LegacyEquipItem.kt")
             )
     );
 

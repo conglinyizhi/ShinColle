@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MarriageRingFogRegressionTest {
     private static final Path CONFIG_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/Config.java");
+            Path.of("src/main/java/org/trp/shincolle/Config.kt");
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientForgeEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientForgeEventBusEvents.kt");
     private static final Path RING_SERVICE_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/server/MarriageRingService.java");
+            Path.of("src/main/java/org/trp/shincolle/server/MarriageRingService.kt");
 
     @Test
     void underwaterFogAbilityShouldNoLongerBeMarkedAsUnmigrated() throws IOException {

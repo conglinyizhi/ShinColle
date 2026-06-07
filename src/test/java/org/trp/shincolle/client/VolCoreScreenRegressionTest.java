@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class VolCoreScreenRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/VolCoreScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/VolCoreScreen.kt");
 
     @Test
     void volCoreScreenShouldKeepPowerBarAndActiveButtonVisuals() throws IOException {

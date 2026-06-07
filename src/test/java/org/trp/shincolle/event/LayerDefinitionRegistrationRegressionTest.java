@@ -16,7 +16,7 @@ class LayerDefinitionRegistrationRegressionTest {
     private static final Path MODEL_ROOT =
             Path.of("src/main/java/org/trp/shincolle/client/model");
     private static final Path CLIENT_EVENT_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java");
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.kt");
     private static final Pattern MODEL_NAME_PATTERN =
             Pattern.compile("class\\s+(Model[A-Za-z0-9_]+)");
 
@@ -28,7 +28,7 @@ class LayerDefinitionRegistrationRegressionTest {
         try (var stream = Files.walk(MODEL_ROOT)) {
             for (Path file : (Iterable<Path>) stream
                     .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith(".java"))::iterator) {
+                    .filter(path -> path.toString().endsWith(".kt"))::iterator) {
                 String source = Files.readString(file);
                 if (!source.contains("LAYER_LOCATION") || !source.contains("createBodyLayer")) {
                     continue;

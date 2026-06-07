@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecipePaperMenuRegressionTest {
     private static final Path RECIPE_PAPER_MENU_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/menu/RecipePaperMenu.java");
+            Path.of("src/main/java/org/trp/shincolle/menu/RecipePaperMenu.kt");
 
     @Test
     void recipePaperShouldKeepLegacyPreviewOnlyResultSlotAndDisableShiftMove() throws IOException {

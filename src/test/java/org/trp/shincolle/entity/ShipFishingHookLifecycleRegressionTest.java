@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ShipFishingHookLifecycleRegressionTest {
     private static final Path TASK_HELPER_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.java");
+            Path.of("src/main/java/org/trp/shincolle/utility/TaskHelper.kt");
     private static final Path FISH_HOOK_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/entity/EntityShipFishingHook.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/EntityShipFishingHook.kt");
 
     @Test
     void fishingTaskAndHookEntityShouldShareLegacyTimeoutThreshold() throws IOException {

@@ -10,9 +10,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ProjectileFriendlyFireRegressionTest {
     private static final Path MISSILE =
-            Path.of("src/main/java/org/trp/shincolle/entity/projectile/EntityAbyssMissile.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/projectile/EntityAbyssMissile.kt");
     private static final Path BEAM =
-            Path.of("src/main/java/org/trp/shincolle/entity/projectile/EntityProjectileBeam.java");
+            Path.of("src/main/java/org/trp/shincolle/entity/projectile/EntityProjectileBeam.kt");
 
     @Test
     void missileFriendlyFireCheckShouldResolvePlayersShipsMountsAndAircraft() throws IOException {

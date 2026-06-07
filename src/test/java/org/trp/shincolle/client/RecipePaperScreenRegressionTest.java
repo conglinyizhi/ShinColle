@@ -11,7 +11,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class RecipePaperScreenRegressionTest {
     private static final Path SCREEN_SOURCE =
-            Path.of("src/main/java/org/trp/shincolle/client/screen/RecipePaperScreen.java");
+            Path.of("src/main/java/org/trp/shincolle/client/screen/RecipePaperScreen.kt");
     private static final List<Path> LANGUAGE_SOURCES = List.of(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
