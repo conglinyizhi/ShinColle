@@ -20,6 +20,15 @@
       "title": "patchouli.shincolle.entry.desk_and_radar.page2.title",
       "recipe": "shincolle:desk_radar",
       "text": "patchouli.shincolle.entry.desk_and_radar.page2.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.desk_and_radar.page3.title",
+      "images": [
+        "shincolle:textures/gui/guideskradar.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.desk_and_radar.page3.text"
     }
   ]
 }

@@ -26,6 +26,12 @@
       "title": "patchouli.shincolle.entry.misc_items.page3.title",
       "item": "shincolle:equipammo",
       "text": "patchouli.shincolle.entry.misc_items.page3.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.misc_items.page4.title",
+      "recipe": "shincolle:trainingbook",
+      "text": "patchouli.shincolle.entry.misc_items.page4.text"
     }
   ]
 }

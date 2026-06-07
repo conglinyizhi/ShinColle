@@ -1,0 +1,42 @@
+{
+  "name": "patchouli.shincolle.entry.multiblock_structures.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:large_shipyard",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.multiblock_structures.page0.title",
+      "text": "patchouli.shincolle.entry.multiblock_structures.page0.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.multiblock_structures.page1.title",
+      "text": "patchouli.shincolle.entry.multiblock_structures.page1.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.multiblock_structures.page2.title",
+      "images": [
+        "shincolle:textures/gui/guilargeshipyard.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.multiblock_structures.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.multiblock_structures.page3.title",
+      "text": "patchouli.shincolle.entry.multiblock_structures.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.multiblock_structures.page4.title",
+      "text": "patchouli.shincolle.entry.multiblock_structures.page4.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.multiblock_structures.page5.title",
+      "text": "patchouli.shincolle.entry.multiblock_structures.page5.text"
+    }
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "name": "patchouli.shincolle.entry.radar_usage.name",
+  "category": "shincolle:systems",
+  "icon": "shincolle:deskitemradar",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.radar_usage.page0.title",
+      "text": "patchouli.shincolle.entry.radar_usage.page0.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.radar_usage.page1.title",
+      "text": "patchouli.shincolle.entry.radar_usage.page1.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.radar_usage.page2.title",
+      "images": [
+        "shincolle:textures/gui/guideskradar.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.radar_usage.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.radar_usage.page3.title",
+      "text": "patchouli.shincolle.entry.radar_usage.page3.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.radar_usage.page4.title",
+      "recipe": "shincolle:desk_radar",
+      "text": "patchouli.shincolle.entry.radar_usage.page4.text"
+    }
+  ]
+}

@@ -59,6 +59,12 @@
       "title": "patchouli.shincolle.entry.shipyard_tools.page7.title",
       "item": "shincolle:kaitaihammer",
       "text": "patchouli.shincolle.entry.shipyard_tools.page7.text"
+    },
+    {
+      "type": "patchouli:crafting",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page8.title",
+      "recipe": "shincolle:kaitaihammer",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page8.text"
     }
   ]
 }

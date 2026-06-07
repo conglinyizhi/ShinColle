@@ -1,0 +1,41 @@
+{
+  "name": "patchouli.shincolle.entry.ui_guide.name",
+  "category": "shincolle:systems",
+  "icon": "minecraft:barrier",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ui_guide.page0.title",
+      "text": "patchouli.shincolle.entry.ui_guide.page0.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.ui_guide.page1.title",
+      "images": [
+        "shincolle:textures/gui/guishipinventory.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.ui_guide.page1.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ui_guide.page2.title",
+      "text": "patchouli.shincolle.entry.ui_guide.page2.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.ui_guide.page3.title",
+      "images": [
+        "shincolle:textures/gui/guicrane.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.ui_guide.page3.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ui_guide.page4.title",
+      "text": "patchouli.shincolle.entry.ui_guide.page4.text"
+    }
+  ]
+}

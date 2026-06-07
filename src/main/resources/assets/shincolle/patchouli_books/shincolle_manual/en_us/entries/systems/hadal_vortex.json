@@ -40,6 +40,15 @@
       "title": "patchouli.shincolle.entry.hadal_vortex.page6.title",
       "recipe": "shincolle:blockvolcore_2",
       "text": "patchouli.shincolle.entry.hadal_vortex.page6.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.hadal_vortex.page7.title",
+      "images": [
+        "shincolle:textures/gui/guilargeshipyard.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.hadal_vortex.page7.text"
     }
   ]
 }

@@ -35,6 +35,15 @@
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.fleet_control.page4.title",
       "text": "patchouli.shincolle.entry.fleet_control.page4.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.fleet_control.page5.title",
+      "images": [
+        "shincolle:textures/gui/guiformation.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.fleet_control.page5.text"
     }
   ]
 }
