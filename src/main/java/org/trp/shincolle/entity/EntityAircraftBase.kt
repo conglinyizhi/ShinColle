@@ -625,7 +625,7 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
     }
 
 
-    private val carrier: EntityShipBase?
+    val carrier: EntityShipBase?
         get() {
             val id = this.carrierId ?: return null
             if (this.level() !is ServerLevel) {
