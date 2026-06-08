@@ -122,7 +122,7 @@ jobs:
         if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         env:
           BUILD_TYPE: ${{ steps.meta.outputs.channel }}
-        run: ./gradlew build --no-daemon
+        run: ./gradlew clean build --no-daemon
 
       - name: Collect changelog
         id: changelog
@@ -201,9 +201,28 @@ jobs:
 
       - name: Collect jar artifacts
         if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
+        env:
+          SHORT_SHA: ${{ steps.meta.outputs.short_sha }}
+          CHANNEL: ${{ steps.meta.outputs.channel }}
         run: |
+          MOD_ID="$(grep '^mod_id=' gradle.properties | cut -d= -f2)"
+          MC_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d= -f2)"
+          MOD_VERSION="$(grep '^mod_version=' gradle.properties | cut -d= -f2)"
+
           mkdir -p release-artifacts
-          find build/libs -maxdepth 1 -type f -name '*.jar' ! -name '*-sources.jar' ! -name '*-dev.jar' -exec cp {} release-artifacts/ \;
+          JAR_NAME="${MOD_ID}-mc${MC_VERSION}-${MOD_VERSION}-${SHORT_SHA}-${CHANNEL}.jar"
+          JAR_PATH="build/libs/${JAR_NAME}"
+
+          if [ -f "$JAR_PATH" ]; then
+            cp "$JAR_PATH" release-artifacts/
+            echo "Collected: $JAR_NAME"
+          else
+            echo "ERROR: Expected jar not found: $JAR_PATH"
+            echo "Available jars in build/libs:"
+            ls -la build/libs/
+            exit 1
+          fi
+
           ls -lah release-artifacts
 
       - name: Create or update prerelease
