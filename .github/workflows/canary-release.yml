@@ -225,6 +225,19 @@ jobs:
 
           ls -lah release-artifacts
 
+      - name: Delete old release assets
+        if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG_NAME: ${{ steps.meta.outputs.tag }}
+        run: |
+          gh release view "$TAG_NAME" --repo "${{ github.repository }}" --json assets -q '.assets[].id' 2>/dev/null | while read -r asset_id; do
+            if [ -n "$asset_id" ]; then
+              echo "Deleting old asset $asset_id"
+              gh api "repos/${{ github.repository }}/releases/assets/$asset_id" -X DELETE
+            fi
+          done
+
       - name: Create or update prerelease
         if: steps.meta.outputs.channel != 'nightly' || steps.gate.outputs.should_release == 'true'
         uses: softprops/action-gh-release@v2
