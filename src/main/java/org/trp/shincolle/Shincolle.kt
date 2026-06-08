@@ -54,6 +54,9 @@ class Shincolle(modEventBus: IEventBus, modContainer: ModContainer) {
 
         @JvmStatic
         fun diagnosticLog(message: String?, vararg args: Any?) {
+            if (!Config.debugLogging) {
+                return
+            }
             LOGGER.info("[ShinColleDiag] " + message, *args)
         }
 
