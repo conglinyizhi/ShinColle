@@ -136,6 +136,11 @@ object ModEventBusEvents {
         event.put(ModEntities.RENSOUHOU.get(), EntityShincolleSimpleMob.createAttributes().build())
         event.put(ModEntities.RENSOUHOU_S.get(), EntityShincolleSimpleMob.createAttributes().build())
         event.put(ModEntities.TAKOYAKI.get(), EntityAircraftBase.createAttributes().build())
+
+        event.put(ModEntities.FLOATING_FORT.get(), EntityAircraftBase.createAttributes().build())
+        event.put(ModEntities.AIRPLANE_T_MOB.get(), EntityAircraftBase.createAttributes().build())
+        event.put(ModEntities.AIRPLANE_ZERO_MOB.get(), EntityAircraftBase.createAttributes().build())
+        event.put(ModEntities.RENSOUHOU_MOB.get(), EntityShincolleSimpleMob.createAttributes().build())
     }
 
     @JvmStatic

@@ -5,7 +5,7 @@ import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.level.Level
 
-class EntityAirplaneT(type: EntityType<out TamableAnimal>, level: Level) : EntityAircraftBase(type, level) {
+open class EntityAirplaneT(type: EntityType<out TamableAnimal>, level: Level) : EntityAircraftBase(type, level) {
     override val isDefaultLightAircraft: Boolean
         get() = false
 

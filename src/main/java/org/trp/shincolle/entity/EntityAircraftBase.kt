@@ -22,6 +22,7 @@ import net.minecraft.world.phys.Vec3
 import org.trp.shincolle.Shincolle.Companion.debugLog
 import org.trp.shincolle.entity.base.EntityShincolleSimpleMob
 import org.trp.shincolle.entity.base.EntityShipBase
+import org.trp.shincolle.entity.base.EntitySummonBase
 import org.trp.shincolle.entity.base.ShipMovementCoordinator
 import org.trp.shincolle.entity.base.ShipMovementRecoveryState
 import org.trp.shincolle.entity.projectile.EntityAbyssMissile
@@ -682,6 +683,20 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         if (isFriendlyTarget(carrier, target)) {
             return false
         }
+        // Hostile carrier: treat player and friendly ships as valid targets
+        if (carrier.isHostileShipMob) {
+            if (target is Player) {
+                return true
+            }
+            if (target is EntityShipBase && !target.isHostileShipMob) {
+                return true
+            }
+            if (target is TamableAnimal && target.ownerUUID != null) {
+                return true
+            }
+            return false
+        }
+        // Friendly carrier: use original logic
         if (target is Enemy) {
             return true
         }
@@ -709,6 +724,22 @@ abstract class EntityAircraftBase protected constructor(type: EntityType<out Tam
         if (target === carrier) {
             return true
         }
+        // Hostile carrier: other hostile entities with same owner are friendly
+        if (carrier.isHostileShipMob) {
+            if (target is EntityShipBase && target.isHostileShipMob && target.ownerUUID == carrier.ownerUUID) {
+                return true
+            }
+            if (target is EntityAircraftBase) {
+                val otherCarrier = target.carrier
+                return otherCarrier != null && otherCarrier.ownerUUID == carrier.ownerUUID
+            }
+            if (target is EntitySummonBase) {
+                val otherCarrier = target.carrier
+                return otherCarrier != null && otherCarrier.ownerUUID == carrier.ownerUUID
+            }
+            return false
+        }
+        // Friendly carrier: original logic
         if (target is Player && target.uuid == carrier.ownerUUID) {
             return true
         }

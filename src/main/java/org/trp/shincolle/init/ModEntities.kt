@@ -968,4 +968,79 @@ object ModEntities {
                     .sized(0.25f, 0.25f)
                     .build("ship_fishing_hook")
             })
+
+    @JvmField
+    val FLOATING_FORT: DeferredHolder<EntityType<*>, EntityType<EntityFloatingFort>> =
+        ENTITY_TYPES.register<EntityType<EntityFloatingFort>>(
+            "floating_fort",
+            Supplier {
+                EntityType.Builder.of<EntityFloatingFort>(EntityFactory { type: EntityType<EntityFloatingFort>, level: Level ->
+                    EntityFloatingFort(
+                        type,
+                        level
+                    )
+                }, MobCategory.MISC)
+                    .sized(0.6f, 0.6f)
+                    .build("floating_fort")
+            })
+
+    @JvmField
+    val PROJECTILE_STATIC: DeferredHolder<EntityType<*>, EntityType<EntityProjectileStatic>> =
+        ENTITY_TYPES.register<EntityType<EntityProjectileStatic>>(
+            "projectile_static",
+            Supplier {
+                EntityType.Builder.of<EntityProjectileStatic>(EntityFactory { type: EntityType<EntityProjectileStatic>, level: Level ->
+                    EntityProjectileStatic(
+                        type,
+                        level
+                    )
+                }, MobCategory.MISC)
+                    .sized(0.1f, 0.1f)
+                    .build("projectile_static")
+            })
+
+    @JvmField
+    val AIRPLANE_T_MOB: DeferredHolder<EntityType<*>, EntityType<EntityAirplaneTMob>> =
+        ENTITY_TYPES.register<EntityType<EntityAirplaneTMob>>(
+            "airplane_t_mob",
+            Supplier {
+                EntityType.Builder.of<EntityAirplaneTMob>(EntityFactory { type: EntityType<EntityAirplaneTMob>, level: Level ->
+                    EntityAirplaneTMob(
+                        type,
+                        level
+                    )
+                }, MobCategory.MISC)
+                    .sized(0.5f, 0.5f)
+                    .build("airplane_t_mob")
+            })
+
+    @JvmField
+    val AIRPLANE_ZERO_MOB: DeferredHolder<EntityType<*>, EntityType<EntityAirplaneZeroMob>> =
+        ENTITY_TYPES.register<EntityType<EntityAirplaneZeroMob>>(
+            "airplane_zero_mob",
+            Supplier {
+                EntityType.Builder.of<EntityAirplaneZeroMob>(EntityFactory { type: EntityType<EntityAirplaneZeroMob>, level: Level ->
+                    EntityAirplaneZeroMob(
+                        type,
+                        level
+                    )
+                }, MobCategory.MISC)
+                    .sized(0.5f, 0.5f)
+                    .build("airplane_zero_mob")
+            })
+
+    @JvmField
+    val RENSOUHOU_MOB: DeferredHolder<EntityType<*>, EntityType<EntityRensouhouMob>> =
+        ENTITY_TYPES.register<EntityType<EntityRensouhouMob>>(
+            "rensouhou_mob",
+            Supplier {
+                EntityType.Builder.of<EntityRensouhouMob>(EntityFactory { type: EntityType<EntityRensouhouMob>, level: Level ->
+                    EntityRensouhouMob(
+                        type,
+                        level
+                    )
+                }, MobCategory.MISC)
+                    .sized(0.5f, 0.5f)
+                    .build("rensouhou_mob")
+            })
 }
