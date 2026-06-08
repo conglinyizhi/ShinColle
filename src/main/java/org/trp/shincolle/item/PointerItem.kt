@@ -184,7 +184,7 @@ class PointerItem(properties: Properties) : Item(properties.stacksTo(1)) {
     }
 
     companion object {
-        private const val TAG_VARIANT = "LegacyVariant"
+        const val TAG_VARIANT = "LegacyVariant"
 
         const val MODE_SINGLE: Int = 0
         const val MODE_GROUP: Int = 1

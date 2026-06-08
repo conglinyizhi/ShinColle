@@ -19,8 +19,10 @@ import org.trp.shincolle.server.PlayerStateService.applyAdmiralSync
 import org.trp.shincolle.server.PlayerStateService.refreshClientPointerSelection
 import org.trp.shincolle.server.PointerInteractionService.getPointerStack
 import org.trp.shincolle.server.PointerInteractionService.handlePayloadAction
+import org.trp.shincolle.server.PlayerSkillService.handlePlayerSkill
 import org.trp.shincolle.server.TeamDiplomacyService.handleAction
 import org.trp.shincolle.server.WaypointService.handleAction
+import net.minecraft.server.level.ServerPlayer
 import java.util.*
 import java.util.List
 
@@ -89,6 +91,13 @@ object ModNetwork {
             C2STeamDiplomacyPayload.Companion.STREAM_CODEC,
             IPayloadHandler { payload: C2STeamDiplomacyPayload, context: IPayloadContext ->
                 ModNetwork.handleTeamDiplomacy(payload, context)
+            }
+        )
+        registrar.playToServer<C2SPlayerSkillPayload>(
+            C2SPlayerSkillPayload.Companion.TYPE,
+            C2SPlayerSkillPayload.Companion.STREAM_CODEC,
+            IPayloadHandler { payload: C2SPlayerSkillPayload, context: IPayloadContext ->
+                ModNetwork.handlePlayerSkill(payload, context)
             }
         )
         registrar.playToClient<S2CAdmiralDataSyncPayload>(
@@ -209,6 +218,15 @@ object ModNetwork {
             val player = context.player()
             if (player != null) {
                 handleAction(player, payload.action, payload.targetUuid)
+            }
+        })
+    }
+
+    private fun handlePlayerSkill(payload: C2SPlayerSkillPayload, context: IPayloadContext) {
+        context.enqueueWork(Runnable {
+            val player = context.player()
+            if (player is ServerPlayer) {
+                handlePlayerSkill(player, payload.skillType, payload.targetEntityUUID, payload.targetPos)
             }
         })
     }

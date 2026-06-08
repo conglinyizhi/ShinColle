@@ -1,12 +1,19 @@
 package org.trp.shincolle.event
 
+import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionResult
+import net.minecraft.world.damagesource.DamageTypes
+import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.Items
+import net.minecraft.world.item.enchantment.EnchantmentHelper
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
+import net.neoforged.neoforge.event.AnvilUpdateEvent
 import net.neoforged.neoforge.event.RegisterCommandsEvent
 import net.neoforged.neoforge.event.entity.EntityAttributeCreationEvent
+import net.neoforged.neoforge.event.entity.living.LivingDeathEvent
 import net.neoforged.neoforge.event.entity.living.LivingDropsEvent
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent
 import net.neoforged.neoforge.event.entity.player.AttackEntityEvent
@@ -18,10 +25,14 @@ import net.neoforged.neoforge.event.tick.ServerTickEvent
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.command.ModCommands
 import org.trp.shincolle.entity.*
+import org.trp.shincolle.entity.base.EntityMountBase
+import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.entity.base.EntityShincolleSimpleMob
 import org.trp.shincolle.entity.base.EntityShipBaseSimple
+import org.trp.shincolle.entity.base.EntitySummonBase
 import org.trp.shincolle.init.ModEntities
 import org.trp.shincolle.item.DebugInspectorItem.Companion.handleItemFrameInteract
+import org.trp.shincolle.item.LegacyEquipItem
 import org.trp.shincolle.server.HostileDropService.handleLivingDrops
 import org.trp.shincolle.server.MarriageRingService.applyTickAbilities
 import org.trp.shincolle.server.MarriageRingService.getUnderwaterBreakSpeedMultiplier
@@ -33,8 +44,12 @@ import org.trp.shincolle.server.PointerInteractionService.handleLeftClickBlock
 import org.trp.shincolle.server.PointerInteractionService.handlePointerAttack
 import org.trp.shincolle.server.PointerInteractionService.handleRightClickBlock
 import org.trp.shincolle.server.PointerInteractionService.handleRightClickItem
+import org.trp.shincolle.server.PlayerSkillService.tickCooldowns
+import org.trp.shincolle.server.ShipRegistrySavedData
 import org.trp.shincolle.utility.PerformanceTrace.beginServerTick
 import org.trp.shincolle.utility.PerformanceTrace.endServerTick
+import kotlin.math.max
+import kotlin.math.min
 
 @EventBusSubscriber(modid = Shincolle.MODID)
 object ModEventBusEvents {
@@ -54,6 +69,7 @@ object ModEventBusEvents {
     @SubscribeEvent
     fun onServerTickPost(event: ServerTickEvent.Post?) {
         endServerTick()
+        tickCooldowns()
     }
 
     @JvmStatic
@@ -120,6 +136,11 @@ object ModEventBusEvents {
         event.put(ModEntities.RENSOUHOU.get(), EntityShincolleSimpleMob.createAttributes().build())
         event.put(ModEntities.RENSOUHOU_S.get(), EntityShincolleSimpleMob.createAttributes().build())
         event.put(ModEntities.TAKOYAKI.get(), EntityAircraftBase.createAttributes().build())
+
+        event.put(ModEntities.FLOATING_FORT.get(), EntityAircraftBase.createAttributes().build())
+        event.put(ModEntities.AIRPLANE_T_MOB.get(), EntityAircraftBase.createAttributes().build())
+        event.put(ModEntities.AIRPLANE_ZERO_MOB.get(), EntityAircraftBase.createAttributes().build())
+        event.put(ModEntities.RENSOUHOU_MOB.get(), EntityShincolleSimpleMob.createAttributes().build())
     }
 
     @JvmStatic
@@ -146,12 +167,112 @@ object ModEventBusEvents {
 
     @JvmStatic
     @SubscribeEvent
-    fun onPlayerIncomingDamage(event: LivingIncomingDamageEvent) {
-        val player = event.getEntity()
-        if (player is Player
-            && handleFireDamageEvent(player, event.getSource())
+    fun onLivingIncomingDamage(event: LivingIncomingDamageEvent) {
+        val target = event.entity
+        val source = event.source
+        val level = target.level()
+        if (level.isClientSide) return
+
+        // 1. Mount riding immunity: prevent fall/in-wall damage while riding mounts
+        val vehicle = target.vehicle
+        if (vehicle is EntityMountBase &&
+            (source.`is`(DamageTypes.FALL) || source.`is`(DamageTypes.IN_WALL))
         ) {
-            event.setCanceled(true)
+            event.isCanceled = true
+            return
+        }
+
+        // 2. Fire damage immunity for married players (existing logic)
+        if (target is Player && handleFireDamageEvent(target, source)) {
+            event.isCanceled = true
+            return
+        }
+
+        val attacker = source.entity
+        if (attacker == null) return
+
+        // 3. Player attacking -> set revenge target for friendly ships around player
+        if (attacker is Player) {
+            setRevengeTargetAroundPlayer(level, attacker, target)
+        }
+
+        // 4. Player being attacked -> set revenge target for friendly ships around player
+        if (target is Player) {
+            setRevengeTargetAroundPlayer(level, target, attacker)
+        }
+
+        // 5. Hostile ship being attacked -> call for help from nearby hostile ships
+        if (target is EntityShipBase && target.isHostileShipMob) {
+            if (attacker !is EntityShipBase || !attacker.isHostileShipMob) {
+                setRevengeTargetAroundHostileShip(level, target, attacker)
+            }
+        }
+    }
+
+    @JvmStatic
+    @SubscribeEvent
+    fun onLivingDeath(event: LivingDeathEvent) {
+        val entity = event.entity
+        val level = entity.level()
+        if (level.isClientSide) return
+
+        val source = event.source
+
+        // 1. Update ship registry when a ship dies
+        if (entity is EntityShipBase) {
+            ShipRegistrySavedData.get(level as ServerLevel).markRemoved(entity)
+        }
+
+        // 2. Add kills to the attacker ship
+        val trueSource = source.entity
+        if (trueSource is EntityShipBase) {
+            trueSource.addShipKill()
+            trueSource.addMorale(2)
+        }
+
+        // 3. Add kills to carrier if attacker is aircraft or summon
+        val carrier = when (trueSource) {
+            is EntityAircraftBase -> trueSource.carrier
+            is EntitySummonBase -> trueSource.carrier
+            else -> null
+        }
+        if (carrier != null) {
+            carrier.addShipKill()
+        }
+    }
+
+    @JvmStatic
+    @SubscribeEvent
+    fun onAnvilUpdate(event: AnvilUpdateEvent) {
+        val left = event.left
+        val right = event.right
+
+        if (left.item is LegacyEquipItem && right.`is`(Items.ENCHANTED_BOOK)) {
+            val result = left.copy()
+            val equipEnchants = EnchantmentHelper.getEnchantmentsForCrafting(result)
+            val bookEnchants = EnchantmentHelper.getEnchantmentsForCrafting(right)
+            val mutableEnchants = net.minecraft.world.item.enchantment.ItemEnchantments.Mutable(equipEnchants)
+
+            for (holder in bookEnchants.keySet()) {
+                val bookLevel = bookEnchants.getLevel(holder)
+                if (bookLevel <= 0) continue
+
+                val equipLevel = equipEnchants.getLevel(holder)
+                val maxLevel = holder.value().maxLevel
+                val newLevel = if (equipLevel == bookLevel) {
+                    min(bookLevel + 1, maxLevel)
+                } else {
+                    max(equipLevel, bookLevel)
+                }
+
+                if (newLevel > 0) {
+                    mutableEnchants.set(holder, newLevel)
+                }
+            }
+
+            EnchantmentHelper.setEnchantments(result, mutableEnchants.toImmutable())
+            event.output = result
+            event.cost = 30
         }
     }
 
@@ -230,5 +351,43 @@ object ModEventBusEvents {
     @SubscribeEvent
     fun onEntityInteract(event: EntityInteract) {
         handleItemFrameInteract(event)
+    }
+
+    /**
+     * Set revenge target for friendly ships around the player.
+     */
+    private fun setRevengeTargetAroundPlayer(
+        level: net.minecraft.world.level.Level,
+        player: Player,
+        target: net.minecraft.world.entity.Entity
+    ) {
+        if (level !is ServerLevel) return
+        val livingTarget = if (target is LivingEntity) target else return
+        val box = player.boundingBox.inflate(32.0)
+        val ships = level.getEntitiesOfClass(EntityShipBase::class.java, box)
+        for (ship in ships) {
+            if (ship == target) continue
+            if (ship.isOwnedBy(player)) {
+                ship.setLastHurtByMob(livingTarget)
+            }
+        }
+    }
+
+    /**
+     * Call for help: set revenge target for hostile ships around the attacked hostile ship.
+     */
+    private fun setRevengeTargetAroundHostileShip(
+        level: net.minecraft.world.level.Level,
+        host: EntityShipBase,
+        target: net.minecraft.world.entity.Entity
+    ) {
+        if (level !is ServerLevel) return
+        val livingTarget = if (target is LivingEntity) target else return
+        val box = host.boundingBox.inflate(64.0)
+        val ships = level.getEntitiesOfClass(EntityShipBase::class.java, box)
+        for (ship in ships) {
+            if (!ship.isHostileShipMob || ship == host) continue
+            ship.setLastHurtByMob(livingTarget)
+        }
     }
 }

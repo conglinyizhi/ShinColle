@@ -671,14 +671,14 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
     private val maxAircraftHeavy: Int
         get() = 4 + this.ship.level / 10 + (this.ship.level * this.ship.aircraftHeavyLevelBonus).toInt()
 
-    private fun performLightAircraftAttack(target: Entity?): Boolean {
+    internal fun performLightAircraftAttack(target: Entity?): Boolean {
         if (!canUseLightAircraft()) {
             return false
         }
         return spawnAircraft(target, true)
     }
 
-    private fun performHeavyAircraftAttack(target: Entity?): Boolean {
+    internal fun performHeavyAircraftAttack(target: Entity?): Boolean {
         if (!canUseHeavyAircraft()) {
             return false
         }
