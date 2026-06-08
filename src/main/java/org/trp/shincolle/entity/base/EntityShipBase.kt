@@ -861,6 +861,14 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         return this.combat.performHeavyAttack(target)
     }
 
+    fun performLightAircraftAttack(target: Entity?): Boolean {
+        return this.combat.performLightAircraftAttack(target)
+    }
+
+    fun performHeavyAircraftAttack(target: Entity?): Boolean {
+        return this.combat.performHeavyAircraftAttack(target)
+    }
+
     fun getStateMinor(index: Int): Int {
         if (index == 6) {
             return this.fuel

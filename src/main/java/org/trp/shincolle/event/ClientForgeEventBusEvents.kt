@@ -8,6 +8,8 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.level.material.FogType
+import net.minecraft.world.phys.Vec3
+import java.util.Optional
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
@@ -16,6 +18,8 @@ import net.neoforged.neoforge.client.event.RenderHandEvent
 import net.neoforged.neoforge.client.event.ViewportEvent.RenderFog
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.item.PointerItem
+import org.trp.shincolle.network.C2SPlayerSkillPayload
+import org.trp.shincolle.network.ModNetwork
 import org.trp.shincolle.server.MarriageRingService.getUnderwaterFogDistanceMultiplier
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = [Dist.CLIENT])
@@ -37,7 +41,40 @@ object ClientForgeEventBusEvents {
 
         handlePointerKeyInput(player)
         handleOPToolKeyInput(player)
+        handleShipSkillKeys(player)
         handleDebugKeys(player)
+    }
+
+    /**
+     * Handle ship skill keys when player is riding a mount or being ridden by a ship.
+     */
+    private fun handleShipSkillKeys(player: LocalPlayer) {
+        val mc = Minecraft.getInstance()
+        val options = mc.options
+
+        // Check if player is in skill host mode (riding mount or being ridden by ship)
+        val isRidingMount = player.vehicle is org.trp.shincolle.entity.base.EntityMountBase
+        val isRiddenByShip = player.passengers.any { it is org.trp.shincolle.entity.base.EntityShipBase }
+        if (!isRidingMount && !isRiddenByShip) return
+
+        for (i in 0..3) {
+            if (options.keyHotbarSlots[i].consumeClick()) {
+                val hitResult = mc.hitResult
+                val targetEntityUUID: Optional<java.util.UUID> = when (hitResult) {
+                    is net.minecraft.world.phys.EntityHitResult -> Optional.of(hitResult.entity.uuid)
+                    else -> Optional.empty()
+                }
+                val targetPos: Optional<Vec3> = when (hitResult) {
+                    is net.minecraft.world.phys.BlockHitResult -> Optional.of(Vec3.atCenterOf(hitResult.blockPos))
+                    else -> Optional.empty()
+                }
+
+                ModNetwork.sendToServer(
+                    C2SPlayerSkillPayload(i, targetEntityUUID, targetPos)
+                )
+                break
+            }
+        }
     }
 
     /**

@@ -44,6 +44,7 @@ import org.trp.shincolle.server.PointerInteractionService.handleLeftClickBlock
 import org.trp.shincolle.server.PointerInteractionService.handlePointerAttack
 import org.trp.shincolle.server.PointerInteractionService.handleRightClickBlock
 import org.trp.shincolle.server.PointerInteractionService.handleRightClickItem
+import org.trp.shincolle.server.PlayerSkillService.tickCooldowns
 import org.trp.shincolle.server.ShipRegistrySavedData
 import org.trp.shincolle.utility.PerformanceTrace.beginServerTick
 import org.trp.shincolle.utility.PerformanceTrace.endServerTick
@@ -68,6 +69,7 @@ object ModEventBusEvents {
     @SubscribeEvent
     fun onServerTickPost(event: ServerTickEvent.Post?) {
         endServerTick()
+        tickCooldowns()
     }
 
     @JvmStatic
