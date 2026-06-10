@@ -48,6 +48,7 @@ class CreativeTabSectionOrderingRegressionTest {
                 "output.accept(ModItems.FRAME_BLOCK.get());",
                 "output.accept(ModItems.GRUDGE_BLOCK.get());",
                 "output.accept(ModItems.GRUDGE_HEAVY_BLOCK.get());",
+                "output.accept(ModItems.GRUDGE_HEAVY_DECO_BLOCK.get());",
                 "output.accept(ModItems.POLYMETAL.get());",
                 "output.accept(ModItems.POLYMETAL_GRAVEL.get());",
                 "output.accept(ModItems.POLYMETAL_ORE.get());",
@@ -71,6 +72,6 @@ class CreativeTabSectionOrderingRegressionTest {
     }
 
     companion object {
-        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
+        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.kt")
     }
 }

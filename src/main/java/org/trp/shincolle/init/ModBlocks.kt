@@ -14,6 +14,7 @@ import org.trp.shincolle.block.CraneBlock
 import org.trp.shincolle.block.DeskBlock
 import org.trp.shincolle.block.FrameBlock
 import org.trp.shincolle.block.GrudgeHeavyBlock
+import org.trp.shincolle.block.GrudgeHeavyDecoBlock
 import org.trp.shincolle.block.LargeShipyardBlock
 import org.trp.shincolle.block.PolymetalBlock
 import org.trp.shincolle.block.SmallShipyardBlock
@@ -58,6 +59,17 @@ object ModBlocks {
     val GRUDGE_HEAVY_BLOCK: DeferredBlock<Block?> = BLOCKS.register<Block?>(
         "grudge_heavy_block",
         Supplier { GrudgeHeavyBlock(BlockBehaviour.Properties.of().strength(1.5f)) })
+
+    @JvmField
+    val GRUDGE_HEAVY_DECO_BLOCK: DeferredBlock<Block?> = BLOCKS.register<Block?>(
+        "grudge_heavy_deco_block",
+        Supplier {
+            GrudgeHeavyDecoBlock(
+                BlockBehaviour.Properties.of()
+                    .strength(3.0f)
+                    .lightLevel(ToIntFunction { state: BlockState? -> 15 })
+            )
+        })
 
     val FRAME_BLOCK: DeferredBlock<Block?> = BLOCKS.register<Block?>(
         "blockframe",

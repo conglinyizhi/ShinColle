@@ -87,7 +87,8 @@ class LocalizationRegressionTest {
         "item.shincolle.RepairGoddess.name",
         "item.shincolle.hostile_egg_l",
         "tile.shincolle.BlockGrudge.name",
-        "tile.shincolle.BlockGrudgeHeavy.name"
+        "tile.shincolle.BlockGrudgeHeavy.name",
+        "tile.shincolle.BlockGrudgeHeavyDeco.name"
     )
 
     private val EXPECTED_ZH_TW_EXTRA_KEYS = setOf(
@@ -95,7 +96,8 @@ class LocalizationRegressionTest {
         "gui.shincolle.book.chap1.title17",
         "item.shincolle.AbyssMetal1.name",
         "tile.shincolle.BlockGrudge.name",
-        "tile.shincolle.BlockGrudgeHeavy.name"
+        "tile.shincolle.BlockGrudgeHeavy.name",
+        "tile.shincolle.BlockGrudgeHeavyDeco.name"
     )
 
     private val EXPECTED_JA_JP_EXTRA_KEYS = setOf(
@@ -112,7 +114,8 @@ class LocalizationRegressionTest {
         "inter.shincolle.flower",
         "item.shincolle.AbyssMetal1.name",
         "tile.shincolle.BlockGrudge.name",
-        "tile.shincolle.BlockGrudgeHeavy.name"
+        "tile.shincolle.BlockGrudgeHeavy.name",
+        "tile.shincolle.BlockGrudgeHeavyDeco.name"
     )
 
     @Test

@@ -893,6 +893,11 @@ object ModItems {
         "grudge_heavy_block",
         Supplier { GrudgeHeavyBlockItem(ModBlocks.GRUDGE_HEAVY_BLOCK.get()!!, Item.Properties()) })
 
+    @JvmField
+    val GRUDGE_HEAVY_DECO_BLOCK: DeferredItem<Item?> = ITEMS.register<Item?>(
+        "grudge_heavy_deco_block",
+        Supplier { BlockItem(ModBlocks.GRUDGE_HEAVY_DECO_BLOCK.get(), Item.Properties()) })
+
     val FRAME_BLOCK: DeferredItem<Item?> = ITEMS.register<Item?>(
         "blockframe",
         Supplier { BlockItem(ModBlocks.FRAME_BLOCK.get(), Item.Properties()) })

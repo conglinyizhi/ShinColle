@@ -127,6 +127,7 @@ object ModTabs {
                     output.accept(ModItems.FRAME_BLOCK.get())
                     output.accept(ModItems.GRUDGE_BLOCK.get())
                     output.accept(ModItems.GRUDGE_HEAVY_BLOCK.get())
+                    output.accept(ModItems.GRUDGE_HEAVY_DECO_BLOCK.get())
                     output.accept(ModItems.POLYMETAL.get())
                     output.accept(ModItems.POLYMETAL_GRAVEL.get())
                     output.accept(ModItems.POLYMETAL_ORE.get())
