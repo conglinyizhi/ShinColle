@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatNoException
 import org.junit.jupiter.api.Test
 import org.trp.shincolle.crafting.ShipyardRecipes
+import org.trp.shincolle.init.ModItems
 
 class ShipyardRecipesSpawnGuardTest {
 
@@ -33,6 +34,17 @@ class ShipyardRecipesSpawnGuardTest {
     fun `putHeavyGrudgeStorageTag should silently ignore empty stack`() {
         assertThatNoException().isThrownBy {
             ShipyardRecipes.putHeavyGrudgeStorageTag(ItemStack.EMPTY, intArrayOf(1, 2, 3, 4), 100)
+        }
+    }
+
+    @Test
+    fun `rollShipEntityType should handle missing shipyard mats on random eggs`() {
+        val smallEgg = ItemStack(ModItems.SHIPSPAWNEGGS.get())
+        val largeEgg = ItemStack(ModItems.SHIPSPAWNEGGL.get())
+
+        assertThatNoException().isThrownBy {
+            assertThat(ShipyardRecipes.rollShipEntityType(false, smallEgg)).isNotNull()
+            assertThat(ShipyardRecipes.rollShipEntityType(true, largeEgg)).isNotNull()
         }
     }
 }
