@@ -14,6 +14,38 @@ class PatchouliOpToolManualTest {
         Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json")
 
     @Test
+    fun opToolEntryShouldDocumentModernKitMaxedFeedbackAndOwnerPaperRotation() {
+        val entry = Files.readString(OP_TOOLS_ENTRY)
+        val enUs = Files.readString(EN_US_LANG)
+        val zhCn = Files.readString(ZH_CN_LANG)
+
+        assertTrue(entry.contains("patchouli.shincolle.entry.op_tools.page1b.title")) {
+            "OP tools entry should include a dedicated Modernization Kit maxed-feedback page"
+        }
+        assertTrue(entry.contains("patchouli.shincolle.entry.op_tools.page2b.title")) {
+            "OP tools entry should include a dedicated Ownership Paper rotation page"
+        }
+        assertTrue(enUs.contains("patchouli.shincolle.entry.op_tools.page1b.text")) {
+            "English manual should document Modernization Kit maxed-feedback behavior"
+        }
+        assertTrue(enUs.contains("action bar")) {
+            "English manual should mention that maxed feedback can move to the action bar"
+        }
+        assertTrue(enUs.contains("two most recent owners")) {
+            "English manual should mention that Ownership Paper keeps the two most recent owners"
+        }
+        assertTrue(zhCn.contains("patchouli.shincolle.entry.op_tools.page1b.text")) {
+            "Chinese manual should document Modernization Kit maxed-feedback behavior"
+        }
+        assertTrue(zhCn.contains("满改提示")) {
+            "Chinese manual should mention the maxed-out notice"
+        }
+        assertTrue(zhCn.contains("最近两位记录持有者")) {
+            "Chinese manual should mention that Ownership Paper preserves the two most recent owners"
+        }
+    }
+
+    @Test
     fun opToolEntryShouldDocumentServerWideProtectedTargetScope() {
         val entry = Files.readString(OP_TOOLS_ENTRY)
         val enUs = Files.readString(EN_US_LANG)

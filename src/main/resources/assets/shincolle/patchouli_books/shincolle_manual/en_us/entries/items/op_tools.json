@@ -16,10 +16,20 @@
       "text": "patchouli.shincolle.entry.op_tools.page1.text"
     },
     {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.op_tools.page1b.title",
+      "text": "patchouli.shincolle.entry.op_tools.page1b.text"
+    },
+    {
       "type": "patchouli:spotlight",
       "title": "patchouli.shincolle.entry.op_tools.page2.title",
       "item": "shincolle:ownerpaper",
       "text": "patchouli.shincolle.entry.op_tools.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.op_tools.page2b.title",
+      "text": "patchouli.shincolle.entry.op_tools.page2b.text"
     },
     {
       "type": "patchouli:text",
