@@ -38,4 +38,30 @@ class PatchouliShipyardImageTest {
             "Chinese manual should mention repeated-build controls on the large shipyard page"
         }
     }
+
+    @Test
+    fun shipyardToolsEntryShouldIncludeSmallShipyardReferenceImage() {
+        val entry = Files.readString(SHIPYARD_TOOLS_ENTRY)
+        val enUs = Files.readString(EN_US_LANG)
+        val zhCn = Files.readString(ZH_CN_LANG)
+
+        assertTrue(entry.contains("patchouli.shincolle.entry.shipyard_tools.page9.title")) {
+            "Shipyard tools entry should include a dedicated page for the small shipyard reference image"
+        }
+        assertTrue(entry.contains("shincolle:textures/gui/guismallshipyard.png")) {
+            "Shipyard tools entry should reference the preserved small shipyard GUI texture"
+        }
+        assertTrue(enUs.contains("patchouli.shincolle.entry.shipyard_tools.page9.text")) {
+            "English manual should describe the small shipyard reference image page"
+        }
+        assertTrue(enUs.contains("resource inputs and fuel management")) {
+            "English manual should mention planning resource inputs and fuel management on the small shipyard page"
+        }
+        assertTrue(zhCn.contains("patchouli.shincolle.entry.shipyard_tools.page9.text")) {
+            "Chinese manual should describe the small shipyard reference image page"
+        }
+        assertTrue(zhCn.contains("资源投入与燃料管理")) {
+            "Chinese manual should mention resource inputs and fuel management on the small shipyard page"
+        }
+    }
 }
