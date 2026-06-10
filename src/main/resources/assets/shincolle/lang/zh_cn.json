@@ -1119,6 +1119,8 @@
   "patchouli.shincolle.entry.manual_tools.page1_recipe.title": "手册配方",
   "patchouli.shincolle.entry.manual_tools.page1a.title": "办公桌手册界面参考图",
   "patchouli.shincolle.entry.manual_tools.page1a.text": "这张旧版办公桌手册界面图展示了 Patchouli 迁移前的原始阅读布局。可用于对照章节导航、文字边框和旧版办公桌手册的阅读流程。",
+  "patchouli.shincolle.entry.manual_tools.page1aa.title": "办公桌手册图例参考图",
+  "patchouli.shincolle.entry.manual_tools.page1aa.text": "这张旧版办公桌手册图例页保留了原始手册使用的红、蓝、灰三类页面边框，以及配套图标色板。可用于对照旧版章节分组方式和现代 Patchouli 布局中的视觉分类提示。",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.text": "配方纸应放在工作舰娘的主手槽位中。它只保存一张 3x3 幽灵配方，供航点自动合成流程读取。",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.title": "配方纸配方",
   "patchouli.shincolle.entry.manual_tools.page1c.title": "配方纸界面参考图",
