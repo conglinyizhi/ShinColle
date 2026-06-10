@@ -1781,6 +1781,8 @@
   "patchouli.shincolle.entry.hadal_vortex.page7.text": "This legacy Large Shipyard interface diagram shows the original construction and equipment development layout. Modern interfaces retain the same core workflow.",
   "patchouli.shincolle.entry.desk_and_radar.page4.title": "Desk GUI Reference",
   "patchouli.shincolle.entry.desk_and_radar.page4.text": "This legacy desk interface diagram shows the original layout of the Abyssal Admiral's Desk panel. The modern GUI preserves the same central controls for radar, diplomacy, and manual access.",
+  "patchouli.shincolle.entry.desk_and_radar.page5.title": "Team Management GUI Reference",
+  "patchouli.shincolle.entry.desk_and_radar.page5.text": "This legacy team-management diagram preserves the old desk roster layout. Use it to recognize team slots, ship assignment flow, and the page used for switching between squad organization and related desk-side control tasks.",
   "patchouli.shincolle.entry.automation_blocks.page3.title": "Crane GUI Reference",
   "patchouli.shincolle.entry.automation_blocks.page3.text": "This legacy crane interface diagram shows the original Abyssal Crane control layout. The same loading, unloading, and filter options still drive modern automation behavior.",
   "patchouli.shincolle.entry.automation_jobs.page4.title": "Automation Route Reference",
