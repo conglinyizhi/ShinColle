@@ -29,6 +29,7 @@ class PayloadPlayerGuardTest {
         invokeHandler("handleDeskOpenShip", C2SDeskOpenShipPayload(UUID.randomUUID()), context)
         invokeHandler("handleDeskSummon", C2SDeskSummonPayload(mutableListOf(UUID.randomUUID())), context)
         invokeHandler("handleTeamDiplomacy", C2STeamDiplomacyPayload(C2STeamDiplomacyPayload.ACTION_ADD_ALLY, UUID.randomUUID()), context)
+        invokeHandler("handleOpToolAction", C2SOpToolActionPayload(C2SOpToolActionPayload.ACTION_SHOW_UNATTACKABLE_TARGETS, Optional.empty()), context)
     }
 
     private fun invokeHandler(name: String, payload: Any, context: IPayloadContext) {

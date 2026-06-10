@@ -21,6 +21,7 @@ import org.trp.shincolle.server.PointerInteractionService.getPointerStack
 import org.trp.shincolle.server.PointerInteractionService.handlePayloadAction
 import org.trp.shincolle.server.PlayerSkillService.handlePlayerSkill
 import org.trp.shincolle.server.TeamDiplomacyService.handleAction
+import org.trp.shincolle.server.TargetProtectionService
 import org.trp.shincolle.server.WaypointService.handleAction
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
@@ -98,6 +99,13 @@ object ModNetwork {
             C2SPlayerSkillPayload.Companion.STREAM_CODEC,
             IPayloadHandler { payload: C2SPlayerSkillPayload, context: IPayloadContext ->
                 ModNetwork.handlePlayerSkill(payload, context)
+            }
+        )
+        registrar.playToServer<C2SOpToolActionPayload>(
+            C2SOpToolActionPayload.Companion.TYPE,
+            C2SOpToolActionPayload.Companion.STREAM_CODEC,
+            IPayloadHandler { payload: C2SOpToolActionPayload, context: IPayloadContext ->
+                ModNetwork.handleOpToolAction(payload, context)
             }
         )
         registrar.playToClient<S2CAdmiralDataSyncPayload>(
@@ -227,6 +235,24 @@ object ModNetwork {
             val player = context.player()
             if (player is ServerPlayer) {
                 handlePlayerSkill(player, payload.skillType, payload.targetEntityUUID, payload.targetPos)
+            }
+        })
+    }
+
+    private fun handleOpToolAction(payload: C2SOpToolActionPayload, context: IPayloadContext) {
+        context.enqueueWork(Runnable {
+            val player = context.player()
+            if (player is ServerPlayer) {
+                when (payload.action) {
+                    C2SOpToolActionPayload.ACTION_TOGGLE_UNATTACKABLE_TARGET -> {
+                        val entity = payload.targetEntity.map { player.serverLevel().getEntity(it) }.orElse(null)
+                        TargetProtectionService.toggleUnattackableTarget(player, entity)
+                    }
+
+                    C2SOpToolActionPayload.ACTION_SHOW_UNATTACKABLE_TARGETS -> {
+                        TargetProtectionService.showUnattackableTargets(player)
+                    }
+                }
             }
         })
     }

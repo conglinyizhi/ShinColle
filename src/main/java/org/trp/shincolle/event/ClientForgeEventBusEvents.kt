@@ -18,6 +18,7 @@ import net.neoforged.neoforge.client.event.RenderHandEvent
 import net.neoforged.neoforge.client.event.ViewportEvent.RenderFog
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.item.PointerItem
+import org.trp.shincolle.network.C2SOpToolActionPayload
 import org.trp.shincolle.network.C2SFormationActionPayload
 import org.trp.shincolle.network.C2SPlayerSkillPayload
 import org.trp.shincolle.network.ModNetwork
@@ -139,13 +140,26 @@ object ClientForgeEventBusEvents {
         // Numpad 1: toggle unattackable target
         if (InputConstants.isKeyDown(window, InputConstants.KEY_NUMPAD1) && optoolCooldown <= 0) {
             optoolCooldown = 5
-            // TODO: raycast entity and send C2S packet
+            val targetEntity = when (val hitResult = Minecraft.getInstance().hitResult) {
+                is net.minecraft.world.phys.EntityHitResult -> Optional.of(hitResult.entity.uuid)
+                else -> Optional.empty()
+            }
+            if (targetEntity.isPresent) {
+                ModNetwork.sendToServer(
+                    C2SOpToolActionPayload(C2SOpToolActionPayload.ACTION_TOGGLE_UNATTACKABLE_TARGET, targetEntity)
+                )
+            }
         }
 
         // Numpad 2: show unattackable list
         if (InputConstants.isKeyDown(window, InputConstants.KEY_NUMPAD2) && optoolCooldown <= 0) {
             optoolCooldown = 20
-            // TODO: send C2S packet to show list
+            ModNetwork.sendToServer(
+                C2SOpToolActionPayload(
+                    C2SOpToolActionPayload.ACTION_SHOW_UNATTACKABLE_TARGETS,
+                    Optional.empty()
+                )
+            )
         }
     }
 
