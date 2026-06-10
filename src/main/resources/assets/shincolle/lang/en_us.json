@@ -1180,6 +1180,8 @@
   "patchouli.shincolle.entry.ship_status.page2.title": "Morale States",
   "patchouli.shincolle.entry.ship_status.page3.text": "Some ships can still use mount-style support through appearance and AI toggles. When a mount-capable ship enables that option, the owner can ride the summon and access movement or attack skills through the mount flow instead of treating it like a normal passive visual part.",
   "patchouli.shincolle.entry.ship_status.page3.title": "Mount and Riding Support",
+  "patchouli.shincolle.entry.ship_status.page4.title": "Legacy HUD Reference",
+  "patchouli.shincolle.entry.ship_status.page4.text": "This legacy HUD sheet preserves the old combat overlay icons and alert markers used around ship status feedback. Use it as a visual reference when comparing modern ship-state prompts, warning colors, and the older on-screen combat cue vocabulary.",
   "patchouli.shincolle.entry.logistics_and_energy.name": "Logistics and Energy",
   "patchouli.shincolle.entry.logistics_and_energy.page0.text": "ShinColle's late-base loop is not just about combat. Dense grudge storage, volcanic healing, waypoint routing, crane transfer rules, and ship tank capacity all work together once you start running a real port instead of a single-ship outpost.",
   "patchouli.shincolle.entry.logistics_and_energy.page0.title": "Support Infrastructure",

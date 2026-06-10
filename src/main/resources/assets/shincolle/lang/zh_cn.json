@@ -1193,6 +1193,8 @@
   "patchouli.shincolle.entry.ship_status.page2.title": "情绪阶段",
   "patchouli.shincolle.entry.ship_status.page3.text": "部分舰娘依旧可以通过外观或 AI 选项启用坐骑类支援。当具备对应能力的舰娘开启该选项后，主人仍可骑乘召唤物，并通过坐骑流程使用移动或攻击技能，而不是把它当成单纯的装饰部件。",
   "patchouli.shincolle.entry.ship_status.page3.title": "坐骑与骑乘支援",
+  "patchouli.shincolle.entry.ship_status.page4.title": "旧版 HUD 参考图",
+  "patchouli.shincolle.entry.ship_status.page4.text": "这张旧版 HUD 图例页保留了围绕舰娘状态反馈使用的战斗覆盖图标和警示标记。可用于对照现代舰船状态提示、警告配色，以及旧版屏幕战斗提示的视觉语汇。",
   "patchouli.shincolle.entry.logistics_and_energy.name": "物流与能源系统",
   "patchouli.shincolle.entry.logistics_and_energy.page0.text": "ShinColle 的后期基地循环并不只围绕战斗。高密度怨念储存、火山核心治疗、航点路由、起重机装卸规则，以及运输罐容量，会在你把据点从单舰生存推进到真正港区时一起发挥作用。",
   "patchouli.shincolle.entry.logistics_and_energy.page0.title": "基础设施",
