@@ -1798,6 +1798,8 @@
   "patchouli.shincolle.entry.desk_and_radar.page4.text": "这张旧版办公桌界面参考图展示了深海提督办公桌面板的原始布局。现代 GUI 保留了雷达、外交与手册入口等核心控制方式。",
   "patchouli.shincolle.entry.desk_and_radar.page5.title": "队伍管理界面参考图",
   "patchouli.shincolle.entry.desk_and_radar.page5.text": "这张旧版队伍管理界面图保留了办公桌编队页的布局。可用于识别队伍槽位、舰船分配流程，以及在编队整理与相关桌面控制页面之间切换时的视觉结构。",
+  "patchouli.shincolle.entry.desk_and_radar.page6.title": "外交与目标界面参考图",
+  "patchouli.shincolle.entry.desk_and_radar.page6.text": "这张旧版目标管理界面图保留了办公桌中用于外交与受保护目标控制的页面。可用于识别同盟/禁攻列表、主人目标记录，以及维护这些控制列表时对应的桌面侧页面结构。",
   "patchouli.shincolle.entry.automation_blocks.page3.title": "起重机界面参考图",
   "patchouli.shincolle.entry.automation_blocks.page3.text": "这张旧版起重机界面参考图展示了深海之冠控制面板的原始布局。现代自动化行为仍然沿用相同的装载、卸载与过滤选项。",
   "patchouli.shincolle.entry.automation_jobs.page4.title": "自动化路线参考图",
