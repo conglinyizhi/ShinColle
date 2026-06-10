@@ -1418,6 +1418,8 @@
   "patchouli.shincolle.entry.op_tools.page3.text": "$(item)OP 工具$()是面向服务器操作员的调试物品。它用于切换特定实体类的敌对排除规则。",
   "patchouli.shincolle.entry.op_tools.page4.title": "OP 工具操作",
   "patchouli.shincolle.entry.op_tools.page4.text": "小键盘1：将目标实体类型加入或移出非攻击列表。\n小键盘2：在聊天栏中显示当前非攻击实体列表。",
+  "patchouli.shincolle.entry.op_tools.page4b.title": "权限与作用范围",
+  "patchouli.shincolle.entry.op_tools.page4b.text": "$(item)OP 工具$()修改的是$(thing)服务器全局$()的受保护目标列表，而不是单个玩家自己的配置。只有操作员能改动它，而且它会读取当前准星命中的实体类别。适合用于紧急排除装饰生物、自定义 NPC，或任何不应被舰娘攻击的联动实体。",
   "patchouli.shincolle.entry.utility_blocks.name": "建筑与装饰方块",
   "patchouli.shincolle.entry.utility_blocks.page0.title": "功能方块概述",
   "patchouli.shincolle.entry.utility_blocks.page0.text": "除了功能性机器，还有一些方块用于装饰、结构建造和特殊储存。所有方块均可合成获得。",

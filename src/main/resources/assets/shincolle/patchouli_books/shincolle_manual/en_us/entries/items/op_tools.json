@@ -32,6 +32,11 @@
       "text": "patchouli.shincolle.entry.op_tools.page4.text"
     },
     {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.op_tools.page4b.title",
+      "text": "patchouli.shincolle.entry.op_tools.page4b.text"
+    },
+    {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.op_tools.page5.title",
       "recipe": "shincolle:modernkit",

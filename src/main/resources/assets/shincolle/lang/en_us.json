@@ -1403,6 +1403,8 @@
   "patchouli.shincolle.entry.op_tools.page3.text": "The $(item)OP Tool$() is an operator-only debugging item. It toggles hostile targeting exceptions for specific entity classes.",
   "patchouli.shincolle.entry.op_tools.page4.title": "OP Tool Controls",
   "patchouli.shincolle.entry.op_tools.page4.text": "Numpad 1: Adds or removes the targeted entity type from the unattackable list.\nNumpad 2: Shows the current unattackable entity list in chat.",
+  "patchouli.shincolle.entry.op_tools.page4b.title": "Permission and Scope",
+  "patchouli.shincolle.entry.op_tools.page4b.text": "The protected-target list changed by $(item)OP Tool$() is $(thing)server-wide$(), not per-player. Only operators can change it, and the tool works on the entity class currently under the crosshair. Use it for emergency exclusions such as decorative mobs, custom NPCs, or integration entities that ships should never attack.",
   "patchouli.shincolle.entry.utility_blocks.name": "Building & Decorative Blocks",
   "patchouli.shincolle.entry.utility_blocks.page0.title": "Utility Blocks Overview",
   "patchouli.shincolle.entry.utility_blocks.page0.text": "Beyond functional machinery, several blocks exist for decoration, structural building, and special storage. All are fully craftable.",
