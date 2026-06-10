@@ -1697,6 +1697,8 @@
   "patchouli.shincolle.entry.misc_items.page1.text": "$(item)深海栖舰所有权书$()详细记载了所有权转让的双方应履行的内容与注意事项，只需双方签名后即可生效。$(br)$(9)右键$()使用可以签署该契约。双方玩家依次签署后，原所有者对目标栖舰$(9)右键$()使用即可完成所有权转让。",
   "patchouli.shincolle.entry.misc_items.page2.title": "维护人员训练手册",
   "patchouli.shincolle.entry.misc_items.page2.text": "$(item)维护人员训练手册$()浓缩了深海后勤整备的全部精华。对已驯服且归属于你的舰娘$(9)右键$()使用后，可直接提升其等级。$(br)训练书可以在天然地牢的宝箱中发现。它是跳过前期缓慢成长、快速组建主力舰队的最直接途径。",
+  "patchouli.shincolle.entry.misc_items.page2b.title": "等级增益区间",
+  "patchouli.shincolle.entry.misc_items.page2b.text": "训练手册不会对野生舰娘或其他玩家所属舰娘生效。正确使用时，每本书都会在配置允许的最小值与最大值之间随机提升等级，因此每次收益并不固定。更适合留给打算长期培养的主力舰。",
   "patchouli.shincolle.entry.misc_items.page3.title": "附魔弹",
   "patchouli.shincolle.entry.misc_items.page3.text": "$(item)附魔弹$()是炮弹家族中的特殊分支，承载了额外的魔法效果。$(br)它可以在$(c)超深海热漩$()中制造。基础版制作完成后，再与八瓶相同药水合成即可获得对应药水效果。$(br)继续使用八瓶相同药水进一步合成，还能提高效果触发率与持续时间。如果改用不同药水合成，则会直接替换原有效果。",
   "patchouli.shincolle.entry.enchantment_ref.name": "附魔映射参考",

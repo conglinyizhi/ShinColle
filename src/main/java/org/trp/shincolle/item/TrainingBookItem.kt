@@ -34,10 +34,7 @@ class TrainingBookItem(properties: Properties) : Item(properties) {
 
         val minLevelGain = Config.trainingBookLevelMin
         val maxLevelGain = max(minLevelGain, Config.trainingBookLevelMax)
-        var levelGain = minLevelGain
-        if (maxLevelGain > minLevelGain) {
-            levelGain += player.random.nextInt(maxLevelGain - minLevelGain + 1)
-        }
+        val levelGain = rollLevelGain(player.random, minLevelGain, maxLevelGain)
 
         if (!interactionTarget.addTrainingBookLevel(levelGain)) {
             return InteractionResult.FAIL
@@ -58,5 +55,20 @@ class TrainingBookItem(properties: Properties) : Item(properties) {
     ) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag)
         tooltipComponents.add(Component.translatable("gui.shincolle.trainingbook").withStyle(ChatFormatting.GOLD))
+    }
+
+    companion object {
+        fun levelGainRange(minLevelGain: Int, maxLevelGain: Int): IntRange {
+            return minLevelGain..max(minLevelGain, maxLevelGain)
+        }
+
+        fun rollLevelGain(random: net.minecraft.util.RandomSource, minLevelGain: Int, maxLevelGain: Int): Int {
+            val range = levelGainRange(minLevelGain, maxLevelGain)
+            return if (range.first == range.last) {
+                range.first
+            } else {
+                range.first + random.nextInt(range.last - range.first + 1)
+            }
+        }
     }
 }

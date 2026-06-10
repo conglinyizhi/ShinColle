@@ -22,6 +22,11 @@
       "text": "patchouli.shincolle.entry.misc_items.page2.text"
     },
     {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.misc_items.page2b.title",
+      "text": "patchouli.shincolle.entry.misc_items.page2b.text"
+    },
+    {
       "type": "patchouli:spotlight",
       "title": "patchouli.shincolle.entry.misc_items.page3.title",
       "item": "shincolle:equipammo",

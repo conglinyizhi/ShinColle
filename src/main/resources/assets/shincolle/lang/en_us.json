@@ -1682,6 +1682,8 @@
   "patchouli.shincolle.entry.misc_items.page1.text": "The $(item)Ownership Paper$() is a formal contract detailing the rights and obligations of both parties in a ship transfer. Once signed by both parties, the original owner can $(9)right-click$() the target ship to complete the transfer.",
   "patchouli.shincolle.entry.misc_items.page2.title": "Training Manual",
   "patchouli.shincolle.entry.misc_items.page2.text": "The $(item)Training Manual$() is a concentrated guide to abyssal logistics. $(9)Right-click$() it on a tamed, owned ship to directly increase its level. These books can be found in dungeon chests and are the fastest way to skip early slow growth.",
+  "patchouli.shincolle.entry.misc_items.page2b.title": "Level Gain Range",
+  "patchouli.shincolle.entry.misc_items.page2b.text": "Training manuals never work on wild or other players' ships. When used correctly, each book rolls a level gain within the configured minimum and maximum range, so results vary from one use to the next. Save them for ships you plan to keep for a long time.",
   "patchouli.shincolle.entry.misc_items.page3.title": "Enchanted Ammo",
   "patchouli.shincolle.entry.misc_items.page3.text": "$(item)Enchanted Ammo$() is a special branch of ammunition imbued with magical effects. It can be crafted in the $(c)Hadal Hydrothermal Vortex$(). Combine the base ammo with eight bottles of the same potion to apply the corresponding effect. Further upgrades with eight more potions increase the trigger rate and duration.",
   "patchouli.shincolle.entry.enchantment_ref.name": "Enchantment Reference",
