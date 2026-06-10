@@ -1106,6 +1106,8 @@
   "patchouli.shincolle.entry.manual_tools.page1_recipe.title": "Desk Book Recipe",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.text": "Recipe Paper belongs in a worker ship's main hand slot. It stores the single 3x3 ghost recipe that waypoint-based crafting jobs will follow.",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.title": "Recipe Paper Recipe",
+  "patchouli.shincolle.entry.manual_tools.page1c.title": "Recipe Paper GUI Reference",
+  "patchouli.shincolle.entry.manual_tools.page1c.text": "This legacy Recipe Paper screen shows the original 3x3 ghost recipe grid and preview result slot. Use it to recognize which cells store the pattern and which slot is preview-only when setting up automated crafting jobs.",
   "patchouli.shincolle.entry.manual_tools.page2.text": "$(item)Target Wrench$() links waypoints to chests and control blocks. The paired $(item)Portable Radar$() opens the nearby owned-ship list remotely, so both items now sit on the same utility page as their actual crafting recipes.",
   "patchouli.shincolle.entry.manual_tools.page2.title": "Target Wrench",
   "patchouli.shincolle.entry.manual_tools.page2_recipe.text": "The $(item)Target Wrench$() links waypoints to chests and machines. Craft the $(item)Portable Radar$() separately using the recipe below.",

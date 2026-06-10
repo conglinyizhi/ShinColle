@@ -27,6 +27,15 @@
       "text": "patchouli.shincolle.entry.manual_tools.page1b_recipe.text"
     },
     {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.manual_tools.page1c.title",
+      "images": [
+        "shincolle:textures/gui/guirecipepaper.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.manual_tools.page1c.text"
+    },
+    {
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.manual_tools.page2.title",
       "text": "patchouli.shincolle.entry.manual_tools.page2.text"

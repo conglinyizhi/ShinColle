@@ -1119,6 +1119,8 @@
   "patchouli.shincolle.entry.manual_tools.page1_recipe.title": "手册配方",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.text": "配方纸应放在工作舰娘的主手槽位中。它只保存一张 3x3 幽灵配方，供航点自动合成流程读取。",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.title": "配方纸配方",
+  "patchouli.shincolle.entry.manual_tools.page1c.title": "配方纸界面参考图",
+  "patchouli.shincolle.entry.manual_tools.page1c.text": "这张旧版配方纸界面图展示了原始的 3x3 幽灵配方格与结果预览槽。设置自动合成时，可借此识别哪些格子负责保存配方，哪些槽位只用于预览。",
   "patchouli.shincolle.entry.manual_tools.page2.text": "$(item)目标扳手$() 用于把航点与箱子、控制方块连接起来。配套的 $(item)携带型深海雷达$() 则负责远程打开附近所属舰娘列表，所以这页现在直接展示了两者的真实配方。",
   "patchouli.shincolle.entry.manual_tools.page2.title": "目标扳手",
   "patchouli.shincolle.entry.manual_tools.page2_recipe.text": "$(item)目标扳手$()用于把航点连接到箱子和机器。$(item)便携雷达$()需要单独合成。",
