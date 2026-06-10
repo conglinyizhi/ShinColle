@@ -21,6 +21,15 @@
       "text": "patchouli.shincolle.entry.manual_tools.page1_recipe.text"
     },
     {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.manual_tools.page1a.title",
+      "images": [
+        "shincolle:textures/gui/guideskbook.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.manual_tools.page1a.text"
+    },
+    {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.manual_tools.page1b_recipe.title",
       "recipe": "shincolle:recipepaper",

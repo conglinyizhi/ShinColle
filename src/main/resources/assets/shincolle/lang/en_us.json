@@ -1104,6 +1104,8 @@
   "patchouli.shincolle.entry.manual_tools.page1.title": "Book and Recipe Paper",
   "patchouli.shincolle.entry.manual_tools.page1_recipe.text": "Craft the $(item)Desk Book$() early — it is your in-game encyclopedia. Use it alongside $(item)Recipe Paper$() once you start automating.",
   "patchouli.shincolle.entry.manual_tools.page1_recipe.title": "Desk Book Recipe",
+  "patchouli.shincolle.entry.manual_tools.page1a.title": "Desk Book GUI Reference",
+  "patchouli.shincolle.entry.manual_tools.page1a.text": "This legacy Desk Book screen shows the original in-game manual layout before the Patchouli migration. Use it as a reference when comparing chapter navigation, text framing, and the older desk-book reading flow to the modern manual.",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.text": "Recipe Paper belongs in a worker ship's main hand slot. It stores the single 3x3 ghost recipe that waypoint-based crafting jobs will follow.",
   "patchouli.shincolle.entry.manual_tools.page1b_recipe.title": "Recipe Paper Recipe",
   "patchouli.shincolle.entry.manual_tools.page1c.title": "Recipe Paper GUI Reference",
