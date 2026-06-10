@@ -74,6 +74,15 @@
       ],
       "border": true,
       "text": "patchouli.shincolle.entry.shipyard_tools.page9.text"
+    },
+    {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page10.title",
+      "images": [
+        "shincolle:textures/gui/guilargeshipyard.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.shipyard_tools.page10.text"
     }
   ]
 }

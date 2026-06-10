@@ -1802,6 +1802,8 @@
   "patchouli.shincolle.entry.hadal_vortex.page8.text": "这张旧版小型船坞界面参考图展示了原始初级建造布局。现代界面保留了相同的核心操作流程，用于建造你的第一艘深海栖舰。",
   "patchouli.shincolle.entry.shipyard_tools.page9.title": "船坞界面参考图",
   "patchouli.shincolle.entry.shipyard_tools.page9.text": "这张旧版船坞界面参考图展示了原始建造与装备开发布局。可作为规划资源投入与燃料管理时的视觉参考。",
+  "patchouli.shincolle.entry.shipyard_tools.page10.title": "大型船坞界面参考图",
+  "patchouli.shincolle.entry.shipyard_tools.page10.text": "这张旧版大型船坞界面图保留了超深海热漩的布局。可用于快速识别更大的材料缓存区、连续建造开关以及批量建造流程。",
   "patchouli.shincolle.entry.ship_care.page4.title": "舰娘背包界面参考图",
   "patchouli.shincolle.entry.ship_care.page4.text": "这张旧版舰娘背包界面参考图展示了装备、物品与 AI 设定的原始布局。现代 GUI 保留了相同的库存、装备与自动化选项页签结构。",
   "patchouli.shincolle.entry.ship_care.page5.title": "近代化改修工具包配方",
