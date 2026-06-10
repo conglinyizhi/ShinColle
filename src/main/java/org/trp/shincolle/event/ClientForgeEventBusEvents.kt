@@ -18,6 +18,7 @@ import net.neoforged.neoforge.client.event.RenderHandEvent
 import net.neoforged.neoforge.client.event.ViewportEvent.RenderFog
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.item.PointerItem
+import org.trp.shincolle.network.C2SFormationActionPayload
 import org.trp.shincolle.network.C2SPlayerSkillPayload
 import org.trp.shincolle.network.ModNetwork
 import org.trp.shincolle.server.MarriageRingService.getUnderwaterFogDistanceMultiplier
@@ -92,14 +93,16 @@ object ClientForgeEventBusEvents {
 
         val sprintKey = options.keySprint
         if (sprintKey.isDown && pointerCooldown <= 0) {
+            val originalSlot = player.inventory.selected
             // Ctrl + number key: switch team
             for (i in 0..8) {
                 if (options.keyHotbarSlots[i].consumeClick()) {
                     pointerCooldown = 5
+                    ModNetwork.sendToServer(
+                        C2SFormationActionPayload(0, i, 0, null, Optional.empty())
+                    )
                     // Restore hotbar slot to prevent item switching
-                    val originalSlot = player.inventory.selected
                     player.inventory.selected = originalSlot
-                    // TODO: send C2S packet to update team ID
                     break
                 }
             }
