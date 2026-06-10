@@ -28,9 +28,15 @@
       "text": "patchouli.shincolle.entry.utility_blocks.page3.text"
     },
     {
-      "type": "patchouli:text",
+      "type": "patchouli:spotlight",
       "title": "patchouli.shincolle.entry.utility_blocks.page4.title",
+      "item": "shincolle:grudge_heavy_deco_block",
       "text": "patchouli.shincolle.entry.utility_blocks.page4.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.utility_blocks.page5.title",
+      "text": "patchouli.shincolle.entry.utility_blocks.page5.text"
     }
   ]
 }
