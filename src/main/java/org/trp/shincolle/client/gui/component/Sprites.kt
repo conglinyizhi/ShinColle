@@ -63,6 +63,9 @@ object Sprites {
     /** Recipe paper background.  */
     val T_RECIPE_PAPER: ResourceLocation = gui("guirecipepaper.png")
 
+    /** Legacy rider skill HUD icons.  */
+    val T_HUD: ResourceLocation = gui("guihud.png")
+
     /** Book embedded illustration.  */
     val T_BOOK_PIC01: ResourceLocation = gui("book/bookpic01.png")
 

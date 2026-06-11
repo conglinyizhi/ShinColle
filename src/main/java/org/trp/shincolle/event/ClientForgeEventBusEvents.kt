@@ -20,8 +20,10 @@ import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
 import net.neoforged.neoforge.client.event.ClientTickEvent
 import net.neoforged.neoforge.client.event.RenderHandEvent
+import net.neoforged.neoforge.client.event.RenderGuiEvent
 import net.neoforged.neoforge.client.event.ViewportEvent.RenderFog
 import org.trp.shincolle.Shincolle
+import org.trp.shincolle.client.renderer.PlayerSkillHudRenderer
 import org.trp.shincolle.item.PointerItem
 import org.trp.shincolle.network.C2SOpToolActionPayload
 import org.trp.shincolle.network.C2SFormationActionPayload
@@ -255,6 +257,12 @@ object ClientForgeEventBusEvents {
         resolved.isAccessible = true
         reflectedRenderPlayerArmMethod = resolved
         return resolved
+    }
+
+    @JvmStatic
+    @SubscribeEvent
+    fun onRenderGui(event: RenderGuiEvent.Post) {
+        PlayerSkillHudRenderer.render(event.guiGraphics)
     }
 
     @JvmStatic
