@@ -8,13 +8,13 @@ import java.nio.file.Path
 class CreativeTabSectionOrderingRegressionTest {
     @Test
     fun miscToolsSectionShouldKeepLegacyUtilityOrdering() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
 
         assertOrder(
-            modTabs,
+            creativeTabContents,
             listOf(
                 "output.accept(ModItems.BUCKET_REPAIR.get());",
-                "ModItems.addCombatRationVariants(output);",
+                "CreativeTabVariantHelper.addCombatRationVariants(output)",
                 "output.accept(ModItems.DESK_ITEM_BOOK.get());",
                 "output.accept(ModItems.DESK_ITEM_RADAR.get());",
                 "output.accept(ModItems.INSTANT_CON_MAT.get());",
@@ -24,7 +24,7 @@ class CreativeTabSectionOrderingRegressionTest {
                 "output.accept(ModItems.OWNER_PAPER.get());",
                 "output.accept(ModItems.OP_TOOL.get());",
                 "output.accept(ModItems.SHIN_COMB.get());",
-                "ModItems.addPointerVariants(output);",
+                "CreativeTabVariantHelper.addPointerVariants(output)",
                 "output.accept(ModItems.RECIPE_PAPER.get());",
                 "output.accept(ModItems.REPAIR_GODDESS.get());",
                 "output.accept(ModItems.TARGET_WRENCH.get());",
@@ -37,10 +37,10 @@ class CreativeTabSectionOrderingRegressionTest {
 
     @Test
     fun blockSectionShouldKeepCoreBuildProgressionOrdering() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
 
         assertOrder(
-            modTabs,
+            creativeTabContents,
             listOf(
                 "output.accept(ModItems.ABYSSIUM.get());",
                 "output.accept(ModItems.CRANE.get());",
@@ -72,6 +72,6 @@ class CreativeTabSectionOrderingRegressionTest {
     }
 
     companion object {
-        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.kt")
+        private val CREATIVE_TAB_CONTENTS: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
     }
 }

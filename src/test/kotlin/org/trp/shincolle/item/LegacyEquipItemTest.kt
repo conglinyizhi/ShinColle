@@ -7,6 +7,7 @@ import net.minecraft.world.item.ItemStack
 import net.neoforged.neoforge.registries.DeferredItem
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
+import org.trp.shincolle.init.CreativeTabVariantHelper
 import org.trp.shincolle.init.ModItems
 
 class LegacyEquipItemTest {
@@ -67,7 +68,7 @@ class LegacyEquipItemTest {
         directVariants.forEachIndexed { index, stack -> assertEquals(index, cannon.getVariant(stack)) }
 
         val sortedVariants = mutableListOf<ItemStack>()
-        ModItems.addSortedLegacyEquipVariants(CollectingOutput(sortedVariants), ModItems.EQUIP_CANNON)
+        CreativeTabVariantHelper.addSortedLegacyEquipVariants(CollectingOutput(sortedVariants), ModItems.EQUIP_CANNON)
         assertEquals(cannon.variantCount, sortedVariants.size)
         sortedVariants.forEachIndexed { index, stack ->
             assertEquals(index, cannon.getVariant(stack))
@@ -81,7 +82,7 @@ class LegacyEquipItemTest {
     private fun assertSortedLegacyCreativeVariants(item: LegacyEquipItem, deferredItem: DeferredItem<Item>) {
         val sortedVariants = mutableListOf<ItemStack>()
 
-        ModItems.addSortedLegacyEquipVariants(CollectingOutput(sortedVariants), deferredItem)
+        CreativeTabVariantHelper.addSortedLegacyEquipVariants(CollectingOutput(sortedVariants), deferredItem)
 
         assertEquals(item.variantCount, sortedVariants.size)
         sortedVariants.forEachIndexed { index, stack ->

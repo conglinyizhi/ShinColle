@@ -9,13 +9,13 @@ import java.nio.file.Path
 class CreativeTabContentRuleRegressionTest {
     @Test
     fun creativeTabShouldKeepUsingVariantHelpersWithoutDuplicateBaseItems() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
 
         VARIANT_HELPER_RULES.forEach { expectation ->
-            assertTrue(modTabs.contains(expectation.helperCall)) {
+            assertTrue(creativeTabContents.contains(expectation.helperCall)) {
                 "Creative tab should keep using helper call ${expectation.helperCall}"
             }
-            assertFalse(modTabs.contains(expectation.forbiddenDirectAccept)) {
+            assertFalse(creativeTabContents.contains(expectation.forbiddenDirectAccept)) {
                 "Creative tab should not directly accept ${expectation.forbiddenDirectAccept} after variant helper coverage exists"
             }
         }
@@ -23,11 +23,11 @@ class CreativeTabContentRuleRegressionTest {
 
     @Test
     fun creativeTabShouldKeepKeyUtilityItemsAndDebugItemInExpectedSections() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
 
-        assertTrue(modTabs.contains("output.accept(ModItems.DESK_ITEM_BOOK.get());"))
-        assertTrue(modTabs.contains("output.accept(ModItems.DESK_ITEM_RADAR.get());"))
-        assertTrue(modTabs.contains("output.accept(ModItems.DEBUG_INSPECTOR.get());"))
+        assertTrue(creativeTabContents.contains("output.accept(ModItems.DESK_ITEM_BOOK.get())"))
+        assertTrue(creativeTabContents.contains("output.accept(ModItems.DESK_ITEM_RADAR.get())"))
+        assertTrue(creativeTabContents.contains("output.accept(ModItems.DEBUG_INSPECTOR.get())"))
     }
 
     private data class HelperPlacementExpectation(
@@ -36,13 +36,13 @@ class CreativeTabContentRuleRegressionTest {
     )
 
     companion object {
-        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
+        private val CREATIVE_TAB_CONTENTS: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
         private val VARIANT_HELPER_RULES = listOf(
-            HelperPlacementExpectation("ModItems.addAbyssNuggetVariants(output);", "output.accept(ModItems.ABYSS_NUGGET.get());"),
-            HelperPlacementExpectation("ModItems.addGrudgeVariants(output);", "output.accept(ModItems.GRUDGE.get());"),
-            HelperPlacementExpectation("ModItems.addShipTankVariants(output);", "output.accept(ModItems.SHIP_TANK.get());"),
-            HelperPlacementExpectation("ModItems.addCombatRationVariants(output);", "output.accept(ModItems.COMBAT_RATION.get());"),
-            HelperPlacementExpectation("ModItems.addPointerVariants(output);", "output.accept(ModItems.POINTER_ITEM.get());")
+            HelperPlacementExpectation("CreativeTabVariantHelper.addAbyssNuggetVariants(output)", "output.accept(ModItems.ABYSS_NUGGET.get())"),
+            HelperPlacementExpectation("CreativeTabVariantHelper.addGrudgeVariants(output)", "output.accept(ModItems.GRUDGE.get())"),
+            HelperPlacementExpectation("CreativeTabVariantHelper.addShipTankVariants(output)", "output.accept(ModItems.SHIP_TANK.get())"),
+            HelperPlacementExpectation("CreativeTabVariantHelper.addCombatRationVariants(output)", "output.accept(ModItems.COMBAT_RATION.get())"),
+            HelperPlacementExpectation("CreativeTabVariantHelper.addPointerVariants(output)", "output.accept(ModItems.POINTER_ITEM.get())")
         )
     }
 }

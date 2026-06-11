@@ -8,25 +8,25 @@ import java.nio.file.Path
 class CreativeTabEquipmentOrderingRegressionTest {
     @Test
     fun equipmentSectionShouldKeepLegacyEquipOrdering() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
 
         assertOrder(
-            modTabs,
+            creativeTabContents,
             listOf(
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AMMO);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_ARMOR);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_CANNON);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_CATAPULT);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_COMPASS);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_DRUM);",
-                "ModItems.addShipTankVariants(output);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_FLARE);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_MACHINEGUN);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_RADAR);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_SEARCHLIGHT);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TORPEDO);",
-                "ModItems.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TURBINE);"
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AIRPLANE)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_AMMO)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_ARMOR)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_CANNON)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_CATAPULT)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_COMPASS)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_DRUM)",
+                "CreativeTabVariantHelper.addShipTankVariants(output)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_FLARE)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_MACHINEGUN)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_RADAR)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_SEARCHLIGHT)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TORPEDO)",
+                "CreativeTabVariantHelper.addSortedLegacyEquipVariants(output, ModItems.EQUIP_TURBINE)"
             ),
             "Creative tab equipment section should keep the preserved legacy equipment ordering"
         )
@@ -43,6 +43,6 @@ class CreativeTabEquipmentOrderingRegressionTest {
     }
 
     companion object {
-        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
+        private val CREATIVE_TAB_CONTENTS: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
     }
 }

@@ -17,7 +17,7 @@ class AbyssNuggetChainRegressionTest {
         val marriageRingRecipe = Files.readString(MARRIAGE_RING_RECIPE)
 
         assertTrue(clientSource.contains("registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get());"))
-        assertTrue(tabsSource.contains("ModItems.addAbyssNuggetVariants(output);"))
+        assertTrue(tabsSource.contains("CreativeTabVariantHelper.addAbyssNuggetVariants(output)"))
         assertTrue(nuggetRecipe.contains("\"id\": \"shincolle:abyss_nugget\""))
         assertTrue(polyNuggetRecipe.contains("\"minecraft:custom_data\": \"{LegacyVariant:1}\""))
         assertTrue(metalRecipe.contains("\"item\": \"shincolle:abyss_nugget\""))
@@ -28,7 +28,7 @@ class AbyssNuggetChainRegressionTest {
     companion object {
         private val NUGGET_ITEM_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/item/AbyssNuggetItem.java")
         private val CLIENT_EVENT_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java")
-        private val TABS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
+        private val TABS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
         private val NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_nugget.json")
         private val POLY_NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_nugget_polymetal.json")
         private val METAL_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_metal_from_nugget.json")

@@ -8,17 +8,13 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.food.FoodProperties
 import net.minecraft.world.item.BlockItem
-import net.minecraft.world.item.CreativeModeTab
 import net.minecraft.world.item.Item
-import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.neoforged.neoforge.registries.DeferredItem
 import net.neoforged.neoforge.registries.DeferredRegister
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.item.*
-import org.trp.shincolle.item.LegacyEquipStats.getMainAttrs
 import java.util.function.Supplier
-import java.util.function.ToIntFunction
 
 object ModItems {
     val ITEMS: DeferredRegister.Items = DeferredRegister.createItems(Shincolle.MODID)
@@ -944,111 +940,4 @@ object ModItems {
     val DEBUG_INSPECTOR: DeferredItem<DebugInspectorItem?> = ITEMS.register<DebugInspectorItem?>(
         "debug_inspector",
         Supplier { DebugInspectorItem(Item.Properties().stacksTo(1)) })
-
-    fun addLegacyEquipVariants(output: CreativeModeTab.Output, item: DeferredItem<Item>) {
-        val resolved = item.get()
-        if (resolved is LegacyEquipItem) {
-            resolved.addAllVariantsToCreativeTab(output)
-            return
-        }
-
-        output.accept(resolved)
-    }
-
-    fun addSortedLegacyEquipVariants(output: CreativeModeTab.Output, item: DeferredItem<Item>) {
-        val resolved = item.get()
-        if (resolved !is LegacyEquipItem) {
-            output.accept(resolved)
-            return
-        }
-
-        val variants: MutableList<ItemStack> = ArrayList<ItemStack>()
-        for (variant in 0..<resolved.variantCount) {
-            variants.add(resolved.createVariantStack(variant))
-        }
-
-        variants.sortWith(
-            Comparator
-                .comparingInt<ItemStack>(ToIntFunction { stack: ItemStack -> resolved.getVariant(stack) })
-                .thenComparingInt(ToIntFunction { stack: ItemStack? -> resolved.getEquipId(stack!!) })
-                .thenComparingInt(ToIntFunction { stack: ItemStack? -> resolved.getVariant(stack!!) })
-        )
-
-        for (stack in variants) {
-            output.accept(stack)
-        }
-    }
-
-    private fun getLegacyEquipSortScore(item: LegacyEquipItem, stack: ItemStack): Double {
-        val main = getMainAttrs(item.getEquipId(stack))
-        if (main == null) {
-            return 0.0
-        }
-
-        return when (item.getEquipTypeId(stack)) {
-            0, 1, 2, 3 -> main[1].toDouble() + main[3] * 0.5 + main[8] * 0.05
-            4, 5 -> main[2].toDouble() + main[14] * 0.15 + main[8] * 0.05
-            6, 7, 8, 9, 10, 11, 12, 13 -> main[3].toDouble() + main[4] + main[13] * 0.25 + main[8] * 0.05
-            14, 15 -> main[13].toDouble() + main[14] + main[8] * 0.2 + main[9] * 25.0
-            16, 17 -> main[7] * 100.0 + main[15] * 25.0 + main[17] * 10.0
-            18, 19 -> main[0].toDouble() + main[5] * 100.0 + main[20] * 50.0
-            20, 21 -> main[13].toDouble() + main[1] * 0.25
-            22, 23 -> main[6] * 100.0 + main[8] * 0.2
-            24 -> main[16] * 100.0 + main[19] * 100.0
-            25 -> main[8] * 0.3 + main[12] * 100.0
-            26, 27 -> main[12] * 100.0 + main[8] * 0.2
-            28, 29 -> main[1].toDouble() + main[3] + main[2] + main[4] + main[13] * 0.2
-            else -> 0.0
-        }
-    }
-
-    fun addShipTankVariants(output: CreativeModeTab.Output) {
-        val resolved = SHIP_TANK.get()
-        if (resolved is ShipTankItem) {
-            resolved.addAllVariantsToCreativeTab(output)
-            return
-        }
-
-        output.accept(resolved)
-    }
-
-    fun addCombatRationVariants(output: CreativeModeTab.Output) {
-        val resolved = COMBAT_RATION.get()
-        if (resolved is CombatRationItem) {
-            resolved.addAllVariantsToCreativeTab(output)
-            return
-        }
-
-        output.accept(resolved)
-    }
-
-    fun addGrudgeVariants(output: CreativeModeTab.Output) {
-        val resolved = GRUDGE.get()
-        if (resolved is GrudgeItem) {
-            resolved.addAllVariantsToCreativeTab(output)
-            return
-        }
-
-        output.accept(resolved)
-    }
-
-    fun addAbyssNuggetVariants(output: CreativeModeTab.Output) {
-        val resolved = ABYSS_NUGGET.get()
-        if (resolved is AbyssNuggetItem) {
-            resolved.addAllVariantsToCreativeTab(output)
-            return
-        }
-
-        output.accept(resolved)
-    }
-
-    fun addPointerVariants(output: CreativeModeTab.Output) {
-        val resolved = POINTER_ITEM.get()
-        if (resolved is PointerItem) {
-            resolved.addAllVariantsToCreativeTab(output)
-            return
-        }
-
-        output.accept(resolved)
-    }
 }

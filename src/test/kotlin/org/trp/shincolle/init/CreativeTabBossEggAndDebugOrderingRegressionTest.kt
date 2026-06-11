@@ -10,12 +10,12 @@ import java.util.regex.Pattern
 class CreativeTabBossEggAndDebugOrderingRegressionTest {
     @Test
     fun creativeTabShouldKeepUsingBossEggLoopInsteadOfManualAccepts() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
         val modItems = Files.readString(MOD_ITEMS)
 
-        assertTrue(modTabs.contains("for (var egg : ModItems.BOSS_EGGS) {\n                    output.accept(egg.get());\n                }"))
-        assertTrue(modItems.contains("public static final List<DeferredItem<BossSpawnEggItem>> BOSS_EGGS = new ArrayList<>();"))
-        assertTrue(modItems.contains("BOSS_EGGS.add(egg);"))
+        assertTrue(creativeTabContents.contains("for (egg in ModItems.BOSS_EGGS) {\n            output.accept(egg!!.get())\n        }"))
+        assertTrue(modItems.contains("val BOSS_EGGS: MutableList<DeferredItem<BossSpawnEggItem?>?> = ArrayList<DeferredItem<BossSpawnEggItem?>?>()"))
+        assertTrue(modItems.contains("BOSS_EGGS.add(egg)"))
 
         val matcher = REGISTER_BOSS_EGG_PATTERN.matcher(modItems)
         var registeredBossEggs = 0
@@ -30,16 +30,16 @@ class CreativeTabBossEggAndDebugOrderingRegressionTest {
 
     @Test
     fun debugInspectorShouldRemainTheLastCreativeTabEntry() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
 
-        val debugSection = modTabs.indexOf("// ===== DEBUG (appended last, not in 1.12.2) =====")
-        val debugAccept = modTabs.indexOf("output.accept(ModItems.DEBUG_INSPECTOR.get());")
-        val buildEnd = modTabs.indexOf("}).build());")
+        val debugMethod = creativeTabContents.indexOf("private fun addDebug(output: CreativeModeTab.Output)")
+        val debugAccept = creativeTabContents.indexOf("output.accept(ModItems.DEBUG_INSPECTOR.get())")
+        val fileEnd = creativeTabContents.lastIndexOf("}")
 
-        assertTrue(debugSection >= 0)
-        assertTrue(debugAccept > debugSection)
-        assertTrue(buildEnd > debugAccept)
-        val trailingSegment = modTabs.substring(debugAccept, buildEnd)
+        assertTrue(debugMethod >= 0)
+        assertTrue(debugAccept > debugMethod)
+        assertTrue(fileEnd > debugAccept)
+        val trailingSegment = creativeTabContents.substring(debugAccept, fileEnd)
         assertEquals(1, countOccurrences(trailingSegment, "output.accept("))
     }
 
@@ -54,8 +54,8 @@ class CreativeTabBossEggAndDebugOrderingRegressionTest {
     }
 
     companion object {
-        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
-        private val MOD_ITEMS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModItems.java")
+        private val CREATIVE_TAB_CONTENTS: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
+        private val MOD_ITEMS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt")
         private val REGISTER_BOSS_EGG_PATTERN: Pattern = Pattern.compile("registerBossEgg\\(\"")
     }
 }

@@ -8,18 +8,18 @@ import java.nio.file.Path
 class CreativeTabMaterialsOrderingRegressionTest {
     @Test
     fun materialsSectionShouldKeepLegacyResourceOrdering() {
-        val modTabs = Files.readString(MOD_TABS)
+        val creativeTabContents = Files.readString(CREATIVE_TAB_CONTENTS)
 
         assertOrder(
-            modTabs,
+            creativeTabContents,
             listOf(
                 "output.accept(ModItems.ABYSS_METAL.get());",
-                "ModItems.addAbyssNuggetVariants(output);",
+                "CreativeTabVariantHelper.addAbyssNuggetVariants(output)",
                 "output.accept(ModItems.AMMO_LIGHT.get());",
                 "output.accept(ModItems.AMMO_LIGHT_CONTAINER.get());",
                 "output.accept(ModItems.AMMO_HEAVY.get());",
                 "output.accept(ModItems.AMMO_HEAVY_CONTAINER.get());",
-                "ModItems.addGrudgeVariants(output);",
+                "CreativeTabVariantHelper.addGrudgeVariants(output)",
                 "output.accept(ModItems.ABYSS_POLYMETAL.get());"
             ),
             "Creative tab materials section should keep the preserved legacy resource ordering"
@@ -37,6 +37,6 @@ class CreativeTabMaterialsOrderingRegressionTest {
     }
 
     companion object {
-        private val MOD_TABS: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
+        private val CREATIVE_TAB_CONTENTS: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
     }
 }

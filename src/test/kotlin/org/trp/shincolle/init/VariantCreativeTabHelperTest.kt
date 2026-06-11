@@ -25,7 +25,7 @@ class VariantCreativeTabHelperTest {
         val item = ModItems.SHIP_TANK.get() as ShipTankItem
         val stacks = mutableListOf<ItemStack>()
 
-        ModItems.addShipTankVariants(CollectingOutput(stacks))
+        CreativeTabVariantHelper.addShipTankVariants(CollectingOutput(stacks))
 
         assertEquals(item.variantCount, stacks.size)
         stacks.forEachIndexed { index, stack -> assertEquals(index, item.getVariant(stack)) }
@@ -35,7 +35,7 @@ class VariantCreativeTabHelperTest {
         val item = ModItems.COMBAT_RATION.get() as CombatRationItem
         val stacks = mutableListOf<ItemStack>()
 
-        ModItems.addCombatRationVariants(CollectingOutput(stacks))
+        CreativeTabVariantHelper.addCombatRationVariants(CollectingOutput(stacks))
 
         assertEquals(item.variantCount, stacks.size)
         stacks.forEachIndexed { index, stack -> assertEquals(index, item.getVariant(stack)) }
@@ -45,7 +45,7 @@ class VariantCreativeTabHelperTest {
         val item = ModItems.GRUDGE.get() as GrudgeItem
         val stacks = mutableListOf<ItemStack>()
 
-        ModItems.addGrudgeVariants(CollectingOutput(stacks))
+        CreativeTabVariantHelper.addGrudgeVariants(CollectingOutput(stacks))
 
         assertEquals(2, stacks.size)
         assertEquals(0, item.getVariant(stacks[0]))
@@ -56,7 +56,7 @@ class VariantCreativeTabHelperTest {
         val item = ModItems.ABYSS_NUGGET.get() as AbyssNuggetItem
         val stacks = mutableListOf<ItemStack>()
 
-        ModItems.addAbyssNuggetVariants(CollectingOutput(stacks))
+        CreativeTabVariantHelper.addAbyssNuggetVariants(CollectingOutput(stacks))
 
         assertEquals(2, stacks.size)
         assertEquals(0, item.getVariant(stacks[0]))
@@ -67,7 +67,7 @@ class VariantCreativeTabHelperTest {
         val item = ModItems.POINTER_ITEM.get() as PointerItem
         val stacks = mutableListOf<ItemStack>()
 
-        ModItems.addPointerVariants(CollectingOutput(stacks))
+        CreativeTabVariantHelper.addPointerVariants(CollectingOutput(stacks))
 
         assertEquals(3, stacks.size)
         stacks.forEachIndexed { index, stack -> assertEquals(index, item.getMode(stack)) }

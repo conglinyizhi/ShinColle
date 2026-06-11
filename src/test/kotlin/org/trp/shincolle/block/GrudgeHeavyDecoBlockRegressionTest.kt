@@ -13,8 +13,8 @@ class GrudgeHeavyDecoBlockTest {
         Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt")
     private val MOD_ITEMS_SOURCE: Path =
         Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt")
-    private val MOD_TABS_SOURCE: Path =
-        Path.of("src/main/java/org/trp/shincolle/init/ModTabs.kt")
+    private val CREATIVE_TAB_CONTENTS_SOURCE: Path =
+        Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
     private val LOOT_TABLE: Path =
         Path.of("src/main/resources/data/shincolle/loot_table/blocks/grudge_heavy_deco_block.json")
     private val BLOCKSTATE: Path =
@@ -27,7 +27,7 @@ class GrudgeHeavyDecoBlockTest {
         val blockSource = Files.readString(BLOCK_SOURCE)
         val modBlocksSource = Files.readString(MOD_BLOCKS_SOURCE)
         val modItemsSource = Files.readString(MOD_ITEMS_SOURCE)
-        val modTabsSource = Files.readString(MOD_TABS_SOURCE)
+        val creativeTabContentsSource = Files.readString(CREATIVE_TAB_CONTENTS_SOURCE)
         val lootTable = Files.readString(LOOT_TABLE)
         val blockstate = Files.readString(BLOCKSTATE)
         val itemModel = Files.readString(ITEM_MODEL)
@@ -50,7 +50,7 @@ class GrudgeHeavyDecoBlockTest {
         assertTrue(modItemsSource.contains("\"grudge_heavy_deco_block\"")) {
             "ModItems should keep the legacy decoration item id"
         }
-        assertTrue(modTabsSource.contains("output.accept(ModItems.GRUDGE_HEAVY_DECO_BLOCK.get())")) {
+        assertTrue(creativeTabContentsSource.contains("output.accept(ModItems.GRUDGE_HEAVY_DECO_BLOCK.get())")) {
             "Creative tab should include the restored decoration block"
         }
         assertTrue(blockSource.contains("return true")) {

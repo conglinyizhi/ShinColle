@@ -8,21 +8,21 @@ import java.nio.file.Path
 class VariantCreativeTabRegistrationRegressionTest {
     @Test
     fun variantItemsShownInCreativeTabShouldUseDedicatedVariantHelpers() {
-        val modTabs = Files.readString(TAB_SOURCE)
+        val creativeTabContents = Files.readString(CONTENT_SOURCE)
 
         EXPECTATIONS.forEach { expectation ->
-            assertTrue(modTabs.contains("ModItems.${expectation.helperMethodName}(output);")) {
+            assertTrue(creativeTabContents.contains("CreativeTabVariantHelper.${expectation.helperMethodName}(output)")) {
                 "Creative tab population should keep using ${expectation.helperMethodName}"
             }
         }
 
-        assertTrue(!modTabs.contains("output.accept(ModItems.POINTER_ITEM.get());"))
+        assertTrue(!creativeTabContents.contains("output.accept(ModItems.POINTER_ITEM.get())"))
     }
 
     private data class VariantHelperExpectation(val helperMethodName: String)
 
     companion object {
-        private val TAB_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
+        private val CONTENT_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
         private val EXPECTATIONS = listOf(
             VariantHelperExpectation("addShipTankVariants"),
             VariantHelperExpectation("addCombatRationVariants"),
