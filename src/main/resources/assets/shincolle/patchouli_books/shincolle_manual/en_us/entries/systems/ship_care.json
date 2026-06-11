@@ -34,6 +34,11 @@
       "text": "patchouli.shincolle.entry.ship_care.page2b.text"
     },
     {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.ship_care.page2c.title",
+      "text": "patchouli.shincolle.entry.ship_care.page2c.text"
+    },
+    {
       "type": "patchouli:spotlight",
       "title": "patchouli.shincolle.entry.ship_care.page3.title",
       "item": "shincolle:trainingbook",

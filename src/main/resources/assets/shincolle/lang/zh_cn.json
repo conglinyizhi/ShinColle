@@ -1403,6 +1403,8 @@
   "patchouli.shincolle.entry.ship_care.page1b.text": "$(item)零式21型舰战$()既可以作为士气礼物使用，也能在多次出击后为航母系舰娘补充少量舰载机。",
   "patchouli.shincolle.entry.ship_care.page2b.title": "女神护符配方",
   "patchouli.shincolle.entry.ship_care.page2b.text": "$(item)深海女神的怨念$()可在受到致命伤时防止沉船。建议留给主力旗舰；日常续航请依赖$(item)修复桶$()。",
+  "patchouli.shincolle.entry.ship_care.page2c.title": "应急续航分工",
+  "patchouli.shincolle.entry.ship_care.page2c.text": "$(item)深海女神的怨念$()属于昂贵的保命护符：它始终带有发光效果、最多可堆叠 16 个，更适合留给必须扛过致命伤的主力舰。$(item)零式21型舰战$()则属于廉价的士气礼物，适合在出击间隙补士气；若目标是航母系舰娘，消耗后还会额外恢复少量舰载机。",
   "patchouli.shincolle.entry.fleet_control.page4.text": "$(thing)潜行左键空挥$()：在单体/群体/阵型模式间轮换。\n$(thing)冲刺+潜行左键空挥$()：清空当前队伍。\n$(thing)冲刺+左键空挥$()：在阵型模式下切换阵型。\n\n权杖的 tooltip 会显示当前模式、模式切换提示和当前队伍编号。",
   "patchouli.shincolle.entry.fleet_control.page4.title": "模式切换",
   "patchouli.shincolle.entry.fleet_support_tools.page5.text": "$(thing)潜行+右键空挥$()：打开阵型界面。\n$(thing)潜行+右键己方舰娘$()：打开该舰娘界面。\n\ntooltip 的三行内容分别表示：当前模式、模式切换提示、当前队伍编号。",
