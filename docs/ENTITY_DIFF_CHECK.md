@@ -71,6 +71,61 @@
 
 ---
 
+## Issue 1 点名模块补充核对
+
+### `EntityShipBase*`
+
+| 检查项 | 旧版 | 新版 | 状态 | 备注 |
+|---|---|---|---|---|
+| 主体宿主结构 | `BasicEntityShip*` 多层继承分出 `CV` / `Hostile` / `Small` | 单一 `EntityShipBase` + 状态/钩子 (`supportsAircraftCombat()` / `isHostileShipMob`) | ✅ | 主体舰娘语义已收敛，`Small` 分支确认废弃 |
+| 活动选择 | `Task AI` 中 follow / guard / idle / combat 切换 | `EntityShipBrainAi` + `ShipBrainActivityResolver` | ✅ | 旧模式切换已迁移为 brain activity |
+| 指针 / 守卫 / 跟随恢复 | 分散在旧 task/path 逻辑里 | `ShipMovementRecoveryState` + `ShipBrainRecoverySupport` + 各 coordinator | ✅ | 已补 teleport recovery、防卡死与节流 |
+| 被动战斗驱动 | `onLivingUpdate()` 内穿插目标选择与开火 | `EntityShipBasePassiveCombat` + `EntityShipBrainAi` | ✅ | 被动战斗入口已经独立 |
+| 舰载机自动循环 | `GoalShipAircraftAttack` 单独 goal | `EntityShipBaseCombat.tryPerformAircraftCycle()` + `EntityShipBrainAi` / `EntityShipBasePassiveCombat` 驱动 | ✅ | 语义已迁移，不再保留旧 goal 类 |
+| GUI 冻结移动 | 旧版无统一冻结约束 | `ShipLegacyNavigation.frozenByGui()` | ⚠️ | 新版新增 GUI 打开时可冻结移动，属于行为增强 |
+
+### `EntitySummonBase`
+
+| 检查项 | 旧版 | 新版 | 状态 | 备注 |
+|---|---|---|---|---|
+| 生命周期入口 | `BasicEntitySummon.onUpdate()` | `EntitySummonBase.updateServerLogic()` + `EntitySummonBrainAi.tick()` | ✅ | 核心 tick 责任已迁移 |
+| 攻击/追击 | 旧版 task + 攻击延迟字段 | `SummonAttackBehavior` + `SummonBrainDecisionResolver` | ✅ | 攻击 / 追击 / 停火由 brain 行为控制 |
+| 跟随 carrier | 旧版跟随逻辑内嵌 | `SummonFollowCarrierBehavior` + `followMovementCoordinator()` | ✅ | 跟随载体语义已恢复 |
+| 随机游走 | 旧版 task | `SummonRandomStrollBehavior` | ✅ | 闲置游走已迁移 |
+| 资源返还差异 | 旧版依实体覆写 | 新版保留覆写点，例如 `EntityRensouhouMob.returnSummonResources()` 为空 | ✅ | 敌方召唤物“不返还资源”已确认恢复 |
+
+### `EntityMountBase`
+
+| 检查项 | 旧版 | 新版 | 状态 | 备注 |
+|---|---|---|---|---|
+| 跟随宿主 / owner | 旧版 task + 简单传送修正 | `MountFollowBehavior` + `ShipMovementRecoveryState` + `followMovementCoordinator()` | ✅ | 跟随、守卫、指针目标恢复已完成 |
+| 远程攻击 | 旧版 mount attack task | `MountRangeAttackBehavior` | ✅ | 轻/重攻击延迟与瞄准 tick 已迁移 |
+| 守卫目标 | 旧版 guard task | `tickGuardTarget()` + 恢复键 `FollowRecoveryTargetKey` | ✅ | 守卫实体/方块双目标已恢复 |
+| 卡路恢复 | 旧版简单重寻路 | 节流传送 + stuck 计数 + 诊断日志 | ✅ | 新版恢复更稳，且具备诊断输出 |
+| 随机游走 | 旧版 idle task | `MountRandomStrollBehavior` | ✅ | 空闲行为仍保留 |
+
+### `GoalShipAircraftAttack`
+
+| 检查项 | 旧版 | 新版 | 状态 | 备注 |
+|---|---|---|---|---|
+| 自动舰载机攻击入口 | `GoalShipAircraftAttack` | `EntityShipBaseCombat.tryPerformAircraftCycle()` | ✅ | 自动轻/重航攻击循环已迁移 |
+| 轻/重航切换 | goal 内判断弹药、舰载机数量、开关 | `canUseLightAircraft()` / `canUseHeavyAircraft()` + `tryPerformAircraftCycle()` | ✅ | 依可用性在轻/重航间切换 |
+| 自动攻击触发位置 | 旧 AI 目标阶段 | `EntityShipBrainAi` combat 分支 + `EntityShipBasePassiveCombat` | ✅ | 主动 combat 与被动 combat 都会触发 |
+| 发射实现 | 旧版直接生成飞机实体 | `spawnAircraft()` + `initCarrierMission()` | ✅ | 发射、扣弹、扣油、回调音效均已覆盖 |
+| 冷却/恢复 | 旧版手动计时 | `aircraftLaunchDelay` + `tickAircraftRecovery()` | ✅ | 自动恢复与发射间隔均保留 |
+
+### `ShipLegacyPath*`
+
+| 检查项 | 旧版 | 新版 | 状态 | 备注 |
+|---|---|---|---|---|
+| 路径数据结构 | `ShipLegacyPath` / `PathPoint` / `PathHeap` | `entity/base/path/ShipLegacyPath*` 全套 Kotlin 实现 | ✅ | 旧寻路器族并未丢失，而是整体迁移 |
+| 导航器 | 旧自定义 ship navigation | `ShipLegacyNavigation` 继承 `GroundPathNavigation` | ✅ | 继续使用 legacy pathfinder，但挂接到 1.21 导航基类 |
+| 路径搜索 | 旧 `ShipPathFinder` | `ShipLegacyPathFinder` | ✅ | 仍保留 open/fluid/fence/blocked 判定 |
+| stuck 检测 | 旧逻辑较弱 | `checkForStuck()` + `applyUnstuckMotion()` + timeout | ✅ | 新版做了更完整的卡路恢复 |
+| GUI 期间冻结 | 无统一处理 | `frozenByGui()` 可阻止导航启动 | ⚠️ | 新版增强项，不是缺失 |
+
+---
+
 ## 具体舰娘差异
 
 ### 雷 / 电（第六驱逐队，含雷電合体）
