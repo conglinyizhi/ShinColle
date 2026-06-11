@@ -12,7 +12,6 @@ import net.neoforged.neoforge.common.ModConfigSpec
 import net.neoforged.neoforge.common.ModConfigSpec.IntValue
 import java.util.*
 import java.util.List
-import java.util.function.Predicate
 import kotlin.math.max
 import kotlin.math.min
 
@@ -21,189 +20,115 @@ object Config {
     val BUILDER: ModConfigSpec.Builder = ModConfigSpec.Builder()
     val CLIENT_BUILDER: ModConfigSpec.Builder = ModConfigSpec.Builder()
 
-    @JvmField
-    val SHIP_EXP_MODIFIER: IntValue
-    @JvmField
-    val SHIP_EXP_GAIN_MELEE: IntValue
-    @JvmField
-    val SHIP_EXP_GAIN_KILL: IntValue
-    @JvmField
-    val SHIP_EXP_GAIN_LIGHT_ATTACK: IntValue
-    @JvmField
-    val SHIP_EXP_GAIN_HEAVY_ATTACK: IntValue
-    @JvmField
-    val SHIP_EXP_GAIN_LIGHT_AIRCRAFT: IntValue
-    @JvmField
-    val SHIP_EXP_GAIN_HEAVY_AIRCRAFT: IntValue
-    @JvmField
-    val SHIP_MAX_LEVEL_NORMAL: IntValue
-    @JvmField
-    val SHIP_MAX_LEVEL_MARRIED: IntValue
-    @JvmField
-    val TRAINING_BOOK_LEVEL_MIN: IntValue
-    @JvmField
-    val TRAINING_BOOK_LEVEL_MAX: IntValue
-    @JvmField
-    val DEBUG_LOGGING: ModConfigSpec.BooleanValue
-    @JvmField
-    val DEBUG_PERFORMANCE_LOGGING: ModConfigSpec.BooleanValue
-    @JvmField
-    val DEBUG_PERF_SLOW_SHIP_TICK_MS: IntValue
-    @JvmField
-    val DEBUG_PERF_SLOW_TASK_TICK_MS: IntValue
-    @JvmField
-    val DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS: IntValue
-    @JvmField
-    val DEBUG_PERF_SLOW_PROJECTILE_TICK_MS: IntValue
-    @JvmField
-    val DEBUG_PERF_SLOW_SERVER_TICK_MS: IntValue
-    @JvmField
-    val DEBUG_PERF_MIN_LOG_INTERVAL_TICKS: IntValue
-    @JvmField
-    val MODERN_KIT_NOTIFY_WHEN_MAXED: ModConfigSpec.BooleanValue
-    @JvmField
-    val MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR: ModConfigSpec.BooleanValue
-    @JvmField
-    val FUEL_DECAY_INTERVAL: IntValue
-    @JvmField
-    val FUEL_MOVE_DECAY_FACTOR: IntValue
-    @JvmField
-    val FUEL_CONSUME_DD: IntValue
-    @JvmField
-    val FUEL_CONSUME_CL: IntValue
-    @JvmField
-    val FUEL_CONSUME_CA: IntValue
-    @JvmField
-    val FUEL_CONSUME_CAV: IntValue
-    @JvmField
-    val FUEL_CONSUME_CLT: IntValue
-    @JvmField
-    val FUEL_CONSUME_CVL: IntValue
-    @JvmField
-    val FUEL_CONSUME_CV: IntValue
-    @JvmField
-    val FUEL_CONSUME_BB: IntValue
-    @JvmField
-    val FUEL_CONSUME_BBV: IntValue
-    @JvmField
-    val FUEL_CONSUME_SS: IntValue
-    @JvmField
-    val FUEL_CONSUME_AP: IntValue
-    @JvmField
-    val FUEL_CONSUME_ACTION_LIGHT: IntValue
-    @JvmField
-    val FUEL_CONSUME_ACTION_HEAVY: IntValue
-    @JvmField
-    val FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT: IntValue
-    @JvmField
-    val FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT: IntValue
+    lateinit var SHIP_EXP_MODIFIER: IntValue
+    lateinit var SHIP_EXP_GAIN_MELEE: IntValue
+    lateinit var SHIP_EXP_GAIN_KILL: IntValue
+    lateinit var SHIP_EXP_GAIN_LIGHT_ATTACK: IntValue
+    lateinit var SHIP_EXP_GAIN_HEAVY_ATTACK: IntValue
+    lateinit var SHIP_EXP_GAIN_LIGHT_AIRCRAFT: IntValue
+    lateinit var SHIP_EXP_GAIN_HEAVY_AIRCRAFT: IntValue
+    lateinit var SHIP_MAX_LEVEL_NORMAL: IntValue
+    lateinit var SHIP_MAX_LEVEL_MARRIED: IntValue
+    lateinit var TRAINING_BOOK_LEVEL_MIN: IntValue
+    lateinit var TRAINING_BOOK_LEVEL_MAX: IntValue
+    lateinit var DEBUG_LOGGING: ModConfigSpec.BooleanValue
+    lateinit var DEBUG_PERFORMANCE_LOGGING: ModConfigSpec.BooleanValue
+    lateinit var DEBUG_PERF_SLOW_SHIP_TICK_MS: IntValue
+    lateinit var DEBUG_PERF_SLOW_TASK_TICK_MS: IntValue
+    lateinit var DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS: IntValue
+    lateinit var DEBUG_PERF_SLOW_PROJECTILE_TICK_MS: IntValue
+    lateinit var DEBUG_PERF_SLOW_SERVER_TICK_MS: IntValue
+    lateinit var DEBUG_PERF_MIN_LOG_INTERVAL_TICKS: IntValue
+    lateinit var MODERN_KIT_NOTIFY_WHEN_MAXED: ModConfigSpec.BooleanValue
+    lateinit var MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR: ModConfigSpec.BooleanValue
+    lateinit var FUEL_DECAY_INTERVAL: IntValue
+    lateinit var FUEL_MOVE_DECAY_FACTOR: IntValue
+    lateinit var FUEL_CONSUME_DD: IntValue
+    lateinit var FUEL_CONSUME_CL: IntValue
+    lateinit var FUEL_CONSUME_CA: IntValue
+    lateinit var FUEL_CONSUME_CAV: IntValue
+    lateinit var FUEL_CONSUME_CLT: IntValue
+    lateinit var FUEL_CONSUME_CVL: IntValue
+    lateinit var FUEL_CONSUME_CV: IntValue
+    lateinit var FUEL_CONSUME_BB: IntValue
+    lateinit var FUEL_CONSUME_BBV: IntValue
+    lateinit var FUEL_CONSUME_SS: IntValue
+    lateinit var FUEL_CONSUME_AP: IntValue
+    lateinit var FUEL_CONSUME_ACTION_LIGHT: IntValue
+    lateinit var FUEL_CONSUME_ACTION_HEAVY: IntValue
+    lateinit var FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT: IntValue
+    lateinit var FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT: IntValue
 
-    @JvmField
-    val TICK_FISHING_MIN: IntValue
-    @JvmField
-    val TICK_FISHING_MAX: IntValue
-    @JvmField
-    val TICK_MINING_MIN: IntValue
-    @JvmField
-    val TICK_MINING_MAX: IntValue
-    @JvmField
-    val TASK_ENABLE_COOKING: ModConfigSpec.BooleanValue
-    @JvmField
-    val TASK_ENABLE_FISHING: ModConfigSpec.BooleanValue
-    @JvmField
-    val TASK_ENABLE_MINING: ModConfigSpec.BooleanValue
-    @JvmField
-    val TASK_ENABLE_CRAFTING: ModConfigSpec.BooleanValue
-    val SMALL_SHIPYARD_POWER_MAX: IntValue
-    val SMALL_SHIPYARD_BUILD_SPEED: IntValue
-    val SMALL_SHIPYARD_INSTANT_TICKS: IntValue
-    val SMALL_SHIPYARD_FUEL_MAGNIFICATION: ModConfigSpec.DoubleValue
-    val LARGE_SHIPYARD_POWER_MAX: IntValue
-    val LARGE_SHIPYARD_BUILD_SPEED: IntValue
-    val LARGE_SHIPYARD_INSTANT_TICKS: IntValue
-    val LARGE_SHIPYARD_FUEL_MAGNIFICATION: ModConfigSpec.DoubleValue
-    val RING_ABILITY_WATER_BREATHING: IntValue
-    val RING_ABILITY_SWIM_FLIGHT: IntValue
-    val RING_ABILITY_UNDERWATER_DIG_CAP: IntValue
-    val RING_ABILITY_UNDERWATER_FOG_CAP: IntValue
-    val RING_ABILITY_FIRE_IMMUNITY: IntValue
-    val DRUM_LIQUID_BASE_RATE: IntValue
-    val DRUM_LIQUID_ENCHANT_RATE: IntValue
-    val DRUM_ENERGY_BASE_RATE: IntValue
-    val DRUM_ENERGY_ENCHANT_RATE: IntValue
-    val PAIR_DIST_CHEST: IntValue
-    val PAIR_DIST_WAYPOINT: IntValue
-    @JvmField
-    val SHIP_CAN_TELEPORT: ModConfigSpec.BooleanValue
-    @JvmField
-    val SHIP_FREEZE_WHEN_GUI_OPEN: ModConfigSpec.BooleanValue
-    val ENABLE_FIRING_LINE_CHECK: ModConfigSpec.BooleanValue
-    val CRUISE_SPEED_FACTOR: ModConfigSpec.DoubleValue
-    @JvmField
-    val SHIP_BUFF_DURATION: IntValue
-    val CRANE_TANK_CAPACITY: IntValue
-    val VOLCORE_POWER_MAX: IntValue
-    val VOLCORE_CONSUME_SPEED: IntValue
-    val VOLCORE_FUEL_MAGNITUDE: IntValue
-    val MINING_ENTRIES: ModConfigSpec.ConfigValue<MutableList<out String?>?>
-    val LOOT_ENTRIES: ModConfigSpec.ConfigValue<MutableList<out String?>?>
+    lateinit var TICK_FISHING_MIN: IntValue
+    lateinit var TICK_FISHING_MAX: IntValue
+    lateinit var TICK_MINING_MIN: IntValue
+    lateinit var TICK_MINING_MAX: IntValue
+    lateinit var TASK_ENABLE_COOKING: ModConfigSpec.BooleanValue
+    lateinit var TASK_ENABLE_FISHING: ModConfigSpec.BooleanValue
+    lateinit var TASK_ENABLE_MINING: ModConfigSpec.BooleanValue
+    lateinit var TASK_ENABLE_CRAFTING: ModConfigSpec.BooleanValue
+    lateinit var SMALL_SHIPYARD_POWER_MAX: IntValue
+    lateinit var SMALL_SHIPYARD_BUILD_SPEED: IntValue
+    lateinit var SMALL_SHIPYARD_INSTANT_TICKS: IntValue
+    lateinit var SMALL_SHIPYARD_FUEL_MAGNIFICATION: ModConfigSpec.DoubleValue
+    lateinit var LARGE_SHIPYARD_POWER_MAX: IntValue
+    lateinit var LARGE_SHIPYARD_BUILD_SPEED: IntValue
+    lateinit var LARGE_SHIPYARD_INSTANT_TICKS: IntValue
+    lateinit var LARGE_SHIPYARD_FUEL_MAGNIFICATION: ModConfigSpec.DoubleValue
+    lateinit var RING_ABILITY_WATER_BREATHING: IntValue
+    lateinit var RING_ABILITY_SWIM_FLIGHT: IntValue
+    lateinit var RING_ABILITY_UNDERWATER_DIG_CAP: IntValue
+    lateinit var RING_ABILITY_UNDERWATER_FOG_CAP: IntValue
+    lateinit var RING_ABILITY_FIRE_IMMUNITY: IntValue
+    lateinit var DRUM_LIQUID_BASE_RATE: IntValue
+    lateinit var DRUM_LIQUID_ENCHANT_RATE: IntValue
+    lateinit var DRUM_ENERGY_BASE_RATE: IntValue
+    lateinit var DRUM_ENERGY_ENCHANT_RATE: IntValue
+    lateinit var PAIR_DIST_CHEST: IntValue
+    lateinit var PAIR_DIST_WAYPOINT: IntValue
+    lateinit var SHIP_CAN_TELEPORT: ModConfigSpec.BooleanValue
+    lateinit var SHIP_FREEZE_WHEN_GUI_OPEN: ModConfigSpec.BooleanValue
+    lateinit var ENABLE_FIRING_LINE_CHECK: ModConfigSpec.BooleanValue
+    lateinit var CRUISE_SPEED_FACTOR: ModConfigSpec.DoubleValue
+    lateinit var SHIP_BUFF_DURATION: IntValue
+    lateinit var CRANE_TANK_CAPACITY: IntValue
+    lateinit var VOLCORE_POWER_MAX: IntValue
+    lateinit var VOLCORE_CONSUME_SPEED: IntValue
+    lateinit var VOLCORE_FUEL_MAGNITUDE: IntValue
+    lateinit var MINING_ENTRIES: ModConfigSpec.ConfigValue<MutableList<out String?>?>
+    lateinit var LOOT_ENTRIES: ModConfigSpec.ConfigValue<MutableList<out String?>?>
     val EXP_GAIN_TASK: Array<IntValue?> = arrayOfNulls<IntValue>(4)
     val CONSUME_GRUDGE_TASK: Array<IntValue?> = arrayOfNulls<IntValue>(4)
 
-    @JvmField
-    val HOSTILE_DROP_GRUDGE_RATE: ModConfigSpec.DoubleValue
-    @JvmField
-    val HOSTILE_DEATH_MAX_TICKS: IntValue
-    @JvmField
-    val HOSTILE_DESPAWN_BOSS_TICKS: IntValue
-    @JvmField
-    val HOSTILE_DESPAWN_MINION_TICKS: IntValue
-    @JvmField
-    val HOSTILE_BOSS_COOLDOWN_TICKS: IntValue
-    @JvmField
-    val HOSTILE_SPAWN_BOSS_COUNT: IntValue
-    @JvmField
-    val HOSTILE_SPAWN_MINION_COUNT: IntValue
-    @JvmField
-    val HOSTILE_SPAWN_REQUIRE_RING: ModConfigSpec.BooleanValue
-    @JvmField
-    val HOSTILE_MOB_SPAWN_MAX: IntValue
-    @JvmField
-    val HOSTILE_MOB_SPAWN_CHANCE_PERCENT: IntValue
-    @JvmField
-    val HOSTILE_MOB_SPAWN_GROUPS: IntValue
-    @JvmField
-    val HOSTILE_MOB_SPAWN_GROUP_MIN: IntValue
-    @JvmField
-    val HOSTILE_MOB_SPAWN_GROUP_MAX: IntValue
+    lateinit var HOSTILE_DROP_GRUDGE_RATE: ModConfigSpec.DoubleValue
+    lateinit var HOSTILE_DEATH_MAX_TICKS: IntValue
+    lateinit var HOSTILE_DESPAWN_BOSS_TICKS: IntValue
+    lateinit var HOSTILE_DESPAWN_MINION_TICKS: IntValue
+    lateinit var HOSTILE_BOSS_COOLDOWN_TICKS: IntValue
+    lateinit var HOSTILE_SPAWN_BOSS_COUNT: IntValue
+    lateinit var HOSTILE_SPAWN_MINION_COUNT: IntValue
+    lateinit var HOSTILE_SPAWN_REQUIRE_RING: ModConfigSpec.BooleanValue
+    lateinit var HOSTILE_MOB_SPAWN_MAX: IntValue
+    lateinit var HOSTILE_MOB_SPAWN_CHANCE_PERCENT: IntValue
+    lateinit var HOSTILE_MOB_SPAWN_GROUPS: IntValue
+    lateinit var HOSTILE_MOB_SPAWN_GROUP_MIN: IntValue
+    lateinit var HOSTILE_MOB_SPAWN_GROUP_MAX: IntValue
 
-    @JvmField
-    val SHIP_CAN_TIMEKEEPING: ModConfigSpec.BooleanValue
-    @JvmField
-    val SHIP_VOLUME_TIMEKEEPING: ModConfigSpec.DoubleValue
-    @JvmField
-    val SHIP_VOLUME_GENERAL: ModConfigSpec.DoubleValue
-    @JvmField
-    val SHIP_VOLUME_ATTACK: ModConfigSpec.DoubleValue
-    val CUSTOM_SOUND_RATES: ModConfigSpec.ConfigValue<MutableList<out String?>?>
+    lateinit var SHIP_CAN_TIMEKEEPING: ModConfigSpec.BooleanValue
+    lateinit var SHIP_VOLUME_TIMEKEEPING: ModConfigSpec.DoubleValue
+    lateinit var SHIP_VOLUME_GENERAL: ModConfigSpec.DoubleValue
+    lateinit var SHIP_VOLUME_ATTACK: ModConfigSpec.DoubleValue
+    lateinit var CUSTOM_SOUND_RATES: ModConfigSpec.ConfigValue<MutableList<out String?>?>
 
-    @JvmField
-    val CLIENT_SCALE_HELD_ITEM: ModConfigSpec.DoubleValue
-    @JvmField
-    val CLIENT_OFFSET_HELD_ITEM_X: ModConfigSpec.DoubleValue
-    @JvmField
-    val CLIENT_OFFSET_HELD_ITEM_Y: ModConfigSpec.DoubleValue
-    @JvmField
-    val CLIENT_OFFSET_HELD_ITEM_Z: ModConfigSpec.DoubleValue
+    lateinit var CLIENT_SCALE_HELD_ITEM: ModConfigSpec.DoubleValue
+    lateinit var CLIENT_OFFSET_HELD_ITEM_X: ModConfigSpec.DoubleValue
+    lateinit var CLIENT_OFFSET_HELD_ITEM_Y: ModConfigSpec.DoubleValue
+    lateinit var CLIENT_OFFSET_HELD_ITEM_Z: ModConfigSpec.DoubleValue
 
-    @JvmField
-    val USE_MISANS_FONT: ModConfigSpec.BooleanValue
-    @JvmField
-    val MISANS_ONLY_LEGACY_LOGS: ModConfigSpec.BooleanValue
-    @JvmField
-    val SPEC: ModConfigSpec
-    @JvmField
-    val CLIENT_SPEC: ModConfigSpec
+    lateinit var USE_MISANS_FONT: ModConfigSpec.BooleanValue
+    lateinit var MISANS_ONLY_LEGACY_LOGS: ModConfigSpec.BooleanValue
+    lateinit var SPEC: ModConfigSpec
+    lateinit var CLIENT_SPEC: ModConfigSpec
 
     @JvmField
     var shipExpModifier: Int = 20
@@ -396,341 +321,8 @@ object Config {
     var miSansOnlyForLegacyLogs: Boolean = true
 
     init {
-        BUILDER.comment("Ship EXP and level settings").push("ship_exp")
-
-        SHIP_EXP_MODIFIER = BUILDER
-            .comment("EXP required for next level = currentLevel * value + value")
-            .defineInRange("expModifier", shipExpModifier, 1, 10000)
-
-        SHIP_EXP_GAIN_MELEE = BUILDER
-            .comment("EXP gained when ship performs melee attack")
-            .defineInRange("expGainMelee", shipExpGainMelee, 0, 10000)
-
-        SHIP_EXP_GAIN_KILL = BUILDER
-            .comment("EXP gained when ship kills an enemy")
-            .defineInRange("expGainKill", shipExpGainKill, 0, 10000)
-
-        SHIP_EXP_GAIN_LIGHT_ATTACK = BUILDER
-            .comment("EXP gained when ship performs light ammo attack")
-            .defineInRange("expGainLightAttack", shipExpGainLightAttack, 0, 10000)
-
-        SHIP_EXP_GAIN_HEAVY_ATTACK = BUILDER
-            .comment("EXP gained when ship performs heavy ammo attack")
-            .defineInRange("expGainHeavyAttack", shipExpGainHeavyAttack, 0, 10000)
-
-        SHIP_EXP_GAIN_LIGHT_AIRCRAFT = BUILDER
-            .comment("EXP gained when ship launches light aircraft attack")
-            .defineInRange("expGainLightAircraft", shipExpGainLightAircraft, 0, 10000)
-
-        SHIP_EXP_GAIN_HEAVY_AIRCRAFT = BUILDER
-            .comment("EXP gained when ship launches heavy aircraft attack")
-            .defineInRange("expGainHeavyAircraft", shipExpGainHeavyAircraft, 0, 10000)
-
-        SHIP_MAX_LEVEL_NORMAL = BUILDER
-            .comment("Max ship level for non-married ships")
-            .defineInRange("maxLevelNormal", shipMaxLevelNormal, 1, 150)
-
-        SHIP_MAX_LEVEL_MARRIED = BUILDER
-            .comment("Max ship level for married ships")
-            .defineInRange("maxLevelMarried", shipMaxLevelMarried, 1, 150)
-
-        TRAINING_BOOK_LEVEL_MIN = BUILDER
-            .comment("Training book minimum level gain")
-            .defineInRange("trainingBookLevelMin", trainingBookLevelMin, 1, 50)
-
-        TRAINING_BOOK_LEVEL_MAX = BUILDER
-            .comment("Training book maximum level gain")
-            .defineInRange("trainingBookLevelMax", trainingBookLevelMax, 1, 50)
-
-        BUILDER.pop()
-
-        BUILDER.comment("Debug and diagnostics settings").push("debug")
-        DEBUG_LOGGING = BUILDER
-            .comment("Enable verbose ShinColle debug diagnostics. Keep disabled during normal gameplay.")
-            .define("debugLogging", debugLogging)
-        DEBUG_PERFORMANCE_LOGGING = BUILDER
-            .comment("Enable ShinColle performance diagnostics for slow server ticks and timed module/function traces.")
-            .define("debugPerformanceLogging", debugPerformanceLogging)
-        DEBUG_PERF_SLOW_SHIP_TICK_MS = BUILDER
-            .comment("Log a ship server tick when ShinColle ship logic takes at least this many milliseconds.")
-            .defineInRange("debugPerfSlowShipTickMs", debugPerfSlowShipTickMs, 1, 1000)
-        DEBUG_PERF_SLOW_TASK_TICK_MS = BUILDER
-            .comment("Log a ship task update when task automation takes at least this many milliseconds.")
-            .defineInRange("debugPerfSlowTaskTickMs", debugPerfSlowTaskTickMs, 1, 1000)
-        DEBUG_PERF_SLOW_BLOCK_ENTITY_TICK_MS = BUILDER
-            .comment("Log a ShinColle block entity tick when it takes at least this many milliseconds.")
-            .defineInRange("debugPerfSlowBlockEntityTickMs", debugPerfSlowBlockEntityTickMs, 1, 1000)
-        DEBUG_PERF_SLOW_PROJECTILE_TICK_MS = BUILDER
-            .comment("Log aircraft/projectile server logic when it takes at least this many milliseconds.")
-            .defineInRange("debugPerfSlowProjectileTickMs", debugPerfSlowProjectileTickMs, 1, 1000)
-        DEBUG_PERF_SLOW_SERVER_TICK_MS = BUILDER
-            .comment("Log per-server-tick ShinColle aggregate time when it reaches this many milliseconds.")
-            .defineInRange("debugPerfSlowServerTickMs", debugPerfSlowServerTickMs, 1, 1000)
-        DEBUG_PERF_MIN_LOG_INTERVAL_TICKS = BUILDER
-            .comment("Minimum ticks between repeated performance logs for the same object and trace key.")
-            .defineInRange("debugPerfMinLogIntervalTicks", debugPerfMinLogIntervalTicks, 1, 1200)
-        BUILDER.pop()
-
-        BUILDER.comment("Ship interaction feedback settings").push("ship_interaction")
-
-        MODERN_KIT_NOTIFY_WHEN_MAXED = BUILDER
-            .comment("Show a player-facing message when a ship can no longer gain modernization bonuses")
-            .define("modernKitNotifyWhenMaxed", modernKitNotifyWhenMaxed)
-
-        MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR = BUILDER
-            .comment("Show the maxed modernization message in the action bar instead of chat")
-            .define("modernKitNotifyWhenMaxedActionBar", modernKitNotifyWhenMaxedActionBar)
-
-        SHIP_FREEZE_WHEN_GUI_OPEN = BUILDER
-            .comment("Freeze ship movement when its GUI is open. Ship can still attack in place.")
-            .define("freezeWhenGuiOpen", true)
-
-        ENABLE_FIRING_LINE_CHECK = BUILDER
-            .comment("Check for nearby blocks before firing heavy attacks. Prevents self-damage from missiles exploding on walls.")
-            .define("enableFiringLineCheck", enableFiringLineCheck)
-        CRUISE_SPEED_FACTOR = BUILDER
-            .comment("Movement speed multiplier for all ships. Higher = faster. (default: 0.3)")
-            .defineInRange("cruiseSpeedFactor", 0.3, 0.05, 5.0)
-
-        SHIP_BUFF_DURATION = BUILDER
-            .comment("Duration (ticks) for ship-granted owner buffs like night vision. 600 = 30 seconds.")
-            .defineInRange("buffDuration", 600, 20, 72000)
-
-        BUILDER.pop()
-
-        BUILDER.comment("Grudge/Fuel consumption settings").push("fuel")
-
-        FUEL_DECAY_INTERVAL = BUILDER
-            .comment("Interval in ticks between fuel decay checks")
-            .defineInRange("decayInterval", fuelDecayInterval, 1, 10000)
-
-        FUEL_MOVE_DECAY_FACTOR = BUILDER
-            .comment("Movement fuel consumption factor (consumption = distance * factor)")
-            .defineInRange("moveDecayFactor", fuelMoveDecayFactor, 0, 1000)
-
-        FUEL_CONSUME_DD = BUILDER.defineInRange("consumeDD", fuelConsumeDD, 0, 1000)
-        FUEL_CONSUME_CL = BUILDER.defineInRange("consumeCL", fuelConsumeCL, 0, 1000)
-        FUEL_CONSUME_CA = BUILDER.defineInRange("consumeCA", fuelConsumeCA, 0, 1000)
-        FUEL_CONSUME_CAV = BUILDER.defineInRange("consumeCAV", fuelConsumeCAV, 0, 1000)
-        FUEL_CONSUME_CLT = BUILDER.defineInRange("consumeCLT", fuelConsumeCLT, 0, 1000)
-        FUEL_CONSUME_CVL = BUILDER.defineInRange("consumeCVL", fuelConsumeCVL, 0, 1000)
-        FUEL_CONSUME_CV = BUILDER.defineInRange("consumeCV", fuelConsumeCV, 0, 1000)
-        FUEL_CONSUME_BB = BUILDER.defineInRange("consumeBB", fuelConsumeBB, 0, 1000)
-        FUEL_CONSUME_BBV = BUILDER.defineInRange("consumeBBV", fuelConsumeBBV, 0, 1000)
-        FUEL_CONSUME_SS = BUILDER.defineInRange("consumeSS", fuelConsumeSS, 0, 1000)
-        FUEL_CONSUME_AP = BUILDER.defineInRange("consumeAP", fuelConsumeAP, 0, 1000)
-
-        FUEL_CONSUME_ACTION_LIGHT = BUILDER.defineInRange("consumeActionLight", fuelConsumeActionLight, 0, 1000)
-        FUEL_CONSUME_ACTION_HEAVY = BUILDER.defineInRange("consumeActionHeavy", fuelConsumeActionHeavy, 0, 1000)
-        FUEL_CONSUME_ACTION_LIGHT_AIRCRAFT =
-            BUILDER.defineInRange("consumeActionLightAircraft", fuelConsumeActionLightAircraft, 0, 1000)
-        FUEL_CONSUME_ACTION_HEAVY_AIRCRAFT =
-            BUILDER.defineInRange("consumeActionHeavyAircraft", fuelConsumeActionHeavyAircraft, 0, 1000)
-
-        BUILDER.pop()
-
-        BUILDER.comment("Task Automation settings").push("task")
-        TICK_FISHING_MIN = BUILDER.defineInRange("tickFishingMin", tickFishingMin, 1, 10000)
-        TICK_FISHING_MAX = BUILDER.defineInRange("tickFishingMax", tickFishingMax, 1, 10000)
-        TICK_MINING_MIN = BUILDER.defineInRange("tickMiningMin", tickMiningMin, 1, 10000)
-        TICK_MINING_MAX = BUILDER.defineInRange("tickMiningMax", tickMiningMax, 1, 10000)
-        TASK_ENABLE_COOKING = BUILDER.define("enableCooking", taskEnable[0])
-        TASK_ENABLE_FISHING = BUILDER.define("enableFishing", taskEnable[1])
-        TASK_ENABLE_MINING = BUILDER.define("enableMining", taskEnable[2])
-        TASK_ENABLE_CRAFTING = BUILDER.define("enableCrafting", taskEnable[3])
-        SMALL_SHIPYARD_POWER_MAX = BUILDER
-            .comment("Small shipyard max fuel storage")
-            .defineInRange("smallShipyardPowerMax", smallShipyardPowerMax, 1, 100000000)
-        SMALL_SHIPYARD_BUILD_SPEED = BUILDER
-            .comment("Small shipyard build progress per tick while active")
-            .defineInRange("smallShipyardBuildSpeed", smallShipyardBuildSpeed, 1, 1000000)
-        SMALL_SHIPYARD_INSTANT_TICKS = BUILDER
-            .comment("Build ticks skipped per instant construction material in the small shipyard")
-            .defineInRange("smallShipyardInstantTicks", smallShipyardInstantTicks, 0, 1000000)
-        SMALL_SHIPYARD_FUEL_MAGNIFICATION = BUILDER
-            .comment("Small shipyard fuel magnification multiplier")
-            .defineInRange("smallShipyardFuelMagnification", smallShipyardFuelMagnification.toDouble(), 0.0, 1000.0)
-        LARGE_SHIPYARD_POWER_MAX = BUILDER
-            .comment("Large shipyard max fuel storage")
-            .defineInRange("largeShipyardPowerMax", largeShipyardPowerMax, 1, 100000000)
-        LARGE_SHIPYARD_BUILD_SPEED = BUILDER
-            .comment("Large shipyard build progress per tick while active")
-            .defineInRange("largeShipyardBuildSpeed", largeShipyardBuildSpeed, 1, 1000000)
-        LARGE_SHIPYARD_INSTANT_TICKS = BUILDER
-            .comment("Build ticks skipped per instant construction material in the large shipyard")
-            .defineInRange("largeShipyardInstantTicks", largeShipyardInstantTicks, 0, 1000000)
-        LARGE_SHIPYARD_FUEL_MAGNIFICATION = BUILDER
-            .comment("Large shipyard fuel magnification multiplier")
-            .defineInRange("largeShipyardFuelMagnification", largeShipyardFuelMagnification.toDouble(), 0.0, 1000.0)
-        RING_ABILITY_WATER_BREATHING = BUILDER
-            .comment("Married ship count needed for passive water breathing, negative disables")
-            .defineInRange("ringAbilityWaterBreathing", ringAbilityWaterBreathing, -1, 1000)
-        RING_ABILITY_SWIM_FLIGHT = BUILDER
-            .comment("Legacy swim flight threshold. Grants temporary flight while the active ring owner is in water, negative disables")
-            .defineInRange("ringAbilitySwimFlight", ringAbilitySwimFlight, -1, 1000)
-        RING_ABILITY_UNDERWATER_DIG_CAP = BUILDER
-            .comment("Maximum married ship count contributing to underwater dig speed, 0 disables")
-            .defineInRange("ringAbilityUnderwaterDigCap", ringAbilityUnderwaterDigCap, 0, 1000)
-        RING_ABILITY_UNDERWATER_FOG_CAP = BUILDER
-            .comment("Legacy underwater fog reduction threshold. 0 removes water fog, positive values scale fog reduction by married ship count, negative disables")
-            .defineInRange("ringAbilityUnderwaterFogCap", ringAbilityUnderwaterFogCap, -1, 1000)
-        RING_ABILITY_FIRE_IMMUNITY = BUILDER
-            .comment("Married ship count needed for active ring fire immunity, negative disables")
-            .defineInRange("ringAbilityFireImmunity", ringAbilityFireImmunity, -1, 1000)
-        DRUM_LIQUID_BASE_RATE = BUILDER
-            .comment("Crane liquid transfer base rate per liquid drum in mB/t")
-            .defineInRange("drumLiquidBaseRate", drumLiquidBaseRate, 0, 1000000)
-        DRUM_LIQUID_ENCHANT_RATE = BUILDER
-            .comment("Additional crane liquid transfer rate per enchantment level in mB/t")
-            .defineInRange("drumLiquidEnchantRate", drumLiquidEnchantRate, 0, 1000000)
-        DRUM_ENERGY_BASE_RATE = BUILDER
-            .comment("Crane energy transfer base rate per energy drum in FE/t")
-            .defineInRange("drumEnergyBaseRate", drumEnergyBaseRate, 0, 1000000)
-        DRUM_ENERGY_ENCHANT_RATE = BUILDER
-            .comment("Additional crane energy transfer rate per enchantment level in FE/t")
-            .defineInRange("drumEnergyEnchantRate", drumEnergyEnchantRate, 0, 1000000)
-        PAIR_DIST_CHEST = BUILDER
-            .comment("Max pairing distance between waypoint and chest/crane")
-            .defineInRange("pairDistChest", pairDistChest, 0, 64)
-        PAIR_DIST_WAYPOINT = BUILDER
-            .comment("Max pairing distance between waypoints")
-            .defineInRange("pairDistWaypoint", pairDistWaypoint, 0, 64)
-        SHIP_CAN_TELEPORT = BUILDER
-            .comment("Can ship teleport to owner or guarding position if too far away")
-            .define("canTeleport", canTeleport)
-        CRANE_TANK_CAPACITY = BUILDER
-            .comment("Crane internal fluid tank capacity in mB")
-            .defineInRange("craneTankCapacity", craneTankCapacity, 1, 1000000000)
-        VOLCORE_POWER_MAX = BUILDER
-            .comment("Volcano Core max fuel storage")
-            .defineInRange("volCorePowerMax", volCorePowerMax, 1, 100000000)
-        VOLCORE_CONSUME_SPEED = BUILDER
-            .comment("Volcano Core power consumed every 16 ticks while active")
-            .defineInRange("volCoreConsumeSpeed", volCoreConsumeSpeed, 1, 1000000)
-        VOLCORE_FUEL_MAGNITUDE = BUILDER
-            .comment("Volcano Core fuel value per grudge item")
-            .defineInRange("volCoreFuelMagnitude", volCoreFuelMagnitude, 1, 1000000)
-        MINING_ENTRIES = BUILDER
-            .comment("Mining table entries: dimension, biome, item, meta, weight, min, max, shipLevel, maxY, toolLevel, enchantPercent. Use '*' for all dimensions/biomes or legacy numeric dimension ids like 0/-1/1.")
-            .defineList<String?>(
-                "miningEntries",
-                defaultMiningEntries(),
-                Predicate { value: Any? -> value is String && isValidMiningEntry(value) })
-        LOOT_ENTRIES = BUILDER
-            .comment("Legacy chest loot entries: chestId, item, meta, weight, chancePercent, min, max. chestId: 0 spawn, 1 igloo, 2 dungeon, 3 village, 4 mineshaft, 5 pyramid, 6 jungle temple, 7 nether bridge, 8 stronghold, 9 end city.")
-            .defineList<String?>(
-                "lootEntries",
-                defaultLootEntries(),
-                Predicate { value: Any? -> value is String && isValidLootEntry(value) })
-        for (i in 0..3) {
-            EXP_GAIN_TASK[i] = BUILDER.defineInRange("expGainTask" + i, expGainTask[i], 0, 10000)
-            CONSUME_GRUDGE_TASK[i] = BUILDER.defineInRange("consumeGrudgeTask" + i, consumeGrudgeTask[i], 0, 10000)
-        }
-        BUILDER.pop()
-
-        BUILDER.comment("Legacy hostile ship spawn/death/drop settings").push("hostile")
-
-        HOSTILE_DROP_GRUDGE_RATE = BUILDER
-            .comment("Grudge drop rate for hostile entities (fixed + chance, e.g. 5.5 = 5 guaranteed + 50% for +1)")
-            .defineInRange("dropGrudgeRate", hostileDropGrudgeRate.toDouble(), 0.0, 64.0)
-
-        HOSTILE_DEATH_MAX_TICKS = BUILDER
-            .comment("Hostile ship death animation ticks before final sink processing")
-            .defineInRange("deathMaxTicks", hostileDeathMaxTicks, 0, 3600)
-
-        HOSTILE_DESPAWN_BOSS_TICKS = BUILDER
-            .comment("Hostile boss despawn ticks, -1 disables despawn")
-            .defineInRange("despawnBossTicks", hostileDespawnBossTicks, -1, 1728000)
-
-        HOSTILE_DESPAWN_MINION_TICKS = BUILDER
-            .comment("Hostile minion despawn ticks, -1 disables despawn")
-            .defineInRange("despawnMinionTicks", hostileDespawnMinionTicks, -1, 1728000)
-
-        HOSTILE_BOSS_COOLDOWN_TICKS = BUILDER
-            .comment("Boss fleet spawn cooldown ticks")
-            .defineInRange("bossCooldownTicks", hostileBossCooldownTicks, 20, 1728000)
-
-        HOSTILE_SPAWN_BOSS_COUNT = BUILDER
-            .comment("Boss ships per boss fleet spawn")
-            .defineInRange("spawnBossCount", hostileSpawnBossCount, 1, 10)
-
-        HOSTILE_SPAWN_MINION_COUNT = BUILDER
-            .comment("Minion ships per boss fleet spawn")
-            .defineInRange("spawnMinionCount", hostileSpawnMinionCount, 1, 10)
-
-        HOSTILE_SPAWN_REQUIRE_RING = BUILDER
-            .comment("Require player inventory to have a marriage ring for regular hostile mob spawns")
-            .define("spawnRequireRing", hostileSpawnRequireRing)
-
-        HOSTILE_MOB_SPAWN_MAX = BUILDER
-            .comment("Maximum number of non-boss hostile ships loaded in a level for regular spawn checks")
-            .defineInRange("mobSpawnMax", hostileMobSpawnMax, 0, 10000)
-
-        HOSTILE_MOB_SPAWN_CHANCE_PERCENT = BUILDER
-            .comment("Regular hostile spawn chance percent per check")
-            .defineInRange("mobSpawnChancePercent", hostileMobSpawnChancePercent, 0, 100)
-
-        HOSTILE_MOB_SPAWN_GROUPS = BUILDER
-            .comment("Regular hostile spawn group count per successful spawn check")
-            .defineInRange("mobSpawnGroups", hostileMobSpawnGroups, 1, 16)
-
-        HOSTILE_MOB_SPAWN_GROUP_MIN = BUILDER
-            .comment("Minimum hostile ship count per regular spawn group")
-            .defineInRange("mobSpawnGroupMin", hostileMobSpawnGroupMin, 1, 16)
-
-        HOSTILE_MOB_SPAWN_GROUP_MAX = BUILDER
-            .comment("Maximum hostile ship count per regular spawn group")
-            .defineInRange("mobSpawnGroupMax", hostileMobSpawnGroupMax, 1, 16)
-
-        BUILDER.pop()
-
-        CLIENT_BUILDER.comment("Ship sound and timekeeping settings").push("ship_sound")
-        SHIP_CAN_TIMEKEEPING = CLIENT_BUILDER
-            .comment("Play ship timekeeping voice every Minecraft hour when enabled in ship GUI")
-            .define("canTimeKeeping", canTimeKeeping)
-        SHIP_VOLUME_TIMEKEEPING = CLIENT_BUILDER
-            .comment("Timekeeping voice volume multiplier")
-            .defineInRange("volumeTimeKeeping", volumeTimeKeeping.toDouble(), 0.0, 10.0)
-        SHIP_VOLUME_GENERAL = CLIENT_BUILDER
-            .comment("General ship voice volume multiplier")
-            .defineInRange("volumeShip", volumeShip.toDouble(), 0.0, 10.0)
-        SHIP_VOLUME_ATTACK = CLIENT_BUILDER
-            .comment("Attack sound volume multiplier")
-            .defineInRange("volumeAttack", volumeAttack.toDouble(), 0.0, 10.0)
-        CUSTOM_SOUND_RATES = CLIENT_BUILDER
-            .comment("Custom ship voice rates: shipClass,idle,attack,hurt,dead,marry,knockback,item,feed,timekeep00~timekeep23. Value is 0-100 percent.")
-            .defineList<String?>(
-                "customSoundRates",
-                defaultCustomSoundRates(),
-                Predicate { value: Any? -> value is String && isValidCustomSoundRate(value) })
-        CLIENT_BUILDER.pop()
-
-        CLIENT_BUILDER.comment("Client side settings").push("client")
-        CLIENT_SCALE_HELD_ITEM = CLIENT_BUILDER
-            .comment("Held item scale")
-            .defineInRange("scaleHeldItem", 1.0, 0.0, 10.0)
-        CLIENT_OFFSET_HELD_ITEM_X = CLIENT_BUILDER
-            .comment("Held item offset X")
-            .defineInRange("offsetHeldItemX", 0.0, -10.0, 10.0)
-        CLIENT_OFFSET_HELD_ITEM_Y = CLIENT_BUILDER
-            .comment("Held item offset Y")
-            .defineInRange("offsetHeldItemY", 0.0, -10.0, 10.0)
-        CLIENT_OFFSET_HELD_ITEM_Z = CLIENT_BUILDER
-            .comment("Held item offset Z")
-            .defineInRange("offsetHeldItemZ", 0.0, -10.0, 10.0)
-
-        CLIENT_BUILDER.comment("MiSans font settings").push("misans_font")
-        USE_MISANS_FONT = CLIENT_BUILDER
-            .comment("Use MiSans font for in-game text rendering")
-            .define("useMiSansFont", true)
-        MISANS_ONLY_LEGACY_LOGS = CLIENT_BUILDER
-            .comment("Only apply MiSans font to legacy deep-sea log books (desk book & held item)")
-            .define("miSansOnlyForLegacyLogs", true)
-        CLIENT_BUILDER.pop()
-        CLIENT_BUILDER.pop()
-
-        SPEC = BUILDER.build()
-        CLIENT_SPEC = CLIENT_BUILDER.build()
+        ConfigSpecBuilder.buildCommonSpec()
+        ConfigSpecBuilder.buildClientSpec()
     }
 
     @JvmStatic
@@ -851,7 +443,7 @@ object Config {
         }
     }
 
-    private fun defaultMiningEntries(): MutableList<String?> {
+    internal fun defaultMiningEntries(): MutableList<String?> {
         val entries: MutableList<String?> = ArrayList<String?>()
         entries.add("*,*,minecraft:cobblestone,0,100,1,4,1,256,0,0")
 
@@ -910,7 +502,7 @@ object Config {
         return entries
     }
 
-    private fun defaultCustomSoundRates(): MutableList<String?> {
+    internal fun defaultCustomSoundRates(): MutableList<String?> {
         val entries: MutableList<String?> = ArrayList<String?>()
         entries.add("54,25,0,25,0,50,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
         entries.add("56,50,50,50,100,0,0,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0")
@@ -919,7 +511,7 @@ object Config {
         return entries
     }
 
-    private fun isValidCustomSoundRate(rawEntry: String): Boolean {
+    internal fun isValidCustomSoundRate(rawEntry: String): Boolean {
         val parts =
             rawEntry.replace("\\s".toRegex(), "").split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         if (parts.size != 33) {
@@ -940,7 +532,7 @@ object Config {
         }
     }
 
-    private fun parseCustomSoundRates(rawEntries: MutableList<out String?>?): MutableMap<Int?, EnumMap<ShipCustomSoundType, Float?>?> {
+    internal fun parseCustomSoundRates(rawEntries: MutableList<out String?>?): MutableMap<Int?, EnumMap<ShipCustomSoundType, Float?>?> {
         if (rawEntries == null || rawEntries.isEmpty()) {
             return mutableMapOf<Int?, EnumMap<ShipCustomSoundType, Float?>?>()
         }
@@ -979,7 +571,7 @@ object Config {
         return Collections.unmodifiableMap<Int?, EnumMap<ShipCustomSoundType, Float?>?>(parsed)
     }
 
-    private fun defaultLootEntries(): MutableList<String?> {
+    internal fun defaultLootEntries(): MutableList<String?> {
         val entries: MutableList<String?> = ArrayList<String?>()
         entries.add("0,shincolle:grudge,0,1,100,10,15")
         entries.add("0,shincolle:destroyer_i_spawn_egg,0,2,100,1,1")
@@ -1047,7 +639,7 @@ object Config {
         return entries
     }
 
-    private fun isValidMiningEntry(line: String): Boolean {
+    internal fun isValidMiningEntry(line: String): Boolean {
         val parts = line.replace(" ", "").split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         if (parts.size != 11) return false
         if (parts[2].isBlank()) return false
@@ -1066,7 +658,7 @@ object Config {
         }
     }
 
-    private fun isValidLootEntry(line: String): Boolean {
+    internal fun isValidLootEntry(line: String): Boolean {
         val parts = line.replace(" ", "").split(",".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
         if (parts.size != 7 || parts[1].isBlank()) return false
         try {
