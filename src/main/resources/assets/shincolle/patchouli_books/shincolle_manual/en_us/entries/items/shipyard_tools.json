@@ -83,6 +83,18 @@
       ],
       "border": true,
       "text": "patchouli.shincolle.entry.shipyard_tools.page10.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page11.title",
+      "item": "shincolle:shipspawneggs",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page11.text"
+    },
+    {
+      "type": "patchouli:spotlight",
+      "title": "patchouli.shincolle.entry.shipyard_tools.page12.title",
+      "item": "shincolle:shipspawneggl",
+      "text": "patchouli.shincolle.entry.shipyard_tools.page12.text"
     }
   ]
 }
