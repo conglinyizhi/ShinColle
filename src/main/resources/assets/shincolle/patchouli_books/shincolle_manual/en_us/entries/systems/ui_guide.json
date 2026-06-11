@@ -19,6 +19,17 @@
       "text": "patchouli.shincolle.entry.ui_guide.page1.text"
     },
     {
+      "type": "patchouli:image",
+      "title": "patchouli.shincolle.entry.ui_guide.page1b.title",
+      "images": [
+        "shincolle:textures/gui/guinameicon0.png",
+        "shincolle:textures/gui/guinameicon1.png",
+        "shincolle:textures/gui/guinameicon2.png"
+      ],
+      "border": true,
+      "text": "patchouli.shincolle.entry.ui_guide.page1b.text"
+    },
+    {
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.ui_guide.page2.title",
       "text": "patchouli.shincolle.entry.ui_guide.page2.text"

@@ -1771,6 +1771,8 @@
   "patchouli.shincolle.entry.ui_guide.page0.text": "ShinColle 的多个 GUI 会将可交互控件与只读指示器混排。分清哪些可以点击、哪些只能阅读，有助于减少操作困惑。本词条覆盖舰娘物品栏、办公桌、起重机和船坞界面中最常见的不可点击元素。",
   "patchouli.shincolle.entry.ui_guide.page1.title": "舰娘物品栏界面",
   "patchouli.shincolle.entry.ui_guide.page1.text": "舰娘物品栏界面包含若干不可交互面板：左侧的属性汇总列（生命、火力、装甲等）、情绪状态图标、阵型预览图、以及舰载机数量显示。这些区域会实时更新，但无法点击。只有物品槽位、AI 选项按钮和坐骑开关是可交互的。",
+  "patchouli.shincolle.entry.ui_guide.page1b.title": "旧版状态图标条参考",
+  "patchouli.shincolle.entry.ui_guide.page1b.text": "这组三张保留下来的旧版图标条展示了士气表情、舰种标记与额外状态徽记，仍会被办公桌列表、阵型界面和旧日志渲染器复用。它们在手册中只是参考图，但现代界面依旧沿用同一套士气图标语义，让你快速区分兴奋、快乐、普通、疲累与精疲力尽状态。",
   "patchouli.shincolle.entry.ui_guide.page2.title": "办公桌与起重机 GUI",
   "patchouli.shincolle.entry.ui_guide.page2.text": "在办公桌 GUI 中，雷达舰娘列表的行可以点击，但侧边状态条和队伍人数标签是只读的。在起重机 GUI 中，侧面矩阵的颜色指示（紫色/灰色）表示启用的面，但它们不是按钮——真正的面切换在单独的配置标签页中。流体储罐计量条和红石状态图标也是只读指示器。",
   "patchouli.shincolle.entry.ui_guide.page3.title": "起重机界面参考图",
