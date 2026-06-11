@@ -13,7 +13,8 @@ import java.util.regex.Pattern
 import org.junit.jupiter.api.Assertions.assertTrue
 
 class RecipeStructureRegressionTest {
-    private val RECIPE_ROOT: Path = Path.of("src/main/resources/data/shincolle/recipe")
+    private val RECIPE_ROOT: Path = Path.of("src/main/resources/data/shincolle/recipes")
+    private val LEGACY_RECIPE_ROOT: Path = Path.of("src/main/resources/data/shincolle/recipe")
     private val SHINCOLLE_ASSET_ROOT: Path = Path.of("src/main/resources/assets/shincolle")
     private val ALLOWED_RECIPE_TYPES: Set<String> = setOf(
             "minecraft:crafting_shaped",
@@ -69,6 +70,16 @@ class RecipeStructureRegressionTest {
         assertTrue(issues.isEmpty()) {
             "Recipes must keep supported structure and resolvable shincolle references: " +
                     issues.joinToString(", ")
+        }
+    }
+
+    @Test
+    fun recipesShouldLiveUnderStandardPluralDirectory() {
+        assertTrue(Files.isDirectory(RECIPE_ROOT)) {
+            "Recipes should live under the standard data/shincolle/recipes directory"
+        }
+        assertTrue(!Files.exists(LEGACY_RECIPE_ROOT)) {
+            "Legacy singular data/shincolle/recipe directory should stay removed"
         }
     }
 

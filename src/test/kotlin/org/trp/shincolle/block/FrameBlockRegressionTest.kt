@@ -13,7 +13,7 @@ class FrameBlockRegressionTest {
     private val MOD_BLOCKS_SOURCE: Path =
             Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt")
     private val BLOCKFRAME_RECIPE: Path =
-            Path.of("src/main/resources/data/shincolle/recipe/blockframe.json")
+            Path.of("src/main/resources/data/shincolle/recipes/blockframe.json")
 
     @Test
     fun frameBlockShouldStayRegisteredAsClimbableUtilityBlock() {

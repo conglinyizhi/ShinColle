@@ -8,7 +8,7 @@
 
 当前仓库已经存在、且适合作为后续 datagen 目标继续维护的数据目录：
 
-- `src/main/resources/data/shincolle/recipe`
+- `src/main/resources/data/shincolle/recipes`
   - 常规物品与方块配方。
 - `src/main/resources/data/shincolle/loot_table`
   - 方块掉落与注入型掉落表。
@@ -44,7 +44,7 @@
 这些内容已经部分数据化，或者当前代码里存在明显的“表驱动”特征，适合后续优先评估 datagen / datapack 化：
 
 - `recipes`
-  - 当前已完整进入 `data/shincolle/recipe`，后续可优先用 datagen 统一生成，减少手写 JSON 漏项。
+  - 当前已完整进入 `data/shincolle/recipes`，后续可优先用 datagen 统一生成，减少手写 JSON 漏项。
 - `loot tables / loot modifiers`
   - 已经迁移到数据目录；适合后续将注入规则、分组与权重整理成生成脚本或更明确的数据模板。
 - `tags`

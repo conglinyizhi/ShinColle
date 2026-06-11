@@ -15,13 +15,13 @@ class VolBlockRegressionTest {
     private val MOD_ITEMS_SOURCE: Path =
             Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt")
     private val VOL_BLOCK_RECIPE: Path =
-            Path.of("src/main/resources/data/shincolle/recipe/blockvolblock.json")
+            Path.of("src/main/resources/data/shincolle/recipes/blockvolblock.json")
     private val VOL_BLOCK_RECIPE_ALT: Path =
-            Path.of("src/main/resources/data/shincolle/recipe/blockvolblock_2.json")
+            Path.of("src/main/resources/data/shincolle/recipes/blockvolblock_2.json")
     private val VOL_CORE_RECIPE: Path =
-            Path.of("src/main/resources/data/shincolle/recipe/blockvolcore.json")
+            Path.of("src/main/resources/data/shincolle/recipes/blockvolcore.json")
     private val VOL_CORE_RECIPE_ALT: Path =
-            Path.of("src/main/resources/data/shincolle/recipe/blockvolcore_3.json")
+            Path.of("src/main/resources/data/shincolle/recipes/blockvolcore_3.json")
 
     @Test
     fun volBlockShouldStayRestoredForLegacyVolcanoCraftChain() {

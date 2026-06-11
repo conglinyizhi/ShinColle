@@ -21,7 +21,7 @@ class PatchouliBookMetadataRegressionTest {
     private val MOD_ITEMS: Path =
             Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt")
     private val DESK_ITEM_BOOK_RECIPE: Path =
-            Path.of("src/main/resources/data/shincolle/recipe/deskitembook.json")
+            Path.of("src/main/resources/data/shincolle/recipes/deskitembook.json")
     private val DESK_ITEM_BOOK_MODEL: Path =
             Path.of("src/main/resources/assets/shincolle/models/item/deskitembook.json")
     private val DESK_ITEM_BOOK_SOURCE: Path =

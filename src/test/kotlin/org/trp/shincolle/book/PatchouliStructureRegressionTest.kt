@@ -21,7 +21,7 @@ class PatchouliStructureRegressionTest {
     private val SHINCOLLE_ASSET_ROOT: Path =
             Path.of("src/main/resources/assets/shincolle")
     private val RECIPE_ROOT: Path =
-            Path.of("src/main/resources/data/shincolle/recipe")
+            Path.of("src/main/resources/data/shincolle/recipes")
     private val EN_US_LANG: Path =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json")
     private val STRING_FIELD_PATTERN_TEMPLATE: Pattern =

@@ -23,9 +23,9 @@ class GrudgeXpChainRegressionTest {
 
     companion object {
         private val MOD_BLOCKS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.java")
-        private val MODERNKIT_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/modernkit.json")
-        private val TRAININGBOOK_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/trainingbook.json")
-        private val GRUDGEXP_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/grudge_xp.json")
-        private val GRUDGEXP_BLOCK_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/grudge_xp_block.json")
+        private val MODERNKIT_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/modernkit.json")
+        private val TRAININGBOOK_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/trainingbook.json")
+        private val GRUDGEXP_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/grudge_xp.json")
+        private val GRUDGEXP_BLOCK_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/grudge_xp_block.json")
     }
 }

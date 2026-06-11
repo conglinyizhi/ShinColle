@@ -29,10 +29,10 @@ class AbyssNuggetChainRegressionTest {
         private val NUGGET_ITEM_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/item/AbyssNuggetItem.java")
         private val CLIENT_EVENT_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java")
         private val TABS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModTabs.java")
-        private val NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/abyss_nugget.json")
-        private val POLY_NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/abyss_nugget_polymetal.json")
-        private val METAL_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/abyss_metal_from_nugget.json")
-        private val POLYMETAL_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/abyss_polymetal_from_nugget.json")
-        private val MARRIAGE_RING_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipe/marriagering.json")
+        private val NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_nugget.json")
+        private val POLY_NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_nugget_polymetal.json")
+        private val METAL_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_metal_from_nugget.json")
+        private val POLYMETAL_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_polymetal_from_nugget.json")
+        private val MARRIAGE_RING_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/marriagering.json")
     }
 }
