@@ -15,6 +15,11 @@
       "text": "patchouli.shincolle.entry.resources.page1.text"
     },
     {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.resources.page1b.title",
+      "text": "patchouli.shincolle.entry.resources.page1b.text"
+    },
+    {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.resources.page1_recipe.title",
       "recipe": "shincolle:grude_stack",
@@ -30,6 +35,11 @@
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.resources.page2.title",
       "text": "patchouli.shincolle.entry.resources.page2.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.resources.page2c.title",
+      "text": "patchouli.shincolle.entry.resources.page2c.text"
     },
     {
       "type": "patchouli:crafting",
@@ -49,6 +59,11 @@
       "text": "patchouli.shincolle.entry.resources.page3.text"
     },
     {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.resources.page3c.title",
+      "text": "patchouli.shincolle.entry.resources.page3c.text"
+    },
+    {
       "type": "patchouli:crafting",
       "title": "patchouli.shincolle.entry.resources.page3_recipe.title",
       "recipe": "shincolle:ammo_container",
@@ -64,6 +79,11 @@
       "type": "patchouli:text",
       "title": "patchouli.shincolle.entry.resources.page4.title",
       "text": "patchouli.shincolle.entry.resources.page4.text"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "patchouli.shincolle.entry.resources.page4c.title",
+      "text": "patchouli.shincolle.entry.resources.page4c.text"
     },
     {
       "type": "patchouli:crafting",
