@@ -46,6 +46,7 @@ import org.trp.shincolle.server.PointerInteractionService.handleRightClickBlock
 import org.trp.shincolle.server.PointerInteractionService.handleRightClickItem
 import org.trp.shincolle.server.PlayerSkillService.tickCooldowns
 import org.trp.shincolle.server.ShipRegistrySavedData
+import org.trp.shincolle.server.TemporaryLightService
 import org.trp.shincolle.utility.PerformanceTrace.beginServerTick
 import org.trp.shincolle.utility.PerformanceTrace.endServerTick
 import kotlin.math.max
@@ -69,6 +70,10 @@ object ModEventBusEvents {
     @SubscribeEvent
     fun onServerTickPost(event: ServerTickEvent.Post?) {
         endServerTick()
+        val server = event?.getServer() ?: return
+        for (serverLevel in server.allLevels) {
+            TemporaryLightService.tick(serverLevel)
+        }
         tickCooldowns()
     }
 

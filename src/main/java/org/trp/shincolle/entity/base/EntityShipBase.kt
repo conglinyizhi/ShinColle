@@ -87,6 +87,7 @@ import org.trp.shincolle.reference.Values.resetMoraleValue
 import org.trp.shincolle.server.PlayerStateService.adjustOwnedMarriedShipCount
 import org.trp.shincolle.server.PlayerStateService.admiralData
 import org.trp.shincolle.server.ShipRegistrySavedData.Companion.get
+import org.trp.shincolle.server.TemporaryLightService
 import org.trp.shincolle.utility.FormationHelper.getFormationBuffs
 import org.trp.shincolle.utility.PerformanceTrace.addShipTime
 import org.trp.shincolle.utility.PerformanceTrace.elapsed
@@ -2122,6 +2123,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                 ), this
             )
         }
+
+        TemporaryLightService.refreshLight(serverLevel, target.blockPosition(), this.uuid)
     }
 
     private fun tickSearchlightAssist() {
@@ -2145,6 +2148,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                 SPECIAL_EQUIP_SEARCHLIGHT_NIGHT_VISION_TICKS, 0, true, false, false
             )
         )
+        TemporaryLightService.refreshLight(serverLevel, this.blockPosition(), this.uuid)
         serverLevel.sendParticles<SimpleParticleType?>(
             ParticleTypes.END_ROD,
             this.x, this.y + 1.2, this.z,
