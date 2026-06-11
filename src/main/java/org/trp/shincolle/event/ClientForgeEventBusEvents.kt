@@ -1,14 +1,19 @@
 package org.trp.shincolle.event
 
 import com.mojang.blaze3d.platform.InputConstants
+import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
+import net.minecraft.client.renderer.MultiBufferSource
 import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.InteractionHand
+import net.minecraft.world.entity.HumanoidArm
 import net.minecraft.world.item.component.CustomData
 import net.minecraft.world.level.material.FogType
 import net.minecraft.world.phys.Vec3
+import java.lang.reflect.Field
+import java.lang.reflect.Method
 import java.util.Optional
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
@@ -30,6 +35,8 @@ object ClientForgeEventBusEvents {
     private var debugCooldown = 0
     private var pointerCooldown = 0
     private var optoolCooldown = 0
+    private var reflectedItemInHandRendererField: Field? = null
+    private var reflectedRenderPlayerArmMethod: Method? = null
 
     @JvmStatic
     @SubscribeEvent
@@ -192,9 +199,62 @@ object ClientForgeEventBusEvents {
             if (variant > 2) {
                 // Cancel default rendering for caress-head mode
                 event.isCanceled = true
-                // TODO: custom first-person arm rendering
+                renderPointerCaressMainArm(
+                    mc,
+                    player,
+                    event.poseStack,
+                    event.multiBufferSource,
+                    event.packedLight,
+                    event.equipProgress,
+                    event.swingProgress
+                )
             }
         }
+    }
+
+    private fun renderPointerCaressMainArm(
+        mc: Minecraft,
+        player: LocalPlayer,
+        poseStack: PoseStack,
+        bufferSource: MultiBufferSource,
+        packedLight: Int,
+        equipProgress: Float,
+        swingProgress: Float
+    ) {
+        val renderer = resolveItemInHandRenderer(mc) ?: return
+        val method = resolveRenderPlayerArmMethod(renderer) ?: return
+        val arm = player.mainArm
+        method.invoke(renderer, poseStack, bufferSource, packedLight, equipProgress, swingProgress, arm)
+    }
+
+    private fun resolveItemInHandRenderer(mc: Minecraft): Any? {
+        val field = reflectedItemInHandRendererField ?: run {
+            val resolved = mc.gameRenderer.javaClass.getDeclaredField("itemInHandRenderer")
+            resolved.isAccessible = true
+            reflectedItemInHandRendererField = resolved
+            resolved
+        }
+        return field.get(mc.gameRenderer)
+    }
+
+    private fun resolveRenderPlayerArmMethod(renderer: Any): Method? {
+        val cached = reflectedRenderPlayerArmMethod
+        if (cached != null) {
+            return cached
+        }
+
+        val resolved = renderer.javaClass.getDeclaredMethod(
+            "renderPlayerArm",
+            PoseStack::class.java,
+            MultiBufferSource::class.java,
+            Integer.TYPE,
+            java.lang.Float.TYPE,
+            java.lang.Float.TYPE,
+            HumanoidArm::class.java
+        )
+        resolved.isAccessible = true
+        reflectedRenderPlayerArmMethod = resolved
+        return resolved
     }
 
     @JvmStatic
