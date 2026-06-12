@@ -92,3 +92,8 @@ config/shincolle-common.toml
 .sisyphus/
 .sisyphus/run-continuation/
 .worktree/
+
+# worktree directories for parallel optimization
+/.worktree/perf/
+/.worktree/quality/
+/.worktree/size/
