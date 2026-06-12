@@ -1229,5 +1229,10 @@
     "jei.shincolle.ref_equip": "參閱深海日誌-艦娘裝備",
     "jei.shincolle.fuel_hint_large": "大型建造需要提供燃料（岩漿/煤炭等）",
     "jei.ref.shincolle.chap4": "參閱深海日誌-深海棲艦列表",
-    "jei.ref.shincolle.chap5": "參閱深海日誌-敵艦列表"
+    "jei.ref.shincolle.chap5": "參閱深海日誌-敵艦列表",
+    "entity.shincolle.floating_fort": "浮游要塞",
+    "entity.shincolle.projectile_static": "Static Projectile",
+    "entity.shincolle.airplane_t_mob": "九七式艦攻",
+    "entity.shincolle.airplane_zero_mob": "零式艦戰21型",
+    "entity.shincolle.rensouhou_mob": "連裝砲醬"
 }
