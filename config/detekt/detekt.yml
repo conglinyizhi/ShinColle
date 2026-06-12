@@ -1,0 +1,22 @@
+# ShinColle Detekt configuration - phase 1
+# Build upon the default rule set and only enforce a small, focused subset.
+# Existing code is excluded via baseline.xml so that only newly added code
+# is required to pass these rules.
+
+config:
+  validation: true
+  warningsAsErrors: false
+  checkExhaustiveness: false
+
+build:
+  maxIssues: 0
+
+style:
+  WildcardImport:
+    active: true
+  ExplicitCollectionElementAccessMethod:
+    active: true
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    active: true
