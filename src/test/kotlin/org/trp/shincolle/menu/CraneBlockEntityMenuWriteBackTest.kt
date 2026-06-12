@@ -15,42 +15,42 @@ class CraneBlockEntityMenuWriteBackTest {
     fun `crane menu boolean toggles should persist through block entity write back`() {
         val entity = TestCraneBlockEntity()
 
-        entity.setActive(true)
-        entity.setCheckMetadata(true)
-        entity.setCheckOredict(true)
-        entity.setCheckNbt(true)
-        entity.setEnabLoad(false)
-        entity.setEnabUnload(false)
+        entity.isActive = true
+        entity.checkMetadata = true
+        entity.checkOredict = true
+        entity.checkNbt = true
+        entity.enabLoad = false
+        entity.enabUnload = false
 
         val tag = entity.saveForTest()
         val restored = TestCraneBlockEntity()
         restored.loadForTest(tag)
 
-        assertThat(restored.isActive()).isTrue()
-        assertThat(restored.isCheckMetadata()).isTrue()
-        assertThat(restored.isCheckOredict()).isTrue()
-        assertThat(restored.isCheckNbt()).isTrue()
-        assertThat(restored.isEnabLoad()).isFalse()
-        assertThat(restored.isEnabUnload()).isFalse()
+        assertThat(restored.isActive).isTrue()
+        assertThat(restored.checkMetadata).isTrue()
+        assertThat(restored.checkOredict).isTrue()
+        assertThat(restored.checkNbt).isTrue()
+        assertThat(restored.enabLoad).isFalse()
+        assertThat(restored.enabUnload).isFalse()
     }
 
     @Test
     fun `crane menu mode selectors should persist all valid mode ranges`() {
         val entity = TestCraneBlockEntity()
 
-        entity.setModeRedstone(2)
-        entity.setModeLiquid(1)
-        entity.setModeEnergy(2)
-        entity.setModeItem(7)
+        entity.modeRedstone = 2
+        entity.modeLiquid = 1
+        entity.modeEnergy = 2
+        entity.modeItem = 7
 
         val tag = entity.saveForTest()
         val restored = TestCraneBlockEntity()
         restored.loadForTest(tag)
 
-        assertThat(restored.getModeRedstone()).isEqualTo(2)
-        assertThat(restored.getModeLiquid()).isEqualTo(1)
-        assertThat(restored.getModeEnergy()).isEqualTo(2)
-        assertThat(restored.getModeItem()).isEqualTo(7)
+        assertThat(restored.modeRedstone).isEqualTo(2)
+        assertThat(restored.modeLiquid).isEqualTo(1)
+        assertThat(restored.modeEnergy).isEqualTo(2)
+        assertThat(restored.modeItem).isEqualTo(7)
     }
 
     @Test
@@ -73,15 +73,15 @@ class CraneBlockEntityMenuWriteBackTest {
         val entity = TestCraneBlockEntity()
 
         entity.resetSyncCount()
-        entity.setActive(true)
+        entity.isActive = true
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setActive(true)
+        entity.isActive = true
         assertThat(entity.syncCount).isZero()
 
         entity.resetSyncCount()
-        entity.setActive(false)
+        entity.isActive = false
         assertThat(entity.syncCount).isEqualTo(1)
     }
 

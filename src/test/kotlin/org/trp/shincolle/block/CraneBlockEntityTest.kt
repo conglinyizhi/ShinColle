@@ -18,48 +18,48 @@ class CraneBlockEntityTest {
         val entity = TestCraneBlockEntity()
 
         entity.resetSyncCount()
-        entity.setRemainedPower(1200)
-        entity.setRemainedPower(1200)
+        entity.remainedPower = 1200
+        entity.remainedPower = 1200
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setActive(true)
-        entity.setActive(true)
+        entity.isActive = true
+        entity.isActive = true
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setCheckMetadata(true)
-        entity.setCheckMetadata(true)
+        entity.checkMetadata = true
+        entity.checkMetadata = true
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setCheckOredict(true)
-        entity.setCheckOredict(true)
+        entity.checkOredict = true
+        entity.checkOredict = true
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setCheckNbt(true)
-        entity.setCheckNbt(true)
+        entity.checkNbt = true
+        entity.checkNbt = true
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setEnabLoad(false)
-        entity.setEnabLoad(false)
+        entity.enabLoad = false
+        entity.enabLoad = false
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setEnabUnload(false)
-        entity.setEnabUnload(false)
+        entity.enabUnload = false
+        entity.enabUnload = false
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setCraneMode(3)
-        entity.setCraneMode(3)
+        entity.craneMode = 3
+        entity.craneMode = 3
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setModeItem(7)
-        entity.setModeItem(7)
+        entity.modeItem = 7
+        entity.modeItem = 7
         assertThat(entity.syncCount).isEqualTo(1)
 
         val itemModeEntity = TestCraneBlockEntity()
@@ -69,18 +69,18 @@ class CraneBlockEntityTest {
         assertThat(itemModeEntity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setModeRedstone(2)
-        entity.setModeRedstone(2)
+        entity.modeRedstone = 2
+        entity.modeRedstone = 2
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setModeLiquid(1)
-        entity.setModeLiquid(1)
+        entity.modeLiquid = 1
+        entity.modeLiquid = 1
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
-        entity.setModeEnergy(2)
-        entity.setModeEnergy(2)
+        entity.modeEnergy = 2
+        entity.modeEnergy = 2
         assertThat(entity.syncCount).isEqualTo(1)
 
         entity.resetSyncCount()
@@ -114,20 +114,20 @@ class CraneBlockEntityTest {
         val owner = UUID.randomUUID()
         val entity = TestCraneBlockEntity()
 
-        entity.setRemainedPower(1200)
-        entity.setActive(true)
-        entity.setCheckMetadata(true)
-        entity.setCheckOredict(true)
-        entity.setCheckNbt(true)
-        entity.setEnabLoad(false)
-        entity.setEnabUnload(false)
-        entity.setCraneMode(4)
-        entity.setModeItem(0)
+        entity.remainedPower = 1200
+        entity.isActive = true
+        entity.checkMetadata = true
+        entity.checkOredict = true
+        entity.checkNbt = true
+        entity.enabLoad = false
+        entity.enabUnload = false
+        entity.craneMode = 4
+        entity.modeItem = 0
         entity.setItemMode(1, true)
         entity.setItemMode(5, true)
-        entity.setModeRedstone(2)
-        entity.setModeLiquid(1)
-        entity.setModeEnergy(2)
+        entity.modeRedstone = 2
+        entity.modeLiquid = 1
+        entity.modeEnergy = 2
         entity.lastPos = BlockPos(1, 2, 3)
         entity.nextPos = BlockPos(4, 5, 6)
         entity.chestPos = BlockPos(7, 8, 9)
@@ -138,19 +138,19 @@ class CraneBlockEntityTest {
         val restored = TestCraneBlockEntity()
         restored.loadForTest(tag)
 
-        assertThat(restored.getRemainedPower()).isEqualTo(1200)
-        assertThat(restored.isActive()).isTrue()
-        assertThat(restored.isCheckMetadata()).isTrue()
-        assertThat(restored.isCheckOredict()).isTrue()
-        assertThat(restored.isCheckNbt()).isTrue()
-        assertThat(restored.isEnabLoad()).isFalse()
-        assertThat(restored.isEnabUnload()).isFalse()
-        assertThat(restored.getCraneMode()).isEqualTo(4)
+        assertThat(restored.remainedPower).isEqualTo(1200)
+        assertThat(restored.isActive).isTrue()
+        assertThat(restored.checkMetadata).isTrue()
+        assertThat(restored.checkOredict).isTrue()
+        assertThat(restored.checkNbt).isTrue()
+        assertThat(restored.enabLoad).isFalse()
+        assertThat(restored.enabUnload).isFalse()
+        assertThat(restored.craneMode).isEqualTo(4)
         assertThat(restored.getItemMode(1)).isTrue()
         assertThat(restored.getItemMode(5)).isTrue()
-        assertThat(restored.getModeRedstone()).isEqualTo(2)
-        assertThat(restored.getModeLiquid()).isEqualTo(1)
-        assertThat(restored.getModeEnergy()).isEqualTo(2)
+        assertThat(restored.modeRedstone).isEqualTo(2)
+        assertThat(restored.modeLiquid).isEqualTo(1)
+        assertThat(restored.modeEnergy).isEqualTo(2)
         assertThat(restored.lastPos).isEqualTo(BlockPos(1, 2, 3))
         assertThat(restored.nextPos).isEqualTo(BlockPos(4, 5, 6))
         assertThat(restored.chestPos).isEqualTo(BlockPos(7, 8, 9))

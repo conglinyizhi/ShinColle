@@ -83,10 +83,10 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     var checkNbt: Boolean by syncableBoolean(::markForSync)
     @get:JvmName("isEnabLoad")
     @set:JvmName("setEnabLoad")
-    var enabLoad: Boolean by syncableBoolean(::markForSync)
+    var enabLoad: Boolean by syncableBoolean(true, ::markForSync)
     @get:JvmName("isEnabUnload")
     @set:JvmName("setEnabUnload")
-    var enabUnload: Boolean by syncableBoolean(::markForSync)
+    var enabUnload: Boolean by syncableBoolean(true, ::markForSync)
     var craneMode: Int by syncableInt(::markForSync)
     var modeItem: Int by syncableInt(::markForSync)
     var modeRedstone: Int by syncableInt(::markForSync)
@@ -1033,7 +1033,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             return
         }
         modeItem = next
-        markForSync()
     }
 
     fun getItemMode(id: Int): Boolean {

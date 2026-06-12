@@ -45,32 +45,32 @@ class CraneBlockEntityTaskModeTest {
         val entity = TestCraneBlockEntity()
 
         for (mode in 0..24) {
-            entity.setCraneMode(mode)
-            assertThat(entity.getCraneMode()).isEqualTo(mode)
+            entity.craneMode = mode
+            assertThat(entity.craneMode).isEqualTo(mode)
         }
 
         val tag = entity.saveForTest()
         val restored = TestCraneBlockEntity()
         restored.loadForTest(tag)
 
-        assertThat(restored.getCraneMode()).isEqualTo(24)
+        assertThat(restored.craneMode).isEqualTo(24)
     }
 
     @Test
     fun `crane ending conditions should normalize out of range modes to immediate stop`() {
         val entity = TestCraneBlockEntity()
 
-        entity.setCraneMode(-1)
-        assertThat(entity.getCraneMode()).isEqualTo(-1)
+        entity.craneMode = -1
+        assertThat(entity.craneMode).isEqualTo(-1)
 
-        entity.setCraneMode(99)
-        assertThat(entity.getCraneMode()).isEqualTo(99)
+        entity.craneMode = 99
+        assertThat(entity.craneMode).isEqualTo(99)
 
         val tag = entity.saveForTest()
         val restored = TestCraneBlockEntity()
         restored.loadForTest(tag)
 
-        assertThat(restored.getCraneMode()).isEqualTo(99)
+        assertThat(restored.craneMode).isEqualTo(99)
     }
 
     private class TestCraneBlockEntity : CraneBlockEntity(BlockPos.ZERO, ModBlocks.CRANE.get()!!.defaultBlockState()) {

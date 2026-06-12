@@ -27,300 +27,152 @@ class ShipContainerMenu(containerId: Int, playerInv: Inventory, ship: EntityShip
     AbstractContainerMenu(ModMenus.SHIP_MENU.get(), containerId) {
     @JvmField
     val ship: EntityShipBase
-    private val pageData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
+    private val pageData: DataSlot = intSlot(
+        getter = {
             inventoryPage = clampPage(inventoryPage)
-            return inventoryPage
-        }
-
-        override fun set(value: Int) {
-            setInventoryPage(clampPage(value))
-        }
-    }
-    private val unlockedStoragePagesData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return unlockedStoragePagesSynced
-        }
-
-        override fun set(value: Int) {
-            unlockedStoragePagesSynced = Mth.clamp(value, 0, SHIP_PAGE_COUNT - 1)
+            inventoryPage
+        },
+        setter = { setInventoryPage(clampPage(it)) }
+    )
+    private val unlockedStoragePagesData: DataSlot = intSlot(
+        getter = { unlockedStoragePagesSynced },
+        setter = {
+            unlockedStoragePagesSynced = Mth.clamp(it, 0, SHIP_PAGE_COUNT - 1)
             setInventoryPage(clampPage(inventoryPage))
         }
-    }
-    private val canMeleeData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateCanMelee) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isCanMeleeEnabled = value != 0
-        }
-    }
-    private val lightAttackData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateLightAttack) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isLightAttackEnabled = value != 0
-        }
-    }
-    private val heavyAttackData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateHeavyAttack) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isHeavyAttackEnabled = value != 0
-        }
-    }
-    private val lightAircraftAttackData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateLightAircraftAttack) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isLightAircraftAttackEnabled = value != 0
-        }
-    }
-    private val heavyAircraftAttackData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateHeavyAircraftAttack) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isHeavyAircraftAttackEnabled = value != 0
-        }
-    }
-    private val ringEffectData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateRingEffect) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isRingEffectEnabled = value != 0
-        }
-    }
-    private val ammoLightData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.ammoLight
-        }
-
-        override fun set(value: Int) {
-            ammoLightSynced = value
-        }
-    }
-    private val ammoHeavyData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.ammoHeavy
-        }
-
-        override fun set(value: Int) {
-            ammoHeavySynced = value
-        }
-    }
-    private val marriedData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateMarried) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isMarried = value != 0
-        }
-    }
-    private val followMinData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.getStateMinor(STATE_MINOR_FOLLOW_MIN)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.followMinDistance = clampFollowMin(value)
-        }
-    }
-    private val followMaxData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.getStateMinor(STATE_MINOR_FOLLOW_MAX)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.followMaxDistance = clampFollowMax(value, this@ShipContainerMenu.followMinDistance)
-        }
-    }
-    private val fleeHpData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.getStateMinor(STATE_MINOR_FLEE_HP)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.fleeHpPercent = clampFleeHp(value)
-        }
-    }
-    private val passiveAttackData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isPassiveAttackEnabled = value != 0
-        }
-    }
-    private val onSightData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_ON_SIGHT)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isOnSightEnabled = value != 0
-        }
-    }
-    private val pvpData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_PVP)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isPvpEnabled = value != 0
-        }
-    }
-    private val antiAirData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_ANTI_AIR)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isAntiAirEnabled = value != 0
-        }
-    }
-    private val antiSubData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_ANTI_SUB)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isAntiSubEnabled = value != 0
-        }
-    }
-    private val timeKeepingData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_TIMEKEEP)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isTimeKeepingEnabled = value != 0
-        }
-    }
-    private val pickItemData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_PICK_ITEM)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isPickItemEnabled = value != 0
-        }
-    }
-    private val autoPumpData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.getStateFlag(STATE_FLAG_AUTO_PUMP)) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isAutoPumpEnabled = value != 0
-        }
-    }
-    private val appearanceData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return if (ship.isStateAppearance) 1 else 0
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isAppearanceEnabled = value != 0
-        }
-    }
-    private val mountData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return (ship.getStateEmotion(0) and 1)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.isMountEnabled = value != 0
-        }
-    }
-    private val rationMoraleData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.getStateMinor(STATE_MINOR_RATION_MORALE)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.rationMoraleThreshold = clampRationMorale(value)
-        }
-    }
-    private val wpStayData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.getStateMinor(STATE_MINOR_WP_STAY)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.wpStaySetting = clampWpStay(value)
-        }
-    }
-    private val taskIdData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.getStateMinor(STATE_MINOR_TASK_ID)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.taskId = value
-        }
-    }
-    private val taskSideData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
-            return ship.getStateMinor(STATE_MINOR_TASK_SIDE)
-        }
-
-        override fun set(value: Int) {
-            this@ShipContainerMenu.taskSideFlags = value
-        }
-    }
-    private val shipTankFluidAmountLowData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
+    )
+    private val canMeleeData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateCanMelee) 1 else 0 },
+        setter = { this@ShipContainerMenu.isCanMeleeEnabled = it != 0 }
+    )
+    private val lightAttackData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateLightAttack) 1 else 0 },
+        setter = { this@ShipContainerMenu.isLightAttackEnabled = it != 0 }
+    )
+    private val heavyAttackData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateHeavyAttack) 1 else 0 },
+        setter = { this@ShipContainerMenu.isHeavyAttackEnabled = it != 0 }
+    )
+    private val lightAircraftAttackData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateLightAircraftAttack) 1 else 0 },
+        setter = { this@ShipContainerMenu.isLightAircraftAttackEnabled = it != 0 }
+    )
+    private val heavyAircraftAttackData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateHeavyAircraftAttack) 1 else 0 },
+        setter = { this@ShipContainerMenu.isHeavyAircraftAttackEnabled = it != 0 }
+    )
+    private val ringEffectData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateRingEffect) 1 else 0 },
+        setter = { this@ShipContainerMenu.isRingEffectEnabled = it != 0 }
+    )
+    private val ammoLightData: DataSlot = intSlot(
+        getter = { ship.ammoLight },
+        setter = { ammoLightSynced = it }
+    )
+    private val ammoHeavyData: DataSlot = intSlot(
+        getter = { ship.ammoHeavy },
+        setter = { ammoHeavySynced = it }
+    )
+    private val marriedData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateMarried) 1 else 0 },
+        setter = { this@ShipContainerMenu.isMarried = it != 0 }
+    )
+    private val followMinData: DataSlot = intSlot(
+        getter = { ship.getStateMinor(STATE_MINOR_FOLLOW_MIN) },
+        setter = { this@ShipContainerMenu.followMinDistance = clampFollowMin(it) }
+    )
+    private val followMaxData: DataSlot = intSlot(
+        getter = { ship.getStateMinor(STATE_MINOR_FOLLOW_MAX) },
+        setter = { this@ShipContainerMenu.followMaxDistance = clampFollowMax(it, this@ShipContainerMenu.followMinDistance) }
+    )
+    private val fleeHpData: DataSlot = intSlot(
+        getter = { ship.getStateMinor(STATE_MINOR_FLEE_HP) },
+        setter = { this@ShipContainerMenu.fleeHpPercent = clampFleeHp(it) }
+    )
+    private val passiveAttackData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_PASSIVE_ATTACK)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isPassiveAttackEnabled = it != 0 }
+    )
+    private val onSightData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_ON_SIGHT)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isOnSightEnabled = it != 0 }
+    )
+    private val pvpData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_PVP)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isPvpEnabled = it != 0 }
+    )
+    private val antiAirData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_ANTI_AIR)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isAntiAirEnabled = it != 0 }
+    )
+    private val antiSubData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_ANTI_SUB)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isAntiSubEnabled = it != 0 }
+    )
+    private val timeKeepingData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_TIMEKEEP)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isTimeKeepingEnabled = it != 0 }
+    )
+    private val pickItemData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_PICK_ITEM)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isPickItemEnabled = it != 0 }
+    )
+    private val autoPumpData: DataSlot = booleanSlot(
+        getter = { if (ship.getStateFlag(STATE_FLAG_AUTO_PUMP)) 1 else 0 },
+        setter = { this@ShipContainerMenu.isAutoPumpEnabled = it != 0 }
+    )
+    private val appearanceData: DataSlot = booleanSlot(
+        getter = { if (ship.isStateAppearance) 1 else 0 },
+        setter = { this@ShipContainerMenu.isAppearanceEnabled = it != 0 }
+    )
+    private val mountData: DataSlot = booleanSlot(
+        getter = { ship.getStateEmotion(0) and 1 },
+        setter = { this@ShipContainerMenu.isMountEnabled = it != 0 }
+    )
+    private val rationMoraleData: DataSlot = intSlot(
+        getter = { ship.getStateMinor(STATE_MINOR_RATION_MORALE) },
+        setter = { this@ShipContainerMenu.rationMoraleThreshold = clampRationMorale(it) }
+    )
+    private val wpStayData: DataSlot = intSlot(
+        getter = { ship.getStateMinor(STATE_MINOR_WP_STAY) },
+        setter = { this@ShipContainerMenu.wpStaySetting = clampWpStay(it) }
+    )
+    private val taskIdData: DataSlot = intSlot(
+        getter = { ship.getStateMinor(STATE_MINOR_TASK_ID) },
+        setter = { this@ShipContainerMenu.taskId = it }
+    )
+    private val taskSideData: DataSlot = intSlot(
+        getter = { ship.getStateMinor(STATE_MINOR_TASK_SIDE) },
+        setter = { this@ShipContainerMenu.taskSideFlags = it }
+    )
+    private val shipTankFluidAmountSlots = splitIntSlot(
+        highGetter = {
             refreshShipTankFluidSyncValues()
-            return shipTankFluidAmountSynced and 0xFFFF
-        }
-
-        override fun set(value: Int) {
-            shipTankFluidAmountSynced = (shipTankFluidAmountSynced and -0x10000) or (value and 0xFFFF)
-        }
-    }
-    private val shipTankFluidAmountHighData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
+            (shipTankFluidAmountSynced ushr 16) and 0xFFFF
+        },
+        highSetter = { shipTankFluidAmountSynced = (shipTankFluidAmountSynced and 0xFFFF) or ((it and 0xFFFF) shl 16) },
+        lowGetter = {
             refreshShipTankFluidSyncValues()
-            return (shipTankFluidAmountSynced ushr 16) and 0xFFFF
-        }
-
-        override fun set(value: Int) {
-            shipTankFluidAmountSynced = (shipTankFluidAmountSynced and 0xFFFF) or ((value and 0xFFFF) shl 16)
-        }
-    }
-    private val shipTankFluidCapacityLowData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
+            shipTankFluidAmountSynced and 0xFFFF
+        },
+        lowSetter = { shipTankFluidAmountSynced = (shipTankFluidAmountSynced and -0x10000) or (it and 0xFFFF) }
+    )
+    private val shipTankFluidAmountLowData: DataSlot = shipTankFluidAmountSlots.first
+    private val shipTankFluidAmountHighData: DataSlot = shipTankFluidAmountSlots.second
+    private val shipTankFluidCapacitySlots = splitIntSlot(
+        highGetter = {
             refreshShipTankFluidSyncValues()
-            return shipTankFluidCapacitySynced and 0xFFFF
-        }
-
-        override fun set(value: Int) {
-            shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced and -0x10000) or (value and 0xFFFF)
-        }
-    }
-    private val shipTankFluidCapacityHighData: DataSlot = object : DataSlot() {
-        override fun get(): Int {
+            (shipTankFluidCapacitySynced ushr 16) and 0xFFFF
+        },
+        highSetter = { shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced and 0xFFFF) or ((it and 0xFFFF) shl 16) },
+        lowGetter = {
             refreshShipTankFluidSyncValues()
-            return (shipTankFluidCapacitySynced ushr 16) and 0xFFFF
-        }
-
-        override fun set(value: Int) {
-            shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced and 0xFFFF) or ((value and 0xFFFF) shl 16)
-        }
-    }
+            shipTankFluidCapacitySynced and 0xFFFF
+        },
+        lowSetter = { shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced and -0x10000) or (it and 0xFFFF) }
+    )
+    private val shipTankFluidCapacityLowData: DataSlot = shipTankFluidCapacitySlots.first
+    private val shipTankFluidCapacityHighData: DataSlot = shipTankFluidCapacitySlots.second
     private var inventoryPage = 0
     private val pagedShipSlots: MutableList<PagedShipSlot> = ArrayList<PagedShipSlot>()
     private var unlockedStoragePagesSynced: Int
