@@ -18,10 +18,7 @@ import org.trp.shincolle.entity.EntitySubmU511
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelSubmU511<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
-    override var poseTranslateY = 0f
+class ModelSubmU511<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -81,6 +78,13 @@ class ModelSubmU511<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     private val ear2DefaultZRot: Float
     private val pipeDefaultXRot: Float
     private val skirtDefaultXRot: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = Neck
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = GlowNeck
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -152,6 +156,7 @@ class ModelSubmU511<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         netHeadYaw: Float,
         headPitch: Float
     ) {
+        resetPoseState()
         this.resetOffsets()
         this.applyEquipVisibility(entity)
         applyFaceAndMouth(entity)
@@ -206,8 +211,7 @@ class ModelSubmU511<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         this.LegLeft01.yRot = 0.0f
         this.LegLeft01.zRot = 0.035f
@@ -398,52 +402,6 @@ class ModelSubmU511<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
             this.ArmRight01.xRot += -f8 * 80.0f * (Math.PI.toFloat() / 180f)
             this.ArmRight01.yRot += -f7 * 20.0f * (Math.PI.toFloat() / 180f) + 0.2f
             this.ArmRight01.zRot += -f8 * 20.0f * (Math.PI.toFloat() / 180f)
-        }
-    }
-
-    private fun syncGlowParts() {
-        this.GlowBodyMain.copyFrom(this.BodyMain)
-        this.GlowNeck.copyFrom(this.Neck)
-        this.GlowHead.copyFrom(this.Head)
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
         }
     }
 

@@ -18,6 +18,9 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
     protected var isDeadPose: Boolean = false
     protected var isSittingPose: Boolean = false
 
+    /** Optional Z-axis pose translation used by some models (submarines, etc.). */
+    protected open var poseTranslateZ: Float = 0f
+
     /** Main body parts that glow parts mirror. */
     protected abstract val bodyMain: ModelPart
     protected abstract val neck: ModelPart
@@ -38,6 +41,7 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
         isDeadPose = false
         isSittingPose = false
         poseTranslateY = 0.0f
+        poseTranslateZ = 0.0f
     }
 
     /** Returns true when the entity is in the dead/corpse pose. */
@@ -69,7 +73,7 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
     protected open fun syncExtraGlowParts() {
     }
 
-    /** Renders [bodyMain] while applying [poseTranslateY]. */
+    /** Renders [bodyMain] while applying pose translation. */
     override fun renderToBuffer(
         poseStack: PoseStack,
         vertexConsumer: VertexConsumer,
@@ -137,10 +141,10 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
     }
 
     private inline fun renderWithPoseTranslate(poseStack: PoseStack, renderAction: () -> Unit) {
-        val usePoseTranslate = poseTranslateY != 0.0f
+        val usePoseTranslate = poseTranslateY != 0.0f || poseTranslateZ != 0.0f
         if (usePoseTranslate) {
             poseStack.pushPose()
-            poseStack.translate(0.0f, poseTranslateY, 0.0f)
+            poseStack.translate(0.0f, poseTranslateY, poseTranslateZ)
         }
         renderAction()
         if (usePoseTranslate) {

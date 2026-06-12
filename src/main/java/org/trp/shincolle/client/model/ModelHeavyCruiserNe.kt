@@ -16,8 +16,7 @@ import net.minecraft.util.Mth
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    override var poseTranslateY = 0f
+class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
     private val headDefaultY: Float
     private val glowHeadDefaultY: Float
     private val armLeft01DefaultZ: Float
@@ -68,6 +67,13 @@ class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
     private val TailRC03: ModelPart
     private val GlowBodyMain: ModelPart
     private val GlowHead: ModelPart
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = Neck
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = null
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -130,6 +136,7 @@ class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         netHeadYaw: Float,
         headPitch: Float
     ) {
+        resetPoseState()
         this.poseTranslateY = 0.4f
         this.Head.y = this.headDefaultY
         this.GlowHead.y = this.glowHeadDefaultY
@@ -367,46 +374,6 @@ class ModelHeavyCruiserNe<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         applyFaceAndMouth(entity)
         this.GlowBodyMain.copyFrom(this.BodyMain)
         this.GlowHead.copyFrom(this.Head)
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     private fun applyDeadPose() {

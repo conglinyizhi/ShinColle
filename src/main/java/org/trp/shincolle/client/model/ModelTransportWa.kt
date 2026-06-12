@@ -18,10 +18,7 @@ import org.trp.shincolle.entity.EntityTransportWa
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelTransportWa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
-    override var poseTranslateY = 0f
+class ModelTransportWa<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val BoobR: ModelPart
@@ -127,6 +124,13 @@ class ModelTransportWa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
     private val equipBaseDefaultZ: Float
     private val equipTubeL01DefaultXRot: Float
     private val equipTubeR01DefaultXRot: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = BodyMain
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = null
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -244,6 +248,7 @@ class ModelTransportWa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         netHeadYaw: Float,
         headPitch: Float
     ) {
+        resetPoseState()
         this.resetOffsets()
         this.applyEquipVisibility(entity)
         this.applyFaceAndMouth(entity)
@@ -305,8 +310,7 @@ class ModelTransportWa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
     }
 
     private fun applyDeadPose(entity: T?) {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
         val showLeg = entity != null && entity.getEquipFlag(EntityTransportWa.EQUIP_LEG)
 
         this.Head.xRot = 0.3f
@@ -531,56 +535,6 @@ class ModelTransportWa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
             this.ArmRight01.xRot += -f8 * 80.0f * (Math.PI.toFloat() / 180f)
             this.ArmRight01.yRot += -f7 * 20.0f * (Math.PI.toFloat() / 180f) + 0.2f
             this.ArmRight01.zRot += -f8 * 20.0f * (Math.PI.toFloat() / 180f)
-        }
-    }
-
-    private fun syncGlowParts() {
-        this.GlowBodyMain.copyFrom(this.BodyMain)
-        this.GlowBodyMain2.copyFrom(this.BodyMain)
-        this.GlowHead.copyFrom(this.Head)
-        this.GlowEquipBase.copyFrom(this.EquipBase)
-        this.GlowEquipTubeL01.copyFrom(this.EquipTubeL01)
-        this.GlowEquipTubeR01.copyFrom(this.EquipTubeR01)
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        this.GlowBodyMain2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
         }
     }
 

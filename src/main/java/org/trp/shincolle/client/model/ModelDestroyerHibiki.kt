@@ -21,9 +21,7 @@ import org.trp.shincolle.entity.IShipRiderType
 import org.trp.shincolle.entity.base.EntityShipBase
 import kotlin.math.min
 
-class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
+class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Butt: ModelPart
@@ -144,6 +142,13 @@ class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHuman
     private val hatBase2DefaultY: Float
     private val hatBase2DefaultZ: Float
     private val hatBase2DefaultXRot: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = BodyMain
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = null
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -280,6 +285,7 @@ class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHuman
 
         this.isDeadPose = false
         this.poseTranslateY = 0.0f
+        resetPoseState()
         resetOffsets()
 
         applyFaceAndMouth(entity)
@@ -289,7 +295,7 @@ class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHuman
         setFlushVisible(entity != null && (entity.emotionPrimary == EntityShipBase.EMOTION_SHY || entity.emotionPrimary == EntityShipBase.EMOTION_HAPPY))
         applyEquipVisibility(entity)
 
-        if (entity != null && entity.isInDeadPose) {
+        if (isDeadPose(entity)) {
             applyDeadPose()
             syncGlowParts()
             return
@@ -354,8 +360,7 @@ class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHuman
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         Head.xRot = 0.0f
         Head.yRot = 0.0f
@@ -768,53 +773,6 @@ class ModelDestroyerHibiki<T : EntityShipBase>(root: ModelPart) : ShipModelHuman
         ArmRight02.x = armRight02DefaultX
         ArmRight02.y = armRight02DefaultY
         ArmRight02.z = armRight02DefaultZ
-    }
-
-    private fun syncGlowParts() {
-        GlowBodyMain!!.copyFrom(BodyMain)
-        GlowHead.copyFrom(Head)
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     companion object {

@@ -22,10 +22,7 @@ import org.trp.shincolle.entity.EntitySubmKa
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelSubmKa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
-    override var poseTranslateY = 0f
+class ModelSubmKa<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Butt: ModelPart
@@ -84,6 +81,13 @@ class ModelSubmKa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T
     private val equipT01aDefaultX: Float
     private val equipT01aDefaultY: Float
     private val equipT01aDefaultZ: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = BodyMain
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = null
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -154,6 +158,7 @@ class ModelSubmKa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T
         netHeadYaw: Float,
         headPitch: Float
     ) {
+        resetPoseState()
         this.resetOffsets()
         this.applyEquipVisibility(entity)
         applyFaceAndMouth(entity)
@@ -423,53 +428,6 @@ class ModelSubmKa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T
             this.ArmRight01.xRot += -f8 * 80.0f * (Math.PI.toFloat() / 180f) - 0.3f
             this.ArmRight01.yRot += -f7 * 20.0f * (Math.PI.toFloat() / 180f) + 0.4f
             this.ArmRight01.zRot += -f8 * 20.0f * (Math.PI.toFloat() / 180f)
-        }
-    }
-
-    private fun syncGlowParts() {
-        this.GlowBodyMain.copyFrom(this.BodyMain)
-        this.GlowHead.copyFrom(this.Head)
-        this.GlowArmLeft01.copyFrom(this.ArmLeft01)
-        this.GlowArmLeft02.copyFrom(this.ArmLeft02)
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
         }
     }
 

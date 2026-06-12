@@ -20,11 +20,7 @@ import org.trp.shincolle.entity.EntityCarrierWDemon
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
-    private var poseTranslateZ = 0f
-    private var isSittingPose = false
+class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -98,6 +94,13 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
     private val legRight02DefaultX: Float
     private val legRight02DefaultY: Float
     private val legRight02DefaultZ: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = Neck
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = GlowNeck
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -188,7 +191,7 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
         this.applyEquipVisibility(entity)
         this.applyFaceAndMouth(entity)
 
-        if (entity != null && entity.isInDeadPose) {
+        if (isDeadPose(entity)) {
             this.applyDeadPose()
             this.syncGlowParts()
             return
@@ -197,13 +200,6 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
         this.applyBasePose(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch)
         this.applySpecialPoseAdjustments(entity, limbSwing, limbSwingAmount, ageInTicks)
         this.syncGlowParts()
-    }
-
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
-        this.poseTranslateZ = 0.0f
     }
 
     private fun resetOffsets() {
@@ -226,8 +222,7 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         this.Head.xRot = 0.55f
         this.Head.yRot = 0.0f
@@ -450,7 +445,6 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
         }
 
         if (isPassenger && entity.vehicle is EntityMountBase) {
-            this.isSittingPose = true
             this.EquipBase.visible = true
             if (isSitting) {
                 if (hasLegacyState(entity, 1, 4)) {
@@ -567,7 +561,6 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
                 this.EquipR01.yRot = -1.4f
             }
         } else if (isSitting) {
-            this.isSittingPose = true
             if (entity != null && entity.getStateEmotion(1) == 4) {
                 this.poseTranslateY += 0.48f * 3
                 val nodTick = ageInTicks.toInt() % 60
@@ -678,56 +671,6 @@ class ModelCarrierWDemon<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoi
             this.ArmRight01.xRot += -f8 * 80.0f * (Math.PI.toFloat() / 180f)
             this.ArmRight01.yRot += -f7 * 20.0f * (Math.PI.toFloat() / 180f) + 0.2f
             this.ArmRight01.zRot += -f8 * 20.0f * (Math.PI.toFloat() / 180f)
-        }
-    }
-
-    private fun syncGlowParts() {
-        this.GlowBodyMain.copyFrom(this.BodyMain)
-        this.GlowBodyMain2.copyFrom(this.BodyMain)
-        this.GlowNeck.copyFrom(this.Neck)
-        this.GlowHead.copyFrom(this.Head)
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f || this.poseTranslateZ != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, this.poseTranslateZ)
-        }
-
-        this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        this.HeadS02.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        this.HeadS03.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f || this.poseTranslateZ != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, this.poseTranslateZ)
-        }
-
-        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        this.GlowBodyMain2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
         }
     }
 

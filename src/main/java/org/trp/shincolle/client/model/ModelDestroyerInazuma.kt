@@ -20,9 +20,7 @@ import org.trp.shincolle.entity.EntityDestroyerInazuma
 import org.trp.shincolle.entity.base.EntityShipBase
 import kotlin.math.min
 
-class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
+class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Butt: ModelPart
@@ -103,6 +101,13 @@ class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShipModelHuma
     private val armRight02DefaultX: Float
     private val armRight02DefaultY: Float
     private val armRight02DefaultZ: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = BodyMain
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = null
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -219,11 +224,6 @@ class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShipModelHuma
         syncGlowParts()
     }
 
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.poseTranslateY = 0.0f
-    }
-
     private fun resetOffsets() {
         Butt.y = buttDefaultY
         Skirt01.y = skirt01DefaultY
@@ -238,13 +238,8 @@ class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShipModelHuma
         ArmRight02.x = armRight02DefaultX
     }
 
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
-    }
-
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         Head.xRot = 0.0f
         Head.yRot = 0.0f
@@ -544,55 +539,6 @@ class ModelDestroyerInazuma<T : EntityShipBase>(root: ModelPart) : ShipModelHuma
         HairL02.xRot += -angleX1 * 0.07f + headX
         HairR01.xRot += ctx.angleX * 0.04f + headX
         HairR02.xRot += -angleX1 * 0.07f + headX
-    }
-
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            GlowHead.copyFrom(Head)
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     companion object {

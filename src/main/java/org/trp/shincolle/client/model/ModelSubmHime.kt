@@ -22,10 +22,7 @@ import org.trp.shincolle.entity.EntitySubmHime
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
-    override var poseTranslateY = 0f
+class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -152,6 +149,12 @@ class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     private val equipTBaseDefaultY: Float
     private val equipTBase1DefaultY: Float
 
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = Neck
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = GlowNeck
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -289,6 +292,7 @@ class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         netHeadYaw: Float,
         headPitch: Float
     ) {
+        resetPoseState()
         this.resetOffsets()
         this.applyEquipVisibility(entity)
         applyFaceAndMouth(entity)
@@ -341,8 +345,7 @@ class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         this.Head.xRot = -0.15f
         this.Head.yRot = 0.0f
@@ -778,7 +781,6 @@ class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
                 this.LegRight02.z = this.legRight02DefaultZ + (0.37f * OFFSET_SCALE)
             }
         } else if (isPassenger && entity.vehicle is EntityMountBase) {
-            this.isSittingPose = true
             if (isSitting) {
                 this.poseTranslateY += 0.4f
                 this.Head.xRot -= 0.7f
@@ -1190,52 +1192,6 @@ class ModelSubmHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
                 this.EquipT01.visible = true
                 this.EquipT01_1.visible = true
             }
-        }
-    }
-
-    private fun syncGlowParts() {
-        this.GlowBodyMain.copyFrom(this.BodyMain)
-        this.GlowNeck.copyFrom(this.Neck)
-        this.GlowHead.copyFrom(this.Head)
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
         }
     }
 

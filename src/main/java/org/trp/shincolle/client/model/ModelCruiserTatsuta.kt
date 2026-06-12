@@ -691,9 +691,9 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShincolleShipMo
 
     override fun syncExtraGlowParts() {
         if (GlowEquip00 != null) {
-            GlowEquip00.copyFrom(Equip00)
-            GlowEquip01a.copyFrom(Equip01a)
-            GlowEquip02a.copyFrom(Equip02a)
+        GlowEquip00.copyFrom(Equip00)
+        GlowEquip01a.copyFrom(Equip01a)
+        GlowEquip02a.copyFrom(Equip02a)
         }
     }
 

@@ -19,9 +19,7 @@ import org.trp.shincolle.client.model.LegacyPoseOffsets.sneakY
 import org.trp.shincolle.entity.EntityCruiserAtago
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCruiserAtago<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
+class ModelCruiserAtago<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -158,6 +156,13 @@ class ModelCruiserAtago<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
     private val armRight02DefaultX: Float
     private val armRight02DefaultY: Float
     private val armRight02DefaultZ: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = Neck
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = GlowNeck
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -310,13 +315,14 @@ class ModelCruiserAtago<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
 
         this.isDeadPose = false
         this.poseTranslateY = 0.0f
+        resetPoseState()
         resetOffsets()
 
         applyFaceAndMouth(entity)
         setFlushVisible(entity != null && (entity.emotionPrimary == EntityShipBase.EMOTION_SHY || entity.emotionPrimary == EntityShipBase.EMOTION_HAPPY))
         applyEquipVisibility(entity)
 
-        if (entity != null && entity.isInDeadPose) {
+        if (isDeadPose(entity)) {
             applyDeadPose()
             syncGlowParts()
             return
@@ -339,8 +345,7 @@ class ModelCruiserAtago<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         this.Head.xRot = 0.55f
         this.Head.yRot = -0.2f
@@ -707,55 +712,6 @@ class ModelCruiserAtago<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         ArmRight02.x = armRight02DefaultX
         ArmRight02.y = armRight02DefaultY
         ArmRight02.z = armRight02DefaultZ
-    }
-
-    private fun syncGlowParts() {
-        if (GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            if (GlowHead != null) GlowHead.copyFrom(Head)
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     companion object {

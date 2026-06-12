@@ -23,7 +23,7 @@ import org.trp.shincolle.entity.EntityDestroyerIkazuchi
 import org.trp.shincolle.entity.EntityDestroyerInazuma
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
+class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
     private val BodyMain: ModelPart
     private val ArmRight01: ModelPart
     private val ArmRight02: ModelPart
@@ -102,9 +102,13 @@ class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHum
     private val armRight02DefaultX: Float
     private val armRight02DefaultY: Float
     private val armRight02DefaultZ: Float
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
-    private var isSittingPose = false
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = BodyMain
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = null
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -223,12 +227,6 @@ class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHum
         syncGlowParts()
     }
 
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
-    }
-
     private fun resetOffsets() {
         Butt.y = buttDefaultY
         Skirt01.y = skirt01DefaultY
@@ -247,13 +245,8 @@ class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHum
         ArmRight02.z = armRight02DefaultZ
     }
 
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
-    }
-
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         Head.xRot = 0.0f
         Head.yRot = 0.0f
@@ -608,53 +601,6 @@ class ModelDestroyerIkazuchi<T : EntityShipBase>(root: ModelPart) : ShipModelHum
 
         LegLeft01.xRot = legLeftX
         LegRight01.xRot = legRightX
-    }
-
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            GlowHead.copyFrom(Head)
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        this.GlowBodyMain!!.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     companion object {
