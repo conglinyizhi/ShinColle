@@ -41,7 +41,6 @@
     <ID>ComplexCondition:EntityMountBase.kt$EntityMountBase$source.`is`(DamageTypeTags.IS_FIRE) || source.`is`(DamageTypeTags.IS_FALL) || source.`is`(DamageTypes.IN_WALL) || source.`is`(DamageTypes.STARVE) || source.`is`(DamageTypes.CACTUS) || source.`is`(DamageTypeTags.IS_DROWNING) || source.`is`(DamageTypeTags.NO_ANGER)</ID>
     <ID>ComplexCondition:EntityMountBase.kt$EntityMountBase$this.host != null &amp;&amp; (this.host!!.isOrderedToSit() || this.host!!.isInSittingPose()) &amp;&amp; getControllingPassenger() == null</ID>
     <ID>ComplexCondition:EntityMountBase.kt$EntityMountBase$this.isInWaterOrBubble() &amp;&amp; (forward != 0f || strafe != 0f) &amp;&amp; this.tickCount % 2 == 0 &amp;&amp; this.level() is ServerLevel</ID>
-    <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$!Config.canTimeKeeping || !this.getStateFlag(ShipContainerMenu.STATE_FLAG_TIMEKEEP) || !this.isAlive || this.isInDeadPose</ID>
     <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$!this.level().isClientSide &amp;&amp; !isHammer &amp;&amp; !this.isDeadOrDying() &amp;&amp; reduced &gt;= this.health &amp;&amp; !source.`is`( DamageTypeTags.BYPASSES_INVULNERABILITY )</ID>
     <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$!this.level().isClientSide &amp;&amp; this.isCreativeDebuggerActive &amp;&amp; !isHammer &amp;&amp; reduced &gt;= this.health</ID>
     <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$shipClass == 12 || shipClass == 20 || shipClass == 33 || shipClass == 47 || shipClass == 48</ID>
@@ -49,9 +48,7 @@
     <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$shipClass == 17 || shipClass == 18 || shipClass == 19 || shipClass == 38 || shipClass == 39 || shipClass == 44 || shipClass == 72</ID>
     <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$shipClass &gt;= 20 || shipClass == 12 || shipClass == 13 || shipClass == 14 || shipClass == 15 || shipClass == 16</ID>
     <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$shipClass &gt;= 26 || shipClass == 20 || shipClass == 21 || shipClass == 30 || shipClass == 31 || shipClass == 33 || shipClass == 49</ID>
-    <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$this.getStateFlag(11) || this.isOrderedToSit() || this.isLeashed() || this.isVehicle()</ID>
     <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$this.isOrderedToSit() || this.isInSittingPose() || this.isInDeadPose || this.isPassenger()</ID>
-    <ID>ComplexCondition:EntityShipBase.kt$EntityShipBase$this.isSitting || this.isPassenger() || this.isVehicle() || this.isInDeadPose</ID>
     <ID>ComplexCondition:EntityShipBasePassiveCombat.kt$EntityShipBasePassiveCombat$shouldRetreatForLowHealth() || this.ship.isInSittingPose || this.ship.isInDeadPose || this.ship.isPassenger() || this.ship.isVehicle()</ID>
     <ID>ComplexCondition:EntityShipBrainAi.kt$EntityShipBrainAi$ship.ownerUUID == null &amp;&amp; ship.target == null &amp;&amp; !pointerMemory.hasAnyTarget() &amp;&amp; guardMemory.target?.isActive != true</ID>
     <ID>ComplexCondition:FormationScreen.kt$FormationScreen$(fv &gt; (if (attrId == 8 || attrId == 7) 0f else 1f) &amp;&amp; attrId &lt; 15) || (fv &gt; 0f &amp;&amp; attrId &gt;= 15)</ID>
@@ -79,14 +76,17 @@
     <ID>ComplexCondition:ScrollPanel.kt$ScrollPanel$mouseX &gt;= sbX &amp;&amp; mouseX &lt; sbX + scrollBarWidth &amp;&amp; mouseY &gt;= getY() &amp;&amp; mouseY &lt; getY() + height</ID>
     <ID>ComplexCondition:ScrollPanel.kt$ScrollPanel$mouseX &gt;= sbX &amp;&amp; mouseX &lt; sbX + scrollBarWidth &amp;&amp; mouseY &gt;= sbY &amp;&amp; mouseY &lt; sbY + sbH</ID>
     <ID>ComplexCondition:ShipBrainActivityResolver.kt$ShipBrainActivityResolver$!state.shouldFollowOwner || !state.canMove || !state.ownerPresent || state.hasAttackTarget</ID>
+    <ID>ComplexCondition:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$ship.isSitting || ship.isPassenger() || ship.isVehicle() || ship.isInDeadPose</ID>
     <ID>ComplexCondition:ShipLegacyNavigation.kt$ShipLegacyNavigation$finalPoint != null &amp;&amp; finalPoint.x == target.blockPosition() .x &amp;&amp; finalPoint.y == target.blockPosition() .y &amp;&amp; finalPoint.z == target.blockPosition().z</ID>
+    <ID>ComplexCondition:ShipLookupHelper.kt$ShipLookupHelper$entry == null || tick - entry.tick &gt; MAX_CACHE_TICKS || tick &lt; entry.tick || playerPos.distanceToSqr(entry.playerPos) &gt; CACHE_POSITION_THRESHOLD_SQR || entry.ships.any { !it.isAlive || it.isRemoved }</ID>
+    <ID>ComplexCondition:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$!Config.canTimeKeeping || !ship.getStateFlag(ShipContainerMenu.STATE_FLAG_TIMEKEEP) || !ship.isAlive || ship.isInDeadPose</ID>
+    <ID>ComplexCondition:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$ship.getStateFlag(11) || ship.isOrderedToSit() || ship.isLeashed() || ship.isVehicle()</ID>
     <ID>ComplexCondition:ShipyardRecipes.kt$ShipyardRecipes$stack.`is`(ModItems.AMMO_LIGHT.get()) || stack.`is`(ModItems.AMMO_LIGHT_CONTAINER.get()) || stack.`is`(ModItems.AMMO_HEAVY.get()) || stack.`is`(ModItems.AMMO_HEAVY_CONTAINER.get())</ID>
     <ID>ComplexCondition:SmallShipyardBlock.kt$SmallShipyardBlock$level != null &amp;&amp; pos != null &amp;&amp; state != null &amp;&amp; blockEntity != null</ID>
     <ID>ComplexCondition:VolCoreBlockEntity.kt$VolCoreBlockEntity$ent is EntityShipBase || ent is EntityMountBase || ent is EntityAircraftBase || ent is EntityShipBase &amp;&amp; ent.isHostileShipMob || ent is Player</ID>
     <ID>ComplexCondition:VolCoreScreen.kt$VolCoreScreen$xClick &gt;= 7 &amp;&amp; xClick &lt;= 20 &amp;&amp; yClick &gt;= 6 &amp;&amp; yClick &lt;= 19</ID>
     <ID>ComplexCondition:WayPointBlock.kt$WayPointBlock$level != null &amp;&amp; pos != null &amp;&amp; state != null &amp;&amp; be != null</ID>
     <ID>CyclomaticComplexMethod:BookRenderer.kt$BookRenderer$fun drawBookContent(g: GuiGraphics, x: Int, y: Int, page: Int, chapNum: Int, guiScale: Float)</ID>
-    <ID>CyclomaticComplexMethod:ClientPointerItemParticles.kt$ClientPointerItemParticles$@JvmStatic @SubscribeEvent fun onClientTick(event: ClientTickEvent.Post?)</ID>
     <ID>CyclomaticComplexMethod:Config.kt$Config$private fun mapLegacyConfigItemId(rawId: String, itemMeta: Int): String</ID>
     <ID>CyclomaticComplexMethod:CraneBlockEntity.kt$CraneBlockEntity$private fun applyItemTransfer(isLoading: Boolean): Boolean</ID>
     <ID>CyclomaticComplexMethod:CraneBlockEntity.kt$CraneBlockEntity$private fun checkCraningShip(): Boolean</ID>
@@ -118,9 +118,6 @@
     <ID>CyclomaticComplexMethod:EntityShipBase.kt$EntityShipBase$override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult</ID>
     <ID>CyclomaticComplexMethod:EntityShipBase.kt$EntityShipBase$private fun buildKaitaiMaterialDrops(): MutableList&lt;ItemStack&gt;</ID>
     <ID>CyclomaticComplexMethod:EntityShipBase.kt$EntityShipBase$private fun collectEquipBonuses(): FloatArray</ID>
-    <ID>CyclomaticComplexMethod:EntityShipBase.kt$EntityShipBase$private fun tryStorePumpedFluid(pumpedFluid: FluidStack): Boolean</ID>
-    <ID>CyclomaticComplexMethod:EntityShipBase.kt$EntityShipBase$protected fun tickWaypointMove()</ID>
-    <ID>CyclomaticComplexMethod:EntityShipBase.kt$EntityShipBase$protected open fun tickAliveLogic()</ID>
     <ID>CyclomaticComplexMethod:EntityShipBaseCombat.kt$EntityShipBaseCombat$private fun configureAmmoEffects(missile: EntityAbyssMissile)</ID>
     <ID>CyclomaticComplexMethod:EntityShipBasePassiveCombat.kt$EntityShipBasePassiveCombat$fun tickAttacks(state: PassiveCombatStateMemory)</ID>
     <ID>CyclomaticComplexMethod:EntityShipBasePassiveCombat.kt$EntityShipBasePassiveCombat$fun updateActionState(): PassiveCombatStateMemory</ID>
@@ -199,6 +196,7 @@
     <ID>CyclomaticComplexMethod:RecipeStructureRegressionTest.kt$RecipeStructureRegressionTest.JsonScanner$fun readNumber(): Number</ID>
     <ID>CyclomaticComplexMethod:ShipContainerMenu.kt$ShipContainerMenu$override fun clickMenuButton(player: Player, id: Int): Boolean</ID>
     <ID>CyclomaticComplexMethod:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$@JvmStatic fun getDefaultEnchantmentBonus(stack: ItemStack): FloatArray</ID>
+    <ID>CyclomaticComplexMethod:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun tryStorePumpedFluid(ship: EntityShipBase, pumpedFluid: FluidStack): Boolean</ID>
     <ID>CyclomaticComplexMethod:ShipInventoryScreen.kt$ShipInventoryScreen$override fun renderLabels(guiGraphics: GuiGraphics, mouseX: Int, mouseY: Int)</ID>
     <ID>CyclomaticComplexMethod:ShipJadeProvider.kt$ShipJadeProvider.Companion$private fun runningState(ship: EntityShipBase): Component</ID>
     <ID>CyclomaticComplexMethod:ShipLegacyNavigation.kt$ShipLegacyNavigation$private fun isDirectPathBetweenPoints(from: Vec3, to: Vec3, sizeX: Int, sizeY: Int, sizeZ: Int): Boolean</ID>
@@ -206,6 +204,7 @@
     <ID>CyclomaticComplexMethod:ShipLegacyPathFinder.kt$ShipLegacyPathFinder$private fun getSafePoint( host: Entity, x: Int, y: Int, z: Int, yOffset: Int, sizeX: Int, sizeY: Int, sizeZ: Int ): ShipLegacyPathPoint?</ID>
     <ID>CyclomaticComplexMethod:ShipModelBaseAdv.kt$ShipModelBaseAdv$fun getLegacyScale(entity: EntityShipBase?): Float</ID>
     <ID>CyclomaticComplexMethod:ShipMoveControl.kt$ShipMoveControl$override fun tick()</ID>
+    <ID>CyclomaticComplexMethod:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$private fun tickWaypointMove(ship: EntityShipBase)</ID>
     <ID>CyclomaticComplexMethod:ShipyardRecipes.kt$ShipyardRecipes$@JvmStatic fun addLargeMaterialStock(matStock: IntArray, stack: ItemStack): Boolean</ID>
     <ID>CyclomaticComplexMethod:ShipyardRecipes.kt$ShipyardRecipes$private fun getShipEggForType(type: Int, largeShipyard: Boolean): Item?</ID>
     <ID>CyclomaticComplexMethod:ShipyardRecipes.kt$ShipyardRecipes$private fun getShipEntityTypeForType(type: Int, largeShipyard: Boolean): EntityType&lt;out Mob?&gt;</ID>
@@ -285,11 +284,11 @@
     <ID>LargeClass:ModelBBHaruna.kt$ModelBBHaruna$Companion</ID>
     <ID>LargeClass:ModelBBHaruna.kt$ModelBBHaruna&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelBBHiei.kt$ModelBBHiei$Companion</ID>
-    <ID>LargeClass:ModelBBHiei.kt$ModelBBHiei&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelBBHiei.kt$ModelBBHiei&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelBBKirishima.kt$ModelBBKirishima$Companion</ID>
     <ID>LargeClass:ModelBBKirishima.kt$ModelBBKirishima&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelBBKongou.kt$ModelBBKongou$Companion</ID>
-    <ID>LargeClass:ModelBBKongou.kt$ModelBBKongou&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelBBKongou.kt$ModelBBKongou&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelBattleshipRu.kt$ModelBattleshipRu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelBattleshipYamato.kt$ModelBattleshipYamato$Companion</ID>
@@ -302,7 +301,7 @@
     <ID>LargeClass:ModelCarrierWo.kt$ModelCarrierWo&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelCruiserAtago.kt$ModelCruiserAtago$Companion</ID>
     <ID>LargeClass:ModelCruiserAtago.kt$ModelCruiserAtago&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelCruiserTatsuta.kt$ModelCruiserTatsuta&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelCruiserTatsuta.kt$ModelCruiserTatsuta&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCruiserTenryuu.kt$ModelCruiserTenryuu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelDestroyerAkatsuki.kt$ModelDestroyerAkatsuki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelDestroyerHibiki.kt$ModelDestroyerHibiki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
@@ -331,8 +330,6 @@
     <ID>LongMethod:EntityProjectileBeam.kt$EntityProjectileBeam$override fun tick()</ID>
     <ID>LongMethod:EntityShipBase.kt$EntityShipBase$override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult</ID>
     <ID>LongMethod:EntityShipBase.kt$EntityShipBase$private fun collectEquipBonuses(): FloatArray</ID>
-    <ID>LongMethod:EntityShipBase.kt$EntityShipBase$protected fun tickWaypointMove()</ID>
-    <ID>LongMethod:EntityShipBase.kt$EntityShipBase$protected open fun tickAliveLogic()</ID>
     <ID>LongMethod:EntityShipBasePassiveCombat.kt$EntityShipBasePassiveCombat$fun updateActionState(): PassiveCombatStateMemory</ID>
     <ID>LongMethod:EntityShipBasePassiveCombat.kt$EntityShipBasePassiveCombat$private fun canAttackTarget(target: LivingEntity?, revengeContext: Boolean, commandContext: Boolean): Boolean</ID>
     <ID>LongMethod:EntityShipBaseSerialization.kt$EntityShipBaseSerialization$fun readAdditionalSaveData(compound: CompoundTag)</ID>
@@ -512,6 +509,7 @@
     <ID>LongMethod:ShipMovementCoordinatorArchitectureRegressionTest.kt$ShipMovementCoordinatorArchitectureRegressionTest$@Test fun specialShipEventsShouldUseMovementCoordinator()</ID>
     <ID>LongMethod:ShipMovementCoordinatorArchitectureRegressionTest.kt$ShipMovementCoordinatorArchitectureRegressionTest$@Test fun temporaryCombatEntitiesShouldUseMovementCoordinator()</ID>
     <ID>LongMethod:ShipNavigationRecoveryRegressionTest.kt$ShipNavigationRecoveryRegressionTest$@Test fun navigationDebugLoggingShouldNotResetStuckRecoveryProgress()</ID>
+    <ID>LongMethod:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$private fun tickWaypointMove(ship: EntityShipBase)</ID>
     <ID>LongMethod:ShipPreview.kt$ShipPreview.Companion$fun renderEntityWithPassengers( g: GuiGraphics, x: Int, y: Int, scale: Int, mx: Float, my: Float, entity: LivingEntity )</ID>
     <ID>LongMethod:ShipyardRecipes.kt$ShipyardRecipes$@JvmStatic fun addLargeMaterialStock(matStock: IntArray, stack: ItemStack): Boolean</ID>
     <ID>LongMethod:TaskHelper.kt$TaskHelper$private fun getLegacyBiomeId(level: Level, pos: BlockPos): Int</ID>
@@ -601,6 +599,7 @@
     <ID>LongParameterList:PointerItemClientHelper.kt$PointerItemClientHelper$( mc: Minecraft, data: AdmiralData, teamId: Int, slotId: Int, displayedCount: Int, uuid: UUID? )</ID>
     <ID>LongParameterList:S2CDeskDiplomacySyncPayload.kt$S2CDeskDiplomacySyncPayload.Companion$( ownerUuid: UUID?, allies: MutableCollection&lt;UUID?&gt;, banned: MutableCollection&lt;UUID?&gt;, displayUuids: MutableCollection&lt;UUID?&gt;, displayTeamNames: MutableCollection&lt;String?&gt;, displayLeaderNames: MutableCollection&lt;String?&gt; )</ID>
     <ID>LongParameterList:ShincolleRenderTypes.kt$ShincolleRenderTypes$( name: String, format: VertexFormat, mode: VertexFormat.Mode, bufferSize: Int, affectsCrumbling: Boolean, sortOnUpload: Boolean, setupState: Runnable, clearState: Runnable )</ID>
+    <ID>LongParameterList:ShincolleShipModel.kt$ShincolleShipModel$( riggingVisible: Boolean, headBaseVisible: Boolean = riggingVisible, hairSetVisible: Boolean = false, ahokeVisible: Boolean = false, equipBase: ModelPart? = null, equipHeadBase: ModelPart? = null, hairS01: ModelPart? = null, hairS02: ModelPart? = null, hairCBase: ModelPart? = null, hairCBaseB: ModelPart? = null, ahoke00: ModelPart? = null, ahoke01: ModelPart? = null )</ID>
     <ID>LongParameterList:ShipHeldItemLayer.kt$ShipHeldItemLayer$( entity: T?, stack: ItemStack, displayContext: ItemDisplayContext, side: HumanoidArm, poseStack: PoseStack, bufferSource: MultiBufferSource, packedLight: Int )</ID>
     <ID>LongParameterList:ShipInventoryScreen.kt$ShipInventoryScreen$(mx: Int, my: Int, x: Int, y: Int, w: Int, h: Int)</ID>
     <ID>LongParameterList:ShipInventoryScreen.kt$ShipInventoryScreen$(parentTab: Int, x: Int, y: Int, state: () -&gt; Boolean, buttonId: Int, visible: () -&gt; Boolean)</ID>
@@ -664,6 +663,7 @@
     <ID>LoopWithTooManyJumpStatements:ParticleSparkle.kt$ParticleSparkle$for</ID>
     <ID>LoopWithTooManyJumpStatements:PointerInteractionService.kt$PointerInteractionService$for</ID>
     <ID>LoopWithTooManyJumpStatements:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$for</ID>
+    <ID>LoopWithTooManyJumpStatements:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$for</ID>
     <ID>LoopWithTooManyJumpStatements:ShipLegacyPathFinder.kt$ShipLegacyPathFinder$for</ID>
     <ID>LoopWithTooManyJumpStatements:ShipLegacyPathHeap.kt$ShipLegacyPathHeap$while</ID>
     <ID>LoopWithTooManyJumpStatements:TaskHelper.kt$TaskHelper$for</ID>
@@ -2042,7 +2042,6 @@
     <ID>MagicNumber:EntityShincolleSimpleMob.kt$EntityShincolleSimpleMob.Companion$0.25</ID>
     <ID>MagicNumber:EntityShincolleSimpleMob.kt$EntityShincolleSimpleMob.Companion$24.0</ID>
     <ID>MagicNumber:EntityShincolleSimpleMob.kt$EntityShincolleSimpleMob.Companion$40.0</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.01</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.02</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.03</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.03f</ID>
@@ -2054,29 +2053,22 @@
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.15f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.1f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.2</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.25</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.25f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.2f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.3</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.35</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.4</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.45</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.4f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.5</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.55</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.5f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.6</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.65</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.75f</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.7f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.8</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.8f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.98f</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0.9f</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0x7F</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$0xFF</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$1.0E-6</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$1.2</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$1.25</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$1.3</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$1.5</ID>
@@ -2115,10 +2107,7 @@
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$22</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$23</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$24.0</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$24L</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$26</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$27</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$2700</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$29</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$3</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$3.0f</ID>
@@ -2133,8 +2122,6 @@
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$3900</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$4</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$4.0</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$40</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$43</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$44</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$46</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$47</ID>
@@ -2152,14 +2139,11 @@
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$61</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$62</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$63</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$64.0</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$7</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$7.0</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$72</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$75</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$8</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$800</ID>
-    <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$9.0</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase$900</ID>
     <ID>MagicNumber:EntityShipBase.kt$EntityShipBase.Companion$31</ID>
     <ID>MagicNumber:EntityShipBaseCombat.kt$EntityShipBaseCombat$0.045f</ID>
@@ -13084,6 +13068,8 @@
     <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu$9</ID>
     <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu.&lt;no name provided&gt;$0xFFFF</ID>
     <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu.&lt;no name provided&gt;$16</ID>
+    <ID>MagicNumber:ShipEmotionTickHandler.kt$ShipEmotionTickHandler$0xFF</ID>
+    <ID>MagicNumber:ShipEmotionTickHandler.kt$ShipEmotionTickHandler$4</ID>
     <ID>MagicNumber:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$0.01f</ID>
     <ID>MagicNumber:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$0.02f</ID>
     <ID>MagicNumber:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$0.05f</ID>
@@ -13101,6 +13087,23 @@
     <ID>MagicNumber:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$6</ID>
     <ID>MagicNumber:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$7</ID>
     <ID>MagicNumber:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$9</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.25</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.2f</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.4</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.4f</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.5</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.5f</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.7f</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0.8f</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$0xFF</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$17</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$2700</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$3</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$300</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$4</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$40</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$7.0</ID>
+    <ID>MagicNumber:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$9.0</ID>
     <ID>MagicNumber:ShipGuardTarget.kt$ShipGuardTarget$0.5</ID>
     <ID>MagicNumber:ShipGuardTarget.kt$ShipGuardTarget.Companion$3</ID>
     <ID>MagicNumber:ShipGuardTarget.kt$ShipGuardTarget.Companion$4</ID>
@@ -13455,6 +13458,26 @@
     <ID>MagicNumber:ShipMoveControl.kt$ShipMoveControl$4.0</ID>
     <ID>MagicNumber:ShipMoveControl.kt$ShipMoveControl$90.0f</ID>
     <ID>MagicNumber:ShipMovementCoordinator.kt$ShipMovementCoordinator$4</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$0.01</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$0.25</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$0.35</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$0.5</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$0x7F</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$1.2</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$10</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$11</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$16</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$20</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$24L</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$26</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$27</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$3</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$4</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$40</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$43</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$6</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$64.0</ID>
+    <ID>MagicNumber:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$9.0</ID>
     <ID>MagicNumber:ShipPointerEntityDecisionResolver.kt$ShipPointerEntityDecisionResolver$0.5</ID>
     <ID>MagicNumber:ShipPointerEntityDecisionResolver.kt$ShipPointerEntityDecisionResolver$1.5</ID>
     <ID>MagicNumber:ShipPointerEntityDecisionResolver.kt$ShipPointerEntityDecisionResolver$24.0</ID>
@@ -13494,6 +13517,7 @@
     <ID>MagicNumber:ShipTeleportHelper.kt$ShipTeleportHelper$6</ID>
     <ID>MagicNumber:ShipTeleportHelper.kt$ShipTeleportHelper$7</ID>
     <ID>MagicNumber:ShipTeleportHelper.kt$ShipTeleportHelper$8</ID>
+    <ID>MagicNumber:ShipTickCoordinator.kt$ShipTickCoordinator$7</ID>
     <ID>MagicNumber:ShipyardJadeProvider.kt$ShipyardJadeProvider.Companion$3</ID>
     <ID>MagicNumber:ShipyardJadeProvider.kt$ShipyardJadeProvider.Companion$4</ID>
     <ID>MagicNumber:ShipyardRecipeCategory.kt$ShipyardRecipeCategory$10</ID>
@@ -14062,7 +14086,7 @@
     <ID>MaxLineLength:ClientModEventBusEvents.kt$ClientModEventBusEvents$event.registerSpriteSet(ModParticles.PARTICLE_WAYPOINT.get()!!) { sprites -&gt; ParticleWaypoint.Provider(sprites) }</ID>
     <ID>MaxLineLength:ClientModEventBusEvents.kt$ClientModEventBusEvents$val castRenderer = renderer as LivingEntityRenderer&lt;EntityShipBase, net.minecraft.client.model.EntityModel&lt;EntityShipBase&gt;&gt;</ID>
     <ID>MaxLineLength:ClientPointerItemParticles.kt$ClientPointerItemParticles$(if (isEntity) ModParticles.PARTICLE_WAYPOINT_LINE_PURPLE.get()!! else ModParticles.PARTICLE_WAYPOINT_LINE.get()!!)</ID>
-    <ID>MaxLineLength:ClientPointerItemParticles.kt$ClientPointerItemParticles$Predicate { ship: EntityShipBase? -&gt; ship!!.isOwnedBy(player) &amp;&amp; ship.isPointerSelected &amp;&amp; !ship.isInDeadPose }</ID>
+    <ID>MaxLineLength:ClientPointerItemParticles.kt$ClientPointerItemParticles$Predicate { entity: Entity? -&gt; entity != null &amp;&amp; !entity.isSpectator() &amp;&amp; entity.isPickable() &amp;&amp; entity !== player }</ID>
     <ID>MaxLineLength:Config.kt$Config$internal</ID>
     <ID>MaxLineLength:ConfigScreenExtensionPointRegressionTest.kt$ConfigScreenExtensionPointRegressionTest$||</ID>
     <ID>MaxLineLength:ConfigSpecBuilder.kt$ConfigSpecBuilder$.</ID>
@@ -14408,6 +14432,7 @@
     <ID>MaxLineLength:ShipFireImmunityVisualRegressionTest.kt$ShipFireImmunityVisualRegressionTest$assertTrue</ID>
     <ID>MaxLineLength:ShipFishingHookLifecycleRegressionTest.kt$ShipFishingHookLifecycleRegressionTest$assertTrue</ID>
     <ID>MaxLineLength:ShipFollowOwnerRegressionTest.kt$ShipFollowOwnerRegressionTest$assertTrue</ID>
+    <ID>MaxLineLength:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$while</ID>
     <ID>MaxLineLength:ShipGrudgeSpawnLinkTest.kt$ShipGrudgeSpawnLinkTest$assertTrue</ID>
     <ID>MaxLineLength:ShipGuardDecisionResolver.kt$ShipGuardDecisionResolver$return !state.hasGuardedEntity &amp;&amp; (state.summoning || state.distanceSqr &lt; ShipAiNumbers.GUARD_NEAR_LOOK_DISTANCE_SQ)</ID>
     <ID>MaxLineLength:ShipGuardTargetArchitectureRegressionTest.kt$ShipGuardTargetArchitectureRegressionTest$assertTrue</ID>
@@ -14574,6 +14599,7 @@
     <ID>MaxLineLength:ShipPassiveCombatRegressionTest.kt$ShipPassiveCombatRegressionTest$assertFalse</ID>
     <ID>MaxLineLength:ShipPassiveCombatRegressionTest.kt$ShipPassiveCombatRegressionTest$assertTrue</ID>
     <ID>MaxLineLength:ShipPathFinderTerrainRegressionTest.kt$ShipPathFinderTerrainRegressionTest$assertTrue</ID>
+    <ID>MaxLineLength:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$if</ID>
     <ID>MaxLineLength:ShipPointerEntityDecisionResolverTest.kt$ShipPointerEntityDecisionResolverTest.StateBuilder$fun hasAircraftAttackEnabled(hasAircraftAttackEnabled: Boolean)</ID>
     <ID>MaxLineLength:ShipPointerPointDecisionResolverTest.kt$ShipPointerPointDecisionResolverTest$ShipPointerPointDecisionResolver.State(true, ShipAiNumbers.TARGET_SWITCH_DISTANCE_SQ + 0.0001, 9.0, 0, 0)</ID>
     <ID>MaxLineLength:ShipPointerRecoveryRegressionTest.kt$ShipPointerRecoveryRegressionTest$assertTrue</ID>
@@ -14678,12 +14704,9 @@
     <ID>NestedBlockDepth:EntityDestroyerAkatsuki.kt$EntityDestroyerAkatsuki$private fun tryGattai()</ID>
     <ID>NestedBlockDepth:EntityMountBase.kt$EntityMountBase$override fun travel(travelVector: Vec3)</ID>
     <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$fun randomizeEquipFlags()</ID>
+    <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$internal fun tickHostileDespawn(): Boolean</ID>
     <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult</ID>
     <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$private fun collectEquipBonuses(): FloatArray</ID>
-    <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$private fun findNearbyPumpSource(): BlockPos?</ID>
-    <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$private fun tickEquipEffects()</ID>
-    <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$protected fun tickHostileDespawn(): Boolean</ID>
-    <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$protected fun tickWaypointMove()</ID>
     <ID>NestedBlockDepth:EntityShipBaseCombat.kt$EntityShipBaseCombat$private fun configureAmmoEffects(missile: EntityAbyssMissile)</ID>
     <ID>NestedBlockDepth:EntityShipBrainAi.kt$EntityShipBrainAi.ShipCombatMemoryBehavior$fun tickPassiveCombatChase( ship: EntityShipBase, target: LivingEntity, state: PassiveCombatStateMemory )</ID>
     <ID>NestedBlockDepth:EntityShipBrainAi.kt$EntityShipBrainAi.ShipGuardMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
@@ -14724,10 +14747,13 @@
     <ID>NestedBlockDepth:RecipeStructureRegressionTest.kt$RecipeStructureRegressionTest.JsonScanner$fun readString(): String</ID>
     <ID>NestedBlockDepth:ResourceHygieneRegressionTest.kt$ResourceHygieneRegressionTest.JsonScanner$fun readString()</ID>
     <ID>NestedBlockDepth:ShipContainerMenu.kt$ShipContainerMenu$override fun quickMoveStack(player: Player, index: Int): ItemStack</ID>
+    <ID>NestedBlockDepth:ShipEquipEffectsTickHandler.kt$ShipEquipEffectsTickHandler$override fun tick(ship: EntityShipBase): Boolean</ID>
+    <ID>NestedBlockDepth:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun findNearbyPumpSource(ship: EntityShipBase): BlockPos?</ID>
     <ID>NestedBlockDepth:ShipLegacyNavigation.kt$ShipLegacyNavigation$private fun checkPathTimeout(hostPos: Vec3)</ID>
     <ID>NestedBlockDepth:ShipLegacyNavigation.kt$ShipLegacyNavigation$private fun isPositionClear( x: Int, y: Int, z: Int, sizeX: Int, sizeY: Int, sizeZ: Int, from: Vec3, dirX: Double, dirZ: Double ): Boolean</ID>
     <ID>NestedBlockDepth:ShipLegacyPathFinder.kt$ShipLegacyPathFinder$private fun addToPath( host: Entity, start: ShipLegacyPathPoint, end: ShipLegacyPathPoint, range: Float, sizeX: Int, sizeY: Int, sizeZ: Int ): ShipLegacyPath?</ID>
     <ID>NestedBlockDepth:ShipLegacyPathFinder.kt$ShipLegacyPathFinder$private fun getPathType(x: Int, y: Int, z: Int, sizeX: Int, sizeY: Int, sizeZ: Int): LegacyPathType</ID>
+    <ID>NestedBlockDepth:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$private fun tickWaypointMove(ship: EntityShipBase)</ID>
     <ID>NestedBlockDepth:SmallShipyardMenu.kt$SmallShipyardMenu$override fun quickMoveStack(player: Player, index: Int): ItemStack</ID>
     <ID>NestedBlockDepth:TaskHelper.kt$TaskHelper$private fun findNearbyFishingWater(host: EntityShipBase, radius: Int, depth: Int): BlockPos?</ID>
     <ID>NestedBlockDepth:TaskHelper.kt$TaskHelper$private fun onUpdateCooking(host: EntityShipBase?, runtime: ShipTaskRuntime)</ID>
@@ -14751,7 +14777,7 @@
     <ID>NewLineAtEndOfFile:ParticleSprayRed.kt$org.trp.shincolle.client.particle.ParticleSprayRed.kt</ID>
     <ID>NewLineAtEndOfFile:PolymetalBlock.kt$org.trp.shincolle.block.PolymetalBlock.kt</ID>
     <ID>NewLineAtEndOfFile:RecipePaperScreen.kt$org.trp.shincolle.client.screen.RecipePaperScreen.kt</ID>
-    <ID>PrintStackTrace:EntityShipBase.kt$EntityShipBase$e</ID>
+    <ID>PrintStackTrace:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$e</ID>
     <ID>ProtectedMemberInFinalClass:Particle91Type.kt$Particle91Type$protected constructor(level: ClientLevel, x: Double, y: Double, z: Double, scale: Double)</ID>
     <ID>ProtectedMemberInFinalClass:ParticleBeam.kt$ParticleBeam$protected constructor( level: ClientLevel, x: Double, y: Double, z: Double, private val hostId: Int, private val targetId: Int, private val baseScale: Float )</ID>
     <ID>ProtectedMemberInFinalClass:ParticleChi.kt$ParticleChi$protected constructor(level: ClientLevel, scale: Double, hostEntityId: Int, particleType: Int)</ID>
@@ -14870,12 +14896,13 @@
     <ID>ReturnCount:EntityProjectileBeam.kt$EntityProjectileBeam$private fun canHitEntity(target: Entity): Boolean</ID>
     <ID>ReturnCount:EntityProjectileBeam.kt$EntityProjectileBeam$private fun resolveOwnerUuid(entity: Entity?): UUID?</ID>
     <ID>ReturnCount:EntitySSNH.kt$EntitySSNH$private fun canRideEntity(target: Entity?): Boolean</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$@Suppress("DEPRECATION") private fun applyWaterBuoyancyIfNeeded()</ID>
+    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$@Suppress("DEPRECATION") internal fun applyWaterBuoyancyIfNeeded()</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$fun addTrainingBookLevel(levelGain: Int): Boolean</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$fun explainFollowBlockReason(): String</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$fun openShipMenu(player: Player?)</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$fun playerHasCombatRation(player: Player?): Boolean</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$fun shouldFollowOwner(): Boolean</ID>
+    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$internal fun tickHostileDespawn(): Boolean</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$override fun getItemBySlot(slot: EquipmentSlot): ItemStack</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$override fun hurt(source: DamageSource, amount: Float): Boolean</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$override fun isCurrentlyGlowing(): Boolean</ID>
@@ -14883,18 +14910,8 @@
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$override fun playAmbientSound()</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun adjustOwnerMarriageCount(delta: Int)</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun consumeBucketRepairInHand(stack: ItemStack, player: Player): Boolean</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun hasCargoRoom(): Boolean</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tickAutoPickupItems()</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tickAutoPump()</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tickAutoRation()</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tickCompassChunkLoading()</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tickFuelDecay()</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tickSearchlightAssist()</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tryConsumableAutoSupply(modFuel: Float): Boolean</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tryConsumableDeathProtection(source: DamageSource): Boolean</ID>
     <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$private fun tryLegacyDodge(source: DamageSource): Boolean</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$protected fun tickHostileDespawn(): Boolean</ID>
-    <ID>ReturnCount:EntityShipBase.kt$EntityShipBase$protected fun tickWaypointMove()</ID>
     <ID>ReturnCount:EntityShipBaseCombat.kt$EntityShipBaseCombat$fun consumeHeavyAmmo(amount: Int): Boolean</ID>
     <ID>ReturnCount:EntityShipBaseCombat.kt$EntityShipBaseCombat$fun consumeLightAmmo(amount: Int): Boolean</ID>
     <ID>ReturnCount:EntityShipBaseCombat.kt$EntityShipBaseCombat$fun performHeavyAttack(target: Entity?): Boolean</ID>
@@ -15003,7 +15020,8 @@
     <ID>ReturnCount:PlayerSkillService.kt$PlayerSkillService$private fun castHeavyAttack( player: ServerPlayer, ship: EntityShipBase, targetEntityUUID: Optional&lt;UUID&gt;, targetPos: Optional&lt;Vec3&gt;, cdArray: IntArray )</ID>
     <ID>ReturnCount:PlayerSkillService.kt$PlayerSkillService$private fun castLightAircraftAttack( player: ServerPlayer, ship: EntityShipBase, targetEntityUUID: Optional&lt;UUID&gt;, cdArray: IntArray )</ID>
     <ID>ReturnCount:PlayerSkillService.kt$PlayerSkillService$private fun castLightAttack( player: ServerPlayer, ship: EntityShipBase, targetEntityUUID: Optional&lt;UUID&gt;, cdArray: IntArray )</ID>
-    <ID>ReturnCount:PlayerStateService.kt$PlayerStateService$fun getOwnedMarriedShipCount(player: Player?): Int</ID>
+    <ID>ReturnCount:PlayerStateService.kt$PlayerStateService$@JvmStatic fun getOwnedMarriedShipCount(player: Player?): Int</ID>
+    <ID>ReturnCount:PlayerStateService.kt$PlayerStateService$@JvmStatic fun getOwnedMarriedShipCount(player: Player?, fullScan: Boolean): Int</ID>
     <ID>ReturnCount:PlayerStateService.kt$PlayerStateService$fun setCurrentTeamFormation(player: Player?, formationId: Int): Boolean</ID>
     <ID>ReturnCount:PlayerStateService.kt$PlayerStateService$fun setCurrentTeamId(player: Player?, teamId: Int): Boolean</ID>
     <ID>ReturnCount:PlayerStateService.kt$PlayerStateService$fun setCurrentTeamName(player: Player?, name: String?): Boolean</ID>
@@ -15039,6 +15057,12 @@
     <ID>ReturnCount:ShipContainerMenu.kt$ShipContainerMenu$private fun clampPage(page: Int): Int</ID>
     <ID>ReturnCount:ShipContainerMenu.kt$ShipContainerMenu$private fun toActualShipSlot(localVisibleSlot: Int): Int</ID>
     <ID>ReturnCount:ShipContainerMenu.kt$ShipContainerMenu.PagedShipSlot$override fun safeInsert(stack: ItemStack, count: Int): ItemStack</ID>
+    <ID>ReturnCount:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun hasCargoRoom(ship: EntityShipBase): Boolean</ID>
+    <ID>ReturnCount:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun tickAutoPickupItems(ship: EntityShipBase)</ID>
+    <ID>ReturnCount:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun tickAutoPump(ship: EntityShipBase)</ID>
+    <ID>ReturnCount:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun tickAutoRation(ship: EntityShipBase)</ID>
+    <ID>ReturnCount:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun tickFuelDecay(ship: EntityShipBase)</ID>
+    <ID>ReturnCount:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler$private fun tryConsumableAutoSupply(ship: EntityShipBase, modFuel: Float): Boolean</ID>
     <ID>ReturnCount:ShipInventoryHandler.kt$ShipInventoryHandler$override fun isItemValid(slot: Int, stack: ItemStack): Boolean</ID>
     <ID>ReturnCount:ShipInventoryScreen.kt$ShipInventoryScreen$override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean</ID>
     <ID>ReturnCount:ShipInventoryScreen.kt$ShipInventoryScreen$private fun getModernizationColor(level: Int): Int</ID>
@@ -15059,12 +15083,16 @@
     <ID>ReturnCount:ShipLegacyNavigationPolicy.kt$ShipLegacyNavigationPolicy$fun shouldLogSetPath( loggedPathFailure: Boolean, failure: Boolean, loggedTarget: Target?, logTarget: Target?, totalTicks: Int, lastSetPathLogTick: Int ): Boolean</ID>
     <ID>ReturnCount:ShipLegacyPathFinder.kt$ShipLegacyPathFinder$private fun getPathType(x: Int, y: Int, z: Int, sizeX: Int, sizeY: Int, sizeZ: Int): LegacyPathType</ID>
     <ID>ReturnCount:ShipLegacyPathFinder.kt$ShipLegacyPathFinder$private fun getSafePoint( host: Entity, x: Int, y: Int, z: Int, yOffset: Int, sizeX: Int, sizeY: Int, sizeZ: Int ): ShipLegacyPathPoint?</ID>
+    <ID>ReturnCount:ShipLookupHelper.kt$ShipLookupHelper$@JvmStatic fun nearbyOwnedShips( level: Level, player: Player, radius: Double, tick: Long, forceRefresh: Boolean ): List&lt;EntityShipBase&gt;</ID>
     <ID>ReturnCount:ShipModelBaseAdv.kt$ShipModelBaseAdv$private fun findModelPartField(fieldName: String): ModelPart?</ID>
     <ID>ReturnCount:ShipMoveControl.kt$ShipMoveControl$override fun tick()</ID>
     <ID>ReturnCount:ShipMovementCoordinator.kt$ShipMovementCoordinator$fun moveTo(target: Entity, speed: Double): Boolean</ID>
     <ID>ReturnCount:ShipMovementCoordinator.kt$ShipMovementCoordinator$fun moveTo(target: Vec3, speed: Double): Boolean</ID>
     <ID>ReturnCount:ShipMovementRecoveryState.kt$ShipMovementRecoveryState$fun shouldTryTeleport( force: Boolean, distanceSqr: Double, teleportDistanceSqr: Double, cooldownTicks: Int ): Boolean</ID>
     <ID>ReturnCount:ShipMovementRecoveryState.kt$ShipMovementRecoveryState$fun shouldTryTeleportThrottled( force: Boolean, distanceSqr: Double, teleportDistanceSqr: Double, cooldownTicks: Int ): Boolean</ID>
+    <ID>ReturnCount:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$private fun tickCompassChunkLoading(ship: EntityShipBase)</ID>
+    <ID>ReturnCount:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$private fun tickSearchlightAssist(ship: EntityShipBase)</ID>
+    <ID>ReturnCount:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$private fun tickWaypointMove(ship: EntityShipBase)</ID>
     <ID>ReturnCount:ShipPointerEntityDecisionResolver.kt$ShipPointerEntityDecisionResolver$private fun preferredRangeSqr(state: State, attackRangeSqr: Double): Double</ID>
     <ID>ReturnCount:ShipRegistrySavedData.kt$ShipRegistrySavedData$fun delete(shipUuid: UUID?): Boolean</ID>
     <ID>ReturnCount:ShipRegistrySavedData.kt$ShipRegistrySavedData.ShipEntry.Companion$internal fun fromTag(tag: CompoundTag): ShipEntry?</ID>
@@ -15141,7 +15169,7 @@
     <ID>ThrowsCount:RecipeStructureRegressionTest.kt$RecipeStructureRegressionTest.JsonScanner$fun readString(): String</ID>
     <ID>ThrowsCount:ResourceHygieneRegressionTest.kt$ResourceHygieneRegressionTest.JsonScanner$fun readString()</ID>
     <ID>TooGenericExceptionCaught:ApiCallSafety.kt$ApiCallSafety$e: Throwable</ID>
-    <ID>TooGenericExceptionCaught:EntityShipBase.kt$EntityShipBase$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler$e: Exception</ID>
     <ID>TooGenericExceptionThrown:ShincolleDebugLoggingRegressionTest.kt$ShincolleDebugLoggingRegressionTest$throw RuntimeException(e)</ID>
     <ID>TooManyFunctions:AdmiralData.kt$AdmiralData</ID>
     <ID>TooManyFunctions:ClientForgeEventBusEvents.kt$ClientForgeEventBusEvents</ID>
@@ -15195,14 +15223,12 @@
     <ID>TooManyFunctions:ModCommands.kt$ModCommands</ID>
     <ID>TooManyFunctions:ModEventBusEvents.kt$ModEventBusEvents</ID>
     <ID>TooManyFunctions:ModNetwork.kt$ModNetwork</ID>
-    <ID>TooManyFunctions:ModelBBKongou.kt$ModelBBKongou&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelBattleshipNagato.kt$ModelBattleshipNagato&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelBattleshipRu.kt$ModelBattleshipRu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelBattleshipTa.kt$ModelBattleshipTa&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelBattleshipYamato.kt$ModelBattleshipYamato&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelCruiserTakao.kt$ModelCruiserTakao&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelCruiserTatsuta.kt$ModelCruiserTatsuta&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelCruiserTenryuu.kt$ModelCruiserTenryuu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerAkatsuki.kt$ModelDestroyerAkatsuki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerHa.kt$ModelDestroyerHa&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
@@ -15221,11 +15247,13 @@
     <ID>TooManyFunctions:ScrollPanel.kt$ScrollPanel : AbstractWidget</ID>
     <ID>TooManyFunctions:ShipContainerMenu.kt$ShipContainerMenu : AbstractContainerMenu</ID>
     <ID>TooManyFunctions:ShipContainerMenu.kt$ShipContainerMenu$PagedShipSlot : Slot</ID>
+    <ID>TooManyFunctions:ShipFuelSuppliesTickHandler.kt$ShipFuelSuppliesTickHandler : ShipTickHandler</ID>
     <ID>TooManyFunctions:ShipInventoryScreen.kt$ShipInventoryScreen : AbstractContainerScreen</ID>
     <ID>TooManyFunctions:ShipLegacyNavigation.kt$ShipLegacyNavigation : GroundPathNavigation</ID>
     <ID>TooManyFunctions:ShipModelBaseAdv.kt$ShipModelBaseAdv&lt;T : EntityShipBase&gt; : EntityModelArmedModel</ID>
     <ID>TooManyFunctions:ShipMovementCoordinator.kt$ShipMovementCoordinator</ID>
     <ID>TooManyFunctions:ShipMovementRecoveryState.kt$ShipMovementRecoveryState</ID>
+    <ID>TooManyFunctions:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler : ShipTickHandler</ID>
     <ID>TooManyFunctions:ShipyardRecipes.kt$ShipyardRecipes</ID>
     <ID>TooManyFunctions:SmallShipyardBlockEntity.kt$SmallShipyardBlockEntity : BlockEntityMenuProvider</ID>
     <ID>TooManyFunctions:TargetWrenchItem.kt$TargetWrenchItem : Item</ID>
@@ -15340,6 +15368,8 @@
     <ID>UnusedParameter:VolBlock.kt$VolBlock$state: BlockState?</ID>
     <ID>UnusedParameter:VolCoreBlockEntity.kt$VolCoreBlockEntity.Companion$state: BlockState?</ID>
     <ID>UnusedParameter:WayPointBlockEntity.kt$WayPointBlockEntity.Companion$state: BlockState?</ID>
+    <ID>UnusedPrivateMember:EntityShipBase.kt$EntityShipBase.Companion$private fun finishPerfSegment(tracing: Boolean, startNanos: Long): Long</ID>
+    <ID>UnusedPrivateMember:EntityShipBase.kt$EntityShipBase.Companion$private fun startPerfSegment(tracing: Boolean): Long</ID>
     <ID>UnusedPrivateMember:LocalPlayerMixin.kt$LocalPlayerMixin$@Inject(method = ["isControlledCamera"], at = [At("HEAD")], cancellable = true) private fun `shincolle$forceControlOnMount`(cir: CallbackInfoReturnable&lt;Boolean?&gt;)</ID>
     <ID>UnusedPrivateMember:ModelDestroyerIkazuchi.kt$ModelDestroyerIkazuchi$private fun applySittingOrLegPose(ctx: PoseContext)</ID>
     <ID>UnusedPrivateMember:ShipLegacyNavigation.kt$ShipLegacyNavigation$private fun isDirectPathBetweenPoints(from: Vec3, to: Vec3, sizeX: Int, sizeY: Int, sizeZ: Int): Boolean</ID>
@@ -15362,6 +15392,7 @@
     <ID>UnusedPrivateProperty:EntityShipBaseFaceExpressions.kt$EntityShipBaseFaceExpressions$private val emotions: EntityShipBaseEmotions</ID>
     <ID>UnusedPrivateProperty:EntityShipFishingHook.kt$EntityShipFishingHook$i</ID>
     <ID>UnusedPrivateProperty:FormationMenu.kt$FormationMenu$buffer: RegistryFriendlyByteBuf?</ID>
+    <ID>UnusedPrivateProperty:FormationService.kt$FormationService$private const val NEARBY_SELECTED_IMPORT_RADIUS = 64.0</ID>
     <ID>UnusedPrivateProperty:HostileSpawnManager.kt$HostileSpawnManager$i</ID>
     <ID>UnusedPrivateProperty:HostileSpawnManager.kt$HostileSpawnManager$j</ID>
     <ID>UnusedPrivateProperty:JsonDuplicateKeyRegressionTest.kt$JsonDuplicateKeyRegressionTest.JsonScanner$i</ID>
