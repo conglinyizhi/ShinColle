@@ -7,6 +7,7 @@ import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import net.neoforged.api.distmarker.Dist
 import net.neoforged.bus.api.SubscribeEvent
 import net.neoforged.fml.common.EventBusSubscriber
@@ -17,6 +18,8 @@ import org.trp.shincolle.entity.base.EntityShipBase
 @EventBusSubscriber(modid = Shincolle.MODID, value = [Dist.CLIENT])
 object ClientShipTrailParticles {
     private const val SEARCH_RADIUS = 128.0
+    private const val CACHE_TICKS = 5
+    private const val CACHE_POSITION_THRESHOLD_SQR = 64.0 // 8 blocks
     private const val WATER_TRAIL_SPEED_CLAMP = 0.25
     private const val WATER_TRAIL_MIN_SPEED_SQR = 0.001
     private const val WATER_TRAIL_OFFSET_Y = 0.4
@@ -26,6 +29,10 @@ object ClientShipTrailParticles {
     private const val HEALTH_PARTICLE_INTERVAL = 16
     private const val HEALTH_PARTICLE_OFFSET_Y = 0.7
     private const val HEALTH_PARTICLE_UP_SPEED = 0.05
+
+    private var cachedShips: List<EntityShipBase> = emptyList()
+    private var cachedAtTick: Long = -1
+    private var cachedPlayerPos: Vec3 = Vec3.ZERO
 
     @JvmStatic
     @SubscribeEvent
@@ -43,16 +50,34 @@ object ClientShipTrailParticles {
             return
         }
 
-        val searchArea = player.boundingBox.inflate(SEARCH_RADIUS)
-        val ships = level.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, searchArea)
+        val ships = getCachedShips(level, player)
         if (ships.isEmpty()) {
             return
         }
 
+        val skipHealthParticles = minecraft.options.particles().get() == ParticleStatus.MINIMAL
         for (ship in ships) {
             spawnShipTrail(level, ship, maxParticles)
-            spawnShipHealthParticles(level, ship)
+            if (!skipHealthParticles) {
+                spawnShipHealthParticles(level, ship)
+            }
         }
+    }
+
+    private fun getCachedShips(level: Level, player: Player): List<EntityShipBase> {
+        val gameTime = level.gameTime
+        val playerPos = player.position()
+        if (cachedAtTick < 0
+            || gameTime - cachedAtTick >= CACHE_TICKS
+            || playerPos.distanceToSqr(cachedPlayerPos) > CACHE_POSITION_THRESHOLD_SQR
+        ) {
+            val searchArea = player.boundingBox.inflate(SEARCH_RADIUS)
+            cachedShips = level.getEntitiesOfClass<EntityShipBase?>(EntityShipBase::class.java, searchArea)
+                .filterNotNull()
+            cachedAtTick = gameTime
+            cachedPlayerPos = playerPos
+        }
+        return cachedShips
     }
 
     private fun getMaxTrailParticles(minecraft: Minecraft): Int {

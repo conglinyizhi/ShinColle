@@ -11,10 +11,13 @@ import org.trp.shincolle.init.ModDataAttachments
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.item.PointerItem
 import org.trp.shincolle.network.S2CAdmiralDataSyncPayload
+import org.trp.shincolle.utility.ShipLookupHelper
 import java.util.*
 import java.util.function.Predicate
 
 object PlayerStateService {
+    private const val DAILY_MARRIED_SCAN_RADIUS = 64.0
+
     @JvmStatic
     fun admiralData(player: Player): AdmiralData {
         return player.getData<AdmiralData>(ModDataAttachments.ADMIRAL_DATA)
@@ -134,6 +137,15 @@ object PlayerStateService {
         PacketDistributor.sendToPlayer(player, admiralSyncPayload(player))
     }
 
+    /**
+     * Returns the number of married ships owned by [player].
+     *
+     * For server players this returns the cached count stored in [AdmiralData].
+     * For other players a nearby scan is used as a fallback. Daily logic only
+     * searches within [DAILY_MARRIED_SCAN_RADIUS]; use [getOwnedMarriedShipCount]
+     * with [fullScan] set to true for administrative full-map recounts.
+     */
+    @JvmStatic
     fun getOwnedMarriedShipCount(player: Player?): Int {
         if (player == null) {
             return 0
@@ -147,12 +159,44 @@ object PlayerStateService {
             return stored
         }
 
+        return countNearbyMarriedShips(player, DAILY_MARRIED_SCAN_RADIUS)
+    }
+
+    /**
+     * Returns the number of married ships owned by [player].
+     *
+     * @param fullScan if true, perform a full 256×128×256 scan and refresh the
+     * stored married ship count. Intended for admin commands and special events.
+     */
+    @JvmStatic
+    fun getOwnedMarriedShipCount(player: Player?, fullScan: Boolean): Int {
+        if (player == null) {
+            return 0
+        }
+        if (!fullScan) {
+            return getOwnedMarriedShipCount(player)
+        }
+        return countAllMarriedShips(player)
+    }
+
+    private fun countNearbyMarriedShips(player: Player, radius: Double): Int {
+        val ships = ShipLookupHelper.nearbyOwnedShips(
+            player.level(), player, radius, player.level().gameTime, false
+        )
+        val count = ships.count { it.isStateMarried }
+        if (count > 0) {
+            admiralData(player).setMarriedShipCount(count)
+        }
+        return count
+    }
+
+    private fun countAllMarriedShips(player: Player): Int {
         val ownerId = player.uuid
         val search = player.boundingBox.inflate(256.0, 128.0, 256.0)
-        val scanned = player.level().getEntitiesOfClass<EntityShipBase?>(
+        val scanned = player.level().getEntitiesOfClass<EntityShipBase>(
             EntityShipBase::class.java, search,
-            Predicate { ship: EntityShipBase? ->
-                ship!!.isAlive
+            Predicate { ship: EntityShipBase ->
+                ship.isAlive
                         && !ship.isRemoved && ship.isTame
                         && ship.isStateMarried
                         && ship.ownerUUID == ownerId

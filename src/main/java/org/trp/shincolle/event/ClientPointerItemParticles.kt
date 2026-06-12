@@ -25,13 +25,19 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModParticles
 import org.trp.shincolle.item.PointerItem
-// getMode is an instance method on PointerItem, not a top-level import
 import java.util.function.Predicate
 
 @EventBusSubscriber(modid = Shincolle.MODID, value = [Dist.CLIENT])
 object ClientPointerItemParticles {
     private const val PARTICLE_INTERVAL_TICKS = 10
     private const val SEARCH_RADIUS = 100.0
+    private const val CACHE_TICKS = 5
+    private const val CACHE_POSITION_THRESHOLD_SQR = 64.0 // 8 blocks
+
+    private var cachedOwnedShips: List<EntityShipBase> = emptyList()
+    private var cachedSelectedShips: List<EntityShipBase> = emptyList()
+    private var cachedAtTick: Long = -1
+    private var cachedPlayerPos: Vec3 = Vec3.ZERO
 
     @JvmStatic
     @SubscribeEvent
@@ -41,6 +47,7 @@ object ClientPointerItemParticles {
         val level: Level? = minecraft.level
 
         if (player == null || level == null) {
+            ParticleTeam.clearAllFollowParticles()
             return
         }
 
@@ -51,18 +58,14 @@ object ClientPointerItemParticles {
         }
 
         val pointerMode = getPointerMode(pointerStack)
-
-        val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
-        val ships = level.getEntitiesOfClass<EntityShipBase?>(
-            EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose })
+        val ships = getCachedOwnedShips(level, player)
         if (ships.isEmpty()) {
             ParticleTeam.clearFollowParticles(ParticleTeam.FollowKind.SHIP_MARKER, null)
             return
         }
 
-        val isIntervalTick = level.getGameTime() % PARTICLE_INTERVAL_TICKS == 0L
-        val activeShipIds: MutableSet<Int?> = HashSet<Int?>()
+        val isIntervalTick = level.gameTime % PARTICLE_INTERVAL_TICKS == 0L
+        val activeShipIds: MutableSet<Int?> = HashSet()
 
         for (ship in ships) {
             activeShipIds.add(ship.getId())
@@ -139,6 +142,31 @@ object ClientPointerItemParticles {
         return PointerItem.MODE_SINGLE
     }
 
+    private fun getCachedOwnedShips(level: Level, player: Player): List<EntityShipBase> {
+        val gameTime = level.gameTime
+        val playerPos = player.position()
+        if (cachedAtTick < 0
+            || gameTime - cachedAtTick >= CACHE_TICKS
+            || playerPos.distanceToSqr(cachedPlayerPos) > CACHE_POSITION_THRESHOLD_SQR
+        ) {
+            val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
+            cachedOwnedShips = level.getEntitiesOfClass<EntityShipBase?>(
+                EntityShipBase::class.java, searchArea,
+                Predicate { ship: EntityShipBase? -> ship != null && ship.isOwnedBy(player) && !ship.isInDeadPose }
+            )
+            cachedSelectedShips = cachedOwnedShips.filter { it.isPointerSelected }
+            cachedAtTick = gameTime
+            cachedPlayerPos = playerPos
+        }
+        return cachedOwnedShips
+    }
+
+    private fun getCachedSelectedShips(level: Level, player: Player): List<EntityShipBase> {
+        // Ensure the base cache is populated first.
+        getCachedOwnedShips(level, player)
+        return cachedSelectedShips
+    }
+
     private fun spawnShipMarker(level: Level, ship: EntityShipBase, pointerMode: Int) {
         val baseX = ship.getX()
         val baseY = ship.getY()
@@ -204,7 +232,7 @@ object ClientPointerItemParticles {
         }
 
         if (targetPos != null) {
-            val isIntervalTick = level.getGameTime() % 16 == 0L
+            val isIntervalTick = level.gameTime % 16 == 0L
 
             if (isIntervalTick) {
                 if (isEntity) {
@@ -276,10 +304,7 @@ object ClientPointerItemParticles {
             return
         }
 
-        val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
-        val ships = level.getEntitiesOfClass<EntityShipBase?>(
-            EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
+        val ships = getCachedSelectedShips(level, player)
         if (ships.isEmpty()) {
             return
         }
@@ -321,10 +346,7 @@ object ClientPointerItemParticles {
             return
         }
 
-        val searchArea = player.getBoundingBox().inflate(SEARCH_RADIUS)
-        val ships = level.getEntitiesOfClass<EntityShipBase?>(
-            EntityShipBase::class.java, searchArea,
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
+        val ships = getCachedSelectedShips(level, player)
         if (ships.isEmpty()) {
             return
         }
@@ -340,7 +362,7 @@ object ClientPointerItemParticles {
         val searchBox = player.getBoundingBox().expandTowards(look.scale(range)).inflate(1.0)
         return ProjectileUtil.getEntityHitResult(
             player.level(), player, eyePos, end, searchBox,
-            Predicate { entity: Entity? -> !entity!!.isSpectator() && entity.isPickable() && entity !== player })
+            Predicate { entity: Entity? -> entity != null && !entity.isSpectator() && entity.isPickable() && entity !== player })
     }
 
     private fun getLookTarget(player: Player, level: Level): Vec3? {

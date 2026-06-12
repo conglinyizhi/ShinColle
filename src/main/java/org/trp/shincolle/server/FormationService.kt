@@ -7,10 +7,10 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import org.trp.shincolle.attachment.AdmiralData
 import org.trp.shincolle.entity.base.EntityShipBase
+import org.trp.shincolle.utility.ShipLookupHelper
 import java.util.*
 import java.util.function.Consumer
 import java.util.function.Function
-import java.util.function.Predicate
 
 object FormationService {
     private const val NEARBY_SHIP_SYNC_RADIUS = 100.0
@@ -40,12 +40,12 @@ object FormationService {
         if (player == null) {
             return
         }
+        val level = player.level()
         val data = PlayerStateService.admiralData(player)
         val teamId = data.getCurrentTeamID()
-        val ships = player.level().getEntitiesOfClass<EntityShipBase?>(
-            EntityShipBase::class.java,
-            player.boundingBox.inflate(NEARBY_SHIP_SYNC_RADIUS),
-            Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(player) && !ship.isInDeadPose })
+        val ships = ShipLookupHelper.nearbyOwnedShips(
+            level, player, NEARBY_SHIP_SYNC_RADIUS, level.gameTime, true
+        ).filter { !it.isInDeadPose }
 
         for (ship in ships) {
             if (ship.formationTeam == teamId) {
@@ -231,14 +231,13 @@ object FormationService {
         var teamFilledDuringSync = false
         var changed = false
         val serverLevel = player.level() as ServerLevel
-        val nearbySelected: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
-            EntityShipBase::class.java,
-            player.boundingBox.inflate(NEARBY_SELECTED_IMPORT_RADIUS),
-            Predicate { ship: EntityShipBase? -> ship!!.isPointerSelected && player.uuid == ship.ownerUUID })
-        val nearbyOwned: MutableList<EntityShipBase> = serverLevel.getEntitiesOfClass<EntityShipBase?>(
-            EntityShipBase::class.java,
-            player.boundingBox.inflate(NEARBY_SHIP_SYNC_RADIUS),
-            Predicate { ship: EntityShipBase? -> player.uuid == ship!!.ownerUUID && !ship.isInDeadPose })
+        val nearbyOwned = ShipLookupHelper.nearbyOwnedShips(
+            serverLevel, player, NEARBY_SHIP_SYNC_RADIUS, serverLevel.gameTime, true
+        )
+        val nearbySelected = nearbyOwned
+            .filter { it.isPointerSelected && player.uuid == it.ownerUUID }
+            .toMutableList()
+        val nearbyOwnedAlive = nearbyOwned.filter { !it.isInDeadPose }
 
         for (ship in nearbySelected) {
             if (!data.isShipInTeam(teamId, ship.uuid)) {
@@ -250,7 +249,7 @@ object FormationService {
             }
         }
 
-        for (ship in nearbyOwned) {
+        for (ship in nearbyOwnedAlive) {
             if (ship.formationTeam == teamId && !data.isShipInTeam(teamId, ship.uuid)) {
                 clearFormationState(ship)
                 changed = true
