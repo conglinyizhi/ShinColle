@@ -29,6 +29,7 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.item.PointerItem
 import org.trp.shincolle.menu.FormationMenu
 import org.trp.shincolle.utility.FormationHelper.applyShipGuardEntity
+import org.trp.shincolle.utility.ShipLookupHelper
 import java.util.*
 import java.util.function.Consumer
 import java.util.function.Predicate
@@ -171,10 +172,13 @@ object PointerInteractionService {
             return
         }
 
-        val searchArea = player.boundingBox.inflate(POINTER_SEARCH_RADIUS)
-        var ships = player.level().getEntitiesOfClass<EntityShipBase>(
-            EntityShipBase::class.java, searchArea,
-            Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
+        val level = player.level()
+        val ownedShips = ShipLookupHelper.nearbyOwnedShips(
+            level, player, POINTER_SEARCH_RADIUS, level.gameTime, true
+        )
+        var ships = ownedShips
+            .filter { it.isPointerSelected && !it.isInDeadPose }
+            .toMutableList()
         if (ships.isEmpty() || pointerStack.item !is PointerItem) {
             return
         }
@@ -190,9 +194,9 @@ object PointerInteractionService {
         } else if (mode == PointerItem.MODE_FORMATION) {
             val data = PlayerStateService.admiralData(player)
             val teamId = data.getCurrentTeamID()
-            ships = player.level().getEntitiesOfClass<EntityShipBase>(
-                EntityShipBase::class.java, searchArea,
-                Predicate { ship -> ship.isOwnedBy(player) && ship.formationTeam == teamId && !ship.isInDeadPose })
+            ships = ownedShips
+                .filter { it.formationTeam == teamId && !it.isInDeadPose }
+                .toMutableList()
         }
 
         val hitRes = getLookTargetResult(player)
@@ -237,11 +241,15 @@ object PointerInteractionService {
             return
         }
 
+        val level = player.level()
+        val ownedShips = ShipLookupHelper.nearbyOwnedShips(
+            level, player, POINTER_SEARCH_RADIUS, level.gameTime, true
+        )
+
         if (nextMode == PointerItem.MODE_SINGLE) {
-            val ships = player.level().getEntitiesOfClass<EntityShipBase>(
-                EntityShipBase::class.java,
-                player.boundingBox.inflate(POINTER_SEARCH_RADIUS),
-                Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
+            val ships = ownedShips
+                .filter { it.isPointerSelected && !it.isInDeadPose }
+                .toMutableList()
             if (ships.size > 1) {
                 ships.sortWith(compareBy { it.distanceToSqr(player) })
                 val keep = ships[0]
@@ -251,12 +259,10 @@ object PointerInteractionService {
         } else if (nextMode == PointerItem.MODE_FORMATION) {
             val data = PlayerStateService.admiralData(player)
             val teamId = data.getCurrentTeamID()
-            val ships = player.level().getEntitiesOfClass<EntityShipBase>(
-                EntityShipBase::class.java,
-                player.boundingBox.inflate(POINTER_SEARCH_RADIUS),
-                Predicate { ship -> ship.isOwnedBy(player) && !ship.isInDeadPose })
-            for (ship in ships) {
-                ship.isPointerSelected = ship.formationTeam == teamId
+            for (ship in ownedShips) {
+                if (!ship.isInDeadPose) {
+                    ship.isPointerSelected = ship.formationTeam == teamId
+                }
             }
         }
     }
@@ -265,10 +271,10 @@ object PointerInteractionService {
         if (player == null) {
             return
         }
-        val ships = player.level().getEntitiesOfClass<EntityShipBase>(
-            EntityShipBase::class.java,
-            player.boundingBox.inflate(radius),
-            Predicate { ship -> ship.isOwnedBy(player) && ship.isPointerSelected && !ship.isInDeadPose })
+        val level = player.level()
+        val ships = ShipLookupHelper.nearbyOwnedShips(
+            level, player, radius, level.gameTime, true
+        ).filter { it.isPointerSelected && !it.isInDeadPose }
         for (ship in ships) {
             if (ship === keepSelected) {
                 continue
