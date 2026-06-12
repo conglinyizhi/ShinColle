@@ -292,24 +292,21 @@
     <ID>LargeClass:ModelBattleshipRu.kt$ModelBattleshipRu&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelBattleshipYamato.kt$ModelBattleshipYamato$Companion</ID>
     <ID>LargeClass:ModelBattleshipYamato.kt$ModelBattleshipYamato&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
-    <ID>LargeClass:ModelCAHime.kt$ModelCAHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelCAHime.kt$ModelCAHime&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCarrierAkagi.kt$ModelCarrierAkagi&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCarrierHime.kt$ModelCarrierHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelCarrierWDemon.kt$ModelCarrierWDemon&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelCarrierWo.kt$ModelCarrierWo&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelCarrierWDemon.kt$ModelCarrierWDemon&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCruiserAtago.kt$ModelCruiserAtago$Companion</ID>
-    <ID>LargeClass:ModelCruiserAtago.kt$ModelCruiserAtago&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelCruiserAtago.kt$ModelCruiserAtago&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCruiserTatsuta.kt$ModelCruiserTatsuta&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCruiserTenryuu.kt$ModelCruiserTenryuu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelDestroyerAkatsuki.kt$ModelDestroyerAkatsuki&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
-    <ID>LargeClass:ModelDestroyerHibiki.kt$ModelDestroyerHibiki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelDestroyerHime.kt$ModelDestroyerHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelIsolatedHime.kt$ModelIsolatedHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelMidwayHime.kt$ModelMidwayHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelDestroyerHibiki.kt$ModelDestroyerHibiki&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
+    <ID>LargeClass:ModelIsolatedHime.kt$ModelIsolatedHime&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
+    <ID>LargeClass:ModelMidwayHime.kt$ModelMidwayHime&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelMountMiH.kt$ModelMountMiH$Companion</ID>
     <ID>LargeClass:ModelNorthernHime.kt$ModelNorthernHime$Companion</ID>
-    <ID>LargeClass:ModelSSNH.kt$ModelSSNH&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelSubmHime.kt$ModelSubmHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelSubmHime.kt$ModelSubmHime&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelSubmYo.kt$ModelSubmYo&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ShincolleConfigScreen.kt$ShincolleConfigScreen$LazyScreen</ID>
     <ID>LargeClass:ShipContainerMenu.kt$ShipContainerMenu : AbstractContainerMenu</ID>
@@ -15224,16 +15221,11 @@
     <ID>TooManyFunctions:ModelBattleshipNagato.kt$ModelBattleshipNagato&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>TooManyFunctions:ModelBattleshipTa.kt$ModelBattleshipTa&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelCruiserTakao.kt$ModelCruiserTakao&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelCruiserTenryuu.kt$ModelCruiserTenryuu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerHa.kt$ModelDestroyerHa&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelDestroyerHibiki.kt$ModelDestroyerHibiki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerI.kt$ModelDestroyerI&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelDestroyerIkazuchi.kt$ModelDestroyerIkazuchi&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelDestroyerInazuma.kt$ModelDestroyerInazuma&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerNi.kt$ModelDestroyerNi&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerRo.kt$ModelDestroyerRo&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelMidwayHime.kt$ModelMidwayHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelNorthernHime.kt$ModelNorthernHime&lt;T : EntityNorthernHime&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:PerformanceTrace.kt$PerformanceTrace</ID>
     <ID>TooManyFunctions:PlayerStateService.kt$PlayerStateService</ID>
