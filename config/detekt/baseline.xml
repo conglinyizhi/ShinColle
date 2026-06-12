@@ -246,7 +246,6 @@
     <ID>FunctionOnlyReturningConstant:GrudgeHeavyDecoBlock.kt$GrudgeHeavyDecoBlock$fun isBeaconBase(state: BlockState?, level: BlockGetter?, pos: BlockPos?, beaconPos: BlockPos?): Boolean</ID>
     <ID>FunctionOnlyReturningConstant:VolBlock.kt$VolBlock$fun isBeaconBase(state: BlockState?, level: BlockGetter?, pos: BlockPos?, beaconPos: BlockPos?): Boolean</ID>
     <ID>FunctionParameterNaming:CraneBlockEntity.kt$CraneBlockEntity$`val`: Boolean</ID>
-    <ID>FunctionParameterNaming:CraneBlockEntity.kt$CraneBlockEntity$`val`: Int</ID>
     <ID>ImplicitDefaultLocale:CraneScreen.kt$CraneScreen.Companion$String.format("%.0f min", time)</ID>
     <ID>ImplicitDefaultLocale:CraneScreen.kt$CraneScreen.Companion$String.format("%.1f s", time)</ID>
     <ID>ImplicitDefaultLocale:CraneScreen.kt$CraneScreen.Companion$String.format("%02d:%02d:%02d", hours, minutes, seconds)</ID>
@@ -282,28 +281,27 @@
     <ID>LargeClass:ModEntities.kt$ModEntities</ID>
     <ID>LargeClass:ModItems.kt$ModItems</ID>
     <ID>LargeClass:ModelBBHaruna.kt$ModelBBHaruna$Companion</ID>
-    <ID>LargeClass:ModelBBHaruna.kt$ModelBBHaruna&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelBBHaruna.kt$ModelBBHaruna&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelBBHiei.kt$ModelBBHiei$Companion</ID>
     <ID>LargeClass:ModelBBHiei.kt$ModelBBHiei&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelBBKirishima.kt$ModelBBKirishima$Companion</ID>
-    <ID>LargeClass:ModelBBKirishima.kt$ModelBBKirishima&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelBBKirishima.kt$ModelBBKirishima&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelBBKongou.kt$ModelBBKongou$Companion</ID>
     <ID>LargeClass:ModelBBKongou.kt$ModelBBKongou&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
-    <ID>LargeClass:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelBattleshipRu.kt$ModelBattleshipRu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
+    <ID>LargeClass:ModelBattleshipRu.kt$ModelBattleshipRu&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelBattleshipYamato.kt$ModelBattleshipYamato$Companion</ID>
-    <ID>LargeClass:ModelBattleshipYamato.kt$ModelBattleshipYamato&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelBattleshipYamato.kt$ModelBattleshipYamato&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCAHime.kt$ModelCAHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelCarrierAkagi.kt$ModelCarrierAkagi&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelCarrierAkagi.kt$ModelCarrierAkagi&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCarrierHime.kt$ModelCarrierHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelCarrierKaga.kt$ModelCarrierKaga&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelCarrierWDemon.kt$ModelCarrierWDemon&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelCarrierWo.kt$ModelCarrierWo&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelCruiserAtago.kt$ModelCruiserAtago$Companion</ID>
     <ID>LargeClass:ModelCruiserAtago.kt$ModelCruiserAtago&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelCruiserTatsuta.kt$ModelCruiserTatsuta&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelCruiserTenryuu.kt$ModelCruiserTenryuu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>LargeClass:ModelDestroyerAkatsuki.kt$ModelDestroyerAkatsuki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>LargeClass:ModelDestroyerAkatsuki.kt$ModelDestroyerAkatsuki&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>LargeClass:ModelDestroyerHibiki.kt$ModelDestroyerHibiki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelDestroyerHime.kt$ModelDestroyerHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelIsolatedHime.kt$ModelIsolatedHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
@@ -314,6 +312,7 @@
     <ID>LargeClass:ModelSubmHime.kt$ModelSubmHime&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ModelSubmYo.kt$ModelSubmYo&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>LargeClass:ShincolleConfigScreen.kt$ShincolleConfigScreen$LazyScreen</ID>
+    <ID>LargeClass:ShipContainerMenu.kt$ShipContainerMenu : AbstractContainerMenu</ID>
     <ID>LargeClass:ShipMovementCoordinatorArchitectureRegressionTest.kt$ShipMovementCoordinatorArchitectureRegressionTest</ID>
     <ID>LargeClass:ShipyardRecipes.kt$ShipyardRecipes</ID>
     <ID>LargeClass:TaskHelper.kt$TaskHelper</ID>
@@ -13066,8 +13065,6 @@
     <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu$64.0</ID>
     <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu$8</ID>
     <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu$9</ID>
-    <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu.&lt;no name provided&gt;$0xFFFF</ID>
-    <ID>MagicNumber:ShipContainerMenu.kt$ShipContainerMenu.&lt;no name provided&gt;$16</ID>
     <ID>MagicNumber:ShipEmotionTickHandler.kt$ShipEmotionTickHandler$0xFF</ID>
     <ID>MagicNumber:ShipEmotionTickHandler.kt$ShipEmotionTickHandler$4</ID>
     <ID>MagicNumber:ShipEquipEnchantmentHelper.kt$ShipEquipEnchantmentHelper$0.01f</ID>
@@ -14423,6 +14420,8 @@
     <ID>MaxLineLength:ShipBrainActivityResolverTest.kt$ShipBrainActivityResolverTest.StateBuilder$fun ownerHasCombatRation(ownerHasCombatRation: Boolean)</ID>
     <ID>MaxLineLength:ShipCombatDecisionResolverTest.kt$ShipCombatDecisionResolverTest$ShipBrainRecoverySupport.shouldTryTeleportRecovery(recovery, remote, ShipAiNumbers.PASSIVE_COMBAT_TELEPORT_COOLDOWN_TICKS)</ID>
     <ID>MaxLineLength:ShipCommandRecoveryRegressionTest.kt$ShipCommandRecoveryRegressionTest$assertTrue</ID>
+    <ID>MaxLineLength:ShipContainerMenu.kt$ShipContainerMenu$highSetter = { shipTankFluidCapacitySynced = (shipTankFluidCapacitySynced and 0xFFFF) or ((it and 0xFFFF) shl 16) }</ID>
+    <ID>MaxLineLength:ShipContainerMenu.kt$ShipContainerMenu$setter = { this@ShipContainerMenu.followMaxDistance = clampFollowMax(it, this@ShipContainerMenu.followMinDistance) }</ID>
     <ID>MaxLineLength:ShipContainerMenu.kt$ShipContainerMenu$this@ShipContainerMenu.followMaxDistance = clampFollowMax(requested, this@ShipContainerMenu.followMinDistance)</ID>
     <ID>MaxLineLength:ShipContainerMenu.kt$ShipContainerMenu$this@ShipContainerMenu.followMaxDistance = clampFollowMax(ship.getStateMinor(STATE_MINOR_FOLLOW_MAX), this@ShipContainerMenu.followMinDistance)</ID>
     <ID>MaxLineLength:ShipContainerMenu.kt$ShipContainerMenu$this@ShipContainerMenu.followMaxDistance = clampFollowMax(this@ShipContainerMenu.followMaxDistance, this@ShipContainerMenu.followMinDistance)</ID>
@@ -14770,7 +14769,6 @@
     <ID>NewLineAtEndOfFile:LargeShipyardScreen.kt$org.trp.shincolle.client.screen.LargeShipyardScreen.kt</ID>
     <ID>NewLineAtEndOfFile:LocalPlayerMixin.kt$org.trp.shincolle.mixin.LocalPlayerMixin.kt</ID>
     <ID>NewLineAtEndOfFile:ModelAbyssMissile.kt$org.trp.shincolle.client.model.ModelAbyssMissile.kt</ID>
-    <ID>NewLineAtEndOfFile:ModelCarrierAkagi.kt$org.trp.shincolle.client.model.ModelCarrierAkagi.kt</ID>
     <ID>NewLineAtEndOfFile:ParticleCraning.kt$org.trp.shincolle.client.particle.ParticleCraning.kt</ID>
     <ID>NewLineAtEndOfFile:ParticleLightning.kt$org.trp.shincolle.client.particle.ParticleLightning.kt</ID>
     <ID>NewLineAtEndOfFile:ParticleSparkle.kt$org.trp.shincolle.client.particle.ParticleSparkle.kt</ID>
@@ -15224,13 +15222,10 @@
     <ID>TooManyFunctions:ModEventBusEvents.kt$ModEventBusEvents</ID>
     <ID>TooManyFunctions:ModNetwork.kt$ModNetwork</ID>
     <ID>TooManyFunctions:ModelBattleshipNagato.kt$ModelBattleshipNagato&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelBattleshipRu.kt$ModelBattleshipRu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
+    <ID>TooManyFunctions:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
     <ID>TooManyFunctions:ModelBattleshipTa.kt$ModelBattleshipTa&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelBattleshipYamato.kt$ModelBattleshipYamato&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelCruiserTakao.kt$ModelCruiserTakao&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelCruiserTenryuu.kt$ModelCruiserTenryuu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelDestroyerAkatsuki.kt$ModelDestroyerAkatsuki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerHa.kt$ModelDestroyerHa&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerHibiki.kt$ModelDestroyerHibiki&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerI.kt$ModelDestroyerI&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
