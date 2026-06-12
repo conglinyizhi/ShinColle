@@ -231,7 +231,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
                     }
                 } else {
                     this.isActive = false
-                    markForSync()
                 }
             }
         }
@@ -264,7 +263,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             val be = this.level!!.getBlockEntity(this.nextPos!!)
             if (be !is IWaypoint) {
                 this.nextPos = BlockPos.ZERO
-                markForSync()
             }
         }
     }
@@ -855,7 +853,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             val accepted = energy.receiveEnergy(available, false)
             if (accepted > 0) {
                 this.remainedPower = max(0, this.remainedPower - accepted)
-                markForSync()
                 return true
             }
         }
@@ -884,7 +881,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
             val extracted = energy.extractEnergy(allowed, false)
             if (extracted > 0) {
                 this.remainedPower = min(this.powerMax, this.remainedPower + extracted)
-                markForSync()
                 return true
             }
         }
@@ -902,7 +898,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         var moved: Int = Companion.extractEnergyFromInventory(this.chestHandler!!, allowed)
         if (moved > 0) {
             this.remainedPower = min(this.powerMax, this.remainedPower + moved)
-            markForSync()
             return true
         }
 
@@ -914,7 +909,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         moved = extractEnergyFromInventory(adjacent, allowed)
         if (moved > 0) {
             this.remainedPower = min(this.powerMax, this.remainedPower + moved)
-            markForSync()
             return true
         }
 
@@ -930,7 +924,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         var moved: Int = Companion.receiveEnergyIntoInventory(this.chestHandler!!, available)
         if (moved > 0) {
             this.remainedPower = max(0, this.remainedPower - moved)
-            markForSync()
             return true
         }
 
@@ -942,7 +935,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         moved = receiveEnergyIntoInventory(adjacent, available)
         if (moved > 0) {
             this.remainedPower = max(0, this.remainedPower - moved)
-            markForSync()
             return true
         }
 
