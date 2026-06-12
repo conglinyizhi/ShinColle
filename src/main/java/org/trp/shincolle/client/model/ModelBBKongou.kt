@@ -1,8 +1,6 @@
 @file:Suppress("SENSELESS_COMPARISON")
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -22,13 +20,12 @@ import org.trp.shincolle.entity.EntityBBKongou
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
-    override var poseTranslateY = 0f
+class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
+    protected override val bodyMain: ModelPart get() = BodyMain
     private val Neck: ModelPart
+    protected override val neck: ModelPart get() = Neck
     private val Butt: ModelPart
     private val Ahoke00: ModelPart?
     private val ArmLeft01: ModelPart
@@ -39,6 +36,7 @@ class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     private val Cloth03a1: ModelPart
     private val Cloth03a2: ModelPart
     private val Head: ModelPart
+    protected override val head: ModelPart get() = Head
     private val Hair: ModelPart
     private val HairMain: ModelPart
     private val Ahoke01: ModelPart?
@@ -198,8 +196,11 @@ class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     private val EquipB00c_1: ModelPart
     private val EquipB00d_1: ModelPart
     private val GlowBodyMain: ModelPart?
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
     private val GlowHead: ModelPart?
+    protected override val glowHead: ModelPart? get() = GlowHead
     private val GlowNeck: ModelPart?
+    protected override val glowNeck: ModelPart? get() = GlowNeck
     private val armLeft02DefaultX: Float
     private val armLeft02DefaultZ: Float
     private val armRight02DefaultX: Float
@@ -447,7 +448,7 @@ class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         headPitch: Float
     ) {
         val ctx = computePoseContext(entity, limbSwing, limbSwingAmount, ageInTicks, 0.0f)
-        resetPoseState()
+        super.resetPoseState()
         resetOffsets()
 
         applyFaceAndMouth(entity)
@@ -470,12 +471,6 @@ class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         applyHairAndClothAnimation(ctx, limbSwing, ageInTicks, limbSwingAmount)
 
         syncGlowParts()
-    }
-
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
     }
 
     private fun resetOffsets() {
@@ -516,29 +511,19 @@ class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         Skirt01.z = skirt01DefaultZ
     }
 
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
-    }
-
     private fun applyEquipVisibility(entity: T?) {
         if (entity == null) return
-        val showEquip = entity.getEquipFlag(EntityBBKongou.EQUIP_RIGGING)
-        val showHead = entity.getEquipFlag(EntityBBKongou.EQUIP_HEAD_BASE)
-        val showHairSet = entity.getEquipFlag(EntityBBKongou.EQUIP_HAIR_SET)
-        val showAhoke00 = entity.getEquipFlag(EntityBBKongou.EQUIP_AHOKE)
-        if (EquipBase != null) EquipBase.visible = showEquip
-        if (EquipHeadBase != null) EquipHeadBase.visible = showHead
-        if (HairS01 != null) HairS01.visible = showHairSet
-        if (HairS02 != null) HairS02.visible = showHairSet
-        if (HairCBase != null) HairCBase.visible = showHairSet
-        if (HairCBaseB != null) HairCBaseB.visible = showHairSet
-        if (Ahoke00 != null) Ahoke00.visible = showAhoke00
-        if (Ahoke01 != null) Ahoke01.visible = !showAhoke00
+        applyCommonEquipVisibility(
+            entity.getEquipFlag(EntityBBKongou.EQUIP_RIGGING),
+            entity.getEquipFlag(EntityBBKongou.EQUIP_HEAD_BASE),
+            entity.getEquipFlag(EntityBBKongou.EQUIP_HAIR_SET),
+            entity.getEquipFlag(EntityBBKongou.EQUIP_AHOKE),
+            EquipBase, EquipHeadBase, HairS01, HairS02, HairCBase, HairCBaseB, Ahoke00, Ahoke01
+        )
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         Head.xRot = 0.0f
         Head.yRot = 0.0f
@@ -982,56 +967,6 @@ class ModelBBKongou<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         ClothA03a.z = clothA03aDefaultZ + (HandRs * -0.32f * OFFSET_SCALE)
         ClothA04a.z = clothA04aDefaultZ + (HandRs * -0.32f * OFFSET_SCALE)
         ClothA05a.z = clothA05aDefaultZ + (HandRs * -0.32f * OFFSET_SCALE)
-    }
-
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            if (this.GlowNeck != null) GlowNeck.copyFrom(Neck)
-            if (this.GlowHead != null) GlowHead.copyFrom(Head)
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     companion object {
