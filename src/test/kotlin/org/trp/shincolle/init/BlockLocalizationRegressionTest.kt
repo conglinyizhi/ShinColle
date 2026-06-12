@@ -10,7 +10,7 @@ class BlockLocalizationRegressionTest {
     @Test
     fun registeredBlockNamesShouldRemainLocalizedInMaintainedLanguages() {
         val modBlocks = Files.readString(MOD_BLOCKS_SOURCE)
-        val blockKeys = readRegisteredIds(modBlocks).map { blockId -> "block.shincolle.$blockId" }
+        val blockKeys = readRegisteredIds(modBlocks).map { blockId -> "block.shincolle.$blockId" }.toSet()
 
         assertTrue(blockKeys.isNotEmpty())
 
@@ -30,19 +30,34 @@ class BlockLocalizationRegressionTest {
 
     private fun assertLocalizedInMaintainedLanguages(key: String) {
         LANGUAGE_SOURCES.forEach { languageSource ->
-            val source = Files.readString(languageSource)
-            assertTrue(source.contains("\"$key\"")) { "Expected maintained languages to define $key" }
+            val languageMap = readLanguageMap(languageSource)
+            assertTrue(languageMap.containsKey(key)) {
+                "Expected ${languageSource.fileName} to define $key"
+            }
         }
     }
 
+    private fun readLanguageMap(path: Path): Map<String, String> {
+        val content = Files.readString(path)
+        val map = mutableMapOf<String, String>()
+        val matcher = LANGUAGE_ENTRY_PATTERN.matcher(content)
+        while (matcher.find()) {
+            map[matcher.group(1)] = matcher.group(2)
+        }
+        return map
+    }
+
     companion object {
-        private val MOD_BLOCKS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.java")
+        private val MOD_BLOCKS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt")
         private val LANGUAGE_SOURCES = listOf(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
         )
-        private val BLOCK_REGISTRATION_PATTERN: Pattern = Pattern.compile("BLOCKS\\.register\\(\"([a-z0-9_]+)\"")
+        private val BLOCK_REGISTRATION_PATTERN: Pattern = Pattern.compile(
+            "BLOCKS\\.register<[^>]*>\\(\\s*\"([a-z0-9_]+)\""
+        )
+        private val LANGUAGE_ENTRY_PATTERN: Pattern = Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"")
     }
 }

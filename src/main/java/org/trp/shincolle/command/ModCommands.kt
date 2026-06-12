@@ -596,40 +596,38 @@ object ModCommands {
 
     private fun setStopAi(source: CommandSourceStack, enabled: Boolean): Int {
         isStopShipAi = enabled
-        source.sendSuccess(Supplier { Component.literal("ship stopai: " + isStopShipAi) }, true)
+        source.sendSuccess(Supplier { Component.translatable("command.shincolle.stopai", isStopShipAi) }, true)
         return if (enabled) 1 else 0
     }
 
     private fun showLookingShipInfo(source: CommandSourceStack): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
         val ship = getTargetShip(entity, 32.0, false)
         if (ship == null) {
-            source.sendFailure(Component.literal("No target ship found within 32 blocks."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_target_ship"))
             return 0
         }
 
         source.sendSuccess(Supplier {
-            Component.literal(
-                String.format(
-                    "Ship %s type=%s uuid=%s owner=%s lv=%d hp=%.1f/%.1f morale=%d team=%d slot=%d married=%s hostile=%s",
-                    ship.getName().string,
-                    BuiltInRegistries.ENTITY_TYPE.getKey(ship.getType()),
-                    ship.getUUID(),
-                    ship.ownerUUID,
-                    ship.level,
-                    ship.getHealth(),
-                    ship.getMaxHealth(),
-                    ship.morale,
-                    ship.formationTeam,
-                    ship.formationSlot,
-                    ship.isStateMarried,
-                    ship.isHostileShipMob
-                )
+            Component.translatable(
+                "command.shincolle.info.ship",
+                ship.getName().string,
+                BuiltInRegistries.ENTITY_TYPE.getKey(ship.getType()),
+                ship.getUUID(),
+                ship.ownerUUID,
+                ship.level,
+                ship.getHealth(),
+                ship.getMaxHealth(),
+                ship.morale,
+                ship.formationTeam,
+                ship.formationSlot,
+                ship.isStateMarried,
+                ship.isHostileShipMob
             )
         }, false)
         return 1
@@ -638,13 +636,13 @@ object ModCommands {
     private fun listRegisteredShips(source: CommandSourceStack, page: Int): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
         val entries: MutableList<ShipEntry> = get(entity.serverLevel()).listSorted()
         if (entries.isEmpty()) {
-            source.sendFailure(Component.literal("No registered ships in the server ship registry yet."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_registered_ships"))
             return 0
         }
 
@@ -655,14 +653,11 @@ object ModCommands {
         val end = min(start + pageSize, entries.size)
 
         source.sendSuccess(Supplier {
-            Component.literal(
-                String.format(
-                    Locale.ROOT,
-                    "Ship registry page %d/%d (%d total)",
-                    currentPage,
-                    maxPage,
-                    entries.size
-                )
+            Component.translatable(
+                "command.shincolle.list.header",
+                currentPage,
+                maxPage,
+                entries.size
             )
         }, false)
 
@@ -674,21 +669,18 @@ object ModCommands {
                     + (if (entry.married) ",married" else "")
                     + (if (entry.removed) ",removed" else ",loaded"))
             source.sendSuccess(Supplier {
-                Component.literal(
-                    String.format(
-                        Locale.ROOT,
-                        "[%d] %s uuid=%s type=%s owner=%s dim=%s pos=%d,%d,%d flags=%s",
-                        entryIndex,
-                        entry.displayName,
-                        entry.shipUuid,
-                        entry.typeId,
-                        owner,
-                        entry.dimension!!.location(),
-                        entry.pos!!.x,
-                        entry.pos.getY(),
-                        entry.pos.getZ(),
-                        flags
-                    )
+                Component.translatable(
+                    "command.shincolle.list.entry",
+                    entryIndex,
+                    entry.displayName,
+                    entry.shipUuid,
+                    entry.typeId,
+                    owner,
+                    entry.dimension!!.location(),
+                    entry.pos!!.x,
+                    entry.pos.getY(),
+                    entry.pos.getZ(),
+                    flags
                 )
             }, false)
         }
@@ -702,31 +694,31 @@ object ModCommands {
         }
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
         val registry = get(entity.serverLevel())
         val entry = registry.get(shipUuid)
         if (entry == null) {
-            source.sendFailure(Component.literal("Ship UUID not found in registry: " + shipUuid))
+            source.sendFailure(Component.translatable("command.shincolle.error.ship_uuid_not_found", shipUuid))
             return 0
         }
 
         if (entry.dimension != entity.serverLevel().dimension()) {
-            source.sendFailure(Component.literal("Registered ship is in another dimension: " + entry.dimension!!.location()))
+            source.sendFailure(Component.translatable("command.shincolle.error.wrong_dimension", entry.dimension!!.location()))
             return 0
         }
 
         val entityByUuid = entity.serverLevel().getEntity(shipUuid)
         if (entityByUuid !is EntityShipBase || entityByUuid.isInDeadPose) {
-            source.sendFailure(Component.literal("Ship is not currently loaded in this dimension. Registry recall currently supports loaded ships only."))
+            source.sendFailure(Component.translatable("command.shincolle.error.ship_not_loaded"))
             return 0
         }
 
         val movement = ShipMovementCoordinator(entityByUuid)
         if (!movement.teleportNearLivingIgnoringConfig(entity, 0.5)) {
-            source.sendFailure(Component.literal("No safe recall position found near player."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_safe_recall_position"))
             return 0
         }
         entityByUuid.clearPointerTarget()
@@ -737,8 +729,10 @@ object ModCommands {
         registry.updateShip(entityByUuid)
 
         source.sendSuccess(Supplier {
-            Component.literal(
-                "Recalled ship " + entityByUuid.getName().string + " (" + shipUuid + ")."
+            Component.translatable(
+                "command.shincolle.recall.success",
+                entityByUuid.getName().string,
+                shipUuid
             )
         }, true)
         return 1
@@ -758,14 +752,14 @@ object ModCommands {
         }
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
         val registry = get(entity.serverLevel())
         val entry = registry.get(shipUuid)
         if (entry == null) {
-            source.sendFailure(Component.literal("Ship UUID not found in registry: " + shipUuid))
+            source.sendFailure(Component.translatable("command.shincolle.error.ship_uuid_not_found", shipUuid))
             return 0
         }
 
@@ -782,14 +776,15 @@ object ModCommands {
         registry.delete(shipUuid)
         val removed = registry.get(shipUuid) == null
         if (!removed) {
-            source.sendFailure(Component.literal("Failed to delete ship registry entry: " + shipUuid))
+            source.sendFailure(Component.translatable("command.shincolle.error.delete_failed", shipUuid))
             return 0
         }
 
         val discarded = discardedLoadedEntity
         source.sendSuccess(Supplier {
-            Component.literal(
-                "Deleted ship registry entry " + shipUuid + (if (discarded) " and discarded its loaded entity." else ".")
+            Component.translatable(
+                if (discarded) "command.shincolle.delete.success.with_entity" else "command.shincolle.delete.success",
+                shipUuid
             )
         }, true)
         return 1
@@ -806,13 +801,13 @@ object ModCommands {
     private fun getShipUuidByListIndex(source: CommandSourceStack, shipId: Int): UUID? {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return null
         }
 
         val entries: MutableList<ShipEntry> = get(entity.serverLevel()).listSorted()
         if (shipId < 0 || shipId >= entries.size) {
-            source.sendFailure(Component.literal("Ship list index not found: " + shipId + ". Use /ship list to see available ids."))
+            source.sendFailure(Component.translatable("command.shincolle.error.list_index_not_found", shipId))
             return null
         }
         return entries.get(shipId).shipUuid
@@ -822,7 +817,7 @@ object ModCommands {
         try {
             return UUID.fromString(raw)
         } catch (exception: IllegalArgumentException) {
-            source.sendFailure(Component.literal("Invalid UUID: " + raw))
+            source.sendFailure(Component.translatable("command.shincolle.error.invalid_uuid", raw))
             return null
         }
     }
@@ -830,7 +825,7 @@ object ModCommands {
     private fun teleportSelectedShips(source: CommandSourceStack): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
@@ -840,7 +835,7 @@ object ModCommands {
             Predicate { ship: EntityShipBase? -> ship!!.isOwnedBy(entity) && ship.isPointerSelected && !ship.isInDeadPose }
         )
         if (ships.isEmpty()) {
-            source.sendFailure(Component.literal("No selected ships found within 128 blocks."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_selected_ships"))
             return 0
         }
 
@@ -856,18 +851,20 @@ object ModCommands {
         }
 
         if (successCount <= 0) {
-            source.sendFailure(Component.literal("No safe teleport positions found near player."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_safe_teleport_position"))
             return 0
         }
 
         val teleportedCount = successCount
         val failedCount = ships.size - teleportedCount
         source.sendSuccess(Supplier {
-            Component.literal(
+            Component.translatable(
                 if (failedCount > 0)
-                    "Teleported " + teleportedCount + " selected ships; " + failedCount + " had no safe positions."
+                    "command.shincolle.teleport.success.partial"
                 else
-                    "Teleported " + teleportedCount + " selected ships."
+                    "command.shincolle.teleport.success.full",
+                teleportedCount,
+                failedCount
             )
         }, true)
         return teleportedCount
@@ -918,13 +915,13 @@ object ModCommands {
     private fun changeTargetShipOwner(source: CommandSourceStack, newOwner: ServerPlayer): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
         val ship = getTargetShip(entity, 32.0, false)
         if (ship == null) {
-            source.sendFailure(Component.literal("No target ship found within 32 blocks."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_target_ship"))
             return 0
         }
 
@@ -946,13 +943,11 @@ object ModCommands {
         get(entity.serverLevel()).updateShip(ship)
 
         source.sendSuccess(Supplier {
-            Component.literal(
-                String.format(
-                    "Changed ship owner: %s %s -> %s",
-                    ship.getName().string,
-                    oldOwner,
-                    newOwner.getGameProfile().name
-                )
+            Component.translatable(
+                "command.shincolle.owner_changed",
+                ship.getName().string,
+                oldOwner,
+                newOwner.getGameProfile().name
             )
         }, true)
         return 1
@@ -961,7 +956,7 @@ object ModCommands {
     private fun refreshNearbyOwnerState(source: CommandSourceStack, range: Int): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
@@ -985,7 +980,7 @@ object ModCommands {
 
         val count = ships.size
         source.sendSuccess(
-            Supplier { Component.literal("Refreshed tame/owner state on " + count + " loaded ships within range " + range + ".") },
+            Supplier { Component.translatable("command.shincolle.owner_state_refreshed", count, range) },
             true
         )
         return count
@@ -996,7 +991,7 @@ object ModCommands {
         if (player == null) {
             val entity = source.getEntity()
             if (entity !is ServerPlayer) {
-                source.sendFailure(Component.literal("Player only command."))
+                source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
                 return 0
             }
             player = entity
@@ -1029,11 +1024,11 @@ object ModCommands {
         val refreshedPlayer: ServerPlayer? = player
         val refreshedCount = count
         source.sendSuccess(Supplier {
-            Component.literal(
-                ("shipupdateowneruid: owner "
-                        + refreshedPlayer!!.getGameProfile().name
-                        + " " + ownerUuid
-                        + ", refreshed " + refreshedCount + " loaded ships.")
+            Component.translatable(
+                "command.shincolle.owner_uid_refreshed",
+                refreshedPlayer!!.getGameProfile().name,
+                ownerUuid,
+                refreshedCount
             )
         }, true)
         return count
@@ -1042,7 +1037,7 @@ object ModCommands {
     private fun clearNearbyGrudgeDrops(source: CommandSourceStack, range: Int): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
@@ -1054,7 +1049,7 @@ object ModCommands {
 
         val count = drops.size
         source.sendSuccess(
-            Supplier { Component.literal("Removed " + count + " ship grudge drops within range " + range + ".") },
+            Supplier { Component.translatable("command.shincolle.grudge_drops_cleared", count, range) },
             true
         )
         return count
@@ -1063,7 +1058,7 @@ object ModCommands {
     private fun killShips(source: CommandSourceStack, typeFilter: String, range: Int): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
@@ -1085,7 +1080,7 @@ object ModCommands {
 
         val count = ships.size
         source.sendSuccess(
-            Supplier { Component.literal("Removed " + count + " ships matching '" + typeFilter + "' within range " + range + ".") },
+            Supplier { Component.translatable("command.shincolle.kill.success", count, typeFilter, range) },
             true
         )
         return count
@@ -1094,7 +1089,7 @@ object ModCommands {
     private fun killShipsByLegacyClassId(source: CommandSourceStack, classId: Int, range: Int): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
@@ -1119,9 +1114,11 @@ object ModCommands {
 
         val count = ships.size
         source.sendSuccess(Supplier {
-            Component.literal(
-                ("Removed " + count + " ships with legacy class id "
-                        + classId + " within range " + range + ".")
+            Component.translatable(
+                "command.shincolle.kill_class.success",
+                count,
+                classId,
+                range
             )
         }, true)
         return count
@@ -1148,21 +1145,23 @@ object ModCommands {
     private fun triggerShipEmote(source: CommandSourceStack, emoteId: Int): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
         val ship = getTargetShip(entity, 32.0, false)
         if (ship == null) {
-            source.sendFailure(Component.literal("No target ship found within 32 blocks."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_target_ship"))
             return 0
         }
 
         val resolved = if (emoteId >= 0) emoteId else entity.serverLevel().random.nextInt(35)
         ship.applyParticleEmotion(resolved)
         source.sendSuccess(Supplier {
-            Component.literal(
-                "Triggered emote " + resolved + " on " + ship.getName().string + "."
+            Component.translatable(
+                "command.shincolle.emote.ship",
+                resolved,
+                ship.getName().string
             )
         }, true)
         return 1
@@ -1170,7 +1169,7 @@ object ModCommands {
 
     private fun triggerSourceEmote(source: CommandSourceStack, emoteId: Int): Int {
         if (source.getLevel() !is ServerLevel) {
-            source.sendFailure(Component.literal("Server level only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.server_level_only"))
             return 0
         }
 
@@ -1205,7 +1204,7 @@ object ModCommands {
             )
         }
 
-        source.sendSuccess(Supplier { Component.literal("Triggered emote " + resolved + ".") }, false)
+        source.sendSuccess(Supplier { Component.translatable("command.shincolle.emote.source", resolved) }, false)
         return 1
     }
 
@@ -1233,13 +1232,13 @@ object ModCommands {
     ): Int {
         val entity = source.getEntity()
         if (entity !is ServerPlayer) {
-            source.sendFailure(Component.literal("Player only command."))
+            source.sendFailure(Component.translatable("command.shincolle.error.player_only"))
             return 0
         }
 
         val ship = getTargetShip(entity, 32.0, false)
         if (ship == null) {
-            source.sendFailure(Component.literal("No target ship found within 32 blocks."))
+            source.sendFailure(Component.translatable("command.shincolle.error.no_target_ship"))
             return 0
         }
 
@@ -1278,23 +1277,20 @@ object ModCommands {
         }
 
         source.sendSuccess(Supplier {
-            Component.literal(
-                String.format(
-                    Locale.ROOT,
-                    "Updated ship attrs: %s lv=%d fuel=%d ammoLight=%d ammoHeavy=%d morale=%d bonus=[%d,%d,%d,%d,%d,%d]",
-                    ship.getName().string,
-                    ship.level,
-                    ship.fuel,
-                    ship.ammoLight,
-                    ship.ammoHeavy,
-                    ship.morale,
-                    ship.getAttrBonus(0),
-                    ship.getAttrBonus(1),
-                    ship.getAttrBonus(2),
-                    ship.getAttrBonus(3),
-                    ship.getAttrBonus(4),
-                    ship.getAttrBonus(5)
-                )
+            Component.translatable(
+                "command.shincolle.attrs.updated",
+                ship.getName().string,
+                ship.level,
+                ship.fuel,
+                ship.ammoLight,
+                ship.ammoHeavy,
+                ship.morale,
+                ship.getAttrBonus(0),
+                ship.getAttrBonus(1),
+                ship.getAttrBonus(2),
+                ship.getAttrBonus(3),
+                ship.getAttrBonus(4),
+                ship.getAttrBonus(5)
             )
         }, true)
         return 1

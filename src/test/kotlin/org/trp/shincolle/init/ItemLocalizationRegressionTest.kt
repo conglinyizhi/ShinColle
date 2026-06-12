@@ -10,7 +10,7 @@ class ItemLocalizationRegressionTest {
     @Test
     fun registeredItemNamesShouldRemainLocalizedInMaintainedLanguages() {
         val modItems = Files.readString(MOD_ITEMS_SOURCE)
-        val itemKeys = mutableListOf<String>()
+        val itemKeys = mutableSetOf<String>()
 
         readRegisteredIds(modItems, ITEM_REGISTRATION_PATTERN).forEach { itemId ->
             itemKeys += "item.shincolle.$itemId"
@@ -37,20 +37,35 @@ class ItemLocalizationRegressionTest {
 
     private fun assertLocalizedInMaintainedLanguages(key: String) {
         LANGUAGE_SOURCES.forEach { languageSource ->
-            val source = Files.readString(languageSource)
-            assertTrue(source.contains("\"$key\"")) { "Expected maintained languages to define $key" }
+            val languageMap = readLanguageMap(languageSource)
+            assertTrue(languageMap.containsKey(key)) {
+                "Expected ${languageSource.fileName} to define $key"
+            }
         }
     }
 
+    private fun readLanguageMap(path: Path): Map<String, String> {
+        val content = Files.readString(path)
+        val map = mutableMapOf<String, String>()
+        val matcher = LANGUAGE_ENTRY_PATTERN.matcher(content)
+        while (matcher.find()) {
+            map[matcher.group(1)] = matcher.group(2)
+        }
+        return map
+    }
+
     companion object {
-        private val MOD_ITEMS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModItems.java")
+        private val MOD_ITEMS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt")
         private val LANGUAGE_SOURCES = listOf(
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json"),
             Path.of("src/main/resources/assets/shincolle/lang/ja_jp.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_cn.json"),
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
         )
-        private val ITEM_REGISTRATION_PATTERN: Pattern = Pattern.compile("ITEMS\\.register\\(\"([a-z0-9_]+)\"")
+        private val ITEM_REGISTRATION_PATTERN: Pattern = Pattern.compile(
+            "ITEMS\\.register<[^>]*>\\(\\s*\"([a-z0-9_]+)\""
+        )
         private val BOSS_EGG_REGISTRATION_PATTERN: Pattern = Pattern.compile("registerBossEgg\\(\"([a-z0-9_]+)\"")
+        private val LANGUAGE_ENTRY_PATTERN: Pattern = Pattern.compile("\"([^\"]+)\"\\s*:\\s*\"((?:[^\"\\\\]|\\\\.)*)\"")
     }
 }

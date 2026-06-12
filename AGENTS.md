@@ -11,6 +11,20 @@
 - 遇到游戏内难以稳定复现、仅靠静态阅读难以定位的问题时，优先在关键交互入口、状态流转节点和失败恢复分支加入可检索日志，再让用户复测并根据 `latest.log` 继续定位。
 - 调试日志应使用统一且易于检索的前缀，避免和普通运行日志混杂。
 
+## 调试日志前缀清单
+
+调试日志统一使用 `[SC*Diag]` 或 `SlowServerTick` 等可检索前缀，禁止与普通运行日志混用。当前已注册前缀及其使用场景如下：
+
+- `[SCBrainDiag]` — 舰娘大脑 AI 状态流转与 `customServerAiStep` 诊断。
+- `[SCLoadDiag]` — 舰娘 NBT 加载与数据恢复诊断。
+- `[SCMoveDiag]` — 移动、寻路目标、传送恢复与 `ShipMovementCoordinator` 诊断。
+- `[SCNavDiag]` / `[SCNaviTick]` — 旧版路径查找与导航节点诊断。
+- `[SCCombatDiag]` — 被动战斗目标切换与攻击决策诊断。
+- `[SCSpawnDiag]` —  owned spawn egg 数据准备与生成诊断。
+- `[SCIdleDiag]` — 空闲/随机漫步行为诊断。
+- `[SCFollowDebug]` — 跟随行为调试（历史遗留前缀，新增代码优先使用 `[SCMoveDiag]`）。
+- `SlowServerTick` — 服务端 tick 性能追踪，输出各模块耗时统计。
+
 ## 当前配置约定
 
 - `ModernKit` 满改无效果时应给玩家明确反馈，默认使用轻提示。

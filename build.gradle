@@ -4,6 +4,7 @@ plugins {
     id 'maven-publish'
     id 'idea'
     id 'net.neoforged.moddev' version '2.0.139'
+    id 'io.gitlab.arturbosch.detekt' version '1.23.7'
 }
 
 group = mod_group_id
@@ -217,6 +218,15 @@ tasks.named('test', Test).configure {
     filter {
         excludeTestsMatching '*RegressionTest'
     }
+}
+
+detekt {
+    buildUponDefaultConfig = true
+    config.from(file("config/detekt/detekt.yml"))
+    baseline = file("config/detekt/baseline.xml")
+    source.from(
+        files("src/main/java", "src/main/kotlin")
+    )
 }
 
 tasks.named('processGameTestResources').configure {
