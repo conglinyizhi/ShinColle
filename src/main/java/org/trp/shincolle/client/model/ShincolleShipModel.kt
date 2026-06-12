@@ -34,7 +34,7 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
     protected open val glowHead2: ModelPart? = null
 
     /** Resets the transient pose state at the beginning of [setupAnim]. */
-    protected fun resetPoseState() {
+    protected open fun resetPoseState() {
         isDeadPose = false
         isSittingPose = false
         poseTranslateY = 0.0f

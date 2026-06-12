@@ -49,7 +49,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
 
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getRemainedPower()
+                return blockEntity.remainedPower
             }
 
             override fun set(value: Int) {
@@ -68,12 +68,12 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
                 var packed = 0
-                if (blockEntity.isActive()) packed = packed or 1
-                if (blockEntity.isCheckMetadata()) packed = packed or 2
-                if (blockEntity.isCheckOredict()) packed = packed or 4
-                if (blockEntity.isCheckNbt()) packed = packed or 8
-                if (blockEntity.isEnabLoad()) packed = packed or 16
-                if (blockEntity.isEnabUnload()) packed = packed or 32
+                if (blockEntity.isActive) packed = packed or 1
+                if (blockEntity.checkMetadata) packed = packed or 2
+                if (blockEntity.checkOredict) packed = packed or 4
+                if (blockEntity.checkNbt) packed = packed or 8
+                if (blockEntity.enabLoad) packed = packed or 16
+                if (blockEntity.enabUnload) packed = packed or 32
                 return packed
             }
 
@@ -83,7 +83,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getCraneMode()
+                return blockEntity.craneMode
             }
 
             override fun set(value: Int) {
@@ -92,7 +92,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getModeItem()
+                return blockEntity.modeItem
             }
 
             override fun set(value: Int) {
@@ -101,7 +101,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getModeRedstone()
+                return blockEntity.modeRedstone
             }
 
             override fun set(value: Int) {
@@ -110,7 +110,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getModeLiquid()
+                return blockEntity.modeLiquid
             }
 
             override fun set(value: Int) {
@@ -119,7 +119,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
         })
         this.addDataSlot(object : DataSlot() {
             override fun get(): Int {
-                return blockEntity.getModeEnergy()
+                return blockEntity.modeEnergy
             }
 
             override fun set(value: Int) {
@@ -223,64 +223,64 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
 
         when (id) {
             0 -> {
-                blockEntity.setActive(!blockEntity.isActive())
+                blockEntity.isActive = !blockEntity.isActive
                 return true
             }
 
             1 -> {
-                var m = blockEntity.getCraneMode() + 1
+                var m = blockEntity.craneMode + 1
                 if (m > 24) m = 24
-                blockEntity.setCraneMode(m)
+                blockEntity.craneMode = m
                 return true
             }
 
             11 -> {
-                var m2 = blockEntity.getCraneMode() - 1
+                var m2 = blockEntity.craneMode - 1
                 if (m2 < 0) m2 = 0
-                blockEntity.setCraneMode(m2)
+                blockEntity.craneMode = m2
                 return true
             }
 
             2 -> {
-                blockEntity.setCheckMetadata(!blockEntity.isCheckMetadata())
+                blockEntity.checkMetadata = !blockEntity.checkMetadata
                 return true
             }
 
             3 -> {
-                blockEntity.setCheckOredict(!blockEntity.isCheckOredict())
+                blockEntity.checkOredict = !blockEntity.checkOredict
                 return true
             }
 
             6 -> {
-                blockEntity.setCheckNbt(!blockEntity.isCheckNbt())
+                blockEntity.checkNbt = !blockEntity.checkNbt
                 return true
             }
 
             7 -> {
-                val r = (blockEntity.getModeRedstone() + 1) % 3
-                blockEntity.setModeRedstone(r)
+                val r = (blockEntity.modeRedstone + 1) % 3
+                blockEntity.modeRedstone = r
                 return true
             }
 
             4 -> {
-                blockEntity.setEnabLoad(!blockEntity.isEnabLoad())
+                blockEntity.enabLoad = !blockEntity.enabLoad
                 return true
             }
 
             5 -> {
-                blockEntity.setEnabUnload(!blockEntity.isEnabUnload())
+                blockEntity.enabUnload = !blockEntity.enabUnload
                 return true
             }
 
             8 -> {
-                val l = (blockEntity.getModeLiquid() + 1) % 3
-                blockEntity.setModeLiquid(l)
+                val l = (blockEntity.modeLiquid + 1) % 3
+                blockEntity.modeLiquid = l
                 return true
             }
 
             9 -> {
-                val e = (blockEntity.getModeEnergy() + 1) % 3
-                blockEntity.setModeEnergy(e)
+                val e = (blockEntity.modeEnergy + 1) % 3
+                blockEntity.modeEnergy = e
                 return true
             }
         }
@@ -289,7 +289,7 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
 
 
     fun getRemainedPower(): Int {
-        return if (clientSide) remainedPower else blockEntity.getRemainedPower()
+        return if (clientSide) remainedPower else blockEntity.remainedPower
     }
 
     fun getPowerMax(): Int {
@@ -298,77 +298,77 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
 
     val isActive: Boolean
         get() {
-            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive()) 1 else 0) or
-                    (if (blockEntity.isCheckMetadata()) 2 else 0) or
-                    (if (blockEntity.isCheckOredict()) 4 else 0) or
-                    (if (blockEntity.isCheckNbt()) 8 else 0) or
-                    (if (blockEntity.isEnabLoad()) 16 else 0) or
-                    (if (blockEntity.isEnabUnload()) 32 else 0)
+            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive) 1 else 0) or
+                    (if (blockEntity.checkMetadata) 2 else 0) or
+                    (if (blockEntity.checkOredict) 4 else 0) or
+                    (if (blockEntity.checkNbt) 8 else 0) or
+                    (if (blockEntity.enabLoad) 16 else 0) or
+                    (if (blockEntity.enabUnload) 32 else 0)
                     )
             return (`val` and 1) != 0
         }
     val isCheckMetadata: Boolean
         get() {
-            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive()) 1 else 0) or
-                    (if (blockEntity.isCheckMetadata()) 2 else 0) or
-                    (if (blockEntity.isCheckOredict()) 4 else 0) or
-                    (if (blockEntity.isCheckNbt()) 8 else 0) or
-                    (if (blockEntity.isEnabLoad()) 16 else 0) or
-                    (if (blockEntity.isEnabUnload()) 32 else 0)
+            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive) 1 else 0) or
+                    (if (blockEntity.checkMetadata) 2 else 0) or
+                    (if (blockEntity.checkOredict) 4 else 0) or
+                    (if (blockEntity.checkNbt) 8 else 0) or
+                    (if (blockEntity.enabLoad) 16 else 0) or
+                    (if (blockEntity.enabUnload) 32 else 0)
                     )
             return (`val` and 2) != 0
         }
     val isCheckOredict: Boolean
         get() {
-            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive()) 1 else 0) or
-                    (if (blockEntity.isCheckMetadata()) 2 else 0) or
-                    (if (blockEntity.isCheckOredict()) 4 else 0) or
-                    (if (blockEntity.isCheckNbt()) 8 else 0) or
-                    (if (blockEntity.isEnabLoad()) 16 else 0) or
-                    (if (blockEntity.isEnabUnload()) 32 else 0)
+            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive) 1 else 0) or
+                    (if (blockEntity.checkMetadata) 2 else 0) or
+                    (if (blockEntity.checkOredict) 4 else 0) or
+                    (if (blockEntity.checkNbt) 8 else 0) or
+                    (if (blockEntity.enabLoad) 16 else 0) or
+                    (if (blockEntity.enabUnload) 32 else 0)
                     )
             return (`val` and 4) != 0
         }
     val isCheckNbt: Boolean
         get() {
-            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive()) 1 else 0) or
-                    (if (blockEntity.isCheckMetadata()) 2 else 0) or
-                    (if (blockEntity.isCheckOredict()) 4 else 0) or
-                    (if (blockEntity.isCheckNbt()) 8 else 0) or
-                    (if (blockEntity.isEnabLoad()) 16 else 0) or
-                    (if (blockEntity.isEnabUnload()) 32 else 0)
+            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive) 1 else 0) or
+                    (if (blockEntity.checkMetadata) 2 else 0) or
+                    (if (blockEntity.checkOredict) 4 else 0) or
+                    (if (blockEntity.checkNbt) 8 else 0) or
+                    (if (blockEntity.enabLoad) 16 else 0) or
+                    (if (blockEntity.enabUnload) 32 else 0)
                     )
             return (`val` and 8) != 0
         }
     val isEnabLoad: Boolean
         get() {
-            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive()) 1 else 0) or
-                    (if (blockEntity.isCheckMetadata()) 2 else 0) or
-                    (if (blockEntity.isCheckOredict()) 4 else 0) or
-                    (if (blockEntity.isCheckNbt()) 8 else 0) or
-                    (if (blockEntity.isEnabLoad()) 16 else 0) or
-                    (if (blockEntity.isEnabUnload()) 32 else 0)
+            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive) 1 else 0) or
+                    (if (blockEntity.checkMetadata) 2 else 0) or
+                    (if (blockEntity.checkOredict) 4 else 0) or
+                    (if (blockEntity.checkNbt) 8 else 0) or
+                    (if (blockEntity.enabLoad) 16 else 0) or
+                    (if (blockEntity.enabUnload) 32 else 0)
                     )
             return (`val` and 16) != 0
         }
     val isEnabUnload: Boolean
         get() {
-            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive()) 1 else 0) or
-                    (if (blockEntity.isCheckMetadata()) 2 else 0) or
-                    (if (blockEntity.isCheckOredict()) 4 else 0) or
-                    (if (blockEntity.isCheckNbt()) 8 else 0) or
-                    (if (blockEntity.isEnabLoad()) 16 else 0) or
-                    (if (blockEntity.isEnabUnload()) 32 else 0)
+            val `val` = if (clientSide) packedBooleans else ((if (blockEntity.isActive) 1 else 0) or
+                    (if (blockEntity.checkMetadata) 2 else 0) or
+                    (if (blockEntity.checkOredict) 4 else 0) or
+                    (if (blockEntity.checkNbt) 8 else 0) or
+                    (if (blockEntity.enabLoad) 16 else 0) or
+                    (if (blockEntity.enabUnload) 32 else 0)
                     )
             return (`val` and 32) != 0
         }
 
     fun getCraneMode(): Int {
-        return if (clientSide) craneMode else blockEntity.getCraneMode()
+        return if (clientSide) craneMode else blockEntity.craneMode
     }
 
     fun getModeItem(): Int {
-        return if (clientSide) modeItem else blockEntity.getModeItem()
+        return if (clientSide) modeItem else blockEntity.modeItem
     }
 
     fun getItemMode(slotId: Int): Boolean {
@@ -376,15 +376,15 @@ class CraneMenu(containerId: Int, playerInventory: Inventory, val blockEntity: C
     }
 
     fun getModeRedstone(): Int {
-        return if (clientSide) modeRedstone else blockEntity.getModeRedstone()
+        return if (clientSide) modeRedstone else blockEntity.modeRedstone
     }
 
     fun getModeLiquid(): Int {
-        return if (clientSide) modeLiquid else blockEntity.getModeLiquid()
+        return if (clientSide) modeLiquid else blockEntity.modeLiquid
     }
 
     fun getModeEnergy(): Int {
-        return if (clientSide) modeEnergy else blockEntity.getModeEnergy()
+        return if (clientSide) modeEnergy else blockEntity.modeEnergy
     }
 
     fun getShipEntityId(): Int {

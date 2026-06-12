@@ -49,7 +49,10 @@ import org.trp.shincolle.utility.PerformanceTrace.elapsed
 import org.trp.shincolle.utility.PerformanceTrace.enabled
 import org.trp.shincolle.utility.PerformanceTrace.logSlowBlockEntityTick
 import org.trp.shincolle.utility.PerformanceTrace.now
+import org.trp.shincolle.utility.syncableBoolean
+import org.trp.shincolle.utility.syncableInt
 import java.util.*
+import kotlin.jvm.JvmName
 import kotlin.math.max
 import kotlin.math.min
 
@@ -71,20 +74,24 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
         }
     }
 
-    private var remainedPower = 0
+    var remainedPower: Int by syncableInt(::markForSync)
     var powerMax: Int = 1000000
         private set
-    private var isActive = false
-    private var checkMetadata = false
-    private var checkOredict = false
-    private var checkNbt = false
-    private var enabLoad = true
-    private var enabUnload = true
-    private var craneMode = 0
-    private var modeItem = 0
-    private var modeRedstone = 0
-    private var modeLiquid = 0
-    private var modeEnergy = 0
+    var isActive: Boolean by syncableBoolean(::markForSync)
+    var checkMetadata: Boolean by syncableBoolean(::markForSync)
+    var checkOredict: Boolean by syncableBoolean(::markForSync)
+    var checkNbt: Boolean by syncableBoolean(::markForSync)
+    @get:JvmName("isEnabLoad")
+    @set:JvmName("setEnabLoad")
+    var enabLoad: Boolean by syncableBoolean(::markForSync)
+    @get:JvmName("isEnabUnload")
+    @set:JvmName("setEnabUnload")
+    var enabUnload: Boolean by syncableBoolean(::markForSync)
+    var craneMode: Int by syncableInt(::markForSync)
+    var modeItem: Int by syncableInt(::markForSync)
+    var modeRedstone: Int by syncableInt(::markForSync)
+    var modeLiquid: Int by syncableInt(::markForSync)
+    var modeEnergy: Int by syncableInt(::markForSync)
 
     override var lastPos: BlockPos? = BlockPos.ZERO
         set(value) {
@@ -1020,114 +1027,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
     val craningShipTimer: Int
         get() = if (this.craningShip == null) 0 else this.craningShip!!.getStateTimer(1)
 
-    fun getRemainedPower(): Int {
-        return remainedPower
-    }
-
-    fun setRemainedPower(`val`: Int) {
-        if (this.remainedPower == `val`) {
-            return
-        }
-        this.remainedPower = `val`
-        markForSync()
-    }
-
-    fun isActive(): Boolean {
-        return isActive
-    }
-
-    fun setActive(`val`: Boolean) {
-        if (this.isActive == `val`) {
-            return
-        }
-        this.isActive = `val`
-        markForSync()
-    }
-
-    fun isCheckMetadata(): Boolean {
-        return checkMetadata
-    }
-
-    fun setCheckMetadata(`val`: Boolean) {
-        if (this.checkMetadata == `val`) {
-            return
-        }
-        this.checkMetadata = `val`
-        markForSync()
-    }
-
-    fun isCheckOredict(): Boolean {
-        return checkOredict
-    }
-
-    fun setCheckOredict(`val`: Boolean) {
-        if (this.checkOredict == `val`) {
-            return
-        }
-        this.checkOredict = `val`
-        markForSync()
-    }
-
-    fun isCheckNbt(): Boolean {
-        return checkNbt
-    }
-
-    fun setCheckNbt(`val`: Boolean) {
-        if (this.checkNbt == `val`) {
-            return
-        }
-        this.checkNbt = `val`
-        markForSync()
-    }
-
-    fun isEnabLoad(): Boolean {
-        return enabLoad
-    }
-
-    fun setEnabLoad(`val`: Boolean) {
-        if (this.enabLoad == `val`) {
-            return
-        }
-        this.enabLoad = `val`
-        markForSync()
-    }
-
-    fun isEnabUnload(): Boolean {
-        return enabUnload
-    }
-
-    fun setEnabUnload(`val`: Boolean) {
-        if (this.enabUnload == `val`) {
-            return
-        }
-        this.enabUnload = `val`
-        markForSync()
-    }
-
-    fun getCraneMode(): Int {
-        return craneMode
-    }
-
-    fun setCraneMode(`val`: Int) {
-        if (this.craneMode == `val`) {
-            return
-        }
-        this.craneMode = `val`
-        markForSync()
-    }
-
-    fun getModeItem(): Int {
-        return modeItem
-    }
-
-    fun setModeItem(`val`: Int) {
-        if (this.modeItem == `val`) {
-            return
-        }
-        this.modeItem = `val`
-        markForSync()
-    }
-
     fun setItemMode(id: Int, `val`: Boolean) {
         val next = if (`val`) modeItem or (1 shl id) else modeItem and (1 shl id).inv()
         if (this.modeItem == next) {
@@ -1139,42 +1038,6 @@ open class CraneBlockEntity(pos: BlockPos, blockState: BlockState) :
 
     fun getItemMode(id: Int): Boolean {
         return (modeItem and (1 shl id)) != 0
-    }
-
-    fun getModeRedstone(): Int {
-        return modeRedstone
-    }
-
-    fun setModeRedstone(`val`: Int) {
-        if (this.modeRedstone == `val`) {
-            return
-        }
-        this.modeRedstone = `val`
-        markForSync()
-    }
-
-    fun getModeLiquid(): Int {
-        return modeLiquid
-    }
-
-    fun setModeLiquid(`val`: Int) {
-        if (this.modeLiquid == `val`) {
-            return
-        }
-        this.modeLiquid = `val`
-        markForSync()
-    }
-
-    fun getModeEnergy(): Int {
-        return modeEnergy
-    }
-
-    fun setModeEnergy(`val`: Int) {
-        if (this.modeEnergy == `val`) {
-            return
-        }
-        this.modeEnergy = `val`
-        markForSync()
     }
 
     override fun showBaseParticle(): Boolean {

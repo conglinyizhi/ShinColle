@@ -1,8 +1,6 @@
 @file:Suppress("SENSELESS_COMPARISON")
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -22,10 +20,7 @@ import org.trp.shincolle.entity.EntityBBHaruna
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
-    private var isSittingPose = false
+class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -38,6 +33,9 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     private val Cloth03a2: ModelPart
     private val EquipBase: ModelPart
     private val Head: ModelPart
+    protected override val head: ModelPart get() = Head
+    protected override val neck: ModelPart get() = Neck
+    protected override val bodyMain: ModelPart get() = BodyMain
     private val Hair: ModelPart
     private val HairMain: ModelPart
     private val EquipHeadBase: ModelPart
@@ -170,6 +168,9 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     private val EquipCL1a2_7: ModelPart
     private val GlowBodyMain: ModelPart?
     private val GlowHead: ModelPart
+    protected override val glowHead: ModelPart? get() = GlowHead
+    protected override val glowNeck: ModelPart? get() = GlowNeck
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
     private val GlowNeck: ModelPart
     private val buttDefaultY: Float
     private val buttDefaultZ: Float
@@ -412,9 +413,7 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     }
 
     private fun resetOffsets() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
+        super.resetPoseState()
 
         Butt.y = buttDefaultY
         Butt.z = buttDefaultZ
@@ -451,9 +450,7 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         LegRight02.z = legRight02DefaultZ
     }
 
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
-    }
+    
 
     private fun applyEquipVisibility(entity: T?) {
         if (entity == null) return
@@ -465,8 +462,7 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
     }
 
     private fun applyDeadPose(entity: T?) {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         Head.xRot = 0.0f
         Ahoke.yRot = 0.65f
@@ -860,55 +856,11 @@ class ModelBBHaruna<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase
         LegRight01.xRot = addk2
     }
 
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            this.GlowBodyMain.copyFrom(this.BodyMain)
-            this.GlowNeck.copyFrom(this.Neck)
-            this.GlowHead.copyFrom(this.Head)
-        }
-    }
+    
 
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
+    
 
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
+    
 
     companion object {
         val LAYER_LOCATION: ModelLayerLocation =

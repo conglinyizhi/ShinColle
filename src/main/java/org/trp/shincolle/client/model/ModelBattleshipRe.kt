@@ -1,8 +1,6 @@
 @file:Suppress("SENSELESS_COMPARISON")
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -21,11 +19,8 @@ import org.trp.shincolle.entity.EntityBattleshipRe
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
+class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
     private var isTailPoseOverride = false
-    override var poseTranslateY = 0f
 
     private val BodyMain: ModelPart
     private val Cloth: ModelPart
@@ -41,6 +36,9 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
     private val Butt: ModelPart
     private val Cloth2: ModelPart
     private val Head: ModelPart
+    protected override val head: ModelPart get() = Head
+    protected override val neck: ModelPart get() = Neck
+    protected override val bodyMain: ModelPart get() = BodyMain
     private val Ear01: ModelPart?
     private val Ear02: ModelPart?
     private val Hair: ModelPart
@@ -92,6 +90,9 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
     private val GlowBodyMain: ModelPart?
     private val GlowNeck: ModelPart
     private val GlowHead: ModelPart
+    protected override val glowHead: ModelPart? get() = GlowHead
+    protected override val glowNeck: ModelPart? get() = GlowNeck
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
     private val GlowTailBase: ModelPart
     private val GlowTail1: ModelPart
     private val GlowTail2: ModelPart
@@ -245,11 +246,9 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         syncGlowParts()
     }
 
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
+    override fun resetPoseState() {
+        super.resetPoseState()
         this.isTailPoseOverride = false
-        this.poseTranslateY = 0.0f
     }
 
     private fun resetOffsets() {
@@ -265,9 +264,7 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         }
     }
 
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
-    }
+    
 
     private fun applyEquipVisibility(entity: T?) {
         if (entity == null) return
@@ -285,8 +282,7 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         Head.xRot = -0.5236f
         Head.yRot = 0.0f
@@ -933,67 +929,24 @@ class ModelBattleshipRe<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         TailHead1.xRot = 0.1745f
         TailJaw1.xRot = -0.2f
     }
-
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            GlowNeck.copyFrom(Neck)
-            GlowHead.copyFrom(Head)
-
-            GlowTailBase.copyFrom(TailBase)
-            GlowTail1.copyFrom(Tail1)
-            GlowTail2.copyFrom(Tail2)
-            GlowTail3.copyFrom(Tail3)
-            GlowTail4.copyFrom(Tail4)
-            GlowTail5.copyFrom(Tail5)
-            GlowTail6.copyFrom(Tail6)
-
-            GlowTailHeadBase.copyFrom(TailHeadBase)
-            GlowTailHead1.copyFrom(TailHead1)
-            GlowTailJaw1.copyFrom(TailJaw1)
-        }
+    override fun syncExtraGlowParts() {
+        GlowTailBase.copyFrom(TailBase)
+        GlowTail1.copyFrom(Tail1)
+        GlowTail2.copyFrom(Tail2)
+        GlowTail3.copyFrom(Tail3)
+        GlowTail4.copyFrom(Tail4)
+        GlowTail5.copyFrom(Tail5)
+        GlowTail6.copyFrom(Tail6)
+        GlowTailHeadBase.copyFrom(TailHeadBase)
+        GlowTailHead1.copyFrom(TailHead1)
+        GlowTailJaw1.copyFrom(TailJaw1)
     }
 
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
+    
 
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
+    
 
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        if (GlowBodyMain == null) return
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
+    
 
     companion object {
         val LAYER_LOCATION: ModelLayerLocation =
