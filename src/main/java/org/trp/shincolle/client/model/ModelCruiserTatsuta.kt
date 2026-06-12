@@ -1,7 +1,5 @@
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -20,13 +18,12 @@ import org.trp.shincolle.entity.EntityCruiserTatsuta
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
-    override var poseTranslateY = 0f
+class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
 
     private val BodyMain: ModelPart
+    protected override val bodyMain: ModelPart get() = BodyMain
     private val Neck: ModelPart
+    protected override val neck: ModelPart get() = Neck
     private val BoobR: ModelPart
     private val BoobL: ModelPart
     private val Butt: ModelPart
@@ -35,6 +32,7 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
     private val Cloth01: ModelPart
     private val Equip00: ModelPart
     private val Head: ModelPart
+    protected override val head: ModelPart get() = Head
     private val Hair: ModelPart
     private val HairMain: ModelPart
     private val CirBase: ModelPart
@@ -83,11 +81,17 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
     private val Equip02c: ModelPart
     private val Equip02d: ModelPart
     private val GlowBodyMain: ModelPart?
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
     private val GlowNeck: ModelPart
+    protected override val glowNeck: ModelPart? get() = GlowNeck
     private val GlowHead: ModelPart
+    protected override val glowHead: ModelPart? get() = GlowHead
     private val GlowBodyMain2: ModelPart
+    protected override val glowBodyMain2: ModelPart? get() = GlowBodyMain2
     private val GlowNeck2: ModelPart
+    protected override val glowNeck2: ModelPart? get() = GlowNeck2
     private val GlowHead2: ModelPart
+    protected override val glowHead2: ModelPart? get() = GlowHead2
     private val GlowEquip00: ModelPart?
     private val GlowEquip01a: ModelPart
     private val GlowEquip02a: ModelPart
@@ -213,7 +217,7 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         headPitch: Float
     ) {
         val ctx = computePoseContext(entity, limbSwing, limbSwingAmount, ageInTicks, 0.0f)
-        resetPoseState()
+        super.resetPoseState()
         resetOffsets()
 
         applyFaceAndMouth(entity)
@@ -238,16 +242,6 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         syncGlowParts()
     }
 
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
-    }
-
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
-    }
-
     private fun applyEquipVisibility(entity: T?) {
         if (entity == null) return
 
@@ -259,8 +253,7 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
     }
 
     private fun applyDeadPose() {
-        this.isDeadPose = true
-        this.poseTranslateY = DEAD_TRANSLATE_Y
+        beginDeadPose(DEAD_TRANSLATE_Y)
 
         Head.xRot = 0.9599f
         Head.yRot = 0.0f
@@ -696,64 +689,11 @@ class ModelCruiserTatsuta<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         EquipSL00.z = equipSL00DefaultZ
     }
 
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            GlowNeck.copyFrom(Neck)
-            GlowHead.copyFrom(Head)
-
-            GlowBodyMain2.copyFrom(BodyMain)
-            GlowNeck2.copyFrom(Neck)
-            GlowHead2.copyFrom(Head)
-
-            if (GlowEquip00 != null) {
-                GlowEquip00.copyFrom(Equip00)
-                GlowEquip01a.copyFrom(Equip01a)
-                GlowEquip02a.copyFrom(Equip02a)
-            }
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-            GlowBodyMain2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
+    override fun syncExtraGlowParts() {
+        if (GlowEquip00 != null) {
+            GlowEquip00.copyFrom(Equip00)
+            GlowEquip01a.copyFrom(Equip01a)
+            GlowEquip02a.copyFrom(Equip02a)
         }
     }
 
