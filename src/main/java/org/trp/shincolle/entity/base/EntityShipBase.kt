@@ -62,6 +62,9 @@ import org.trp.shincolle.entity.*
 import org.trp.shincolle.entity.base.ShipBrainMemory.PassiveCombatStateMemory
 import org.trp.shincolle.entity.base.path.ShipLegacyNavigation
 import org.trp.shincolle.entity.base.path.ShipMoveControl
+import org.trp.shincolle.entity.base.tick.ShipPeriodicSyncTickHandler
+import org.trp.shincolle.entity.base.tick.ShipTickCoordinator
+import org.trp.shincolle.utility.ShipLookupHelper
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModParticles
 import org.trp.shincolle.init.ModSounds
@@ -111,19 +114,19 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     val inventory: ShipInventoryHandler?
     internal val combat: EntityShipBaseCombat
     private val pointer: EntityShipBasePointer
-    private val emotions: EntityShipBaseEmotions
+    internal val emotions: EntityShipBaseEmotions
     private val faceExpressions: EntityShipBaseFaceExpressions
-    private val reactions: EntityShipBaseReactions
+    internal val reactions: EntityShipBaseReactions
     private val passiveCombat: EntityShipBasePassiveCombat
     private val serialization: EntityShipBaseSerialization
     @JvmField
     val legacyShipStats: LegacyShipStats
     internal val legacyStateInternal: EntityShipLegacyState
     val taskRuntime: ShipTaskRuntime
-    private val lifecycleMovement: ShipMovementCoordinator
-    private val retreatMovement: ShipMovementCoordinator
-    private val pickupMovement: ShipMovementCoordinator
-    private val guardMovement: ShipMovementCoordinator
+    internal val lifecycleMovement: ShipMovementCoordinator
+    internal val retreatMovement: ShipMovementCoordinator
+    internal val pickupMovement: ShipMovementCoordinator
+    internal val guardMovement: ShipMovementCoordinator
     private val pointerMovement: ShipMovementCoordinator
     private val followOwnerMovement: ShipMovementCoordinator
     private val combatMovement: ShipMovementCoordinator
@@ -136,19 +139,19 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     private var shipDeathTicks = 0
     private var hostileCanDrop = true
     private val stateUpdateTimer = 0
-    private var customHurtTime = 0
-    private var hurtSoundCooldown = 0
-    private var feedSoundCooldown = 0
+    internal var customHurtTime = 0
+    internal var hurtSoundCooldown = 0
+    internal var feedSoundCooldown = 0
     private var guiOpenCount = 0
-    private val forcedCompassChunks: MutableSet<Long?> = HashSet<Long?>()
-    private var forcedCompassChunkCenterX = Int.MIN_VALUE
-    private var forcedCompassChunkCenterZ = Int.MIN_VALUE
+    internal val forcedCompassChunks: MutableSet<Long> = HashSet()
+    internal var forcedCompassChunkCenterX = Int.MIN_VALUE
+    internal var forcedCompassChunkCenterZ = Int.MIN_VALUE
     var customSwingTicks: Int = 0
     var isCustomSwinging: Boolean = false
-    private var perfShipCoreNanos: Long = 0
-    private var perfShipTaskNanos: Long = 0
-    private var perfShipSupportNanos: Long = 0
-    private var perfShipPeriodicNanos: Long = 0
+    internal var perfShipCoreNanos: Long = 0
+    internal var perfShipTaskNanos: Long = 0
+    internal var perfShipSupportNanos: Long = 0
+    internal var perfShipPeriodicNanos: Long = 0
     private var loggedBrainAiEntry = false
 
     fun pointerMovementCoordinator(): ShipMovementCoordinator {
@@ -592,7 +595,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         return null
     }
 
-    protected fun updateMountSummon() {
+    internal fun updateMountSummon() {
         if (!this.level().isClientSide) {
             if (this.hasShipMounts() && this.canSummonMounts() && !this.isPassenger()) {
                 val mount = this.summonMountEntity()
@@ -1688,7 +1691,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         return super.removeWhenFarAway(distanceToClosestPlayer)
     }
 
-    protected fun tickHostileDespawn(): Boolean {
+    internal fun tickHostileDespawn(): Boolean {
         if (!this.isHostileShipMob) {
             return false
         }
@@ -1719,96 +1722,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     protected open fun tickAliveLogic() {
-        val tracing = enabled()
-        if (tracing) {
-            this.perfShipCoreNanos = 0L
-            this.perfShipTaskNanos = 0L
-            this.perfShipSupportNanos = 0L
-            this.perfShipPeriodicNanos = 0L
-        }
-
-        var segmentStart: Long = startPerfSegment(tracing)
-        this.emotions.tickEmotions()
-
-        if (!this.level().isClientSide && tickHostileDespawn()) {
-            this.perfShipCoreNanos += finishPerfSegment(tracing, segmentStart)
-            return
-        }
-
-        this.updateMountSummon()
-        applyWaterBuoyancyIfNeeded()
-
-        if (this.isSitting || this.isInDeadPose) {
-            this.lifecycleMovement.stopAny()
-        }
-        this.perfShipCoreNanos += finishPerfSegment(tracing, segmentStart)
-
-        segmentStart = startPerfSegment(tracing)
-        if (!this.isNoFuel) {
-            val retreatingForLowHealth = shouldRetreatForLowHealth()
-            if (retreatingForLowHealth) {
-                clearPassiveCombatTargetBrain(true)
-                tickRetreatMovement()
-            } else {
-                this.retreatMovement.stop()
-                if (this.hasPointerTargetEntity()) {
-                    clearPassiveCombatTargetBrain(true)
-                }
-            }
-
-            this.combat.tickAircraftRecovery()
-            if (retreatingForLowHealth) {
-                this.pickupMovement.stop()
-            } else {
-                tickAutoPickupItems()
-            }
-            tickAutoPump()
-            tickAutoRation()
-            this.reactions.tickEmotes()
-            if ((this.tickCount and 0xFF) == 0) {
-                applyEmotesReaction(4)
-            }
-        } else {
-            this.retreatMovement.stop()
-            this.pickupMovement.stop()
-            clearPassiveCombatTargetBrain(true)
-        }
-        this.perfShipSupportNanos += finishPerfSegment(tracing, segmentStart)
-
-        if (this.isAlive && (this.tickCount and 7) == 0) {
-            segmentStart = startPerfSegment(tracing)
-            onUpdateTask(this)
-            this.perfShipTaskNanos += finishPerfSegment(tracing, segmentStart)
-        }
-
-        segmentStart = startPerfSegment(tracing)
-        tickSearchlightAssist()
-        tickCompassChunkLoading()
-        tickTimeKeepingSound()
-
-        tickFuelDecay()
-        tickAutoRecovery()
-        tickAutoSupplies()
-        tickLegacyTimers()
-        if ((this.tickCount % 20) == 0) {
-            syncFormationMembershipFromOwnerData()
-        }
-        if ((this.tickCount % 16) == 0) {
-            tickWaypointMove()
-        }
-        if ((this.tickCount % 40) == 0) {
-            this.recalculateLegacyShipStats()
-        }
-        if ((this.tickCount % 40) == 0 && this.level() is ServerLevel) {
-            val serverLevel = this.level() as ServerLevel
-            get(serverLevel).updateShip(this)
-        }
-        tickEquipEffects()
-        this.perfShipPeriodicNanos += finishPerfSegment(tracing, segmentStart)
+        ShipTickCoordinator.tickAliveLogic(this)
     }
 
     @Suppress("DEPRECATION")
-    private fun applyWaterBuoyancyIfNeeded() {
+    internal fun applyWaterBuoyancyIfNeeded() {
         if (!this.isInWater() || this.isPassenger() || this.isSubmarine) {
             return
         }
@@ -1827,6 +1745,30 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         var newY: Double = (motion.y + upward) * SHIP_BUOY_DAMP
         newY = Mth.clamp(newY, -SHIP_BUOY_MAX_MOTION, SHIP_BUOY_MAX_MOTION)
         this.setDeltaMovement(motion.x, newY, motion.z)
+    }
+
+    internal fun shouldRetreatForLowHealth(): Boolean {
+        val fleeHp = Mth.clamp(this.getStateMinor(ShipContainerMenu.STATE_MINOR_FLEE_HP), 0, 100)
+        if (fleeHp <= 0) {
+            return false
+        }
+        return this.health <= this.maxHealth * (fleeHp / 100.0f)
+    }
+
+    internal fun tickRetreatMovement() {
+        val owner = this.owner
+        if (owner == null) {
+            this.retreatMovement.stop()
+            return
+        }
+
+        val distanceSqr = this.distanceToSqr(owner)
+        if (distanceSqr > 4.0) {
+            this.retreatMovement.moveTo(owner, 1.25)
+        } else {
+            this.retreatMovement.stop()
+        }
+        this.lookControl.setLookAt(owner, 30.0f, 30.0f)
     }
 
     override fun tickDeath() {
@@ -1893,44 +1835,6 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             return (pos.y + fluid.getHeight(level, pos)).toDouble()
         }
 
-    private fun syncFormationMembershipFromOwnerData() {
-        val ownerRaw = this.owner
-        if (ownerRaw !is ServerPlayer) {
-            return
-        }
-
-        val data = admiralData(ownerRaw)
-        val actualTeam = data.findShipTeam(this.uuid)
-        if (actualTeam >= 0) {
-            val actualSlot = data.findShipSlot(actualTeam, this.uuid)
-            if (this.formationTeam != actualTeam) {
-                this.formationTeam = actualTeam
-            }
-            if (this.formationSlot != actualSlot) {
-                this.formationSlot = actualSlot
-            }
-            if (actualTeam == data.getCurrentTeamID()) {
-                val selected = data.isSelected(actualTeam, actualSlot)
-                if (this.isPointerSelected != selected) {
-                    this.isPointerSelected = selected
-                }
-            } else if (this.isPointerSelected) {
-                this.isPointerSelected = false
-            }
-            return
-        }
-
-        if (this.formationTeam != -1) {
-            this.formationTeam = -1
-        }
-        if (this.formationSlot != -1) {
-            this.formationSlot = -1
-        }
-        if (this.isPointerSelected) {
-            this.isPointerSelected = false
-        }
-    }
-
     override fun remove(reason: RemovalReason) {
         if (this.level() is ServerLevel) {
             val serverLevel = this.level() as ServerLevel
@@ -1944,10 +1848,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         if (!this.level().isClientSide && shouldReleaseMarriageCountOnRemove(reason)) {
             adjustOwnerMarriageCount(-1)
         }
-        if (this.level() is ServerLevel) {
-            val serverLevel = this.level() as ServerLevel
-            clearCompassForcedChunks(serverLevel)
-        }
+        ShipPeriodicSyncTickHandler.clearCompassChunks(this)
+        ShipLookupHelper.invalidateForShip(this)
         super.remove(reason)
     }
 
@@ -2010,631 +1912,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         return egg
     }
 
-    private fun tickFuelDecay() {
-        if (this.isHostileShipMob) {
-            return
-        }
-        if (this.tickCount % Config.fuelDecayInterval != 0) {
-            return
-        }
-        if (this.fuel <= 0) {
-            return
-        }
-
-        var consume = this.getStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION)
-
-        val dist = sqrt(this.distanceToSqr(this.xo, this.yo, this.zo))
-        consume += (dist * Config.fuelMoveDecayFactor).toInt()
-
-        this.fuel -= consume
-    }
-
-    private fun tickAutoRecovery() {
-        if (this.isHostileShipMob) {
-            return
-        }
-
-        if ((this.tickCount and 0x1F) == 0
-            && this.health < this.maxHealth * AUTO_HEAL_THRESHOLD_RATIO
-        ) {
-            if (this.consumeItemInInventory(ModItems.BUCKET_REPAIR.get())) {
-                this.recordCreativeDebuggerBucketRepair()
-                this.heal(this.maxHealth * AUTO_HEAL_FAST_RATIO + AUTO_HEAL_FAST_FLAT)
-                if (this.supportsAircraftCombat()) {
-                    this.numAircraftLight += 1
-                    this.numAircraftHeavy += 1
-                }
-                this.applyParticleEmotion(EmotionParticleType.HEART)
-            }
-        }
-
-        if ((this.tickCount and 0xFF) == 0 && this.health < this.maxHealth) {
-            this.heal(this.maxHealth * AUTO_HEAL_SLOW_RATIO + AUTO_HEAL_SLOW_FLAT)
-        }
-    }
-
-    private fun shouldRetreatForLowHealth(): Boolean {
-        val fleeHp = Mth.clamp(this.getStateMinor(ShipContainerMenu.STATE_MINOR_FLEE_HP), 0, 100)
-        if (fleeHp <= 0) {
-            return false
-        }
-        return this.health <= this.maxHealth * (fleeHp / 100.0f)
-    }
-
-    private fun tickRetreatMovement() {
-        val owner = this.owner
-        if (owner == null) {
-            this.retreatMovement.stop()
-            return
-        }
-
-        val distanceSqr = this.distanceToSqr(owner)
-        if (distanceSqr > 4.0) {
-            this.retreatMovement.moveTo(owner, 1.25)
-        } else {
-            this.retreatMovement.stop()
-        }
-        this.lookControl.setLookAt(owner, 30.0f, 30.0f)
-    }
-
-    private fun tickTimeKeepingSound() {
-        if (!Config.canTimeKeeping || !this.getStateFlag(ShipContainerMenu.STATE_FLAG_TIMEKEEP) || !this.isAlive || this.isInDeadPose) {
-            return
-        }
-        val worldTime = this.level().dayTime
-        if (worldTime % TIMEKEEP_INTERVAL_TICKS != 0L) {
-            return
-        }
-
-        val hour = ((worldTime / TIMEKEEP_INTERVAL_TICKS) % 24L).toInt()
-        timeKeeping(hour)?.let { timeType ->
-            val timeSound = getShipSound(
-                timeType,
-                this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                this.random
-            )
-            this.playSound(timeSound, max(0.0f, Config.volumeTimeKeeping), 1.0f)
-        }
-    }
-
-    protected fun tryFlareTarget(target: Entity?) {
-        if (target == null || this.getStateMinor(STATE_MINOR_EQUIP_FLARE) <= 0) {
-            return
-        }
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-
-        val posX = target.x
-        val posY = target.y + target.bbHeight * 0.5
-        val posZ = target.z
-        serverLevel.sendParticles<SimpleParticleType?>(
-            ParticleTypes.FIREWORK,
-            posX, posY, posZ,
-            12, 0.5, 0.6, 0.5, 0.05
-        )
-
-        if (target is LivingEntity) {
-            target.addEffect(
-                MobEffectInstance(
-                    MobEffects.GLOWING,
-                    SPECIAL_EQUIP_FLARE_GLOW_TICKS, 0, false, true, true
-                ), this
-            )
-        }
-
-        TemporaryLightService.refreshLight(serverLevel, target.blockPosition(), this.uuid)
-    }
-
-    private fun tickSearchlightAssist() {
-        if ((this.tickCount % SEARCHLIGHT_INTERVAL_TICKS) != 0) {
-            return
-        }
-        if (this.getStateMinor(STATE_MINOR_EQUIP_SEARCHLIGHT) <= 0 || !this.isAlive) {
-            return
-        }
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-        if (this.level().getMaxLocalRawBrightness(this.blockPosition()) >= 10) {
-            return
-        }
-
-        this.addEffect(
-            MobEffectInstance(
-                MobEffects.NIGHT_VISION,
-                SPECIAL_EQUIP_SEARCHLIGHT_NIGHT_VISION_TICKS, 0, true, false, false
-            )
-        )
-        TemporaryLightService.refreshLight(serverLevel, this.blockPosition(), this.uuid)
-        serverLevel.sendParticles<SimpleParticleType?>(
-            ParticleTypes.END_ROD,
-            this.x, this.y + 1.2, this.z,
-            3, 0.25, 0.35, 0.25, 0.01
-        )
-    }
-
-    private fun tickEquipEffects() {
-        val inv = this.inventory ?: return
-        for (slot in 0..<inv.slots) {
-            val stack = inv.getStackInSlot(slot)
-            if (stack.isEmpty()) continue
-            val item = stack.item
-            if (item is IShipEquip) {
-                val effect = ShipEquipRegistry.getEffect(
-                    ApiCallSafety.runWithDefault(
-                        "IShipEquip.getEquipTypeId", -1
-                    ) { item.getEquipTypeId(stack) }
-                )
-                if (effect != null) {
-                    ApiCallSafety.run("ShipEquipSpecialEffect.tick") {
-                        effect.tick(this, stack)
-                    }
-                }
-            }
-        }
-    }
-
-    private fun tickCompassChunkLoading() {
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-
-        if (!this.isAlive || this.getStateMinor(STATE_MINOR_EQUIP_COMPASS) <= 0) {
-            clearCompassForcedChunks(serverLevel)
-            return
-        }
-
-        val chunkPos = this.chunkPosition()
-        val movedChunk = chunkPos.x != this.forcedCompassChunkCenterX || chunkPos.z != this.forcedCompassChunkCenterZ
-        if (!movedChunk && (this.tickCount % COMPASS_CHUNK_REFRESH_INTERVAL_TICKS) != 0) {
-            return
-        }
-
-        this.forcedCompassChunkCenterX = chunkPos.x
-        this.forcedCompassChunkCenterZ = chunkPos.z
-        updateCompassForcedChunks(serverLevel, chunkPos.x, chunkPos.z)
-    }
-
-    private fun updateCompassForcedChunks(serverLevel: ServerLevel, centerX: Int, centerZ: Int) {
-        val desired: MutableSet<Long?> = HashSet<Long?>()
-        for (dx in -COMPASS_CHUNK_RADIUS..COMPASS_CHUNK_RADIUS) {
-            for (dz in -COMPASS_CHUNK_RADIUS..COMPASS_CHUNK_RADIUS) {
-                val cx = centerX + dx
-                val cz = centerZ + dz
-                val key = ChunkPos.asLong(cx, cz)
-                desired.add(key)
-                if (!this.forcedCompassChunks.contains(key)) {
-                    serverLevel.setChunkForced(cx, cz, true)
-                }
-            }
-        }
-
-        if (!this.forcedCompassChunks.isEmpty()) {
-            for (key in HashSet<Long?>(this.forcedCompassChunks)) {
-                if (desired.contains(key)) {
-                    continue
-                }
-                serverLevel.setChunkForced(ChunkPos.getX(key!!), ChunkPos.getZ(key), false)
-            }
-        }
-
-        this.forcedCompassChunks.clear()
-        this.forcedCompassChunks.addAll(desired)
-    }
-
-    private fun clearCompassForcedChunks(serverLevel: ServerLevel) {
-        if (this.forcedCompassChunks.isEmpty()) {
-            this.forcedCompassChunkCenterX = Int.MIN_VALUE
-            this.forcedCompassChunkCenterZ = Int.MIN_VALUE
-            return
-        }
-
-        for (key in HashSet<Long?>(this.forcedCompassChunks)) {
-            serverLevel.setChunkForced(ChunkPos.getX(key!!), ChunkPos.getZ(key), false)
-        }
-        this.forcedCompassChunks.clear()
-        this.forcedCompassChunkCenterX = Int.MIN_VALUE
-        this.forcedCompassChunkCenterZ = Int.MIN_VALUE
-    }
-
-    private fun tickAutoPickupItems() {
-        if (!supportsItemPickup()) {
-            this.pickupMovement.stop()
-            return
-        }
-        if (!this.getStateFlag(ShipContainerMenu.STATE_FLAG_PICK_ITEM)) {
-            this.pickupMovement.stop()
-            return
-        }
-        if ((this.tickCount % PICK_ITEM_SCAN_INTERVAL_TICKS) != 0) {
-            return
-        }
-        if (this.isSitting || this.isPassenger() || this.isVehicle() || this.isInDeadPose) {
-            this.pickupMovement.stop()
-            return
-        }
-        if (this.hasPointerTarget() || this.hasPointerTargetEntity() || this.target != null) {
-            this.pickupMovement.stop()
-            return
-        }
-        if (!hasCargoRoom()) {
-            this.pickupMovement.stop()
-            return
-        }
-
-        val target = findNearestPickItem()
-        if (target == null) {
-            this.pickupMovement.stop()
-            return
-        }
-
-        if (this.distanceToSqr(target) <= 9.0) {
-            tryPickupItemEntity(target)
-            this.pickupMovement.stop()
-        } else {
-            this.pickupMovement.moveTo(target, 1.0)
-        }
-    }
-
-    private fun hasCargoRoom(): Boolean {
-        val slotCount = this.accessibleInventorySlotCount
-        for (i in ShipInventoryHandler.equipSlotCount..<slotCount) {
-            val stack = this.inventory!!.getStackInSlot(i)
-            if (stack.isEmpty()) {
-                return true
-            }
-            val limit = min(stack.maxStackSize, this.inventory.getSlotLimit(i))
-            if (stack.count < limit) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun findNearestPickItem(): ItemEntity? {
-        val followCap = max(2.0, this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MAX).toDouble())
-        val statRange = max(2.0, this.legacyShipStats.attackRange * 0.5 + 2.0)
-        val pickRange = min(followCap + 2.0, statRange)
-
-        val scanBox = this.boundingBox.inflate(pickRange, pickRange * 0.5 + 1.0, pickRange)
-        val items = this.level().getEntitiesOfClass<ItemEntity?>(
-            ItemEntity::class.java, scanBox,
-            Predicate { item: ItemEntity? ->
-                item!!.isAlive && !item.item.isEmpty() && !item.hasPickUpDelay()
-            })
-        if (items.isEmpty()) {
-            return null
-        }
-
-        items.sortWith(Comparator { a: ItemEntity?, b: ItemEntity? ->
-            java.lang.Double.compare(
-                this.distanceToSqr(a!!),
-                this.distanceToSqr(b!!)
-            )
-        })
-        return items.get(0)
-    }
-
-    private fun tryPickupItemEntity(itemEntity: ItemEntity) {
-        val stack = itemEntity.item
-        if (stack.isEmpty()) {
-            return
-        }
-
-        val originalCount = stack.count
-        val remaining = insertIntoCargo(stack.copy())
-        val inserted = originalCount - remaining.count
-        if (inserted <= 0) {
-            return
-        }
-
-        if (remaining.isEmpty()) {
-            itemEntity.discard()
-        } else {
-            itemEntity.setItem(remaining)
-        }
-
-        this.playSound(
-            SoundEvents.ITEM_PICKUP, 0.2f,
-            ((this.random.nextFloat() - this.random.nextFloat()) * 0.7f + 1.0f) * 2.0f
-        )
-    }
-
-    private fun insertIntoCargo(stack: ItemStack): ItemStack {
-        var remaining = stack
-        val slotCount = this.accessibleInventorySlotCount
-        var i: Int = ShipInventoryHandler.equipSlotCount
-        while (i < slotCount && !remaining.isEmpty()) {
-            remaining = this.inventory!!.insertItem(i, remaining, false)
-            i++
-        }
-        return remaining
-    }
-
-    private fun hasLiquidDrumEquip(): Boolean {
-        val equipSlots = Math.min(ShipInventoryHandler.equipSlotCount, this.inventory!!.slots)
-        for (slot in 0..<equipSlots) {
-            val stack = this.inventory.getStackInSlot(slot)
-            if (stack.isEmpty() || stack.item !is LegacyEquipItem) {
-                continue
-            }
-            if ((stack.item as LegacyEquipItem).getEquipTypeId(stack) == EQUIP_TYPE_DRUM
-                && (stack.item as LegacyEquipItem).getVariant(stack) == EQUIP_DRUM_VARIANT_LIQUID
-            ) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun tickAutoPump() {
-        if (!this.getStateFlag(ShipContainerMenu.STATE_FLAG_AUTO_PUMP)) {
-            return
-        }
-        if (!hasLiquidDrumEquip()) {
-            return
-        }
-        if (this.isSitting || this.isPassenger() || this.isVehicle() || this.isInDeadPose) {
-            return
-        }
-
-        tickAutoPumpXp()
-
-        if ((this.tickCount % AUTO_PUMP_INTERVAL_TICKS) != 0) {
-            return
-        }
-
-        val sourcePos = findNearbyPumpSource()
-        if (sourcePos == null) {
-            return
-        }
-
-        val fluidState = this.level().getFluidState(sourcePos)
-        if (!fluidState.`is`(Fluids.WATER) && !fluidState.`is`(Fluids.LAVA)) {
-            return
-        }
-
-        val pumpedFluid = FluidStack(fluidState.type, FluidType.BUCKET_VOLUME)
-
-        if (tryStorePumpedFluid(pumpedFluid)) {
-            if (this.level() is ServerLevel) {
-            val serverLevel = this.level() as ServerLevel
-                this.level().setBlockAndUpdate(sourcePos, Blocks.AIR.defaultBlockState())
-            }
-            val sound = if (fluidState.`is`(Fluids.LAVA)) SoundEvents.BUCKET_FILL_LAVA else SoundEvents.BUCKET_FILL
-            this.playSound(sound, 0.5f, this.random.nextFloat() * 0.4f + 0.8f)
-        }
-    }
-
-    private fun findNearbyPumpSource(): BlockPos? {
-        val center = this.blockPosition()
-        var bestPos: BlockPos? = null
-        var bestDist = Double.MAX_VALUE
-
-        for (dx in -3..3) {
-            for (dy in -1..1) {
-                for (dz in -3..3) {
-                    val pos = center.offset(dx, dy, dz)
-                    val fluidState = this.level().getFluidState(pos)
-                    if (fluidState.isEmpty() || !fluidState.isSource()) {
-                        continue
-                    }
-                    if (!fluidState.`is`(Fluids.WATER) && !fluidState.`is`(Fluids.LAVA)) {
-                        continue
-                    }
-                    val dist = pos.distToCenterSqr(this.position())
-                    if (dist < bestDist) {
-                        bestDist = dist
-                        bestPos = pos
-                    }
-                }
-            }
-        }
-
-        return bestPos
-    }
-
-    private fun tryStorePumpedFluid(pumpedFluid: FluidStack): Boolean {
-        val slotCount = this.accessibleInventorySlotCount
-        for (i in ShipInventoryHandler.equipSlotCount..<slotCount) {
-            val stack = this.inventory!!.getStackInSlot(i)
-            if (stack.isEmpty()) {
-                continue
-            }
-
-            val extracted = this.inventory.extractItem(i, 1, false)
-            if (extracted.isEmpty()) {
-                continue
-            }
-
-            val handlerOptional = FluidUtil.getFluidHandler(extracted)
-            if (handlerOptional.isEmpty()) {
-                val remainder = this.inventory.insertItem(i, extracted, false)
-                if (!remainder.isEmpty() && this.level() is ServerLevel) {
-                    val serverLevel = this.level() as ServerLevel
-                    serverLevel.addFreshEntity(
-                        ItemEntity(
-                            serverLevel,
-                            this.x,
-                            this.y,
-                            this.z,
-                            remainder
-                        )
-                    )
-                }
-                continue
-            }
-
-            val handler = handlerOptional.get()
-            if (handler.fill(pumpedFluid.copy(), IFluidHandler.FluidAction.SIMULATE) < pumpedFluid.amount) {
-                val remainder = this.inventory.insertItem(i, extracted, false)
-                if (!remainder.isEmpty() && this.level() is ServerLevel) {
-                    val serverLevel = this.level() as ServerLevel
-                    serverLevel.addFreshEntity(
-                        ItemEntity(
-                            serverLevel,
-                            this.x,
-                            this.y,
-                            this.z,
-                            remainder
-                        )
-                    )
-                }
-                continue
-            }
-
-            val filled = handler.fill(pumpedFluid.copy(), IFluidHandler.FluidAction.EXECUTE)
-            val container = handler.container
-            val remaining = this.inventory.insertItem(i, container, false)
-            if (!remaining.isEmpty() && this.level() is ServerLevel) {
-                val serverLevel = this.level() as ServerLevel
-                serverLevel.addFreshEntity(ItemEntity(serverLevel, this.x, this.y, this.z, remaining))
-            }
-            if (filled >= pumpedFluid.amount) {
-                return true
-            }
-        }
-        return false
-    }
-
-    private fun tickAutoPumpXp() {
-        if ((this.tickCount % AUTO_PUMP_XP_INTERVAL_TICKS) != 0) {
-            return
-        }
-
-        if (this.level() !is ServerLevel) {
-            return
-        }
-
-        val orbs = this.level().getEntitiesOfClass<ExperienceOrb?>(
-            ExperienceOrb::class.java,
-            this.boundingBox.inflate(7.0)
-        )
-        if (!orbs.isEmpty()) {
-            for (orb in orbs) {
-                if (!orb.isAlive) {
-                    continue
-                }
-
-                val distSqr = this.distanceToSqr(orb)
-                if (distSqr > 9.0) {
-                    val pull = this.position().add(0.0, 0.4, 0.0)
-                        .subtract(orb.position())
-                        .normalize()
-                        .scale(0.25)
-                    orb.deltaMovement = orb.deltaMovement.add(pull)
-                } else {
-                    this.setStateMinor(
-                        STATE_MINOR_PUMPED_XP,
-                        this.getStateMinor(STATE_MINOR_PUMPED_XP) + orb.value
-                    )
-                    orb.discard()
-                }
-            }
-        }
-
-        var bottleSlot = findFirstCargoItem(Items.GLASS_BOTTLE)
-        while (bottleSlot >= 0 && this.getStateMinor(STATE_MINOR_PUMPED_XP) >= XP_BOTTLE_COST) {
-            val extracted = this.inventory!!.extractItem(bottleSlot, 1, false)
-            if (extracted.isEmpty()) {
-                break
-            }
-
-            this.setStateMinor(STATE_MINOR_PUMPED_XP, this.getStateMinor(STATE_MINOR_PUMPED_XP) - XP_BOTTLE_COST)
-
-            val remaining = insertIntoCargo(ItemStack(Items.EXPERIENCE_BOTTLE))
-            if (!remaining.isEmpty() && this.level() is ServerLevel) {
-                val serverLevel = this.level() as ServerLevel
-                serverLevel.addFreshEntity(ItemEntity(serverLevel, this.x, this.y, this.z, remaining))
-            }
-
-            bottleSlot = findFirstCargoItem(Items.GLASS_BOTTLE)
-        }
-    }
-
-    private fun findFirstCargoItem(item: Item?): Int {
-        val slotCount = this.accessibleInventorySlotCount
-        for (i in ShipInventoryHandler.equipSlotCount..<slotCount) {
-            val stack = this.inventory!!.getStackInSlot(i)
-            if (!stack.isEmpty() && item != null && stack.`is`(item)) {
-                return i
-            }
-        }
-        return -1
-    }
-
-    private fun tickAutoRation() {
-        if ((this.tickCount % AUTO_RATION_INTERVAL_TICKS) != 0) {
-            return
-        }
-
-        val threshold = Mth.clamp(this.getStateMinor(ShipContainerMenu.STATE_MINOR_RATION_MORALE), 1, 4)
-        if (this.getMoraleLevel() < threshold) {
-            return
-        }
-
-        if (this.fuel >= AUTO_RATION_MAX_FUEL && this.health >= this.maxHealth) {
-            return
-        }
-
-        consumeOneCombatRation()
-    }
-
-    fun getMoraleLevel(): Int {
-        val m = this.morale
-        return when {
-            m > 5100 -> 0
-            m > 3900 -> 1
-            m > 2100 -> 2
-            m > 900  -> 3
-            else     -> 4
-        }
-    }
-
-    private fun consumeOneCombatRation(): Boolean {
-        val slotCount = this.accessibleInventorySlotCount
-        for (i in ShipInventoryHandler.equipSlotCount..<slotCount) {
-            val stack = this.inventory!!.getStackInSlot(i)
-            if (stack.isEmpty()) {
-                continue
-            }
-
-            if (stack.item !is CombatRationItem) {
-                continue
-            }
-
-            val variant: Int = (stack.item as CombatRationItem).getVariant(stack)
-            applyCombatRationEffect(variant)
-            stack.shrink(1)
-            if (stack.isEmpty()) {
-                this.inventory.setStackInSlot(i, ItemStack.EMPTY)
-            } else {
-                this.inventory.setStackInSlot(i, stack)
-            }
-
-            return true
-        }
-
-        return false
-    }
-
-    private fun consumeCombatRationInHand(stack: ItemStack, player: Player): Boolean {
-        if (stack.item !is CombatRationItem) {
-            return false
-        }
-
-        applyCombatRationEffect((stack.item as CombatRationItem).getVariant(stack))
-        if (!player.abilities.instabuild) {
-            stack.shrink(1)
-        }
-        return true
-    }
-
-    private fun applyCombatRationEffect(variant: Int) {
+    internal fun applyCombatRationEffect(variant: Int) {
         val fuelGain = rollFuelGain(this.random, variant)
         this.fuel = min(AUTO_RATION_MAX_FUEL, this.fuel + fuelGain)
         this.addMorale(getMoraleValue(variant))
@@ -2664,6 +1942,29 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         )
         this.emotionPrimary = EMOTION_HAPPY
         this.resetInteractionEmotionState()
+    }
+
+    private fun consumeCombatRationInHand(stack: ItemStack, player: Player): Boolean {
+        if (stack.item !is CombatRationItem) {
+            return false
+        }
+
+        applyCombatRationEffect((stack.item as CombatRationItem).getVariant(stack))
+        if (!player.abilities.instabuild) {
+            stack.shrink(1)
+        }
+        return true
+    }
+
+    fun getMoraleLevel(): Int {
+        val m = this.morale
+        return when {
+            m > 5100 -> 0
+            m > 3900 -> 1
+            m > 2100 -> 2
+            m > 900  -> 3
+            else     -> 4
+        }
     }
 
     private fun consumeBucketRepairInHand(stack: ItemStack, player: Player): Boolean {
@@ -2810,46 +2111,40 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         }
     }
 
-    private fun tickAutoSupplies() {
-        if (this.level().isClientSide || this.isHostileShipMob) {
-            return
-        }
-
-        if (this.fuel <= 0) {
-            val modFuel = this.legacyShipStats.getBuffedAttr(17)
-            if (this.consumeItemInInventory(ModItems.GRUDGE.get())) {
-                this.fuel = (300 * modFuel).toInt()
-                this.applyAutoSupplyEffects()
-            } else if (this.consumeItemInInventory(ModItems.GRUDGE_BLOCK.get())) {
-                this.fuel = (2700 * modFuel).toInt()
-                this.applyAutoSupplyEffects()
-            } else {
-                val supplied = tryConsumableAutoSupply(modFuel)
-                if (supplied) {
-                    this.applyAutoSupplyEffects()
-                }
-            }
-        }
-
-        // Ammo is derived directly from carried ammo items and containers in the
-        // modern inventory model. Consuming a single stack here would reintroduce
-        // the old hidden ammo-pool behavior and desync the live GUI counts.
-    }
-
-    private fun applyAutoSupplyEffects() {
-        if (this.emotesTick <= 0) {
-            this.emotesTick = 40
-            val rnd = this.random.nextInt(3)
-            if (rnd == 0) this.applyParticleEmotion(EmotionParticleType.DROOL)
-            else if (rnd == 1) this.applyParticleEmotion(EmotionParticleType.BLINK)
-            else this.applyParticleEmotion(EmotionParticleType.SIGH)
-        }
-    }
-
     override fun createNavigation(level: Level): PathNavigation {
         val navigation = ShipLegacyNavigation(this, level)
         navigation.setCanFloat(true)
         return navigation
+    }
+
+    protected fun tryFlareTarget(target: Entity?) {
+        if (target == null || this.getStateMinor(STATE_MINOR_EQUIP_FLARE) <= 0) {
+            return
+        }
+        if (this.level() !is ServerLevel) {
+            return
+        }
+        val serverLevel = this.level() as ServerLevel
+
+        val posX = target.x
+        val posY = target.y + target.bbHeight * 0.5
+        val posZ = target.z
+        serverLevel.sendParticles<SimpleParticleType?>(
+            ParticleTypes.FIREWORK,
+            posX, posY, posZ,
+            12, 0.5, 0.6, 0.5, 0.05
+        )
+
+        if (target is LivingEntity) {
+            target.addEffect(
+                MobEffectInstance(
+                    MobEffects.GLOWING,
+                    SPECIAL_EQUIP_FLARE_GLOW_TICKS, 0, false, true, true
+                ), this
+            )
+        }
+
+        TemporaryLightService.refreshLight(serverLevel, target.blockPosition(), this.uuid)
     }
 
     val shipDepth: Double
@@ -3258,36 +2553,6 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         return false
     }
 
-    private fun tryConsumableAutoSupply(modFuel: Float): Boolean {
-        val inv = this.inventory ?: return false
-        for (i in 0..<inv.slots) {
-            val stack = inv.getStackInSlot(i)
-            if (stack.isEmpty()) continue
-            val item = stack.item
-            if (item !is IShipConsumable) continue
-            val canSupply = ApiCallSafety.runWithDefault(
-                "IShipConsumable.canAutoSupplyGrudge", false
-            ) { item.canAutoSupplyGrudge(stack, this) }
-            if (canSupply) {
-                val amount = ApiCallSafety.runWithDefault(
-                    "IShipConsumable.getAutoSupplyGrudgeAmount", 0
-                ) { item.getAutoSupplyGrudgeAmount(stack, this) }
-                if (amount > 0) {
-                    this.fuel = (amount * modFuel).toInt()
-                    val updated = stack.copy()
-                    updated.shrink(1)
-                    inv.setStackInSlot(i, updated)
-                    return true
-                }
-            }
-        }
-        return false
-    }
-
-    /**
-     * 舰娘专属 dodge 修正值，由具体舰娘实体覆写。
-     * 例如：响（Hibiki）返回 0.3f 表示 +30% dodge。
-     */
     open fun getDodgeModifier(): Float = 0.0f
 
     /**
@@ -3698,129 +2963,6 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             return 0
         }
 
-    protected fun tickWaypointMove() {
-        if (this.getStateFlag(11) || this.isOrderedToSit() || this.isLeashed() || this.isVehicle()) {
-            this.clearWaypointMoveRuntimeState()
-            return
-        }
-
-        if (this.hasEntityGuardTarget()) {
-            val guardedEntity = this.guardedEntity
-            if (guardedEntity == null || !guardedEntity.isAlive) {
-                this.guardedEntity = null
-            } else {
-                val guardedDim: Int = getLegacyDimensionId(guardedEntity.level())
-                if (guardedDim != this.getGuardedPos(3)) {
-                    this.setGuardedPos(-1, -1, -1, guardedDim, ShipGuardTarget.Type.ENTITY.legacyId())
-                }
-            }
-            return
-        }
-
-        val guardTarget = this.guardTarget
-        if (!guardTarget.isBlock) {
-            this.clearWaypointMoveRuntimeState()
-            return
-        }
-
-        val pos = guardTarget.blockPos()
-        val distSq = this.distanceToSqr(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5)
-
-        val be = this.level().getBlockEntity(pos)
-        if (be is CraneBlockEntity) {
-            if (distSq < 64.0) {
-                if (this.getStateMinor(43) == 0) {
-                    this.setStateMinor(43, 1)
-                    this.ejectPassengers()
-                }
-            } else if (this.getStateMinor(6) > 0) {
-                this.guardMovement.moveTo(Vec3(pos.x + 0.5, pos.y - 2.0, pos.z + 0.5), 1.0)
-            }
-        } else {
-            this.setStateMinor(43, 0)
-        }
-
-        if (be is IWaypoint) {
-            if (this.getStateMinor(26) > 0 && this.getStateMinor(27) > 0) return
-            if (distSq < 9.0) {
-                try {
-                    var timeout = false
-                    val wpstay = this.getStateTimer(4)
-                    val staytimemax =
-                        max(this.wpStayTimeMax, if (be is WayPointBlockEntity) be.stayTimeTicks else 0)
-                    if (wpstay < staytimemax) {
-                        this.setStateTimer(4, wpstay + 16)
-                    } else {
-                        timeout = true
-                    }
-                    if (timeout) {
-                        this.setStateTimer(4, 0)
-                        val next = be.nextPos
-                        val last = be.lastPos
-                        val wps = this.waypoints
-                        val shiplast = if (wps != null && wps.size > 0) wps[0] else BlockPos.ZERO
-                        var targetPos: BlockPos? = null
-                        if (next != null && next.y > 0 && next == shiplast) {
-                            if (last != null && last.y > 0) targetPos = last
-                            else if (next.y > 0) targetPos = next
-                        } else if (next != null && next.y > 0) {
-                            targetPos = next
-                        }
-                        if (targetPos != null) {
-                            this.setGuardedPos(
-                                targetPos.x,
-                                targetPos.y,
-                                targetPos.z,
-                                getLegacyDimensionId(this.level()),
-                                guardTarget.legacyType()
-                            )
-                            if (this.getStateMinor(6) > 0) {
-                                this.setStateMinor(10, 2)
-                                this.guardMovement.moveTo(
-                                    Vec3(
-                                        targetPos.x + 0.5,
-                                        targetPos.y.toDouble(),
-                                        targetPos.z + 0.5
-                                    ), 1.0
-                                )
-                            }
-                        }
-                        val newWps: Array<BlockPos?> =
-                            if (wps != null && wps.size > 0) wps.copyOf() else arrayOf(BlockPos.ZERO)
-                        newWps[0] = pos
-                        this.waypoints = newWps
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            } else if ((this.tickCount and 0x7F) == 0 && this.getStateMinor(6) > 0) {
-                this.guardMovement.moveTo(Vec3(pos.x + 0.5, pos.y.toDouble(), pos.z + 0.5), 1.0)
-            }
-        }
-    }
-
-    private fun clearWaypointMoveRuntimeState() {
-        this.setStateMinor(43, 0)
-        this.setStateTimer(4, 0)
-        this.guardMovement.stop()
-    }
-
-    private fun tickLegacyTimers() {
-        val attackTick = this.attackTick
-        if (attackTick > 0) {
-            this.attackTick = attackTick - 1
-        }
-        if (this.customHurtTime > 0) {
-            this.customHurtTime--
-        }
-        if (this.hurtSoundCooldown > 0) {
-            this.hurtSoundCooldown--
-        }
-        if (this.feedSoundCooldown > 0) {
-            this.feedSoundCooldown--
-        }
-    }
-
     fun applyEmotesReaction(type: Int) {
         this.reactions.applyEmotesReaction(type)
     }
@@ -4000,12 +3142,12 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         private const val MAX_FUEL = 10000
         private const val MORALE_MAX = 16000
         const val moraleDefaultValue: Int = 4000
-        private const val AUTO_HEAL_THRESHOLD_RATIO = 0.9f
-        private const val AUTO_HEAL_FAST_RATIO = 0.08f
-        private const val AUTO_HEAL_FAST_FLAT = 15.0f
+        internal const val AUTO_HEAL_THRESHOLD_RATIO = 0.9f
+        internal const val AUTO_HEAL_FAST_RATIO = 0.08f
+        internal const val AUTO_HEAL_FAST_FLAT = 15.0f
         private const val AUTO_HEAL_FAST_FUEL_COST = 7
-        private const val AUTO_HEAL_SLOW_RATIO = 0.03f
-        private const val AUTO_HEAL_SLOW_FLAT = 1.0f
+        internal const val AUTO_HEAL_SLOW_RATIO = 0.03f
+        internal const val AUTO_HEAL_SLOW_FLAT = 1.0f
         private const val LEGACY_MELEE_DAMAGE_FACTOR = 0.125f
         private const val PICK_RADIUS_MODEL_SCALE = 0.012f
         private const val PICK_RADIUS_MIN = 0.05f
@@ -4014,18 +3156,18 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         private const val SHIP_LEVEL_HARD_CAP = 150
         private const val DEAD_FLOAT_HOVER_OFFSET = 0.08
         private const val DEAD_FLOAT_STOP_EPSILON = 0.003
-        private const val TIMEKEEP_INTERVAL_TICKS = 1000L
-        private const val PICK_ITEM_SCAN_INTERVAL_TICKS = 16
-        private const val AUTO_PUMP_INTERVAL_TICKS = 40
-        private const val AUTO_PUMP_XP_INTERVAL_TICKS = 4
-        private const val AUTO_RATION_INTERVAL_TICKS = 128
-        private const val AUTO_RATION_MAX_FUEL = 100
-        private const val SEARCHLIGHT_INTERVAL_TICKS = 4
-        private const val COMPASS_CHUNK_REFRESH_INTERVAL_TICKS = 40
-        private const val COMPASS_CHUNK_RADIUS = 1
+        internal const val TIMEKEEP_INTERVAL_TICKS = 1000L
+        internal const val PICK_ITEM_SCAN_INTERVAL_TICKS = 16
+        internal const val AUTO_PUMP_INTERVAL_TICKS = 40
+        internal const val AUTO_PUMP_XP_INTERVAL_TICKS = 4
+        internal const val AUTO_RATION_INTERVAL_TICKS = 128
+        internal const val AUTO_RATION_MAX_FUEL = 100
+        internal const val SEARCHLIGHT_INTERVAL_TICKS = 4
+        internal const val COMPASS_CHUNK_REFRESH_INTERVAL_TICKS = 40
+        internal const val COMPASS_CHUNK_RADIUS = 1
         private const val SPECIAL_EQUIP_FLARE_GLOW_TICKS = 80
-        private const val SPECIAL_EQUIP_SEARCHLIGHT_NIGHT_VISION_TICKS = 220
-        private const val XP_BOTTLE_COST = 8
+        internal const val SPECIAL_EQUIP_SEARCHLIGHT_NIGHT_VISION_TICKS = 220
+        internal const val XP_BOTTLE_COST = 8
         private const val HOSTILE_LIGHT_AMMO_CONTAINER_COUNT = 16
         private const val HOSTILE_HEAVY_AMMO_CONTAINER_COUNT = 12
         const val spawnEggTagName: String = "ShincolleSpawnEgg"
@@ -4036,10 +3178,10 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         const val STATE_MINOR_SPECIAL_EQUIP: Int = 25
         const val STATE_MINOR_GRUDGE_CONSUMPTION: Int = 28
         const val STATE_MINOR_RARITY: Int = 13
-        private const val STATE_MINOR_EQUIP_DRUM = 36
-        private const val STATE_MINOR_EQUIP_COMPASS = 37
-        private const val STATE_MINOR_EQUIP_FLARE = 38
-        private const val STATE_MINOR_EQUIP_SEARCHLIGHT = 39
+        internal const val STATE_MINOR_EQUIP_DRUM = 36
+        internal const val STATE_MINOR_EQUIP_COMPASS = 37
+        internal const val STATE_MINOR_EQUIP_FLARE = 38
+        internal const val STATE_MINOR_EQUIP_SEARCHLIGHT = 39
         private const val STATE_MINOR_EQUIP_SPECIAL_AMMO = 40
         private const val STATE_MINOR_EQUIP_TORPEDO_SPEED = 41
         const val STATE_MINOR_PUMPED_XP: Int = 42
@@ -4053,11 +3195,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         private const val HELD_MAINHAND_SLOT = 22
         private const val HELD_OFFHAND_SLOT = 23
 
-        private const val EQUIP_TYPE_DRUM = 24
+        internal const val EQUIP_TYPE_DRUM = 24
         private const val EQUIP_TYPE_COMPASS = 25
         private const val EQUIP_TYPE_FLARE = 26
         private const val EQUIP_TYPE_SEARCHLIGHT = 27
-        private const val EQUIP_DRUM_VARIANT_LIQUID = 1
+        internal const val EQUIP_DRUM_VARIANT_LIQUID = 1
 
         const val STATE_FLAG_MARRIED: Int = 1
         const val STATE_FLAG_NO_EQUIP: Int = 2
@@ -4218,7 +3360,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             }
         }
 
-        fun getLegacyDimensionId(level: Level): Int {
+        internal fun getLegacyDimensionId(level: Level): Int {
             val key = level.dimension().location().toString()
             return when (key) {
                 "minecraft:overworld" -> 0
