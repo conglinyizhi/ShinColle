@@ -1,7 +1,5 @@
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -21,7 +19,7 @@ import org.trp.shincolle.client.model.LegacyPoseOffsets.sneakY
 import org.trp.shincolle.entity.EntityNorthernHime
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelNorthernHime<T : EntityNorthernHime>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
+class ModelNorthernHime<T : EntityNorthernHime>(root: ModelPart) : ShincolleShipModel<T>() {
     private val BodyMain: ModelPart?
     private val Cloth01: ModelPart
     private val Cloth02: ModelPart
@@ -124,10 +122,13 @@ class ModelNorthernHime<T : EntityNorthernHime>(root: ModelPart) : ShipModelHuma
     private val EquipLHead01: ModelPart
     private val EquipLHead02: ModelPart
     private val EquipLHead03: ModelPart
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
-    private var poseTranslateZ = 0f
-    private var isSittingPose = false
+
+    protected override val bodyMain: ModelPart? get() = BodyMain
+    protected override val neck: ModelPart? get() = Neck
+    protected override val head: ModelPart? get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = GlowNeck
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -363,68 +364,8 @@ class ModelNorthernHime<T : EntityNorthernHime>(root: ModelPart) : ShipModelHuma
         }
     }
 
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(this.BodyMain)
-            GlowNeck.copyFrom(Neck)
-            GlowHead.copyFrom(Head)
-            GlowTailJaw1.copyFrom(TailJaw1)
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f || this.poseTranslateZ != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, this.poseTranslateZ)
-        }
-
-        if (this.BodyMain != null) {
-            this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f || this.poseTranslateZ != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, this.poseTranslateZ)
-        }
-
-        if (this.GlowBodyMain != null) {
-            this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
-        this.poseTranslateZ = 0.0f
-    }
-
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
+    protected override fun syncExtraGlowParts() {
+        GlowTailJaw1.copyFrom(TailJaw1)
     }
 
     private fun applyDeadPose() {

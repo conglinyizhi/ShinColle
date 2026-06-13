@@ -1,7 +1,5 @@
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -21,11 +19,7 @@ import org.trp.shincolle.entity.EntityCruiserTenryuu
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCruiserTenryuu<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isSittingPose = false
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
-
+class ModelCruiserTenryuu<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
     private val BodyMain: ModelPart
     private val Neck: ModelPart
     private val BoobR: ModelPart
@@ -103,6 +97,14 @@ class ModelCruiserTenryuu<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
     private val GlowEquip00: ModelPart?
     private val GlowEquip01a: ModelPart
     private val GlowEquip02a: ModelPart
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = Neck
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart get() = GlowNeck
+    protected override val glowHead: ModelPart get() = GlowHead
+
     private val buttDefaultY: Float
     private val skirt01DefaultY: Float
     private val skirt02DefaultY: Float
@@ -246,16 +248,6 @@ class ModelCruiserTenryuu<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         applySpecialPoseAdjustments(entity, ctx, ageInTicks, limbSwingAmount)
 
         syncGlowParts()
-    }
-
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
-    }
-
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
     }
 
     private fun applyEquipVisibility(entity: T?) {
@@ -713,60 +705,10 @@ class ModelCruiserTenryuu<T : EntityShipBase>(root: ModelPart) : ShipModelHumano
         ArmRight02.z = armRight02DefaultZ
     }
 
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            GlowNeck.copyFrom(Neck)
-            GlowHead.copyFrom(Head)
-
-            if (GlowEquip00 != null) {
-                GlowEquip00.copyFrom(Equip00)
-                GlowEquip01a.copyFrom(Equip01a)
-                GlowEquip02a.copyFrom(Equip02a)
-            }
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
+    protected override fun syncExtraGlowParts() {
+        GlowEquip00?.copyFrom(Equip00)
+        GlowEquip01a.copyFrom(Equip01a)
+        GlowEquip02a.copyFrom(Equip02a)
     }
 
     companion object {

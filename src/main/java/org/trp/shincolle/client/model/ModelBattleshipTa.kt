@@ -1,8 +1,6 @@
 @file:Suppress("SENSELESS_COMPARISON")
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -21,11 +19,7 @@ import org.trp.shincolle.entity.EntityBattleshipTa
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelBattleshipTa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    private var isSittingPose = false
-    override var poseTranslateY = 0f
-
+class ModelBattleshipTa<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
     private val BodyMain: ModelPart
     private val NeckCloth: ModelPart
     private val BoobR: ModelPart
@@ -66,6 +60,13 @@ class ModelBattleshipTa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
     private val armRight02DefaultX: Float
     private val armRight02DefaultY: Float
     private val armRight02DefaultZ: Float
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = NeckCloth
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart? get() = GlowNeckCloth
+    protected override val glowHead: ModelPart? get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -146,12 +147,6 @@ class ModelBattleshipTa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         syncGlowParts()
     }
 
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
-    }
-
     private fun resetOffsets() {
         if (ArmLeft02 != null) {
             ArmLeft02.x = armLeft02DefaultX
@@ -163,10 +158,6 @@ class ModelBattleshipTa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
             ArmRight02.y = armRight02DefaultY
             ArmRight02.z = armRight02DefaultZ
         }
-    }
-
-    private fun isDeadPose(entity: T?): Boolean {
-        return entity != null && entity.isInDeadPose
     }
 
     private fun applyEquipVisibility(entity: T?) {
@@ -418,55 +409,6 @@ class ModelBattleshipTa<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoid
         HairL02.xRot += headX
         HairR01.xRot += headX
         HairR02.xRot += headX
-    }
-
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            GlowNeckCloth.copyFrom(NeckCloth)
-            GlowHead.copyFrom(Head)
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        if (GlowBodyMain == null) return
-        val usePoseTranslate = this.poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, 0.0f)
-        }
-
-        GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     companion object {

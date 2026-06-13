@@ -1,8 +1,6 @@
 @file:Suppress("SENSELESS_COMPARISON")
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -19,10 +17,7 @@ import org.trp.shincolle.client.model.LegacyPoseOffsets.sneakY
 import org.trp.shincolle.entity.EntityDestroyerShimakaze
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelDestroyerShimakaze<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
-
+class ModelDestroyerShimakaze<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
     private val BodyMain: ModelPart
     private val NeckCloth: ModelPart
     private val ArmLeft: ModelPart
@@ -62,6 +57,13 @@ class ModelDestroyerShimakaze<T : EntityShipBase>(root: ModelPart) : ShipModelHu
     private val GlowBodyMain: ModelPart?
     private val GlowNeckCloth: ModelPart
     private val GlowHead: ModelPart
+
+    protected override val bodyMain: ModelPart get() = BodyMain
+    protected override val neck: ModelPart get() = NeckCloth
+    protected override val head: ModelPart get() = Head
+    protected override val glowBodyMain: ModelPart? get() = GlowBodyMain
+    protected override val glowNeck: ModelPart get() = GlowNeckCloth
+    protected override val glowHead: ModelPart get() = GlowHead
 
     init {
         this.BodyMain = root.getChild("BodyMain")
@@ -448,56 +450,6 @@ class ModelDestroyerShimakaze<T : EntityShipBase>(root: ModelPart) : ShipModelHu
         HairL02.zRot += headZ
         HairR01.zRot += headZ
         HairR02.zRot += headZ
-    }
-
-    private fun syncGlowParts() {
-        if (this.GlowBodyMain != null) {
-            GlowBodyMain.copyFrom(BodyMain)
-            GlowNeckCloth.copyFrom(NeckCloth)
-            GlowHead.copyFrom(Head)
-        }
-    }
-
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, poseTranslateY, 0.0f)
-        }
-
-        BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = poseTranslateY != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, poseTranslateY, 0.0f)
-        }
-
-        if (GlowBodyMain != null) {
-            GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        }
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
     }
 
     companion object {

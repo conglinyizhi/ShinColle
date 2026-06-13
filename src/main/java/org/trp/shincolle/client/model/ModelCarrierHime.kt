@@ -1,8 +1,6 @@
 @file:Suppress("SENSELESS_COMPARISON")
 package org.trp.shincolle.client.model
 
-import com.mojang.blaze3d.vertex.PoseStack
-import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelLayerLocation
 import net.minecraft.client.model.geom.ModelPart
@@ -20,11 +18,22 @@ import org.trp.shincolle.entity.EntityCarrierHime
 import org.trp.shincolle.entity.base.EntityMountBase
 import org.trp.shincolle.entity.base.EntityShipBase
 
-class ModelCarrierHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidBase<T>(), IGlowableModel {
-    private var isDeadPose = false
-    override var poseTranslateY = 0f
-    private var poseTranslateZ = 0f
-    private var isSittingPose = false
+class ModelCarrierHime<T : EntityShipBase>(root: ModelPart) : ShincolleShipModel<T>() {
+
+    protected override val bodyMain: ModelPart
+        get() = BodyMain
+    protected override val neck: ModelPart
+        get() = Neck
+    protected override val head: ModelPart
+        get() = Head
+    protected override val glowBodyMain: ModelPart
+        get() = GlowBodyMain
+    protected override val glowBodyMain2: ModelPart
+        get() = GlowBodyMain2
+    protected override val glowNeck: ModelPart
+        get() = GlowNeck
+    protected override val glowHead: ModelPart
+        get() = GlowHead
 
     private val BodyMain: ModelPart
     private val Neck: ModelPart
@@ -225,13 +234,6 @@ class ModelCarrierHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         this.applyBasePose(entity, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch)
         this.applySpecialPoseAdjustments(entity, limbSwing, limbSwingAmount, ageInTicks)
         this.syncGlowParts()
-    }
-
-    private fun resetPoseState() {
-        this.isDeadPose = false
-        this.isSittingPose = false
-        this.poseTranslateY = 0.0f
-        this.poseTranslateZ = 0.0f
     }
 
     private fun resetOffsets() {
@@ -684,57 +686,13 @@ class ModelCarrierHime<T : EntityShipBase>(root: ModelPart) : ShipModelHumanoidB
         this.LegRight01.xRot = addk2
     }
 
-    private fun syncGlowParts() {
-        this.GlowBodyMain.copyFrom(this.BodyMain)
-        this.GlowBodyMain2.copyFrom(this.BodyMain)
-        this.GlowNeck.copyFrom(this.Neck)
-        this.GlowHead.copyFrom(this.Head)
+    protected override fun syncExtraGlowParts() {
         this.GlowArmLeft01.copyFrom(this.ArmLeft01)
         this.GlowArmLeft02.copyFrom(this.ArmLeft02)
         this.GlowArmRight01.copyFrom(this.ArmRight01)
         this.GlowArmRight02.copyFrom(this.ArmRight02)
     }
 
-    override fun renderToBuffer(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f || this.poseTranslateZ != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, this.poseTranslateZ)
-        }
-
-        this.BodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
-
-    override fun renderGlow(
-        poseStack: PoseStack,
-        vertexConsumer: VertexConsumer,
-        packedLight: Int,
-        packedOverlay: Int,
-        color: Int
-    ) {
-        val usePoseTranslate = this.poseTranslateY != 0.0f || this.poseTranslateZ != 0.0f
-        if (usePoseTranslate) {
-            poseStack.pushPose()
-            poseStack.translate(0.0f, this.poseTranslateY, this.poseTranslateZ)
-        }
-
-        this.GlowBodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-        this.GlowBodyMain2.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
-
-        if (usePoseTranslate) {
-            poseStack.popPose()
-        }
-    }
 
     companion object {
         val LAYER_LOCATION: ModelLayerLocation =

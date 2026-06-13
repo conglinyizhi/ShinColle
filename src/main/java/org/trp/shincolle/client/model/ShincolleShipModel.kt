@@ -21,10 +21,10 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
     /** Optional Z-axis pose translation used by some models (submarines, etc.). */
     protected open var poseTranslateZ: Float = 0f
 
-    /** Main body parts that glow parts mirror. */
-    protected abstract val bodyMain: ModelPart
-    protected abstract val neck: ModelPart
-    protected abstract val head: ModelPart
+    /** Main body parts that glow parts mirror. May be null for models with non-standard rigs. */
+    protected abstract val bodyMain: ModelPart?
+    protected abstract val neck: ModelPart?
+    protected abstract val head: ModelPart?
 
     /** Optional glow counterparts. When null, glow syncing/rendering is skipped. */
     protected abstract val glowBodyMain: ModelPart?
@@ -57,14 +57,15 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
 
     /** Copies the main body/neck/head transforms to their glow counterparts. */
     protected open fun syncGlowParts() {
+        val body = bodyMain ?: return
         val glowBody = glowBodyMain ?: return
-        glowBody.copyFrom(bodyMain)
-        glowNeck?.copyFrom(neck)
-        glowHead?.copyFrom(head)
+        glowBody.copyFrom(body)
+        neck?.let { glowNeck?.copyFrom(it) }
+        head?.let { glowHead?.copyFrom(it) }
 
-        glowBodyMain2?.copyFrom(bodyMain)
-        glowNeck2?.copyFrom(neck)
-        glowHead2?.copyFrom(head)
+        glowBodyMain2?.copyFrom(body)
+        neck?.let { glowNeck2?.copyFrom(it) }
+        head?.let { glowHead2?.copyFrom(it) }
 
         syncExtraGlowParts()
     }
@@ -82,7 +83,7 @@ abstract class ShincolleShipModel<T : EntityShipBase> : ShipModelHumanoidBase<T>
         color: Int
     ) {
         renderWithPoseTranslate(poseStack) {
-            bodyMain.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
+            bodyMain?.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
         }
     }
 
