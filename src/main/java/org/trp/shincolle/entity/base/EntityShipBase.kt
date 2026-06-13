@@ -2313,19 +2313,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             }
         }
 
-        if (!this.level().isClientSide && this.level().gameRules.getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)) {
-            val customMessage: Component =
-                Component.translatable("chat.shincolle.entity_fainted", this.displayName)
-
-            val owner = this.owner
-            if (owner is ServerPlayer) {
-                owner.sendSystemMessage(customMessage)
-            } else if (this.isTame || this.hasCustomName()) {
-                val server = this.level().server
-                if (server != null) {
-                    server.playerList.broadcastSystemMessage(customMessage, false)
-                }
-            }
+        if (!this.level().isClientSide &&
+            Config.SHOW_SHIP_DEATH_MESSAGE.get() &&
+            this.level().gameRules.getBoolean(GameRules.RULE_SHOWDEATHMESSAGES)
+        ) {
+            this.sendDefeatMessage()
         }
 
         val backupName = this.customName
@@ -2339,6 +2331,21 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.customName = backupName
         if (backupOwner != null) {
             this.setOwnerUUID(backupOwner)
+        }
+    }
+
+    private fun sendDefeatMessage() {
+        val customMessage: Component =
+            Component.translatable("chat.shincolle.entity_fainted", this.displayName)
+
+        val owner = this.owner
+        if (owner is ServerPlayer) {
+            owner.sendSystemMessage(customMessage)
+        } else if (this.isTame || this.hasCustomName()) {
+            val server = this.level().server
+            if (server != null) {
+                server.playerList.broadcastSystemMessage(customMessage, false)
+            }
         }
     }
 

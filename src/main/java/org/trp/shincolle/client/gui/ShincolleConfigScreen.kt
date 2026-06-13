@@ -530,6 +530,15 @@ object ShincolleConfigScreen {
             )
             interactCat.addEntry(
                 entryBuilder.startBooleanToggle(
+                    Component.translatable("config.shincolle.showShipDeathMessage"),
+                    Config.SHOW_SHIP_DEATH_MESSAGE.get()
+                )
+                    .setDefaultValue(false)
+                    .setSaveConsumer { value: Boolean -> Config.SHOW_SHIP_DEATH_MESSAGE.set(value) }
+                    .build()
+            )
+            interactCat.addEntry(
+                entryBuilder.startBooleanToggle(
                     Component.translatable("config.shincolle.canTeleport"),
                     Config.SHIP_CAN_TELEPORT.get()
                 )
