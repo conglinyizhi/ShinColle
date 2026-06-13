@@ -119,6 +119,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     internal val emotions: EntityShipBaseEmotions
     private val faceExpressions: EntityShipBaseFaceExpressions
     internal val reactions: EntityShipBaseReactions
+    internal val particleEffects: ShipParticleEffects
     private val passiveCombat: EntityShipBasePassiveCombat
     private val serialization: EntityShipBaseSerialization
     @JvmField
@@ -351,15 +352,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     private fun playLevelUpEffects() {
-        if (this.level().isClientSide) {
-            return
-        }
-
-        if (this.random.nextInt(4) == 0) {
-            this.playSound(SoundEvents.PLAYER_LEVELUP, 0.75f, 1.0f)
-        } else {
-            this.playSound(ModSounds.SHIP_LEVELUP.get(), 0.75f, 1.0f)
-        }
+        this.particleEffects.playLevelUpEffects()
     }
 
     var ammoLight: Int
@@ -754,58 +747,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     fun spawnLightAttackMuzzleParticles(serverLevel: ServerLevel, target: Entity) {
-        val from = this.position().add(0.0, 0.8, 0.0)
-        val to = target.position().add(0.0, target.bbHeight * 0.5, 0.0)
-        var look = to.subtract(from)
-        if (look.lengthSqr() < 1.0E-6) {
-            look = this.lookAngle
-        } else {
-            look = look.normalize()
-        }
-
-        val posX = this.x
-        val posY = this.y
-        val posZ = this.z
-
-        for (i in 0..23) {
-            val ran1 = (this.random.nextFloat() - 0.5f).toDouble()
-            val ran2 = this.random.nextFloat().toDouble()
-            val ran3 = this.random.nextFloat().toDouble()
-            val baseX = posX + look.x - 0.5 + 0.05 * i
-            val baseZ = posZ + look.z - 0.5 + 0.05 * i
-
-            serverLevel.sendParticles<SimpleParticleType?>(
-                ParticleTypes.LARGE_SMOKE,
-                baseX, posY + 0.6 + ran1, baseZ,
-                1, look.x * 0.3 * ran2, 0.05 * ran2, look.z * 0.3 * ran2, 0.0
-            )
-            serverLevel.sendParticles<SimpleParticleType?>(
-                ParticleTypes.LARGE_SMOKE,
-                baseX, posY + 1.0 + ran1, baseZ,
-                1, look.x * 0.3 * ran3, 0.05 * ran3, look.z * 0.3 * ran3, 0.0
-            )
-        }
+        this.particleEffects.spawnLightAttackMuzzleParticles(serverLevel, target)
     }
 
     fun spawnLightAttackTargetParticles(serverLevel: ServerLevel, target: Entity) {
-        val posX = target.x
-        val posY = target.y
-        val posZ = target.z
-
-        serverLevel.sendParticles<SimpleParticleType?>(
-            ParticleTypes.EXPLOSION_EMITTER, posX, posY + 1.5, posZ,
-            1, 0.0, 0.0, 0.0, 0.0
-        )
-
-        for (i in 0..14) {
-            val ran1 = ((this.random.nextFloat() * 3.0f) - 1.5f).toDouble()
-            val ran2 = ((this.random.nextFloat() * 3.0f) - 1.5f).toDouble()
-            serverLevel.sendParticles<SimpleParticleType?>(
-                ParticleTypes.LAVA,
-                posX + ran1, posY + 1.0, posZ + ran2,
-                1, 0.0, 0.0, 0.0, 0.0
-            )
-        }
+        this.particleEffects.spawnLightAttackTargetParticles(serverLevel, target)
     }
 
     open fun performHeavyAttack(target: Entity?): Boolean {
@@ -1194,6 +1140,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.emotions = EntityShipBaseEmotions(this)
         this.faceExpressions = EntityShipBaseFaceExpressions(this, this.emotions)
         this.reactions = EntityShipBaseReactions(this)
+        this.particleEffects = ShipParticleEffects(this)
         this.passiveCombat = EntityShipBasePassiveCombat(this)
         this.serialization = EntityShipBaseSerialization(this)
         this.legacyShipStats = LegacyShipStats()
@@ -1221,6 +1168,10 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
     protected val shipSoundPitch: Float
         get() = this.random.nextFloat() * 0.12f + 0.98f
+
+    internal fun getShipSoundVolume(): Float = this.soundVolume
+
+    internal fun getShipSoundPitch(): Float = this.shipSoundPitch
 
     private fun tryAcquireAmbientSoundSlot(): Boolean {
         val gameTime = this.level().gameTime
@@ -1820,17 +1771,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             this.heal(this.maxHealth * 0.05f + 1.0f)
         }
 
-        if (this.feedSoundCooldown <= 0) {
-            this.playSound(
-                getShipSound(
-                    Config.ShipCustomSoundType.FEED,
-                    this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                    this.random
-                ), this.soundVolume,
-                this.shipSoundPitch
-            )
-            this.feedSoundCooldown = 30
-        }
+        this.particleEffects.playFeedSoundIfReady()
 
         this.applyParticleEmotion(
             when (this.random.nextInt(3)) {
@@ -1890,14 +1831,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
 
             this.emotionPrimary = EMOTION_HAPPY
             this.applyParticleEmotion(EmotionParticleType.HEART)
-            this.playSound(
-                getShipSound(
-                    Config.ShipCustomSoundType.FEED,
-                    this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                    this.random
-                ), this.soundVolume,
-                this.shipSoundPitch
-            )
+            this.particleEffects.playShipSound(Config.ShipCustomSoundType.FEED)
             this.focusOnPlayer(player)
             return true
         }
@@ -1913,15 +1847,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.recalculateLegacyShipStats()
         this.emotionPrimary = EMOTION_HAPPY
         this.applyParticleEmotion(EmotionParticleType.HEART)
-        this.playSound(
-            getShipSound(
-                Config.ShipCustomSoundType.MARRY,
-                this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                this.random
-            ),
-            max(0.0f, Config.volumeShip),
-            1.0f
-        )
+        this.particleEffects.playMarrySound(volume = max(0.0f, Config.volumeShip), pitch = 1.0f)
         this.focusOnPlayer(player)
 
         if (!player.abilities.instabuild) {
@@ -1944,11 +1870,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.addMorale(200)
         this.emotionPrimary = EMOTION_HAPPY
         this.applyParticleEmotion(EmotionParticleType.HAPPY_BOB)
-        this.playSound(
-            getShipSound(Config.ShipCustomSoundType.FEED, this.getStateMinor(STATE_MINOR_SHIP_CLASS), this.random),
-            this.soundVolume,
-            this.shipSoundPitch
-        )
+        this.particleEffects.playShipSound(Config.ShipCustomSoundType.FEED)
 
         if (!player.abilities.instabuild) {
             stack.shrink(1)
@@ -2017,33 +1939,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     protected fun tryFlareTarget(target: Entity?) {
-        if (target == null || this.getStateMinor(STATE_MINOR_EQUIP_FLARE) <= 0) {
-            return
-        }
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-
-        val posX = target.x
-        val posY = target.y + target.bbHeight * 0.5
-        val posZ = target.z
-        serverLevel.sendParticles<SimpleParticleType?>(
-            ParticleTypes.FIREWORK,
-            posX, posY, posZ,
-            12, 0.5, 0.6, 0.5, 0.05
-        )
-
-        if (target is LivingEntity) {
-            target.addEffect(
-                MobEffectInstance(
-                    MobEffects.GLOWING,
-                    SPECIAL_EQUIP_FLARE_GLOW_TICKS, 0, false, true, true
-                ), this
-            )
-        }
-
-        TemporaryLightService.refreshLight(serverLevel, target.blockPosition(), this.uuid)
+        this.particleEffects.spawnFlareTarget(target)
     }
 
     val shipDepth: Double
@@ -2122,14 +2018,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                         )
                     }
                 }
-                this.playSound(
-                    getShipSound(
-                        Config.ShipCustomSoundType.MARRY,
-                        this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                        this.random
-                    ), this.soundVolume,
-                    this.shipSoundPitch
-                )
+                this.particleEffects.playMarrySound()
 
                 val javaRand = Random()
                 for (i in 0..2) {
@@ -2179,17 +2068,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                 if (!player.abilities.instabuild) {
                     stack.shrink(1)
                 }
-                if (this.feedSoundCooldown <= 0) {
-                    this.playSound(
-                        getShipSound(
-                            Config.ShipCustomSoundType.FEED,
-                            this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                            this.random
-                        ), this.soundVolume,
-                        this.shipSoundPitch
-                    )
-                    this.feedSoundCooldown = 30
-                }
+                this.particleEffects.playFeedSoundIfReady()
                 this.emotionPrimary = EMOTION_HAPPY
                 this.resetInteractionEmotionState()
                 this.focusOnPlayer(player)
@@ -2203,17 +2082,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                     if (!player.abilities.instabuild) {
                         stack.shrink(1)
                     }
-                    if (this.feedSoundCooldown <= 0) {
-                        this.playSound(
-                            getShipSound(
-                                Config.ShipCustomSoundType.FEED,
-                                this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                                this.random
-                            ), this.soundVolume,
-                            this.shipSoundPitch
-                        )
-                        this.feedSoundCooldown = 30
-                    }
+                    this.particleEffects.playFeedSoundIfReady()
                     this.emotionPrimary = EMOTION_HAPPY
                     this.resetInteractionEmotionState()
                     this.focusOnPlayer(player)
@@ -2349,14 +2218,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         }
         val result = super.doHurtTarget(target)
         if (result && !this.level().isClientSide) {
-            this.playSound(
-                getShipSound(
-                    Config.ShipCustomSoundType.ATTACK,
-                    this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                    this.random
-                ), this.soundVolume,
-                this.shipSoundPitch
-            )
+            this.particleEffects.playAttackSound()
             this.attackTick = 50
             applyEmotesReaction(3)
         }
@@ -2396,14 +2258,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
                 this.health = this.maxHealth
                 this.customHurtTime = 120
                 this.spawnGoddessParticles()
-                this.playSound(
-                    getShipSound(
-                        Config.ShipCustomSoundType.FEED,
-                        this.getStateMinor(STATE_MINOR_SHIP_CLASS),
-                        this.random
-                    ), this.soundVolume,
-                    this.shipSoundPitch
-                )
+                this.particleEffects.playShipSound(Config.ShipCustomSoundType.FEED)
                 return false
             }
 
@@ -2490,49 +2345,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     private fun spawnLegacyHealParticles() {
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-
-        val beamHeight = this.bbHeight * 0.4
-        val beamRiseSpeed = 0.1
-        val beamFad = this.bbWidth * 1.5
-
-        serverLevel.sendParticles<SimpleParticleType?>(
-            ModParticles.PARTICLE_HEAL_SPARKLE.get(),
-            this.x,
-            this.y,
-            this.z,
-            0,
-            beamFad,
-            beamRiseSpeed,
-            beamHeight,
-            1.0
-        )
+        this.particleEffects.spawnLegacyHealParticles()
     }
 
     private fun spawnGoddessParticles() {
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-
-        val beamHeight = this.bbHeight * 0.4
-        val beamRiseSpeed = 0.03
-        val beamFad = this.bbWidth * 2.0
-
-        serverLevel.sendParticles<SimpleParticleType?>(
-            ModParticles.PARTICLE_GODDESS.get(),
-            this.x,
-            this.y,
-            this.z,
-            0,
-            beamFad,
-            beamRiseSpeed,
-            beamHeight,
-            1.0
-        )
+        this.particleEffects.spawnGoddessParticles()
     }
 
     fun onInventoryChanged() {
@@ -2897,23 +2714,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         }
 
     fun spawnCombatTextParticle(type: Int) {
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-
-        val clampedType = Mth.clamp(type, COMBAT_TEXT_MISS, COMBAT_TEXT_DODGE)
-        serverLevel.sendParticles<SimpleParticleType?>(
-            ModParticles.PARTICLE_TEXTS.get(),
-            this.x,
-            this.y + this.bbHeight * 1.3,
-            this.z,
-            0,
-            clampedType.toDouble(),
-            0.08,
-            max(0.2, this.bbWidth * 0.45),
-            1.0
-        )
+        this.particleEffects.spawnCombatTextParticle(type)
     }
 
     fun setEmotionParticlePacked(packed: Int) {
@@ -3064,7 +2865,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         internal const val SEARCHLIGHT_INTERVAL_TICKS = 4
         internal const val COMPASS_CHUNK_REFRESH_INTERVAL_TICKS = 40
         internal const val COMPASS_CHUNK_RADIUS = 1
-        private const val SPECIAL_EQUIP_FLARE_GLOW_TICKS = 80
+        internal const val SPECIAL_EQUIP_FLARE_GLOW_TICKS = 80
         internal const val SPECIAL_EQUIP_SEARCHLIGHT_NIGHT_VISION_TICKS = 220
         internal const val XP_BOTTLE_COST = 8
         private const val HOSTILE_LIGHT_AMMO_CONTAINER_COUNT = 16
