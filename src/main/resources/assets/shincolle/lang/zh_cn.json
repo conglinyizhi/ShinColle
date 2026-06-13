@@ -1539,6 +1539,7 @@
   "config.shincolle.interaction": "舰娘互动",
   "config.shincolle.modernKitNotifyWhenMaxed": "满改提示",
   "config.shincolle.modernKitNotifyWhenMaxedActionBar": "满改提示在行动条",
+  "config.shincolle.showShipDeathMessage": "显示舰娘战败提示",
   "config.shincolle.canTeleport": "允许瞬移",
   "config.shincolle.debug": "调试与诊断",
   "config.shincolle.debugLogging": "启用调试日志",

@@ -93,6 +93,10 @@ internal object ConfigSpecBuilder {
             .comment("Show the maxed modernization message in the action bar instead of chat")
             .define("modernKitNotifyWhenMaxedActionBar", Config.modernKitNotifyWhenMaxedActionBar)
 
+        Config.SHOW_SHIP_DEATH_MESSAGE = Config.BUILDER
+            .comment("Show a chat message when an owned ship or summon is defeated")
+            .define("showShipDeathMessage", Config.showShipDeathMessage)
+
         Config.SHIP_FREEZE_WHEN_GUI_OPEN = Config.BUILDER
             .comment("Freeze ship movement when its GUI is open. Ship can still attack in place.")
             .define("freezeWhenGuiOpen", true)

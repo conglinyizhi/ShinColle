@@ -1524,6 +1524,7 @@
   "config.shincolle.interaction": "Ship Interaction",
   "config.shincolle.modernKitNotifyWhenMaxed": "Notify When Modernization Maxed",
   "config.shincolle.modernKitNotifyWhenMaxedActionBar": "Maxed Notify in Action Bar",
+  "config.shincolle.showShipDeathMessage": "Show Ship Defeat Message",
   "config.shincolle.canTeleport": "Allow Teleport",
   "config.shincolle.debug": "Debug & Diagnostics",
   "config.shincolle.debugLogging": "Debug Logging",

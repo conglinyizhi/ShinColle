@@ -1083,6 +1083,7 @@
     "config.shincolle.interaction": "艦娘互動",
     "config.shincolle.modernKitNotifyWhenMaxed": "近代化滿值時提示",
     "config.shincolle.modernKitNotifyWhenMaxedActionBar": "在動作欄顯示滿值提示",
+    "config.shincolle.showShipDeathMessage": "顯示艦娘戰敗提示",
     "config.shincolle.canTeleport": "允許傳送",
     "config.shincolle.freezeWhenGuiOpen": "開啟 GUI 時凍結艦娘移動",
     "config.shincolle.buffDuration": "艦娘增益持續時間（tick）",

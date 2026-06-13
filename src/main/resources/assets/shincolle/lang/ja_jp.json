@@ -1138,6 +1138,7 @@
     "config.shincolle.interaction": "艦娘操作",
     "config.shincolle.modernKitNotifyWhenMaxed": "近代化完了時に通知",
     "config.shincolle.modernKitNotifyWhenMaxedActionBar": "近代化完了通知をアクションバーに表示",
+    "config.shincolle.showShipDeathMessage": "艦娘戦闘不能メッセージを表示",
     "config.shincolle.canTeleport": "テレポートを許可",
     "config.shincolle.freezeWhenGuiOpen": "GUI 表示中は艦娘の移動を停止",
     "config.shincolle.buffDuration": "艦娘バフ持続時間 (tick)",

@@ -41,6 +41,7 @@ object Config {
     lateinit var DEBUG_PERF_MIN_LOG_INTERVAL_TICKS: IntValue
     lateinit var MODERN_KIT_NOTIFY_WHEN_MAXED: ModConfigSpec.BooleanValue
     lateinit var MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR: ModConfigSpec.BooleanValue
+    lateinit var SHOW_SHIP_DEATH_MESSAGE: ModConfigSpec.BooleanValue
     lateinit var FUEL_DECAY_INTERVAL: IntValue
     lateinit var FUEL_MOVE_DECAY_FACTOR: IntValue
     lateinit var FUEL_CONSUME_DD: IntValue
@@ -167,6 +168,8 @@ object Config {
     var modernKitNotifyWhenMaxed: Boolean = true
     @JvmField
     var modernKitNotifyWhenMaxedActionBar: Boolean = true
+    @JvmField
+    var showShipDeathMessage: Boolean = false
     @JvmField
     var fuelDecayInterval: Int = 128
     @JvmField
@@ -350,6 +353,7 @@ object Config {
             debugPerfMinLogIntervalTicks = DEBUG_PERF_MIN_LOG_INTERVAL_TICKS.get()
             modernKitNotifyWhenMaxed = MODERN_KIT_NOTIFY_WHEN_MAXED.get()
             modernKitNotifyWhenMaxedActionBar = MODERN_KIT_NOTIFY_WHEN_MAXED_ACTION_BAR.get()
+            showShipDeathMessage = SHOW_SHIP_DEATH_MESSAGE.get()
 
             fuelDecayInterval = FUEL_DECAY_INTERVAL.get()
             fuelMoveDecayFactor = FUEL_MOVE_DECAY_FACTOR.get()
