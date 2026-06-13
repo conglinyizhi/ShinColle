@@ -250,3 +250,83 @@ jobs:
           body: ${{ steps.changelog.outputs.body }}
           files: release-artifacts/*.jar
           overwrite_files: true
+
+  report-failure:
+    name: Report nightly build failure
+    needs: build-and-release
+    runs-on: ubuntu-latest
+    if: failure() && github.event_name == 'schedule'
+    permissions:
+      actions: read
+      contents: read
+      issues: write
+
+    steps:
+      - name: Ensure failure label exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create "ci-failure" --color "D93F0B" --description "Nightly CI build failures" --repo "${{ github.repository }}" || true
+
+      - name: Collect run metadata
+        id: meta
+        run: |
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          echo "run_url=$RUN_URL" >> "$GITHUB_OUTPUT"
+          echo "logs_url=${RUN_URL}/logs" >> "$GITHUB_OUTPUT"
+
+      - name: Download and summarize logs
+        id: logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ZIP="run-logs.zip"
+          if gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/logs" -H "Accept: application/vnd.github+json" > "$ZIP"; then
+            mkdir -p run-logs
+            if unzip -q "$ZIP" -d run-logs; then
+              LOG_FILE="$(find run-logs -type f -print -quit)"
+              if [ -n "$LOG_FILE" ]; then
+                echo "log_file=$LOG_FILE" >> "$GITHUB_OUTPUT"
+                tail -n 200 "$LOG_FILE" > log-tail.txt
+              fi
+            fi
+          fi
+
+      - name: Create failure issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TITLE="[Nightly] 构建失败：${{ github.ref_name }} @ ${{ github.sha }}"
+          RUN_URL="${{ steps.meta.outputs.run_url }}"
+          LOGS_URL="${{ steps.meta.outputs.logs_url }}"
+
+          {
+            echo "## 失败摘要"
+            echo ""
+            echo "- 工作流：`${{ github.workflow }}`"
+            echo "- 触发方式：`schedule`（每夜构建）"
+            echo "- 分支：`${{ github.ref_name }}`"
+            echo "- 提交：`${{ github.sha }}`"
+            echo "- 运行链接：${RUN_URL}"
+            echo "- 完整日志：${LOGS_URL}"
+            echo ""
+            echo "## 相关提交"
+            echo ""
+            echo "`${{ github.sha }}`"
+            echo ""
+            if [ -f log-tail.txt ]; then
+              echo "## 日志节选（末尾 200 行）"
+              echo ""
+              echo "<details>"
+              echo "<summary>点击展开</summary>"
+              echo ""
+              echo "```"
+              cat log-tail.txt
+              echo ""
+              echo "```"
+              echo ""
+              echo "</details>"
+            fi
+          } > issue-body.md
+
+          gh issue create --repo "${{ github.repository }}" --title "$TITLE" --body-file issue-body.md --label "ci-failure"
