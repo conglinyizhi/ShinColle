@@ -125,10 +125,7 @@
     <ID>CyclomaticComplexMethod:EntityShipBaseReactions.kt$EntityShipBaseReactions$fun applyEmotesReaction(type: Int)</ID>
     <ID>CyclomaticComplexMethod:EntityShipBaseSerialization.kt$EntityShipBaseSerialization$fun readAdditionalSaveData(compound: CompoundTag)</ID>
     <ID>CyclomaticComplexMethod:EntityShipBaseSerialization.kt$EntityShipBaseSerialization$private fun loadLegacyShipExtProps(legacyExt: CompoundTag)</ID>
-    <ID>CyclomaticComplexMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipFollowOwnerBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
-    <ID>CyclomaticComplexMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipGuardMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>CyclomaticComplexMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$fun tickPointerEntityMove(ship: EntityShipBase, pointerMemory: PointerTargetMemory)</ID>
-    <ID>CyclomaticComplexMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>CyclomaticComplexMethod:EntityShipFishingHook.kt$EntityShipFishingHook$override fun tick()</ID>
     <ID>CyclomaticComplexMethod:EntityTransportWa.kt$EntityTransportWa$private fun trySupplyAllies()</ID>
     <ID>CyclomaticComplexMethod:FormationHelper.kt$FormationHelper$fun applySummonShipsToDesk(player: Player?, deskPos: BlockPos, shipUuids: MutableList&lt;UUID&gt;)</ID>
@@ -330,7 +327,6 @@
     <ID>LongMethod:EntityShipBasePassiveCombat.kt$EntityShipBasePassiveCombat$private fun canAttackTarget(target: LivingEntity?, revengeContext: Boolean, commandContext: Boolean): Boolean</ID>
     <ID>LongMethod:EntityShipBaseSerialization.kt$EntityShipBaseSerialization$fun readAdditionalSaveData(compound: CompoundTag)</ID>
     <ID>LongMethod:EntityShipBaseSerialization.kt$EntityShipBaseSerialization$private fun loadLegacyShipExtProps(legacyExt: CompoundTag)</ID>
-    <ID>LongMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipCombatMemoryBehavior$fun tickPassiveCombatChase( ship: EntityShipBase, target: LivingEntity, state: PassiveCombatStateMemory )</ID>
     <ID>LongMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipFollowOwnerBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>LongMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipGuardMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>LongMethod:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$fun tickPointerEntityMove(ship: EntityShipBase, pointerMemory: PointerTargetMemory)</ID>
@@ -14704,10 +14700,7 @@
     <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult</ID>
     <ID>NestedBlockDepth:EntityShipBase.kt$EntityShipBase$private fun collectEquipBonuses(): FloatArray</ID>
     <ID>NestedBlockDepth:EntityShipBaseCombat.kt$EntityShipBaseCombat$private fun configureAmmoEffects(missile: EntityAbyssMissile)</ID>
-    <ID>NestedBlockDepth:EntityShipBrainAi.kt$EntityShipBrainAi.ShipCombatMemoryBehavior$fun tickPassiveCombatChase( ship: EntityShipBase, target: LivingEntity, state: PassiveCombatStateMemory )</ID>
-    <ID>NestedBlockDepth:EntityShipBrainAi.kt$EntityShipBrainAi.ShipGuardMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>NestedBlockDepth:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$fun tickPointerEntityMove(ship: EntityShipBase, pointerMemory: PointerTargetMemory)</ID>
-    <ID>NestedBlockDepth:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>NestedBlockDepth:FormationScreen.kt$FormationScreen$override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean</ID>
     <ID>NestedBlockDepth:FormationScreen.kt$FormationScreen$private fun getShipsForTeam(data: AdmiralData, tid: Int): Array&lt;EntityShipBase?&gt;</ID>
     <ID>NestedBlockDepth:FormationScreen.kt$FormationScreen$private fun handleHoveringText(g: GuiGraphics, mx: Int, my: Int, data: AdmiralData, currentTeam: Int)</ID>
@@ -14930,16 +14923,12 @@
     <ID>ReturnCount:EntityShipBasePointer.kt$EntityShipBasePointer$private fun findFormationLeader(owner: Player, teamId: Int): EntityShipBase?</ID>
     <ID>ReturnCount:EntityShipBasePointer.kt$EntityShipBasePointer$private fun readSynchedData()</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipCombatMemoryBehavior$fun tickPassiveCombatChase( ship: EntityShipBase, target: LivingEntity, state: PassiveCombatStateMemory )</ID>
-    <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipCombatMemoryBehavior$fun tryPassiveCombatTeleportRecovery( ship: EntityShipBase, target: LivingEntity, distanceSqr: Double, force: Boolean ): Boolean</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipCombatMemoryBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
-    <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipFollowOwnerBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
-    <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipGuardMoveBehavior$fun tryGuardTeleportRecovery( ship: EntityShipBase, target: Vec3, guardedEntity: Entity?, distSq: Double, force: Boolean ): Boolean</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipGuardMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipLookAtPlayerBehavior$fun shouldFollowOwnerLook(ship: EntityShipBase, followMemory: FollowStateMemory): Boolean</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipLookAtPlayerBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$fun tickPointerEntityMove(ship: EntityShipBase, pointerMemory: PointerTargetMemory)</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$fun tryPointerEntityTeleportRecovery( ship: EntityShipBase, target: Entity, distanceSqr: Double, force: Boolean ): Boolean</ID>
-    <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$fun tryPointerTeleportRecovery(ship: EntityShipBase, target: Vec3, force: Boolean): Boolean</ID>
     <ID>ReturnCount:EntityShipBrainAi.kt$EntityShipBrainAi.ShipPointerMoveBehavior$override fun tick(level: ServerLevel, ship: EntityShipBase, gameTime: Long)</ID>
     <ID>ReturnCount:EntityShipGrudge.kt$EntityShipGrudge$override fun playerTouch(player: Player)</ID>
     <ID>ReturnCount:EntitySubmHime.kt$EntitySubmHime$override fun performHeavyAttack(target: Entity?): Boolean</ID>
@@ -15199,8 +15188,10 @@
     <ID>TooManyFunctions:EntityShipBasePointer.kt$EntityShipBasePointer</ID>
     <ID>TooManyFunctions:EntityShipBaseReactions.kt$EntityShipBaseReactions</ID>
     <ID>TooManyFunctions:EntityShipBrainAi.kt$EntityShipBrainAi</ID>
-    <ID>TooManyFunctions:EntityShipBrainAi.kt$EntityShipBrainAi$ShipGuardMoveBehavior : Behavior</ID>
-    <ID>TooManyFunctions:EntityShipBrainAi.kt$EntityShipBrainAi$ShipPointerMoveBehavior : Behavior</ID>
+    <ID>TooManyFunctions:EntityShipBrainAi.kt$EntityShipBrainAi$ShipCombatMemoryBehavior : ShipMovementBehavior</ID>
+    <ID>TooManyFunctions:EntityShipBrainAi.kt$EntityShipBrainAi$ShipFollowOwnerBehavior : ShipMovementBehavior</ID>
+    <ID>TooManyFunctions:EntityShipBrainAi.kt$EntityShipBrainAi$ShipGuardMoveBehavior : ShipMovementBehavior</ID>
+    <ID>TooManyFunctions:EntityShipBrainAi.kt$EntityShipBrainAi$ShipPointerMoveBehavior : ShipMovementBehavior</ID>
     <ID>TooManyFunctions:EntityShipLegacyState.kt$EntityShipLegacyState</ID>
     <ID>TooManyFunctions:EntitySummonBase.kt$EntitySummonBase : EntityShincolleSimpleMob</ID>
     <ID>TooManyFunctions:EntitySummonBrainAi.kt$EntitySummonBrainAi</ID>
@@ -15218,15 +15209,11 @@
     <ID>TooManyFunctions:ModCommands.kt$ModCommands</ID>
     <ID>TooManyFunctions:ModEventBusEvents.kt$ModEventBusEvents</ID>
     <ID>TooManyFunctions:ModNetwork.kt$ModNetwork</ID>
-    <ID>TooManyFunctions:ModelBattleshipNagato.kt$ModelBattleshipNagato&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelBattleshipRe.kt$ModelBattleshipRe&lt;T : EntityShipBase&gt; : ShincolleShipModel</ID>
-    <ID>TooManyFunctions:ModelBattleshipTa.kt$ModelBattleshipTa&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelCruiserTenryuu.kt$ModelCruiserTenryuu&lt;T : EntityShipBase&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerHa.kt$ModelDestroyerHa&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerI.kt$ModelDestroyerI&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerNi.kt$ModelDestroyerNi&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
     <ID>TooManyFunctions:ModelDestroyerRo.kt$ModelDestroyerRo&lt;T : Entity&gt; : EntityModelIGlowableModel</ID>
-    <ID>TooManyFunctions:ModelNorthernHime.kt$ModelNorthernHime&lt;T : EntityNorthernHime&gt; : ShipModelHumanoidBaseIGlowableModel</ID>
     <ID>TooManyFunctions:PerformanceTrace.kt$PerformanceTrace</ID>
     <ID>TooManyFunctions:PlayerStateService.kt$PlayerStateService</ID>
     <ID>TooManyFunctions:PointerInteractionService.kt$PointerInteractionService</ID>
@@ -15238,6 +15225,7 @@
     <ID>TooManyFunctions:ShipInventoryScreen.kt$ShipInventoryScreen : AbstractContainerScreen</ID>
     <ID>TooManyFunctions:ShipLegacyNavigation.kt$ShipLegacyNavigation : GroundPathNavigation</ID>
     <ID>TooManyFunctions:ShipModelBaseAdv.kt$ShipModelBaseAdv&lt;T : EntityShipBase&gt; : EntityModelArmedModel</ID>
+    <ID>TooManyFunctions:ShipMovementBehavior.kt$ShipMovementBehavior&lt;Target&gt; : Behavior</ID>
     <ID>TooManyFunctions:ShipMovementCoordinator.kt$ShipMovementCoordinator</ID>
     <ID>TooManyFunctions:ShipMovementRecoveryState.kt$ShipMovementRecoveryState</ID>
     <ID>TooManyFunctions:ShipPeriodicSyncTickHandler.kt$ShipPeriodicSyncTickHandler : ShipTickHandler</ID>
