@@ -20,8 +20,8 @@ class PatchouliStructureRegressionTest {
     private val ENTRY_ROOT: Path = PATCHOULI_ROOT.resolve("entries")
     private val SHINCOLLE_ASSET_ROOT: Path =
             Path.of("src/main/resources/assets/shincolle")
-    private val RECIPE_ROOT: Path =
-            Path.of("src/main/resources/data/shincolle/recipes")
+    private val recipeRoot: Path =
+            Path.of("src/main/resources/data/shincolle/recipe")
     private val EN_US_LANG: Path =
             Path.of("src/main/resources/assets/shincolle/lang/en_us.json")
     private val STRING_FIELD_PATTERN_TEMPLATE: Pattern =
@@ -67,11 +67,11 @@ class PatchouliStructureRegressionTest {
                     .map { path -> stripJsonExtension(CATEGORY_ROOT.relativize(path).toString().replace('\\', '/')) }
                     .collect(Collectors.toCollection { TreeSet<String>() })
         }
-        val existingRecipes = Files.walk(RECIPE_ROOT).use { stream ->
+        val existingRecipes = Files.walk(recipeRoot).use { stream ->
             stream
                     .filter(Files::isRegularFile)
                     .filter { path -> path.toString().endsWith(".json") }
-                    .map { path -> stripJsonExtension(RECIPE_ROOT.relativize(path).toString().replace('\\', '/')) }
+                    .map { path -> stripJsonExtension(recipeRoot.relativize(path).toString().replace('\\', '/')) }
                     .collect(Collectors.toCollection { TreeSet<String>() })
         }
 

@@ -13,32 +13,31 @@ import java.util.regex.Pattern
 import org.junit.jupiter.api.Assertions.assertTrue
 
 class RecipeStructureRegressionTest {
-    private val RECIPE_ROOT: Path = Path.of("src/main/resources/data/shincolle/recipes")
-    private val LEGACY_RECIPE_ROOT: Path = Path.of("src/main/resources/data/shincolle/recipe")
-    private val SHINCOLLE_ASSET_ROOT: Path = Path.of("src/main/resources/assets/shincolle")
-    private val ALLOWED_RECIPE_TYPES: Set<String> = setOf(
+    private val recipeRoot: Path = Path.of("src/main/resources/data/shincolle/recipe")
+    private val shincolleAssetRoot: Path = Path.of("src/main/resources/assets/shincolle")
+    private val allowedRecipeTypes: Set<String> = setOf(
             "minecraft:crafting_shaped",
             "minecraft:crafting_shapeless"
     )
-    private val TYPE_PATTERN: Pattern =
+    private val typePattern: Pattern =
             Pattern.compile("\"type\"\\s*:\\s*\"([^\"]+)\"")
-    private val ITEM_REFERENCE_PATTERN: Pattern =
+    private val itemReferencePattern: Pattern =
             Pattern.compile("\"item\"\\s*:\\s*\"(shincolle:[^\"]+)\"")
 
     @Test
     fun recipesShouldKeepSupportedTypesAndResolvableShincolleItemReferences() {
         val issues = ArrayList<String>()
 
-        Files.walk(RECIPE_ROOT).use { stream ->
+        Files.walk(recipeRoot).use { stream ->
             for (json in stream
                     .filter(Files::isRegularFile)
                     .filter { it.toString().endsWith(".json") }
                     .toList()) {
                 val content = Files.readString(json)
-                val relative = RECIPE_ROOT.relativize(json).toString().replace('\\', '/')
+                val relative = recipeRoot.relativize(json).toString().replace('\\', '/')
 
-                val type = readFirst(TYPE_PATTERN, content)
-                if (type == null || !ALLOWED_RECIPE_TYPES.contains(type)) {
+                val type = readFirst(typePattern, content)
+                if (type == null || !allowedRecipeTypes.contains(type)) {
                     issues.add(relative + " uses unsupported recipe type " + type)
                 }
 
@@ -56,7 +55,7 @@ class RecipeStructureRegressionTest {
                     assertResolvableItemReference(resultRef, relative + " result", issues)
                 }
 
-                val matcher = ITEM_REFERENCE_PATTERN.matcher(content)
+                val matcher = itemReferencePattern.matcher(content)
                 val itemRefs = TreeSet<String>()
                 while (matcher.find()) {
                     itemRefs.add(matcher.group(1)!!)
@@ -74,12 +73,9 @@ class RecipeStructureRegressionTest {
     }
 
     @Test
-    fun recipesShouldLiveUnderStandardPluralDirectory() {
-        assertTrue(Files.isDirectory(RECIPE_ROOT)) {
-            "Recipes should live under the standard data/shincolle/recipes directory"
-        }
-        assertTrue(!Files.exists(LEGACY_RECIPE_ROOT)) {
-            "Legacy singular data/shincolle/recipe directory should stay removed"
+    fun recipesShouldLiveUnderStandardSingularDirectory() {
+        assertTrue(Files.isDirectory(recipeRoot)) {
+            "Recipes should live under the standard data/shincolle/recipe directory"
         }
     }
 
@@ -88,8 +84,8 @@ class RecipeStructureRegressionTest {
             return
         }
         val path = resourceLocation.substring("shincolle:".length)
-        val itemModel = SHINCOLLE_ASSET_ROOT.resolve("models/item").resolve(path + ".json")
-        val blockModel = SHINCOLLE_ASSET_ROOT.resolve("models/block").resolve(path + ".json")
+        val itemModel = shincolleAssetRoot.resolve("models/item").resolve(path + ".json")
+        val blockModel = shincolleAssetRoot.resolve("models/block").resolve(path + ".json")
         if (!Files.exists(itemModel) && !Files.exists(blockModel)) {
             issues.add(owner + " references missing item/block model " + resourceLocation)
         }

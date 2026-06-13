@@ -8,31 +8,35 @@ import java.nio.file.Path
 class AbyssNuggetChainRegressionTest {
     @Test
     fun abyssNuggetChainShouldKeepLegacyVariantRegistrationAndRecipeLinks() {
-        val clientSource = Files.readString(CLIENT_EVENT_SOURCE)
-        val tabsSource = Files.readString(TABS_SOURCE)
-        val nuggetRecipe = Files.readString(NUGGET_RECIPE)
-        val polyNuggetRecipe = Files.readString(POLY_NUGGET_RECIPE)
-        val metalRecipe = Files.readString(METAL_RECIPE)
-        val polymetalRecipe = Files.readString(POLYMETAL_RECIPE)
-        val marriageRingRecipe = Files.readString(MARRIAGE_RING_RECIPE)
+        val clientSrc = Files.readString(clientEventSource)
+        val tabsSrc = Files.readString(tabsSource)
+        val nuggetText = Files.readString(nuggetRecipe)
+        val polyNuggetText = Files.readString(polyNuggetRecipe)
+        val metalText = Files.readString(metalRecipe)
+        val polymetalText = Files.readString(polymetalRecipe)
+        val marriageRingText = Files.readString(marriageRingRecipe)
 
-        assertTrue(clientSource.contains("registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get());"))
-        assertTrue(tabsSource.contains("CreativeTabVariantHelper.addAbyssNuggetVariants(output)"))
-        assertTrue(nuggetRecipe.contains("\"id\": \"shincolle:abyss_nugget\""))
-        assertTrue(polyNuggetRecipe.contains("\"minecraft:custom_data\": \"{LegacyVariant:1}\""))
-        assertTrue(metalRecipe.contains("\"item\": \"shincolle:abyss_nugget\""))
-        assertTrue(polymetalRecipe.contains("\"id\": \"shincolle:abyss_polymetal\""))
-        assertTrue(marriageRingRecipe.contains("\"item\": \"shincolle:abyss_nugget\""))
+        assertTrue(clientSrc.contains("registerLegacyVariantProperty(ModItems.ABYSS_NUGGET.get());"))
+        assertTrue(tabsSrc.contains("CreativeTabVariantHelper.addAbyssNuggetVariants(output)"))
+        assertTrue(nuggetText.contains("\"id\": \"shincolle:abyss_nugget\""))
+        assertTrue(polyNuggetText.contains("\"minecraft:custom_data\": \"{LegacyVariant:1}\""))
+        assertTrue(metalText.contains("\"item\": \"shincolle:abyss_nugget\""))
+        assertTrue(polymetalText.contains("\"id\": \"shincolle:abyss_polymetal\""))
+        assertTrue(marriageRingText.contains("\"item\": \"shincolle:abyss_nugget\""))
     }
 
     companion object {
-        private val NUGGET_ITEM_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/item/AbyssNuggetItem.java")
-        private val CLIENT_EVENT_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java")
-        private val TABS_SOURCE: Path = Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
-        private val NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_nugget.json")
-        private val POLY_NUGGET_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_nugget_polymetal.json")
-        private val METAL_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_metal_from_nugget.json")
-        private val POLYMETAL_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/abyss_polymetal_from_nugget.json")
-        private val MARRIAGE_RING_RECIPE: Path = Path.of("src/main/resources/data/shincolle/recipes/marriagering.json")
+        private val clientEventSource: Path =
+            Path.of("src/main/java/org/trp/shincolle/event/ClientModEventBusEvents.java")
+        private val tabsSource: Path =
+            Path.of("src/main/java/org/trp/shincolle/init/ShinColleCreativeTabContents.kt")
+        private val nuggetRecipe: Path = Path.of("src/main/resources/data/shincolle/recipe/abyss_nugget.json")
+        private val polyNuggetRecipe: Path =
+            Path.of("src/main/resources/data/shincolle/recipe/abyss_nugget_polymetal.json")
+        private val metalRecipe: Path =
+            Path.of("src/main/resources/data/shincolle/recipe/abyss_metal_from_nugget.json")
+        private val polymetalRecipe: Path =
+            Path.of("src/main/resources/data/shincolle/recipe/abyss_polymetal_from_nugget.json")
+        private val marriageRingRecipe: Path = Path.of("src/main/resources/data/shincolle/recipe/marriagering.json")
     }
 }

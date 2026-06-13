@@ -8,20 +8,17 @@ import org.junit.jupiter.api.Assertions.assertTrue
 
 class FrameBlockRegressionTest {
 
-    private val FRAME_BLOCK_SOURCE: Path =
-            Path.of("src/main/java/org/trp/shincolle/block/FrameBlock.kt")
-    private val MOD_BLOCKS_SOURCE: Path =
-            Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt")
-    private val BLOCKFRAME_RECIPE: Path =
-            Path.of("src/main/resources/data/shincolle/recipes/blockframe.json")
+    private val frameBlockSource: Path = Path.of("src/main/java/org/trp/shincolle/block/FrameBlock.kt")
+    private val modBlocksSource: Path = Path.of("src/main/java/org/trp/shincolle/init/ModBlocks.kt")
+    private val blockframeRecipe: Path = Path.of("src/main/resources/data/shincolle/recipe/blockframe.json")
 
     @Test
     fun frameBlockShouldStayRegisteredAsClimbableUtilityBlock() {
-        val blockSource: String = Files.readString(FRAME_BLOCK_SOURCE)
-        val modBlocksSource: String = Files.readString(MOD_BLOCKS_SOURCE)
-        val recipeSource: String = Files.readString(BLOCKFRAME_RECIPE)
+        val blockSource: String = Files.readString(frameBlockSource)
+        val modBlocksSrc: String = Files.readString(modBlocksSource)
+        val recipeSource: String = Files.readString(blockframeRecipe)
 
-        assertTrue(modBlocksSource.contains("FRAME_BLOCK = BLOCKS.register(\"blockframe\"")) {
+        assertTrue(modBlocksSrc.contains("FRAME_BLOCK = BLOCKS.register(\"blockframe\"")) {
             "ModBlocks should keep registering the legacy frame block"
         }
         assertTrue(blockSource.contains("return true;")) {

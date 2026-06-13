@@ -20,8 +20,8 @@ class PatchouliBookMetadataRegressionTest {
             Path.of("src/main/resources/assets/shincolle/lang/zh_tw.json")
     private val MOD_ITEMS: Path =
             Path.of("src/main/java/org/trp/shincolle/init/ModItems.kt")
-    private val DESK_ITEM_BOOK_RECIPE: Path =
-            Path.of("src/main/resources/data/shincolle/recipes/deskitembook.json")
+    private val deskItemBookRecipe: Path =
+            Path.of("src/main/resources/data/shincolle/recipe/deskitembook.json")
     private val DESK_ITEM_BOOK_MODEL: Path =
             Path.of("src/main/resources/assets/shincolle/models/item/deskitembook.json")
     private val DESK_ITEM_BOOK_SOURCE: Path =
@@ -66,7 +66,7 @@ class PatchouliBookMetadataRegressionTest {
     @Test
     fun patchouliBookMetadataShouldStayBackedByDeskItemBookResources() {
         val modItems = Files.readString(MOD_ITEMS)
-        val recipe = Files.readString(DESK_ITEM_BOOK_RECIPE)
+        val recipe = Files.readString(deskItemBookRecipe)
         val model = Files.readString(DESK_ITEM_BOOK_MODEL)
         val source = Files.readString(DESK_ITEM_BOOK_SOURCE)
         val issues = ArrayList<String>()

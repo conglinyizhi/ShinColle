@@ -14,7 +14,7 @@
 
 ### 数据包层
 
-- `src/main/resources/data/shincolle/recipes`
+- `src/main/resources/data/shincolle/recipe`
   - 旧版配方已迁移到数据包结构。
 - `src/main/resources/data/shincolle/loot_table`
   - 方块掉落与注入掉落表。
