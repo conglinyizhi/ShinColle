@@ -120,6 +120,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     private val faceExpressions: EntityShipBaseFaceExpressions
     internal val reactions: EntityShipBaseReactions
     internal val particleEffects: ShipParticleEffects
+    internal val equipFacade: ShipEquipFacade
     private val passiveCombat: EntityShipBasePassiveCombat
     private val serialization: EntityShipBaseSerialization
     @JvmField
@@ -1141,6 +1142,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.faceExpressions = EntityShipBaseFaceExpressions(this, this.emotions)
         this.reactions = EntityShipBaseReactions(this)
         this.particleEffects = ShipParticleEffects(this)
+        this.equipFacade = ShipEquipFacade(this)
         this.passiveCombat = EntityShipBasePassiveCombat(this)
         this.serialization = EntityShipBaseSerialization(this)
         this.legacyShipStats = LegacyShipStats()
@@ -2285,26 +2287,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     private fun tryConsumableDeathProtection(source: DamageSource): Boolean {
-        val inv = this.inventory ?: return false
-        for (i in 0..<inv.slots) {
-            val stack = inv.getStackInSlot(i)
-            if (stack.isEmpty()) continue
-            val item = stack.item
-            if (item !is IShipConsumable) continue
-            val canPrevent = ApiCallSafety.runWithDefault(
-                "IShipConsumable.canPreventDeath", false
-            ) { item.canPreventDeath(stack, this, source) }
-            if (canPrevent) {
-                val prevented = ApiCallSafety.runWithDefault(
-                    "IShipConsumable.onPreventDeath", false
-                ) { item.onPreventDeath(stack, this, source) }
-                if (prevented) {
-                    this.customHurtTime = 120
-                    return true
-                }
-            }
-        }
-        return false
+        return this.equipFacade.tryConsumableDeathProtection(source)
     }
 
     open fun getDodgeModifier(): Float = 0.0f
@@ -2405,111 +2388,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     private fun collectEquipBonuses(): FloatArray {
-        val equipBonuses = FloatArray(LegacyEquipStats.ATTR_COUNT)
-        val equipSlots = Math.min(ShipInventoryHandler.equipSlotCount, this.inventory!!.slots)
-        var drumCount = 0
-        var compassCount = 0
-        var flareCount = 0
-        var searchlightCount = 0
-        var specialAmmoVariant = -1
-        var torpedoSpeedLevel = 0
-
-        for (slot in 0..<equipSlots) {
-            val stack = this.inventory.getStackInSlot(slot)
-            if (stack.isEmpty()) {
-                continue
-            }
-
-            val item = stack.item
-            val equipTypeId: Int
-            val stats: FloatArray?
-
-            when (item) {
-                is LegacyEquipItem -> {
-                    equipTypeId = item.getEquipTypeId(stack)
-                    when (equipTypeId) {
-                        EQUIP_TYPE_DRUM -> drumCount++
-                        EQUIP_TYPE_COMPASS -> compassCount++
-                        EQUIP_TYPE_FLARE -> flareCount++
-                        EQUIP_TYPE_SEARCHLIGHT -> searchlightCount++
-                    }
-
-                    if (equipTypeId == 29) {
-                        val variant = item.getVariant(stack)
-                        if (variant == 5 || variant == 6 || variant == 8) {
-                            specialAmmoVariant = max(specialAmmoVariant, variant)
-                        }
-                    } else if (equipTypeId == 5) {
-                        val variant = item.getVariant(stack)
-                        if (variant >= 3) {
-                            val speed = when (variant) {
-                                3, 4 -> 1
-                                5 -> 2
-                                6 -> 3
-                                else -> 0
-                            }
-                            torpedoSpeedLevel = max(torpedoSpeedLevel, speed)
-                        }
-                    }
-
-                    stats = getMainAttrs(item.getEquipId(stack))
-                }
-                is IShipEquip -> {
-                    equipTypeId = ApiCallSafety.runWithDefault(
-                        "IShipEquip.getEquipTypeId", -1
-                    ) { item.getEquipTypeId(stack) }
-                    if (equipTypeId >= 0) {
-                        val effect = ShipEquipRegistry.getEffect(equipTypeId)
-                        if (effect != null) {
-                            val count = ApiCallSafety.runWithDefault(
-                                "ShipEquipSpecialEffect.collectCount", 0
-                            ) { effect.collectCount(this, stack) }
-                            when (equipTypeId) {
-                                EQUIP_TYPE_DRUM -> drumCount += count
-                                EQUIP_TYPE_COMPASS -> compassCount += count
-                                EQUIP_TYPE_FLARE -> flareCount += count
-                                EQUIP_TYPE_SEARCHLIGHT -> searchlightCount += count
-                            }
-                        }
-                    }
-                    stats = ApiCallSafety.runNullable(
-                        "IShipEquip.getMainAttributes"
-                    ) { item.getMainAttributes(stack) }
-                }
-                else -> continue
-            }
-
-            if (stats != null) {
-                val len = min(equipBonuses.size, stats.size)
-                for (i in 0..<len) {
-                    equipBonuses[i] += stats[i]
-                }
-            }
-
-            val enchantStats: FloatArray? = when (item) {
-                is LegacyEquipItem -> item.getEnchantmentBonusAttributes(stack)
-                is IShipEquip -> ApiCallSafety.runNullable(
-                    "IShipEquip.getEnchantmentBonusAttributes"
-                ) { item.getEnchantmentBonusAttributes(stack) }
-                else -> null
-            }
-
-            if (enchantStats != null) {
-                val len = min(equipBonuses.size, enchantStats.size)
-                for (i in 0..<len) {
-                    equipBonuses[i] += enchantStats[i]
-                }
-            }
-        }
-
-        this.setStateMinor(STATE_MINOR_EQUIP_DRUM, drumCount)
-        this.setStateMinor(STATE_MINOR_EQUIP_COMPASS, compassCount)
-        this.setStateMinor(STATE_MINOR_EQUIP_FLARE, flareCount)
-        this.setStateMinor(STATE_MINOR_EQUIP_SEARCHLIGHT, searchlightCount)
-        this.setStateMinor(STATE_MINOR_EQUIP_SPECIAL_AMMO, specialAmmoVariant)
-        this.setStateMinor(STATE_MINOR_EQUIP_TORPEDO_SPEED, torpedoSpeedLevel)
-
-        return equipBonuses
+        return this.equipFacade.collectEquipBonuses()
     }
 
     val specialAmmoVariant: Int
@@ -2882,8 +2761,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         internal const val STATE_MINOR_EQUIP_COMPASS = 37
         internal const val STATE_MINOR_EQUIP_FLARE = 38
         internal const val STATE_MINOR_EQUIP_SEARCHLIGHT = 39
-        private const val STATE_MINOR_EQUIP_SPECIAL_AMMO = 40
-        private const val STATE_MINOR_EQUIP_TORPEDO_SPEED = 41
+        internal const val STATE_MINOR_EQUIP_SPECIAL_AMMO = 40
+        internal const val STATE_MINOR_EQUIP_TORPEDO_SPEED = 41
         const val STATE_MINOR_PUMPED_XP: Int = 42
         const val STATE_MINOR_GUARD_X: Int = 14
         const val STATE_MINOR_GUARD_Y: Int = 15
@@ -2896,9 +2775,9 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         private const val HELD_OFFHAND_SLOT = 23
 
         internal const val EQUIP_TYPE_DRUM = 24
-        private const val EQUIP_TYPE_COMPASS = 25
-        private const val EQUIP_TYPE_FLARE = 26
-        private const val EQUIP_TYPE_SEARCHLIGHT = 27
+        internal const val EQUIP_TYPE_COMPASS = 25
+        internal const val EQUIP_TYPE_FLARE = 26
+        internal const val EQUIP_TYPE_SEARCHLIGHT = 27
         internal const val EQUIP_DRUM_VARIANT_LIQUID = 1
 
         const val STATE_FLAG_MARRIED: Int = 1

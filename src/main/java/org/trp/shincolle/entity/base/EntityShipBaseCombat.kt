@@ -375,41 +375,10 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
     }
 
     private fun configureAmmoEffects(missile: EntityAbyssMissile) {
-        for (i in 0..<this.ship.inventory!!.slots) {
-            val stack = this.ship.inventory!!.getStackInSlot(i)
-            if (stack.isEmpty()) continue
-
-            when (val item = stack.item) {
-                is LegacyEquipItem -> {
-                    if (item.getEquipTypeId(stack) != 29) continue
-                    val variant: Int = item.getVariant(stack)
-                    when (variant) {
-                        0 -> missile.addImpactEffect(MobEffects.POISON, 0, 120, 50)
-                        1 -> missile.addImpactEffect(MobEffects.POISON, 1, 120, 70)
-                        3 -> missile.addImpactEffect(MobEffects.CONFUSION, 0, 120, 50)
-                        4 -> missile.addImpactEffect(MobEffects.WITHER, 0, 100, 25)
-                        6 -> missile.addImpactEffect(MobEffects.LEVITATION, 0, 100, 50)
-                        7 -> addEnchantShellEffects(missile, stack)
-                        else -> {}
-                    }
-                }
-                is IShipEquip -> {
-                    val typeId = ApiCallSafety.runWithDefault(
-                        "IShipEquip.getEquipTypeId", -1
-                    ) { item.getEquipTypeId(stack) }
-                    if (typeId < 0) continue
-                    val effect = ShipEquipRegistry.getEffect(typeId)
-                    if (effect != null) {
-                        ApiCallSafety.run("ShipEquipSpecialEffect.applyToMissile") {
-                            effect.applyToMissile(this.ship, missile, stack)
-                        }
-                    }
-                }
-            }
-        }
+        this.ship.equipFacade.configureAmmoEffects(missile)
     }
 
-    private fun addEnchantShellEffects(missile: EntityAbyssMissile, stack: ItemStack) {
+    internal fun addEnchantShellEffects(missile: EntityAbyssMissile, stack: ItemStack) {
         val customData = stack.get<CustomData?>(DataComponents.CUSTOM_DATA)
         if (customData == null) {
             return
@@ -440,48 +409,14 @@ internal class EntityShipBaseCombat(private val ship: EntityShipBase) {
      * 通知所有已注册的第三方装备：舰娘执行了轻攻击。
      */
     private fun notifyEquipOnLightAttack(target: Entity?) {
-        val inv = this.ship.inventory ?: return
-        for (i in 0..<inv.slots) {
-            val stack = inv.getStackInSlot(i)
-            if (stack.isEmpty()) continue
-            val item = stack.item
-            if (item is IShipEquip) {
-                val typeId = ApiCallSafety.runWithDefault(
-                    "IShipEquip.getEquipTypeId", -1
-                ) { item.getEquipTypeId(stack) }
-                if (typeId < 0) continue
-                val effect = ShipEquipRegistry.getEffect(typeId)
-                if (effect != null) {
-                    ApiCallSafety.runWithDefault(
-                        "ShipEquipSpecialEffect.onLightAttack", false
-                    ) { effect.onLightAttack(this.ship, stack, target) }
-                }
-            }
-        }
+        this.ship.equipFacade.notifyEquipOnLightAttack(target)
     }
 
     /**
      * 通知所有已注册的第三方装备：舰娘执行了重攻击（导弹已创建）。
      */
     private fun notifyEquipOnHeavyAttack(target: Entity?, missile: EntityAbyssMissile) {
-        val inv = this.ship.inventory ?: return
-        for (i in 0..<inv.slots) {
-            val stack = inv.getStackInSlot(i)
-            if (stack.isEmpty()) continue
-            val item = stack.item
-            if (item is IShipEquip) {
-                val typeId = ApiCallSafety.runWithDefault(
-                    "IShipEquip.getEquipTypeId", -1
-                ) { item.getEquipTypeId(stack) }
-                if (typeId < 0) continue
-                val effect = ShipEquipRegistry.getEffect(typeId)
-                if (effect != null) {
-                    ApiCallSafety.runWithDefault(
-                        "ShipEquipSpecialEffect.onHeavyAttack", false
-                    ) { effect.onHeavyAttack(this.ship, stack, target, missile) }
-                }
-            }
-        }
+        this.ship.equipFacade.notifyEquipOnHeavyAttack(target, missile)
     }
 
     fun consumeHeavyAmmo(amount: Int): Boolean {
