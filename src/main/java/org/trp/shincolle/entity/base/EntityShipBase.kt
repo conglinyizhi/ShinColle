@@ -22,6 +22,8 @@ import net.minecraft.tags.DamageTypeTags
 import net.minecraft.tags.FluidTags
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.util.Mth
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 import net.minecraft.world.*
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageTypes
@@ -1054,56 +1056,40 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         legacyStateInternal.setBoolean(legacyStateInternal.stateFlag, index, value > 0)
     }
 
-    var isStateMarried: Boolean
-        get() = getStateFlag(STATE_FLAG_MARRIED)
-        set(value) {
-            setStateFlag(STATE_FLAG_MARRIED, value)
-            if (value) {
-                this.marriageCountReleased = false
-            }
+    /**
+     * Property delegate that maps a boolean read/write property to a legacy state flag.
+     * An optional [onSet] callback runs after the flag value is written.
+     */
+    protected inline fun <R> booleanStateFlag(
+        index: Int,
+        crossinline onSet: (Boolean) -> Unit = {}
+    ): ReadWriteProperty<R, Boolean> = object : ReadWriteProperty<R, Boolean> {
+        override fun getValue(thisRef: R, property: KProperty<*>): Boolean = getStateFlag(index)
+        override fun setValue(thisRef: R, property: KProperty<*>, value: Boolean) {
+            setStateFlag(index, value)
+            onSet(value)
         }
+    }
 
-    var isStateNoEquip: Boolean
-        get() = getStateFlag(STATE_FLAG_NO_EQUIP)
-        set(value) {
-            setStateFlag(STATE_FLAG_NO_EQUIP, value)
+    var isStateMarried: Boolean by booleanStateFlag(STATE_FLAG_MARRIED) {
+        if (it) {
+            this.marriageCountReleased = false
         }
+    }
 
-    var isStateCanMelee: Boolean
-        get() = getStateFlag(STATE_FLAG_CAN_MELEE)
-        set(value) {
-            setStateFlag(STATE_FLAG_CAN_MELEE, value)
-        }
+    var isStateNoEquip: Boolean by booleanStateFlag(STATE_FLAG_NO_EQUIP)
 
-    var isStateLightAttack: Boolean
-        get() = getStateFlag(STATE_FLAG_LIGHT_ATTACK)
-        set(value) {
-            setStateFlag(STATE_FLAG_LIGHT_ATTACK, value)
-        }
+    var isStateCanMelee: Boolean by booleanStateFlag(STATE_FLAG_CAN_MELEE)
 
-    var isStateHeavyAttack: Boolean
-        get() = getStateFlag(STATE_FLAG_HEAVY_ATTACK)
-        set(value) {
-            setStateFlag(STATE_FLAG_HEAVY_ATTACK, value)
-        }
+    var isStateLightAttack: Boolean by booleanStateFlag(STATE_FLAG_LIGHT_ATTACK)
 
-    var isStateLightAircraftAttack: Boolean
-        get() = getStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK)
-        set(value) {
-            setStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK, value)
-        }
+    var isStateHeavyAttack: Boolean by booleanStateFlag(STATE_FLAG_HEAVY_ATTACK)
 
-    var isStateHeavyAircraftAttack: Boolean
-        get() = getStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK)
-        set(value) {
-            setStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK, value)
-        }
+    var isStateLightAircraftAttack: Boolean by booleanStateFlag(STATE_FLAG_LIGHT_AIRCRAFT_ATTACK)
 
-    var isStateRingEffect: Boolean
-        get() = getStateFlag(STATE_FLAG_RING_EFFECT)
-        set(value) {
-            setStateFlag(STATE_FLAG_RING_EFFECT, value)
-        }
+    var isStateHeavyAircraftAttack: Boolean by booleanStateFlag(STATE_FLAG_HEAVY_AIRCRAFT_ATTACK)
+
+    var isStateRingEffect: Boolean by booleanStateFlag(STATE_FLAG_RING_EFFECT)
 
     var isStateGuiBtn1: Boolean
         get() {
@@ -1140,23 +1126,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             setStateFlag(STATE_FLAG_GUI_BTN_4, value)
         }
 
-    var isStateAntiAir: Boolean
-        get() = getStateFlag(STATE_FLAG_ANTI_AIR)
-        set(value) {
-            setStateFlag(STATE_FLAG_ANTI_AIR, value)
-        }
+    var isStateAntiAir: Boolean by booleanStateFlag(STATE_FLAG_ANTI_AIR)
 
-    var isStateCanRide: Boolean
-        get() = getStateFlag(STATE_FLAG_CAN_RIDE)
-        set(value) {
-            setStateFlag(STATE_FLAG_CAN_RIDE, value)
-        }
+    var isStateCanRide: Boolean by booleanStateFlag(STATE_FLAG_CAN_RIDE)
 
-    var isStateAppearance: Boolean
-        get() = getStateFlag(STATE_FLAG_APPEARANCE)
-        set(value) {
-            setStateFlag(STATE_FLAG_APPEARANCE, value)
-        }
+    var isStateAppearance: Boolean by booleanStateFlag(STATE_FLAG_APPEARANCE)
 
     fun canShowHeldItem(): Boolean {
         return this.isStateAppearance && this.attackTick <= 0 && this.attackTick2 <= 0
