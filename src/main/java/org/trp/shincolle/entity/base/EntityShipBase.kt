@@ -693,66 +693,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     fun shouldFollowOwner(): Boolean {
-        if (this.isOrderedToSit() || this.isInSittingPose() || this.isInDeadPose || this.isPassenger()) {
-            return false
-        }
-        if (this.isNoFuel) {
-            return false
-        }
-        val owner = this.owner
-        if (owner == null) {
-            return false
-        }
-        if (this.hasBlockGuardTarget() || this.hasPointerTarget()) {
-            return false
-        }
-        if (this.hasPointerTargetEntity()) {
-            return false
-        }
-        if (this.target != null) {
-            return false
-        }
-        val configuredMin = this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN)
-        val minDist = if (configuredMin <= 0) 5.0f else Mth.clamp(configuredMin, 1, 31).toFloat()
-
-        var checkMinDist = minDist.toDouble()
-        if (owner is Player && playerHasCombatRation(owner)) {
-            checkMinDist = 1.5
-        }
-
-        val distanceSqr = this.distanceToSqr(owner)
-        return distanceSqr > (checkMinDist * checkMinDist)
+        return FollowEligibility.evaluate(this).shouldFollow
     }
 
     fun explainFollowBlockReason(): String {
-        if (this.isOrderedToSit()) return "orderedToSit"
-        if (this.isInSittingPose()) return "sittingPose"
-        if (this.isPassenger()) {
-            val vehicle = this.vehicle
-            if (vehicle != null && vehicle.isAlive) return "passenger"
-        }
-        if (this.isNoFuel) return "noFuel"
-        val owner = this.owner
-        if (owner == null) {
-            val ownerUuid = this.ownerUUID
-            return if (ownerUuid == null) "noOwnerUuid" else "ownerEntityMissing"
-        }
-        if (this.hasBlockGuardTarget()) return "blockGuardTarget"
-        if (this.hasPointerTarget()) return "pointerTarget"
-        if (this.hasPointerTargetEntity()) return "pointerTargetEntity"
-        if (this.target != null) return "attackTarget"
-
-        val configuredMin = this.getStateMinor(ShipContainerMenu.STATE_MINOR_FOLLOW_MIN)
-        val minDist = if (configuredMin <= 0) 5.0f else Mth.clamp(configuredMin, 1, 31).toFloat()
-
-        var checkMinDist = minDist.toDouble()
-        if (owner is Player && playerHasCombatRation(owner)) {
-            checkMinDist = 1.5
-        }
-
-        val distanceSqr = this.distanceToSqr(owner)
-        if (distanceSqr <= (checkMinDist * checkMinDist)) return "withinMinDistance"
-        return "eligible"
+        return FollowEligibility.evaluate(this).reason
     }
 
 

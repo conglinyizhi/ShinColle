@@ -71,9 +71,10 @@ object ShipBrainMemory {
     fun followState(ship: EntityShipBase): FollowStateMemory {
         val owner = ship.owner
         val ownerHasCombatRation = owner is Player && ship.playerHasCombatRation(owner)
+        val eligibility = FollowEligibility.evaluate(ship)
         return FollowStateMemory(
-            ship.shouldFollowOwner(),
-            ship.explainFollowBlockReason(),
+            eligibility.shouldFollow,
+            eligibility.reason,
             owner != null,
             if (owner != null) owner.uuid else null,
             if (owner != null) owner.position() else null,

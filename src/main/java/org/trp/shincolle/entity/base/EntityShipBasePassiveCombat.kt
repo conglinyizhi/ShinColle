@@ -210,6 +210,7 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
         this.nextCombatDiagTick = this.ship.tickCount + 40
         val owner = this.ship.owner
         val ownerDistSq = if (owner == null) -1.0 else this.ship.distanceToSqr(owner)
+        val followEligibility = FollowEligibility.evaluate(this.ship)
         diagnosticLog(
             "[SCCombatDiag] tickActions ship={} target={} distanceSqr={} preferredRangeSqr={} stopRangeSqr={} needsCloser={} cannotSee={} hasAttackMeans={} ownerPresent={} ownerDistSq={} shouldFollow={} followReason={} pointer={}",
             this.ship.uuid,
@@ -222,8 +223,8 @@ internal class EntityShipBasePassiveCombat(private val ship: EntityShipBase) {
             hasAttackMeans,
             owner != null,
             ownerDistSq,
-            this.ship.shouldFollowOwner(),
-            this.ship.explainFollowBlockReason(),
+            followEligibility.shouldFollow,
+            followEligibility.reason,
             this.ship.hasPointerTarget() || this.ship.hasPointerTargetEntity()
         )
     }
