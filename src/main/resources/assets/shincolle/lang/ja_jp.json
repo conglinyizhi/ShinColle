@@ -1066,6 +1066,7 @@
     "tooltip.shincolle.jade.ship.status.pointer_move": "指揮移動中",
     "tooltip.shincolle.jade.ship.status.pointer_attack": "指揮攻撃中",
     "tooltip.shincolle.jade.ship.status.no_fuel": "怨念不足",
+    "tooltip.shincolle.jade.ship.owner.wild": "野生",
     "item.shincolle.debug_inspector": "クリエイティブデバッガー",
     "patchouli.shincolle.entry.ui_guide.page5.title": "提督机画面参考図",
     "patchouli.shincolle.entry.ui_guide.page5.text": "この旧版提督机 GUI 参考図は現代画面の読み取りにも役立ちます。レーダー一覧の行とアクションボタンは今でもクリックできますが、その周囲の装飾枠、状態バー、要約ラベルは視覚ガイドであり操作対象ではありません。",

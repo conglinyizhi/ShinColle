@@ -1382,6 +1382,7 @@
   "tooltip.shincolle.jade.ship.status.pointer_move": "执行指针移动",
   "tooltip.shincolle.jade.ship.status.pointer_attack": "执行指针攻击",
   "tooltip.shincolle.jade.ship.status.no_fuel": "缺少怨念",
+  "tooltip.shincolle.jade.ship.owner.wild": "野生",
   "chat.shincolle:levelfail": "等级太低！",
   "tile.shincolle.BlockChair.name": "深海提督的椅子",
   "tile.shincolle.BlockCrane.name": "深海之冠",
