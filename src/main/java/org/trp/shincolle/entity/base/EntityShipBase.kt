@@ -121,6 +121,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     internal val reactions: EntityShipBaseReactions
     internal val particleEffects: ShipParticleEffects
     internal val equipFacade: ShipEquipFacade
+    internal val interaction: EntityShipBaseInteraction
     private val passiveCombat: EntityShipBasePassiveCombat
     private val serialization: EntityShipBaseSerialization
     @JvmField
@@ -1143,6 +1144,7 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.reactions = EntityShipBaseReactions(this)
         this.particleEffects = ShipParticleEffects(this)
         this.equipFacade = ShipEquipFacade(this)
+        this.interaction = EntityShipBaseInteraction(this)
         this.passiveCombat = EntityShipBasePassiveCombat(this)
         this.serialization = EntityShipBaseSerialization(this)
         this.legacyShipStats = LegacyShipStats()
@@ -1786,17 +1788,6 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.resetInteractionEmotionState()
     }
 
-    private fun consumeCombatRationInHand(stack: ItemStack, player: Player): Boolean {
-        if (stack.item !is CombatRationItem) {
-            return false
-        }
-
-        applyCombatRationEffect((stack.item as CombatRationItem).getVariant(stack))
-        if (!player.abilities.instabuild) {
-            stack.shrink(1)
-        }
-        return true
-    }
 
     fun getMoraleLevel(): Int {
         val m = this.morale
@@ -1809,77 +1800,11 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         }
     }
 
-    private fun consumeBucketRepairInHand(stack: ItemStack, player: Player): Boolean {
-        if (!stack.`is`(ModItems.BUCKET_REPAIR.get())) {
-            return false
-        }
-
-        if (this.health < this.maxHealth) {
-            if (this.supportsAircraftCombat()) {
-                this.heal(this.maxHealth * 0.05f + 10.0f)
-            } else {
-                this.heal(this.maxHealth * 0.1f + 5.0f)
-            }
-            this.recordCreativeDebuggerBucketRepair()
-
-            if (this.supportsAircraftCombat()) {
-                this.numAircraftLight += 1
-                this.numAircraftHeavy += 1
-            }
-
-            if (!player.abilities.instabuild) {
-                stack.shrink(1)
-            }
-
-            this.emotionPrimary = EMOTION_HAPPY
-            this.applyParticleEmotion(EmotionParticleType.HEART)
-            this.particleEffects.playShipSound(Config.ShipCustomSoundType.FEED)
-            this.focusOnPlayer(player)
-            return true
-        }
-        return false
-    }
 
     fun interactModernKit(player: Player, stack: ItemStack): Boolean {
-        if (!this.legacyShipStats.addBonusRandom(Random())) {
-            return false
-        }
-
-        this.syncLegacyBonusData()
-        this.recalculateLegacyShipStats()
-        this.emotionPrimary = EMOTION_HAPPY
-        this.applyParticleEmotion(EmotionParticleType.HEART)
-        this.particleEffects.playMarrySound(volume = max(0.0f, Config.volumeShip), pitch = 1.0f)
-        this.focusOnPlayer(player)
-
-        if (!player.abilities.instabuild) {
-            stack.shrink(1)
-        }
-
-        return true
+        return this.interaction.interactModernKit(player, stack)
     }
 
-    private fun consumeToyAirplaneInHand(stack: ItemStack, player: Player): Boolean {
-        if (!stack.`is`(ModItems.TOY_AIRPLANE.get())) {
-            return false
-        }
-
-        if (this.supportsAircraftCombat()) {
-            this.numAircraftLight += 2
-            this.numAircraftHeavy += 2
-        }
-
-        this.addMorale(200)
-        this.emotionPrimary = EMOTION_HAPPY
-        this.applyParticleEmotion(EmotionParticleType.HAPPY_BOB)
-        this.particleEffects.playShipSound(Config.ShipCustomSoundType.FEED)
-
-        if (!player.abilities.instabuild) {
-            stack.shrink(1)
-        }
-        this.focusOnPlayer(player)
-        return true
-    }
 
     fun findItemInInventory(item: Item?): Int {
         val slots = this.inventory!!.accessibleSlotCount
@@ -1975,241 +1900,9 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         }
 
     override fun mobInteract(player: Player, hand: InteractionHand): InteractionResult {
-        val stack = player.getItemInHand(hand)
-
-        if (!this.level().isClientSide && hand == InteractionHand.MAIN_HAND) {
-            if (!this.isTame) {
-                return InteractionResult.PASS
-            }
-
-            if (!this.isOwnedBy(player)) {
-                return InteractionResult.PASS
-            }
-            if (stack.`is`(ModItems.TRAINING_BOOK.get()) || stack.`is`(ModItems.MODERN_KIT.get())) {
-                return InteractionResult.PASS
-            }
-
-            if (stack.`is`(ModItems.MARRIAGE_RING.get()) && !this.isStateMarried) {
-                if (!player.abilities.instabuild) {
-                    stack.shrink(1)
-                }
-                this.isStateMarried = true
-                adjustOwnedMarriedShipCount(player, 1)
-                this.morale = 16000
-                this.emotionPrimary = EMOTION_HAPPY
-                this.applyParticleEmotion(EmotionParticleType.HEART)
-                if (this.level() is ServerLevel) {
-            val serverLevel = this.level() as ServerLevel
-                    for (i in 0..6) {
-                        val px = this.x + (this.random.nextFloat() * 2.0f - 1.0f)
-                        val py = this.y + 0.5 + (this.random.nextFloat() * 2.0f)
-                        val pz = this.z + (this.random.nextFloat() * 2.0f - 1.0f)
-                        val d0 = this.random.nextGaussian() * 0.02
-                        val d1 = this.random.nextGaussian() * 0.02
-                        val d2 = this.random.nextGaussian() * 0.02
-                        serverLevel.sendParticles<SimpleParticleType?>(
-                            ParticleTypes.HEART,
-                            px,
-                            py,
-                            pz,
-                            0,
-                            d0,
-                            d1,
-                            d2,
-                            1.0
-                        )
-                    }
-                }
-                this.particleEffects.playMarrySound()
-
-                val javaRand = Random()
-                for (i in 0..2) {
-                    this.legacyShipStats.addBonusRandom(javaRand)
-                }
-                this.recalculateLegacyShipStats()
-
-                this.resetInteractionEmotionState()
-                this.focusOnPlayer(player)
-                return InteractionResult.sidedSuccess(this.level().isClientSide)
-            }
-
-            if (stack.item is CombatRationItem) {
-                if (consumeCombatRationInHand(stack, player)) {
-                    this.focusOnPlayer(player)
-                    return InteractionResult.sidedSuccess(this.level().isClientSide)
-                }
-            }
-
-            if (stack.`is`(ModItems.KAITAI_HAMMER.get()) && player.isShiftKeyDown()) {
-                spawnKaitaiDrops()
-                this.applyParticleEmotion(8)
-                this.applyEmotesAOE(10.0, 6, false)
-                this.hurt(player.damageSources().fellOutOfWorld(), Float.MAX_VALUE)
-                if (!player.abilities.instabuild) {
-                    stack.hurtAndBreak(1, player, EquipmentSlot.MAINHAND)
-                }
-                this.focusOnPlayer(player)
-                return InteractionResult.sidedSuccess(this.level().isClientSide)
-            }
-
-            if (stack.`is`(ModItems.BUCKET_REPAIR.get())) {
-                if (consumeBucketRepairInHand(stack, player)) {
-                    return InteractionResult.sidedSuccess(this.level().isClientSide)
-                }
-            }
-
-            if (stack.`is`(ModItems.TOY_AIRPLANE.get())) {
-                if (consumeToyAirplaneInHand(stack, player)) {
-                    return InteractionResult.sidedSuccess(this.level().isClientSide)
-                }
-            }
-
-            if (stack.`is`(ModItems.GRUDGE.get())) {
-                val gain = 300 + this.random.nextInt(500)
-                this.fuel += gain
-                if (!player.abilities.instabuild) {
-                    stack.shrink(1)
-                }
-                this.particleEffects.playFeedSoundIfReady()
-                this.emotionPrimary = EMOTION_HAPPY
-                this.resetInteractionEmotionState()
-                this.focusOnPlayer(player)
-                return InteractionResult.sidedSuccess(this.level().isClientSide)
-            }
-
-            if (stack.has(DataComponents.FOOD)) {
-                val food = stack.getFoodProperties(player)
-                if (food != null && food.nutrition() > 0) {
-                    this.fuel += food.nutrition()
-                    if (!player.abilities.instabuild) {
-                        stack.shrink(1)
-                    }
-                    this.particleEffects.playFeedSoundIfReady()
-                    this.emotionPrimary = EMOTION_HAPPY
-                    this.resetInteractionEmotionState()
-                    this.focusOnPlayer(player)
-                    return InteractionResult.sidedSuccess(this.level().isClientSide)
-                }
-            }
-
-            if (stack.item is IShipConsumable) {
-                val consumable = stack.item as IShipConsumable
-                val canInteract = ApiCallSafety.runWithDefault(
-                    "IShipConsumable.canInteractWithShip", false
-                ) { consumable.canInteractWithShip(stack, this, player) }
-                if (canInteract) {
-                    val success = ApiCallSafety.runWithDefault(
-                        "IShipConsumable.onInteractWithShip", false
-                    ) { consumable.onInteractWithShip(stack, this, player) }
-                    if (success) {
-                        val shouldConsume = ApiCallSafety.runWithDefault(
-                            "IShipConsumable.consumeItemOnInteract", true
-                        ) { consumable.consumeItemOnInteract(stack, this, player) }
-                        if (shouldConsume && !player.abilities.instabuild) {
-                            stack.shrink(1)
-                        }
-                        this.focusOnPlayer(player)
-                        return InteractionResult.sidedSuccess(this.level().isClientSide)
-                    }
-                }
-            }
-
-            if (player.isShiftKeyDown()) {
-                this.openShipMenu(player)
-                this.resetInteractionEmotionState()
-                this.focusOnPlayer(player)
-                return InteractionResult.sidedSuccess(this.level().isClientSide)
-            }
-
-            val isSitting = !this.isOrderedToSit()
-            this.setOrderedToSit(isSitting)
-            this.setInSittingPose(isSitting)
-            if (!isSitting && this.hasBlockGuardTarget()) {
-                this.clearGuardTarget()
-            }
-            this.resetInteractionEmotionState()
-            this.focusOnPlayer(player)
-
-            return InteractionResult.sidedSuccess(this.level().isClientSide)
-        }
-        return super.mobInteract(player, hand)
+        return this.interaction.mobInteract(player, hand)
     }
 
-    private fun spawnKaitaiDrops() {
-        if (this.level() !is ServerLevel) {
-            return
-        }
-        val serverLevel = this.level() as ServerLevel
-
-        for (drop in buildKaitaiMaterialDrops()) {
-            if (!drop.isEmpty()) {
-                serverLevel.addFreshEntity(ItemEntity(serverLevel, this.x, this.y + 0.8, this.z, drop))
-            }
-        }
-
-        for (i in 0..<this.inventory!!.slots) {
-            val stack = this.inventory.getStackInSlot(i)
-            if (stack.isEmpty()) {
-                continue
-            }
-            serverLevel.addFreshEntity(
-                ItemEntity(
-                    serverLevel,
-                    this.x,
-                    this.y + 0.8,
-                    this.z,
-                    stack.copy()
-                )
-            )
-            this.inventory.setStackInSlot(i, ItemStack.EMPTY)
-        }
-    }
-
-    private fun buildKaitaiMaterialDrops(): MutableList<ItemStack> {
-        val drops: MutableList<ItemStack> = ArrayList<ItemStack>(4)
-        val shipClass = this.getStateMinor(STATE_MINOR_SHIP_CLASS)
-        val rarity = max(0, this.getStateMinor(STATE_MINOR_RARITY))
-        val firepower = max(1.0f, this.legacyShipStats.firepower)
-        val maxHealth = max(1.0f, this.legacyShipStats.maxHealth)
-
-        var primary = ModItems.GRUDGE.get()
-        var grudge = 4 + rarity
-        var abyssMetal = 0
-        var ammo = 0
-        var polymetal = 0
-
-        if (shipClass >= 20 || shipClass == 12 || shipClass == 13 || shipClass == 14 || shipClass == 15 || shipClass == 16) {
-            grudge += 4
-            abyssMetal += 6 + rarity
-            ammo += 6 + Mth.floor(firepower * 0.2f)
-        }
-
-        if (shipClass >= 26 || shipClass == 20 || shipClass == 21 || shipClass == 30 || shipClass == 31 || shipClass == 33 || shipClass == 49) {
-            primary = ModItems.ABYSS_POLYMETAL.get()
-            grudge = 0
-            abyssMetal += 10 + rarity * 2
-            ammo += 10 + Mth.floor(firepower * 0.25f)
-            polymetal += 3 + rarity
-        } else if (shipClass == 17 || shipClass == 18 || shipClass == 19 || shipClass == 38 || shipClass == 39 || shipClass == 44 || shipClass == 72) {
-            ammo += 4 + rarity
-            abyssMetal += 2 + Mth.floor(maxHealth * 0.03f)
-        } else if (shipClass == 12 || shipClass == 20 || shipClass == 33 || shipClass == 47 || shipClass == 48) {
-            ammo += 8 + rarity
-            polymetal += 1 + rarity / 2
-        } else if (shipClass == 13 || shipClass == 14 || shipClass == 15 || shipClass == 26 || shipClass == 37 || shipClass == 46 || shipClass == 60 || shipClass == 61 || shipClass == 62 || shipClass == 63) {
-            abyssMetal += 8 + rarity
-            ammo += 5 + Mth.floor(firepower * 0.15f)
-        } else {
-            abyssMetal += 2 + rarity / 2
-            ammo += 2 + rarity / 2
-        }
-
-        addNonEmptyDrop(drops, primary, grudge)
-        addNonEmptyDrop(drops, ModItems.ABYSS_METAL.get(), abyssMetal)
-        addNonEmptyDrop(drops, ModItems.AMMO_LIGHT.get(), ammo)
-        addNonEmptyDrop(drops, ModItems.ABYSS_POLYMETAL.get(), polymetal)
-        return drops
-    }
 
     override fun doHurtTarget(target: Entity): Boolean {
         if (!this.getStateFlag(ShipContainerMenu.STATE_FLAG_CAN_MELEE)) {
@@ -2470,26 +2163,8 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     }
 
     fun openShipMenu(player: Player?) {
-        if (player !is ServerPlayer || !this.isAlive) {
-            return
-        }
-        if (this.level() !== player.level()) {
-            return
-        }
-        if (!this.isOwnedBy(player)) {
-            return
-        }
-        run {
-            val provider: MenuProvider = SimpleMenuProvider(
-                MenuConstructor { id: Int, inv: Inventory?, ply: Player? -> ShipContainerMenu(id, inv!!, this) },
-                Component.translatable("gui.shincolle.ship")
-            )
-            (player).openMenu(
-                provider,
-                Consumer { buffer: RegistryFriendlyByteBuf? -> buffer!!.writeInt(this.id) })
-        }
+        this.interaction.openShipMenu(player)
     }
-
     open fun migrateLegacyStateFlags(stateFlags: Int) {
     }
 
@@ -2926,18 +2601,6 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
             return if (tracing) elapsed(startNanos) else 0L
         }
 
-        private fun addNonEmptyDrop(drops: MutableList<ItemStack>, item: Item?, amount: Int) {
-            if (item == null || amount <= 0) {
-                return
-            }
-            var remaining = amount
-            val maxStackSize = item.defaultInstance.maxStackSize
-            while (remaining > 0) {
-                val stackCount = min(remaining, maxStackSize)
-                drops.add(ItemStack(item, stackCount))
-                remaining -= stackCount
-            }
-        }
 
         internal fun getLegacyDimensionId(level: Level): Int {
             val key = level.dimension().location().toString()
