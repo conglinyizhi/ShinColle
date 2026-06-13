@@ -13,8 +13,10 @@ import net.minecraft.world.entity.TamableAnimal
 import net.minecraft.world.entity.ai.Brain
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.level.Level
+import net.minecraft.world.phys.Vec3
 import org.trp.shincolle.Shincolle.Companion.debugLog
 import org.trp.shincolle.init.ModSounds
+import org.trp.shincolle.utility.SpawnHelper
 import java.util.*
 import kotlin.math.max
 
@@ -94,7 +96,14 @@ abstract class EntitySummonBase protected constructor(type: EntityType<out Tamab
             (this.random.nextDouble() * SummonAiNumbers.INIT_SUMMON_OFFSET_RANGE - SummonAiNumbers.INIT_SUMMON_OFFSET_CENTER)
         val offsetZ =
             (this.random.nextDouble() * SummonAiNumbers.INIT_SUMMON_OFFSET_RANGE - SummonAiNumbers.INIT_SUMMON_OFFSET_CENTER)
-        this.moveTo(this.x + offsetX, this.y, this.z + offsetZ, this.yRot, this.xRot)
+        val desiredPos = Vec3(this.x + offsetX, this.y, this.z + offsetZ)
+        val safePos = SpawnHelper.findSafeSpawnPosition(this.level(), this, desiredPos)
+        val finalPos = if (SpawnHelper.isSafeSpawnPosition(this.level(), this, safePos)) {
+            safePos
+        } else {
+            carrier.position().add(0.0, SpawnHelper.SPAWN_CLEARANCE, 0.0)
+        }
+        this.moveTo(finalPos.x, finalPos.y, finalPos.z, this.yRot, this.xRot)
 
         this.setOwnerUUID(carrier.ownerUUID)
         this.setTame(true, false)
