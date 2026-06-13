@@ -13,7 +13,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
-import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
@@ -66,6 +65,7 @@ import org.trp.shincolle.entity.base.path.ShipLegacyNavigation
 import org.trp.shincolle.entity.base.path.ShipMoveControl
 import org.trp.shincolle.entity.base.tick.ShipPeriodicSyncTickHandler
 import org.trp.shincolle.entity.base.tick.ShipTickCoordinator
+import org.trp.shincolle.utility.EntityLookupHelper
 import org.trp.shincolle.utility.ShipLookupHelper
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.init.ModParticles
@@ -907,38 +907,18 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
     var guardedEntity: Entity?
         get() {
             val guardedId = this.guardedEntityIdInternal ?: return null
+            val level = this.level()
+            val expectedDimension = this.getGuardedPos(3)
 
-            if (this.level() is ServerLevel) {
-            val serverLevel = this.level() as ServerLevel
-                if (this.getGuardedPos(3) == getLegacyDimensionId(serverLevel)) {
-                    val entity: Entity? = serverLevel.getEntity(guardedId)
-                    if (entity == null || !entity.isAlive || entity.isRemoved) {
-                        return null
-                    }
-                    return entity
-                }
-
-                for (level in serverLevel.server.allLevels) {
-                    if (this.getGuardedPos(3) == getLegacyDimensionId(level)) {
-                        val entity: Entity? = level.getEntity(guardedId)
-                        if (entity == null || !entity.isAlive || entity.isRemoved) {
-                            return null
-                        }
-                        return entity
-                    }
-                }
-                return null
+            return if (level is ServerLevel) {
+                EntityLookupHelper.findEntityByUuidCrossDimension(
+                    level.server,
+                    guardedId,
+                    levelPredicate = { getLegacyDimensionId(it) == expectedDimension }
+                )
+            } else {
+                EntityLookupHelper.findEntityByUuid(level, guardedId)
             }
-
-            if (this.level() is ClientLevel) {
-                val clientLevel = this.level() as ClientLevel
-                for (entity in clientLevel.entitiesForRendering()) {
-                    if (entity.uuid == guardedId && entity.isAlive && !entity.isRemoved) {
-                        return entity
-                    }
-                }
-            }
-            return null
         }
         set(entity) {
             if (entity == null) {

@@ -1,12 +1,11 @@
 package org.trp.shincolle.entity.base
 
-import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.phys.Vec3
 import org.trp.shincolle.server.PlayerStateService.admiralData
+import org.trp.shincolle.utility.EntityLookupHelper
 import org.trp.shincolle.utility.FormationHelper
 import org.trp.shincolle.utility.FormationHelper.getFormationDirection
 import java.util.*
@@ -199,23 +198,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
             if (!hasPointerTargetEntity() || targetId == null) {
                 return null
             }
-            if (this.ship.level() is ServerLevel) {
-                val serverLevel = this.ship.level() as ServerLevel
-                val entity: Entity? = serverLevel.getEntity(targetId)
-                if (entity == null || !entity.isAlive || entity.isRemoved) {
-                    return null
-                }
-                return entity
-            }
-            if (this.ship.level().isClientSide && this.ship.level() is ClientLevel) {
-                val clientLevel = this.ship.level() as ClientLevel
-                for (e in clientLevel.entitiesForRendering()) {
-                    if (e.uuid == this.pointerTargetEntityId && e.isAlive && !e.isRemoved) {
-                        return e
-                    }
-                }
-            }
-            return null
+            return EntityLookupHelper.findEntityByUuid(this.ship.level(), targetId)
         }
 
     val pointerTargetEntityRemainingTicks: Long
@@ -238,13 +221,7 @@ internal class EntityShipBasePointer(private val ship: EntityShipBase) {
         if (teamId < 0) return null
         val data = admiralData(owner)
         val leaderUuid = data.getShipUUID(teamId, 0) ?: return null
-        val level = this.ship.level()
-        val entity = when (level) {
-            is ServerLevel -> level.getEntity(leaderUuid)
-            is ClientLevel -> level.entitiesForRendering().find { it.uuid == leaderUuid }
-            else -> null
-        }
-        return if (entity is EntityShipBase && entity.isAlive && !entity.isRemoved) entity else null
+        return EntityLookupHelper.findEntityByUuid(this.ship.level(), leaderUuid) as? EntityShipBase
     }
 
     private fun updateSynchedData() {
