@@ -24,6 +24,7 @@ class ShinColleJadePlugin : IWailaPlugin {
             ShipyardJadeProvider.INSTANCE,
             LargeShipyardBlockEntity::class.java
         )
+        registration.registerEntityDataProvider(ShipJadeProvider.INSTANCE, EntityShipBase::class.java)
     }
 
     override fun registerClient(registration: IWailaClientRegistration) {

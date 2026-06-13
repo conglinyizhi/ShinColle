@@ -1,45 +1,62 @@
 package org.trp.shincolle.integration.jade
 
+import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceLocation
+import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import org.trp.shincolle.Shincolle
 import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 import org.trp.shincolle.item.DebugInspectorItem
 import org.trp.shincolle.menu.ShipContainerMenu
+import org.trp.shincolle.server.TeamDiplomacyService
 import snownee.jade.api.EntityAccessor
 import snownee.jade.api.IEntityComponentProvider
+import snownee.jade.api.IServerDataProvider
 import snownee.jade.api.ITooltip
 import snownee.jade.api.config.IPluginConfig
 import snownee.jade.api.ui.IElement
 import snownee.jade.api.ui.IElementHelper
 
-enum class ShipJadeProvider : IEntityComponentProvider {
+enum class ShipJadeProvider : IEntityComponentProvider, IServerDataProvider<EntityAccessor> {
     INSTANCE;
 
     override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig) {
         val ship = accessor.entity as? EntityShipBase ?: return
         val creativeInfinite = ship.hasCreativeDebugger()
         val helper = IElementHelper.get()
+        val isHostile = accessor.serverData.getBoolean(KEY_IS_HOSTILE)
 
-        // Line 1: Owner | Level | Morale | Status
-        val ownerName = ship.getOwner()?.name?.string ?: "?"
-        val ownerText = Component.translatable("gui.shincolle.owner").append(": $ownerName")
+        // Line 1: Owner | Level | [Morale | Status]
+        val ownerText = if (ship.isHostileShipMob) {
+            Component.translatable("gui.shincolle.owner")
+                .append(": ")
+                .append(Component.translatable("tooltip.shincolle.jade.ship.owner.wild"))
+        } else {
+            val ownerName = ship.getOwner()?.name?.string ?: "?"
+            Component.translatable("gui.shincolle.owner").append(": $ownerName")
+        }
         val levelText = Component.literal("Lv.${ship.level}")
-        val moraleText = Component.translatable("gui.shincolle.morale${ship.getMoraleLevel()}")
-        val statusText = runningState(ship)
-        tooltip.add(
-            listOf(
-                helper.text(ownerText),
-                helper.text(Component.literal(" | ")),
-                helper.text(levelText),
-                helper.text(Component.literal(" | ")),
-                helper.text(moraleText),
-                helper.text(Component.literal(" | ")),
-                helper.text(statusText)
-            )
+
+        val firstLine = mutableListOf<IElement>(
+            helper.text(ownerText),
+            helper.text(Component.literal(" | ")),
+            helper.text(levelText)
         )
+
+        if (!isHostile) {
+            firstLine.add(helper.text(Component.literal(" | ")))
+            firstLine.add(helper.text(Component.translatable("gui.shincolle.morale${ship.getMoraleLevel()}")))
+            firstLine.add(helper.text(Component.literal(" | ")))
+            firstLine.add(helper.text(runningState(ship)))
+        }
+
+        tooltip.add(firstLine)
+
+        if (isHostile) {
+            return
+        }
 
         // Line 2: Resource icons (ammo light / ammo heavy / grudge)
         val resourceLine = mutableListOf<IElement>()
@@ -78,10 +95,26 @@ enum class ShipJadeProvider : IEntityComponentProvider {
         tooltip.add(resourceLine)
     }
 
+    override fun appendServerData(tag: CompoundTag, accessor: EntityAccessor) {
+        val ship = accessor.entity as? EntityShipBase ?: return
+        val viewer = accessor.player ?: return
+        tag.putBoolean(KEY_IS_HOSTILE, isHostileToViewer(ship, viewer))
+    }
+
     override fun getUid(): ResourceLocation = UID
 
     companion object {
         private val UID: ResourceLocation = ResourceLocation.fromNamespaceAndPath(Shincolle.MODID, "ship")
+        private const val KEY_IS_HOSTILE = "isHostileToViewer"
+
+        private fun isHostileToViewer(ship: EntityShipBase, viewer: Player): Boolean {
+            val pvpHostile = ship.getStateFlag(ShipContainerMenu.STATE_FLAG_PVP)
+                && !ship.isOwnedBy(viewer)
+                && !TeamDiplomacyService.isDiplomaticAlly(ship, viewer)
+            return ship.isHostileShipMob
+                || ship.ownerUUID != null && TeamDiplomacyService.isDiplomaticBanned(ship, viewer)
+                || pvpHostile
+        }
 
         private fun runningState(ship: EntityShipBase): Component {
             if (!ship.isAlive) {

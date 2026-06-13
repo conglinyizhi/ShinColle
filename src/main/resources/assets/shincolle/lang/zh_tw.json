@@ -1014,6 +1014,7 @@
     "tooltip.shincolle.jade.ship.status.pointer_move": "執行指針移動",
     "tooltip.shincolle.jade.ship.status.pointer_attack": "執行指針攻擊",
     "tooltip.shincolle.jade.ship.status.no_fuel": "怨念不足",
+    "tooltip.shincolle.jade.ship.owner.wild": "野生",
     "item.shincolle.debug_inspector": "創造調試器",
     "patchouli.shincolle.entry.ui_guide.page5.title": "辦公桌介面參考圖",
     "patchouli.shincolle.entry.ui_guide.page5.text": "這張舊版辦公桌 GUI 參考圖可幫助理解現代介面布局。雷達列表與動作按鈕仍可點擊，但外圍裝飾框、狀態條與摘要標籤依舊只是視覺提示，並不承載互動。",

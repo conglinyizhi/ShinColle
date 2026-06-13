@@ -1369,6 +1369,7 @@
   "tooltip.shincolle.jade.ship.status.pointer_move": "Moving to Pointer Target",
   "tooltip.shincolle.jade.ship.status.pointer_attack": "Attacking Pointer Target",
   "tooltip.shincolle.jade.ship.status.no_fuel": "Out of Fuel",
+  "tooltip.shincolle.jade.ship.owner.wild": "Wild",
   "chat.shincolle:levelfail": "Level is too low!",
   "tile.shincolle.BlockChair.name": "Abyssal Admiral's Chair",
   "tile.shincolle.BlockCrane.name": "Abyssal Crane",

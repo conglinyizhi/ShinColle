@@ -21,13 +21,13 @@ class ShipJadeProviderRegressionTest {
     fun shipJadeProviderShouldExposeRunningStateTooltip() {
         val source = Files.readString(SHIP_JADE_PROVIDER)
 
-        assertTrue(source.contains("tooltip.add(Component.translatable(\"tooltip.shincolle.jade.ship.status\", runningState(ship)));")) {
+        assertTrue(source.contains("helper.text(runningState(ship))")) {
             "Jade ship tooltip should render the ship running state"
         }
-        assertTrue(source.contains("private static Component runningState(EntityShipBase ship) {")) {
+        assertTrue(source.contains("private fun runningState(ship: EntityShipBase): Component {")) {
             "Ship Jade provider should keep a dedicated running-state resolver"
         }
-        assertTrue(source.contains("int taskId = ship.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID);")) {
+        assertTrue(source.contains("val taskId = ship.getStateMinor(ShipContainerMenu.STATE_MINOR_TASK_ID)")) {
             "Ship Jade running-state resolver should read the active ship task"
         }
         assertTrue(source.contains("if (ship.hasBlockGuardTarget()) {")) {
@@ -59,7 +59,8 @@ class ShipJadeProviderRegressionTest {
                     "tooltip.shincolle.jade.ship.status.guard",
                     "tooltip.shincolle.jade.ship.status.pointer_move",
                     "tooltip.shincolle.jade.ship.status.pointer_attack",
-                    "tooltip.shincolle.jade.ship.status.no_fuel"
+                    "tooltip.shincolle.jade.ship.status.no_fuel",
+                    "tooltip.shincolle.jade.ship.owner.wild"
             )) {
                 assertTrue(content.contains("\"" + key + "\"")) {
                     "Expected " + lang.fileName + " to define " + key
