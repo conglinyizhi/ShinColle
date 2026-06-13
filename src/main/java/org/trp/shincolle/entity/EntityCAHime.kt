@@ -21,6 +21,9 @@ import java.util.function.Predicate
 import kotlin.math.max
 
 class EntityCAHime(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.45f
+
     private var isPushing = false
     private var tickPush = 0
     private var targetPush: LivingEntity? = null

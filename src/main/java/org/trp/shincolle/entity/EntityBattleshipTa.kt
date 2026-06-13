@@ -20,6 +20,9 @@ import kotlin.math.min
 
 class EntityBattleshipTa(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipSummonAttack {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.5f
+
     private var numRensouhou = 0
 
     init {

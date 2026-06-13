@@ -24,6 +24,9 @@ import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 
 class EntityBattleshipRu(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.5f
+
     private var remainAttack = 0
     private var skillTarget: Vec3 = Vec3.ZERO
 
