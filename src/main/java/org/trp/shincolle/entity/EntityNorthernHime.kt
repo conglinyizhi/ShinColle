@@ -15,6 +15,9 @@ import org.trp.shincolle.entity.base.EntityShipBase
 import org.trp.shincolle.init.ModItems
 
 class EntityNorthernHime(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.34f
+
     init {
         this.modelPos = floatArrayOf(-6f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 7)

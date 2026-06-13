@@ -26,6 +26,9 @@ import kotlin.math.max
 
 class EntityDestroyerShimakaze(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipSummonAttack {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.4f
+
     private var numRensouhou: Int = MAX_RENSOUHOU
 
     init {

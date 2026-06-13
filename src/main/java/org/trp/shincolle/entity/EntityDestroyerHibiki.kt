@@ -16,6 +16,9 @@ import org.trp.shincolle.utility.CalcHelper
 
 class EntityDestroyerHibiki(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipRiderType {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.4f
+
     override var riderType: Int
 
     init {

@@ -110,6 +110,14 @@ import kotlin.math.*
 
 abstract class EntityShipBase protected constructor(type: EntityType<out TamableAnimal?>, level: Level) :
     TamableAnimal(type, level), IShipAttackEffect {
+
+    /** Base visual scale for this ship class, migrated from client-side model scaling. */
+    open val baseModelScale: Float = 1.0f
+
+    /** Combined visual scale used for both rendering and hitbox dimensions. */
+    val visualScale: Float
+        get() = baseModelScale * (Mth.clamp(scaleLevel, 0, 3) + 1)
+
     private var marriageCountReleased = false
 
     @JvmField
@@ -1105,11 +1113,9 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         get() = this.entityData.get<Int?>(LEGACY_SCALE_LEVEL)
         set(level) {
             this.entityData.set<Int?>(LEGACY_SCALE_LEVEL, max(0, level))
-            val scaleAttr =
-                this.getAttribute(Attributes.SCALE)
+            val scaleAttr = this.getAttribute(Attributes.SCALE)
             if (scaleAttr != null) {
-                val scaleFactor = Mth.clamp(1.0f + level * 0.5f, 1.0f, 2.5f)
-                scaleAttr.setBaseValue(scaleFactor.toDouble())
+                scaleAttr.setBaseValue(visualScale.toDouble())
             }
             this.refreshDimensions()
         }
@@ -1118,8 +1124,15 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         val modelPos = this.modelPos
         val visualSize = if (modelPos != null && modelPos.size > 3) modelPos[3] else 50.0f
         val radius: Float = Mth.clamp(visualSize * PICK_RADIUS_MODEL_SCALE, PICK_RADIUS_MIN, PICK_RADIUS_MAX)
-        val scaleFactor = Mth.clamp(1.0f + this.scaleLevel * 0.5f, 1.0f, 2.5f)
-        return Mth.clamp(radius * scaleFactor, PICK_RADIUS_MIN, PICK_RADIUS_MAX)
+        return Mth.clamp(radius * visualScale, PICK_RADIUS_MIN, PICK_RADIUS_MAX)
+    }
+
+    override fun setTame(tamed: Boolean, ownerChanged: Boolean) {
+        val wasTame = this.isTame
+        super.setTame(tamed, ownerChanged)
+        if (wasTame != tamed) {
+            this.refreshDimensions()
+        }
     }
 
     open fun supportsItemPickup(): Boolean {
@@ -1164,6 +1177,12 @@ abstract class EntityShipBase protected constructor(type: EntityType<out Tamable
         this.setPathfindingMalus(PathType.DANGER_FIRE, 0.0f)
         this.setPathfindingMalus(PathType.DAMAGE_FIRE, 0.0f)
         setStateMinor(STATE_MINOR_GRUDGE_CONSUMPTION, Config.fuelConsumeDD)
+
+        val scaleAttr = this.getAttribute(Attributes.SCALE)
+        if (scaleAttr != null) {
+            scaleAttr.setBaseValue(visualScale.toDouble())
+        }
+        this.refreshDimensions()
     }
 
     override fun getSoundVolume(): Float {

@@ -24,6 +24,9 @@ import java.util.function.Predicate
 import kotlin.math.max
 
 class EntityBattleshipNagato(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.5f
+
     private val eventMovement: ShipMovementCoordinator
     private var loveEventMoveTarget: LivingEntity? = null
     private var loveEventMoveTicks = 0

@@ -11,8 +11,6 @@ import net.minecraft.world.entity.HumanoidArm
 import org.trp.shincolle.entity.base.EntityShipBase
 import java.lang.reflect.Field
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.math.max
-import kotlin.math.min
 
 abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedModel {
     var Face0: ModelPart? = null
@@ -247,30 +245,7 @@ abstract class ShipModelBaseAdv<T : EntityShipBase> : EntityModel<T>(), ArmedMod
 
 
     fun getLegacyScale(entity: EntityShipBase?): Float {
-        val base = when (this.javaClass.simpleName) {
-            "ModelBattleshipRe", "ModelDestroyerAkatsuki", "ModelDestroyerHa", "ModelDestroyerHibiki", "ModelDestroyerHime", "ModelDestroyerI", "ModelDestroyerIkazuchi", "ModelDestroyerInazuma", "ModelDestroyerNi", "ModelDestroyerRo", "ModelDestroyerShimakaze" -> 0.4f
-            "ModelCruiserAtago", "ModelCruiserTakao", "ModelCruiserTatsuta", "ModelCruiserTenryuu" -> 0.43f
-            "ModelBattleshipHime", "ModelBattleshipTa", "ModelBattleshipNagato", "ModelBattleshipRu", "ModelBattleshipYamato" -> 0.5f
-            "ModelCarrierAkagi", "ModelCarrierKaga", "ModelCarrierHime" -> 0.46f
-            "ModelCarrierWDemon", "ModelAirfieldHime" -> 0.47f
-            "ModelCarrierWo" -> 0.44f
-            "ModelBBHaruna", "ModelBBHiei", "ModelBBKirishima", "ModelBBKongou" -> 0.45f
-            "ModelCAHime" -> 0.45f
-            "ModelNorthernHime" -> 0.34f
-            "ModelSSNH" -> 0.32f
-            "ModelSubmHime", "ModelSubmSo", "ModelSubmKa", "ModelSubmYo" -> 0.48f
-            "ModelTransportWa" -> 0.4f
-            "ModelIsolatedHime" -> 0.38f
-            "ModelHeavyCruiserNe" -> 0.4f
-            "ModelHeavyCruiserRi" -> 0.41f
-            "ModelMidwayHime" -> 0.48f
-            "ModelHarbourHime" -> 0.53f
-            else -> 0.34f
-        }
-
-        var level = if (entity != null) entity.scaleLevel else 0
-        level = max(0, min(level, 3))
-        return base * (level + 1)
+        return entity?.visualScale ?: 1.0f
     }
 
     companion object {

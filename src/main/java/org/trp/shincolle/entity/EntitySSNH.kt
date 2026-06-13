@@ -15,6 +15,9 @@ import org.trp.shincolle.init.ModItems
 import java.util.function.Predicate
 
 class EntitySSNH(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.32f
+
     init {
         this.modelPos = floatArrayOf(-6f, 8f, 0f, 50f)
         setStateMinor(STATE_MINOR_FACTION_ID, 10)

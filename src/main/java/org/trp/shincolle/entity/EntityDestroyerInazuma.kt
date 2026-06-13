@@ -22,6 +22,9 @@ import kotlin.math.max
 
 class EntityDestroyerInazuma(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level),
     IShipRiderType {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.4f
+
     override var riderType: Int
     var isRaiden: Boolean
     private var raidenGattaiExpireTick: Long

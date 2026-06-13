@@ -15,6 +15,9 @@ import org.trp.shincolle.utility.CalcHelper
 import kotlin.math.max
 
 class EntityBBKongou(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.45f
+
     init {
         this.modelPos = floatArrayOf(0f, 25f, 0f, 40f)
         setStateMinor(STATE_MINOR_FACTION_ID, 6)

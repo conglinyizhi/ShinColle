@@ -17,6 +17,9 @@ import org.trp.shincolle.init.ModItems
 import kotlin.math.max
 
 class EntitySubmRo500(type: EntityType<out TamableAnimal>, level: Level) : EntityShipBase(type, level) {
+    @Suppress("MagicNumber")
+    override val baseModelScale: Float = 0.34f
+
     init {
         this.modelPos = floatArrayOf(0f, 20f, 0f, 45f)
         setStateMinor(STATE_MINOR_FACTION_ID, 8)
