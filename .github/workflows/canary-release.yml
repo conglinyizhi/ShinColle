@@ -234,7 +234,8 @@ jobs:
           gh release view "$TAG_NAME" --repo "${{ github.repository }}" --json assets -q '.assets[].id' 2>/dev/null | while read -r asset_id; do
             if [ -n "$asset_id" ]; then
               echo "Deleting old asset $asset_id"
-              gh api "repos/${{ github.repository }}/releases/assets/$asset_id" -X DELETE
+              # Ignore 404: the asset may have already been removed or replaced.
+              gh api "repos/${{ github.repository }}/releases/assets/$asset_id" -X DELETE || echo "Warning: failed to delete asset $asset_id (may already be gone)"
             fi
           done
 
@@ -252,10 +253,10 @@ jobs:
           overwrite_files: true
 
   report-failure:
-    name: Report nightly build failure
+    name: Report CI build failure
     needs: build-and-release
     runs-on: ubuntu-latest
-    if: failure() && github.event_name == 'schedule'
+    if: failure() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
     permissions:
       actions: read
       contents: read
@@ -266,7 +267,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh label create "ci-failure" --color "D93F0B" --description "Nightly CI build failures" --repo "${{ github.repository }}" || true
+          gh label create "ci-failure" --color "D93F0B" --description "CI build failures" --repo "${{ github.repository }}" || true
 
       - name: Collect run metadata
         id: meta
@@ -325,7 +326,12 @@ jobs:
           SHA: ${{ github.sha }}
           RUN_URL: ${{ steps.meta.outputs.run_url }}
         run: |
-          TITLE="[Nightly] 构建失败：${REF_NAME} @ ${SHA}"
+          case "$EVENT_NAME" in
+            schedule) TRIGGER_LABEL="每夜构建" ;;
+            workflow_dispatch) TRIGGER_LABEL="手动触发" ;;
+            *) TRIGGER_LABEL="$EVENT_NAME" ;;
+          esac
+          TITLE="[CI] 构建失败：${REF_NAME} @ ${SHA}"
 
           # Use printf with single-quoted format strings so backticks are emitted
           # literally instead of being interpreted as shell command substitution.
@@ -333,7 +339,7 @@ jobs:
             echo "## 失败摘要"
             echo ""
             printf -- '- 工作流：`%s`\n' "$WORKFLOW_NAME"
-            printf -- '- 触发方式：`%s`（每夜构建）\n' "$EVENT_NAME"
+            printf -- '- 触发方式：`%s`（%s）\n' "$EVENT_NAME" "$TRIGGER_LABEL"
             printf -- '- 分支：`%s`\n' "$REF_NAME"
             printf -- '- 提交：`%s`\n' "$SHA"
             printf -- '- 运行链接：%s\n' "$RUN_URL"
