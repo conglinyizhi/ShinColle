@@ -231,11 +231,14 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG_NAME: ${{ steps.meta.outputs.tag }}
         run: |
-          gh release view "$TAG_NAME" --repo "${{ github.repository }}" --json assets -q '.assets[].id' 2>/dev/null | while read -r asset_id; do
-            if [ -n "$asset_id" ]; then
-              echo "Deleting old asset $asset_id"
+          # Use .assets[].apiUrl instead of .id: gh release view exposes the
+          # node id in the "id" field, but DELETE /releases/assets/{asset_id}
+          # requires the numeric asset id, which is contained in apiUrl.
+          gh release view "$TAG_NAME" --repo "${{ github.repository }}" --json assets -q '.assets[].apiUrl' 2>/dev/null | while read -r asset_api_url; do
+            if [ -n "$asset_api_url" ]; then
+              echo "Deleting old asset $asset_api_url"
               # Ignore 404: the asset may have already been removed or replaced.
-              gh api "repos/${{ github.repository }}/releases/assets/$asset_id" -X DELETE || echo "Warning: failed to delete asset $asset_id (may already be gone)"
+              gh api "$asset_api_url" -X DELETE || echo "Warning: failed to delete asset $asset_api_url (may already be gone)"
             fi
           done
 
