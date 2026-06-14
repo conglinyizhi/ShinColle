@@ -270,49 +270,77 @@ jobs:
 
       - name: Collect run metadata
         id: meta
+        env:
+          SERVER_URL: ${{ github.server_url }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          RUN_URL="${SERVER_URL}/${REPOSITORY}/actions/runs/${RUN_ID}"
           echo "run_url=$RUN_URL" >> "$GITHUB_OUTPUT"
-          echo "logs_url=${RUN_URL}/logs" >> "$GITHUB_OUTPUT"
 
       - name: Download and summarize logs
         id: logs
         env:
           GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
         run: |
           ZIP="run-logs.zip"
-          if gh api "repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/logs" -H "Accept: application/vnd.github+json" > "$ZIP"; then
-            mkdir -p run-logs
-            if unzip -q "$ZIP" -d run-logs; then
-              LOG_FILE="$(find run-logs -type f -print -quit)"
-              if [ -n "$LOG_FILE" ]; then
-                echo "log_file=$LOG_FILE" >> "$GITHUB_OUTPUT"
-                tail -n 200 "$LOG_FILE" > log-tail.txt
+          mkdir -p run-logs
+
+          # The logs API may briefly return 404 right after the upstream job ends,
+          # so retry a few times before falling back to gh run view --log.
+          for attempt in 1 2 3; do
+            if gh api "repos/${REPOSITORY}/actions/runs/${RUN_ID}/logs" > "$ZIP" 2>/dev/null; then
+              if unzip -q "$ZIP" -d run-logs 2>/dev/null; then
+                LOG_FILE="$(find run-logs -type f -name '*.txt' -print -quit)"
+                if [ -n "$LOG_FILE" ]; then
+                  echo "log_file=$LOG_FILE" >> "$GITHUB_OUTPUT"
+                  tail -n 200 "$LOG_FILE" > log-tail.txt
+                  break
+                fi
               fi
+            fi
+            if [ "$attempt" -lt 3 ]; then
+              echo "Log download via API failed, retrying in 5 seconds... (attempt ${attempt})"
+              sleep 5
+            fi
+          done
+
+          if [ ! -f log-tail.txt ]; then
+            echo "Falling back to gh run view --log"
+            if gh run view "$RUN_ID" --repo "$REPOSITORY" --log > run-logs.txt 2>/dev/null; then
+              tail -n 200 run-logs.txt > log-tail.txt
+            else
+              echo "Unable to download logs for run ${RUN_ID}" > log-tail.txt
             fi
           fi
 
       - name: Create failure issue
         env:
           GH_TOKEN: ${{ github.token }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_NAME: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+          RUN_URL: ${{ steps.meta.outputs.run_url }}
         run: |
-          TITLE="[Nightly] 构建失败：${{ github.ref_name }} @ ${{ github.sha }}"
-          RUN_URL="${{ steps.meta.outputs.run_url }}"
-          LOGS_URL="${{ steps.meta.outputs.logs_url }}"
+          TITLE="[Nightly] 构建失败：${REF_NAME} @ ${SHA}"
 
+          # Use printf with single-quoted format strings so backticks are emitted
+          # literally instead of being interpreted as shell command substitution.
           {
             echo "## 失败摘要"
             echo ""
-            echo "- 工作流：`${{ github.workflow }}`"
-            echo "- 触发方式：`schedule`（每夜构建）"
-            echo "- 分支：`${{ github.ref_name }}`"
-            echo "- 提交：`${{ github.sha }}`"
-            echo "- 运行链接：${RUN_URL}"
-            echo "- 完整日志：${LOGS_URL}"
+            printf -- '- 工作流：`%s`\n' "$WORKFLOW_NAME"
+            printf -- '- 触发方式：`%s`（每夜构建）\n' "$EVENT_NAME"
+            printf -- '- 分支：`%s`\n' "$REF_NAME"
+            printf -- '- 提交：`%s`\n' "$SHA"
+            printf -- '- 运行链接：%s\n' "$RUN_URL"
             echo ""
             echo "## 相关提交"
             echo ""
-            echo "`${{ github.sha }}`"
+            printf -- '`%s`\n' "$SHA"
             echo ""
             if [ -f log-tail.txt ]; then
               echo "## 日志节选（末尾 200 行）"
@@ -320,10 +348,10 @@ jobs:
               echo "<details>"
               echo "<summary>点击展开</summary>"
               echo ""
-              echo "```"
+              echo '```'
               cat log-tail.txt
               echo ""
-              echo "```"
+              echo '```'
               echo ""
               echo "</details>"
             fi
