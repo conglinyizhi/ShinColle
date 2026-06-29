@@ -4,6 +4,8 @@
 
 [中文说明](./README.zh-CN.md)
 
+⚠️ Due to a lack of positive feedback signals and project management issues (essentially too many new projects and insufficient time), active development on this project has been temporarily suspended. Honestly speaking, the mod is currently largely playable — after running on Linux for some time, essentially no crashes have been found. This project will not be archived; it will remain open for issue submissions and will still accept reports of runtime problems and mod conflicts.
+
 This repository is a NeoForge 1.21.1 continuation and migration of ShinColle, with most code done by Coding Agent.
 
 Current work is based on the following upstream projects:
